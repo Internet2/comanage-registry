@@ -234,6 +234,24 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print "</li>";
       }
       
+      // Email Lists Menu
+      if($permissions['menu']['colists']) {
+        print '<li class="configMenu">';
+
+        $linkContent = '<em class="material-icons" aria-hidden="true">email</em><span class="menuTitle">' . _txt('ct.co_email_lists.pl') .
+          '</span><span class="mdl-ripple"></span>';
+
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_email_lists';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+
+        print "</li>";
+      }
+
       // Services Menu
       if(!empty($menuContent['services'])) {
         // We either create a single click menu or a nested drop down menu, according to the contents

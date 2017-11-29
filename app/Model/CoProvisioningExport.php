@@ -34,6 +34,7 @@ class CoProvisioningExport extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    "CoEmailList",
     "CoGroup",
     "CoPerson",
     "CoProvisioningTarget"

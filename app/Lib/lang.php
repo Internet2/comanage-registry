@@ -1175,7 +1175,7 @@ original notification at
   'fd.el.gr.members.desc' => 'Members of this group will be provisioned as recipients of messages to the list',
   'fd.el.gr.moderators' =>  'Moderators Group',
   'fd.el.gr.moderators.desc' => 'Members of this group will be provisioned as moderators of the list, if supported by the mailing list service',
-  'fd.el.name.desc' => 'List name may only consist of alphanumeric characters, dot, dash, and underscore',
+  'fd.el.name.desc' => 'List name may only consist of alphanumeric characters, dot, dash, and underscore. Although the list name may be changed here, not all Provisioning Targets may support renaming a list.',
   // This must be named fd.model.validation-field
   'fd.email_address.description' => 'Description',
   'fd.email_address.mail' => 'Email',

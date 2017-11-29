@@ -132,8 +132,21 @@
               if($this->Form->isFieldError($gt.'_co_group_id')) {
                 print $this->Form->error($gt.'_co_group_id');
               }
+              
+              // Render a direct link to the group.
+              if(!empty($co_email_lists[0]['CoEmailList'][$gt.'_co_group_id'])) {
+                print $this->Html->link(_txt('op.view-a', array($vv_co_groups[ $co_email_lists[0]['CoEmailList'][$gt.'_co_group_id'] ])),
+                                        array(
+                                          'controller' => 'co_groups',
+                                          'action'     => 'edit',
+                                          $co_email_lists[0]['CoEmailList'][$gt.'_co_group_id']
+                                        ),
+                                        array('class' => 'viewbutton'));
+              }
             } else {
-              print $co_groups[ $co_enrollment_flows[0]['CoEnrollmentFlow'][$gt.'_co_group_id'] ];
+              if(!empty($co_email_lists[0]['CoEmailList'][$gt.'_co_group_id'])) {
+                print $vv_co_groups[ $co_email_lists[0]['CoEmailList'][$gt.'_co_group_id'] ];
+              }
             }
           }
         ?>

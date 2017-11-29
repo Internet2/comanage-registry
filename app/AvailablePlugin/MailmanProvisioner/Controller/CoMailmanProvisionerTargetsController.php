@@ -57,6 +57,32 @@ class CoMailmanProvisionerTargetsController extends SPTController {
   }
   
   /**
+   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+
+  function checkWriteDependencies($reqdata, $curdata = null) {
+    // Make sure we can connect to the specified server
+
+    try {
+      $this->CoMailmanProvisionerTarget->verifyMailmanServer($reqdata['CoMailmanProvisionerTarget']['serverurl'],
+                                                             $reqdata['CoMailmanProvisionerTarget']['adminuser'],
+                                                             $reqdata['CoMailmanProvisionerTarget']['password']);
+    }
+    catch(RuntimeException $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      return false;
+    }
+
+    return true;
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

@@ -70,6 +70,13 @@ class ProvisionerBehavior extends ModelBehavior {
     // CoPersonUpdated not CoPersonDeleted. In those cases, we can just call afterSave.
     
     if($model->name != 'CoPerson' && $model->name != 'CoGroup') {
+      if($model->name == 'CoEmailList') {
+        // We do want an explicit Delete operation for CoEmailList
+        $model->data = $model->cacheData;
+        
+        return $this->determineProvisioning($model, false, ProvisioningActionEnum::CoEmailListDeleted);
+      }
+      
       if($model->name == 'CoGroupMember') {
         // For CoGroupMember, we need to restore the model data to have access to
         // the CoPerson and CoGroup we need to rewrite. (CO-663)

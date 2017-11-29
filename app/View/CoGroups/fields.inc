@@ -156,6 +156,57 @@
 </ul>
 
 <?php if($this->action != 'add'): ?>
+<h3><?php print _txt('ct.co_email_lists.pl'); ?></h3>
+<div class="table-container">
+  <table id="emailLists">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.name'); ?></th>
+        <th><?php print _txt('fd.status'); ?></th>
+        <th><?php print _txt('fd.type'); ?></th>
+        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach(array('Admin', 'Member', 'Moderator') as $listType) {
+          if(!empty($co_groups[0]['EmailList'.$listType])) {
+            foreach($co_groups[0]['EmailList'.$listType] as $el) {
+              print "<tr>";
+              
+              // List name
+              print "<td>" . $this->Html->link($el['name'],
+                                               array('controller' => 'co_email_lists',
+                                                     'action' => 'edit',
+                                                     $el['id'])) . "</td>";
+              
+              // List's status
+              print "<td>";
+              if(!empty($el['status'])) {
+                print _txt('en.status', null, $el['status']);
+              }
+              print "</td>";
+              
+              // List's usage
+              print "<td>" . _txt('fd.el.gr.'.Inflector::tableize($listType)) . "</td>";
+              
+              print '<td class="actions">'
+                    . $this->Html->link(_txt('op.edit'),
+                                        array('controller' => 'co_email_lists',
+                                              'action' => 'edit',
+                                              $el['id']),
+                                        array('class' => 'viewbutton'))
+                    . "</td>";
+              
+              print "</tr>\n";
+            }
+          }
+        }
+      ?>
+    </tbody>
+  </table>
+</div>
+
 <h3><?php print _txt('ct.co_group_members.pl'); ?></h3>
 <div class="table-container">
   <table id="groupMembers">

@@ -47,6 +47,9 @@ class CoGroupsController extends StandardController {
   );
   
   public $edit_contains = array(
+    'EmailListAdmin',
+    'EmailListMember',
+    'EmailListModerator'
   );
   
   public $view_contains = array(

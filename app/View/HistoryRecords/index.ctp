@@ -123,8 +123,8 @@
         <th><?php print $this->Paginator->sort('CoEmailList.name', _txt('ct.co_email_lists.1')); ?></th>
         <?php else: ?>
         <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', _txt('ct.org_identities.1')); ?></th>
+      <?php endif; // coemaillistid ?>
         <th><?php print $this->Paginator->sort('CoPerson.PrimaryName.family', _txt('ct.co_people.1')); ?></th>
-        <?php endif; // coemaillistid ?>
         <th><?php print _txt('fd.action'); ?></th>
       </tr>
     </thead>
@@ -180,6 +180,7 @@
             }
           ?>
         </td>
+        <?php endif; // coemaillist ?>
         <td>
           <?php
             if(!empty($h['CoPerson']['id'])) {
@@ -194,7 +195,6 @@
             }
           ?>
         </td>
-        <?php endif; // coemaillist ?>
         <td>
           <?php
             print $this->Html->link(

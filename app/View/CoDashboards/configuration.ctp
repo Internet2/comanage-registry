@@ -93,18 +93,6 @@
         print "</li>";
       }
 
-      if (isset($permissions['menu']['colists']) && $permissions['menu']['colists']) {
-        print '<li>';
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_email_lists';
-        $args['action'] = 'index';
-        $args['co'] = $menuCoId;
-        
-        print $this->Html->link(_txt('ct.co_email_lists.pl'), $args);
-        print "</li>";
-      }
-      
       if (isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
         print '<li>';
         $args = array();

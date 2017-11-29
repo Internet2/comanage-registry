@@ -88,10 +88,12 @@ class CoEmailListsController extends StandardController {
     if(!isset($curdata) || ($curdata['CoEmailList']['name'] != $reqdata['CoEmailList']['name'])) {
       // Make sure name doesn't exist within this CO.
       
-      $x = $this->CoEmailList->find('count',
-                                    array('conditions' =>
-                                          array('CoEmailList.name' => $reqdata['CoEmailList']['name'],
-                                                'CoEmailList.co_id' => $this->cur_co['Co']['id'])));
+      $args = array();
+      $args['conditions']['CoEmailList.name'] = $reqdata['CoEmailList']['name'];
+      $args['CoEmailList.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'] = false;
+      
+      $x = $this->CoEmailList->find('count', $args);
       
       if($x > 0) {
         if($this->request->is('restful')) {
@@ -139,7 +141,8 @@ class CoEmailListsController extends StandardController {
                                                   null,
                                                   $this->Session->read('Auth.User.co_person_id'),
                                                   ActionEnum::CoEmailListDeleted,
-                                                  _txt('rs.deleted-a2', array($olddata['CoEmailList']['name'])),
+                                                  _txt('rs.deleted-a2', array(_txt('ct.co_email_lists.1'),
+                                                                              $olddata['CoEmailList']['name'])),
                                                   null,
                                                   $this->CoEmailList->id);
         break;
