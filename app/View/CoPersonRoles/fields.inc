@@ -419,7 +419,7 @@
                 ?>
               </div>
             </li>
-            <li>
+            <li class="modelbox-data">
               <div class="field-name">
                 <?php
                   if($e && !$es) {
@@ -455,7 +455,7 @@
                 ?>
               </div>
             </li>
-            <li>
+            <li class="modelbox-data">
               <div class="field-name">
                 <?php
                   if($e && !$es) {
@@ -501,7 +501,7 @@
               foreach($vv_extended_attributes as $c) {
                 $attr = strtolower($c['CoExtendedAttribute']['name']);
                 ?>
-                <li>
+                <li class="modelbox-data">
                   <div class="field-name">
                     <?php
                       if($e && !$es) {
