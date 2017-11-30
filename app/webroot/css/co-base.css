@@ -1468,6 +1468,10 @@ ul.form-list select {
 ul.form-list li.fields-submit .required {
   font-style: italic;
 }
+ul.form-list li.modelbox-data #ui-datepicker-div {
+  position: relative !important; /* a fix for datepickers appended to fields in the form-list */
+  margin: 0 0 0 9px;
+}
 ul.field-children {
   margin: 0.5em;
   padding: 0;
