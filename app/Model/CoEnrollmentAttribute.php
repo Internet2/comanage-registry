@@ -944,6 +944,15 @@ class CoEnrollmentAttribute extends AppModel {
     // Check for default values from env variables.
     
     for($i = 0;$i < count($enrollmentAttributes);$i++) {
+      // Skip anything that's hidden. This will prevent us from setting a
+      // default value for metadata attributes, and will also prevent using
+      // default values in hidden attributes (which is probably a feature, not
+      // a bug).
+      
+      if($enrollmentAttributes[$i]['hidden']) {
+        continue;
+      }
+      
       if(!empty($enrollmentAttributes[$i]['CoEnrollmentAttribute']['default_env'])) {
         if(strstr($enrollmentAttributes[$i]['attribute'], ':name:')) {
           // Handle name specially
