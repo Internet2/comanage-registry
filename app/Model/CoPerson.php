@@ -522,7 +522,7 @@ class CoPerson extends AppModel {
       throw new InvalidArgumentException($e->getMessage());
     }
     
-    return $coPersonIds[0];
+    return (!empty($coPersonIds[0]) ? $coPersonIds[0] : null);
   }
   
   /**
@@ -610,7 +610,10 @@ class CoPerson extends AppModel {
               $ret[] = $v;
             }
           } else {
-            throw new InvalidArgumentException(_txt('er.cop.unk'));
+            // We don't want to throw an error here because we don't want a single
+            // OrgIdentity without a corresponding CoPerson to prevent other CoPeople
+            // from being returned.
+//            throw new InvalidArgumentException(_txt('er.cop.unk'));
           }
         }
       }
