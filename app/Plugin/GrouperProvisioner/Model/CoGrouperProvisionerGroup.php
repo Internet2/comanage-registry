@@ -313,6 +313,10 @@ class CoGrouperProvisionerGroup extends AppModel {
   }
 
   public function updateProvisionerGroup($provisionerGroup) {
+    if (empty($provisionerGroup)) {
+      return;
+    }
+    
     if(isset($provisionerGroup['CoGrouperProvisionerGroup']['modified'])) {
       unset($provisionerGroup['CoGrouperProvisionerGroup']['modified']);
     }
