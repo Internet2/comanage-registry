@@ -1622,7 +1622,8 @@ class OrgIdentitySource extends AppModel {
           $emailMatched = false;
           
           foreach($oisRecord['EmailAddress'] as $oea) {
-            if($oea['mail'] == $ea) {
+            // Email check is case insensitive so foo@domain and FOO@DOMAIN match.
+            if(strtolower($oea['mail']) == strtolower($ea)) {
               $emailMatched = true;
               break;
             }
