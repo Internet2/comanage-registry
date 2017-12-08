@@ -710,7 +710,7 @@ class CoPetitionsController extends StandardController {
             // Log the error into the petition history
             $this->CoPetition
                  ->CoPetitionHistoryRecord
-                 ->record($coPetitionId,
+                 ->record($id,
                           $this->Session->read('Auth.User.co_person_id'),
                           PetitionActionEnum::StepFailed,
                           $e->getMessage());
