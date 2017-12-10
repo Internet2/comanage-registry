@@ -85,6 +85,7 @@ class ActionEnum
   const InvitationDeclined              = 'INVD';
   const InvitationExpired               = 'INVE';
   const InvitationSent                  = 'INVS';
+  const InvitationViewed                = 'INVV';
   const NameAdded                       = 'ANAM';
   const NameDeleted                     = 'DNAM';
   const NameEdited                      = 'ENAM';
@@ -457,6 +458,7 @@ class PetitionActionEnum
   const IdentityRelinked        = 'IR';
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
+  const InviteViewed            = 'IV';
   const NotificationSent        = 'NS';
   const OrgIdentitySourced      = 'OC';
   const StatusUpdated           = 'SU';

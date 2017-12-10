@@ -439,6 +439,14 @@ class CoInvitesController extends AppController {
         }
       }
       
+      // Record that the invitee clicked the link
+      $this->CoInvite->CoPerson->HistoryRecord->record($invitee['CoPerson']['id'],
+                                                       null,
+                                                       null,
+                                                       // For now we just assume it's the CO Person?
+                                                       $invitee['CoPerson']['id'],
+                                                       ActionEnum::InvitationViewed);
+      
       // We also want to pull the enrollment flow and petition attributes, if appropriate
       
       if(isset($invite['CoPetition']['id'])) {
@@ -454,6 +462,11 @@ class CoInvitesController extends AppController {
         $args['contain'][] = 'CoEnrollmentAttribute';
         
         $enrollmentFlow = $this->CoInvite->CoPetition->CoEnrollmentFlow->find('first', $args);
+        
+        // Record the view to the petition history as well
+        $this->CoInvite->CoPetition->CoPetitionHistoryRecord->record($invite['CoPetition']['id'],
+                                                                     $invitee['CoPerson']['id'],
+                                                                     PetitionActionEnum::InviteViewed);
         
         // Before we do anything else, check the verification mode. If it's Automatic,
         // we simply redirect into confirm or authconfirm as appropriate. Otherwise,
