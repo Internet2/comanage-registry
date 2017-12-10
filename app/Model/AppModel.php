@@ -1294,6 +1294,11 @@ class AppModel extends Model {
       }
     }
     
+    // We require at least one non-whitespace character (CO-1551)
+    if(!preg_match('/\S/', $v)) {
+      return _txt('er.input.blank');
+    }
+        
     return true;
   }
   
