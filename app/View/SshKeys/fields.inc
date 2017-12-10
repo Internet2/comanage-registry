@@ -36,7 +36,7 @@
   if(!$e && !$permissions['view'])
     return(false);
 
-  $idForBreadcrumbs = '';
+  $idForBreadcrumbs = null;
 
   // Migrate the target person from a named argument to a form field
   if(isset($this->request->params['named']['copersonid'])) {
@@ -44,6 +44,7 @@
     $idForBreadcrumbs = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
   } elseif(isset($this->request->data['SshKey']['co_person_id'])) {
     print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['SshKey']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+    $idForBreadcrumbs = $this->request->data['SshKey']['co_person_id'];
   }
 
   // Add breadcrumbs
@@ -55,13 +56,15 @@
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('me.population'), $args);
 
-  if($this->action != "edit") { /* XXX need to get a parameter back for the co person id */
+  if($idForBreadcrumbs) {
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
-      $idForBreadcrumbs);
+      $idForBreadcrumbs
+    );
     $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
   }
+  
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.ssh_keys.1')));
   $this->Html->addCrumb($crumbTxt);
 

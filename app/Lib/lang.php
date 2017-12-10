@@ -658,9 +658,11 @@ original notification at
                                     SponsorEligibilityEnum::None          => 'Disable Sponsors'),
 
   'en.sshkey.type' => array(
-    SshKeyTypeEnum::DSA  => 'DSA',
-    SshKeyTypeEnum::RSA  => 'RSA',
-    SshKeyTypeEnum::RSA1 => 'RSA1'
+    SshKeyTypeEnum::DSA      => 'DSA',
+    SshKeyTypeEnum::ECDSA    => 'ECDSA',
+    SshKeyTypeEnum::ED25519  => 'ed25519',
+    SshKeyTypeEnum::RSA      => 'RSA',
+    SshKeyTypeEnum::RSA1     => 'RSA1'
   ),
   
   'en.status' =>      array(StatusEnum::Active              => 'Active',

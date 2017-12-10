@@ -67,6 +67,8 @@ class SshKey extends AppModel {
     'type' => array(
       'content' => array(
         'rule' => array('inList', array(SshKeyTypeEnum::DSA,
+                                        SshKeyTypeEnum::ECDSA,
+                                        SshKeyTypeEnum::ED25519,
                                         SshKeyTypeEnum::RSA,
                                         SshKeyTypeEnum::RSA1)),
         'required' => true,
@@ -111,8 +113,14 @@ class SshKey extends AppModel {
     $keyType = null;
     
     switch($bits[0]) {
+      case 'ecdsa-sha2-nistp256':
+        $keyType = SshKeyTypeEnum::ECDSA;
+        break;
       case 'ssh-dss':
         $keyType = SshKeyTypeEnum::DSA;
+        break;
+      case 'ssh-ed25519':
+        $keyType = SshKeyTypeEnum::ED25519;
         break;
       case 'ssh-rsa':
         $keyType = SshKeyTypeEnum::RSA;
@@ -121,7 +129,7 @@ class SshKey extends AppModel {
         $keyType = SshKeyTypeEnum::RSA1;
         break;
       case '-----BEGIN':
-        if($bits[1] == 'RSA' && strncmp($bits[2], 'PRIVATE', 7)==0) {
+        if(strncmp($bits[2], 'PRIVATE', 7)==0) {
           // This is the private key, not the public key
           throw new InvalidArgumentException(_txt('er.ssh.private'));
         }

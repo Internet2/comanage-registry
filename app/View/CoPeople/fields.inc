@@ -1019,6 +1019,7 @@
                   print '<li class="field-data-container">';
                   print '<div class="field-data">';
                   print $this->Html->link($sk['comment'], array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']));
+                  print ' (' . _txt('en.sshkey.type', null, $sk['type']). ')';
                   print '</div>';
                   print '<div class="field-actions">';
                   // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
