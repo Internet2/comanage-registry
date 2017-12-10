@@ -898,6 +898,7 @@ original notification at
   'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
   'er.id.unk' =>      'Unknown Identifier',
   'er.id.unk-a' =>    'Unknown Identifier "%1$s"',
+  'er.input.blank' => 'Value cannot consist of only blank characters',
   'er.input.invalid' => 'Invalid character found',
   'er.input.range' => 'Value not in permitted range',
   'er.inv.exp' =>     'Invitation Expired',
