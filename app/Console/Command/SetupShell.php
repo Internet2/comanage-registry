@@ -116,6 +116,7 @@
         $user = $this->in(_txt('se.cf.admin.user'));        
       }
       
+      /* As of v3.1.0, pooling can no longer be enabled for new deployments (CO-1471)
       if(!empty($this->params['enable-pooling'])) {
         $pooling = $this->params['enable-pooling'];
       } else {
@@ -123,6 +124,7 @@
                              array(_txt('fd.yes'), _txt('fd.no')),
                              _txt('fd.no'));
       }
+      */
       
       // Since we'll be doing some direct DB manipulation, find the table prefix
       $prefix = "";
