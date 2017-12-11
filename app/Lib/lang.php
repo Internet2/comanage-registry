@@ -214,13 +214,13 @@ $cm_texts['en_US'] = array(
   'em.expiration.body'       => 'Placeholder expiration body',
   'em.invite.subject'        => 'Invitation to join %1$s',
   'em.invite.subject.ef'     => 'Invitation to join (@CO_NAME)',
-  'em.invite.subject.ver'    => 'Please confirm your email address (@CO_NAME)',
+  'em.invite.subject.ver'    => 'Please confirm your email address',
   'em.invite.body'           => 'You have been invited to join %1$s.  Please click the link below to accept or decline.',
   'em.invite.body.ef'        => 'You have been invited to join (@CO_NAME).
 Please click the link below to accept or decline.
 
 (@INVITE_URL)',
-  'em.invite.body.ver'       => 'You or an administrator for @CO_NAME has added or updated an email address.
+  'em.invite.body.ver'       => 'You or an administrator for (@CO_NAME) has added or updated an email address.
 Please click the link below to confirm that this is a valid request.
 
 (@INVITE_URL)
