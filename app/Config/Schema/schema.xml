@@ -1608,7 +1608,7 @@
     <field name="org_identity_source_id" type="I">
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
-    <field name="sorid" type="C" size="40" />
+    <field name="sorid" type="C" size="1024" />
     <field name="source_record" type="XL" />
     <field name="last_update" type="T" />
     <field name="org_identity_id" type="I">
