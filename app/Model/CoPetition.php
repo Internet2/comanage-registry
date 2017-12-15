@@ -1080,7 +1080,7 @@ class CoPetition extends AppModel {
                                                      null,
                                                      null,
                                                      $petitionerId,
-                                                     ActionEnum::CoPetitionCreated,
+                                                     ActionEnum::CoPetitionUpdated,
                                                      _txt('rs.pt.link', array($efName)));
     }
     catch(Exception $e) {
@@ -1124,11 +1124,11 @@ class CoPetition extends AppModel {
       // Also create a regular History Record to make it easier to see petitions
       // for existing records
       
-      $this->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
+      $this->EnrolleeCoPerson->HistoryRecord->record(null,
                                                      null,
-                                                     null,
+                                                     $orgIdentityId,
                                                      $petitionerId,
-                                                     ActionEnum::CoPetitionCreated,
+                                                     ActionEnum::CoPetitionUpdated,
                                                      _txt('rs.pt.link', array($efName)));
     }
     catch(Exception $e) {
