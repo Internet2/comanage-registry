@@ -420,6 +420,10 @@
       <col>co_id</col>
       <col>group_type</col>
     </index>
+    <index name="co_groups_i6">
+      <col>cou_id</col>
+      <col>group_type</col>
+    </index>
   </table>
   
   <table name="co_departments">
@@ -542,6 +546,12 @@
     </index>
     <index name="identifiers_i6">
       <col>co_department_id</col>
+    </index>
+    <index name="identifiers_i7">
+      <col>co_person_id</col>
+    </index>
+    <index name="identifiers_i8">
+      <col>org_identity_id</col>
     </index>
   </table>
 
@@ -841,6 +851,9 @@
     </index>
     <index name="co_group_members_i4">
       <col>co_group_member_id</col>
+    </index>
+    <index name="co_group_members_i5">
+      <col>source_org_identity_id</col>
     </index>
   </table>
   

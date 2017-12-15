@@ -215,7 +215,8 @@ class UsersController extends AppController {
                 $params = array(
                   'conditions' => array(
                     'CoGroup.id' => $m['CoGroupMember']['co_group_id']
-                  )
+                  ),
+                  'contain' => false
                 );
                 $result = $this->CoGroup->find('first', $params);
                 
