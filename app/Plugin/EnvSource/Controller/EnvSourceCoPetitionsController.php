@@ -91,6 +91,69 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     // as that will clobber the special authz logic we just implemented.
     StandardController::beforeFilter();
   }
+  
+  /**
+   * Enrollment Flow collectIdentifierIdentify (identify mode)
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $id CO Petition ID
+   * @param  Array $oiscfg Array of configuration data for this plugin
+   * @param  Array $onFinish URL, in Cake format
+   * @param  Integer $actorCoPersonId CO Person ID of actor
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  
+  protected function execute_plugin_collectIdentifierIdentify($id, $oiscfg, $onFinish, $actorCoPersonId) {
+    // We'll typically get here in an invitation flow. (Self signup and account
+    // linking would get handled by selectOrgIdentityAuthenticate.) So we don't
+    // need to run through a logout exercise. We simply try to create a new org
+    // identity.
+    
+    // retrieve() will parse the env variables and create an org identity out
+    // of it. However, we need to pass the SORID/$sourceKey to confirm to that
+    // backend that we really are trying to create a record.
+    
+    // First pull our configuration.
+    
+    $args = array();
+    $args['conditions']['EnvSource.org_identity_source_id'] = $oiscfg['OrgIdentitySource']['id'];
+    $args['contain'] = false;
+    
+    $cfg = $this->EnvSource->find('first', $args);
+    
+    if(empty($cfg)) {
+      throw new InvalidArgumentException(_txt('er.notfound',
+                                              array(_txt('ct.env_sources.1'),
+                                                    $oiscfg['OrgIdentitySource']['id'])));
+    }
+    
+    if(empty($cfg['EnvSource']['env_identifier_sorid'])) {
+      throw new RuntimeException(_txt('er.envsource.sorid.cfg'));
+    }
+    
+    $sorid = getenv($cfg['EnvSource']['env_identifier_sorid']);
+    
+    if(!$sorid) {
+      throw new RuntimeException(_txt('er.envsource.sorid', array($cfg['EnvSource']['env_identifier_sorid'])));
+    }
+    
+    // Pull the target CO Person from the petition so the new Org Identity can be linked
+    
+    $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    
+    $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
+                                                            $sorid,
+                                                            $actorCoPersonId,
+                                                            $this->cur_co['Co']['id'],
+                                                            $coPersonId,
+                                                            false,
+                                                            $id);
+    
+    // The step is done
+
+    $this->redirect($onFinish);
+  }
 
   /**
    * Enrollment Flow selectOrgIdentity (authenticate mode)
@@ -186,7 +249,7 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
                                                             $actorCoPersonId,
-                                                            true,
+                                                            false,
                                                             $id);
     
     // The step is done
@@ -206,8 +269,20 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     
+    $petitionId = $this->parseCoPetitionId();
+    $curToken = null;
+    
+    if($petitionId) {
+      $curToken = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $petitionId));
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
+    
+    // Invitation based collection, we need the user in the petition.
+    // Note we can't invalidate this token because for the duration of the enrollment
+    // $REMOTE_USER may or may not match a valid login identifier (though probably it should).
+    $p['collectIdentifierIdentify'] = ($curToken == $this->parseToken());
     
     // Probably an account linking being initiated, so we need a valid user
     $p['selectOrgIdentityAuthenticate'] = $roles['copersonid'] || $this->in_reauth;

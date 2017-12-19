@@ -64,6 +64,7 @@ class CoEnrollmentSource extends AppModel {
                       array(EnrollmentOrgIdentityModeEnum::OISAuthenticate,
 // Claim mode currently not supported (CO-1280)
 //                            EnrollmentOrgIdentityModeEnum::OISClaim,
+                            EnrollmentOrgIdentityModeEnum::OISIdentify,
                             EnrollmentOrgIdentityModeEnum::OISSearch,
                             EnrollmentOrgIdentityModeEnum::OISSearchRequired,
                             EnrollmentOrgIdentityModeEnum::OISSelect,

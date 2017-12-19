@@ -476,6 +476,7 @@ original notification at
   'en.enrollment.orgid' => array(
     EnrollmentOrgIdentityModeEnum::OISAuthenticate    => 'Authenticate',
     EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
+    EnrollmentOrgIdentityModeEnum::OISIdentify        => 'Identify',
     EnrollmentOrgIdentityModeEnum::OISSearch          => 'Search',
     EnrollmentOrgIdentityModeEnum::OISSearchRequired  => 'Search, Required',
     EnrollmentOrgIdentityModeEnum::OISSelect          => 'Select',
@@ -1062,7 +1063,7 @@ original notification at
   // Enrollment configuration fields
   'fd.ea.attr.copy2cop' => 'Copy this attribute to the CO Person record',
   'fd.ea.ignauth' =>  'Ignore Authoritative Values',
-  'fd.ea.ignauth.flow.desc' => 'Ignore authoritative values for attributes attached to this flow, such as those provided via environment variables, SAML, or LDAP',
+  'fd.ea.ignauth.flow.desc' => 'Ignore authoritative values for attributes attached to this flow, such as those provided via environment variables, SAML, or LDAP (CMP Enrollment Attributes only, setting does not apply to Enrollment Sources)',
   'fd.ea.ignauth.desc' => 'Ignore authoritative values for this attribute, such as those provided via environment variables, SAML, or LDAP',
   'fd.ea.default_env' => 'Environment Variable For Default Value',
   'fd.ea.default_env.desc' => 'If populated, the value of this environment variable will be used as the default value for this attribute (See also <a href="https://spaces.internet2.edu/x/mA39Bg#ConsumingExternalAttributesviaWebServerEnvironmentVariables-PopulatingDefaultValuesDuringEnrollment">this documentation</a>)',

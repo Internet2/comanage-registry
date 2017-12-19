@@ -245,6 +245,7 @@ class EnrollmentMatchPolicyEnum {
 class EnrollmentOrgIdentityModeEnum {
   const OISAuthenticate   = "OA";
   const OISClaim          = "OC";
+  const OISIdentify       = "OI";
   const OISSearch         = "OS";
   const OISSearchRequired = "SR";
   const OISSelect         = "SL";

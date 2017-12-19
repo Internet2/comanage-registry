@@ -544,6 +544,70 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Execute an OIS plugin in Identify mode
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function collectIdentifierIdentify($id) {
+    // This is similar to selectOrgIdentityAuthenticate, perhaps they should be merged...
+    
+    // At this point we're running within a plugin (which extends CoPetitionsController).
+    // Pull some configuration data and pass off to the plugin's entry point.
+    
+    $args = array();
+    $args['conditions']['OrgIdentitySource.id'] = $this->request->params['named']['oisid'];
+    $args['contain'] = false;
+    
+    $oiscfg = $this->OrgIdentitySource->find('first', $args);
+    
+    if(empty($oiscfg)) {
+      $this->Flash->set(_txt('er.notfound',
+                             array('ct.org_identity_sources.1', filter_var($this->request->params['named']['oisid'],FILTER_SANITIZE_SPECIAL_CHARS))),
+                        array('key' => 'error'));
+      $this->redirect("/");
+    }
+    
+    // Construct a redirect URL
+    $onFinish = $this->generateDoneRedirect('collectIdentifier', $id, null, $oiscfg['OrgIdentitySource']['id']);
+    $this->set('vv_on_finish_url', $onFinish);
+    
+    $fname = "execute_plugin_collectIdentifierIdentify";
+    
+    try {
+      $this->$fname($id, $oiscfg, $onFinish, $this->Session->read('Auth.User.co_person_id'));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      
+      // Log the error into the petition history
+      $this->CoPetition
+           ->CoPetitionHistoryRecord
+           ->record($id,
+                    $this->Session->read('Auth.User.co_person_id'),
+                    PetitionActionEnum::StepFailed,
+                    $e->getMessage());
+           
+      $this->performRedirect(); 
+    }
+    
+    // Make sure we don't issue a redirect
+    return;
+  }
+  
+  /**
+   * Deny a petition.
+   *
+   * @since  COmanage Registry v0.5
+   * @param  Integer Petition ID
+   */
+  
+  public function deny($id) {
+    $this->dispatch('deny', $id);
+  }
+  
+  /**
    * Dispatch a step. This function will determine what step is being executed
    * and call the appropriate execute_ function, handoff to a plugin, or redirect
    * to the next step, as appropriate.
@@ -833,14 +897,106 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
-   * Deny a petition.
+   * Dispatch enrollment source plugins.
    *
-   * @since  COmanage Registry v0.5
-   * @param  Integer Petition ID
+   * @param Integer $id          CO Petition ID
+   * @param String  $action      Enrollment Flow Step name
+   * @param Array   $authsources Array of Enrollment Sources
    */
   
-  public function deny($id) {
-    $this->dispatch('deny', $id);
+  protected function dispatch_enrollment_sources($id, $action, $authsources) {
+    if(!empty($authsources)) {
+      // Find the next plugin to run
+      $current = 0;
+      
+      if(!empty($this->request->params['named']['piddone'])) {
+        // First check $authsources
+        
+        for($c = 0;$c < count($authsources);$c++) {
+          if($authsources[0]['OrgIdentitySource']['id'] == $this->request->params['named']['piddone']) {
+            // The specified plugin ID matches, so this is the config we just completed
+            $current = $c+1;
+            break;
+          }
+        }
+      }
+      
+      // Before we continue, if we haven't yet linked an OrgIdentity into
+      // the petition see if we have one to link. We do this here because
+      // we want to deterministically pick the first source to create an
+      // Org Identity (so admins can configure appropriately).
+      // We need this so that steps like sendConfirmation will work correctly.
+      // (This is primarily for selectOrgIdentity in Authenticate mode.)
+      
+      $pOrgIdentityId = $this->CoPetition->field('enrollee_org_identity_id', array('CoPetition.id' => $id));
+      
+      if(!$pOrgIdentityId) {
+        $args = array();
+        $args['conditions']['OrgIdentitySourceRecord.co_petition_id'] = $id;
+        $args['conditions'][] = 'OrgIdentitySourceRecord.org_identity_id IS NOT NULL';
+        $args['contain'] = false;
+        
+        $newOrgId = $this->CoPetition->OrgIdentitySourceRecord->find('first', $args);
+        
+        if(!empty($newOrgId['OrgIdentitySourceRecord']['org_identity_id'])) {
+          $this->CoPetition->linkOrgIdentity($this->cachedEnrollmentFlowID,
+                                             $id,
+                                             $newOrgId['OrgIdentitySourceRecord']['org_identity_id'],
+                                             $this->Session->read('Auth.User.co_person_id'));
+          // If there is already a CO Person attached to the Petition (from selectEnrollee),
+          // create a CoOrgIdentityLink for that CO Person to this Org Identity.
+          // (This would typically be for an account linking flow.)
+          // Otherwise, we don't create an org identity link since saveAttributes will do that.
+
+          $pCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+
+          if($pCoPersonId) {
+            $coOrgLink = array();
+            $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $newOrgId['OrgIdentitySourceRecord']['org_identity_id'];
+            $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $pCoPersonId;
+
+            // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
+            // provisioning just in case that changes in the future. We'll also ignore
+            // any error in the unlikely event there is already a link in place.
+            try {
+              if($this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false)));
+            }
+            catch(Exception $e) {
+
+            }
+          }
+        }
+      }
+      
+      if($current < count($authsources)) {
+        // Redirect into the next plugin
+        
+        $plugin = $authsources[$current]['OrgIdentitySource']['plugin'];
+        
+        $redirect = array(
+          'plugin'     => Inflector::underscore($plugin),
+          'controller' => Inflector::underscore($plugin) . '_co_petitions',
+          'action'     => $action,
+          $id,
+          'oisid'      => $authsources[$current]['OrgIdentitySource']['id'] 
+        );
+        
+        // If we're in an unauthenticated flow, we need to append a token.
+        $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
+        
+        if($token) {
+          $redirect['token'] = $token;
+        } else {
+          $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
+          
+          if($token) {
+            $redirect['token'] = $token;
+          }
+        }
+
+        $this->redirect($redirect);
+      }
+    }
   }
   
   /**
@@ -952,30 +1108,44 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function execute_collectIdentifier($id) {
-    // If a login identifier was provided, attach it to the org identity if not already present
+    // If there are any attached enrollment sources in Identify mode, run those.
+    // Otherwise, use the default validateIdentifier() logic.
     
-    $loginIdentifier = $this->Session->read('Auth.User.username');
+    $authsources = $this->CoPetition
+                        ->CoEnrollmentFlow
+                        ->CoEnrollmentSource
+                        ->activeSources($this->cachedEnrollmentFlowID,
+                                        EnrollmentOrgIdentityModeEnum::OISIdentify);
     
-    if($loginIdentifier) {
-      // Validate the identifier, even if null. (If null but authn was required, we'll
-      // get an Exception, which will ultimately pass back up to a redirect.)
+    if(!empty($authsources)) {
+      // If there are plugins to run, we might redirect here. Once done, we'll fall through.
+      $this->dispatch_enrollment_sources($id, 'collectIdentifierIdentify', $authsources);
+    } else {
+      // If a login identifier was provided, attach it to the org identity if not already present
       
-      // Let most Exceptions pass through
+      $loginIdentifier = $this->Session->read('Auth.User.username');
       
-      try {
-        $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      if($loginIdentifier) {
+        // Validate the identifier, even if null. (If null but authn was required, we'll
+        // get an Exception, which will ultimately pass back up to a redirect.)
         
-        $this->CoPetition->validateIdentifier($id,
-                                              $loginIdentifier,
-                                              $coPersonId);
-      }
-      catch(OverflowException $e) {
-        // validateIdentifier flagged this as a dupe, so make sure that error message
-        // gets presented to the end user. We have to specifically send the user to /
-        // to make sure the error doesn't get replaced with "Permission Denied"
+        // Let most Exceptions pass through
         
-        $this->Flash->set($e->getMessage(), array('key' => 'error'));
-        $this->redirect("/");
+        try {
+          $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+          
+          $this->CoPetition->validateIdentifier($id,
+                                                $loginIdentifier,
+                                                $coPersonId);
+        }
+        catch(OverflowException $e) {
+          // validateIdentifier flagged this as a dupe, so make sure that error message
+          // gets presented to the end user. We have to specifically send the user to /
+          // to make sure the error doesn't get replaced with "Permission Denied"
+          
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          $this->redirect("/");
+        }
       }
     }
     
@@ -1397,92 +1567,9 @@ class CoPetitionsController extends StandardController {
                            ->activeSources($this->cachedEnrollmentFlowID,
                                            EnrollmentOrgIdentityModeEnum::OISClaim);
       
-      if(!empty($authsources)) {
-        // Find the next plugin (in authenticate mode) to run
-        $current = 0;
-        
-        if(!empty($this->request->params['named']['piddone'])) {
-          // First check $authsources
-          
-          for($c = 0;$c < count($authsources);$c++) {
-            if($authsources[0]['OrgIdentitySource']['id'] == $this->request->params['named']['piddone']) {
-              // The specified plugin ID matches, so this is the config we just completed
-              $current = $c+1;
-              break;
-            }
-          }
-        }
-        
-        // Before we continue, if we haven't yet linked an OrgIdentity into
-        // the petition see if we have one to link. We do this here because
-        // we want to deterministically pick the first source to create an
-        // Org Identity (so admins can configure appropriately).
-        // We need this so that steps like sendConfirmation will work correctly.
-        
-        $pOrgIdentityId = $this->CoPetition->field('enrollee_org_identity_id', array('CoPetition.id' => $id));
-        
-        if(!$pOrgIdentityId) {
-          $args = array();
-          $args['conditions']['OrgIdentitySourceRecord.co_petition_id'] = $id;
-          $args['conditions'][] = 'OrgIdentitySourceRecord.org_identity_id IS NOT NULL';
-          $args['contain'] = false;
-          
-          $newOrgId = $this->CoPetition->OrgIdentitySourceRecord->find('first', $args);
-          
-          if(!empty($newOrgId['OrgIdentitySourceRecord']['org_identity_id'])) {
-            $this->CoPetition->linkOrgIdentity($this->cachedEnrollmentFlowID,
-                                               $id,
-                                               $newOrgId['OrgIdentitySourceRecord']['org_identity_id'],
-                                               $this->Session->read('Auth.User.co_person_id'));
-            // If there is already a CO Person attached to the Petition (from selectEnrollee),
-            // create a CoOrgIdentityLink for that CO Person to this Org Identity.
-            // (This would typically be for an account linking flow.)
-            // Otherwise, we don't create an org identity link since saveAttributes will do that.
- 
-            $pCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
- 
-            if($pCoPersonId) {
-              $coOrgLink = array();
-              $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $newOrgId['OrgIdentitySourceRecord']['org_identity_id'];
-              $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $pCoPersonId;
- 
-              // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
-              // provisioning just in case that changes in the future. We'll also ignore
-              // any error in the unlikely event there is already a link in place.
-              try {
-                if($this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false)));
-              }
-              catch(Exception $e) {
- 
-              }
-            }
-          }
-        }
-        
-        if($current < count($authsources)) {
-          // Redirect into the next plugin
-          
-          $plugin = $authsources[$current]['OrgIdentitySource']['plugin'];
-          
-          $redirect = array(
-            'plugin'     => Inflector::underscore($plugin),
-            'controller' => Inflector::underscore($plugin) . '_co_petitions',
-            'action'     => 'selectOrgIdentityAuthenticate',
-            $id,
-            'oisid'      => $authsources[$current]['OrgIdentitySource']['id'] 
-          );
-          
-          // If we're in an unauthenticated flow, we need to append a token.
-          $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
-          
-          if($token) {
-            $redirect['token'] = $token;
-          }
-  
-          $this->redirect($redirect);
-        }
-      }
-    
+      // If there are plugins to run, we might redirect here. Once done, we'll fall through.
+      $this->dispatch_enrollment_sources($id, 'selectOrgIdentityAuthenticate', $authsources);
+      
       // Now that we're done with Sources in Authenticate mode, move on to
       // those in Claim mode
       
@@ -1919,6 +2006,8 @@ class CoPetitionsController extends StandardController {
       // The petition then gets handed off to the enrollee
       $p['processConfirmation'] = $isEnrollee;
       $p['collectIdentifier'] = $isEnrollee;
+      // OIS Plugin steps for collectIdentifier get the same permissions
+      $p['collectIdentifierIdentify'] = $p['collectIdentifier'];
       // Eligibility steps could be triggered by petitioner or enrollee, according to configuration
       if($steps['checkEligibility']['role'] == EnrollmentRole::Enrollee) {
         // Confirmation required, so eligibility steps get triggered by enrollee
