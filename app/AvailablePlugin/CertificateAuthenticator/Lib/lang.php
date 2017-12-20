@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Homedir Provisioner Plugin Language File
+ * COmanage Registry Certificate Authenticator Plugin Language File
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v3.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -31,14 +31,18 @@ global $cm_lang, $cm_texts;
 // position as passed to _txt.  This can be used to process the arguments in
 // a different order than they were passed.
 
-$cm_homedir_provisioner_texts['en_US'] = array(
+$cm_certificate_authenticator_texts['en_US'] = array(
   // Titles, per-controller
-  'ct.co_homedir_provisioner_targets.1'  => 'Homedir Provisioner Target',
-  'ct.co_homedir_provisioner_targets.pl' => 'Homedir Provisioner Targets',
+  'ct.certificate_authenticators.1'  => 'X.509 Certificate Authenticator',
+  'ct.certificate_authenticators.pl' => 'X.509 Certificate Authenticators',
+  'ct.certificates.1'                => 'X.509 Certificate',
+  'ct.certificates.pl'               => 'X.509 Certificates',
   
   // Error messages
-  'er.homedirprovisioner.attributes'     => 'Could not find all required attributes in provisioning data',
+  //'er.certificateauthenticator.current'   => 'Current password is required',
   
   // Plugin texts
-  //'pl.homedirprovisioner.noconfig'       => 'This provisioner has no configurable options'
+  'pl.certificateauthenticator.dn.issuer' => 'Issuer DN',
+  'pl.certificateauthenticator.dn.subject' => 'Subject DN',
+  'pl.certificateauthenticator.registered' => '%1$s certificate(s) registered',
 );

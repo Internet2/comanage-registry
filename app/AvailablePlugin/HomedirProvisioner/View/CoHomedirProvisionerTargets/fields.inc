@@ -42,5 +42,5 @@
 ?>
 <div class="co-info-topbox">
   <i class="material-icons">info</i>
-  <?php print _txt('pl.homedirprovisioner.noconfig'); ?>
+  <?php print _txt('in.pl.noconfig'); ?>
 </div>

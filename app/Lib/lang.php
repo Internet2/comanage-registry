@@ -1528,6 +1528,7 @@ original notification at
   'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
   'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
+  'in.pl.noconfig'     => 'This provisioner has no configurable options',
   
   // Menu
   'me.account'         => 'My Account',

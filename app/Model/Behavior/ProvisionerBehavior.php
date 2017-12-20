@@ -896,50 +896,58 @@ class ProvisionerBehavior extends ModelBehavior {
     }
     
     // Because Authenticators are handled via plugins (which might not be configured)
-    // we need to handle them specially.
-    // XXX This should be easily modifiable to handle other types of Authenticators...
-    if(CakePlugin::loaded('PasswordAuthenticator')) {
+    // we need to handle them specially. Pull the set of authenticators and then
+    // pull their model data. Note we assume FooAuthenticator, where Foo is the
+    // corresponding model.
+    
+    $authplugins = preg_grep('/.*Authenticator$/', CakePlugin::loaded());
+    
+    foreach($authplugins as $authplugin) {
+      // $authplugin = (eg) PasswordAuthenticator
+      // $authmodel = (eg) Password
+      $authmodel = substr($authplugin, 0, -13);
+      
       // We should be able to just modify the 'contain' above, but for some reason
       // this isn't working (possibly cake resetting associations somewhere or maybe
       // due to Passward not being changelog enabled).
-      $coPersonModel->bindModel(array('hasMany' => array('PasswordAuthenticator.Password' => array('dependent' => true))));
+      $coPersonModel->bindModel(array('hasMany' => array($authplugin.'.'.$authmodel => array('dependent' => true))));
       
       $args = array();
-      $args['conditions']['Password.co_person_id'] = $coPersonId;
+      $args['conditions'][$authmodel.'.co_person_id'] = $coPersonId;
       // We also need the configuration ("Authenticator") status as well as
       // the status of this specific authenticator ("AuthenticatorStatus").
       // For some reason when called from SAMController::manage() (but not from other functions)
-      // this contain picks up PasswordAuthenticator, but not Authenticator or AuthenticatorStatus.
+      // this contain picks up (eg) PasswordAuthenticator, but not Authenticator or AuthenticatorStatus.
       // So we have to make multiple calls.
 //      $args['contain']['PasswordAuthenticator']['Authenticator'] = 'AuthenticatorStatus';
-      $args['contain'][] = 'PasswordAuthenticator';
+      $args['contain'][] = $authplugin;
       
-      $passwords = $coPersonModel->Password->find('all', $args);
+      $authenticators = $coPersonModel->$authmodel->find('all', $args);
       
       // We only want Authenticators that are Active. (The Plugins decide what to do
       // with AuthenticatorStatus.)
       
-      $coPersonData['Password'] = array();
+      $coPersonData[$authmodel] = array();
       
-      foreach($passwords as $p) {
+      foreach($authenticators as $p) {
         // Now we need to pull the Authenticator and Status
-        if(!empty($p['PasswordAuthenticator']['authenticator_id'])) {
+        if(!empty($p[$authplugin]['authenticator_id'])) {
           $args = array();
-          $args['conditions']['Authenticator.id'] = $p['PasswordAuthenticator']['authenticator_id'];
+          $args['conditions']['Authenticator.id'] = $p[$authplugin]['authenticator_id'];
           $args['contain'][] = 'AuthenticatorStatus';
           
-          $aStatus = $coPersonModel->Password->PasswordAuthenticator->Authenticator->find('first', $args);
+          $aStatus = $coPersonModel->$authmodel->$authplugin->Authenticator->find('first', $args);
           
           if(isset($aStatus['Authenticator']['status'])
              && $aStatus['Authenticator']['status'] == SuspendableStatusEnum::Active) {
             // Reformat the data to match the main find
-            $pd = $p['Password'];
+            $pd = $p[$authmodel];
             
             if(!empty($aStatus['AuthenticatorStatus'][0])) {
               $pd['AuthenticatorStatus'] = $aStatus['AuthenticatorStatus'][0];
             }
           
-            $coPersonData['Password'][] = $pd;
+            $coPersonData[$authmodel][] = $pd;
           }
         }
       }

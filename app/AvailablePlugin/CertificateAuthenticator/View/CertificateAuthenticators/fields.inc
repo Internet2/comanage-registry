@@ -1,6 +1,6 @@
-<?php
+<!--
 /**
- * COmanage Registry Homedir Provisioner Plugin Language File
+ * COmanage Registry Certificate Authenticator Plugin Fields
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,24 +21,26 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v0.9
+ * @since         COmanage Registry v3.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+-->
+<?php
+  // Determine if fields are editable
+  $e = false;
   
-global $cm_lang, $cm_texts;
+  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
+    $e = true;
+    
+  // We shouldn't get here if we don't have at least read permission, but check just in case
+  
+  if(!$e && !$permissions['view'])
+    return false;
+  
+  print $this->Form->hidden('authenticator_id', array('default' => $vv_authid)) . "\n";
 
-// When localizing, the number in format specifications (eg: %1$s) indicates the argument
-// position as passed to _txt.  This can be used to process the arguments in
-// a different order than they were passed.
-
-$cm_homedir_provisioner_texts['en_US'] = array(
-  // Titles, per-controller
-  'ct.co_homedir_provisioner_targets.1'  => 'Homedir Provisioner Target',
-  'ct.co_homedir_provisioner_targets.pl' => 'Homedir Provisioner Targets',
-  
-  // Error messages
-  'er.homedirprovisioner.attributes'     => 'Could not find all required attributes in provisioning data',
-  
-  // Plugin texts
-  //'pl.homedirprovisioner.noconfig'       => 'This provisioner has no configurable options'
-);
+?>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('in.pl.noconfig'); ?>
+</div>
