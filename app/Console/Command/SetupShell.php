@@ -128,7 +128,7 @@
       
       // Since we'll be doing some direct DB manipulation, find the table prefix
       $prefix = "";
-      $db =& ConnectionManager::getDataSource('default');
+      $db = ConnectionManager::getDataSource('default');
 
       if(isset($db->config['prefix']))
         $prefix = $db->config['prefix'];
