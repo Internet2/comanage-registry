@@ -65,6 +65,9 @@ global $cm_lang, $cm_texts;
   <?php
   print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
   print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+  if(!empty($this->request->params['named']['copetitionid'])) {
+    print $this->Form->hidden('CoPetition.id', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
+  }
   ?>
   <fieldset>
     <legend>
