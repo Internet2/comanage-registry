@@ -643,6 +643,8 @@ FROM
           $groupDisplayExtension = $this->CoGrouperProvisionerGroup
                                         ->getGroupDisplayExtension($provisionerGroup);
           $registryGroups[] = $groupName;
+
+          // Synchronize if necessary.
           if(!(in_array($groupName, $grouperGroups))){
             try {
               if(!$grouper->groupExists($groupName)) {
@@ -656,11 +658,15 @@ FROM
               }
               
               $grouper->addManyMember($groupName, array($subject));
+
             } catch (GrouperRestClientException $e) {
               // Log the failure but go onto the next group.
               $this->log("GrouperProvisioner unable to add subject $subject to group $groupName");
             }
           }
+
+          // Update provisioner group table to record new modified time.
+          $this->CoGrouperProvisionerGroup->updateProvisionerGroup($provisionerGroup);     
         }
       }
     }
