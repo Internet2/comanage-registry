@@ -46,6 +46,20 @@ class UsersController extends AppController {
     'RequestHandler',
     'Session'
   );
+
+  /**
+   * Callback before other controller methods are invoked or views are rendered.
+   *
+   * @since  COmanage Registry 3.1.0
+   */
+  
+  function beforeFilter() {
+    // Since we're overriding, we need to call the parent to run the authz check.
+    parent::beforeFilter();
+
+    // Allow logout to process without a login page.
+    $this->Auth->allow('logout');
+  }
   
   /**
    * Authorization for this Controller, called by Auth component
