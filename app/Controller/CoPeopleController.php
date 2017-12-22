@@ -1116,18 +1116,28 @@ class CoPeopleController extends StandardController {
    */
   
   public function search() {
-    // the page we will redirect to
-    $url['action'] = 'index';
-     
+    // If a petition ID is provided, we're in select mode
+    if(!empty($this->data['CoPetition']['id'])) {
+      $url['action'] = 'select';
+      $url['copetitionid'] = filter_var($this->data['CoPetition']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+    } else {
+      // Back to the index
+      $url['action'] = 'index';
+    }
+    
     // build a URL will all the search elements in it
     // the resulting URL will be 
     // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
-    foreach ($this->data['Search'] as $field=>$value){
-      if(!empty($value))
+    foreach($this->data['Search'] as $field=>$value){
+      if(!empty($value)) {
         $url['Search.'.$field] = $value; 
+      }
     }
-    // Insert CO into URL. Note this also prevents truncation of email address searches (CO-1271).
-    $url['co'] = $this->cur_co['Co']['id'];
+    
+    if($url['action'] == 'index') {
+      // Insert CO into URL. Note this also prevents truncation of email address searches (CO-1271).
+      $url['co'] = $this->cur_co['Co']['id'];
+    }
 
     // redirect the user to the url
     $this->redirect($url, null, true);
