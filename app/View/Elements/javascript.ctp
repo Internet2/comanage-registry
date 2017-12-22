@@ -77,6 +77,11 @@
     });
     // END DESKTOP MENU DRAWER BEHAVIOR
 
+    // USER MENU BEHAVIORS
+    $("#global-search label").click(function () {
+      $("#global-search-box").toggle();
+    });
+
     // Accordion
     $(".accordion").accordion();
 

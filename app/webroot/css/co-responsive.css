@@ -63,6 +63,14 @@
   #user-menu {
     right: 15px;
   }
+  #global-search-box #CoDashboardQ {
+    width: 204px;
+    font-size: 14px;
+  }
+  #global-search-box .mdl-button {
+    position: relative;
+    top: -2px;
+  }
   #user-common-name {
     display: inline;
     position: relative;
@@ -167,6 +175,11 @@
   .co-info-matchable {
     float: right;
     width: 70%;
+  }
+  /* SEARCH PAGE */
+  #search input#CoDashboardQ {
+    width: 300px;
+    font-size: 14px;
   }
   /* PAGINATION */
   #pagination {

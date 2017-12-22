@@ -48,27 +48,19 @@
     $index = 0;
     
     $options = array(
-      'label' => false,
-      'tabindex' => $index++
+      'label' => '<span class="visuallyhidden">' . _txt('op.search.global') . '</span>'
     );
     
     if(!empty($this->request->query['q'])) {
       $options['default'] = $this->request->query['q'];
     }
   ?>
-  <ul id="search" class="fields form-list">
-    <li>
-      <div class="field-info">
-        <?php
-          print $this->Form->input('q', $options);
-          
-          $args = array();
-          $args['tabindex'] = $index;
-          print $this->Form->submit(_txt('op.search'), $args);
-        ?>
-      </div>
-    </li>
-  </ul>
+  <div id="search">
+    <?php
+      print $this->Form->input('q', $options);
+      print $this->Form->submit(_txt('op.search'));
+    ?>
+  </div>
   <?php
     // We need co after q in the URL so queries like "q=foo@aol.com" don't get truncated
     // (since .com looks like a file extensions)
@@ -76,11 +68,15 @@
     print $this->Form->end();
   ?>
   
-  <ul id="search-results">
+  <div id="search-results">
   <?php
     if(!empty($this->request->query['q'])
       && (empty($vv_results) || count(Hash::extract($vv_results, '{s}.{n}')) == 0)) {
       print _txt('rs.search.none');
+    }
+
+    if(empty($this->request->query['q'])) {
+      print _txt('rs.search.noquery');
     }
     
     // Models associated with CoPerson
@@ -91,7 +87,8 @@
                   'CoPersonRole' => 'title')
             as $m => $k) {
       if(!empty($vv_results[$m])) {
-        print "<li>" . _txt('ct.'.Inflector::tableize($m).'.pl') . "</li>";
+        print '<div class="co-card">';
+        print "<h2>" . _txt('ct.'.Inflector::tableize($m).'.pl') . "</h2>";
         print "<ul>";
         
         foreach($vv_results[$m] as $r) {
@@ -123,6 +120,7 @@
         }
         
         print "</ul>\n";
+        print "</div>\n";
       }
     }
     
@@ -132,7 +130,8 @@
                   'TelephoneNumber' => 'formatTelephone')
             as $m => $fn) {
       if(!empty($vv_results[$m])) {
-        print "<li>" . _txt('ct.'.Inflector::tableize($m).'.pl') . "</li>";
+        print '<div class="co-card">';
+        print "<h2>" . _txt('ct.'.Inflector::tableize($m).'.pl') . "</h2>";
         print "<ul>";
         
         foreach($vv_results[$m] as $r) {
@@ -153,6 +152,7 @@
         }
         
         print "</ul>\n";
+        print "</div>\n";
       }
     }
     
@@ -166,8 +166,8 @@
             as $m => $k) {
       if(!empty($vv_results[$m])) {
         $mpl = Inflector::tableize($m);
-        
-        print "<li>" . _txt('ct.'.$mpl.'.pl') . "</li>";
+        print '<div class="co-card">';
+        print "<h2>" . _txt('ct.'.$mpl.'.pl') . "</h2>";
         print "<ul>";
         
         foreach($vv_results[$m] as $r) {
@@ -182,8 +182,9 @@
         }
         
         print "</ul>\n";
+        print "</div>\n";
       }
     }
   ?>
-  </ul>
+  </div>
 </section>

@@ -43,26 +43,6 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     // Output the CO submenus (People, Groups, Configuration) if a CO is selected
     if(!empty($cur_co['Co']['id'])) {
       $menuCoId = $cur_co['Co']['id'];
-      
-      // Search Link
-      if (isset($permissions['menu']['search']) && $permissions['menu']['search']) {
-        print '<li class="configMenu">';
-
-        $linkContent = '<em class="material-icons" aria-hidden="true">search</em><span class="menuTitle">' . _txt('op.search') .
-          '</span><span class="mdl-ripple"></span>';
-
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_dashboards';
-        $args['action'] = 'search';
-        $args['?'] = array(
-          'co' => $menuCoId
-        );
-
-        print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
-
-        print "</li>";
-      }
 
       // People Menu
       print '<li class="peopleMenu">';

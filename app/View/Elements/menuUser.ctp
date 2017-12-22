@@ -27,7 +27,32 @@
  */
 ?>
 
+<?php if(!empty($cur_co['Co']['id'])): ?>
+
+  <div id="global-search" class="topMenu">
+    <?php
+      $options = array(
+        'type' => 'get',
+        'url' => array('action' => 'search')
+      );
+      print $this->Form->create('CoDashboard', $options);
+      print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search') . '</span><em class="material-icons">search</em>');
+      print '<div id="global-search-box">';
+      $options = array(
+        'label' => false,
+      );
+      print $this->Form->input('q', $options);
+      print $this->Form->submit(_txt('op.search'));
+      print $this->Form->hidden('co', array('default' => $cur_co['Co']['id']));
+      print '</div>';
+      print $this->Form->end();
+    ?>
+  </div>
+
+<?php endif; ?>
+
 <?php if(isset($vv_my_notifications)): ?>
+
   <div id="notifications">
     <a href="#" class="topMenu" id="user-notifications">
       <span id="user-notification-count">
