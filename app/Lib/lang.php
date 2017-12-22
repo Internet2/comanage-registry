@@ -1962,6 +1962,10 @@ function _txt($key, $vars=null, $index=null)
   
   $s = (isset($index) ? $cm_texts[ $cm_lang ][$key][$index] : $cm_texts[ $cm_lang ][$key]);
   
+  if(!$vars) {
+    return $s;
+  }
+  
   switch(count($vars))
   {
   case 1:
