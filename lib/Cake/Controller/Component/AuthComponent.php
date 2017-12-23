@@ -298,6 +298,7 @@ class AuthComponent extends Component {
 		}
 
 		if ($this->_isAllowed($controller)) {
+			$this->_getUser();
 			return true;
 		}
 
@@ -761,7 +762,7 @@ class AuthComponent extends Component {
  *
  * @param CakeRequest $request The request that contains authentication data.
  * @param CakeResponse $response The response
- * @return array User record data, or false, if the user could not be identified.
+ * @return array|bool User record data, or false, if the user could not be identified.
  */
 	public function identify(CakeRequest $request, CakeResponse $response) {
 		if (empty($this->_authenticateObjects)) {

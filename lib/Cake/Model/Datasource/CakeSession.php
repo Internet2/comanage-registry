@@ -135,6 +135,20 @@ class CakeSession {
 	protected static $_cookieName = null;
 
 /**
+ * Whether or not to make `_validAgentAndTime` 3.x compatible.
+ *
+ * @var bool
+ */
+	protected static $_useForwardsCompatibleTimeout = false;
+
+/**
+ * Whether this session is running under a CLI environment
+ *
+ * @var bool
+ */
+	protected static $_isCLI = false;
+
+/**
  * Pseudo constructor.
  *
  * @param string|null $base The base path for the Session
@@ -155,6 +169,7 @@ class CakeSession {
 		}
 
 		static::$_initialized = true;
+		static::$_isCLI = (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg');
 	}
 
 /**
@@ -352,6 +367,9 @@ class CakeSession {
 	protected static function _validAgentAndTime() {
 		$userAgent = static::read('Config.userAgent');
 		$time = static::read('Config.time');
+		if (static::$_useForwardsCompatibleTimeout) {
+			$time += (Configure::read('Session.timeout') * 60);
+		}
 		$validAgent = (
 			Configure::read('Session.checkAgent') === false ||
 			isset($userAgent) && static::$_userAgent === $userAgent
@@ -519,6 +537,10 @@ class CakeSession {
 		if (isset($sessionConfig['timeout']) && !isset($sessionConfig['cookieTimeout'])) {
 			$sessionConfig['cookieTimeout'] = $sessionConfig['timeout'];
 		}
+		if (isset($sessionConfig['useForwardsCompatibleTimeout']) && $sessionConfig['useForwardsCompatibleTimeout']) {
+			static::$_useForwardsCompatibleTimeout = true;
+		}
+
 		if (!isset($sessionConfig['ini']['session.cookie_lifetime'])) {
 			$sessionConfig['ini']['session.cookie_lifetime'] = $sessionConfig['cookieTimeout'] * 60;
 		}
@@ -571,7 +593,10 @@ class CakeSession {
 			);
 		}
 		Configure::write('Session', $sessionConfig);
-		static::$sessionTime = static::$time + ($sessionConfig['timeout'] * 60);
+		static::$sessionTime = static::$time;
+		if (!static::$_useForwardsCompatibleTimeout) {
+			static::$sessionTime += ($sessionConfig['timeout'] * 60);
+		}
 	}
 
 /**
@@ -596,14 +621,18 @@ class CakeSession {
  * @return bool
  */
 	protected static function _hasSession() {
-		return static::started() || isset($_COOKIE[static::_cookieName()]) || (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg');
+		return static::started()
+			|| !ini_get('session.use_cookies')
+			|| isset($_COOKIE[static::_cookieName()])
+			|| static::$_isCLI
+			|| (ini_get('session.use_trans_sid') && isset($_GET[session_name()]));
 	}
 
 /**
  * Find the handler class and make sure it implements the correct interface.
  *
  * @param string $handler Handler name.
- * @return void
+ * @return CakeSessionHandlerInterface
  * @throws CakeSessionException
  */
 	protected static function _getHandler($handler) {
