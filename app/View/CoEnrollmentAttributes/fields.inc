@@ -533,7 +533,7 @@
               </select>
             <?php endif; ?>
           </div>
-          <div id="attr_def_val_date_div">
+          <div id="attr_def_val_date_div" class="modelbox-data">
             <?php if($e): ?>
               <input name="def_date_type"
                      id="def_date_fixed"
