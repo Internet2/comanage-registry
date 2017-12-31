@@ -473,7 +473,17 @@ class ProvisionerBehavior extends ModelBehavior {
         $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
       }
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
+        // If $provisioningAction is CoPersonReprovisionRequested, switch the action
+        // to CoGroupReprovisionRequested so plugins get a more coherent action.
+        
+        $this->provisionGroups($model, 
+                               $gmodel,
+                               $coGroupIds, 
+                               $created, 
+                               ($provisioningAction == ProvisioningActionEnum::CoPersonReprovisionRequested
+                                ? ProvisioningActionEnum::CoGroupReprovisionRequested
+                                : $provisioningAction), 
+                               $copid);
       }
     }
     
