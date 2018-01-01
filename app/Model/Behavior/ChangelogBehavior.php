@@ -366,7 +366,7 @@ class ChangelogBehavior extends ModelBehavior {
         $origWhitelist = $model->whitelist;
         
         // Reset model state for new save
-        $model->whitelist = null;
+        $model->whitelist = array();
         $model->create();
       
         // Disable callbacks so we don't loop indefinitely. Also disable validation because
