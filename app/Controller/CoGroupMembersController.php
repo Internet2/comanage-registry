@@ -132,6 +132,11 @@ class CoGroupMembersController extends StandardController {
 
     // Sets tab to open for redirects back to tabbed pages
     $this->redirectTab = 'email';
+    
+    if(!empty($this->viewVars['vv_tz'])) {
+      // Set the current timezone, primarily for beforeSave
+      $this->CoGroupMember->setTimeZone($this->viewVars['vv_tz']);
+    }
   }
   
   /**
@@ -638,10 +643,12 @@ class CoGroupMembersController extends StandardController {
     
     parent::view($id);
     
-    $gm = $this->viewVars['co_group_members'][0];
-    
-    $this->set('title_for_layout', _txt('op.grm.title', array(_txt('op.view'),
-                                                              $gm['CoGroup']['name'],
-                                                              generateCn($gm['CoPerson']['PrimaryName']))));
+    if(!$this->request->is('restful')) {
+      $gm = $this->viewVars['co_group_members'][0];
+      
+      $this->set('title_for_layout', _txt('op.grm.title', array(_txt('op.view'),
+                                                                $gm['CoGroup']['name'],
+                                                                generateCn($gm['CoPerson']['PrimaryName']))));
+    }
   }
 }

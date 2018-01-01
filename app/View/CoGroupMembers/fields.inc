@@ -43,8 +43,22 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_groups.1')));
-  $this->Html->addCrumb($crumbTxt);
+  
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_groups';
+  $args['action'] = 'edit';
+  $args[] = $this->request->data['CoGroupMember']['co_group_id'];
+  $this->Html->addCrumb(_txt('ct.co_groups.1'), $args);
+  
+  $args = array();
+  $args['plugin'] = null;
+  $args['controller'] = 'co_people';
+  $args['action'] = 'canvas';
+  $args[] = $this->request->data['CoGroupMember']['co_person_id'];
+  $this->Html->addCrumb(_txt('ct.co_people.1'), $args);
+  
+  $this->Html->addCrumb($title_for_layout);
 
   if($e)
   {
@@ -56,43 +70,118 @@
   }
 ?>
 
-<div class="table-container">
-  <table id="<?php print $this->action; ?>_co_group_member">
-    <tbody>
-      <tr class="line1">
-        <td>
-          <?php print _txt('fd.group.mem'); ?>
-        </td>
-        <td>
+<ul id="<?php print $this->action; ?>_co_group_member" class="fields form-list">
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('member',_txt('fd.group.mem')); ?>
+    </div>
+    <div class="field-info">
           <?php print ($e
-                       ? $this->Form->input('member') . ' ' .  $this->Form->label('member', _txt('fd.group.mem'))
+                       ? $this->Form->input('member')
                        : ($co_group_members[0]['CoGroupMember']['member'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-        </td>
-      </tr>
-      <tr class="line2">
-        <td>
-          <?php print _txt('fd.group.own'); ?>
-        </td>
-        <td>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('owner',_txt('fd.group.own')); ?>
+    </div>
+    <div class="field-info">
           <?php print ($e
-                       ? $this->Form->input('owner') . ' ' . $this->Form->label('owner', _txt('fd.group.own'))
+                       ? $this->Form->input('owner')
                        : ($co_group_members[0]['CoGroupMember']['owner'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
-        </td>
-        <td>
-          <?php
-            if($e)
-              print $this->Form->submit($submit_label);
-          ?>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    </div>
+  </li>
+  <li class="modelbox-data">
+    <div class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
+        } else {
+          print _txt('fd.valid_from');
+        }
+      ?>
+      <div class="field-desc">
+        <?php print _txt('fd.valid_from.desc'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        if($e) {
+          $args = array(
+            'class' => 'datepicker-f'
+          );
+
+          if(isset($co_group_members[0]['CoGroupMember']['valid_from'])
+            && $co_group_members[0]['CoGroupMember']['valid_from'] > 0) {
+            if(!empty($vv_tz)) {
+              // We need to adjust the UTC value to the user's local time
+              $args['value'] = $this->Time->format($co_group_members[0]['CoGroupMember']['valid_from'], "%F %T", false, $vv_tz);
+            } else {
+              $args['value'] = $co_group_members[0]['CoGroupMember']['valid_from'];
+            }
+          }
+
+          print $this->Form->text('valid_from', $args);
+        } else {
+          if(isset($co_group_members[0]['CoGroupMember']['valid_from'])
+            && $co_group_members[0]['CoGroupMember']['valid_from'] > 0) {
+            print $this->Time->format($co_group_members[0]['CoGroupMember']['valid_from'], "%c $vv_tz", false, $vv_tz);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li class="modelbox-data">
+    <div class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
+        } else {
+          print _txt('fd.valid_through');
+        }
+      ?>
+      <div class="field-desc">
+        <?php print _txt('fd.valid_through.desc'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        if($e) {
+          $args = array(
+            'class' => 'datepicker-u'
+          );
+
+          if(isset($co_group_members[0]['CoGroupMember']['valid_through'])
+            && $co_group_members[0]['CoGroupMember']['valid_through'] > 0) {
+            if(!empty($vv_tz)) {
+              // We need to adjust the UTC value to the user's local time
+              $args['value'] = $this->Time->format($co_group_members[0]['CoGroupMember']['valid_through'], "%F %T", false, $vv_tz);
+            } else {
+              $args['value'] = $co_group_members[0]['CoGroupMember']['valid_through'];
+            }
+          }
+
+          print $this->Form->text('valid_through', $args);
+        } else {
+          if(isset($co_group_members[0]['CoGroupMember']['valid_through'])
+            && $co_group_members[0]['CoGroupMember']['valid_through'] > 0) {
+            print $this->Time->format($co_group_members[0]['CoGroupMember']['valid_through'], "%c $vv_tz", false, $vv_tz);
+          }
+        }
+      ?>
+    </div>
+  </li>
+    <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
+</ul>
   
 <?php
   print $this->element("changelog");

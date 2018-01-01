@@ -486,6 +486,19 @@ class CoPerson extends AppModel {
     $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
     $args['conditions']['OR']['CoGroupMember.member'] = 1;
     $args['conditions']['OR']['CoGroupMember.owner'] = 1;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
     // We use contain here to pull data for VootController
     $args['contain'][] = 'PrimaryName';
     $args['contain'][] = 'EmailAddress';
@@ -859,6 +872,19 @@ class CoPerson extends AppModel {
         $args = array();
         $args['conditions']['CoGroupMember.co_group_id'] = $gid;
         $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+        // Only pull currently valid group memberships
+        $args['conditions']['AND'][] = array(
+          'OR' => array(
+            'CoGroupMember.valid_from IS NULL',
+            'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+          )
+        );
+        $args['conditions']['AND'][] = array(
+          'OR' => array(
+            'CoGroupMember.valid_through IS NULL',
+            'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+          )
+        );
         $args['contain']['CoPerson'] = 'PrimaryName';
         
         $members = array_merge($members, $this->CoGroupMember->find('all', $args));

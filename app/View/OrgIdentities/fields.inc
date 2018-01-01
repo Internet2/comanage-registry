@@ -506,7 +506,7 @@
                 }
               ?>
               <div class="field-desc">
-                <?php print _txt('fd.valid_from.desc'); ?>
+                <?php print _txt('fd.valid_through.desc'); ?>
               </div>
             </div>
             <div class="field-info">

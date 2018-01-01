@@ -478,6 +478,19 @@ class CoGroup extends AppModel {
     } else {
       $args['conditions']['CoGroupMember.member'] = true;
     }
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
     $args['contain'] = false;
     
     if($limit) {
@@ -504,14 +517,25 @@ class CoGroup extends AppModel {
    */
   
   public function findSortedMembers($id) {
-    $conditions = array();
-    $conditions['CoGroupMember.co_group_id'] = $id;
-    $contain = array();
-    $contain['CoPerson'][] = 'PrimaryName';
-    
     $args = array();
-    $args['conditions'] = $conditions;
-    $args['contain'] = $contain;
+    $args['conditions'] = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $id;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['contain'] = array(
+      'CoPerson' => array('PrimaryName')
+    );
     
     // Because we're using containable behavior, we can't easily sort by PrimaryName
     // as part of the find. So instead we'll pull the records and sort using Hash.

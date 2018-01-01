@@ -190,12 +190,18 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function resultToGroups($raw) {
-    // We just return the decoded raw record, which will be a superset of groupable attributes.
+    // We basically just return the decoded raw record, which will be a superset of groupable attributes.
     // No real need to filter that down.
+    
+    $ret = array();
     
     $attrs = json_decode($raw, true);
     
-    return $attrs;
+    foreach($attrs as $k => $v) {
+      $ret[$k][] = array('value' => $v);
+    }
+    
+    return $ret;
   }
   
   /**

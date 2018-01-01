@@ -288,6 +288,19 @@ class RoleComponent extends Component {
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
     $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
     $args['conditions']['CoGroupMember.'.$groupRole] = 1;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
     $args['contain'] = false;
     
     $groups = $CoGroup->find('all', $args);

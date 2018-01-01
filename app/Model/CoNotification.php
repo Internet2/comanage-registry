@@ -295,6 +295,19 @@ class CoNotification extends AppModel {
     $args['joins'][0]['conditions'][0] = 'RecipientCoGroup.id=CoGroupMember.co_group_id';
     $args['conditions']['RecipientCoGroup.status'] = SuspendableStatusEnum::Active;
     $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
     $args['contain'] = false;
     
     $groups = $this->RecipientCoGroup->find('list', $args);
@@ -564,7 +577,19 @@ class CoNotification extends AppModel {
       $args['contain'] = array(
         'CoGroupMember' => array(
           // We only want group members, not owners
-          'conditions' => array('CoGroupMember.member' => true),
+          'conditions' => array(
+            'CoGroupMember.member' => true,
+            'AND' => array(
+              array('OR' => array(
+                'CoGroupMember.valid_from IS NULL',
+                'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+              )),
+              array('OR' => array(
+                'CoGroupMember.valid_through IS NULL',
+                'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+              ))
+            )
+          ),
           'CoPerson' => array(
             // We only want active people
             'conditions' => array('CoPerson.status' => StatusEnum::Active),

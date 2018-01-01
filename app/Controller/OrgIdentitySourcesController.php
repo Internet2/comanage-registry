@@ -534,7 +534,20 @@ class OrgIdentitySourcesController extends StandardController {
             $args['conditions']['CoGroup.id'] = array_keys($mappedGroups);
             $args['contain'] = false;
             
-            $this->set('vv_mapped_groups', $this->OrgIdentitySource->Co->CoGroup->find('all', $args));
+            $coGroups = $this->OrgIdentitySource->Co->CoGroup->find('all', $args);
+            
+            // Insert a CoGroupMember object for each found group
+            
+            for($i = 0;$i < count($coGroups);$i++) {
+              $coGroups[$i]['CoGroupMember'] = array(
+                'member' => (isset($mappedGroups[ $coGroups[$i]['CoGroup']['id'] ]['role'])
+                             && $mappedGroups[ $coGroups[$i]['CoGroup']['id'] ]['role'] == 'member'),
+                'valid_from' => $mappedGroups[ $coGroups[$i]['CoGroup']['id'] ]['valid_from'],
+                'valid_through' => $mappedGroups[ $coGroups[$i]['CoGroup']['id'] ]['valid_through'],
+              );
+            }
+            
+            $this->set('vv_mapped_groups', $coGroups);
           }
         }
         

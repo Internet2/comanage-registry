@@ -155,22 +155,18 @@ class CoGroupOisMapping extends AppModel {
       $attr = $m['CoGroupOisMapping']['attribute'];
       
       if(!empty($attributes[$attr])) {
-        // There can be more than one value for a given attribute
-        if(is_array($attributes[$attr])) {
-          foreach($attributes[$attr] as $v) {
-            if($this->compare($v,
-                              $m['CoGroupOisMapping']['comparison'],
-                              $m['CoGroupOisMapping']['pattern'])) {
-              // Match found
-              $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = "member";
-            }
-          }
-        } else {
-          if($this->compare($attributes[$attr],
+        foreach($attributes[$attr] as $v) {
+          if($this->compare($v['value'],
                             $m['CoGroupOisMapping']['comparison'],
                             $m['CoGroupOisMapping']['pattern'])) {
             // Match found
-            $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = "member";
+            $r = array(
+              'role' => 'member',
+              'valid_from' => (isset($v['valid_from']) ? $v['valid_from'] : null),
+              'valid_through' => (isset($v['valid_through']) ? $v['valid_through'] : null),
+            );
+            
+            $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
           }
         }
       }

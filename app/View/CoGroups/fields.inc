@@ -213,7 +213,7 @@
     <thead>
       <tr>
         <th><?php print _txt('fd.name'); ?></th>
-        <th><?php print _txt('fd.status'); ?></th>
+        <th><?php print _txt('fd.co_people.status'); ?></th>
         <th><?php print _txt('fd.roles'); ?></th>
         <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
       </tr>
@@ -255,6 +255,16 @@
           } elseif($g['CoGroupMember']['member']) {
             print _txt('fd.group.mem');
           }
+          
+          // Warn if membership is invalid
+          if((!empty($g['CoGroupMember']['valid_from'])
+              && strtotime($g['CoGroupMember']['valid_from']) >= time())
+             ||
+             (!empty($g['CoGroupMember']['valid_through'])
+              && strtotime($g['CoGroupMember']['valid_through']) < time())) {
+            print " (" . _txt('fd.inactive') . ")";
+          }
+          
           print '</td>';
 
           print '<td class="actions">';

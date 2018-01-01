@@ -97,6 +97,18 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print $this->Form->label('group_validity_sync_window',_txt('fd.co_group_member.sync.window'),array('class' => 'fieldTitle'));?></div>
+      <div class="field-desc"><?php print _txt('fd.co_group_member.sync.window.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('group_validity_sync_window',
+                                        array('default' => DEF_GROUP_SYNC_WINDOW))
+                   : filter_var($co_settings[0]['CoSetting']['group_validity_sync_window'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print _txt('fd.nr.enable'); ?></div>
     </div>
     <div class="field-info checkbox">

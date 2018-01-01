@@ -731,6 +731,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  integer $coGroupId CO Group to (re)provision
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @param  integer $coEmailListId CO Email List to (re)provision
+   * @param  integer $coGroupMemberId CO Group Member to (re)provision
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -741,7 +742,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                   $coPersonId,
                                   $coGroupId=null,
                                   $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
-                                  $coEmailListId=null) {
+                                  $coEmailListId=null,
+                                  $coGroupMemberId=null) {
     // First marshall the provisioning data
     $provisioningData = array();
     
@@ -760,6 +762,8 @@ class ProvisionerBehavior extends ModelBehavior {
         // $model = CoEmailList
         $provisioningData = $this->marshallCoEmailListData($model, $coEmailListId);
       }
+      // XXX We don't currently support manual provisioning of 
+      // CoGroupMember+coProvisioningTargetId because we don't have a use case
       
       // Find the associated Provisioning Target record
       
@@ -799,6 +803,10 @@ class ProvisionerBehavior extends ModelBehavior {
         $model->id = $coPersonId;
       } elseif($model->name == 'CoGroup' && $coGroupId) {
         $model->id = $coGroupId;
+      } elseif($model->name == 'CoGroupMember' && $coGroupMemberId) {
+        $model->id = $coGroupMemberId;
+      } elseif($model->name == 'CoEmailList' && $coEmailListId) {
+        $model->id = $coEmailListId;
       }
       
       return $this->determineProvisioning($model, false, $provisioningAction);
@@ -855,6 +863,8 @@ class ProvisionerBehavior extends ModelBehavior {
       $person = $coGroupModel->Co->CoPerson->find('first', $args);
       
       if(!empty($person)) {
+        // XXX Do we need to remove CoGroupMembers with invalid dates here?
+        // Need a test case...
         $group['CoGroup'] = array_merge($group['CoGroup'], $person);
       }
     }
@@ -1001,7 +1011,8 @@ class ProvisionerBehavior extends ModelBehavior {
       }
     }
     
-    // Remove any inactive groups (ie: memberships attached to inactive groups)
+    // Remove any inactive groups (ie: memberships attached to inactive groups
+    // or those not within the validity window).
     
     if(!empty($coPersonData['CoGroupMember'])) {
       for($i = (count($coPersonData['CoGroupMember']) - 1);$i >= 0;$i--) {
@@ -1018,7 +1029,13 @@ class ProvisionerBehavior extends ModelBehavior {
         
         if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->groupStatuses)
            ||
-           $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active) {
+           $coPersonData['CoGroupMember'][$i]['CoGroup']['status'] != StatusEnum::Active
+           ||
+           (!empty($coPersonData['CoGroupMember'][$i]['valid_from'])
+            && strtotime($coPersonData['CoGroupMember'][$i]['valid_from']) >= time())
+           ||
+           (!empty($coPersonData['CoGroupMember'][$i]['valid_through'])
+            && strtotime($coPersonData['CoGroupMember'][$i]['valid_through']) < time())) {
           unset($coPersonData['CoGroupMember'][$i]);
         }
       }
@@ -1145,6 +1162,10 @@ class ProvisionerBehavior extends ModelBehavior {
         syslog(LOG_ERR, $e->getMessage());
         //throw new RuntimeException($e->getMessage());
       }
+      catch(Exception $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
     }
     
     return true;
@@ -1230,6 +1251,10 @@ class ProvisionerBehavior extends ModelBehavior {
         //throw new InvalidArgumentException($e->getMessage());
       }
       catch(RuntimeException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
+      catch(Exception $e) {
         syslog(LOG_ERR, $e->getMessage());
         //throw new RuntimeException($e->getMessage());
       }

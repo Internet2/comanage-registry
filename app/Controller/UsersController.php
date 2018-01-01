@@ -219,7 +219,17 @@ class UsersController extends AppController {
               
               $params = array(
                 'conditions' => array(
-                  'CoGroupMember.co_person_id' => $l['co_person_id']
+                  'CoGroupMember.co_person_id' => $l['co_person_id'],
+                  'AND' => array(
+                    array('OR' => array(
+                      'CoGroupMember.valid_from IS NULL',
+                      'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+                    )),
+                    array('OR' => array(
+                      'CoGroupMember.valid_through IS NULL',
+                      'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+                    ))
+                  )
                 ),
                 'contain' => false
               );

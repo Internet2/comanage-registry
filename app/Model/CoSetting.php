@@ -68,6 +68,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'group_validity_sync_window' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'enable_normalization' => array(
       'rule' => 'boolean',
       'required' => false,
@@ -138,17 +143,18 @@ class CoSetting extends AppModel {
   // Default values for each setting
   
   protected $defaultSettings = array(
-    'disable_expiration'    => false,
-    'disable_ois_sync'      => false,
-    'enable_normalization'  => true,
-    'enable_nsf_demo'       => false,
-    'invitation_validity'   => DEF_INV_VALIDITY,
-    'permitted_fields_name' => PermittedNameFieldsEnum::HGMFS,
-    'required_fields_addr'  => RequiredAddressFieldsEnum::Street,
-    'required_fields_name'  => RequiredNameFieldsEnum::Given,
-    'sponsor_co_group_id'   => null,
-    'sponsor_eligibility'   => SponsorEligibilityEnum::CoOrCouAdmin,
-    't_and_c_login_mode'    => TAndCLoginModeEnum::NotEnforced
+    'disable_expiration'         => false,
+    'disable_ois_sync'           => false,
+    'enable_normalization'       => true,
+    'enable_nsf_demo'            => false,
+    'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
+    'invitation_validity'        => DEF_INV_VALIDITY,
+    'permitted_fields_name'      => PermittedNameFieldsEnum::HGMFS,
+    'required_fields_addr'       => RequiredAddressFieldsEnum::Street,
+    'required_fields_name'       => RequiredNameFieldsEnum::Given,
+    'sponsor_co_group_id'        => null,
+    'sponsor_eligibility'        => SponsorEligibilityEnum::CoOrCouAdmin,
+    't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced
   );
   
   /**
@@ -191,6 +197,18 @@ class CoSetting extends AppModel {
     // Note we flip the value. The data model specifies "disabled" so that
     // the default (ie: no value present in the table) is enabled.
     return !$this->lookupValue($coId, 'disable_expiration');
+  }
+  
+  /**
+   * Determine the current configuration for CO Group Membership validity "look back" window.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  integer $coId CO ID
+   * @return integer Group validity look back window in minutes
+   */
+  
+  public function getGroupValiditySyncWindow($coId) {
+    return $this->lookupValue($coId, 'group_validity_sync_window');
   }
   
   /**
@@ -282,7 +300,6 @@ class CoSetting extends AppModel {
   public function getSponsorEligibility($coId) {
     return $this->lookupValue($coId, 'sponsor_eligibility');
   }
-
   
   /**
    * Get sponsor eligibility group. The results of this call are only valid if

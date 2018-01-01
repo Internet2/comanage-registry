@@ -824,6 +824,8 @@
     </field>
     <field name="member" type="L" />
     <field name="owner" type="L" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
     <field name="source_org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
     </field>
@@ -2246,6 +2248,7 @@
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
     <field name="disable_ois_sync" type="L" />
+    <field name="group_validity_sync_window" type="I" />
     <field name="enable_normalization" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="permitted_fields_name" type="C" size="160" />

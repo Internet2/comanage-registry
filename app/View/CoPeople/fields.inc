@@ -672,7 +672,23 @@
                     } elseif($g['member']) {
                       print ' ' . _txt('fd.group.mem');
                     }
+                    
+                    // Warn if membership is invalid
+                    if((!empty($g['valid_from'])
+                        && strtotime($g['valid_from']) >= time())
+                       ||
+                       (!empty($g['valid_through'])
+                        && strtotime($g['valid_through']) < time())) {
+                      print " (" . _txt('fd.inactive') . ")";
+                    }
+
                     print '</div><div class="field-actions">';
+                    print $this->Html->link(_txt('op.edit'),
+                      array('controller' => 'co_group_members',
+                            'action' => 'edit',
+                            $g['id']),
+                      array('class' => 'editbutton'));
+                    
                     // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                     print '<a class="deletebutton" title="' . _txt('op.delete')
                       . '" onclick="javascript:js_confirm_generic(\''

@@ -170,6 +170,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     // If we already cached them, return the cached results.
     // This cache can be cleared by obtaining a new OAuth token
     // (or manually nulling the value in the database).
+    
     if(!empty($this->pluginCfg['groupable_attrs'])) {
       return json_decode($this->pluginCfg['groupable_attrs'], true);
     }
@@ -209,6 +210,9 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         foreach($r->fields as $f) {
           $attrs[ $r->name . ':' . $f->name ] = $r->labelPlural . ": " . $f->label;
         }
+        
+        // Name doesn't appear to be returned in this list, but is a valid option
+        $attrs[ $r->name . ':Name' ] = $r->labelPlural . ": Name";
       }
     }
     
@@ -540,7 +544,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
    *
    * @since  COmanage Registry v3.1.0
    * @param  String $raw Raw record, as obtained via retrieve()
-   * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
+   * @return Array Array, where keys are attribute names and values are lists (arrays) of arrays with these keys: value, valid_from, valid_through
    */
 
   public function resultToGroups($raw) {
@@ -550,9 +554,6 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     $attrs = json_decode($raw);
     
     // Get the list of groupable attributes
-    // XXX For performance reasons we should cache this somehow,
-    // possibly by writing/updating a json blob into the
-    // salesforce_source record on admin operations
     $groupAttrs = $this->groupableAttributes();
     
     foreach(array_keys($groupAttrs) as $gAttr) {
@@ -563,11 +564,26 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         $att = $oAttr[1];
         
         if(!empty($attrs->$obj[0]->$att) && is_string($attrs->$obj[0]->$att)) {
-          $ret[$gAttr][] = (string)$attrs->$obj[0]->$att;
+          $v = array(
+            'value' => (string)$attrs->$obj[0]->$att
+          );
+          
+          // Unclear if these field names are standard
+          if(!empty($attrs->$obj[0]->Start_Date__c)) {
+            // We don't know what timezone this is, so we treat it as UTC
+            $v['valid_from'] = $attrs->$obj[0]->Start_Date__c . " 00:00:00";
+          }
+          
+          if(!empty($attrs->$obj[0]->End_Date__c)) {
+            // We don't know what timezone this is, so we treat it as UTC
+            $v['valid_through'] = $attrs->$obj[0]->End_Date__c . " 23:59:59";
+          }
+          
+          $ret[$gAttr][] = $v;
         }
       } else {
         if(!empty($attrs->$gAttr) && is_string($attrs->$gAttr)) {
-          $ret[$gAttr][] = (string)$attrs->$gAttr;
+          $ret[$gAttr][] = array('value' => (string)$attrs->$gAttr);
         }
       }
     }

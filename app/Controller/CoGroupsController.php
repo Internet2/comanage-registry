@@ -337,9 +337,23 @@ class CoGroupsController extends StandardController {
     $self = false;
     
     if(!empty($roles['copersonid'])) {
+      // XXX Shouldn't this just use CoGroupMember->findCoPersonGroupRoles?
       $args = array();
       $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
       $args['conditions']['CoGroupMember.owner'] = true;
+      // Only pull currently valid group memberships
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_from IS NULL',
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_through IS NULL',
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      );
       $args['contain'] = false;
       
       $own = $this->CoGroup->CoGroupMember->find('all', $args);
@@ -347,6 +361,19 @@ class CoGroupsController extends StandardController {
       $args = array();
       $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
       $args['conditions']['CoGroupMember.member'] = true;
+      // Only pull currently valid group memberships
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_from IS NULL',
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_through IS NULL',
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      );
       $args['contain'] = false;
       
       $member = $this->CoGroup->CoGroupMember->find('all', $args);

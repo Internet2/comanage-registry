@@ -52,6 +52,7 @@ class CoJob extends AppModel {
     ),
     'job_type' => array(
       'rule' => array('inList', array(JobTypeEnum::Expiration,
+                                      JobTypeEnum::GroupValidity,
                                       JobTypeEnum::OrgIdentitySync)),
       'required' => true,
       'allowEmpty' => false

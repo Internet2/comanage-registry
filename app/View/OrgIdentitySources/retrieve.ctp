@@ -333,7 +333,15 @@
             <ul>
               <?php
                 foreach($vv_mapped_groups as $g) {
-                print "<li>" . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . "</li>\n";
+                  print "<li>" . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+                  if(!empty($g['CoGroupMember']['valid_from']) || !empty($g['CoGroupMember']['valid_through'])) {
+                    print " (" 
+                          . (!empty($g['CoGroupMember']['valid_from']) ? $g['CoGroupMember']['valid_from'] : "")
+                          . " - "
+                          . (!empty($g['CoGroupMember']['valid_through']) ? $g['CoGroupMember']['valid_through'] : "")
+                          . ")";
+                  }
+                  print "</li>\n";
                 }
               ?>
             </ul>

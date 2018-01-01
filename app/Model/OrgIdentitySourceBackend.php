@@ -91,7 +91,7 @@ abstract class OrgIdentitySourceBackend extends AppModel {
    *
    * @since  COmanage Registry v2.0.0
    * @param  String $raw Raw record, as obtained via retrieve()
-   * @return Array Array, where keys are attribute names and values are lists (arrays) of attributes
+   * @return Array Array, where keys are attribute names and values are lists (arrays) of arrays with these keys: value, valid_from, valid_through
    */
   
   abstract public function resultToGroups($raw);

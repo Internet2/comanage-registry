@@ -74,6 +74,20 @@ class CoGroupMember extends AppModel {
         'rule' => array('boolean')
       )
     ),
+    'valid_from' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'valid_through' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'source_org_identity_id' => array(
       'content' => array(
         'rule' => array('numeric'),
@@ -146,6 +160,37 @@ class CoGroupMember extends AppModel {
   }
   
   /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+
+  public function beforeSave($options = array()) {
+    // Possibly convert the requested timestamps to UTC from browser time.
+    // Do this before the strtotime/time calls below, both of which use UTC.
+
+    if($this->tz) {
+      $localTZ = new DateTimeZone($this->tz);
+
+      if(!empty($this->data['CoGroupMember']['valid_from'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['CoGroupMember']['valid_from'], $localTZ);
+
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['CoGroupMember']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+
+      if(!empty($this->data['CoGroupMember']['valid_through'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['CoGroupMember']['valid_through'], $localTZ);
+
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['CoGroupMember']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+    }
+  }
+  
+  /**
    * Obtain the member roles for a CO Group.
    *
    * @since  COmanage Registry v0.8
@@ -161,6 +206,19 @@ class CoGroupMember extends AppModel {
     
     $args = array();
     $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
     $args['contain'] = false;
     
     $memberships = $this->find('all', $args);
@@ -194,6 +252,19 @@ class CoGroupMember extends AppModel {
     
     $args = array();
     $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
     $args['contain'] = false;
     
     $memberships = $this->find('all', $args);
@@ -280,6 +351,102 @@ class CoGroupMember extends AppModel {
     } else {
       return array();
     }
+  }
+  
+  /**
+   * Reprovision records associated with CoGroupMembers where the validity dates
+   * have recently become effective.
+   *
+   * @since  COmanage Registry 3.2.0
+   * @param  Integer $coId   CO ID
+   * @param  Integer $window Time in minutes to look back for changes (ie: within the last $window minutes)
+   */
+  
+  public function reprovisionByValidity($coId, $window=DEF_GROUP_SYNC_WINDOW) {
+    // Pull all group memberships with valid_from or valid_through timestamps
+    // in the last $window minutes
+    
+    $timeend = time();
+    $timestart = $timeend - ($window * 60);
+    
+    $args = array();
+    /* JOIN not needed due to contain
+    $args['joins'][0]['table'] = 'co_groups';
+    $args['joins'][0]['alias'] = 'CoGroup';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+    */
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['conditions']['OR'][] = array(
+      // Membership just became active
+      'AND' => array(
+        'CoGroupMember.valid_from >= ' => date('Y-m-d H:i:s', $timestart),
+        'CoGroupMember.valid_from <= ' => date('Y-m-d H:i:s', $timeend)
+      )
+    );
+    $args['conditions']['OR'][] = array(
+      // Membership just became inactive
+      'AND' => array(
+        'CoGroupMember.valid_through >= ' => date('Y-m-d H:i:s', $timestart),
+        'CoGroupMember.valid_through <= ' => date('Y-m-d H:i:s', $timeend)
+      )
+    );
+    $args['contain'] = array('CoGroup');
+    
+    $memberships = $this->find('all', $args);
+    
+    // Register a new CoJob. This will throw an exception if a job is already in progress.
+    $jobId = $this->CoPerson->Co->CoJob->register($coId,
+                                                  JobTypeEnum::GroupValidity,
+                                                  null,
+                                                  "",
+                                                  _txt('fd.co_group_member.sync.count',
+                                                       array(count($memberships))));
+    
+    // Flag the Job as started
+    $cnt = 0;
+    $this->CoPerson->Co->CoJob->start($jobId);
+    
+    foreach($memberships as $grm) {
+      try {
+        $this->manualProvision(null, 
+                               null,
+                               null,
+                               ProvisioningActionEnum::CoPersonReprovisionRequested,
+                               null,
+                               $grm['CoGroupMember']['id']);
+        
+        $cmt =  _txt('rs.grm.prov.validity', array($grm['CoGroup']['name'],
+                                                   $grm['CoGroupMember']['co_group_id']));
+        
+        $this->CoPerson->HistoryRecord->record($grm['CoGroupMember']['co_person_id'],
+                                               null,
+                                               null,
+                                               null,
+                                               ActionEnum::CoGroupMemberValidityTriggered,
+                                               $cmt,
+                                               $grm['CoGroupMember']['co_group_id']);
+        
+        $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                               $grm['CoGroupMember']['id'],
+                                                               $cmt,
+                                                               $grm['CoGroupMember']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Complete);
+        
+        $cnt++;
+      }
+      catch(Exception $e) {
+        $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($jobId,
+                                                               $grm['CoGroupMember']['id'],
+                                                               $e->getMessage(),
+                                                               $grm['CoGroupMember']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
+      }
+    }
+    
+    $this->CoPerson->Co->CoJob->finish($jobId, _txt('fd.co_group_member.sync.count.done', array($cnt)));
   }
   
   /**

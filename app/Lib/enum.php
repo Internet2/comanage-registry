@@ -45,6 +45,8 @@ class ActionEnum
   const CoGroupMemberDeleted            = 'DCGM';
   const CoGroupMemberDeletedPipeline    = 'DCGL';
   const CoGroupMemberEdited             = 'ECGM';
+  const CoGroupMemberEditedPipeline     = 'ECGL';
+  const CoGroupMemberValidityTriggered  = 'VCGM';
   const CoGroupProvisioned              = 'PCGA';
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
@@ -320,7 +322,9 @@ class JobStatusEnum
 
 class JobTypeEnum
 {
+  // Reserve X* for local plugins/jobs
   const Expiration      = 'EX';
+  const GroupValidity   = 'GV';
   const OrgIdentitySync = 'OS';
 }
 

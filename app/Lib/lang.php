@@ -266,6 +266,7 @@ original notification at
     ActionEnum::CoGroupMemberEdited         => 'CO Group Member Edited',
     ActionEnum::CoGroupMemberDeleted        => 'CO Group Member Deleted',
     ActionEnum::CoGroupMemberDeletedPipeline => 'CO Group Member Deleted (Pipeline)',
+    ActionEnum::CoGroupMemberValidityTriggered => 'CO Group Member Validity Triggered',
     ActionEnum::CoGroupProvisioned          => 'CO Group Provisioned',
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
@@ -523,6 +524,7 @@ original notification at
   
   'en.job.type' => array(
     JobTypeEnum::Expiration      => 'Expiration',
+    JobTypeEnum::GroupValidity   => 'Group Validity',
     JobTypeEnum::OrgIdentitySync => 'Org Identity Sync'
   ),
   
@@ -1033,6 +1035,13 @@ original notification at
   'fd.cou-a' =>       '%1$s COU',
   'fd.co_group.auto' => 'Automatic',
   'fd.co_group.group_type' => 'Group Type',
+  // XXX these should replace fd.group.mem, etc
+  'fd.co_group_member.member' => 'Member',
+  'fd.co_group_member.owner' => 'Owner',
+  'fd.co_group_member.sync.count' => 'Reprovisioning %1$s record(s)',
+  'fd.co_group_member.sync.count.done' => 'Reprovisioned %1$s record(s)',
+  'fd.co_group_member.sync.window' => 'Group Validity Sync Window',
+  'fd.co_group_member.sync.window.desc' => 'When performing scheduled reprovisioning of group memberships due to validity status change, the "look back" window in minutes within which to check for changes (0 to disable)',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
   'fd.created' =>     'Created',
@@ -1240,6 +1249,7 @@ original notification at
   'fd.identifier.login.desc' =>  'Allow this identifier to login to Registry',
   'fd.identifier.ids.login' => 'Login Identifiers',
   'fd.ids' =>         'Identifiers',
+  'fd.inactive' =>    'Inactive',
   'fd.index' =>       'Index',
   'fd.inv.exp' =>     'Invitation Expiration',
   'fd.inv.for' =>     'Invitation for %1$s',
@@ -1791,6 +1801,7 @@ original notification at
   'rs.grm.added-p' => 'Added to CO Group %1$s (%2$s) via Petition (member=%3$s, owner=%4$s)',
   'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
   'rs.grm.edited' =>  'Edited CO Group Roles %1$s (%2$s) (from member=%3$s, owner=%4$s to member=%5$s, owner=%6$s)',
+  'rs.grm.prov.validity' => 'Reprovisioned due to validity time trigger for membership in CO Group %1$s (%2$s)',
   'rs.hr.expunge' =>  'History Record %1$s actor removed as part of CO Person expunge',
   'rs.ia.ok' =>       'Identifiers Assigned',
   'rs.inv.conf' =>    'Invitation Confirmed',
@@ -1896,8 +1907,8 @@ original notification at
   'se.cmp.init' =>        'Setting initial platform configuration',
   'se.db.co' =>           'Creating COmanage CO',
   'se.db.cop' =>          'Adding Org Identity to CO',
-  'se.db.admingroup' =>        'Creating COmanage admin group',
-  'se.db.membersgroup' =>        'Creating COmanage members group',
+  'se.db.admingroup' =>   'Creating COmanage admin group',
+  'se.db.membersgroup' => 'Creating COmanage members group',
   'se.db.op' =>           'Adding initial Org Identity',
   'se.security.salt' =>   'Creating security salt file',
   'se.security.salt.exists' => 'Security salt file already exists',
@@ -1909,8 +1920,10 @@ original notification at
   // Shell
   
   'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for (all COs if not specified)',
-  'sh.job.arg.epilog' =>  "If no task specified, all run.\nAvailable tasks: expirations, syncorgsources",
+  'sh.job.arg.epilog' =>  "If no task specified, all run.\nAvailable tasks: expirations, groupvalidity, syncorgsources",
   'sh.job.done' =>        'Job shell finished',
+  'sh.job.gv' =>          'Reprovisioning group memberships based on validity dates for CO %1$s (%2$s)',
+  'sh.job.gv.disabled' => 'Reprovisioning group memberships is disabled for this CO',
   'sh.job.sync.ois' =>    'Syncing Organizational Identity Sources for CO %1$s (%2$s)',
   'sh.job.sync.ois.disabled' => 'Organizational Identity Source sync is disabled for this CO',
   'sh.job.xp' =>          'Running expirations for CO %1$s (%2$s)',

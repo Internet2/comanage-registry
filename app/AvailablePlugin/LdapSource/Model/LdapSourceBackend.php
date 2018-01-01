@@ -116,8 +116,9 @@ class LdapSourceBackend extends OrgIdentitySourceBackend {
     
     foreach(array_keys($this->groupAttrs) as $gAttr) {
       if(!empty($attrs[$gAttr])) {
-        $ret[$gAttr] = $attrs[$gAttr];
-        unset($ret[$gAttr]['count']);
+        foreach($attrs[$gAttr] as $v) {
+          $ret[$gAttr][] = array('value' => $v);
+        }
       }
     }
     

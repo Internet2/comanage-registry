@@ -158,18 +158,22 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     
     foreach(array_keys($this->groupAttrs) as $gAttr) {
       if(!empty($attrs->$gAttr)) {
-        $ret[$gAttr][] = (string)$attrs->$gAttr;
+        $ret[$gAttr][] = array('value' => (string)$attrs->$gAttr);
       }
     }
     
     // Also check Events, if not empty
     if(!empty($attrs->Events->EventProductCode)) {
-      $ret['EventProductCode'] = (array)$attrs->Events->EventProductCode;
+      foreach((array)$attrs->Events->EventProductCode as $v) {
+        $ret['EventProductCode'][] = array('value' => (string)$v);
+      }
     }
     
     // Also check Committees, if not empty
     if(!empty($attrs->Committees->CommitteeName)) {
-      $ret['CommitteeName'] = (array)$attrs->Committees->CommitteeName;
+      foreach((array)$attrs->Events->CommitteeName as $v) {
+        $ret['CommitteeName'][] = array('value' => (string)$v);
+      }
     }
     
     return $ret;
