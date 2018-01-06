@@ -801,6 +801,20 @@ FROM
     $args['conditions']['CoPerson.status'][0] = StatusEnum::Active;
     $args['conditions']['CoPerson.status'][1] = StatusEnum::Approved;
 
+    // We only want memberships with valid dates.
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
+
     // Contain the query since we only want the identifiers.
     $args['contain'] = false;
 
@@ -988,8 +1002,15 @@ FROM
       // Only consider the identifier we are using as the Grouper subject.
       $args['conditions']['Identifier.type'] = $coProvisioningTargetData['CoGrouperProvisionerTarget']['subject_identifier'];
 
-      // Select identifiers of people not in the group by having the CoGroupMember id be null.
-      $args['conditions']['CoGroupMember.id'] = null;
+      // Select identifiers of people not in the group by having the CoGroupMember id be null
+      // or by not having valid_from and valid_through.
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.id IS NULL',
+          'CoGroupMember.valid_from > ' => date('Y-m-d H:i:s', time()),
+          'CoGroupMember.valid_through < ' => date('Y-m-d H:i:s', time())
+        )
+      );
 
       // Only consider CoPeople in our CO.
       $args['conditions']['CoPerson.co_id'] = $coGroup['CoGroup']['co_id'];
