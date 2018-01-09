@@ -659,6 +659,7 @@ FROM
                                                  $groupDisplayExtension)) {
                   // Log the failure but go onto the next group.
                   $this->log("GrouperProvisioner unable to add subject $subject to group $groupName");
+                  continue;
                 }
               }
               
@@ -667,6 +668,7 @@ FROM
             } catch (GrouperRestClientException $e) {
               // Log the failure but go onto the next group.
               $this->log("GrouperProvisioner unable to add subject $subject to group $groupName");
+              continue;
             }
           }
 
