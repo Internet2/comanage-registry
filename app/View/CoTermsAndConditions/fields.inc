@@ -140,7 +140,7 @@
     <li>
         <div class="field-name">
             <div class="field-title">
-              <?php print ($e ? $this->Form->label('order', _txt('fd.tc.order')) : _txt('fd.tc.order')); ?>
+              <?php print ($e ? $this->Form->label('ordr', _txt('fd.tc.order')) : _txt('fd.tc.order')); ?>
             </div>
             <div class="field-desc"><?php print _txt('fd.tc.order.desc'); ?></div>
         </div>
