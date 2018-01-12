@@ -183,8 +183,7 @@ class CoTermsAndConditions extends AppModel {
   public function beforeSave($options = array()) {
 
     if (!empty($this->data['CoTermsAndConditions']['co_id'])
-      && (empty($this->data['CoTermsAndConditions']['ordr'])
-        || $this->data['CoTermsAndConditions']['ordr'] == '')) {
+      && empty($this->data['CoTermsAndConditions']['ordr'])) {
       // In order to deterministically order TandCs, assign an order.
       // Find the current high value and add one
       $n = 1;
