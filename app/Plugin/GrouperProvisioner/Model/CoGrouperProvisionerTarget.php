@@ -257,6 +257,10 @@ FROM
     $args['conditions']['Identifier.deleted'] = false;
     $args['contain'] = false;
 
+    // Since the identifier may be multi-valued in order to be deterministic
+    // we order by the creation time.
+    $args['order'] = 'Identifier.created ASC';
+
     $identifier = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('first', $args);
     if ($identifier) {
       return $identifier['Identifier']['identifier'];
