@@ -279,15 +279,6 @@ class CoGrouperProvisionerGroup extends AppModel {
   }
 
   /**
-   * Update a mapping between a CO Group, provisioner target, and Grouper name.
-   *
-   * @since  COmanage Registry v0.8.3
-   * @param  array $provisionerGroup CoGrouperProvisionerGroup to update
-   * @return void
-   * @throws RuntimeException
-   */
-
-  /**
    * Determine if a CoGroup name has changed because of a change in COU name.
    *
    * @param  array $coProvisioningTargetData CO provisioning target data
@@ -311,6 +302,47 @@ class CoGrouperProvisionerGroup extends AppModel {
       return false;
     }
   }
+
+  /**
+   * Determine if a Grouper group given by the full name, stem plus extension,
+   * is a group managed by this plugin.
+   *
+   * @param  string $grouperGroupName full name of the Grouper group
+   * @return boolean true if group is managed or false if not
+   * 
+   */
+
+  public function isManaged($grouperGroupName) {
+    // The input grouperGroupName is expected to be a full name as
+    // returned by Grouper, ie. stem plus extension with colon (:)
+    // separating the stems. An example is
+    // MESS:Optics Group:CO_COU_Optics Group_members_active.
+    
+    $nameComponents = explode(':', $grouperGroupName);
+    $extension = array_pop($nameComponents);
+    $stem = implode(":", $nameComponents);
+
+    $args = array();
+    $args['conditions']['CoGrouperProvisionerGroup.stem'] = $stem;
+    $args['conditions']['CoGrouperProvisionerGroup.extension'] = $extension;
+    $args['contain'] = false;
+
+    $provisionerGroup = $this->find('first', $args);
+    if($provisionerGroup) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Update a mapping between a CO Group, provisioner target, and Grouper name.
+   *
+   * @since  COmanage Registry v0.8.3
+   * @param  array $provisionerGroup CoGrouperProvisionerGroup to update
+   * @return void
+   * @throws RuntimeException
+   */
 
   public function updateProvisionerGroup($provisionerGroup) {
     if(isset($provisionerGroup['CoGrouperProvisionerGroup']['modified'])) {
