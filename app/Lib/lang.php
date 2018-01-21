@@ -1832,7 +1832,7 @@ original notification at
   'rs.org.src.removed' => 'Source record is no longer available, Org Identity has been flagged as removed',
   'rs.org.src.rm'  => 'Org Identity removed from Source "%1$s" (%2$s)',
   'rs.org.src.sync' => 'Org Identity synced from Source "%1$s" (%2$s)',
-  'rs.org.src.synced' => 'Org Identity updated based on new source record',
+  'rs.org.src.synced' => 'Org Identity updated based on new or updated source record',
   'rs.org.src.unchanged' => 'Source record is unchanged, no changes were processed',
   'rs.pi.match' =>    'Org Identity matched to CO Person via Pipeline %1$s (%2$s) match strategy %3$s',
   'rs.pi.ok' =>       'Pipeline executed successfully',
@@ -1920,11 +1920,11 @@ original notification at
   // Shell
   
   'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for (all COs if not specified)',
-  'sh.job.arg.epilog' =>  "If no task specified, all run.\nAvailable tasks: expirations, groupvalidity, syncorgsources",
+  'sh.job.arg.epilog' =>  "If no task specified, all run.\nAvailable tasks: expirations, groupvalidity, syncorgsources, forcesyncorgsources",
   'sh.job.done' =>        'Job shell finished',
   'sh.job.gv' =>          'Reprovisioning group memberships based on validity dates for CO %1$s (%2$s)',
   'sh.job.gv.disabled' => 'Reprovisioning group memberships is disabled for this CO',
-  'sh.job.sync.ois' =>    'Syncing Organizational Identity Sources for CO %1$s (%2$s)',
+  'sh.job.sync.ois' =>    'Syncing Organizational Identity Sources for CO %1$s (%2$s) (force=%3$s)',
   'sh.job.sync.ois.disabled' => 'Organizational Identity Source sync is disabled for this CO',
   'sh.job.xp' =>          'Running expirations for CO %1$s (%2$s)',
   'sh.job.xp.disabled' => 'Expirations are disabled for this CO',

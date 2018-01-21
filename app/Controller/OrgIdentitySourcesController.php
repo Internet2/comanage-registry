@@ -644,7 +644,10 @@ class OrgIdentitySourcesController extends StandardController {
         
         $ret = $this->OrgIdentitySource->syncOrgIdentity($id,
                                                          $key,
-                                                         $this->Session->read('Auth.User.co_person_id'));
+                                                         $this->Session->read('Auth.User.co_person_id'),
+                                                         null,
+                                                         // Always force sync on manual request (CO-1556)
+                                                         true);
         
         $this->Flash->set(_txt('rs.org.src.'.$ret['status']), array('key' => 'success'));
         

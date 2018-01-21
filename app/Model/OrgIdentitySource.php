@@ -654,11 +654,12 @@ class OrgIdentitySource extends AppModel {
    *
    * @since  COmanage Registry v2.0.0
    * @param  integer $coId CO ID
+   * @param  Boolean $force If true, force a sync even if the source record has not changed
    * @return boolean True on success
    * @throws RuntimeException
    */
   
-  public function syncAll($coId) {
+  public function syncAll($coId, $force=false) {
     $errors = array();
     
     // Select all org identity sources where status=active
@@ -675,7 +676,7 @@ class OrgIdentitySource extends AppModel {
       
       if($src['OrgIdentitySource']['sync_mode'] != SyncModeEnum::Manual) {
         try {
-          $this->syncOrgIdentitySource($src);
+          $this->syncOrgIdentitySource($src, $force);
         }
         catch(Exception $e) {
           // What do we do with the exception? We don't want to abort the run,
@@ -769,12 +770,13 @@ class OrgIdentitySource extends AppModel {
    * @param  String  $sourceKey       Record key to retrieve as basis of Org Identity
    * @param  Integer $actorCoPersonId CO Person ID of actor syncing new Org Identity
    * @param  Integer $jobId           If being run as part of a CO Job, the CO Job ID
+   * @param  Boolean $force           If true, force a sync even if the source record has not changed
    * @return Array                    'id' is ID of Org Identity, and 'status' is "synced", "unchanged", or "removed"
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function syncOrgIdentity($id, $sourceKey, $actorCoPersonId = null, $jobId = null) {
+  public function syncOrgIdentity($id, $sourceKey, $actorCoPersonId=null, $jobId=null, $force=false) {
     // Pull record from source
     $brec = null;
     
@@ -860,11 +862,12 @@ class OrgIdentitySource extends AppModel {
                   ? $brec['raw']
                   : null));
       
-      if((isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
-          && $crec == $cursrcrec['OrgIdentitySourceRecord']['source_record'])
-         || // was record previously deleted?
-         (!$crec && (!isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
-                     || !$cursrcrec['OrgIdentitySourceRecord']['source_record']))) {
+      if(!$force
+         && ((isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+              && $crec == $cursrcrec['OrgIdentitySourceRecord']['source_record'])
+             || // was record previously deleted?
+             (!$crec && (!isset($cursrcrec['OrgIdentitySourceRecord']['source_record'])
+                         || !$cursrcrec['OrgIdentitySourceRecord']['source_record'])))) {
         // Source record has not changed, so don't bother doing anything
         
         if($jobId) {
@@ -1190,7 +1193,7 @@ class OrgIdentitySource extends AppModel {
         $status = 'synced';
       }
       
-      // Invoked pipeline, if configured
+      // Invoke pipeline, if configured
       if($status == 'removed' || $status == 'synced') {
         // For now, we rerun the pipeline even if the org identity did not change.
         // This should allow more obvious behavior if (eg) the pipeline definition
@@ -1245,11 +1248,12 @@ class OrgIdentitySource extends AppModel {
    *
    * @since  COmanage Registry v2.0.0
    * @param  Array   $orgIdentitySource Org Identity Source to process
+   * @param  Boolean $force             If true, force a sync even if the source record has not changed
    * @return boolean                    True on success
    * @throws RuntimeException
    */
   
-  public function syncOrgIdentitySource($orgIdentitySource) {
+  public function syncOrgIdentitySource($orgIdentitySource, $force=false) {
     // We don't check here that the source is in Manual mode in case an admin
     // wants to manually force a sync. (syncAll honors that setting.)
     
@@ -1320,16 +1324,21 @@ class OrgIdentitySource extends AppModel {
       // Get the timestamp of the current job
       $curStart = $this->Co->CoJob->startTime($jobId);
       
-      try {
-        $changelist = $this->obtainChangeList($orgIdentitySource['OrgIdentitySource']['id'],
-                                              $lastStart,
-                                              $curStart);
-      }
-      catch(Exception $e) {
-        // On error, fail the job rather than risk inconsistent sync state
-        
-        $this->Co->CoJob->finish($jobId, $e->getMessage(), JobStatusEnum::Failed);
-        return false;
+      // If $force is true, we can't use changelists since they only return updated records.
+      $changelist = false;
+      
+      if(!$force) {
+        try {
+          $changelist = $this->obtainChangeList($orgIdentitySource['OrgIdentitySource']['id'],
+                                                $lastStart,
+                                                $curStart);
+        }
+        catch(Exception $e) {
+          // On error, fail the job rather than risk inconsistent sync state
+          
+          $this->Co->CoJob->finish($jobId, $e->getMessage(), JobStatusEnum::Failed);
+          return false;
+        }
       }
       
       if($changelist !== false) {
@@ -1355,7 +1364,8 @@ class OrgIdentitySource extends AppModel {
               $r = $this->syncOrgIdentity($orgIdentitySource['OrgIdentitySource']['id'],
                                           $srckey,
                                           null,
-                                          $jobId);
+                                          $jobId,
+                                          $force);
               
               $resCnt[ $r['status'] ]++;
               $known++;
@@ -1387,7 +1397,8 @@ class OrgIdentitySource extends AppModel {
             $r = $this->syncOrgIdentity($rec['OrgIdentitySourceRecord']['org_identity_source_id'],
                                         $rec['OrgIdentitySourceRecord']['sorid'],
                                         null,
-                                        $jobId);
+                                        $jobId,
+                                        $force);
             
             $resCnt[ $r['status'] ]++;
           }
