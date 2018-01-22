@@ -456,7 +456,7 @@
               ?>
             </div>
           </li>
-          <li>
+          <li class="modelbox-data">
             <div class="field-name">
               <?php
                 if($e) {
@@ -496,7 +496,7 @@
               ?>
             </div>
           </li>
-          <li>
+          <li class="modelbox-data">
             <div class="field-name">
               <?php
                 if($e) {
