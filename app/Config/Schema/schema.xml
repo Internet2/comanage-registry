@@ -2066,6 +2066,7 @@
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_terms_and_conditions_id" type="I">

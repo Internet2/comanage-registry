@@ -1429,6 +1429,8 @@ original notification at
   'fd.tc.mode.login.desc' => 'How to handle Terms and Conditions at login, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.tc.none' =>     'There are no applicable Terms and Conditions',
   'fd.tc.url.desc' => 'The URL to the Terms and Conditions, which will be displayed in a popup',
+  'fd.tc.order'   =>  'Order',
+  'fd.tc.order.desc' => 'The order in which this Terms and Conditions will be presented',
   // These must be named fd.model.validation-field
   'fd.telephone_number.country_code' => 'Country Code',
   'fd.telephone_number.area_code' => 'Area Code',
