@@ -52,7 +52,7 @@ global $cm_lang, $cm_texts;
 </script>
 
 <div id="advancedSearch">
-  <h3><?php print _txt('ct.org_identities.se');?></h3>
+  <h3><?php print _txt('ct.org_identities.fi');?></h3>
   <div>
     <?php 
       print $this->Form->create('OrgIdentity',array('url' => array('action'=>'search')));
@@ -134,7 +134,7 @@ global $cm_lang, $cm_texts;
       </tr>
       <tr>
         <td>
-          <?php print $this->Form->submit(_txt('op.search')); ?>
+          <?php print $this->Form->submit(_txt('op.filter')); ?>
         </td>
       </tr>
     </table>
