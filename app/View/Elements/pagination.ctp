@@ -36,6 +36,12 @@
     ?>
   </span>
   <?php if($this->paginator->hasPage(2)): ?>
+    <span class="paginationFirst">
+      <?php
+        // Shows the first link
+        print $this->Paginator->first(_txt('op.first'));
+      ?>
+    </span>
     <span class="paginationPrev">
       <?php
         // Shows the previous link
@@ -64,6 +70,30 @@
         );
       ?>
     </span>
+    <span class="paginationLast">
+      <?php
+        // Shows the last link
+        print $this->Paginator->last(_txt('op.last'));
+      ?>
+    </span>
+  <?php endif; ?>
+
+  <?php if($this->paginator->hasPage(10)): ?>
+    <?php
+    // show the Goto page form if there are more than 9 pages (thus
+    // hiding some pagination numbers)
+    ?>
+    <form id="goto-page"
+          method="get"
+          onsubmit="gotoPage(this.pageNum.value,
+            <?php print $this->Paginator->counter('{:pages}');?>,
+            '<?php print _txt('er.pagenum.nan');?>',
+            '<?php print _txt('er.pagenum.exceeded', array($this->Paginator->counter('{:pages}')));?>');
+            return false;">
+      <?php print _txt('fd.page.goto'); ?>
+      <input type="text" size="3" name="pageNum"/>
+      <input type="submit" value="go"/>
+    </form>
   <?php endif; ?>
 </div>
 
