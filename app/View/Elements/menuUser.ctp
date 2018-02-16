@@ -27,7 +27,7 @@
  */
 ?>
 
-<?php if(!empty($cur_co['Co']['id'])): ?>
+<?php if(!empty($cur_co['Co']['id']) && $this->Session->check('Auth.User.name')): ?>
 
   <div id="global-search" class="topMenu">
     <?php

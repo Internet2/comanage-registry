@@ -150,3 +150,42 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
   // Open the dialog
   $('#dialog').dialog('open');
 }
+
+// Generic goto page form handling for multi-page listings.
+// We handle this in javascript to avoid special casing controllers.
+// pageNumber         - page number         (int, required)
+// maxPage            - largest page number allowed (int, required)
+// intErrMsg          - error message for entering a non-integer value (string, required)
+// maxErrMsg          - error message for entering a page number greater than last page (string, required)
+function gotoPage(pageNumber,maxPage,intErrMsg,maxErrMsg) {
+  // Just return if no value
+  if (pageNumber == "") {
+    stopSpinner();
+    return false;
+  }
+
+  var pageNum = parseInt(pageNumber,10);
+  var max = parseInt(maxPage,10);
+
+  // Not an integer?  Return an error message.
+  if (isNaN(pageNum)) {
+    stopSpinner();
+    alert(intErrMsg);
+    return false;
+  }
+
+  // Page number too large? Return an error message.
+  if(pageNum > max) {
+    stopSpinner();
+    alert(maxErrMsg);
+    return false;
+  }
+
+  // Page number < 1? Set the page = 1.
+  if(pageNum < 1) {
+    pageNum = 1;
+  }
+
+  // Redirect to the new page:
+  window.location = window.location.pathname.replace(new RegExp('\/page:[0-9]*', 'g'), '')+'/page:' + pageNum;
+}
