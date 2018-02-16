@@ -258,18 +258,12 @@
   <li>
     <div class="field-name">
       <div class="field-title"><?php print _txt('pl.ldapprovisioner.opts'); ?></div>
-      <div class="field-desc"><?php /* print _txt('pl.ldapprovisioner.opts.desc'); */ ?></div>
+      <div class="field-desc"><?php print _txt('pl.ldapprovisioner.opts.desc'); ?></div>
     </div>
     <div class="field-info checkbox">
       <?php
         if($e) {
-          // Disabled because not yet implemented -- need CO-115
-          print $this->Form->input('opt_lang', array('label' => _txt('pl.ldapprovisioner.opt.lang'),
-                                                   'disabled' => true));
-          
-          // Disabled because not yet implemented
-          print $this->Form->input('opt_role', array('label' => _txt('pl.ldapprovisioner.opt.role'),
-                                                   'disabled' => true));
+          print $this->Form->input('attr_opts', array('label' => _txt('pl.ldapprovisioner.opts')));
         }
       ?>
     </div>

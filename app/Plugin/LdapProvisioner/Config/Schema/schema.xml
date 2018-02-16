@@ -41,8 +41,7 @@
     <field name="group_basedn" type="C" size="128" />
     <field name="person_ocs" type="C" size="256" />
     <field name="group_ocs" type="C" size="256" />
-    <field name="opt_lang" type="L" />
-    <field name="opt_role" type="L" />
+    <field name="attr_opts" type="L" />
     <field name="scope_suffix" type="C" size="128" />
     <field name="unconf_attr_mode" type="C" size="2" />
     <field name="oc_eduperson" type="L" />
@@ -50,6 +49,7 @@
     <field name="oc_groupofnames" type="L" />
     <field name="oc_posixaccount" type="L" />
     <field name="oc_ldappublickey" type="L" />
+    <field name="oc_voperson" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

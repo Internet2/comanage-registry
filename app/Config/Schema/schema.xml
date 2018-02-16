@@ -2204,6 +2204,7 @@
     </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
+    <field name="short_label" type="C" size="32" />
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
@@ -2212,6 +2213,7 @@
     <field name="contact_email" type="C" size="128" />
     <field name="entitlement_uri" type="C" size="256" />
     <field name="visibility" type="C" size="2" />
+    <field name="identifier_type" type="C" size="32" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -2230,6 +2232,14 @@
     </index>
     <index name="co_services_i3">
       <col>co_group_id</col>
+    </index>
+    <index name="co_service_i4">
+      <col>co_id</col>
+      <col>identifier_type</col>
+    </index>
+    <index name="co_service_i5">
+      <col>co_id</col>
+      <col>short_label</col>
     </index>
   </table>
   

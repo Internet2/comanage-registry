@@ -44,7 +44,7 @@ class CoService extends AppModel {
   );
   
   // Default display field for cake generated views
-  public $displayField = "description";
+  public $displayField = "name";
   
   // Validation rules for table elements
   public $validate = array(
@@ -68,6 +68,12 @@ class CoService extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'short_label' => array(
+      'rule' => array('alphaNumeric'),
+      'required' => false,
+      'allowEmpty' => true
+      // XXX this should put up an alphanumeric error message rather than "this field cannot be left blank"
+    ),
     'co_group_id' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -78,6 +84,7 @@ class CoService extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    // Deprecated (CO-1595)
     'service_label' => array(
       'rule' => array('validateInput'),
       'required' => false,
@@ -101,6 +108,11 @@ class CoService extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'identifier_type' => array(
+      'rule' => array('validateInput'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'status' => array(
       'rule' => array('inList', array(SuspendableStatusEnum::Active,
                                       SuspendableStatusEnum::Suspended)),
@@ -115,6 +127,55 @@ class CoService extends AppModel {
     'status' => 'SuspendableStatusEnum',
     'visibility' => 'VisibilityEnum'
   );
+  
+  /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  boolean $created True if a new record was created (rather than update)
+   * @param  array   $options As passed into Model::save()
+   */
+
+  public function afterSave($created, $options = array()) {
+    // Clear any transaction. (_commit() will see if one is active.)
+    $this->_commit();
+    
+    return true;
+  }
+
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  array   $options As passed into Model::save()
+   * @return Boolean True to continue with save, false to abort
+   */
+
+  public function beforeSave($options = array()) {
+    // Check that short_label is not already in use.
+    // XXX This should be replaced with a validator (CO-1559).
+    
+    if(!empty($this->data['CoService']['short_label'])) {
+      // Start a transaction -- we'll commit in afterSave
+
+      $this->_begin();
+      
+      $args = array();
+      // XXX Does this need a special database index?
+      $args['conditions']['LOWER(CoService.short_label)'] = strtolower($this->data['CoService']['short_label']);
+      $args['conditions']['CoService.co_id'] = $this->data['CoService']['co_id'];
+      
+      $svcs = $this->findForUpdate($args['conditions'], array('id'));
+      
+      if(!empty($svcs)) {
+        $this->_rollback();
+        
+        throw new InvalidArgumentException(_txt('er.svc.label.exists', array(filter_var($this->data['CoService']['short_label'], FILTER_SANITIZE_SPECIAL_CHARS))));
+      }
+    }
+    
+    return true;
+  }
   
   /**
    * Find CO Services visible to the specified CO Person.
@@ -192,7 +253,7 @@ class CoService extends AppModel {
    * Map a list of groups to the entitlements they are associated with.
    *
    * @since  COmanage Registry v2.0.0
-   * @param  Integer String CO ID
+   * @param  Integer CO ID
    * @param  Array Array of CO Group IDs
    * @return Array Array of entitlements, keyed on CO Service ID
    */
@@ -206,6 +267,28 @@ class CoService extends AppModel {
     $args['conditions'][] = 'CoService.entitlement_uri IS NOT NULL';
     $args['conditions']['NOT']['CoService.entitlement_uri'] = '';
     $args['fields'] = array('CoService.id', 'CoService.entitlement_uri');
+    $args['contain'] = false;
+    
+    return $this->find('list', $args);
+  }
+  
+  /**
+   * Map an identifier type to the label(s) of any associated CoService.
+   * Note multiple Services can use the same identifier type, so this returns an array.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $coId           CO ID
+   * @param  String  $identifierType Identifier type
+   * @param  String  $label          Label type
+   * @return Array Array of labels, keyed on CO Service ID
+   * @todo Currently only "short_label" supported
+   */
+  
+  public function mapIdentifierToLabels($coId, $identifierType, $label="short_label") {
+    $args = array();
+    $args['conditions']['CoService.co_id'] = $coId;
+    $args['conditions']['CoService.identifier_type'] = $identifierType;
+    $args['fields'] = array('CoService.id', 'CoService.'.$label);
     $args['contain'] = false;
     
     return $this->find('list', $args);

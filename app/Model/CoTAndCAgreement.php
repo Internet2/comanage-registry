@@ -43,7 +43,7 @@ class CoTAndCAgreement extends AppModel {
   // Default display field for cake generated views
   public $displayField = "identifier";
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable', 'Provisioner');
   
   // Validation rules for table elements
   public $validate = array(

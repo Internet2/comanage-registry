@@ -203,6 +203,37 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print _txt('fd.svc.identifier'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.identifier.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_services[0]['CoService']['identifier_type'])
+                           ? $co_services[0]['CoService']['identifier_type']
+                           : null);
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('identifier_type',
+                                    $vv_identifier_types,
+                                    $attrs);
+
+          if($this->Form->isFieldError('identifier_type')) {
+            print $this->Form->error('identifier_type');
+          }
+        } else {
+          if(!empty($co_services[0]['CoService']['identifier_type'])) {
+            print $vv_identifier_types[ $co_services[0]['CoService']['identifier_type'] ];
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('service_url', _txt('fd.svc.url')) : _txt('fd.svc.url')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.svc.url.desc'); ?></div>
@@ -211,6 +242,19 @@
       <?php print ($e
                    ? $this->Form->input('service_url')
                    : filter_var($co_services[0]['CoService']['service_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('short_label', _txt('fd.svc.label.short')) : _txt('fd.svc.label.short')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.label.short.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('short_label')
+                   : filter_var($co_services[0]['CoService']['short_label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>

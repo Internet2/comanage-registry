@@ -901,6 +901,7 @@ class ProvisionerBehavior extends ModelBehavior {
       //'CoPersonRole.Address',
       //'CoPersonRole.Cou',
       //'CoPersonRole.TelephoneNumber',
+      'CoTAndCAgreement' => array('CoTermsAndConditions'),
       'EmailAddress',
       'Identifier',
       'Name',

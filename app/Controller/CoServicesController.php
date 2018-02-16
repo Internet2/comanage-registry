@@ -144,6 +144,9 @@ class CoServicesController extends StandardController {
       $args['order'] = array('Cou.name ASC');
 
       $this->set('vv_cous', $this->Co->Cou->find("list", $args));
+      
+      // and identifier types
+      $this->set('vv_identifier_types', $this->CoService->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
     }
     
     parent::beforeRender();
