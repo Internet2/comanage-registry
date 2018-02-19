@@ -26,62 +26,11 @@
  */
 
 App::uses("OrgIdentitySourceBackend", "Model");
-App::uses('HttpSocket', 'Network/Http');
+App::import("SalesforceSource.Model", "Salesforce");
 
 class SalesforceSourceBackend extends OrgIdentitySourceBackend {
   public $name = "SalesforceSourceBackend";
 
-  /**
-   * Generate a Salesforce callback URL.
-   *
-   * @since  COmanage Registry v3.1.0
-   * @return Array URL, in Cake array format
-   */
-  
-  public function callbackUrl() {
-    return array(
-      'plugin'     => 'salesforce_source',
-      'controller' => 'salesforce_sources',
-      'action'     => 'callback',
-      $this->pluginCfg['id']
-    );
-  }
-  
-  /**
-   * Exchange an authorization code for an access and refresh token.
-   * 
-   * @since  COmanage Registry v3.1.0
-   * @param  String $code Access code return by call to /oauth/authorize
-   * @param  String $redirectUrl Callback URL used for initial request
-   * @return StdObject Object of data as returned by Salesforce, including access and refresh token
-   * @throws RuntimeException
-   */
-  
-  public function exchangeCode($code, $redirectUrl) {
-    $HttpSocket = new HttpSocket();
-
-    $params = array(
-      'client_id'     => $this->pluginCfg['clientid'],
-      'client_secret' => $this->pluginCfg['client_secret'],
-      'grant_type'    => 'authorization_code',
-      'code'          => $code,
-      'redirect_uri'  => $redirectUrl
-    );
-    
-    $postUrl = $this->pluginCfg['serverurl'] . "/services/oauth2/token";
-    
-    $results = $HttpSocket->post($postUrl, $params);
-    
-    $json = json_decode($results->body());
-    
-    if($results->code == 200) {
-      return $json;
-    }
-
-    // There should be an error in the response
-    throw new RuntimeException(_txt('er.salesforcesource.code', array($json->error . ": " . $json->error_description)));
-  }
-  
   /**
    * Obtain a list of records changed since $lastStart, through $curStart.
    * 
@@ -133,9 +82,8 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     );
     
     foreach($sobjects as $sobject) {
-      $attributes['sobject'] = $sobject;
-      
-      $res = $this->querySalesforceApi($attributes);
+      $res = $this->querySalesforceApi("/services/data/v39.0/sobjects/" . $sobject . "/updated/",
+                                       $attributes);
       
       if(isset($res->ids)) {
         // Might be empty if no records changed.
@@ -179,7 +127,8 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     
     // Take the union of contact and user attributes, if enabled
     if($this->pluginCfg['search_contacts']) {
-      $r = $this->querySalesforceApi(array('id' => 'Contact-describe'));
+      $r = $this->querySalesforceApi("/services/data/v39.0/sobjects",
+                                     array('id' => 'Contact-describe'));
       
       if(!empty($r->fields)) {
         foreach($r->fields as $f) {
@@ -189,7 +138,8 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     }
     
     if($this->pluginCfg['search_users']) {
-      $r = $this->querySalesforceApi(array('id' => 'User-describe'));
+      $r = $this->querySalesforceApi("/services/data/v39.0/sobjects",
+                                     array('id' => 'User-describe'));
       
       if(!empty($r->fields)) {
         foreach($r->fields as $f) {
@@ -205,7 +155,8 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       foreach($objs as $obj) {
         $o = explode(':', $obj);
         
-        $r = $this->querySalesforceApi(array('id' => $o[0] .'-describe'));
+        $r = $this->querySalesforceApi("/services/data/v39.0/sobjects",
+                                       array('id' => $o[0] .'-describe'));
         
         foreach($r->fields as $f) {
           $attrs[ $r->name . ':' . $f->name ] = $r->labelPlural . ": " . $f->label;
@@ -226,7 +177,11 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     $SFModel = ClassRegistry::init("SalesforceSource.SalesforceSource");
 
     $SFModel->id = $this->pluginCfg['id'];
-    $SFModel->saveField('groupable_attrs', $this->pluginCfg['groupable_attrs']);
+    
+    $SFModel->saveField('groupable_attrs',
+                        $this->pluginCfg['groupable_attrs'],
+                        // Disable callbacks so beforeSave doesn't blank out groupable_attrs
+                        array('callbacks' => false));
 
     return $attrs;
   }
@@ -257,7 +212,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
   public function limits() {
     $ret = array();
     
-    $sf = $this->querySalesforceApi(array('limits' => true));
+    $sf = $this->querySalesforceApi("/services/data/v39.0/limits");
     
     // Pull only the values we're currently interested in
     
@@ -278,264 +233,33 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
    * Query the Salesforce API.
    *
    * @since  COmanage Registry v3.1.0
-   * @param  Array $attributes Search attributes
+   * @param  String $urlpath    API URL path to query
+   * @param  Array  $attributes Request attributes
+   * @param  String $action     HTTP action
    * @return StdClass JSON decoded results
-   */
-  
-  protected function querySalesforceApi($attributes) {
-    // First we need to get an access token. If the access token expires,
-    // we need to use the refresh token to get a new one.
-    
-    // Grab the access token from the config, or throw an error if not found
-    if(empty($this->pluginCfg['access_token'])) {
-      throw new InvalidArgumentException(_txt('er.salesforcesource.token.none'));
-    }
-    
-    $options = array(
-      'header' => array(
-        'Accept'        => 'application/json',
-        'Authorization' => 'Bearer ' . $this->pluginCfg['access_token'],
-        'Content-Type'  => 'application/json'
-      )
-    );
-    
-    $targetUrl = $this->pluginCfg['serverurl'];
-    
-    if(!empty($this->pluginCfg['instance_url'])) {
-      $targetUrl = $this->pluginCfg['instance_url'];
-    }
-    
-    $HttpSocket = new HttpSocket();
-    
-    if(!empty($attributes['id'])) {
-      // Retrieve
-      
-      // We expect id to be of the form ObjectType-Id
-      $sfid = explode('-', $attributes['id'], 2);
-      
-      $searchResults = $HttpSocket->get(
-        $targetUrl . "/services/data/v39.0/sobjects/" . $sfid[0] . "/" . $sfid[1],
-        null,
-        $options
-      );
-    } elseif(isset($attributes['limits'])) {
-      // Obtain current limits
-      
-      $searchResults = $HttpSocket->get(
-        $targetUrl . "/services/data/v39.0/limits",
-        null,
-        $options
-      );
-    } elseif(!empty($attributes['start']) && !empty($attributes['end'])) {
-      // Obtain changelist
-      
-      $searchResults = $HttpSocket->get(
-        $targetUrl . "/services/data/v39.0/sobjects/" . $attributes['sobject'] . "/updated/",
-        $attributes,
-        $options
-      );
-    } elseif(!empty($attributes['mail'])) {
-      // Search by email. In theory we should be able to do a parameterized search with IN=EMAIL,
-      // but this doesn't appear to actually constrain the search. So instead we use SOSL and
-      // mock up the results to look like parameterized search.
-      
-      $ret = new stdClass;
-      $ret->searchRecords = array();
-      
-      $sobjects = array();
-      
-      if($this->pluginCfg['search_contacts']) {
-        $sobjects[] = 'Contact';
-      }
-      if($this->pluginCfg['search_users']) {
-        $sobjects[] = 'User';
-      }
-      
-      foreach($sobjects as $sobject) {
-        $searchResults = $HttpSocket->get(
-          $targetUrl . "/services/data/v39.0/query/?q="
-                     . urlencode("SELECT Id from " . $sobject . " WHERE Email='" . $attributes['mail'] . "'"),
-          null,
-          $options
-        );
-        
-        if($searchResults->code == 200) {
-          $json = json_decode($searchResults->body);
-          
-          if($json->totalSize == 0) {          
-            return array();
-          }
-          
-          $ret->searchRecords[] = $this->querySalesforceApi(array('id' => $sobject.'-'.$json->records[0]->Id));
-        }
-        // else we should probably fall through for error handling
-      }
-      
-      if($searchResults->code == 200) {
-        return $ret;
-      }
-      // else fall through for error handling
-    } else {
-      // Search
-      
-      if(!empty($attributes['sobject'])) {
-        // We're probably being asked to retrieve a related custom object,
-        // so set the appropriate object and treat this like a hybrid search/retrieve.
-        
-        // According to
-        // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_relationship_traversal.htm#dome_relationship_traversal
-        // we should be able to traverse the relationship in one call, but it doesn't appear to work
-        /*
-        $searchResults = $HttpSocket->get(
-          $targetUrl . "/services/data/v39.0/sobjects/Contact/0030n000001bFWeAAM/Committee_Boards__r",
-          null,
-          $options
-        );*/
-        
-        // "SELECT *" doesn't work here
-        $objectIds = $HttpSocket->get(
-          $targetUrl . "/services/data/v39.0/query/?q="
-          . urlencode("SELECT Id FROM " . $attributes['sobject']
-                      . " WHERE " . $attributes['sobject_key'] . "='" . $attributes['sobject_id'] . "'"),
-          null,
-          $options
-        );
-        
-        $searchResults = array();
-        
-        // There could be more than one search result. Note this could be paginated, see
-        // $jsr->done and $jsr->nextRecordsUrl for additional results.
-        $jsr = json_decode($objectIds);
-        
-        if(!empty($jsr->totalSize) && $jsr->totalSize > 0) {
-          foreach($jsr->records as $r) {
-            // Now pull the associated object record
-            $rRecord = $HttpSocket->get(
-              $targetUrl . "/services/data/v39.0/sobjects/" . $attributes['sobject'] . "/" . $r->Id,
-              null,
-              $options
-            );
-            
-            if($rRecord->code == 200) {
-              $searchResults[] = json_decode($rRecord->body);
-            }
-            // else ignore
-          }
-        }
-        
-        return $searchResults;
-      } else {
-        // We have to use POST (and it's slightly more complex syntax) because
-        // PHP (and therefore Cake) incorrectly generates URLs with indexes for
-        // repeated parameters, eg: sobject[1]
-        // See https://github.com/cakephp/cakephp/issues/1901
-        
-        $searchAttributes = $attributes;
-        
-        if($this->pluginCfg['search_contacts']) {
-          $searchAttributes['sobjects'][] = array('name' => 'Contact');
-        }
-        if($this->pluginCfg['search_users']) {
-          $searchAttributes['sobjects'][] = array('name' => 'User');
-        }
-        
-        // Pull the fields we need for search results listings
-        $searchAttributes['fields'] = array(
-          'Id',
-          'FirstName',
-// This field is not enabled by default (CO-1506)
-//          'MiddleName',
-          'LastName',
-          'Email'
-        );
-        
-        // We should be able to do this to constrain searches to email addresses,
-        // but it doesn't appear to actually do that (so see special handling, above).
-        // $searchAttributes['in'] = 'EMAIL';
-      }
-      
-      $searchResults = $HttpSocket->post(
-        $targetUrl . "/services/data/v39.0/parameterizedSearch",
-        json_encode($searchAttributes),
-        $options
-      );
-    }
-    
-    $json = json_decode($searchResults->body);
-    
-    // Salesforce includes some elements we don't need that change on each request,
-    // impacting our ability to detect record changes, so we remove them.
-    // (We could instead use LastModifiedDate to detect changes, but the OIS
-    // infrastructure doesn't currently support that approach.)
-    
-    unset($json->LastViewedDate);
-    unset($json->LastReferencedDate);
-    
-    if($searchResults->code == 401
-       && !empty($json[0]->errorCode)
-       && $json[0]->errorCode == 'INVALID_SESSION_ID') {
-      // The access token expired, obtain a new one and reissue the request
-      
-      $this->refreshToken();
-      
-      return $this->querySalesforceApi($attributes);
-    }
-    
-    if($searchResults->code >= 400) {
-      // Some sort of error occurred
-      
-      throw new RuntimeException($json[0]->errorCode . ": " . $json[0]->message);
-    }
-    
-    return $json;
-  }
-  
-  /**
-   * Refresh the access token.
-   * 
-   * @since  COmanage Registry v3.1.0
-   * @return Boolean True if a new access token was obtained
+   * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function refreshToken() {
-    $HttpSocket = new HttpSocket();
-
-    $params = array(
-      'client_id'     => $this->pluginCfg['clientid'],
-      'client_secret' => $this->pluginCfg['client_secret'],
-      'grant_type'    => 'refresh_token',
-      'refresh_token' => $this->pluginCfg['refresh_token'],
-      'format'        => 'json'
-    );
+  protected function querySalesforceApi($urlpath, $attributes=array(), $action="get") {
+    // First we need to get an access token. If the access token expires,
+    // we need to use the refresh token to get a new one.
     
-    $postUrl = $this->pluginCfg['serverurl'] . "/services/oauth2/token";
+    $Salesforce = new Salesforce();
     
-    $results = $HttpSocket->post($postUrl, $params);
+    $Salesforce->connect($this->pluginCfg['server_id'],
+                         $this->pluginCfg['id']);
     
-    $json = json_decode($results->body());
-    
-    if($results->code != 200 || empty($json->access_token)) {
-      // There should be an error in the response
-      throw new RuntimeException(_txt('er.salesforcesource.code',
-                                      array($json->error . ": " . $json->error_description)));
+    if(!empty($attributes['id'])) {
+      // We expect id to be of the form ObjectType-Id (so we can tell objects apart)
+      $sfid = explode('-', $attributes['id'], 2);
+      
+      return $Salesforce->request(
+        $urlpath . "/" . $sfid[0] . "/" . $sfid[1]
+      );
     }
     
-    // Update the database as well as our current config
-
-    $SalesforceSource = ClassRegistry::init('SalesforceSource.SalesforceSource');
-    
-    $SalesforceSource->id = $this->pluginCfg['id'];
-    $SalesforceSource->saveField('access_token', $json->access_token);
-    // Update the instance url in case it changed
-    if(!empty($json->instance_url)) {
-      $SalesforceSource->saveField('instance_url', $json->instance_url);
-    }
-    
-    $this->pluginCfg['access_token'] = $json->access_token;
-    $this->pluginCfg['instance_url'] = $json->instance_url;
-    
-    return true;
+    return $Salesforce->request($urlpath, $attributes, $action);
   }
   
   /**
@@ -633,11 +357,26 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
       $orgdata['EmailAddress'][0]['verified'] = false;
     }
     
-    if(!empty($result->CompanyName)) {
+    if(!empty($result->Account->Name)) {
+      $orgdata['OrgIdentity']['o'] = (string)$result->Account->Name;
+    } elseif(!empty($result->CompanyName)) {
       $orgdata['OrgIdentity']['o'] = (string)$result->CompanyName;
     }
+    
     if(!empty($result->Title)) {
       $orgdata['OrgIdentity']['title'] = (string)$result->Title;
+    }
+    
+    // Populate the SORID
+// XXX should this be done automatically? or be a recommended standard?
+// Note this is just the ID, vs the unique key which is (eg) Contact-Id
+    if(!empty($result->Id)) {
+      $orgdata['Identifier'][] = array(
+        'identifier' => $result->Id,
+        'login'      => false,
+        'status'     => StatusEnum::Active,
+        'type'       => IdentifierEnum::SORID
+      );
     }
     
     return $orgdata;
@@ -658,31 +397,70 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
   public function retrieve($id) {
     try {
       // There should just be one result
-      $records = $this->querySalesforceApi(array('id' => $id));
+      $records = $this->querySalesforceApi("/services/data/v39.0/sobjects",
+                                           array('id' => $id));
     }
     catch(InvalidArgumentException $e) {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
     
-    if(!empty($records) && !empty($this->pluginCfg['custom_objects'])) {
-      // Walk through the list of custom objects (of the form Object:Key)
-      // and merge any results into the record
-      
-      $objs = explode(',', $this->pluginCfg['custom_objects']);
-      
-      foreach($objs as $o) {
-        $oattr = explode(':', $o, 2);
-        $sobject = $oattr[0];
+    if(!empty($records)) {
+      if(!empty($records->AccountId)) {
+        // Pull the account record to populate additional attributes.
         
-        $orecords = $this->querySalesforceApi(array(
-          'sobject'     => $sobject,
-          'sobject_key' => $oattr[1],
-          // Note $id is of the form Contact-012345 so use $records->Id instead
-          'sobject_id'  => $records->Id)
-        );
+        $account = $this->querySalesforceApi("/services/data/v39.0/sobjects/Account/" . $records->AccountId);
         
         // Insert the object into the result package
-        $records->$sobject = $orecords;
+        $records->Account = $account;
+      }
+      
+      if(!empty($this->pluginCfg['custom_objects'])) {
+        // Walk through the list of custom objects (of the form Object:Key)
+        // and merge any results into the record. Treat this like a hybrid search/retrieve.
+        
+        // According to
+        // https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_relationship_traversal.htm#dome_relationship_traversal
+        // we should be able to traverse the relationship in one call, but it doesn't appear to work
+        /*
+        $searchResults = $this->querySalesforceApi(
+          $targetUrl . "/services/data/v39.0/sobjects/Contact/0030n000001bFWeAAM/Committee_Boards__r"
+        );*/
+        
+        $objs = explode(',', $this->pluginCfg['custom_objects']);
+        
+        foreach($objs as $o) {
+          $searchResults = array();
+          
+          $oattr = explode(':', $o, 2);
+          $sobject = $oattr[0];
+          
+          $urlpath = "/services/data/v39.0/query/?q="
+                   . urlencode("SELECT Id FROM " . $sobject
+                               // Note $id is of the form Contact-012345 so use $records->Id instead
+                               . " WHERE " . $oattr[1] . "='" . $records->Id . "'");
+          
+          $objectIds = $this->querySalesforceApi($urlpath);
+          
+          // There could be more than one search result. Note this could be paginated, see
+          // $objectIds->done and $objectIds->nextRecordsUrl for additional results.
+          
+          if(!empty($objectIds->records)) {
+            foreach($objectIds->records as $r) {
+              // Pull the associated object record
+              $rRecord = $this->querySalesforceApi(
+                "/services/data/v39.0/sobjects/" . $sobject . "/" . $r->Id
+              );
+              
+              if(!empty($rRecord)) {
+                $searchResults[] = $rRecord;
+              }
+              // else ignore
+            }
+          }
+          
+          // Insert the object into the result package
+          $records->$sobject = $searchResults;
+        }
       }
     }
     
@@ -708,14 +486,55 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
   public function search($attributes) {
     $ret = array();
     
-    if(!isset($attributes['q'])) {
+    $searchAttributes = $attributes;
+    
+    // Special case mail for CoPetition usage. Although the documentation suggests
+    // we should be able to filter scope to email addresses (IN=EMAIL), this doesn't
+    // appear to work...
+    
+    if(isset($attributes['mail'])) {
+      $searchAttributes['q'] = $attributes['mail'];
+      unset($searchAttributes['mail']);
+    }
+    
+    if(!isset($searchAttributes['q'])) {
       // For now, we only support free form search (though Salesforce does support
       // search by eg email).
       
       return array();
     }
     
-    $records = $this->querySalesforceApi($attributes);
+    // We have to use POST (and it's slightly more complex syntax) because
+    // PHP (and therefore Cake) incorrectly generates URLs with indexes for
+    // repeated parameters, eg: sobject[1]
+    // See https://github.com/cakephp/cakephp/issues/1901
+
+    if($this->pluginCfg['search_contacts']) {
+      $searchAttributes['sobjects'][] = array('name' => 'Contact');
+    }
+    if($this->pluginCfg['search_users']) {
+      $searchAttributes['sobjects'][] = array('name' => 'User');
+    }
+
+    // Pull the fields we need for search results listings
+    $searchAttributes['fields'] = array(
+      'Id',
+      'FirstName',
+    // This field is not enabled by default (CO-1506)
+    //          'MiddleName',
+      'LastName',
+      'Email'
+    );
+
+    // We should be able to do this to constrain searches to email addresses,
+    // but it doesn't appear to actually do that (so see special handling, above).
+    // $searchAttributes['in'] = 'EMAIL';
+
+    $records = $this->querySalesforceApi(
+      "/services/data/v39.0/parameterizedSearch",
+      json_encode($searchAttributes),
+      'post'
+    );
     
     if(!empty($records->searchRecords)) {
       foreach($records->searchRecords as $r) {

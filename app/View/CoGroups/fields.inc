@@ -126,7 +126,9 @@
     <div class="field-info">
       <?php
         global $cm_lang, $cm_texts;
-        $attrs['value'] = (isset($co_groups) ? $co_groups[0]['CoGroup']['status'] : 'A');
+        
+        $attrs = array();
+        $attrs['value'] = (isset($co_groups) ? $co_groups[0]['CoGroup']['status'] : SuspendableStatusEnum::Active);
         $attrs['empty'] = false;
 
         if($e) {

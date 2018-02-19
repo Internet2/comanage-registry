@@ -42,12 +42,14 @@ class IdentifiersController extends MVPAController {
   public $edit_contains = array(
     'CoDepartment',
     'CoPerson' => array('PrimaryName'),
+    'CoProvisioningTarget',
     'OrgIdentity' => array('PrimaryName')
   );
 
   public $view_contains = array(
     'CoDepartment',
     'CoPerson' => array('PrimaryName'),
+    'CoProvisioningTarget',
     'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
                            'PrimaryName'),
     'SourceIdentifier'

@@ -30,6 +30,10 @@ App::uses("StandardController", "Controller");
 class SPTController extends StandardController {
   // SPTs need a CO to be set
   public $requires_co = true;
+  
+// We can't use $uses because it clobbers our other models and it's hard to
+// dynamically reconstruct that list.
+//  public $uses = array('Server');
 
   /**
    * Callback before views are rendered.

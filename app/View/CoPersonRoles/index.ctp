@@ -131,7 +131,7 @@
                 . '\']);">'
                 . _txt('op.delete') . '</button>' . "\n";
             }
-            if($permissions['invite'] && ($p['CoPersonRole']['status'] != 'A' && $p['CoPersonRole']['status'] != 'D')) {
+            if($permissions['invite'] && ($p['CoPersonRole']['status'] != StatusEnum::Active && $p['CoPersonRole']['status'] != StatusEnum::Deleted)) {
               print '<button class="invitebutton" title="' . _txt('op.inv.resend')
                 . '" onclick="javascript:noprop(event);js_confirm_generic(\''
                 . _txt('js.reinvite') . '\',\''   // dialog body text

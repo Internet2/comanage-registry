@@ -39,27 +39,21 @@ $cm_salesforce_source_texts['en_US'] = array(
   // Error messages
   'er.salesforcesource.callback'   => 'Incorrect parameters in callback',
   'er.salesforcesource.code'       => 'Error exchanging code for access token: %1$s',
+  'er.salesforcesource.instanceurl' => 'Cannot determine Instance URL',
   'er.salesforcesource.token.none' => 'Access token not found (recheck configuration)',
   
   // Plugin texts
-  'pl.salesforcesource.clientid'       => 'Client ID',
-  'pl.salesforcesource.clientid.desc'  => 'Client ID ("Consumer Key") obtained from Salesforce',
   'pl.salesforcesource.custom'         => 'Custom Objects',
   'pl.salesforcesource.custom.desc'    => 'Comma separate list of additional objects to query for, keyed on the contact ID (Use format Object:Key, eg: Committee__c:Contact__c)',
+  'pl.salesforcesource.instanceurl'    => 'Instance URL',
+  'pl.salesforcesource.instanceurl.desc' => 'The Instance URL will be automatically determined, but can also be manually set here ( eg: https://cs123.salesforce.com)',
   'pl.salesforcesource.limits'         => 'View API Limits',
   'pl.salesforcesource.limits.daily'   => 'Daily',
   'pl.salesforcesource.limits.limit'   => 'Limit',
   'pl.salesforcesource.limits.type'    => 'Limit Type',
   'pl.salesforcesource.limits.used'    => 'Used',
-  'pl.salesforcesource.redirect_uri'   => 'Salesforce Redirect URI',
   'pl.salesforcesource.search.contacts' => 'Search Contacts',
   'pl.salesforcesource.search.users'   => 'Search Users',
-  'pl.salesforcesource.secret'         => 'Client Secret',
-  'pl.salesforcesource.secret.desc'    => 'Client Secret ("Consumer Secret") obtained from Salesforce',
-  'pl.salesforcesource.serverurl' => 'Salesforce Base URL',
-  'pl.salesforcesource.serverurl.desc' => 'Can be test/sandbox or production, eg: https://cs123.salesforce.com',
-  'pl.salesforcesource.token'          => 'Access Token',
-  'pl.salesforcesource.token.new'      => 'Obtain New Token',
+  'pl.salesforcesource.servers.none'  => 'There are no defined OAuth2 servers to use for this provisioner.',
   'pl.salesforcesource.token.missing'  => 'There is no current OAuth token. You must obtain a new token before the Salesforce API can be queried.',
-  'pl.salesforcesource.token.ok'       => 'Access Token Obtained'
 );

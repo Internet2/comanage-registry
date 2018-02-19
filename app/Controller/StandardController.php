@@ -186,12 +186,29 @@ class StandardController extends AppController {
    */
 
   public function beforeRender() {
-    if($this->modelClass == 'CoPerson'
-       || $this->modelClass == 'OrgIdentity') {
+    $mName = $this->modelClass;
+    
+    if($mName == 'CoPerson' || $mName == 'OrgIdentity') {
       // Populate list of statuses for people searches
       
       global $cm_lang, $cm_texts;
       $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status']);
+    }
+    
+    // If we're in a plugin and the plugin specifies a Server type,
+    // populate the available set of those servers
+    
+    if(!empty($this->$mName->cmServerType)) {
+      $this->loadModel('Server');
+      
+      $args = array();
+      $args['conditions']['Server.server_type'] = $this->$mName->cmServerType;
+      $args['conditions']['Server.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['Server.status'] = SuspendableStatusEnum::Active;
+      $args['fields'] = array('id', 'description');
+      $args['contain'] = false;
+      
+      $this->set('vv_servers', $this->Server->find('list', $args));
     }
     
     parent::beforeRender();

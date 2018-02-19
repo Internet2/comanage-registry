@@ -331,6 +331,24 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print "</li>";
       }
       
+      // Servers Menu
+      if ($permissions['menu']['servers']) {
+        print '<li class="configMenu">';
+
+        $linkContent = '<em class="material-icons" aria-hidden="true">storage</em><span class="menuTitle">' . _txt('ct.servers.pl') .
+          '</span><span class="mdl-ripple"></span>';
+
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'servers';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+
+        print "</li>";
+      }
+      
       // Configuration Menu
       if ($permissions['menu']['coconfig']) {
         print '<li class="configMenu">';

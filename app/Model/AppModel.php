@@ -865,6 +865,18 @@ class AppModel extends Model {
       if(!empty($copt['OrgIdentitySource']['co_id'])) {
         return $copt['OrgIdentitySource']['co_id'];
       }
+    } elseif(isset($this->validate['server_id'])) {
+      // Typed Servers will refer to a parent server
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'Server';
+    
+      $srvr = $this->find('first', $args);
+      
+      if(!empty($srvr['Server']['co_id'])) {
+        return $srvr['Server']['co_id'];
+      }
     } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
       // Extended attributes need to be handled specially, as usual, since there
       // are no explicit validation rules. Find the CO via the CO Person Role ID.

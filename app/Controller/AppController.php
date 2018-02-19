@@ -1006,6 +1006,9 @@ class AppController extends Controller {
     // Perform a search?
     $p['menu']['search'] = $roles['user'];
     
+    // Manage servers?
+    $p['menu']['servers'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     $this->set('permissions', $p);
   }
 

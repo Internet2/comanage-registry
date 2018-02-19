@@ -69,7 +69,8 @@ class Co extends AppModel {
     // It's OK to make the model dependent, because if they are pooled the
     // link won't be there to delete.
     "OrgIdentity" => array('dependent' => true),
-    "OrgIdentitySource" => array('dependent' => true)
+    "OrgIdentitySource" => array('dependent' => true),
+    "Server" => array('dependent' => true)
   );
   
   public $hasOne = array(

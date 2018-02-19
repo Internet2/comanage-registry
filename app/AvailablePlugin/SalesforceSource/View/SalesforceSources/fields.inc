@@ -61,51 +61,49 @@
   
   $l = 1;
 ?>
+<?php if(empty($vv_servers)): ?>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('pl.salesforcesource.servers.none'); ?>
+</div>
+<?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_salesforce_source" class="fields form-list">
   <li>
     <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.salesforcesource.redirect_uri'); ?>
-      </div>
+      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?><span class="required">*</span>
     </div>
     <div class="field-info">
-      <input type="text" readonly="true" size="60" value="<?php print $this->Html->url($vv_salesforce_redirect_url, true); ?>" />
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id']) 
+                           ? $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id']
+                           : null);
+        // Since required=true, this will render blank by default but not allow save until a server is selected
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('server_id',
+                                    $vv_servers,
+                                    $attrs);
+
+          if($this->Form->isFieldError('server_id')) {
+            print $this->Form->error('server_id');
+          }
+        } else {
+          if(!empty($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id'])) {
+            print filter_var($vv_servers[ $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id'] ], FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+        }
+      ?>
     </div>
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.salesforcesource.serverurl'); ?>
-        <span class="required">*</span>
-      </div>
-      <div class="field-desc"><?php print _txt('pl.salesforcesource.serverurl.desc'); ?></div>
+      <?php print $this->Form->label('instance_url',_txt('pl.salesforcesource.instanceurl')); ?><br />
+      <div class="field-desc"><?php print _txt('pl.salesforcesource.instanceurl.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('serverurl', array('size' => 50)) : filter_var($salesforce_sources[0]['SalesforceSource']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.salesforcesource.clientid'); ?>
-        <span class="required">*</span>
-      </div>
-      <div class="field-desc"><?php print _txt('pl.salesforcesource.clientid.desc'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('clientid', array('size' => 50)) : filter_var($salesforce_sources[0]['SalesforceSource']['clientid'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.salesforcesource.secret'); ?>
-        <span class="required">*</span>
-      </div>
-      <div class="field-desc"><?php print _txt('pl.salesforcesource.secret.desc'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('client_secret', array('size' => 50)) : filter_var($salesforce_sources[0]['SalesforceSource']['secret'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e ? $this->Form->input('instance_url', array('class' => 'focusFirst')) : filter_var($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['instance_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -139,32 +137,6 @@
       <?php print ($e ? $this->Form->input('custom_objects', array('size' => 50)) : filter_var($salesforce_sources[0]['SalesforceSource']['custom_objects'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <?php if(!empty($salesforce_sources[0]['SalesforceSource']['serverurl'])): ?>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.salesforcesource.token'); ?>
-      </div>
-    </div>
-    <div class="field-info">
-      <?php print _txt(!empty($salesforce_sources[0]['SalesforceSource']['refresh_token']) ? 'fd.set' : 'fd.set.not'); ?>
-      <?php
-        if(!empty($salesforce_sources[0]['SalesforceSource']['serverurl'])) {
-          $loginUrl = $salesforce_sources[0]['SalesforceSource']['serverurl']
-                    . '/services/oauth2/authorize?response_type=code'
-                    . '&client_id=' . $salesforce_sources[0]['SalesforceSource']['clientid']
-                    . '&redirect_uri=' . urlencode($this->Html->url($vv_salesforce_redirect_url, true))
-                    // We base64 encode the redirect URL to make it easy to pass back in the callback
-                    . '&state=' . base64_encode($this->Html->url($vv_salesforce_redirect_url, true));
-          
-          print $this->Html->link(_txt('pl.salesforcesource.token.new'),
-                                  $loginUrl,
-                                  array('class' => 'runbutton'));
-        }
-      ?>
-    </div>
-  </li>
-  <?php endif; // serverurl ?>
   
   <?php if($e): ?>
     <li class="fields-submit">
@@ -177,3 +149,4 @@
     </li>
   <?php endif; ?>
 </ul>
+<?php endif; // vv_servers ?>

@@ -115,24 +115,6 @@ class SalesforceSourcesController extends SOISController {
   }
   
   /**
-   * Update a SalesforceSource.
-   *
-   * @since  COmanage Registry v3.1.0
-   * @param  integer $id SalesforceSource ID
-   */
-  
-  public function edit($id) {
-    parent::edit($id);
-    
-    if(!empty($this->viewVars['salesforce_sources'][0]['OrgIdentitySource']['id'])) {
-      // Set the callback URL
-      $Backend = $this->OrgIdentitySource->instantiateBackendModel($this->viewVars['salesforce_sources'][0]['OrgIdentitySource']['id']);
-      
-      $this->set('vv_salesforce_redirect_url', $Backend->callbackUrl());
-    }
-  }
-  
-  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

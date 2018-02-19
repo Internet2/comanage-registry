@@ -405,6 +405,13 @@ class NSFRaceEnum
   const White            = 'W';
 }
 
+class Oauth2GrantEnum
+{
+  const AuthorizationCode = 'AC';
+  const ClientCredentials = 'CC';
+  // We don't currently support Implicit or Password Credentials
+}
+
 class OrgIdentityMismatchEnum
 {
   const CreateNew        = 'N';
@@ -545,6 +552,12 @@ class RequiredNameFieldsEnum
 {
   const Given       = "given";
   const GivenFamily = "given,family";
+}
+
+class ServerEnum
+{
+  const LdapServer    = 'LD';
+  const Oauth2Server  = 'O2';
 }
 
 class SponsorEligibilityEnum {

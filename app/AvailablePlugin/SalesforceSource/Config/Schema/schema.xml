@@ -37,16 +37,12 @@
     <field name="org_identity_source_id" type="I">
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
-    <field name="serverurl" type="C" size="256" />
-    <!-- Don't call this client_id or cake will think it's a foreign key -->
-    <!-- Salesforce Client IDs are > 80 characters (!) -->
-    <field name="clientid" type="C" size="120" />
-    <field name="client_secret" type="C" size="80" />
+    <field name="server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
     <field name="search_contacts" type="L" />
     <field name="search_users" type="L" />
     <field name="custom_objects" type="C" size="256" />
-    <field name="refresh_token" type="C" size="160" />
-    <field name="access_token" type="C" size="160" />
     <field name="instance_url" type="C" size="256" />
     <field name="groupable_attrs" type="B" />
     <field name="created" type="T" />

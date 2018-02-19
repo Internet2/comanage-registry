@@ -73,7 +73,9 @@
     <div class="field-info">
       <?php
         global $cm_lang, $cm_texts;
-        $attrs['value'] = (isset($cos) ? $cos[0]['Co']['status'] : 'A');
+        
+        $attrs = array();
+        $attrs['value'] = (isset($cos) ? $cos[0]['Co']['status'] : SuspendableStatusEnum::Active);
         $attrs['empty'] = false;
         
         if($e) {

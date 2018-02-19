@@ -885,10 +885,12 @@
                     // Set the status styling
                     $statusClass = "status-normal";
 
-                    if ($r['status'] == 'S' or $r['status'] == 'XP' or $r['status'] == 'D') {
+                    if($r['status'] == StatusEnum::Suspended 
+                       || $r['status'] == StatusEnum::Expired
+                       || $r['status'] == StatusEnum::Deleted) {
                       // Style status for suspended, expired, deleted
                       $statusClass = "warn-level-a"; // reddish-pink
-                    } elseif ($r['status'] != 'A') {
+                    } elseif($r['status'] != StatusEnum::Active) {
                       // Style status if otherwise not active
                       $statusClass = "warn-level-b"; // yellowish
                     }
@@ -897,10 +899,10 @@
                     $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
                     $validFromDate = !empty($r['valid_from']) ? $this->Time->format($r['valid_from'], "%F", false, $vv_tz) : false;
 
-                    if ($validThroughDate and $this->Time->isPast($validThroughDate)) {
+                    if ($validThroughDate && $this->Time->isPast($validThroughDate)) {
                       // valid through date exists and is in the past
                       $statusClass = "warn-level-a";
-                    } elseif ($validFromDate and $this->Time->isFuture($validFromDate)) {
+                    } elseif ($validFromDate && $this->Time->isFuture($validFromDate)) {
                       // valid from date is in the future
                       $statusClass = "warn-level-b";
                     }

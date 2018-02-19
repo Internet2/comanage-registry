@@ -32,11 +32,14 @@ class SalesforceSource extends AppModel {
   // Document foreign keys
   public $cmPluginHasMany = array();
   
+  // Request OAuth2 servers
+  public $cmServerType = ServerEnum::Oauth2Server;
+  
   // Association rules from this model to other models
   public $belongsTo = array("OrgIdentitySource");
   
   // Default display field for cake generated views
-  public $displayField = "serverurl";
+  public $displayField = "instance_url";
   
   // Validation rules for table elements
   public $validate = array(
@@ -45,25 +48,9 @@ class SalesforceSource extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
-    'serverurl' => array(
-      'rule' => array('url', true),
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    'clientid' => array(
-      'rule' => 'notBlank',
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    'client_secret' => array(
-      'rule' => 'notBlank',
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    'refresh_token' => array(
-      'rule' => 'notBlank',
-      'required' => false,
-      'allowEmpty' => true
+    'server_id' => array(
+      'rule' => 'numeric',
+      'required' => true
     ),
     'search_contacts' => array(
       'rule' => 'boolean'
@@ -72,11 +59,6 @@ class SalesforceSource extends AppModel {
       'rule' => 'boolean'
     ),
     'custom_objects' => array(
-      'rule' => 'notBlank',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'access_token' => array(
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
@@ -101,39 +83,9 @@ class SalesforceSource extends AppModel {
    */
 
   public function beforeSave($options = array()) {
-    // If there is as access or refresh token, see if any "critical"
-    // element has changed, and if so clear the token.
+    // Clear the groupable_attrs cache on any save operation
+    $this->data['SalesforceSource']['groupable_attrs'] = null;
     
-    if(!empty($this->data['SalesforceSource']['serverurl'])) {
-      // Check for serverurl, since saveField() won't provide most attributes
-      // (and is used to update the access token anyway, which we don't want
-      // to do this check for).
-      
-      // checkWriteFollowups will warn after save if no oauth token is set.
-
-      $args = array();
-      $args['conditions']['SalesforceSource.id'] = $this->data['SalesforceSource']['id'];
-      $args['contain'] = false;
-      
-      $curdata = $this->find('first', $args);
-      
-      if(!empty($curdata['SalesforceSource']['access_token'])
-         || !empty($curdata['SalesforceSource']['refresh_token'])) {
-        if(($this->data['SalesforceSource']['serverurl']
-            != $curdata['SalesforceSource']['serverurl'])
-           ||
-           ($this->data['SalesforceSource']['clientid']
-            != $curdata['SalesforceSource']['clientid'])
-           ||
-           ($this->data['SalesforceSource']['client_secret']
-            != $curdata['SalesforceSource']['client_secret'])) {
-          // Reset the tokens
-          $this->data['SalesforceSource']['access_token'] = null;
-          $this->data['SalesforceSource']['refresh_token'] = null;
-        }
-      }
-    }
-  
     return true;
   }
   
