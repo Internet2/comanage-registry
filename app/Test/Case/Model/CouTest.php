@@ -28,7 +28,7 @@
 App::uses('Cou', 'Model');
 
 class CouTest extends CakeTestCase {
-  public $fixtures = array('app.cou', 'app.co', 'app.cogroup');
+  public $fixtures = array('app.Cou', 'app.Co', 'app.CoGroup');
 
   public function setUp() {
     parent::setUp();
