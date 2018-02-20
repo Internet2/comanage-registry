@@ -28,7 +28,7 @@
 App::uses('Co', 'Model');
 
 class CoTest extends CakeTestCase {
-  public $fixtures = [
+  public $fixtures = array(
     'app.Co',
     'app.CoEnrollmentFlow',
     'app.CoExpirationPolicy',
@@ -41,8 +41,8 @@ class CoTest extends CakeTestCase {
     'app.CoService',
     'app.CoSetting',
     'app.Cou',
-    'app.HistoryRecord',
-  ];
+    'app.HistoryRecord'
+  );
 
   public function setUp() {
     parent::setUp();
