@@ -44,7 +44,9 @@ class OrcidSourcesController extends SOISController {
   public function edit($id) {
     parent::edit($id);
     
-    // Set the callback URL
+    // Set the (second) callback URL, used for authenticated ORCID linking.
+    // We can't scope this down past the plugin URL since our callback will be
+    // based on the CO Petition ID, not the plugin instantiation ID.
     $this->set('vv_orcid_redirect_url', $this->OrcidSourceBackend->callbackUrl());
   }
   

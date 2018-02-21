@@ -25,14 +25,21 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+App::uses("Server", "Model");
 App::uses("OrgIdentitySourceBackend", "Model");
 App::uses('HttpSocket', 'Network/Http');
 
 class OrcidSourceBackend extends OrgIdentitySourceBackend {
   public $name = "OrcidSourceBackend";
 
+  // Cache the Http connection and server configuration
+  protected $Http = null;
+  protected $server = null;
+
   /**
-   * Generate an ORCID callback URL.
+   * Generate an ORCID callback URL. This is used for authenticated ORCID linking
+   * (Authorization Code flow), unlike the Oauth2Server token, which is used for
+   * administrative searching.
    *
    * @since  COmanage Registry v2.0.0
    * @return Array URL, in Cake array format
@@ -44,50 +51,6 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
       'controller' => 'orcid_source_co_petitions',
       'action'     => 'selectOrgIdentityAuthenticate'
     );
-  }
-  
-  /**
-   * Exchange an authorization code for an access token and ORCID.
-   * 
-   * @since  COmanage Registry v2.0.0
-   * @param  String $redirectUrl Callback URL used for initial request
-   * @param  String $clientId ORCID API Client ID
-   * @param  String $clientSecret ORCID API Client Secret
-   * @param  String $code Access code return by call to /oauth/authorize
-   * @return StdObject Object of data as returned by ORCID, including ID and access token
-   * @throws RuntimeException
-   */
-  
-  public function exchangeCode($redirectUri, $clientId, $clientSecret, $code) {
-    $HttpSocket = new HttpSocket(array(
-      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
-      // on PHP <= ~5.5.6. See CO-1428 for more details.
-      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
-    ));
-
-    $params = array(
-      'client_id'     => $clientId,
-      'client_secret' => $clientSecret,
-      'grant_type'    => 'authorization_code',
-      'code'          => $code,
-      'redirect_uri'  => $redirectUri
-    );
-    
-    $results = $HttpSocket->post(
-      $this->orcidUrl('auth') . "/oauth/token",
-      $params
-    );
-    
-    $json = json_decode($results->body());
-
-    // We'll get a 200 response on success or failure
-    
-    if(!empty($json->orcid)) {
-      return $json;
-    }
-
-    // There should be an error in the response
-    throw new RuntimeException(_txt('er.orcidsource.code', array($json->errorDesc->content)));
   }
   
   /**
@@ -123,50 +86,83 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   }
   
   /**
-   * Obtain an access token from an API ID and secret.
+   * Establish a connection to the ORCID API.
    *
-   * @since  COmanage Registry v2.0.0
-   * @param  String $clientId ORCID API Client ID
-   * @param  String $clientSecret ORCID API Client Secret
-   * @return String Access token
-   * @throws RuntimeException
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $serverId Server ID
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
    */
-  
-  public function obtainAccessToken($clientId, $clientSecret) {
-    $HttpSocket = new HttpSocket(array(
+
+  protected function orcidConnect($serverId) {
+    // Pull the server config
+    
+    $Server = new Server();
+    
+    $args = array();
+    $args['conditions']['Server.id'] = $serverId;
+    $args['contain'] = array('Oauth2Server');
+    
+    $this->server = $Server->find('first', $args);
+    
+    if(!$this->server) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.servers.1'), $serverId)));
+    }
+    
+    // Grab the access token from the config, or throw an error if not found
+    if(empty($this->server['Oauth2Server']['access_token'])) {
+      throw new InvalidArgumentException(_txt('er.orcidsource.token.none'));
+    }
+    
+    $this->Http = new HttpSocket(array(
       // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
       // on PHP <= ~5.5.6. See CO-1428 for more details.
       'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
     ));
-
-    $params = array(
-      'client_id'     => $clientId,
-      'client_secret' => $clientSecret,
-      'scope'         => '/read-public',
-      'grant_type'    => 'client_credentials',
-    );
-      
-    $results = $HttpSocket->post(
-      $this->orcidUrl() . "/oauth/token",
-      $params
-    );
     
-    if($results->code != 200) {
-      // This is probably a JSON blob
-      $err = json_decode($results->body);
-      throw new RuntimeException($err->error_description);
-    }
-    
-    // We should now have an access token
-    $response = json_decode($results->body);
-    
-    if(!empty($response->access_token)) {
-      return $response->access_token;
-    }
-    
-    throw new RuntimeException(_txt('er.orcidsource.token.api'));
+    return true;
   }
 
+  /**
+   * Make a request to the ORCID API.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String  $urlPath     URL Path to request from API
+   * @param  Array   $data        Array of query paramaters
+   * @param  String  $action      HTTP action
+   * @return Array   Decoded json message body
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+
+  public function orcidRequest($urlPath, $data=array(), $action="get") {
+    $options = array(
+      'header' => array(
+        'Accept'        => 'application/json',
+        'Authorization' => 'Bearer ' . $this->server['Oauth2Server']['access_token'],
+        'Content-Type'  => 'application/json'
+      )
+    );
+
+    $results = $this->Http->$action($this->orcidUrl() . $urlPath,
+                                    ($action == 'get' ? $data : json_encode($data)),
+                                    $options);
+
+    if($results->code == 404) {
+      // Most likely retrieving an invalid ORCID
+      throw new InvalidArgumentException(_txt('er.orcidsource.search', array($results->code)));
+    }
+
+    if($results->code != 200) {
+      // This is probably an RDF blob, which is slightly annoying to parse.
+      // Rather than do it properly since we don't parse RDF anywhere else,
+      // we return a generic error.
+      throw new RuntimeException(_txt('er.orcidsource.search', array($results->code)));
+    }
+
+    return json_decode($results->body);
+  }
+  
   /**
    * Obtain the root URL for the ORCID API.
    *
@@ -196,70 +192,6 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   }
   
   /**
-   * Query the ORCID API.
-   *
-   * @since  COmanage Registry v2.0.0
-   * @param  Array $attributes Search attributes
-   * @return StdClass JSON decoded results
-   */
-  
-  protected function queryOrcidApi($attributes) {
-    // First we need to get a search token. Note these tokens do not expire... we could
-    // obtain one and then store it in the database (clearing it out when swapping
-    // between sandbox and prod, or on any save really).
-
-    // Grab the access token from the config, or throw an error if not found
-    if(empty($this->pluginCfg['access_token'])) {
-      throw new InvalidArgumentException(_txt('er.orcidsource.token.none'));
-    }
-    
-    $options = array(
-      'header' => array(
-        'Accept'        => 'application/json',
-        'Authorization' => 'Bearer ' . $this->pluginCfg['access_token']
-      )
-    );
-    
-    $HttpSocket = new HttpSocket(array(
-      // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
-      // on PHP <= ~5.5.6. See CO-1428 for more details.
-      'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
-    ));
-    
-    if(isset($attributes['orcid'])) {
-      // Retrieve
-      
-      $searchResults = $HttpSocket->get(
-        $this->orcidUrl() . "/v1.2/" . $attributes['orcid'] . "/orcid-bio/",
-        null,
-        $options
-      );
-    } else {
-      // Search
-      
-      $searchResults = $HttpSocket->get(
-        $this->orcidUrl() . "/v1.2/search/orcid-bio/",
-        $attributes,
-        $options
-      );
-    }
-    
-    if($searchResults->code == 404) {
-      // Most likely retrieving an invalid ORCID
-      throw new InvalidArgumentException(_txt('er.orcidsource.search', array($searchResults->code)));
-    }
-    
-    if($searchResults->code != 200) {
-      // This is probably an RDF blob, which is slightly annoying to parse.
-      // Rather than do it properly since we don't parse RDF anywhere else,
-      // we return a generic error.
-      throw new RuntimeException(_txt('er.orcidsource.search', array($searchResults->code)));
-    }
-
-    return json_decode($searchResults->body);
-  }
-  
-  /**
    * Convert a raw result, as from eg retrieve(), into an array of attributes that
    * can be used for group mapping.
    *
@@ -278,11 +210,17 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * Convert a search result into an Org Identity.
    *
    * @since  COmanage Registry v2.0.0
-   * @param  Array $result ORCID Search Result (orcid-profile)
+   * @param  Array $orcid       ORCID ID
+   * @param  Array $orcidresult ORCID Search Result (/person)
    * @return Array Org Identity and related models, in the usual format
    */
 
-  protected function resultToOrgIdentity($result) {
+  protected function resultToOrgIdentity($orcid, $personresult) {
+    // We assume results from /v2.1/ORCID/person. There's potentially a bunch of
+    // stuff available in /activities (both /person and /activities can be
+    // obtained via /v2.1/ORCID/record) that could potentially be used for
+    // groupable attributes, but we don't have a use case for that yet.
+    
     $orgdata = array();
 // XXX should map these
 // XXX what if more than one attribute?
@@ -294,17 +232,20 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
     // XXX document
     $orgdata['Name'] = array();
 
-    if(!empty($result->{'orcid-bio'}->{'personal-details'}->{'given-names'}->value))
-      $orgdata['Name'][0]['given'] = (string)$result->{'orcid-bio'}->{'personal-details'}->{'given-names'}->value;
-    if(!empty($result->{'orcid-bio'}->{'personal-details'}->{'family-name'}->value))
-      $orgdata['Name'][0]['family'] = (string)$result->{'orcid-bio'}->{'personal-details'}->{'family-name'}->value;
+    if(!empty($personresult->{'name'}->{'given-names'}->value))
+      $orgdata['Name'][0]['given'] = (string)$personresult->{'name'}->{'given-names'}->value;
+    if(!empty($personresult->{'name'}->{'family-name'}->value))
+      $orgdata['Name'][0]['family'] = (string)$personresult->{'name'}->{'family-name'}->value;
 // Populate primary_name and type in the caller instead of here?
     $orgdata['Name'][0]['primary_name'] = true;
 // XXX this should be configurable
     $orgdata['Name'][0]['type'] = NameEnum::Official;
     
+    // Although implied by various attributes in the /person record, the ORCID
+    // itself is not an explicit field. The caller already knows it, though, so
+    // we just expect it as a parameter.
     $orgdata['Identifier'] = array();
-    $orgdata['Identifier'][0]['identifier'] = $result->{'orcid-identifier'}->{'uri'};
+    $orgdata['Identifier'][0]['identifier'] = $orcid;
     $orgdata['Identifier'][0]['type'] = IdentifierEnum::ORCID;
     $orgdata['Identifier'][0]['login'] = false;
     $orgdata['Identifier'][0]['status'] = StatusEnum::Active;
@@ -328,15 +269,17 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
 
   public function retrieve($id) {
     try {
-      $records = $this->queryOrcidApi(array('orcid' => $id));
+      $this->orcidConnect($this->pluginCfg['server_id']);
+
+      $orcidbio = $this->orcidRequest("/v2.1/" . $id . "/person");
     }
     catch(InvalidArgumentException $e) {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
     
     return array(
-      'raw' => json_encode($records->{'orcid-profile'}),
-      'orgidentity' => $this->resultToOrgIdentity($records->{'orcid-profile'})
+      'raw' => json_encode($orcidbio),
+      'orgidentity' => $this->resultToOrgIdentity($id, $orcidbio)
     );
   }
   
@@ -363,17 +306,27 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
       return array();
     }
     
-    $records = $this->queryOrcidApi($attributes);
+    // We just let search exceptions pop up the stack
     
-    // The number of records is in $records->orcid-search-results->[@attributes]->num-found
-    // but by default paginates 10 at a time. We can control pagination with query params
-    // "start" and "rows", but the OIS search capability doesn't currently understand
-    // pagination.
+    $this->orcidConnect($this->pluginCfg['server_id']);
     
-    foreach($records->{'orcid-search-results'}->{'orcid-search-result'} as $r) {
-      $orcid = (string)$r->{'orcid-profile'}->{'orcid-identifier'}->{'path'};
-      
-      $ret[ $orcid ] = $this->resultToOrgIdentity($r->{'orcid-profile'});
+    $records = $this->orcidRequest("/v2.1/search/", $attributes);
+    
+    // We can control pagination with query params, but the OIS search capability
+    // doesn't currently understand pagination.
+    
+    if(isset($records->{'num-found'}) && $records->{'num-found'} > 0) {
+      foreach($records->result as $rec) {
+        if(!empty($rec->{'orcid-identifier'}->{'path'})) {
+          $orcid = $rec->{'orcid-identifier'}->{'path'};
+
+          $orcidbio = $this->orcidRequest("/v2.1/" . $orcid . "/person");
+          
+          if(!empty($orcidbio)) {
+            $ret[ $orcid ] = $this->resultToOrgIdentity($orcid, $orcidbio);
+          }
+        }
+      }
     }
     
 // XXX should verify that $attributes search keys are defined in searchableAttributes()?

@@ -61,6 +61,12 @@
   
   $l = 1;
 ?>
+<?php if(empty($vv_servers)): ?>
+<div class="co-info-topbox">
+  <i class="material-icons">info</i>
+  <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::Oauth2Server))); ?>
+</div>
+<?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_orcid_source" class="fields form-list">
   <li>
     <div class="field-name">
@@ -72,29 +78,33 @@
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.orcidsource.clientid'); ?>
-        <span class="required">*</span>
-      </div>
-      <div class="field-desc"><?php print _txt('pl.orcidsource.clientid.desc'); ?></div>
+      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?><span class="required">*</span>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('clientid', array('size' => 50)) : filter_var($orcid_sources[0]['OrcidSource']['clientid'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($orcid_sources[0]['OrcidSource']['server_id'])
+                           ? $orcid_sources[0]['OrcidSource']['server_id']
+                           : null);
+        // Since required=true, this will render blank by default but not allow save until a server is selected
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('server_id',
+                                    $vv_servers,
+                                    $attrs);
+
+          if($this->Form->isFieldError('server_id')) {
+            print $this->Form->error('server_id');
+          }
+        } else {
+          if(!empty($orcid_sources[0]['OrcidSource']['server_id'])) {
+            print filter_var($vv_servers[ $orcid_sources[0]['OrcidSource']['server_id'] ], FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+        }
+      ?>
     </div>
   </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.orcidsource.secret'); ?>
-        <span class="required">*</span>
-      </div>
-      <div class="field-desc"><?php print _txt('pl.orcidsource.secret.desc'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('client_secret', array('size' => 50)) : filter_var($orcid_sources[0]['OrcidSource']['client_secret'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-    </div>
-  </li>
-  
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">
@@ -106,3 +116,4 @@
     </li>
   <?php endif; ?>
 </ul>
+<?php endif; // vv_servers ?>

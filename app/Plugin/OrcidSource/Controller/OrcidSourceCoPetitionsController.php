@@ -32,6 +32,7 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
   public $name = "OrcidSourceCoPetitions";
 
   public $uses = array("CoPetition",
+                       "Oauth2Server",
                        "OrgIdentitySource",
                        "OrcidSource",
                        "OrcidSource.OrcidSourceBackend");
@@ -47,13 +48,21 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
    */
   
   protected function execute_plugin_selectOrgIdentityAuthenticate($id, $oiscfg, $onFinish, $actorCoPersonId) {
-    // First pull our ORCID configuration
+    // First pull our Oauth2Server configuration
     
     $args = array();
-    $args['conditions']['OrcidSource.id'] = $oiscfg['OrgIdentitySource']['id'];
+    $args['joins'][0]['table'] = 'servers';
+    $args['joins'][0]['alias'] = 'Server';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'Oauth2Server.server_id=Server.id';
+    $args['joins'][1]['table'] = 'orcid_sources';
+    $args['joins'][1]['alias'] = 'OrcidSource';
+    $args['joins'][1]['type'] = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'OrcidSource.server_id=Server.id';
+    $args['conditions']['OrcidSource.org_identity_source_id'] = $oiscfg['OrgIdentitySource']['id'];
     $args['contain'] = false;
     
-    $cfg = $this->OrcidSource->find('first', array('Orcid'));
+    $cfg = $this->Oauth2Server->find('first', $args);
     
     if(empty($cfg)) {
       throw new InvalidArgumentException(_txt('er.notfound',
@@ -61,24 +70,29 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                                                     $oiscfg['OrgIdentitySource']['id'])));
     }
     
-    // Construct the callback URL, needed for both the initial query and
-    // exchanging the code for a response
+    // We need a different callback URL than what the Oauth2Server config will
+    // use, since we're basically creating a runtime Authorization Code flow
+    // (while the main config uses a Client Credentials flow).
     
-    $callback = $this->OrcidSourceBackend->callbackUrl();
+    $callback = array(
+      'plugin'     => 'orcid_source',
+      'controller' => 'orcid_source_co_petitions',
+      'action'     => 'selectOrgIdentityAuthenticate',
+      $id,
+      'oisid'      => $oiscfg['OrgIdentitySource']['id']
+    );
     
-    // Append the petition ID to the callback
-    $callback[] = $id;
-    $callback['oisid'] = $oiscfg['OrgIdentitySource']['id'];
+    // Build the redirect URI
     $redirectUri = Router::url($callback, array('full' => true));
-  
+    
     if(empty($this->request->query['code'])) {
       // First time through, redirect to the authorize URL
       
-      $url = $this->OrcidSourceBackend->orcidUrl('auth') . "/oauth/authorize?";
-      $url .= "client_id=" . $cfg['OrcidSource']['clientid'];
+      $url = $cfg['Oauth2Server']['serverurl'] . "/authorize?";
+      $url .= "client_id=" . $cfg['Oauth2Server']['clientid'];
       $url .= "&response_type=code&scope=/authenticate";
       $url .= "&redirect_uri=" . urlencode($redirectUri);
-   
+      
       $this->redirect($url);
     }
 
@@ -87,16 +101,15 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
     try {
       // Exchange the code for an access token and ORCID ID
       
-      $response = $this->OrcidSourceBackend->exchangeCode($redirectUri,
-                                                          $cfg['OrcidSource']['clientid'],
-                                                          $cfg['OrcidSource']['client_secret'],
-                                                          $this->request->query['code']);
-      
+      $response = $this->Oauth2Server->exchangeCode($cfg['Oauth2Server']['id'],
+                                                    $this->request->query['code'],
+                                                    $redirectUri,
+                                                    false);
     
       // There's lots of data in here we're ignoring at the moment:
       // access_token, token_type, refresh_token, expires_in, scope, name
       // It looks like the access_token could be stored and used to refresh the user's data,
-      // though atm we just do that with our OrcidSource level access token.
+      // though atm we just do that with our Oauth2Server level access token.
       
       $orcid = $response->orcid;
       
@@ -110,7 +123,9 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                                                               $orcid,
                                                               $actorCoPersonId,
                                                               $this->cur_co['Co']['id'],
-                                                              $actorCoPersonId);
+                                                              $actorCoPersonId,
+                                                              true,
+                                                              $id);
       
       // Record the ORCID into History and Petition History
       $this->CoPetition->EnrolleeOrgIdentity->HistoryRecord->record($actorCoPersonId,

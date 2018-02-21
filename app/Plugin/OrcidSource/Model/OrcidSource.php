@@ -32,8 +32,11 @@ class OrcidSource extends AppModel {
   // Document foreign keys
   public $cmPluginHasMany = array();
   
+  // Request OAuth2 servers
+  public $cmServerType = ServerEnum::Oauth2Server;
+  
   // Association rules from this model to other models
-  public $belongsTo = array("OrgIdentitySource");
+  public $belongsTo = array("OrgIdentitySource", "Server");
   
   // Default display field for cake generated views
   public $displayField = "description";
@@ -43,51 +46,12 @@ class OrcidSource extends AppModel {
     'org_identity_source_id' => array(
       'rule' => 'numeric',
       'required' => true,
-      'message' => 'An Org Identity Source ID must be provided'
     ),
-    'clientid' => array(
-      'rule' => 'notBlank',
+    'server_id' => array(
+      'rule' => 'numeric',
       'required' => true,
-      'allowEmpty' => false
-    ),
-    'client_secret' => array(
-      'rule' => 'notBlank',
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    'access_token' => array(
-      'rule' => 'notBlank',
-      'required' => false,
-      'allowEmpty' => true
     )
   );
-  
-  /**
-   * Actions to take before a save operation is executed.
-   *
-   * @since  COmanage Registry v2.0.0
-   * @return Boolean
-   */
-
-  public function beforeSave($options = array()) {
-    if(!empty($this->data['OrcidSource']['clientid'])
-       || !empty($this->data['OrcidSource']['client_secret'])) {
-      // We obtain an access token on save and store it in the record.
-      // Access tokens do not expire, but it's not clear what happens to
-      // them if (eg) the client secret is rotated, so we always get a new one.
-      
-      $Backend = ClassRegistry::init('OrcidSource.OrcidSourceBackend');
-      
-      // Let any exception pass up the stack
-      $token = $Backend->obtainAccessToken($this->data['OrcidSource']['clientid'],
-                                           $this->data['OrcidSource']['client_secret']);
-      
-      $this->data['OrcidSource']['access_token'] = $token;
-    }
-    // else we're probably creating the initial skeletal role, nothing to do
-  
-    return true;
-  }
   
   /**
    * Expose menu items.

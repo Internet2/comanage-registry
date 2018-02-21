@@ -37,10 +37,9 @@
     <field name="org_identity_source_id" type="I">
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
-    <!-- Don't call this client_id or cake will think it's a foreign key -->
-    <field name="clientid" type="C" size="80" />
-    <field name="client_secret" type="C" size="80" />
-    <field name="access_token" type="C" size="80" />
+    <field name="server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

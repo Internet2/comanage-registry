@@ -37,16 +37,10 @@ $cm_orcid_source_texts['en_US'] = array(
   'ct.orcid_sources.pl' => 'ORCID Organizational Identity Sources',
   
   // Error messages
-  'er.orcidsource.code'       => 'Error exchanging code for ORCID and access token: %1$s',
   'er.orcidsource.search'     => 'Search request returned %1$s',
-  'er.orcidsource.token.api'  => 'Access token not found in API response',
   'er.orcidsource.token.none' => 'Access token not configured (try resaving configuration)',
   
   // Plugin texts
-  'pl.orcidsource.clientid'       => 'Client ID',
-  'pl.orcidsource.clientid.desc'  => 'Client ID obtained from registering with the ORCID Public ID',
   'pl.orcidsource.linked'         => 'Obtained ORCID "%1$s" via authenticated OAuth flow',
-  'pl.orcidsource.redirect_url'   => 'ORCID Redirect URI',
-  'pl.orcidsource.secret'         => 'Client Secret',
-  'pl.orcidsource.secret.desc'    => 'Client Secret obtained from registering with the ORCID Public ID'
+  'pl.orcidsource.redirect_url'   => 'Additional ORCID Redirect URI',
 );
