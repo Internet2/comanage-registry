@@ -33,7 +33,7 @@ global $cm_lang, $cm_texts;
 <div id="coPeopleSimpleSearch" class="side-search">
   <div class="accHeader">
     <em class="material-icons">search</em>
-    <?php print _txt('fd.co_people.search');?>
+    <?php print _txt('fd.co_people.filter');?>
   </div>
   <?php
     print $this->Form->create('CoPerson', array('url' => array('action'=>'search')));
@@ -93,7 +93,7 @@ global $cm_lang, $cm_texts;
     //$this->Form->submit(_txt('op.search'));
     print '<div class="sideSearchSubmit">';
     $args = array();
-    $args['aria-label'] = _txt('op.search');
+    $args['aria-label'] = _txt('op.filter');
     $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
     print $this->Form->submit(_txt('op.search'),$args);
     print '</div>';

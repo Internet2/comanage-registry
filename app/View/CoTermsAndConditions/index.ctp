@@ -48,6 +48,21 @@
     );
   }
 
+  if ($permissions['order']) {
+    // Reorder button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.reorder-a', array(_txt('ct.co_terms_and_conditions.pl'))),
+      array(
+        'controller' => 'co_terms_and_conditions',
+        'action'     => 'order',
+        'co'         => $cur_co['Co']['id'],
+        'direction'  => 'asc',
+        'sort'       => 'ordr'
+      ),
+      array('class' => 'movebutton')
+  );
+}
+
   print $this->element("pageTitleAndButtons", $params);
   
 ?>
@@ -59,6 +74,7 @@
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print $this->Paginator->sort('cou', _txt('fd.cou')); ?></th>
+        <th><?php print $this->Paginator->sort('ordr', _txt('fd.tc.order')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
@@ -88,6 +104,7 @@
             }
           ?>
         </td>
+        <td><?php print filter_var($c['CoTermsAndConditions']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
           <?php
             if($permissions['edit']) {

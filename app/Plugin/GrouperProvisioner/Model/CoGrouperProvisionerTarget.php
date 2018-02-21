@@ -257,6 +257,10 @@ FROM
     $args['conditions']['Identifier.deleted'] = false;
     $args['contain'] = false;
 
+    // Since the identifier may be multi-valued in order to be deterministic
+    // we order by the creation time.
+    $args['order'] = 'Identifier.created ASC';
+
     $identifier = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('first', $args);
     if ($identifier) {
       return $identifier['Identifier']['identifier'];
@@ -659,6 +663,7 @@ FROM
                                                  $groupDisplayExtension)) {
                   // Log the failure but go onto the next group.
                   $this->log("GrouperProvisioner unable to add subject $subject to group $groupName");
+                  continue;
                 }
               }
               
@@ -667,6 +672,7 @@ FROM
             } catch (GrouperRestClientException $e) {
               // Log the failure but go onto the next group.
               $this->log("GrouperProvisioner unable to add subject $subject to group $groupName");
+              continue;
             }
           }
 
@@ -677,14 +683,17 @@ FROM
     }
 
     // Loop over the Grouper group memberships and delete the user
-    // from any groups not passed in as provisioning data.
+    // from any groups not passed in as provisioning data, but only
+    // if this is a group managed by this plugin.
     foreach($grouperGroups as $g) {
       if(!(in_array($g, $registryGroups))) {
-        try {
-          $grouper->deleteMember($g, $subject);
-        } catch (GrouperRestClientException $e) {
-          // Log the failure but go onto the next group.
-          $this->log("GrouperProvisioner unable to remove subject $subject from group $g");
+        if($this->CoGrouperProvisionerGroup->isManaged($g)) {
+          try {
+            $grouper->deleteMember($g, $subject);
+          } catch (GrouperRestClientException $e) {
+            // Log the failure but go onto the next group.
+            $this->log("GrouperProvisioner unable to remove subject $subject from group $g");
+          }
         }
       }
     }

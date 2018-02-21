@@ -65,6 +65,11 @@ class CoTermsAndConditions extends AppModel {
                                       SuspendableStatusEnum::Suspended)),
       'required' => true,
       'message' => 'A valid status must be selected'
+    ),
+    'ordr' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -167,5 +172,36 @@ class CoTermsAndConditions extends AppModel {
     }
     
     return $tandc;
+  }
+
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+
+  public function beforeSave($options = array()) {
+
+    if (!empty($this->data['CoTermsAndConditions']['co_id'])
+      && empty($this->data['CoTermsAndConditions']['ordr'])) {
+      // In order to deterministically order TandCs, assign an order.
+      // Find the current high value and add one
+      $n = 1;
+
+      $args = array();
+      $args['fields'][] = "MAX(ordr) as m";
+      $args['conditions']['CoTermsAndConditions.co_id'] = $this->data['CoTermsAndConditions']['co_id'];
+      $args['order'][] = "m";
+
+      $o = $this->find('first', $args);
+
+      if (!empty($o[0]['m'])) {
+        $n = $o[0]['m'] + 1;
+      }
+
+      $this->data['CoTermsAndConditions']['ordr'] = $n;
+    }
+
+    return true;
   }
 }

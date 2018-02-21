@@ -74,7 +74,7 @@ $tabIndex = 1;
     <legend>
       <a href="#" id="top-search-toggle">
         <em class="material-icons">search</em>
-        <?php print _txt('op.search');?>
+        <?php print _txt('op.filter');?>
         <em class="material-icons drop-arrow">arrow_drop_down</em>
       </a>
     </legend>
@@ -163,9 +163,9 @@ $tabIndex = 1;
         //$args['type'] = 'button';
 
         // search button (submit)
-        $args['aria-label'] = _txt('op.search');
+        $args['aria-label'] = _txt('op.filter');
         $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
-        print $this->Form->submit(_txt('op.search'),$args);
+        print $this->Form->submit(_txt('op.filter'),$args);
 
         // clear button
         $args['class'] = 'clear-button spin mdl-button';

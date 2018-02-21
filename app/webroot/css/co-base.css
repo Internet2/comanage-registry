@@ -969,6 +969,12 @@ body.co_petitions .ui-dialog {
   line-height: initial;
   font-size: 0.9em;
 }
+#pagination span.current {
+  font-weight: bold;
+  font-size: 120%;
+  position: relative;
+  top: 1px;
+}
 /********************************/
 /* My Population - People Index */
 /********************************/

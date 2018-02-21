@@ -137,6 +137,19 @@
         ?>
       </div>
     </li>
+    <li>
+        <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('ordr', _txt('fd.tc.order')) : _txt('fd.tc.order')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.tc.order.desc'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php print ($e
+            ? $this->Form->input('ordr')
+            : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </div>
+    </li>
 
     <?php if($e): ?>
       <li class="fields-submit">
