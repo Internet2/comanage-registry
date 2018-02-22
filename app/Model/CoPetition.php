@@ -2016,9 +2016,9 @@ class CoPetition extends AppModel {
                       ActionEnum::CoPetitionUpdated,
                       $comment,
                       array(
-                        'controller' => 'co_petitions',
-                        'action'     => 'view',
-                        'id'         => $id
+                        'controller' => 'co_people',
+                        'action'     => 'canvas',
+                        'id'         => $pt['CoPetition']['enrollee_co_person_id']
                       ),
                       false,
                       $pt['CoEnrollmentFlow']['notify_from'],
