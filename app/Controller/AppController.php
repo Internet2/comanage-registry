@@ -47,8 +47,7 @@ class AppController extends Controller {
                              'Role',
                              'Security',
                              'Session',
-                             'Paginator',
-                             'Login');
+                             'Paginator');
   
   // We should probably add helpers here instead of in each Controller. To do so,
   // make sure to define the default Html and Form helpers (and Flash).
@@ -217,9 +216,6 @@ class AppController extends Controller {
       } else {
         $this->set('vv_tz', date_default_timezone_get());
       }
-
-      // (Re)set the session groups, COs and identities related to this user.
-      $this->Login->process();
 
       // Before we do anything else, check to see if a CO was provided.
       // (It might impact our authz decisions.) Note that some models (eg: MVPAs)
