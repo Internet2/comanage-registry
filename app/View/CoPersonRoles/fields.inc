@@ -243,6 +243,27 @@
             <li>
               <div class="field-name">
                 <?php
+                  if ($e && !$es) {
+                    print $this->Form->label('ordr', _txt('fd.order'));
+                  } else {
+                    print _txt('fd.order');
+                  }
+                ?>
+              </div>
+              <div class="field-info">
+                <?php
+                  if($e && !$es) {
+                    // XXX not sure why model introspection isn't picking up the type...
+                    print $this->Form->input('ordr', array('type' => 'numeric'));
+                  } else {
+                    print filter_var($co_person_roles[0]['CoPersonRole']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS);
+                  }
+                ?>
+              </div>
+            </li>
+            <li>
+              <div class="field-name">
+                <?php
                   $label = _txt('fd.title-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
 
                   if($e && !$es) {

@@ -139,6 +139,11 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       )
     ),
+    'ordr' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'status' => array(
       'content' => array(
         'rule' => array('inList', array(StatusEnum::Active,

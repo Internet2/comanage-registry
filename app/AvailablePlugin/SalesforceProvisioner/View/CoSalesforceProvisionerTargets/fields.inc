@@ -60,6 +60,26 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+  
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    var copersonobj = document.getElementById('CoSalesforceProvisionerTargetObjCoperson').checked;
+    
+    if(copersonobj) {
+      $("#CoSalesforceProvisionerTargetPlatformIdType").closest("li").show('fade');
+      $("#CoSalesforceProvisionerTargetAppIdType").closest("li").show('fade');
+    } else {
+      $("#CoSalesforceProvisionerTargetPlatformIdType").closest("li").hide('fade');
+      $("#CoSalesforceProvisionerTargetAppIdType").closest("li").hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+</script>
 <?php if(empty($vv_servers)): ?>
 <div class="co-info-topbox">
   <i class="material-icons">info</i>
@@ -69,7 +89,8 @@
 <ul id="<?php print $this->action; ?>_co_salesforce_provisioner_target" class="fields form-list form-list-admin">
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?><span class="required">*</span>
+      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?>
+      <span class="required">*</span>
     </div>
     <div class="field-info">
       <?php
@@ -105,15 +126,114 @@
       <?php print ($e ? $this->Form->input('instance_url', array('class' => 'focusFirst')) : filter_var($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['instance_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.salesforceprovisioner.middlename'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.salesforceprovisioner.middlename.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        if($e) {
+          print $this->Form->input('middle_name', array('label' => _txt('pl.salesforceprovisioner.middlename')));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('email_address_type',_txt('pl.salesforceprovisioner.email.type')); ?><br />
+      <div class="field-desc"><?php print _txt('pl.salesforceprovisioner.email.type.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (!empty($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['email_address_type'])
+                           ? $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['email_address_type']
+                           : "");
+        $attrs['empty'] = true;
+
+        print $this->Form->select('email_address_type',
+                                  $vv_email_addresses_types,
+                                  $attrs);
+        
+        if($this->Form->isFieldError('email_address_type')) {
+          print $this->Form->error('email_address_type');
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.salesforceprovisioner.coperson'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.salesforceprovisioner.coperson.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        if($e) {
+          $attrs = array(
+            'label'   => _txt('pl.salesforceprovisioner.coperson'),
+            'onclick' => 'fields_update_gadgets();'
+          );
+          
+          print $this->Form->input('obj_coperson', $attrs);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('platform_id_type',_txt('pl.salesforceprovisioner.coperson.platformid')); ?>
+      <span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (!empty($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['platform_id_type'])
+                           ? $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['platform_id_type']
+                           : "");
+        $attrs['empty'] = false;
+
+        print $this->Form->select('platform_id_type',
+                                  $vv_identifiers_types,
+                                  $attrs);
+        
+        if($this->Form->isFieldError('platform_id_type')) {
+          print $this->Form->error('platform_id_type');
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('app_id_type',_txt('pl.salesforceprovisioner.coperson.appid')); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (!empty($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['app_id_type'])
+                           ? $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['app_id_type']
+                           : "");
+        $attrs['empty'] = true;
+
+        print $this->Form->select('app_id_type',
+                                  $vv_identifiers_types,
+                                  $attrs);
+        
+        if($this->Form->isFieldError('app_id_type')) {
+          print $this->Form->error('app_id_type');
+        }
+      ?>
+    </div>
+  </li>
   <?php if($e): ?>
-    <li class="fields-submit">
-      <div class="field-name">
-        <span class="required"><?php print _txt('fd.req'); ?></span>
-      </div>
-      <div class="field-info">
-        <?php print $this->Form->submit($submit_label); ?>
-      </div>
-    </li>
+  <li class="fields-submit">
+    <div class="field-name">
+      <span class="required"><?php print _txt('fd.req'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php print $this->Form->submit($submit_label); ?>
+    </div>
+  </li>
   <?php endif; ?>
 </ul>
 <?php endif; // vv_servers

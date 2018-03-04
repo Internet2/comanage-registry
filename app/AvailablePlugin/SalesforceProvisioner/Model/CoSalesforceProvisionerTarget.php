@@ -58,8 +58,68 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
       'rule' => array('url', true),
       'required' => false,
       'allowEmpty' => true
+    ),
+    'middle_name' => array(
+      'rule' => 'boolean'
+    ),
+    'email_address_type' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'obj_coperson' => array(
+      'rule' => 'boolean'
+    ),
+    'platform_id_type' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'app_id_type' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
+  
+  /**
+   * Obtain Salesforce Object identifiers for the specified CO Person, if known.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $coProvisionerTargetId CO Provisioning Target ID
+   * @param  Integer $coPersonId            CO Person ID
+   * @return Array Array of Contact ID and (if enabled) CoPerson Custom Object ID
+   */
+  
+  public function getSalesforceIdentifiers($coProvisioningTargetId, $coPersonId) {
+    $ret = array();
+    
+    $args = array();
+    $args['conditions']['Identifier.co_person_id'] = $coPersonId;
+    $args['conditions']['Identifier.type'] = IdentifierEnum::ProvisioningTarget;
+    $args['conditions']['Identifier.co_provisioning_target_id'] = $coProvisioningTargetId;
+    $args['contain'] = false;
+
+    $idrec = $this->CoProvisioningTarget->Co->CoPerson->Identifier->find('first', $args);
+
+    if(!empty($idrec['Identifier']['identifier'])) {
+      // The identifier is either a simple SF Contact ID, or a compound
+      // Contact ID and CoPerson Custom Object ID (separated by a slash)
+      
+      $ids = explode('/', $idrec['Identifier']['identifier']);
+      
+      $ret['contact'] = $ids[0];
+      
+      if(!empty($ids[1])) {
+        $ret['copersonobj'] = $ids['1'];
+      }
+      
+      // Also store the identifier_id to make it easier to update
+      $ret['identifier_id'] = $idrec['Identifier']['id'];
+    }
+    
+    return $ret;
+  }
   
   /**
    * Provision for the specified CO Person.
@@ -124,6 +184,11 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
       if(!empty($provisioningData['PrimaryName']['given'])) {
         $sfData['FirstName'] = $provisioningData['PrimaryName']['given'];
       }
+      // Middle Name needs to be enabled in Salesforce, so we don't populate it unless asked
+      if($coProvisioningTargetData['CoSalesforceProvisionerTarget']['middle_name']
+         && !empty($provisioningData['PrimaryName']['middle'])) {
+        $sfData['MiddleName'] = $provisioningData['PrimaryName']['middle'];
+      }
       if(!empty($provisioningData['PrimaryName']['family'])) {
         $sfData['LastName'] = $provisioningData['PrimaryName']['family'];
       }
@@ -131,39 +196,221 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
         $sfData['Suffix'] = $provisioningData['PrimaryName']['suffix'];
       }
       
-      // XXX which emailaddress? select by type?
-      if(!empty($provisioningData['EmailAddress'][0]['mail'])) {
-        $sfData['Email'] = $provisioningData['EmailAddress'][0]['mail'];
+      if(!empty($provisioningData['EmailAddress'])) {
+        if(!empty($coProvisioningTargetData['CoSalesforceProvisionerTarget']['email_address_type'])) {
+          // Look for the first address of the specified type
+          
+          $addrs = Hash::extract($provisioningData['EmailAddress'], '{n}[type='.$coProvisioningTargetData['CoSalesforceProvisionerTarget']['email_address_type'].']');
+          
+          if(!empty($addrs[0]['mail'])) {
+            $sfData['Email'] = $addrs[0]['mail'];
+          }
+        } elseif(!empty($provisioningData['EmailAddress'][0]['mail'])) {
+          // Look for the first address of any type
+          $sfData['Email'] = $provisioningData['EmailAddress'][0]['mail'];
+        }
       }
       
-      // Push the record and grab the Salesforce ID
-      $r = $Salesforce->request("/services/data/v39.0/sobjects/Contact/",
-                                $sfData,
-                                "post");
+      // If we have a role, pull some attributes from it. We use the first role,
+      // which can be coerced by setting 'ordr'.
       
-      if(isset($r->success) && (bool)$r->success) {
-        $sfid = (string)$r->id;
+      if(!empty($provisioningData['CoPersonRole'][0])) {
+        if(!empty($provisioningData['CoPersonRole'][0]['ou'])) {
+          $sfData['Department'] = $provisioningData['CoPersonRole'][0]['ou'];
+        }
         
-        $args = array(
-          'Identifier' => array(
-            'identifier'                => $sfid,
-            'co_person_id'              => $provisioningData['CoPerson']['id'],
-            'type'                      => IdentifierEnum::ProvisioningTarget,
-            'login'                     => false,
-            'status'                    => SuspendableStatusEnum::Active,
-            'co_provisioning_target_id' => $coProvisioningTargetData['CoSalesforceProvisionerTarget']['co_provisioning_target_id']
-          )
-        );
-
-        $this->CoProvisioningTarget->Co->CoPerson->Identifier->clear();
-        $this->CoProvisioningTarget->Co->CoPerson->Identifier->save($args);
+        if(!empty($provisioningData['CoPersonRole'][0]['title'])) {
+          $sfData['Title'] = $provisioningData['CoPersonRole'][0]['title'];
+        }
+        
+        // Are there telephone numbers attached to the role?
+        if(!empty($provisioningData['CoPersonRole'][0]['TelephoneNumber'])) {
+          $teltypes = array(
+  // Home doesn't seem to render by default, so for now we won't send it
+  //          ContactEnum::Home   => 'HomePhone',
+            ContactEnum::Mobile => 'MobilePhone',
+            ContactEnum::Office => 'Phone'
+          );
+          
+          foreach($teltypes as $t => $s) {
+            $number = Hash::extract($provisioningData['CoPersonRole'][0]['TelephoneNumber'], '{n}[type=' . $t . ']');
+            
+            if(!empty($number[0])) {
+              $sfData[$s] = formatTelephone($number[0]);
+            }
+          }
+        }
+        
+        // Do we have a mailing address?
+        if(!empty($provisioningData['CoPersonRole'][0]['Address'])) {
+          $addr = Hash::extract($provisioningData['CoPersonRole'][0]['Address'], '{n}[type=' . ContactEnum::Postal . ']');
+          
+          if(!empty($addr[0])) {
+            $sfData['MailingStreet'] = $addr[0]['street'];
+            
+            if(!empty($addr[0]['room'])) {
+              $sfData['MailingStreet'] .= "\n" . $addr[0]['room'];
+            }
+            
+            if(!empty($addr[0]['locality'])) {
+              $sfData['MailingCity'] = $addr[0]['locality'];
+            }
+            
+            // State and Country must match SF pick lists
+            if(!empty($addr[0]['state'])) {
+              $sfData['MailingState'] = $addr[0]['state'];
+            }
+            
+            if(!empty($addr[0]['country'])) {
+              $sfData['MailingCountry'] = $addr[0]['country'];
+            }
+            
+            if(!empty($addr[0]['postal_code'])) {
+              $sfData['MailingPostalCode'] = $addr[0]['postal_code'];
+            }
+          }
+        }
+      }
+      
+      // Do we already have Salesforce IDs for this person?
+      $sfids = $this->getSalesforceIdentifiers($coProvisioningTargetData['CoSalesforceProvisionerTarget']['co_provisioning_target_id'],
+                                               $provisioningData['CoPerson']['id']);
+      
+      if(!empty($sfids['contact'])) {
+        // Update an existing record. We'd have to retrieve the current record to see
+        // which fields changed, so we send all fields again rather than consume an
+        // API call.
+        
+        $r = $Salesforce->request("/services/data/v39.0/sobjects/Contact/" . $sfids['contact'],
+                                  $sfData,
+                                  "patch");
       } else {
-        // request() should probably have thrown an error already...
+        // Create a new record. Push the record and grab the Salesforce ID.
+        $r = $Salesforce->request("/services/data/v39.0/sobjects/Contact/",
+                                  $sfData,
+                                  "post");
         
-        throw new RuntimeException(implode(';', $r->errors));
+        if(isset($r->success) && (bool)$r->success) {
+          // Store the Contact ID
+          
+          $sfids['contact'] = (string)$r->id;
+          
+          $sfids['identifier_id'] = $this->setSalesforceIdentifiers($coProvisioningTargetData['CoSalesforceProvisionerTarget']['co_provisioning_target_id'],
+                                                                    $provisioningData['CoPerson']['id'],
+                                                                    $sfids['contact']);
+        } else {
+          // request() should probably have thrown an error already...
+          
+          throw new RuntimeException(implode(';', $r->errors));
+        }
+      }
+      
+      // Save the CoPerson object, if enabled
+      if($coProvisioningTargetData['CoSalesforceProvisionerTarget']['obj_coperson']) {
+        $sfData = array();
+        
+        // Map identifiers
+
+        if(!empty($provisioningData['Identifier'])) {
+          // We expect a valid platform ID since we suggest setting it up as an external key.
+          $ids = Hash::extract($provisioningData['Identifier'], '{n}[type='.$coProvisioningTargetData['CoSalesforceProvisionerTarget']['platform_id_type'].']');
+          
+          if(!empty($ids[0]['identifier'])) {
+            $sfData['Platform_ID__c'] = $ids[0]['identifier'];
+          }
+          
+          // Map the app identifier, if configured
+          if(!empty($coProvisioningTargetData['CoSalesforceProvisionerTarget']['app_id_type'])) {
+            $ids = Hash::extract($provisioningData['Identifier'], '{n}[type='.$coProvisioningTargetData['CoSalesforceProvisionerTarget']['app_id_type'].']');
+            
+            if(!empty($ids[0]['identifier'])) {
+              $sfData['Application_ID__c'] = $ids[0]['identifier'];
+            }
+          }
+          
+          // Map the ORCID ID, if available
+          $ids = Hash::extract($provisioningData['Identifier'], '{n}[type='.IdentifierEnum::ORCID.']');
+          
+          if(!empty($ids[0]['identifier'])) {
+            $sfData['ORCID__c'] = $ids[0]['identifier'];
+          }
+        }
+        
+        // Map status
+        $sfData['Status__c'] = _txt('en.status', null, $provisioningData['CoPerson']['status']);
+
+        if(!empty($sfids['copersonobj'])) {
+          // Update the existing record
+          $r = $Salesforce->request("/services/data/v39.0/sobjects/CoPerson__c/" . $sfids['copersonobj'],
+                                    $sfData,
+                                    "patch");
+        } else {
+          // Add a new record
+          
+          // We need to add the key to the parent record on Add only, not on Update
+          $sfData['Contact__c'] = $sfids['contact'];
+          
+          $r = $Salesforce->request("/services/data/v39.0/sobjects/CoPerson__c/",
+                                    $sfData,
+                                    "post");
+          
+          if(isset($r->success) && (bool)$r->success) {
+            // Store the Object ID
+            
+            $sfids['copersonobj'] = (string)$r->id;
+            
+            $this->setSalesforceIdentifiers($coProvisioningTargetData['CoSalesforceProvisionerTarget']['co_provisioning_target_id'],
+                                            $provisioningData['CoPerson']['id'],
+                                            $sfids['contact'],
+                                            $sfids['identifier_id'],
+                                            $sfids['copersonobj']);
+          }
+        }
       }
     }
     
     return true;
+  }
+  
+  /**
+   * Store Salesforce Object identifiers for the specified CO Person.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $coProvisionerTargetId CO Provisioning Target ID
+   * @param  Integer $coPersonId            CO Person ID
+   * @param  String  $contactId             Salesforce Contact ID
+   * @param  Integer $identifierId          Identifier ID, if this is an update
+   * @param  string  $coPersonObjectId      Salesforce CoPerson Custom Object ID
+   * @return Integer Identifier ID of saved record
+   */
+  
+  public function setSalesforceIdentifiers($coProvisioningTargetId, $coPersonId, $contactId, $identifierId=null, $coPersonObjectId=null) {
+    // Assemble an Identifier record
+    $id = $contactId;
+    
+    if($coPersonObjectId) {
+      $id .= "/" . $coPersonObjectId;      
+    }
+    
+    $args = array(
+      'Identifier' => array(
+        'identifier'                => $id,
+        'co_person_id'              => $coPersonId,
+        'type'                      => IdentifierEnum::ProvisioningTarget,
+        'login'                     => false,
+        'status'                    => SuspendableStatusEnum::Active,
+        'co_provisioning_target_id' => $coProvisioningTargetId
+      )
+    );
+    
+    if($identifierId) {
+      // This is an update, not an insert
+      $args['Identifier']['id'] = $identifierId;
+    }
+
+    $this->CoProvisioningTarget->Co->CoPerson->Identifier->clear();
+    $this->CoProvisioningTarget->Co->CoPerson->Identifier->save($args);
+    
+    return $this->CoProvisioningTarget->Co->CoPerson->Identifier->id;
   }
 }

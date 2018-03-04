@@ -567,6 +567,7 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value),
         //                                                 'Model2' => array('conditions' => array('Model2.foo' => 'value'))
         // eg: $query['contain'] = array('Model1' => array('Model2' => 'Model3'));
+        // eg: $query['contain'] = array('Model1' => array('order' => 'Model1.field DESC'));
         
         if(is_array($v)) {
           // First handle Model1
@@ -608,6 +609,10 @@ class ChangelogBehavior extends ModelBehavior {
               // Third example, nothing to do but copy (merge) the conditions
               
               $ret[$k]['conditions'] = array_merge($ret[$k]['conditions'], $v2);
+            } elseif((string)$k2 == 'order') {
+              // Sixth example
+              
+              $ret[$k]['order'] = $v2;
             } elseif(is_array($v2)) {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
               

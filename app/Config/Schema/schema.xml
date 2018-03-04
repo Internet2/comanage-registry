@@ -242,6 +242,7 @@
     <field name="ou" type="C" size="128" />
     <field name="valid_from" type="T" />
     <field name="valid_through" type="T" />
+    <field name="ordr" type="I" />
     <field name="status" type="C" size="2" />
     <field name="source_org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>

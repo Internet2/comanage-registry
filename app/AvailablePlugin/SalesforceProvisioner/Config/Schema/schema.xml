@@ -36,6 +36,13 @@
       <constraint>REFERENCES cm_servers(id)</constraint>
     </field>
     <field name="instance_url" type="C" size="256" />
+    <!-- We could use a more complex attribute configuration like LdapProvisioner,
+         but we don't really have that use case currently. -->
+    <field name="middle_name" type="L" />
+    <field name="email_address_type" type="C" size="32" />
+    <field name="obj_coperson" type="L" />
+    <field name="platform_id_type" type="C" size="32" />
+    <field name="app_id_type" type="C" size="32" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

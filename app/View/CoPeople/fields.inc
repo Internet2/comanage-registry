@@ -870,6 +870,7 @@
                 <table id="<?php print $this->action; ?>_co_person_roles">
                   <tbody>
                   <tr class="line<?php print ($l % 2); $l++; ?>">
+                    <th><?php print _txt('fd.ordr'); ?></th>
                     <th><?php print _txt('fd.cou'); ?></th>
                     <th><?php print _txt('fd.title'); ?></th>
                     <th><?php print _txt('fd.affiliation'); ?></th>
@@ -909,6 +910,9 @@
                     
                   ?>
                   <tr class="line<?php print ($l % 2) . ' ' . $statusClass; $l++; ?>">
+                    <td><?php if (isset($r['ordr'])) {
+                        print filter_var($r['ordr'], FILTER_SANITIZE_SPECIAL_CHARS);
+                      } ?></td>
                     <td><?php if (isset($r['Cou']['name'])) {
                         print filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
                       } ?></td>

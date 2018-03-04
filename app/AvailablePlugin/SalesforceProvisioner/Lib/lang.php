@@ -40,6 +40,14 @@ $cm_salesforce_provisioner_texts['en_US'] = array(
   'er.salesforceprovisioner.instanceurl' => 'Cannot determine Instance URL',
   
   // Plugin texts
+  'pl.salesforceprovisioner.coperson'    => 'Enable CoPerson Custom Object Support',
+  'pl.salesforceprovisioner.coperson.desc' => 'See <a href="https://spaces.internet2.edu/display/COmanage/Salesforce+Provisioning+Plugin#SalesforceProvisioningPlugin-CoPersonCustomObject">the documentation</a> for more information',
+  'pl.salesforceprovisioner.coperson.appid' => 'CoPerson Application ID Identifier Type',
+  'pl.salesforceprovisioner.coperson.platformid' => 'CoPerson Platform ID Identifier Type',
+  'pl.salesforceprovisioner.email.type'    => 'Email Address Type',
+  'pl.salesforceprovisioner.email.type.desc' => 'Provision Email Address of this type, otherwise first address found',
   'pl.salesforceprovisioner.instanceurl'   => 'Instance URL',
   'pl.salesforceprovisioner.instanceurl.desc' => 'The Instance URL will be automatically determined, but can also be manually set here',
+  'pl.salesforceprovisioner.middlename'    => 'Provision Middle Name',
+  'pl.salesforceprovisioner.middlename.desc' => 'When populated, include middle name when constructing the name to send to Salesforce. Requires Middle Name field to be enabled in Salesforce.',
 );

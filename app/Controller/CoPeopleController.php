@@ -58,7 +58,7 @@ class CoPeopleController extends StandardController {
     'CoGroupMember' => array('CoGroup'),
     'CoNsfDemographic',
     'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier', 'PrimaryName')),
-    'CoPersonRole' => array('CoPetition', 'Cou'),
+    'CoPersonRole' => array('CoPetition', 'Cou', 'order' => 'CoPersonRole.ordr ASC'),
     // This deep nesting will allow us to display the source of the attribute
     'EmailAddress' => array('SourceEmailAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Identifier' => array('CoProvisioningTarget',

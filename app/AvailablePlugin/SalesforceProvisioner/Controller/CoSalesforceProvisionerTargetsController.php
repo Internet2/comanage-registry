@@ -40,6 +40,21 @@ class CoSalesforceProvisionerTargetsController extends SPTController {
   );
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+
+  function beforeRender() {
+    parent::beforeRender();
+    
+    if(!$this->request->is('restful')) {
+      $this->set('vv_email_addresses_types', $this->CoSalesforceProvisionerTarget->CoProvisioningTarget->Co->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+      $this->set('vv_identifiers_types', $this->CoSalesforceProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
