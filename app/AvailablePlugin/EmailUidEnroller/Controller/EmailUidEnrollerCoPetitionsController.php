@@ -63,7 +63,7 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
    * This function is taking the earlier stored 'invite' parameter from the session variables. 
    * If available, an Org Identity email address is created. This address will be used during confirmation
    * of this petititon. After confirmation this email adDrEss will become 'verified'
-   8
+   *
    * @param Integer $id CO Petition ID
    * @param Array $onFinish URL, in Cake format
    */
@@ -137,7 +137,7 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
    * Plugin functionality following finalizestep
    * 
    * Lookup petition ans lookup official email address of org identity of this enrolleee
-   8 then create a Identifier for this CO Person and make that CO Person 'Active Member'
+   * then create a Identifier for this CO Person and make that CO Person 'Active Member'
    *
    * @param Integer $id CO Petition ID
    * @param Array $onFinish URL, in Cake format
