@@ -216,6 +216,14 @@
                 print " (" . _txt('rs.prov.inel.group') . ")";
               }
             }
+            
+            if(!empty($c['CoProvisioningTarget']['skip_org_identity_source_id'])) {
+              if(!empty($co_person)
+                 && in_array($c['CoProvisioningTarget']['skip_org_identity_source_id'],
+                             Hash::extract($co_person, 'CoOrgIdentityLink.{n}.OrgIdentity.OrgIdentitySourceRecord.org_identity_source_id'))) {
+                print " (" . _txt('rs.prov.inel.ois') . ")";
+              }
+            }
           ?>
         </td>
         <td>
