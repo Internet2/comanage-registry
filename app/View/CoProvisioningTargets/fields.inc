@@ -113,6 +113,33 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('en.status.prov.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerStatusEnum::AutomaticMode);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.prov'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
+          }
+        } else {
+          print _txt('en.status', null, $co_provisioning_targets[0]['CoProvisioningTarget']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('provisioning_co_group_id', _txt('fd.prov.group')) : _txt('fd.prov.group')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.prov.group.desc'); ?></div>
@@ -142,26 +169,28 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        <?php print ($e ? $this->Form->label('skip_org_identity_source_id', _txt('fd.prov.skipois')) : _txt('fd.prov.skipois')); ?>
       </div>
-      <div class="field-desc"><?php print _txt('en.status.prov.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.prov.skipois.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php
-        global $cm_lang, $cm_texts;
-        $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerStatusEnum::AutomaticMode);
-        $attrs['empty'] = false;
-        
+        $attrs = array();
+        $attrs['value'] = (isset($co_provisioning_targets[0]['CoProvisioningTarget']['skip_org_identity_source_id'])
+                           ? $co_provisioning_targets[0]['CoProvisioningTarget']['skip_org_identity_source_id']
+                           : null);
+        $attrs['empty'] = true;
+
         if($e) {
-          print $this->Form->select('status',
-                                    $cm_texts[ $cm_lang ]['en.status.prov'],
+          print $this->Form->select('skip_org_identity_source_id',
+                                    $vv_org_identity_sources,
                                     $attrs);
-          
-          if($this->Form->isFieldError('status')) {
-            print $this->Form->error('status');
+
+          if($this->Form->isFieldError('skip_org_identity_source_id')) {
+            print $this->Form->error('skip_org_identity_source_id');
           }
         } else {
-          print _txt('en.status', null, $co_provisioning_targets[0]['CoProvisioningTarget']['status']);
+          print $vv_org_identity_sources[ $co_provisioning_targets[0]['CoProvisioningTarget']['skip_org_identity_source_id'] ];
         }
       ?>
     </div>

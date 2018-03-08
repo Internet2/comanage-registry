@@ -50,6 +50,9 @@ class OrgIdentitySource extends AppModel {
     "CoGroupOisMapping" => array(
       'dependent' => true
     ),
+    "CoProvisioningTarget" => array(
+      'foreignKey' => 'provision_co_group_id'
+    ),
     "OrgIdentitySourceRecord" => array(
       'dependent' => true
     )

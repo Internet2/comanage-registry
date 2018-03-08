@@ -1029,6 +1029,7 @@ class CoPeopleController extends StandardController {
       $args['contain'] = array(
         'PrimaryName',
         'CoGroupMember',
+        'CoOrgIdentityLink' => array('OrgIdentity' => array('OrgIdentitySourceRecord')),
         'Identifier'
       );
       

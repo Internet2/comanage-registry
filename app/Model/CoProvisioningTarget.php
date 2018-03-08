@@ -41,6 +41,10 @@ class CoProvisioningTarget extends AppModel {
     "ProvisionCoGroup" => array(
       'className' => 'CoGroup',
       'foreignKey' => 'provision_co_group_id'
+    ),
+    "SkipOrgIdentitySource" => array(
+      'className' => 'OrgIdentitySource',
+      'foreignKey' => 'skip_org_identity_source_id'
     )
   );
   
@@ -76,12 +80,18 @@ class CoProvisioningTarget extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'skip_org_identity_source_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'status' => array(
       'rule' => array(
         'inList',
         array(
           ProvisionerStatusEnum::AutomaticMode,
           ProvisionerStatusEnum::Disabled,
+          ProvisionerStatusEnum::EnrollmentMode,
           ProvisionerStatusEnum::ManualMode
         )
       ),

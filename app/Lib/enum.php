@@ -498,6 +498,7 @@ class ProvisionerStatusEnum
 {
   const AutomaticMode       = 'A';
   const Disabled            = 'X';
+  const EnrollmentMode      = 'E';
   const ManualMode          = 'M';
 }
 

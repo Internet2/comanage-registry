@@ -82,8 +82,18 @@ class CoProvisioningTargetsController extends StandardController {
       $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
       $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
       $args['order'] = array('CoGroup.name ASC');
+      $args['contain'] = false;
 
       $this->set('vv_available_groups', $this->Co->CoGroup->find("list", $args));
+      
+      // Pull the list of Org Identity Sources
+      $args = array();
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+      $args['order'] = array('OrgIdentitySource.description ASC');
+      $args['contain'] = false;
+      
+      $this->set('vv_org_identity_sources', $this->Co->OrgIdentitySource->find("list", $args));
     }
     
     parent::beforeRender();

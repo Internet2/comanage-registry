@@ -508,8 +508,10 @@ class ProvisionerBehavior extends ModelBehavior {
     // Before we do anything else, see if this plugin is configured to only operate
     // on a specified group. We do this here rather than in marshallXData because
     // here we have access to the plugin configuration, and the action change is not
-    // too intrusive. If we need to do more sophisticate manipulation of the provisioning
+    // too intrusive. If we need to do more sophisticated manipulation of the provisioning
     // data we should move this to marshallXData.
+    
+    // Note there is similar logic in View/Standard/provision.ctp.
     
     if(!empty($coProvisioningTarget['provision_co_group_id'])) {
       if(!empty($provisioningData['CoPerson']['id'])) { 
@@ -528,6 +530,19 @@ class ProvisionerBehavior extends ModelBehavior {
         // Switch to a delete. We'll leave the provisioning data itself untouched.
         $pAction = ProvisioningActionEnum::CoGroupDeleted;
       }
+    }
+    
+    // Perform a similar check to see if there is an associated Org Identity Source
+    // record that indicates we should skip provisioning.
+    
+    if(!empty($coProvisioningTarget['skip_org_identity_source_id'])
+       &&
+       !empty($provisioningData['CoPerson']['id'])
+       &&
+       in_array($coProvisioningTarget['skip_org_identity_source_id'],
+                Hash::extract($provisioningData, 'CoOrgIdentityLink.{n}.OrgIdentity.OrgIdentitySourceRecord.org_identity_source_id'))) {
+      // Switch to a delete. We'll leave the provisioning data itself untouched.
+      $pAction = ProvisioningActionEnum::CoGroupDeleted;
     }
     
     if(!empty($coProvisioningTarget['plugin'])) {
@@ -671,7 +686,11 @@ class ProvisionerBehavior extends ModelBehavior {
     // Pull the Provisioning Targets for this CO. We use the CO ID from $provisioningData.
     
     $args = array();
-    $args['conditions']['CoProvisioningTarget.status'] = ProvisionerStatusEnum::AutomaticMode;
+    $args['conditions']['CoProvisioningTarget.status'] = array(ProvisionerStatusEnum::AutomaticMode);
+    if($action == ProvisioningActionEnum::CoPersonPetitionProvisioned) {
+      // Also run provisioners in Enrollment Mode
+      $args['conditions']['CoProvisioningTarget.status'][] = ProvisionerStatusEnum::EnrollmentMode;
+    }
     if(isset($provisioningData[ $model->name ]['co_id'])) {
       $args['conditions']['CoProvisioningTarget.co_id'] = $provisioningData[ $model->name ]['co_id'];
     } else {
@@ -891,7 +910,7 @@ class ProvisionerBehavior extends ModelBehavior {
       'CoGroupMember' => array('CoGroup' => array('EmailListAdmin', 'EmailListMember', 'EmailListModerator')),
       // 'CoGroup'
       // 'CoGroupMember.CoGroup',
-      'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier')),
+      'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier', 'OrgIdentitySourceRecord')),
       //'CoOrgIdentityLink',
       // We normally don't pull org identity data, but we'll make an exception
       // for Identifier to be able to expose eppn

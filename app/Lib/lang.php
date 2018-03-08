@@ -740,11 +740,12 @@ original notification at
   
   'en.status.prov' => array(
     ProvisionerStatusEnum::AutomaticMode  => 'Automatic Mode',
+    ProvisionerStatusEnum::EnrollmentMode => 'Enrollment Mode',
     ProvisionerStatusEnum::ManualMode     => 'Manual Mode',
     ProvisionerStatusEnum::Disabled       => 'Disabled'
   ),
   
-  'en.status.prov.desc' =>  'In automatic mode, provisioners are called automatically as needed<br />In manual mode, an administrator must invoke the provisioner',
+  'en.status.prov.desc' =>  'See <a href="https://spaces.internet2.edu/display/COmanage/Provisioning+From+Registry#ProvisioningFromRegistry-AddingaProvisioningTarget">the documentation</a> for mode information',
 
   'en.status.prov.target' => array(
     ProvisioningStatusEnum::NotProvisioned => 'Not Provisioned',
@@ -1404,6 +1405,8 @@ original notification at
   'fd.plugin.warn' => 'Once a new %1$s has been created, the Plugin cannot be changed',
   'fd.prov.group' =>  'Provisioning Group',
   'fd.prov.group.desc' => 'If set, only provision members of the specified group to this target',
+  'fd.prov.skipois' => 'Skip If Associated With Org Identity Source',
+  'fd.prov.skipois.desc' => 'If set, do not provision CoPerson records that have an attached Org Identity record from the specified Org Identity Source',
   'fd.prov.status' => 'Provisioning Status',
   'fd.prov.status.for' => 'Provisioning Status for %1$s',
   'fd.pt.archived' => 'The definition of this attribute changed after the creation of this petition',
@@ -1892,6 +1895,7 @@ original notification at
   'rs.prov-a' =>      'Provisioned %1$s',
   'rs.prov.inel.grmem' => 'Ineligible: Not a member of provisioning group',
   'rs.prov.inel.group' => 'Ineligible: Not the provisioning group',
+  'rs.prov.inel.ois' => 'Ineligible: Associated record from Org Identity Source',
   'rs.prov.ok' =>     'Provisioning completed successfully',
   'rs.pt.approve' =>  'Petition Approved',
   'rs.pt.attr.upd' => 'Petition attributes updated',
