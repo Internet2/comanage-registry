@@ -136,11 +136,18 @@
           ?>
         </td>
         <td>
+          <?php $url = empty($c['CoTermsAndConditions']['tc_body']) 
+                  ? $c['CoTermsAndConditions']['url'] 
+                  : Router::url(array(
+                    "controller" => "CoTermsAndConditions",
+                    "action" => "raw_view",
+                    $c['CoTermsAndConditions']['id']
+                  )); ?>
           <?php if(!empty($c['CoTAndCAgreement'])): ?>
           <button class="checkbutton"
                   type="button"
                   onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
-                                      '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
+                                      '<?php print addslashes($url); ?>',
                                       'review',
                                       '')">
             <?php print _txt('op.tc.review'); ?>
@@ -149,7 +156,7 @@
           <button class="checkbutton"
                   type="button"
                   onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
-                                      '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
+                                      '<?php print addslashes($url); ?>',
                                       'agree',
                                       '<?php
                                           $args = array(

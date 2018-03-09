@@ -600,16 +600,26 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 if(!$attropts) {
                   $attributes[$attr] = array();
                 }
-                
+
                 foreach($provisioningData['CoTAndCAgreement'] as $tc) {
                   if(!empty($tc['agreement_time'])
-                     && !empty($tc['CoTermsAndConditions']['url']
-                     && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active)) {
+                     && !(empty($tc['CoTermsAndConditions']['url'])
+                          && empty($tc['CoTermsAndConditions']['tc_body']))
+                     && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active) {
+
+                    $url = empty($tc['CoTermsAndConditions']['tc_body'])
+                           ? $tc['CoTermsAndConditions']['url']
+                           : Router::url(array(
+                             "controller" => "CoTermsAndConditions",
+                             "action" => "raw_view",
+                             $tc['CoTermsAndConditions']['id']
+                           ), true);
+
                     if($attropts) {
                       $lrattr = $lattr . ";time-" . strtotime($tc['agreement_time']);
-                      $attributes[$lrattr][] = $tc['CoTermsAndConditions']['url'];
+                      $attributes[$lrattr][] = $url;
                     } else {
-                      $attributes[$attr][] = $tc['CoTermsAndConditions']['url'];
+                      $attributes[$attr][] = $url;
                     }
                   }
                 }

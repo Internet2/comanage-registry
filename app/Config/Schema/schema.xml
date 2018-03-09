@@ -2064,6 +2064,7 @@
     </field>
     <field name="description" type="C" size="256" />
     <field name="url" type="C" size="256" />
+    <field name="tc_body" type="X2" />
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
