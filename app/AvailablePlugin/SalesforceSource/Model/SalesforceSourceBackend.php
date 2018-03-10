@@ -287,20 +287,23 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         $obj = $oAttr[0];
         $att = $oAttr[1];
         
-        if(!empty($attrs->$obj[0]->$att) && is_string($attrs->$obj[0]->$att)) {
+        // We can't use $attrs->$obj[0] on earlier versions of PHP (5.4, maybe 5.x?)
+        $attrobj = $attrs->$obj;
+        
+        if(!empty($attrobj[0]->$att) && is_string($attrobj[0]->$att)) {
           $v = array(
-            'value' => (string)$attrs->$obj[0]->$att
+            'value' => (string)$attrobj[0]->$att
           );
           
           // Unclear if these field names are standard
-          if(!empty($attrs->$obj[0]->Start_Date__c)) {
+          if(!empty($attrobj[0]->Start_Date__c)) {
             // We don't know what timezone this is, so we treat it as UTC
-            $v['valid_from'] = $attrs->$obj[0]->Start_Date__c . " 00:00:00";
+            $v['valid_from'] = $attrobj[0]->Start_Date__c . " 00:00:00";
           }
           
-          if(!empty($attrs->$obj[0]->End_Date__c)) {
+          if(!empty($attrobj[0]->End_Date__c)) {
             // We don't know what timezone this is, so we treat it as UTC
-            $v['valid_through'] = $attrs->$obj[0]->End_Date__c . " 23:59:59";
+            $v['valid_through'] = $attrobj[0]->End_Date__c . " 23:59:59";
           }
           
           $ret[$gAttr][] = $v;
