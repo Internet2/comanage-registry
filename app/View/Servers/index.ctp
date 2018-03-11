@@ -93,7 +93,7 @@
                   ),
                   array('class' => 'editbutton')) . "\n";
               
-              $smodel = $vv_server_type_models[ $servers[0]['Server']['server_type'] ];
+              $smodel = $vv_server_type_models[ $c['Server']['server_type'] ];
               
               print $this->Html->link(
                   _txt('op.config'),

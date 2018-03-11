@@ -37,7 +37,8 @@ class Server extends AppModel {
   
   public $hasOne = array(
     "LdapServer" => array('dependent' => true),
-    "Oauth2Server" => array('dependent' => true)
+    "Oauth2Server" => array('dependent' => true),
+    "SqlServer" => array('dependent' => true)
   );
   
   // Default display field for cake generated views
@@ -60,7 +61,8 @@ class Server extends AppModel {
     ),
     'server_type' => array(
       'rule' => array('inList', array(ServerEnum::LdapServer,
-                                      ServerEnum::Oauth2Server)),
+                                      ServerEnum::Oauth2Server,
+                                      ServerEnum::SqlServer)),
       'required' => true,
       'allowEmpty' => false
     ),
@@ -75,7 +77,8 @@ class Server extends AppModel {
   // Mapping from server type to model
   public $serverTypeModels = array(
     ServerEnum::LdapServer   => 'LdapServer',
-    ServerEnum::Oauth2Server => 'Oauth2Server'
+    ServerEnum::Oauth2Server => 'Oauth2Server',
+    ServerEnum::SqlServer    => 'SqlServer'
   );
   
   /**

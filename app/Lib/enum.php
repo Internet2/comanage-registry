@@ -559,6 +559,8 @@ class ServerEnum
 {
   const LdapServer    = 'LD';
   const Oauth2Server  = 'O2';
+  // Generic SQL Server, not "MS SQL Server"
+  const SqlServer     = 'SQ';
 }
 
 class SponsorEligibilityEnum {
@@ -567,6 +569,15 @@ class SponsorEligibilityEnum {
   const CoOrCouAdmin  = 'A';
   const CoPerson      = 'CP';
   const None          = 'N';
+}
+
+class SqlServerEnum
+{
+  // Initially we only support Cake-supported types, though that should
+  // probably expand at some point
+  const Mysql     = 'MY';
+  const Postgres  = 'PG';
+  const SqlServer = 'MS';
 }
 
 class SshKeyTypeEnum

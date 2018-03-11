@@ -57,7 +57,7 @@
   
   print $this->Form->hidden('server_id', array('default' => $oauth2_servers[0]['Server']['id'])) . "\n";
 ?>
-<ul id="<?php print $this->action; ?>_server" class="fields form-list">
+<ul id="<?php print $this->action; ?>_oauth2_server" class="fields form-list">
   <li>
     <div class="field-name">
       <div class="field-title">
@@ -99,6 +99,7 @@
     <div class="field-info">
       <?php
         global $cm_lang, $cm_texts;
+        $attrs = array();
         $attrs['value'] = (isset($oauth2_servers) ? $oauth2_servers[0]['Oauth2Server']['access_grant_type'] : Oauth2GrantEnum::AuthorizationCode);
         $attrs['empty'] = false;
 
@@ -107,8 +108,8 @@
                                     $cm_texts[ $cm_lang ]['en.server.oauth2.grant'],
                                     $attrs);
 
-          if($this->Form->isFieldError('server')) {
-            print $this->Form->error('server');
+          if($this->Form->isFieldError('access_grant_type')) {
+            print $this->Form->error('access_grant_type');
           }
         } else {
           print _txt('en.server.oauth2.grant', null, $oauth2_servers[0]['Oauth2Server']['access_grant_type']);

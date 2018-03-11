@@ -181,6 +181,8 @@ $cm_texts['en_US'] = array(
   'ct.petitions.pl' =>          'Petitions',
   'ct.servers.1' =>             'Server',
   'ct.servers.pl' =>            'Servers',
+  'ct.sql_servers.1' =>         'SQL Server',
+  'ct.sql_servers.pl' =>        'SQL Servers',
   'ct.ssh_keys.1' =>            'SSH Key',
   'ct.ssh_keys.pl' =>           'SSH Keys',
   'ct.telephone_numbers.1' =>   'Telephone Number',
@@ -665,12 +667,19 @@ original notification at
   
   'en.server' => array(
     ServerEnum::LdapServer   => 'LDAP',
-    ServerEnum::Oauth2Server => 'OAuth2'
+    ServerEnum::Oauth2Server => 'OAuth2',
+    ServerEnum::SqlServer    => 'SQL'
   ),
 
   'en.server.oauth2.grant' => array(
     Oauth2GrantEnum::AuthorizationCode => 'Authorization Code',
     Oauth2GrantEnum::ClientCredentials => 'Client Credentials'
+  ),
+
+  'en.server.sql' => array(
+    SqlServerEnum::Mysql     => 'MySQL',
+    SqlServerEnum::Postgres  => 'PostgreSQL',
+    SqlServerEnum::SqlServer => 'MS SQL Server'
   ),
 
   'en.sponsor.eligibility' => array(SponsorEligibilityEnum::CoAdmin       => 'CO Admin',
@@ -1428,8 +1437,10 @@ original notification at
   'fd.search.all' =>  'Search All Fields',
   'fd.searchbase' =>  'Search Base',
   'fd.server' =>      'Server',
-  'fd.server.warn' => 'Once a new server has been created, the type cannot be changed',
+  'fd.server.hostname' => 'Hostname',
   'fd.server.url'=>   'Server URL',
+  'fd.server.username' => 'Username',
+  'fd.server.warn' => 'Once a new server has been created, the type cannot be changed',
   'fd.server.oauth2.access_token' => 'Access Token',
   'fd.server.oauth2.access_token.desc' => 'Save any changes to the configuration before obtaining a new token',
   'fd.server.oauth2.clientid' => 'Client ID',
@@ -1437,6 +1448,7 @@ original notification at
   'fd.server.oauth2.grant_type' => 'Access Token Grant Type',
   'fd.server.oauth2.redirect' => 'Redirect URI',
   'fd.server.oauth2.scope' => 'Scope',
+  'fd.server.sql.database' => 'Database',
   'fd.set' =>         'Set',
   'fd.set.not' =>     'Not Set',
   'fd.sshkey.comment' => 'Comment',

@@ -111,20 +111,11 @@ class Oauth2ServersController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // Add a new OAuth2 Server?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
-
     // Accept an OAuth callback?
     $p['callback'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
-    // Delete an existing OAuth2 Server?
-    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     // Edit an existing OAuth2  Server?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
-    // View all OAuth2 Servers?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Obtain an access token for this OAuth2 Server?
     $p['token'] = ($roles['cmadmin'] || $roles['coadmin']);
