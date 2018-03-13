@@ -76,6 +76,26 @@
   
   $l = 1;
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+
+    // If Org Identity Mode is Search or Search/Required, show additional options
+    var oim = document.getElementById('CoEnrollmentSourceOrgIdentityMode').value;
+
+    if(oim == '<?php print EnrollmentOrgIdentityModeEnum::OISSearch;?>'
+       || oim == '<?php print EnrollmentOrgIdentityModeEnum::OISSearchRequired;?>') {
+      $("#CoEnrollmentSourceVerifyFamilyName").closest("tr").show('fade');
+    } else {
+      $("#CoEnrollmentSourceVerifyFamilyName").closest("tr").hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+</script>
 <div class="table-container">
   <table id="<?php print $this->action; ?>_co_enrollment_source">
     <tbody>
@@ -121,6 +141,7 @@
                                ? $co_enrollment_sources[0]['CoEnrollmentSource']['org_identity_mode']
                                : EnrollmentOrgIdentityModeEnum::None);
             $attrs['empty'] = false;
+            $attrs['onchange'] = "fields_update_gadgets();";
 
             if($e) {
               print $this->Form->select('org_identity_mode',
@@ -134,6 +155,17 @@
               print _txt('en.enrollment.orgid', null, $co_enrollment_sources[0]['CoEnrollmentSource']['org_identity_mode']);
             }
           ?>
+        </td>
+      </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.ef.orgid.sn'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ef.orgid.sn.desc'); ?></span>
+        </td>
+        <td>
+          <?php print ($e
+            ? $this->Form->input('verify_family_name')
+            : filter_var($co_enrollment_sources[0]['CoEnrollmentSource']['verify_family_name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </td>
       </tr>
       <tr class="line<?php print ($l % 2); $l++; ?>">

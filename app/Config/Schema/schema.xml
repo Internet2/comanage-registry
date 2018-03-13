@@ -1457,6 +1457,7 @@
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
     <field name="org_identity_mode" type="C" size="2" />
+    <field name="verify_family_name" type="L" />
     <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

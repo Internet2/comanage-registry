@@ -72,6 +72,9 @@ class CoEnrollmentSource extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'verify_family_name' => array(
+      'rule' => 'boolean'
+    ),
     'ordr' => array(
       'rule' => 'numeric',
       'required' => false,

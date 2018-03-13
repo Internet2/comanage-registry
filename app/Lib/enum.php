@@ -467,6 +467,7 @@ class PetitionActionEnum
   const IdentifierAuthenticated = 'ID';
   const IdentifiersAssigned     = 'IA';
   const IdentityLinked          = 'IL';
+  const IdentityNotLinked       = 'IX';
   const IdentityRelinked        = 'IR';
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';

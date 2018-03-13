@@ -443,6 +443,25 @@ class CoPetition extends AppModel {
       $emailAddresses = $this->EnrolleeOrgIdentity->EmailAddress->find('all', $args);
     }
     
+    // Pull names as well if we need them for verify_family_name
+    $names = array();
+    
+    if($es['verify_family_name']) {
+      $args = array();
+      $args['joins'][0]['table'] = 'co_org_identity_links';
+      $args['joins'][0]['alias'] = 'CoOrgIdentityLink';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.org_identity_id=Name.org_identity_id';
+      $args['joins'][1]['table'] = 'co_people';
+      $args['joins'][1]['alias'] = 'CoPerson';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
+      $args['conditions']['CoPerson.id'] = $pt['CoPetition']['enrollee_co_person_id'];
+      $args['contain'] = false;
+      
+      $names = $this->EnrolleeOrgIdentity->Name->find('all', $args);
+    }
+    
     foreach($emailAddresses as $ea) {
       if(!empty($ea['EmailAddress']['mail'])) {
         foreach($pt['CoEnrollmentFlow']['CoEnrollmentSource'] as $es) {
@@ -469,6 +488,41 @@ class CoPetition extends AppModel {
               }
               
               foreach($oisResults as $sourceKey => $oisRecord) {
+                // The name from the source is available in $oisRecord
+                if($es['verify_family_name']
+                   && !empty($oisRecord['Name'])) {
+                  $matched = false;
+                  
+                  // There could be more than one name from the source, though
+                  // generally there will just be the Primary Name.
+                  $oisnames = array();
+                  
+                  foreach($oisRecord['Name'] as $n) {
+                    // XXX Should we strip out non-alpha?
+                    $oisnames[] = strtolower($n['family']);
+                  }
+                  
+                  foreach($names as $n) {
+                    if(!empty($n['Name']['family'])
+                       && in_array(strtolower($n['Name']['family']), $oisnames)) {
+                      $matched = true;
+                      break;
+                    }
+                  }
+                  
+                  if(!$matched) {
+                    // Log petition history and move on (ie: don't createOrgIdentity)                      
+                    
+                    $this->CoPetitionHistoryRecord->record($id,
+                                                           $actorCoPersonId,
+                                                           PetitionActionEnum::IdentityNotLinked,
+                                                           _txt('rs.pt.ois.link.name', array($es['OrgIdentitySource']['description'],
+                                                                                             $es['org_identity_source_id'])));
+                    
+                    continue;
+                  }
+                }
+
                 // createOrgIdentity will also create the link to the CO Person. It may also
                 // run a pipeline (if configured). Which Pipeline we want to run is a bit confusing,
                 // since the Enrollment Flow, the OIS, and the CO can all have a pipeline configured.

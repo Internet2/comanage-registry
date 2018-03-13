@@ -150,21 +150,23 @@ class CoEnrollmentSourcesController extends StandardController {
    */
 
   function checkWriteDependencies($reqdata, $curdata = null) {
-    // On an add, make sure there is not already a Source using the requested OIS configuration
-    // in the requested mode. (We don't do this in beforeSave because we don't currently try/catch
-    // save(), so we can't pass an error message up the stack in a graceful way.)
-    
-    $args = array();
-    $args['conditions']['CoEnrollmentSource.co_enrollment_flow_id'] = $reqdata['CoEnrollmentSource']['co_enrollment_flow_id'];
-    $args['conditions']['CoEnrollmentSource.org_identity_source_id'] = $reqdata['CoEnrollmentSource']['org_identity_source_id'];
-    $args['conditions']['CoEnrollmentSource.org_identity_mode'] = $reqdata['CoEnrollmentSource']['org_identity_mode'];
-    $args['contain'] = false;
-    
-    $es = $this->CoEnrollmentSource->find('all', $args);
-    
-    if(!empty($es)) {
-      $this->Flash->set(_txt('er.es.exists'), array('key' => 'error'));
-      return false;
+    if($this->action == 'add') {
+      // On an add, make sure there is not already a Source using the requested OIS configuration
+      // in the requested mode. (We don't do this in beforeSave because we don't currently try/catch
+      // save(), so we can't pass an error message up the stack in a graceful way.)
+      
+      $args = array();
+      $args['conditions']['CoEnrollmentSource.co_enrollment_flow_id'] = $reqdata['CoEnrollmentSource']['co_enrollment_flow_id'];
+      $args['conditions']['CoEnrollmentSource.org_identity_source_id'] = $reqdata['CoEnrollmentSource']['org_identity_source_id'];
+      $args['conditions']['CoEnrollmentSource.org_identity_mode'] = $reqdata['CoEnrollmentSource']['org_identity_mode'];
+      $args['contain'] = false;
+      
+      $es = $this->CoEnrollmentSource->find('all', $args);
+      
+      if(!empty($es)) {
+        $this->Flash->set(_txt('er.es.exists'), array('key' => 'error'));
+        return false;
+      }
     }
     
     return true;      
