@@ -394,7 +394,7 @@ class OrgIdentitySource extends AppModel {
     
     // Invoke pipeline, if configured
     try {
-      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId, $provision);
+      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId, $provision, $brec['raw']);
     }
     catch(Exception $e) {
       $dbc->rollback();
@@ -415,14 +415,15 @@ class OrgIdentitySource extends AppModel {
    * @param  Integer $orgIdentityId OrgIdentity ID
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
    * @param  String $syncAction "add", "update", or "delete"
+   * @param  String $oisRawRecord The raw record
    * @param  Boolean $provision Whether to execute provisioning
    */
   
-  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId, $provision=true) {
+  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId, $provision=true, $oisRawRecord=null) {
     $pipelineId = $this->OrgIdentitySourceRecord->OrgIdentity->pipeline($orgIdentityId);
     
     if($pipelineId) {
-      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId, $provision);
+      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId, $provision, $oisRawRecord);
     }
     // Otherwise, no pipeline to run, so just return success.
     
@@ -1208,7 +1209,9 @@ class OrgIdentitySource extends AppModel {
                                  ($status == 'removed')
                                  ? SyncActionEnum::Delete
                                  : SyncActionEnum::Update,
-                                 $actorCoPersonId);
+                                 $actorCoPersonId,
+                                 true,
+                                 $brec['raw']);
         }
         catch(Exception $e) {
           $dbc->rollback();

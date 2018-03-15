@@ -277,6 +277,9 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     // Convert the raw string back to a JSON object/array
     $attrs = json_decode($raw);
     
+    if(!is_object($attrs))
+      return array();
+    
     // Get the list of groupable attributes
     $groupAttrs = $this->groupableAttributes();
     
@@ -287,26 +290,25 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         $obj = $oAttr[0];
         $att = $oAttr[1];
         
-        // We can't use $attrs->$obj[0] on earlier versions of PHP (5.4, maybe 5.x?)
-        $attrobj = $attrs->$obj;
-        
-        if(!empty($attrobj[0]->$att) && is_string($attrobj[0]->$att)) {
-          $v = array(
-            'value' => (string)$attrobj[0]->$att
-          );
-          
-          // Unclear if these field names are standard
-          if(!empty($attrobj[0]->Start_Date__c)) {
-            // We don't know what timezone this is, so we treat it as UTC
-            $v['valid_from'] = $attrobj[0]->Start_Date__c . " 00:00:00";
+        foreach($attrs->$obj as $attrobj) {
+          if(!empty($attrobj->$att) && is_string($attrobj->$att)) {
+            $v = array(
+              'value' => (string)$attrobj->$att
+            );
+            
+            // Unclear if these field names are standard
+            if(!empty($attrobj->Start_Date__c)) {
+              // We don't know what timezone this is, so we treat it as UTC
+              $v['valid_from'] = $attrobj->Start_Date__c . " 00:00:00";
+            }
+            
+            if(!empty($attrobj->End_Date__c)) {
+              // We don't know what timezone this is, so we treat it as UTC
+              $v['valid_through'] = $attrobj->End_Date__c . " 23:59:59";
+            }
+            
+            $ret[$gAttr][] = $v;
           }
-          
-          if(!empty($attrobj[0]->End_Date__c)) {
-            // We don't know what timezone this is, so we treat it as UTC
-            $v['valid_through'] = $attrobj[0]->End_Date__c . " 23:59:59";
-          }
-          
-          $ret[$gAttr][] = $v;
         }
       } else {
         if(!empty($attrs->$gAttr) && is_string($attrs->$gAttr)) {
