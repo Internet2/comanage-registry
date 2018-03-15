@@ -1425,6 +1425,8 @@ original notification at
   'fd.tc.agree.no' => 'Not Agreed',
   'fd.tc.agree.yes' => 'Agreed',
   'fd.tc.archived' => 'The definition of this T&C changed after the agreement was recorded',
+  'fd.tc.body' => 'Content',
+  'fd.tc.body.desc' => 'HTML content of these T&C',
   'fd.tc.cou.desc' => 'If set, this T&C only applies to members of the specified COU',
   'fd.tc.for' =>      'Terms and Conditions for %1$s (%2$s)',
   'fd.tc.mode.login' => 'Terms and Conditions Mode',
