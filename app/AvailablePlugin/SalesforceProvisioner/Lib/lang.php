@@ -40,7 +40,9 @@ $cm_salesforce_provisioner_texts['en_US'] = array(
   'er.salesforceprovisioner.instanceurl' => 'Cannot determine Instance URL',
   
   // Plugin texts
-  'pl.salesforceprovisioner.coperson'    => 'Enable CoPerson Custom Object Support',
+  'pl.salesforceprovisioner.account'      => 'Default Account',
+  'pl.salesforceprovisioner.account.desc' => 'If specified, provisioned records are attached to the specified account, which must currently be specified as a Salesforce Object ID',
+  'pl.salesforceprovisioner.coperson'     => 'Enable CoPerson Custom Object Support',
   'pl.salesforceprovisioner.coperson.desc' => 'See <a href="https://spaces.internet2.edu/display/COmanage/Salesforce+Provisioning+Plugin#SalesforceProvisioningPlugin-CoPersonCustomObject">the documentation</a> for more information',
   'pl.salesforceprovisioner.coperson.appid' => 'CoPerson Application ID Identifier Type',
   'pl.salesforceprovisioner.coperson.platformid' => 'CoPerson Platform ID Identifier Type',

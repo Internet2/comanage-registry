@@ -272,6 +272,11 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
         }
       }
       
+      if(!empty($coProvisioningTargetData['CoSalesforceProvisionerTarget']['default_account'])) {
+        // Set the Account ID for the Person
+        $sfData['AccountId'] = $coProvisioningTargetData['CoSalesforceProvisionerTarget']['default_account'];
+      }
+      
       // Do we already have Salesforce IDs for this person?
       $sfids = $this->getSalesforceIdentifiers($coProvisioningTargetData['CoSalesforceProvisionerTarget']['co_provisioning_target_id'],
                                                $provisioningData['CoPerson']['id']);

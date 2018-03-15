@@ -43,6 +43,7 @@
     <field name="obj_coperson" type="L" />
     <field name="platform_id_type" type="C" size="32" />
     <field name="app_id_type" type="C" size="32" />
+    <field name="default_account" type="c" size="32" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

@@ -225,6 +225,15 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <?php print $this->Form->label('instance_url',_txt('pl.salesforceprovisioner.account')); ?><br />
+      <div class="field-desc"><?php print _txt('pl.salesforceprovisioner.account.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('default_account') : filter_var($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['default_account'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
   <?php if($e): ?>
   <li class="fields-submit">
     <div class="field-name">
