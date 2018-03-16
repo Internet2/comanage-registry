@@ -486,6 +486,11 @@ FROM
 
   public function provisionCoGroupReprovisionRequested($coProvisioningTargetData, $coGroup) {
     $provisionerGroup = $this->CoGrouperProvisionerGroup->findProvisionerGroup($coProvisioningTargetData, $coGroup);
+
+    if(!isset($provisionerGroup)) {
+      $provisionerGroup = $this->CoGrouperProvisionerGroup->addProvisionerGroup($coProvisioningTargetData, $coGroup);
+    } 
+
     $groupName = $this->CoGrouperProvisionerGroup->getGrouperGroupName($provisionerGroup);
     $groupDescription = $this->CoGrouperProvisionerGroup->getGrouperGroupDescription($provisionerGroup);
     $groupDisplayExtension = $this->CoGrouperProvisionerGroup->getGroupDisplayExtension($provisionerGroup);
