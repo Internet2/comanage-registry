@@ -41,6 +41,7 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
    * This function inspects for this invite URI paramenter and stores the decoded value in a session variable for later retrieval
    *
    * @param Integer $id  = NULL !!!!
+   * @param String 'invite' = Base64 encoded email address
    * @param Array $onFinish URL, in Cake format
    */
 
@@ -107,15 +108,28 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
         $txn = $this->EmailAddress->getDataSource();
         $txn->begin();
 
-        // Make sure the OrgIdentity gets this email addres, the petitions will be send to this address...
+        /* Make sure the OrgIdentity gets this email addres, the petitions will be send to this address...
+         */
         $emailAddressData = array();
         $emailAddressData['EmailAddress']['mail'] = $invitation;
         $emailAddressData['EmailAddress']['type'] = EmailAddressEnum::Official;
         $emailAddressData['EmailAddress']['verified'] = false;
         $emailAddressData['EmailAddress']['org_identity_id'] = $data['CoPetition']['enrollee_org_identity_id'];
-              
+        
         $this->EmailAddress->create($emailAddressData);
         $this->EmailAddress->save($emailAddressData, array('provision' => false));
+
+        /* Now set the UID to become equal to the MAIL address...
+         */
+        $identifierData = array();
+        $identifierData['Identifier']['identifier'] = $invitation;
+        $identifierData['Identifier']['type'] = IdentifierEnum::UID;
+        $identifierData['Identifier']['login'] = false;
+        $identifierData['Identifier']['status'] = StatusEnum::Active;
+        $identifierData['Identifier']['co_person_id'] = $data['CoPetition']['enrollee_co_person_id'];
+              
+        $this->Identifier->create($identifierData);
+        $this->Identifier->save($identifierData, array('provision' => false));
 
         $txn->commit();
 
@@ -136,7 +150,7 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
   /**
    * Plugin functionality following finalizestep
    * 
-   * Lookup petition ans lookup official email address of org identity of this enrolleee
+   * Lookup petition and lookup official email address of org identity of this enrolleee
    * then create a Identifier for this CO Person and make that CO Person 'Active Member'
    *
    * @param Integer $id CO Petition ID
@@ -155,50 +169,65 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
     
     $data = $this->CoPetition->find('first', $args);
 
-    CakeLog::info("[Finalize] Petition Attributes read: " . print_r($data, true));
-
-    try {
+    if (empty($data)) {
+      CakeLog::info("[Finalize] Data is EMPTY so skipping further processing!");
+    } else {
+      CakeLog::info("[Finalize] Petition Attributes read: " . print_r($data, true));
 
       $this->loadModel('EmailAddress');
+
+      /* Now for the big conclusion:
+       * - If wa have a (now) verified Email Address
+       * - That email addres is equal to the Active UID for this CO Person
+       * Then we are 'all set' we have enrolled sucessful CO person, make him active !
+       */
       $args = array();
       $args['conditions']['EmailAddress.org_identity_id'] = $data['CoPetition']['enrollee_org_identity_id'];
+      $args['conditions']['EmailAddress.type'] = EmailAddressEnum::Official;
+      $args['conditions']['EmailAddress.verified'] = true;
+      $args['conditions']['uid.type'] = IdentifierEnum::UID;
+      $args['conditions']['uid.login'] = false;
+      $args['conditions']['uid.status'] = StatusEnum::Active;
+      $args['conditions']['uid.co_person_id'] = $data['CoPetition']['enrollee_co_person_id'];
+      
+      $args['joins'][0]['table'] = 'identifiers';
+      $args['joins'][0]['alias'] = 'uid';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'EmailAddress.mail=uid.identifier';
+
       $args['contain'] = false;
       $mail = $this->EmailAddress->find('first', $args);
-      CakeLog::info("[Finalize] MAIL found: " . print_r($mail, true));
-    
-      $txn = $this->Co->CoPerson->getDataSource();
-      $txn->begin();
 
-      // Make sure the this user gets a ***unique*** identifier.
-      $identifierData = array();
-      $identifierData['Identifier']['identifier'] = $mail['EmailAddress']['mail'];
-      $identifierData['Identifier']['type'] = IdentifierEnum::UID;
-      $identifierData['Identifier']['login'] = false;
-      $identifierData['Identifier']['status'] = StatusEnum::Active;
-      $identifierData['Identifier']['co_person_id'] = $data['CoPetition']['enrollee_co_person_id'];
-              
-      $this->loadModel('Identifier');
-      $this->Identifier->create($identifierData);
-      $this->Identifier->save($identifierData, array('provision' => false));
+      if (empty($mail)) {
+        CakeLog::info("[Finalize] No matching MAIL+UID entry found, so skipping further processing!");
+      } else {
 
-      $role = array();
-      $role['CoPersonRole']['co_person_id'] = $data['CoPetition']['enrollee_co_person_id'];
-      $role['CoPersonRole']['affiliation'] = AffiliationEnum::Member;
-      $role['CoPersonRole']['status'] = StatusEnum::Active;
+        CakeLog::info("[Finalize] All conditions OK, EMAIL+UID found: " . print_r($mail, true));
+        try {
+          $txn = $this->Co->CoPerson->getDataSource();
+          $txn->begin();
 
-      $this->Co->CoPerson->CoPersonRole->create($role);
-      $this->Co->CoPerson->CoPersonRole->save($role, array('provision' => false));
+          // Make the person 'active' member of the CO...
+          $role = array();
+          $role['CoPersonRole']['co_person_id'] = $data['CoPetition']['enrollee_co_person_id'];
+          $role['CoPersonRole']['affiliation'] = AffiliationEnum::Member;
+          $role['CoPersonRole']['status'] = StatusEnum::Active;
 
-      $txn->commit();
+          $this->Co->CoPerson->CoPersonRole->create($role);
+          $this->Co->CoPerson->CoPersonRole->save($role, array('provision' => false));
 
-    } catch(Exception $e) {
+          $txn->commit();
 
-      $txn->rollback();
+        } catch(Exception $e) {
 
-      $eclass = get_class($e);
-      CakeLog::error("Error finalizing enrollment: " . $e->getMessage());
+          $txn->rollback();
 
-      throw new $eclass($e->getMessage());
+          $eclass = get_class($e);
+          CakeLog::error("Error finalizing enrollment: " . $e->getMessage());
+
+          throw new $eclass($e->getMessage());
+        }
+      }
     }
 
     $this->redirect($onFinish);
