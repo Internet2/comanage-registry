@@ -50,10 +50,16 @@ class CoTermsAndConditions extends AppModel {
       'allowEmpty' => false
     ),
     'url' => array(
-      'rule' => array('url', true),
-      'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A URL must be provided'
+      'rule' => array("checkUrlOrContent"),
+      'required' => false,
+      'type' => 'textarea',
+      'message' => "" // empty message causes field to get error state without duplicate message
+    ),
+    'tc_body' => array(
+      'rule' => array("checkUrlOrContent"),
+      'required' => false,
+      'type' => 'textarea',
+      'message' => "Either URL or Content must be set for this T&C"
     ),
     'cou_id' => array(
       'rule' => 'numeric',
@@ -203,5 +209,25 @@ class CoTermsAndConditions extends AppModel {
     }
 
     return true;
+  }
+
+  /**
+   * Validation callback
+   * Check that either URL or Content is not-blank
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  CakeValidationSet  field
+   * @param  String             new data for this field
+   * @param  Model              model object
+   * @return Boolean validation state
+   */
+
+  public function checkUrlOrContent($field, $rule) {
+    CakeLog::write('debug','received field '.json_encode($field));
+    $url = $this->data[$this->alias]['url'];
+    $body = $this->data[$this->alias]['tc_body'];
+    $status = !(empty($url) && empty($body));
+    CakeLog::write('debug','status is '.($status ? "TRUE":"FALSE"));
+    return $status;
   }
 }
