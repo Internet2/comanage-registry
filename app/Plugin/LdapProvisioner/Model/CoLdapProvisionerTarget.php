@@ -354,11 +354,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // Walk through each name
                 foreach($provisioningData['Name'] as $n) {
                   if($attropts && !empty($n['language'])) {
-                    $lattr = $lattr . ";lang-" . $n['language'];
+                    $llattr = $lattr . ";lang-" . $n['language'];
                   }
                   
                   if(empty($targetType) || ($targetType == $n['type'])) {
-                    $attributes[$lattr][] = generateCn($n);
+                    $attributes[$llattr][] = generateCn($n);
                     
                     if(!$multiple) {
                       // We're only allowed one name in the attribute
@@ -603,8 +603,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 
                 foreach($provisioningData['CoTAndCAgreement'] as $tc) {
                   if(!empty($tc['agreement_time'])
-                     && !empty($tc['CoTermsAndConditions']['url']
-                     && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active)) {
+                     && !empty($tc['CoTermsAndConditions']['url'])
+                     && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active) {
                     if($attropts) {
                       $lrattr = $lattr . ";time-" . strtotime($tc['agreement_time']);
                       $attributes[$lrattr][] = $tc['CoTermsAndConditions']['url'];
@@ -690,7 +690,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               // Attributes from models attached to CO Person Role
               case 'facsimileTelephoneNumber':
               case 'l':
-              case 'mail':
               case 'mobile':
               case 'postalCode':
               case 'roomNumber':
@@ -701,7 +700,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 $mods = array(
                   'facsimileTelephoneNumber' => 'TelephoneNumber',
                   'l' => 'Address',
-                  'mail' => 'EmailAddress',
                   'mobile' => 'TelephoneNumber',
                   'postalCode' => 'Address',
                   'roomNumber' => 'Address',
@@ -713,7 +711,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 $cols = array(
                   'facsimileTelephoneNumber' => 'number',
                   'l' => 'locality',
-                  'mail' => 'mail',
                   'mobile' => 'number',
                   'postalCode' => 'postal_code',
                   'roomNumber' => 'room',
