@@ -50,7 +50,7 @@ class RemoteUserAuthenticate extends BaseAuthenticate {
       return false;
     }
     
-    // We only populate username here... it's up to UsersController to populate
+    // We only populate username here... it's up to Login->process to populate
     // any other user information
     $ret['username'] = $u;
     
