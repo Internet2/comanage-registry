@@ -476,7 +476,7 @@ original notification at
   
   'en.enrollment.orgid' => array(
     EnrollmentOrgIdentityModeEnum::OISAuthenticate    => 'Authenticate',
-    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
+//    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
     EnrollmentOrgIdentityModeEnum::OISIdentify        => 'Identify',
     EnrollmentOrgIdentityModeEnum::OISSearch          => 'Search',
     EnrollmentOrgIdentityModeEnum::OISSearchRequired  => 'Search, Required',
