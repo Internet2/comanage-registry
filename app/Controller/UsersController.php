@@ -121,7 +121,7 @@ class UsersController extends AppController {
           // Update Org Identities associated with an Enrollment Source, if configured.
           // Note we're performing CO specific work here, even though we're not in a CO context yet.
           
-          $this->OrgIdentitySource->syncByIdentifier($u);
+          $this->OrgIdentitySource->syncByIdentifier($this->Session->read('Auth.User.username'));
           
           $this->redirect($this->Auth->redirectUrl());
         } else {
