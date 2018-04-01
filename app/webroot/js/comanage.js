@@ -203,7 +203,6 @@ function limitPage(pageLimit,recordCount,currentPage) {
   // Just cancel this if we have bad inputs
   if (isNaN(limit) || isNaN(count) || isNaN(page)) {
     stopSpinner();
-    alert("nope");
     return false;
   }
 
