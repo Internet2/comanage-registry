@@ -1172,4 +1172,16 @@ class CoPeopleController extends StandardController {
       $this->index();
     }
   }
+
+  /*
+   * Set the number of records displayed when pagination is present
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+  /*
+  public function setPaginationLimit() {
+    if(!empty($this->request->data['limit'])) {
+      $this->paginate = array('limit'=>$this->request->data['limit']);
+    }
+  }*/
 }

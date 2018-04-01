@@ -84,6 +84,7 @@
     // hiding some pagination numbers)
     ?>
     <form id="goto-page"
+          class="pagination-form"
           method="get"
           onsubmit="gotoPage(this.pageNum.value,
             <?php print $this->Paginator->counter('{:pages}');?>,
@@ -92,8 +93,41 @@
             return false;">
       <?php print _txt('fd.page.goto'); ?>
       <input type="text" size="3" name="pageNum"/>
-      <input type="submit" value="go"/>
+      <input type="submit" value="<?php print _txt('op.go'); ?>"/>
     </form>
   <?php endif; ?>
+
+  <?php
+    // Provide a form for setting the page limit.
+    // Default is 25 records, current maximum is 100.
+    // For now we will simply hard-code the options from 25 - 100.
+  ?>
+  <script type="text/javascript">
+    var recordCount = '<?php print $this->Paginator->params()['count']; ?>';
+    var currentPage = '<?php print $this->Paginator->params()['page']; ?>';
+    var currentLimit = '<?php print $this->Paginator->params()['limit']; ?>';
+  </script>
+  <form id="limit-page"
+        class="pagination-form"
+        method="get"
+        onsubmit="limitPage(this.pageLimit.value,recordCount,currentPage); return false;">
+    <?php print _txt('fd.page.limit.display'); ?>
+    <select name="pageLimit" id="pageLimit">
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="75">75</option>
+      <option value="100">100</option>
+    </select>
+    <?php print _txt('fd.page.limit.records'); ?>
+    <input type="submit" value="<?php print _txt('op.go'); ?>"/>
+    <script type="text/javascript">
+      $(function() {
+        // Check if the currentLimit holds an appropriate value on first load, and set the select option
+        if (currentLimit != '' && (currentLimit == '50' || currentLimit == '75' || currentLimit == '100')) {
+          $("#pageLimit").val(currentLimit);
+        }
+      });
+    </script>
+  </form>
 </div>
 
