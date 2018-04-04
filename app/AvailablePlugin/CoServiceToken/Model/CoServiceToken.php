@@ -114,6 +114,9 @@ class CoServiceToken extends AppModel {
                         0,
                         (integer)$tokenType);
         break;
+      case CoServiceTokenTypeEnum::TOTP_secret:
+        $token = rtrim(Base32::encode(Security::randomBytes(20)), "=");
+        break;
       default:
         throw new LogicException(_txt('er.notimpl'));
         break;

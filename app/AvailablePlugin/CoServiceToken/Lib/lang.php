@@ -42,7 +42,8 @@ $cm_co_service_token_texts['en_US'] = array(
 
   'en.coservicetoken.tokentype' => array(
     CoServiceTokenTypeEnum::Plain08 => 'Plain Text (8 character)',
-    CoServiceTokenTypeEnum::Plain15 => 'Plain Text (15 character)'
+    CoServiceTokenTypeEnum::Plain15 => 'Plain Text (15 character)',
+    CoServiceTokenTypeEnum::TOTP_secret => 'TOTP Secret'
   ),
   
   // Error messages
