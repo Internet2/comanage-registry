@@ -63,7 +63,7 @@
         <?php print _txt('pl.coservicetoken.token'); ?>
       </th>
       <td>
-        <?php if($vv_token_type == CoServiceTokenTypeEnum::TOTP_secret)): ?>
+        <?php if($vv_token_type == CoServiceTokenTypeEnum::TOTP_secret): ?>
          <div id="qrcode"></div>
         <?php else: ?>
           <span style="font-size:20px; font-family:courier;"><?php print filter_var($vv_token, FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
@@ -73,7 +73,7 @@
   </tbody>
 </table>
 </div>
-<?php if($vv_token_type == CoServiceTokenTypeEnum::TOTP_secret)): ?>
+<?php if($vv_token_type == CoServiceTokenTypeEnum::TOTP_secret): ?>
 <script>
   var qrcode = new QRCode(document.getElementById("qrcode"), {
     text: "otpauth://totp/<?php print filter_var($vv_co_service['CoService']['name'], FILTER_SANITIZE_SPECIAL_CHARS); ?>?secret=<?php print filter_var($vv_token, FILTER_SANITIZE_SPECIAL_CHARS); ?>",
