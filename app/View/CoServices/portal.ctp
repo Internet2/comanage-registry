@@ -100,7 +100,22 @@
     <div class="co-card-content">
       <?php if(!empty($c['CoService']['logo_url'])): ?>
         <div class="co-card-image">
-          <?php print $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo')); ?>
+          <?php
+            // wrap the image with the URL if available
+            if(!empty($c['CoService']['service_url'])) {
+              print $this->Html->link(
+                $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo')),
+                $c['CoService']['service_url'],
+                array(
+                  'class' => 'co-card-link',
+                  'escape' => false,
+                  'title' => $c['CoService']['service_url']
+                ));
+            } else {
+              // otherwise just render the image
+              print $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo'));
+            }
+          ?>
         </div>
       <?php endif; ?>
       <div class="co-card-description">
