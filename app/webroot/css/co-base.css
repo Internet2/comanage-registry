@@ -1321,9 +1321,10 @@ a#top-search-toggle:hover {
   border-bottom: 1px solid #07b;
 }
 .co-card img {
-  min-width: 100%;
-  max-width: 100%;
-  margin: 0 0 0.5em 0;
+  float: right;
+  min-width: 50%;
+  max-width: 50%;
+  margin: 0 0 0.5em 0.5em;
 }
 #content .co-card .co-card-icons .material-icons {
   font-size: 2em;

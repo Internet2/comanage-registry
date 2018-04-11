@@ -93,12 +93,16 @@
     ?>
 
   <div class="co-card<?php print $containerClass ?>">
-    <h2><?php print filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
+    <?php
+       $filteredServiceName = filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+    ?>
+    <h2><?php print $filteredServiceName; ?></h2>
     <div class="co-card-content">
-      <?php /* XXX keep the following for future RFE; these improve the portal layout:
-      <div class="co-card-image">
-        <img src="http://www.npr.org/about/images/press/Logos/npr_logo_rgb.JPG"/>
-      </div> */ ?>
+      <?php if(!empty($c['CoService']['logo_url'])): ?>
+        <div class="co-card-image">
+          <?php print $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo')); ?>
+        </div>
+      <?php endif; ?>
       <div class="co-card-description">
         <?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
