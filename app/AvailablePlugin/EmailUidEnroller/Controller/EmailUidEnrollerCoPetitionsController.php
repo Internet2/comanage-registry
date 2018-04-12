@@ -92,7 +92,12 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
       $this->loadModel('Identifier');
       $args = array();
       $args['conditions']['identifier'] = $invitation;
-      $args['condition']['type'] = IdentifierEnum::UID;
+      $args['conditions']['type'] = IdentifierEnum::UID;
+      $args['conditions']['link.co_id'] = $data['CoPetition']['co_id'];
+      $args['conditions']['link.co_person_id <>'] = $data['CoPetition']['enrollee_org_identity_id'];
+      $args['joins'][0]['table'] = 'co_people';
+      $args['joins'][0]['alias'] = 'link';
+      $args['joins'][0]['type'] = 'INNER';
       $args['contain'] = false;
       $uid = $this->Identifier->find('first', $args);
 

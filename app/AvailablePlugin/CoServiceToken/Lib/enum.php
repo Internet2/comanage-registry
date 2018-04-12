@@ -29,4 +29,5 @@ class CoServiceTokenTypeEnum
 {
   const Plain08 = '08';
   const Plain15 = '15';
+  const TOTP_secret  = '20';
 }

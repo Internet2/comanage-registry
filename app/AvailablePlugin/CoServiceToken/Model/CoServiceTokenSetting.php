@@ -58,7 +58,8 @@ class CoServiceTokenSetting extends AppModel {
     ),
     'token_type' => array(
       'rule' => array('inList', array(CoServiceTokenTypeEnum::Plain08,
-                                      CoServiceTokenTypeEnum::Plain15)),
+                                      CoServiceTokenTypeEnum::Plain15,
+                                      CoServiceTokenTypeEnum::TOTP_secret)),
       'required' => false,
       'allowEmpty' => true
     )

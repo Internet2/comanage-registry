@@ -25,6 +25,8 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+include APP."/AvailablePlugin/CoServiceToken/Lib/Base32.php";
+
 class CoServiceToken extends AppModel {
   // Define class name for cake
   public $name = "CoServiceToken";
@@ -64,7 +66,8 @@ class CoServiceToken extends AppModel {
     ),
     'token_type' => array(
       'rule' => array('inList', array(CoServiceTokenTypeEnum::Plain08,
-                                      CoServiceTokenTypeEnum::Plain15)),
+                                      CoServiceTokenTypeEnum::Plain15,
+                                      CoServiceTokenTypeEnum::TOTP_secret)),
       'required' => false,
       'allowEmpty' => true
     )
@@ -113,6 +116,9 @@ class CoServiceToken extends AppModel {
         $token = substr(preg_replace("/[^a-zA-Z0-9]+/", "", base64_encode(Security::randomBytes(30))),
                         0,
                         (integer)$tokenType);
+        break;
+      case CoServiceTokenTypeEnum::TOTP_secret:
+        $token = rtrim(Base32\Base32::encode(Security::randomBytes(20)), "=");
         break;
       default:
         throw new LogicException(_txt('er.notimpl'));

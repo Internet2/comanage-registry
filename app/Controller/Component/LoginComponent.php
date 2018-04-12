@@ -33,13 +33,11 @@ class LoginComponent extends Component {
       // At this point, Auth.User.username has been established by the Auth
       // Controller, but nothing else. We now populate the rest of the user's
       // session auth information.
-      CakeLog::write('debug','login process');
       $u = $this->Session->read('Auth.User.username');
 
       if(!empty($u)) {
         // This is an Org Identity. Figure out which Org Identities this username
         // (identifier) is associated with. First, pull the identifiers.
-        CakeLog::write('debug','searching for org identity '.$u);
         // We use $oargs here instead of $args because we may reuse this below
         $oargs = array();
         $oargs['joins'][0]['table'] = 'identifiers';
@@ -74,7 +72,6 @@ class LoginComponent extends Component {
 
         $OrgIdentity = ClassRegistry::init("OrgIdentity");
         $orgIdentities = $OrgIdentity->find('all', $oargs);
-        CakeLog::write('debug','found '.json_encode($orgIdentities));
 
         // Grab the org IDs and CO information
         $orgs = array();
