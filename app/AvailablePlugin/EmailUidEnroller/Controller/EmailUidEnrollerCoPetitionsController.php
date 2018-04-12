@@ -182,14 +182,19 @@ class EmailUidEnrollerCoPetitionsController extends CoPetitionsController {
       $this->loadModel('EmailAddress');
 
       /* Now for the big conclusion:
-       * - If wa have a (now) verified Email Address
+       * - If we have a (now) verified Email Address
        * - That email addres is equal to the Active UID for this CO Person
        * Then we are 'all set' we have enrolled sucessful CO person, make him active !
        */
       $args = array();
       $args['conditions']['EmailAddress.org_identity_id'] = $data['CoPetition']['enrollee_org_identity_id'];
       $args['conditions']['EmailAddress.type'] = EmailAddressEnum::Official;
-      $args['conditions']['EmailAddress.verified'] = true;
+      // TO DO: We found a problem with getting a 'Verfied'email address in all cases.
+      // The Confirmation flow (CoInvite/Reply) sometimes fails to mark this email addres as 'verified
+      // For now: do not depend on the email addres to be 'verified'...
+      //
+      // $args['conditions']['EmailAddress.verified'] = true;
+      //
       $args['conditions']['uid.type'] = IdentifierEnum::UID;
       $args['conditions']['uid.login'] = false;
       $args['conditions']['uid.status'] = StatusEnum::Active;
