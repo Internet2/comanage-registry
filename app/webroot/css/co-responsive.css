@@ -418,6 +418,23 @@
   .co-dept ul.form-list .field-title {
     font-weight: normal;
   }
+  .co-card img {
+    float: right;
+    min-width: 50%;
+    max-width: 50%;
+    margin: 0 0 0.5em 0.5em;
+  }
+  .co-card .co-card-icons {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    float: none;
+  }
+  .co-card-join-button {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
+  }
   /* GENERAL */
   .two-col {
     -webkit-column-count: 2; /* Chrome, Safari, Opera */

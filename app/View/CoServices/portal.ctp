@@ -121,6 +121,30 @@
       <div class="co-card-description">
         <?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
+      <div class="co-card-icons">
+        <?php
+
+          if(!empty($c['CoService']['service_url'])) {
+            print $this->Html->link('<em class="material-icons" aria-hidden="true">public</em>',
+              $c['CoService']['service_url'],
+              array(
+                'class' => 'co-card-link',
+                'escape' => false,
+                'title' => $c['CoService']['service_url']
+              ));
+          }
+          if(!empty($c['CoService']['contact_email'])) {
+            print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
+              'mailto:'.$c['CoService']['contact_email'],
+              array(
+                'class' => 'co-card-link',
+                'escape' => false,
+                'title' => 'mailto:'.$c['CoService']['contact_email']
+              ));
+          }
+
+        ?>
+      </div>
       <div class="co-card-join-button">
         <?php
           if(!empty($c['CoService']['co_group_id'])) {
@@ -139,30 +163,7 @@
           }
         ?>
       </div>
-      <div class="co-card-icons">
-      <?php
-
-        if(!empty($c['CoService']['service_url'])) {
-          print $this->Html->link('<em class="material-icons" aria-hidden="true">public</em>',
-            $c['CoService']['service_url'],
-            array(
-              'class' => 'co-card-link',
-              'escape' => false,
-              'title' => $c['CoService']['service_url']
-            ));
-        }
-        if(!empty($c['CoService']['contact_email'])) {
-          print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
-            'mailto:'.$c['CoService']['contact_email'],
-            array(
-              'class' => 'co-card-link',
-              'escape' => false,
-              'title' => 'mailto:'.$c['CoService']['contact_email']
-            ));
-        }
-
-      ?>
-      </div>
+      <span class="clearfix"></span>
     </div>
   </div>
   <?php endforeach; ?>
