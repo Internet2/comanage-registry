@@ -51,11 +51,12 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     $noAuth = false;
     
     // For self signup, we simply require a token (and for the token to match).
-    $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+    $petitionerToken = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+    $enrolleeToken = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $this->parseCoPetitionId()));
     $passedToken = $this->parseToken();
-    
-    if($token && $token != '' && $passedToken) {
-      if($token == $passedToken) {
+
+    if(!(empty($petitionerToken) && empty($enrolleeToken)) && !empty($passedToken)) {
+      if($enrolleeToken == $passedToken || $petitionerToken == $passedToken) {
         // If we were passed a reauth flag, we require authentication even though
         // the token matched. This enables account linking.
         if(!isset($this->request->params['named']['reauth'])
