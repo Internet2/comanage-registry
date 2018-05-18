@@ -88,7 +88,12 @@
   </head>
 
   <?php
-    $bodyClasses = $this->params->controller . ' ' . $this->params->action;
+    // cleanse the controller and action strings and insert them into the body classes
+    $controller_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->controller);
+    $action_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->action);
+    $bodyClasses = $controller_stripped . ' ' .$action_stripped;
+    
+    // add further body classes as needed
     if($this->Session->check('Auth.User') != NULL) {
       $bodyClasses .= ' logged-in';
     } else {
