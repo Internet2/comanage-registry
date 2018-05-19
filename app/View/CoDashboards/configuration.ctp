@@ -93,6 +93,18 @@
         print "</li>";
       }
 
+      if (isset($permissions['menu']['dashboards']) && $permissions['menu']['dashboards']) {
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_dashboards';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link(_txt('ct.co_dashboards.pl'), $args);
+        print "</li>";
+      }
+      
       if (isset($permissions['menu']['coef']) && $permissions['menu']['coef']) {
         print '<li>';
         $args = array();

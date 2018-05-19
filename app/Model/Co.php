@@ -39,6 +39,7 @@ class Co extends AppModel {
   public $hasMany = array(
     "AttributeEnumeration" => array('dependent' => true),
     "Authenticator" => array('dependent' => true),
+    "CoDashboard" => array('dependent' => true),
     "CoDepartment" => array('dependent' => true),
     "CoEmailList" => array('dependent' => true),
     // A CO has zero or more enrollment flows

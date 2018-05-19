@@ -24,8 +24,58 @@
  * @since         COmanage Registry v0.9.2
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-?>
 
+  // Add breadcrumbs
+  print $this->element("coCrumb");
+  
+  // Add page title
+  $params = array();
+  $params['title'] = $title_for_layout;
+  
+  print $this->element("pageTitle", $params);
+  
+  if(!empty($vv_available_dashboards)) {
+    $args = array(
+      'id' => 'tempjump',
+      'value' => $vv_dashboard['CoDashboard']['id'],
+      'empty' => false,
+      'onChange' => 'window.location.replace(document.getElementById("tempjump").value);'
+    );
+    
+    print $this->Form->select(null, $vv_available_dashboards, $args);
+  }
+?>
+<script type="text/javascript">
+  // Load widget content into divs
+  
+  $(document).ready(function() {
+<?php
+  foreach($vv_dashboard['CoDashboardWidget'] as $w) {
+    $pmodel = 'Co'.$w['plugin'];
+    
+    $args = array(
+      'plugin' => Inflector::underscore($w['plugin']),
+      'controller' => Inflector::tableize($pmodel),
+      'action' => 'display',
+      $w[$pmodel]['id']
+    );
+    
+    print "$('#widget" . $w['id'] . "').load('" . $this->Html->url($args) . "');\n";
+  }
+?>
+  });
+</script>
+<div class="table-container">
+<?php if(!empty($vv_dashboard)): ?>
+  <?php foreach($vv_dashboard['CoDashboardWidget'] as $w): ?>
+    <hr />
+    <h2><?php print filter_var($w['description'], FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
+    <div id="widget<?php print $w['id']; ?>"></div>
+  <?php endforeach; // dashboard widget ?>
+<?php else: // $vv_dashboard ?>
+<!-- XXX this doesn't really render correctly -->
 <h1 class="firstPrompt">
   <?php print _txt('op.dashboard.select', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));?>
 </h1>
+<?php endif; ?>
+</div>

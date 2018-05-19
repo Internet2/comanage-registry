@@ -371,6 +371,33 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print $this->Form->label('co_dashboard_id', _txt('fd.dashboard.primary'), array('class' => 'fieldTitle'));?></div>
+      <div class="field-desc"><?php print _txt('fd.dashboard.primary.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_settings[0]['CoSetting']['co_dashboard_id'])
+                           ? $co_settings[0]['CoSetting']['co_dashboard_id']
+                           : null);
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('co_dashboard_id',
+                                    $vv_co_dashboards,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('co_dashboard_id')) {
+            print $this->Form->error('co_dashboard_id');
+          }
+        } else {
+          print $vv_co_dashboards[ $co_settings[0]['CoDashboard']['co_dashboard_id'] ];
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?></div>
     </div>
     <div class="field-info">

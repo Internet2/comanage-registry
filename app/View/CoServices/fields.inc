@@ -70,7 +70,6 @@
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-        <span class="required">*</span>
       </div>
     </div>
     <div class="field-info">

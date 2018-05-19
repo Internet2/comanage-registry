@@ -858,6 +858,7 @@ class AppController extends Controller {
    * - postcondition: permissions for menu are set
    *
    * @since  COmanage Registry v0.5
+   * @todo   Lots/all of this should move to CoDashboardsController
    */
 
   function menuAuth() {
@@ -914,6 +915,9 @@ class AppController extends Controller {
       
       $p['menu']['codepartments'] = (boolean)$this->CoDepartment->find('count', $args);
     }
+    
+    // Manage CO dashboards?
+    $p['menu']['dashboards'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];

@@ -36,6 +36,10 @@ class CoGroup extends AppModel {
   public $hasMany = array(
     // A CoGroup has zero or more members
     "CoGroupMember" => array('dependent' => true),
+    "CoDashboardVisibilityCoGroup" => array(
+      'className' => 'CoDashboard',
+      'foreignKey' => 'visibility_co_group_id'
+    ),
     "CoDepartmentAdministrativeCoGroup" => array(
       'className' => 'CoDepartment',
       'foreignKey' => 'administrative_co_group_id'
