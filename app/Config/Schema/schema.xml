@@ -2453,7 +2453,8 @@
     <field name="hostname" type="C" size="128" />
     <field name="username" type="C" size="120" />
     <field name="password" type="C" size="80" />
-    <field name="database" type="C" size="128" />
+    <!-- "database" is reserved by MySQL -->
+    <field name="databas" type="C" size="128" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

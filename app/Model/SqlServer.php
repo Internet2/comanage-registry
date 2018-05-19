@@ -75,7 +75,8 @@ class SqlServer extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    'database' => array(
+    // 'database' is a MySQL reserved keyword
+    'databas' => array(
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
@@ -117,7 +118,7 @@ class SqlServer extends AppModel {
       'host' => $sqlserver['SqlServer']['hostname'],
       'login' => $sqlserver['SqlServer']['username'],
       'password' => $sqlserver['SqlServer']['password'],
-      'database' => $sqlserver['SqlServer']['database'],
+      'database' => $sqlserver['SqlServer']['databas'],
 //    'prefix' => '',
 //    'encoding' => 'utf8',
     );
