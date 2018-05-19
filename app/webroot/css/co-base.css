@@ -1323,22 +1323,18 @@ a#top-search-toggle:hover {
 .co-card img {
   min-width: 100%;
   max-width: 100%;
-  margin: 0 0 0.5em 0;
+  margin: 1em 0;
 }
 #content .co-card .co-card-icons .material-icons {
   font-size: 2em;
   margin-right: 4px;
 }
 .co-card .co-card-icons {
-  position: absolute;
-  bottom: 1em;
-  right: 1em;
-  margin-top: 0.75em;
+  float: right;
+  margin-top: 1em;
 }
 .co-card-join-button {
-  position: absolute;
-  bottom: 1em;
-  left: 1em;
+  margin-top: 1em;
 }
 .co-card ul {
   padding: 0;

@@ -1496,6 +1496,8 @@ original notification at
   'fd.svc.portal' =>  'Service Portal',
   'fd.svc.url' =>     'Service URL',
   'fd.svc.url.desc' => 'URL at which this Service is available',
+  'fd.svc.logo_url' =>     'Logo URL',
+  'fd.svc.logo_url.desc' => 'URL of an image/logo for this Service',
   'fd.svc.vis.desc' => 'Visibility of this Service in the service portal',
   'fd.tc.agree.desc' => 'You must agree to the following Terms and Conditions before continuing.<br />You must review the T&C before you can click <i>I Agree</i>, and you must agree before you can submit.',
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',

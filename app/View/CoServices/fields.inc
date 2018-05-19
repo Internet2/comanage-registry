@@ -246,6 +246,19 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('logo_url', _txt('fd.svc.logo_url')) : _txt('fd.svc.logo_url')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.logo_url.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('logo_url')
+        : filter_var($co_services[0]['CoService']['logo_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('short_label', _txt('fd.svc.label.short')) : _txt('fd.svc.label.short')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.svc.label.short.desc'); ?></div>
