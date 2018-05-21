@@ -56,7 +56,6 @@
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
-        <th><?php print $this->Paginator->sort('cou_id', _txt('ct.cous.1')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print $this->Paginator->sort('visibility', _txt('fd.visibility')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
@@ -73,14 +72,6 @@
                                     array('controller' => 'co_dashboards',
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
                                           $c['CoDashboard']['id']));
-          ?>
-        </td>
-        <td>
-          <?php
-            if(!empty($c['CoDashboard']['cou_id'])
-               && !empty($vv_cous[ $c['CoDashboard']['cou_id'] ])) {
-              print $vv_cous[ $c['CoDashboard']['cou_id'] ];
-            }
           ?>
         </td>
         <td>

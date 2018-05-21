@@ -150,7 +150,7 @@ class CoDashboardsController extends StandardController {
       
       // Pull the widget configuration separately, since contain() doesn't get it
       for($i = 0;$i < count($db['CoDashboardWidget']);$i++) {
-        if($db['CoDashboardWidget'][$i]['plugin']['status'] == StatusEnum::Active) {
+        if($db['CoDashboardWidget'][$i]['status'] == StatusEnum::Active) {
           $plmodel = "Co".$db['CoDashboardWidget'][$i]['plugin'];
           
           $args = array();
