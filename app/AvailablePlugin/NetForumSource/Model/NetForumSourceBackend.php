@@ -171,7 +171,7 @@ class NetForumSourceBackend extends OrgIdentitySourceBackend {
     
     // Also check Committees, if not empty
     if(!empty($attrs->Committees->CommitteeName)) {
-      foreach((array)$attrs->Events->CommitteeName as $v) {
+      foreach((array)$attrs->Committees->CommitteeName as $v) {
         $ret['CommitteeName'][] = array('value' => (string)$v);
       }
     }
