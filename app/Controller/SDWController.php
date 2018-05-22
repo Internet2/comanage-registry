@@ -151,7 +151,7 @@ class SDWController extends StandardController {
         return $p;
       }
       
-      $p['display'] = $this->$model->CoDashboardWidget->CoDashboard->authorize($db, 
+      $p['display'] = $this->$model->CoDashboardWidget->CoDashboard->authorize($db['CoDashboardWidget'], 
                                                                                $this->Session->read('Auth.User.co_person_id'),
                                                                                $this->Role);
       
