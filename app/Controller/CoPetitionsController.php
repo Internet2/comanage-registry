@@ -214,6 +214,23 @@ class CoPetitionsController extends StandardController {
     }
     
     if(!$this->request->is('restful')) {
+      if(!in_array($this->action, array('finalize', 'provision', 'redirectOnConfirm', 'start', 'view'))) {
+        // If the petition is Finalized (or Denied/Declined), no further actions are permitted
+        // (except the post processing actions of provisioning and redirection). We also need
+        // to allow finalize so plugins can run.
+        
+        $status = $this->CoPetition->field('status', array('CoPetition.id' => $this->parseCoPetitionId()));
+        
+        if($status && in_array($status, 
+                               array(PetitionStatusEnum::Declined,
+                                     PetitionStatusEnum::Denied,
+                                     PetitionStatusEnum::Duplicate,
+                                     PetitionStatusEnum::Finalized))) {
+          $this->Flash->set(_txt('er.pt.readonly'), array('key' => 'error'));
+          $this->redirect("/");
+        }
+      }
+      
       // Under certain circumstances, we may wish to drop authentication.
       $noAuth = false;
       
@@ -259,7 +276,43 @@ class CoPetitionsController extends StandardController {
             if($this->action == 'start') {
               $noAuth = true;
             } else {
-              $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+              // Once we have an authenticated identifier we no longer accept tokens.
+              // We don't explicitly throw an error because we'll ultimately want to
+              // support petition editing (CO-431).
+              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $this->parseCoPetitionId()));
+              
+              if(!$authId) {
+                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+                $passedToken = $this->parseToken();
+                
+                if($token && $token != '' && $passedToken
+                   && $token == $passedToken) {
+                  $noAuth = true;
+                  
+                  // Dump the token into a viewvar in case needed
+                  $this->set('vv_petition_token', $token);
+                } else {
+                  $this->Flash->set(_txt('er.token'), array('key' => 'error'));
+                  $this->redirect("/");
+                }
+              }
+            }
+          } elseif($steps[$this->action]['role'] == EnrollmentRole::Enrollee
+                   && (!isset($ef['CoEnrollmentFlow']['require_authn'])
+                       || !$ef['CoEnrollmentFlow']['require_authn'])
+                   // We need isAuthorized() to run to populate $permissions
+                   && $this->isAuthorized()) {
+            // This enrollment flow doesn't require authentication for the enrollee.
+            // Redirected from CO Invites controller, we should have a token that
+            // matches the token in the petition.
+            
+            // Once we have an authenticated identifier we no longer accept tokens
+            // We don't explicitly throw an error because we'll ultimately want to
+            // support petition editing (CO-431).
+            $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $this->parseCoPetitionId()));
+            
+            if(!$authId) {
+              $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $this->parseCoPetitionId()));
               $passedToken = $this->parseToken();
               
               if($token && $token != '' && $passedToken
@@ -272,28 +325,6 @@ class CoPetitionsController extends StandardController {
                 $this->Flash->set(_txt('er.token'), array('key' => 'error'));
                 $this->redirect("/");
               }
-            }
-          } elseif($steps[$this->action]['role'] == EnrollmentRole::Enrollee
-                   && (!isset($ef['CoEnrollmentFlow']['require_authn'])
-                       || !$ef['CoEnrollmentFlow']['require_authn'])
-                   // We need isAuthorized() to run to populate $permissions
-                   && $this->isAuthorized()) {
-            // This enrollment flow doesn't require authentication for the enrollee.
-            // Redirected from CO Invites controller, we should have a token that
-            // matches the token in the petition.
-            
-            $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $this->parseCoPetitionId()));
-            $passedToken = $this->parseToken();
-            
-            if($token && $token != '' && $passedToken
-               && $token == $passedToken) {
-              $noAuth = true;
-              
-              // Dump the token into a viewvar in case needed
-              $this->set('vv_petition_token', $token);
-            } else {
-              $this->Flash->set(_txt('er.token'), array('key' => 'error'));
-              $this->redirect("/");
             }
           }
         }
