@@ -1444,6 +1444,7 @@ class OrgIdentitySource extends AppModel {
                                                      null,
                                                      null,
                                                      JobStatusEnum::Failed);
+        continue;
       }
       
       $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
