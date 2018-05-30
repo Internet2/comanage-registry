@@ -73,7 +73,8 @@ class UpgradeVersionShell extends AppShell {
     "2.0.2" => array('block' => false),
     "2.0.3" => array('block' => false),
     "3.0.0" => array('block' => false),
-    "3.1.0" => array('block' => false, 'post' => 'post310')
+    "3.1.0" => array('block' => false, 'post' => 'post310'),
+    "3.1.1" => array('block' => false)
   );
   
   public function getOptionParser() {

@@ -470,7 +470,7 @@ class DboSource extends DataSource {
 			$query = $this->_connection->prepare($sql, $prepareOptions);
 			$query->setFetchMode(PDO::FETCH_LAZY);
 			if (!$query->execute($params)) {
-				$this->_results = $query;
+				$this->_result = $query;
 				$query->closeCursor();
 				return false;
 			}
@@ -1566,23 +1566,25 @@ class DboSource extends DataSource {
 		// Make one pass through children and collect by parent key
 		// Make second pass through parents and associate children
 		$mergedByFK = array();
-		foreach ($assocResultSet as $data) {
-			$fk = $data[$association][$foreignKey];
-			if (! array_key_exists($fk, $mergedByFK)) {
-				$mergedByFK[$fk] = array();
-			}
-			if (count($data) > 1) {
-				$data = array_merge($data[$association], $data);
-				unset($data[$association]);
-				foreach ($data as $key => $name) {
-					if (is_numeric($key)) {
-						$data[$association][] = $name;
-						unset($data[$key]);
-					}
+		if (is_array($assocResultSet)) {
+			foreach ($assocResultSet as $data) {
+				$fk = $data[$association][$foreignKey];
+				if (! array_key_exists($fk, $mergedByFK)) {
+					$mergedByFK[$fk] = array();
 				}
-				$mergedByFK[$fk][] = $data;
-			} else {
-				$mergedByFK[$fk][] = $data[$association];
+				if (count($data) > 1) {
+					$data = array_merge($data[$association], $data);
+					unset($data[$association]);
+					foreach ($data as $key => $name) {
+						if (is_numeric($key)) {
+							$data[$association][] = $name;
+							unset($data[$key]);
+						}
+					}
+					$mergedByFK[$fk][] = $data;
+				} else {
+					$mergedByFK[$fk][] = $data[$association];
+				}
 			}
 		}
 
@@ -2576,7 +2578,12 @@ class DboSource extends DataSource {
 		$virtual = array();
 		foreach ($fields as $field) {
 			$virtualField = $this->name($alias . $this->virtualFieldSeparator . $field);
-			$expression = $this->_quoteFields($Model->getVirtualField($field));
+			$virtualFieldExpression = $Model->getVirtualField($field);
+			if (is_object($virtualFieldExpression) && $virtualFieldExpression->type == 'expression') {
+				$expression = $virtualFieldExpression->value;
+			} else {
+				$expression = $this->_quoteFields($virtualFieldExpression);
+			}
 			$virtual[] = '(' . $expression . ") {$this->alias} {$virtualField}";
 		}
 		return $virtual;
@@ -2885,7 +2892,12 @@ class DboSource extends DataSource {
 
 		if ($Model !== null) {
 			if ($Model->isVirtualField($key)) {
-				$key = $this->_quoteFields($Model->getVirtualField($key));
+				$virtualField = $Model->getVirtualField($key);
+				if (is_object($virtualField) && $virtualField->type == 'expression') {
+					$key = $virtualField->value;
+				} else {
+					$key = $this->_quoteFields($virtualField);
+				}
 				$virtual = true;
 			}
 

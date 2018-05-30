@@ -95,8 +95,14 @@
       ?>
   </head>
 
-  <body class="<?php print $this->params->controller . ' ' . $this->params->action ?>"
-        onload="js_onload_call_hooks()">
+  <?php
+    // cleanse the controller and action strings and insert them into the body classes
+    $controller_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->controller);
+    $action_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->action);
+    $bodyClasses = $controller_stripped . ' ' .$action_stripped;
+  ?>
+
+  <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
 
     <div id="lightboxContent">
       <?php
