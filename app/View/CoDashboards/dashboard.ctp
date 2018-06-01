@@ -50,17 +50,19 @@
   
   $(document).ready(function() {
 <?php
-  foreach($vv_dashboard['CoDashboardWidget'] as $w) {
-    $pmodel = 'Co'.$w['plugin'];
-    
-    $args = array(
-      'plugin' => Inflector::underscore($w['plugin']),
-      'controller' => Inflector::tableize($pmodel),
-      'action' => 'display',
-      $w[$pmodel]['id']
-    );
-    
-    print "$('#widget" . $w['id'] . "').load('" . $this->Html->url($args) . "');\n";
+  if(!empty($vv_dashboard)) {
+    foreach($vv_dashboard['CoDashboardWidget'] as $w) {
+      $pmodel = 'Co'.$w['plugin'];
+      
+      $args = array(
+        'plugin' => Inflector::underscore($w['plugin']),
+        'controller' => Inflector::tableize($pmodel),
+        'action' => 'display',
+        $w[$pmodel]['id']
+      );
+      
+      print "$('#widget" . $w['id'] . "').load('" . $this->Html->url($args) . "');\n";
+    }
   }
 ?>
   });
