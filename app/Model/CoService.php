@@ -95,6 +95,11 @@ class CoService extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'logo_url' => array(
+      'rule' => array('url', true),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'entitlement_uri' => array(
       'rule' => 'notBlank',
       'required' => false,

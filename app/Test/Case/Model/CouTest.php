@@ -28,7 +28,20 @@
 App::uses('Cou', 'Model');
 
 class CouTest extends CakeTestCase {
-  public $fixtures = array('app.cou', 'app.co', 'app.cogroup');
+  public $fixtures = array(
+    'app.Cou',
+    'app.Co',
+    'app.CoEnrollmentFlow',
+    'app.CoExpirationPolicy',
+    'app.CoGroup',
+    'app.CoGroupMember',
+    'app.CoNotification',
+    'app.CoProvisioningExport',
+    'app.CoProvisioningTarget',
+    'app.CoService',
+    'app.CoSetting',
+    'app.HistoryRecord'
+  );
 
   public function setUp() {
     parent::setUp();
@@ -310,6 +323,96 @@ class CouTest extends CakeTestCase {
 
     $expected = false;
     $result = $this->Cou->isChildCou($parentCouId, $candidateChildCouId);
+
+    $this->assertEquals($expected, $result);
+  }
+
+  /**
+   * Test setup method of class Cou.
+   *
+   * @since COmanage Registry vX.Y.Z
+   */
+  public function testSetup() {
+
+    // Find Cou with id 1 from the fixture.
+    $args = array();
+    $args['conditions']['Cou.id'] = '1';
+    $args['contain'] = false;
+    $cou = $this->Cou->find('first', $args);
+    $this->assertNotNull($cou);
+    $this->assertNotEmpty($cou);
+
+    // Find all groups with Cou id 1, should not find any.
+    $args = array();
+    $args['conditions']['CoGroup.cou_id'] = '1';
+    $args['conditions']['CoGroup.deleted'] = false;
+    $args['contain'] = false;
+    $result = $this->Cou->CoGroup->find('all', $args);
+    $expected = array();
+    $this->assertEquals($expected, $result);
+
+    // Call setup() on the Cou with id 1 and Co with id 2 from the fixture.
+    $this->Cou->setup(2, 1);
+
+    // Find all groups with Cou id 1, should find the default groups.
+    $result = $this->Cou->CoGroup->find('all', $args);
+    $this->assertNotNull($result);
+    $this->assertNotEmpty($result);
+
+    // Ignore 'created' and 'modified' timestamps
+    $result = Hash::remove($result, '{n}.CoGroup.created');
+    $result = Hash::remove($result, '{n}.CoGroup.modified');
+
+    $expected = array(
+      array(
+        'CoGroup' => array(
+          'id'               => '7',
+          'co_id'            => '2',
+          'cou_id'           => '1',
+          'name'             => 'CO:COU:Test COU 1:admins',
+          'description'      => 'Test COU 1 Administrators',
+          'open'             => false,
+          'status'           => 'A',
+          'group_type'       => 'A',
+          'auto'             => false,
+          'co_group_id'      => NULL,
+          'revision'         => '0',
+          'deleted'          => false,
+          'actor_identifier' => NULL,
+        )),
+      array(
+        'CoGroup' => array(
+          'id'               => '8',
+          'co_id'            => '2',
+          'cou_id'           => '1',
+          'name'             => 'CO:COU:Test COU 1:members:active',
+          'description'      => 'Test COU 1 Active Members',
+          'open'             => false,
+          'status'           => 'A',
+          'group_type'       => 'MA',
+          'auto'             => true,
+          'co_group_id'      => NULL,
+          'revision'         => '0',
+          'deleted'          => false,
+          'actor_identifier' => NULL,
+        )),
+      array(
+        'CoGroup' => array(
+          'id'               => '9',
+          'co_id'            => '2',
+          'cou_id'           => '1',
+          'name'             => 'CO:COU:Test COU 1:members:all',
+          'description'      => 'Test COU 1 Members',
+          'open'             => false,
+          'status'           => 'A',
+          'group_type'       => 'M',
+          'auto'             => true,
+          'co_group_id'      => NULL,
+          'revision'         => '0',
+          'deleted'          => false,
+          'actor_identifier' => NULL,
+        )),
+    );
 
     $this->assertEquals($expected, $result);
   }

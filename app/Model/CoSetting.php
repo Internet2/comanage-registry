@@ -42,6 +42,7 @@ class CoSetting extends AppModel {
     "CoPipeline" => array(
       'foreignKey' => 'default_co_pipeline_id'
     ),
+    "CoDashboard",
     "CoTheme"
   );
   

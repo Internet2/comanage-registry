@@ -189,3 +189,36 @@ function gotoPage(pageNumber,maxPage,intErrMsg,maxErrMsg) {
   // Redirect to the new page:
   window.location = window.location.pathname.replace(new RegExp('\/page:[0-9]*', 'g'), '')+'/page:' + pageNum;
 }
+
+// Generic limit page form handling for setting the page size (records shown on a page).
+// We handle this in javascript to avoid special casing controllers.
+// pageLimit         - page limit                            (int, required)
+// recordCount       - total number of records returned      (int, requried)
+// currentPage       - current page number                   (int, required)
+function limitPage(pageLimit,recordCount,currentPage) {
+  var limit = parseInt(pageLimit,10);
+  var count = parseInt(recordCount,10);
+  var page = parseInt(currentPage,10);
+
+  // Just cancel this if we have bad inputs
+  if (isNaN(limit) || isNaN(count) || isNaN(page)) {
+    stopSpinner();
+    return false;
+  }
+
+  // Add the new limit parameter to the url
+  var currentUrl =  window.location.pathname;
+  currentUrl = currentUrl.replace(new RegExp('\/limit:[0-9]*', 'g'), '')+'/limit:' + limit;
+
+  // Test to see if the new limit allows the current page to exist
+  if (count / page >= limit) {
+    // Current page can exist - keep the current page number
+    currentUrl = currentUrl.replace(new RegExp('\/page:[0-9]*', 'g'), '')+'/page:' + page;
+  } else {
+    // Force the url back to page one because the new page size cannot include our current page number
+    currentUrl = currentUrl.replace(new RegExp('\/page:[0-9]*', 'g'), '')+'/page:1';
+  }
+
+  // Redirect to the new page:
+  window.location = currentUrl;
+}

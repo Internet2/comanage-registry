@@ -1172,4 +1172,5 @@ class CoPeopleController extends StandardController {
       $this->index();
     }
   }
+  
 }

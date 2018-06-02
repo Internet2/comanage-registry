@@ -70,7 +70,6 @@
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-        <span class="required">*</span>
       </div>
     </div>
     <div class="field-info">
@@ -242,6 +241,19 @@
       <?php print ($e
                    ? $this->Form->input('service_url')
                    : filter_var($co_services[0]['CoService']['service_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('logo_url', _txt('fd.svc.logo_url')) : _txt('fd.svc.logo_url')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.logo_url.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('logo_url')
+        : filter_var($co_services[0]['CoService']['logo_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>

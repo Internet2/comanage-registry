@@ -116,6 +116,13 @@ class CoSettingsController extends StandardController {
       $args['order'] = array('CoTheme.name ASC');
       
       $this->set('vv_co_themes', $this->Co->CoTheme->find("list", $args));
+      
+      // Pull the set of available dashboards
+      $args = array();
+      $args['conditions']['CoDashboard.co_id'] = $this->cur_co['Co']['id'];;
+      $args['order'] = array('CoDashboard.name ASC');
+      
+      $this->set('vv_co_dashboards', $this->Co->CoDashboard->find("list", $args));
     }
     
     parent::beforeRender();

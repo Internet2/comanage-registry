@@ -399,16 +399,41 @@
     margin: 0 0.5em 1.5em 0;
   }
   /* SERVICE PORTAL */
+  #co-services {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: stretch;
+  }
   .co-card {
     float: left;
     margin: 0 1.25em 1.25em 0;
-    padding: 0.75em 1.25em 1.25em 1.25em;
+    padding: 0.75em 1.25em 4em 1.25em;
     min-height: 150px;
     min-width: 0;
-    width: 200px;
+    width: 180px;
   }
   .co-dept ul.form-list .field-title {
     font-weight: normal;
+  }
+  .co-card img {
+    float: right;
+    min-width: 50%;
+    max-width: 50%;
+    margin: 0 0 0.5em 0.5em;
+  }
+  .co-card .co-card-icons {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    float: none;
+  }
+  .co-card-join-button {
+    position: absolute;
+    bottom: 1em;
+    left: 1em;
   }
   /* GENERAL */
   .two-col {

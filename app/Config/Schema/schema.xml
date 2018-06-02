@@ -2217,6 +2217,7 @@
     <field name="service_url" type="C" size="256" />
     <field name="service_label" type="C" size="1024" />
     <field name="contact_email" type="C" size="128" />
+    <field name="logo_url" type="C" size="512" />
     <field name="entitlement_uri" type="C" size="256" />
     <field name="visibility" type="C" size="2" />
     <field name="identifier_type" type="C" size="32" />
@@ -2249,7 +2250,7 @@
     </index>
   </table>
   
-  <table name="co_settings">
+  <table name="co_dashboards">
     <field name="id" type="I">
       <key />
       <autoincrement />
@@ -2258,8 +2259,70 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
-    <field name="co_theme_id" type="I">
-      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="128" />
+    <field name="visibility" type="C" size="2" />
+    <field name="visibility_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_dashboard_id" type="I">
+      <constraint>REFERENCES cm_co_dashboards(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_dashboards_i1">
+      <col>co_id</col>
+    </index>
+    
+    <index name="co_dashboards_i2">
+      <col>co_dashboard_id</col>
+    </index>
+  </table>
+
+  <table name="co_dashboard_widgets">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_dashboard_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_dashboards(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_dashboard_widget_id" type="I">
+      <constraint>REFERENCES cm_co_dashboard_widgets(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_dashboard_widgets_i1">
+      <col>co_id</col>
+    </index>
+    
+    <index name="co_dashboard_widgets_i2">
+      <col>co_dashboard_widget_id</col>
+    </index>
+  </table>
+  
+  <table name="co_settings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
@@ -2277,6 +2340,12 @@
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
     </field>
     <field name="elect_strategy_primary_name" type="C" size="2" />
+    <field name="co_dashboard_id" type="I">
+      <constraint>REFERENCES cm_co_dashboards(id)</constraint>
+    </field>
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
@@ -2384,7 +2453,8 @@
     <field name="hostname" type="C" size="128" />
     <field name="username" type="C" size="120" />
     <field name="password" type="C" size="80" />
-    <field name="database" type="C" size="128" />
+    <!-- "database" is reserved by MySQL -->
+    <field name="databas" type="C" size="128" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

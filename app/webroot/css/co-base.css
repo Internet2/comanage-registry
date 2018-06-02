@@ -938,7 +938,7 @@ body.co_petitions .ui-dialog {
 }
 #pagination .paginationCounter {
   display: block;
-  margin-right: 0.5em;
+  margin: 0.4em 0.5em 0.4em 0;
 }
 #pagination .paginationFirst,
 #pagination .paginationPrev {
@@ -950,17 +950,25 @@ body.co_petitions .ui-dialog {
   margin-left: 0.5em;
   font-size: 0.9em;
 }
-#pagination #goto-page {
+#pagination .pagination-form {
   display: inline-block;
   margin-left: 2em;
 }
-#pagination #goto-page input[type=text] {
+#pagination .pagination-form input[type=text] {
   height: 1em;
   width: 1.5em;
   margin: 0;
   font-size: 0.9em;
 }
-#pagination #goto-page input[type="submit"] {
+#pagination .pagination-form select {
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+}
+#pagination .pagination-form option {
+  padding: 0;
+}
+#pagination .pagination-form input[type="submit"] {
   width: auto;
   height: 2em;
   padding: 0 4px;
@@ -1315,22 +1323,18 @@ a#top-search-toggle:hover {
 .co-card img {
   min-width: 100%;
   max-width: 100%;
-  margin: 0 0 0.5em 0;
+  margin: 1em 0;
 }
 #content .co-card .co-card-icons .material-icons {
   font-size: 2em;
   margin-right: 4px;
 }
 .co-card .co-card-icons {
-  position: absolute;
-  bottom: 1em;
-  right: 1em;
-  margin-top: 0.75em;
+  float: right;
+  margin-top: 1em;
 }
 .co-card-join-button {
-  position: absolute;
-  bottom: 1em;
-  left: 1em;
+  margin-top: 1em;
 }
 .co-card ul {
   padding: 0;
@@ -1846,8 +1850,11 @@ td.indented {
 }
 .mdl-button.mdl-button--colored,
 .mdl-button--raised.mdl-button--colored {
-  background-color: #53B1F4;
+  background-color: #53B1F4 !important; /* important required to override MDL's active state */
   color: white;
+}
+.mdl-button--raised.mdl-button--colored:hover {
+  background-color: #222 !important;
 }
 .mdl-button:hover {
   background-color: #f2f2f2;
@@ -1858,11 +1865,7 @@ td.indented {
 .mdl-button--accent.mdl-button--accent.mdl-button--raised,
 .mdl-button--accent.mdl-button--accent.mdl-button--fab {
   background-color: #c33; /* red */
-  /* background-color: #2BB673; /* green */
   color: #fff;
-}
-.mdl-button--raised.mdl-button--colored:hover {
-  background-color: #222;
 }
 .mdl-data-table th,
 .mdl-data-table td {

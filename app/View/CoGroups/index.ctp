@@ -489,11 +489,11 @@
 </div>
 
 <?php
-  print $this->element("pagination");
-
   if($this->action == 'select') {
     print $this->Form->end();
   }
+  
+  print $this->element("pagination");
 ?>
 
 <div id="progressbar-dialog" title="<?php print _txt('op.gr.reconcile.all'); ?>">

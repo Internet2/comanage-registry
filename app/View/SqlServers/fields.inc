@@ -109,10 +109,10 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print $this->Form->label('database',_txt('fd.server.sql.database')); ?>
+      <?php print $this->Form->label('databas',_txt('fd.server.sql.database')); ?>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('database') : filter_var($sql_servers[0]['SqlServer']['database'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e ? $this->Form->input('databas') : filter_var($sql_servers[0]['SqlServer']['databas'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if($e): ?>

@@ -93,14 +93,57 @@
     ?>
 
   <div class="co-card<?php print $containerClass ?>">
-    <h2><?php print filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
+    <?php
+       $filteredServiceName = filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+    ?>
+    <h2><?php print $filteredServiceName; ?></h2>
     <div class="co-card-content">
-      <?php /* XXX keep the following for future RFE; these improve the portal layout:
-      <div class="co-card-image">
-        <img src="http://www.npr.org/about/images/press/Logos/npr_logo_rgb.JPG"/>
-      </div> */ ?>
+      <?php if(!empty($c['CoService']['logo_url'])): ?>
+        <div class="co-card-image">
+          <?php
+            // wrap the image with the URL if available
+            if(!empty($c['CoService']['service_url'])) {
+              print $this->Html->link(
+                $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo')),
+                $c['CoService']['service_url'],
+                array(
+                  'class' => 'co-card-link',
+                  'escape' => false,
+                  'title' => $c['CoService']['service_url']
+                ));
+            } else {
+              // otherwise just render the image
+              print $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo'));
+            }
+          ?>
+        </div>
+      <?php endif; ?>
       <div class="co-card-description">
         <?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+      </div>
+      <div class="co-card-icons">
+        <?php
+
+          if(!empty($c['CoService']['service_url'])) {
+            print $this->Html->link('<em class="material-icons" aria-hidden="true">public</em>',
+              $c['CoService']['service_url'],
+              array(
+                'class' => 'co-card-link',
+                'escape' => false,
+                'title' => $c['CoService']['service_url']
+              ));
+          }
+          if(!empty($c['CoService']['contact_email'])) {
+            print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
+              'mailto:'.$c['CoService']['contact_email'],
+              array(
+                'class' => 'co-card-link',
+                'escape' => false,
+                'title' => 'mailto:'.$c['CoService']['contact_email']
+              ));
+          }
+
+        ?>
       </div>
       <div class="co-card-join-button">
         <?php
@@ -120,30 +163,7 @@
           }
         ?>
       </div>
-      <div class="co-card-icons">
-      <?php
-
-        if(!empty($c['CoService']['service_url'])) {
-          print $this->Html->link('<em class="material-icons" aria-hidden="true">public</em>',
-            $c['CoService']['service_url'],
-            array(
-              'class' => 'co-card-link',
-              'escape' => false,
-              'title' => $c['CoService']['service_url']
-            ));
-        }
-        if(!empty($c['CoService']['contact_email'])) {
-          print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
-            'mailto:'.$c['CoService']['contact_email'],
-            array(
-              'class' => 'co-card-link',
-              'escape' => false,
-              'title' => 'mailto:'.$c['CoService']['contact_email']
-            ));
-        }
-
-      ?>
-      </div>
+      <span class="clearfix"></span>
     </div>
   </div>
   <?php endforeach; ?>
