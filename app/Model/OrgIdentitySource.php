@@ -1429,6 +1429,8 @@ class OrgIdentitySource extends AppModel {
       // For each record in the source, if there is no OrgIdentity linked
       // run createOrgIdentity
       
+      $sourceKeys = array();
+      $knownKeys = array();
       $newKeys = array();
       
       try {
@@ -1461,7 +1463,6 @@ class OrgIdentitySource extends AppModel {
                                                      null,
                                                      null,
                                                      JobStatusEnum::Failed);
-        continue;
       }
       
       $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
