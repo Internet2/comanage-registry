@@ -31,6 +31,8 @@ class CouTest extends CakeTestCase {
   public $fixtures = array(
     'app.Cou',
     'app.Co',
+    'app.CoDepartment',
+    'app.CoEmailList',
     'app.CoEnrollmentFlow',
     'app.CoExpirationPolicy',
     'app.CoGroup',
