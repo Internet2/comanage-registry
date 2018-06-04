@@ -982,16 +982,19 @@ class CoPetitionsController extends StandardController {
         );
         
         // If we're in an unauthenticated flow, we need to append a token.
-        $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
-        
+        $enrolleeToken = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
+        $petitionerToken = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
+
+        $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
+        if(isset($steps[$action]) && $steps[$action]['role'] == EnrollmentRole::Enrollee) {
+          $token = empty($enrolleeToken) ? $petitionerToken : $enrolleeToken;
+        }
+        else {
+          $token = empty($petitionerToken) ? $enrolleeToken : $petitionerToken;
+        }
+
         if($token) {
           $redirect['token'] = $token;
-        } else {
-          $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
-          
-          if($token) {
-            $redirect['token'] = $token;
-          }
         }
 
         $this->redirect($redirect);
