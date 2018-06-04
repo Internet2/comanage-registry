@@ -652,6 +652,10 @@ class CoEnrollmentFlow extends AppModel {
       // that a notification will also go out
       $ret['provision']['label'] = _txt('ef.step.provision.notify');
     }
+
+    // Set values for the OIS related sub-steps
+    $ret['selectOrgIdentityAuthenticate'] = $ret['selectOrgIdentity'];
+    $ret['collectIdentifierIdentify'] = $ret['collectIdentifier'];
     
     return $ret;
   }

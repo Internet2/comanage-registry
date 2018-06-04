@@ -985,7 +985,8 @@ class CoPetitionsController extends StandardController {
         $enrolleeToken = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
         $petitionerToken = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
 
-        if($action == "collectIdentifierIdentify") {
+        $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
+        if(isset($steps[$action]) && $steps[$action]['role'] == EnrollmentRole::Enrollee) {
           $token = empty($enrolleeToken) ? $petitionerToken : $enrolleeToken;
         }
         else {
