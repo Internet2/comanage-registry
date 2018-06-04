@@ -26,47 +26,7 @@
  */
 
 class CoFixture extends CakeTestFixture {
-    // Import schema for the model from the default database.
-    // The fixture data itself will be written to test and
-    // not default.
-    public $import = array('model' => 'Co', 'connection' => 'default');
 
-    public function init() {
-
-      $records = array();
-
-      // Mimic the internal CO always created during deployment.
-      $arecord = array();
-      $arecord['id']          = 1;
-      $arecord['name']        = 'COmanage';
-      $arecord['description'] = 'COmanage Registry Internal CO';
-      $arecord['status']      = SuspendableStatusEnum::Active;
-      $arecord['created']     = date('Y-m-d H:i:s');
-      $arecord['modified']    = date('Y-m-d H:i:s');
-      $records[] = $arecord;
-
-      // A second CO.
-      $arecord = array();
-      $arecord['id']          = 2;
-      $arecord['name']        = 'Test CO 1';
-      $arecord['description'] = 'Description for Test CO 1';
-      $arecord['status']      = SuspendableStatusEnum::Active;
-      $arecord['created']     = date('Y-m-d H:i:s');
-      $arecord['modified']    = date('Y-m-d H:i:s');
-      $records[] = $arecord;
-
-      // A third CO.
-      $arecord = array();
-      $arecord['id']          = 3;
-      $arecord['name']        = 'Test CO 2';
-      $arecord['description'] = 'Description for Test CO 2';
-      $arecord['status']      = SuspendableStatusEnum::Active;
-      $arecord['created']     = date('Y-m-d H:i:s');
-      $arecord['modified']    = date('Y-m-d H:i:s');
-      $records[] = $arecord;
-
-      $this->records = $records;
-
-      parent::init();
-    }
+  // Import schema and records for the model from the default database
+  public $import = array('model' => 'Co', 'records' => true);
 }
