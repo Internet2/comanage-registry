@@ -393,6 +393,8 @@ class CoGroup extends AppModel {
         }
       }
     }
+
+    return true;
   }
   
   /**
@@ -415,7 +417,7 @@ class CoGroup extends AppModel {
     $args['contain'] = false;
     
     $coAdminGroup = $this->Co->CoGroup->find('first', $args);
-    
+
     if(!empty($coAdminGroup['CoGroup']['id'])) {
       return $coAdminGroup['CoGroup']['id'];
     }
