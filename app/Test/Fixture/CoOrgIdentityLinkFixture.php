@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CoGroupMember Fixture
+ * COmanage Registry CoOrgIdentityLink Fixture
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,8 +25,8 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class CoGroupMemberFixture extends CakeTestFixture {
+class CoOrgIdentityLinkFixture extends CakeTestFixture {
 
   // Import schema and records for the model from the default database
-  public $import = array('model' => 'CoGroupMember', 'records' => true);
+  public $import = array('model' => 'CoOrgIdentityLink', 'records' => true);
 }
