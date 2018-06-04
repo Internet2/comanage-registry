@@ -31,11 +31,11 @@ class CouTest extends CakeTestCase {
   public $fixtures = array(
     'app.CoTest/CoTestCo',
     'app.CouTest/CouTestCou',
+    'app.Empty/EmptyCoGroup',
     'app.CoDepartment',
     'app.CoEmailList',
     'app.CoEnrollmentFlow',
     'app.CoExpirationPolicy',
-    'app.CoGroup',
     'app.CoGroupMember',
     'app.CoNotification',
     'app.CoProvisioningExport',
@@ -368,7 +368,7 @@ class CouTest extends CakeTestCase {
     $expected = array(
       array(
         'CoGroup' => array(
-          'id'               => '7',
+          'id'               => '1',
           'co_id'            => '2',
           'cou_id'           => '1',
           'name'             => 'CO:COU:Test COU 1:admins',
@@ -384,7 +384,7 @@ class CouTest extends CakeTestCase {
         )),
       array(
         'CoGroup' => array(
-          'id'               => '8',
+          'id'               => '2',
           'co_id'            => '2',
           'cou_id'           => '1',
           'name'             => 'CO:COU:Test COU 1:members:active',
@@ -400,7 +400,7 @@ class CouTest extends CakeTestCase {
         )),
       array(
         'CoGroup' => array(
-          'id'               => '9',
+          'id'               => '3',
           'co_id'            => '2',
           'cou_id'           => '1',
           'name'             => 'CO:COU:Test COU 1:members:all',

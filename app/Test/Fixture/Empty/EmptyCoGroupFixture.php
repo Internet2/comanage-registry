@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CoGroup Fixture
+ * COmanage Registry Empty CoGroup Fixture
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -18,15 +18,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.9.4
+ * @since         COmanage Registry v3.2.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class CoGroupFixture extends CakeTestFixture {
+class EmptyCoGroupFixture extends CakeTestFixture {
 
-  // Import schema and records for the model from the default database
-  public $import = array('model' => 'CoGroup', 'records' => true);
+  // Import schema for the model from the default database, but do not import records.
+  public $import = array('model' => 'CoGroup', 'records' => false);
 }
