@@ -422,7 +422,7 @@ class CoGroup extends AppModel {
       return $coAdminGroup['CoGroup']['id'];
     }
     
-    throw new InvalidArgumentException(_txt('er.gr.nf', array($args['conditions']['CoGroup.name'])));
+    throw new InvalidArgumentException(_txt('er.gr.nf', array('admins')));
   }
   
   /**
