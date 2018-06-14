@@ -421,7 +421,7 @@ class CoEnrollmentAttribute extends AppModel {
         }
         $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
-                               : false);
+                               : true);
 
         // Attach the validation rules so the form knows how to render the field.
         if($attrCode == 'o') {
@@ -698,7 +698,7 @@ class CoEnrollmentAttribute extends AppModel {
             // copy modifiable settings
             $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                    ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
-                                   : false);
+                                   : true);
 
             $attrs[] = $attr;
           }
@@ -737,7 +737,7 @@ class CoEnrollmentAttribute extends AppModel {
         }
         $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
-                               : false);
+                               : true);
         $attr['validate']['content']['rule'][0] = 'inList';
         
         // Pull the set of groups for the select
