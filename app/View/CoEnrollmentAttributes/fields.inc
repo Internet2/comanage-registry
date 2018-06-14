@@ -641,7 +641,7 @@
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.ed.default_oi'); ?></b><br />
-          <span class="descr"><?php print _txt('fd.ed.default_env.oi'); ?></span>
+          <span class="descr"><?php print _txt('fd.ed.default_oi.desc'); ?></span>
         </td>
         <td>
           <?php print ($e

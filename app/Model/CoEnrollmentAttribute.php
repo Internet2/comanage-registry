@@ -421,7 +421,7 @@ class CoEnrollmentAttribute extends AppModel {
         }
         $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
-                               : false);
+                               : true);
         $attr['org_identity'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['org_identity'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['org_identity']
                                : false);
@@ -703,7 +703,7 @@ class CoEnrollmentAttribute extends AppModel {
             // copy modifiable and org_identity-default-source settings
             $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                    ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
-                                   : false);
+                                   : true);
             $attr['org_identity'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['org_identity'])
                                    ? $efAttr['CoEnrollmentAttributeDefault'][0]['org_identity']
                                    : false);
@@ -745,7 +745,7 @@ class CoEnrollmentAttribute extends AppModel {
         }
         $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
-                               : false);
+                               : true);
         $attr['org_identity'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['org_identity'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['org_identity']
                                : false);
