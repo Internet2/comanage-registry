@@ -350,13 +350,8 @@ class CoEnrollmentAttribute extends AppModel {
         // Description
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
         
-        // Single value attributes are never hidden, unless there is a non-modifable
-        // default value
-        $attr['hidden'] =
-          (isset($efAttr['CoEnrollmentAttribute']['hidden'])
-           && $efAttr['CoEnrollmentAttribute']['hidden']
-           && isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
-           && !$efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']);
+        // If configured as hidden, hide it
+        $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden']) && $efAttr['CoEnrollmentAttribute']['hidden']);
         
         // Org attributes can ignore authoritative values
         $attr['ignore_authoritative'] =
@@ -382,10 +377,8 @@ class CoEnrollmentAttribute extends AppModel {
         
         if(isset($defaultValues[ $attr['model'] ][ $attr['field'] ])) {
           // These are default values created by the Controller, eg for prepopulating Name.
-          // Currently, they are always modifiable.
           $attr['default'] = $defaultValues[ $attr['model'] ][ $attr['field'] ];
-          $attr['modifiable'] = true;
-        } elseif(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+        } else if(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
           // These are the default values configured per-enrollment flow attribute
           
           if(($attrCode == 'r'
@@ -425,10 +418,14 @@ class CoEnrollmentAttribute extends AppModel {
           } else {
             $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
           }
-          
-          $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         }
-        
+        $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+                               ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                               : false);
+        $attr['org_identity'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['org_identity'])
+                               ? $efAttr['CoEnrollmentAttributeDefault'][0]['org_identity']
+                               : false);
+
         // Attach the validation rules so the form knows how to render the field.
         if($attrCode == 'o') {
           $attr['validate'] = $attrModel->validate[$attrName];
@@ -697,7 +694,15 @@ class CoEnrollmentAttribute extends AppModel {
               // If this is a select field, get the set of options
               $attr['select'] = $attrModel->validEnumsForSelect($attrName);
             }
-            
+
+            // copy modifiable and org_identity-default-source settings
+            $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+                                   ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                                   : false);
+            $attr['org_identity'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['org_identity'])
+                                   ? $efAttr['CoEnrollmentAttributeDefault'][0]['org_identity']
+                                   : false);
+
             $attrs[] = $attr;
           }
         }
@@ -735,6 +740,9 @@ class CoEnrollmentAttribute extends AppModel {
         }
         $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                               : false);
+        $attr['org_identity'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['org_identity'])
+                               ? $efAttr['CoEnrollmentAttributeDefault'][0]['org_identity']
                                : false);
         $attr['validate']['content']['rule'][0] = 'inList';
         
@@ -870,10 +878,11 @@ class CoEnrollmentAttribute extends AppModel {
    * @since  COmanage Registry v0.8.2
    * @param  Array Array of CO enrollment attributes, as returned by enrollmentFlowAttributes()
    * @param  Array Array of CMP enrollment attributes, as returned by CmpEnrollmentConfiguration::enrollmentAttributesFromEnv()
+   * @param  Integer ID of the current petition
    * @return Array Array of CO enrollment attributes
    */
   
-  public function mapEnvAttributes($enrollmentAttributes, $envValues) {
+  public function mapEnvAttributes($enrollmentAttributes, $envValues, $petition_id) {
     // First, map the enrollment attributes by model+field, but only for those
     // that we might actually populate (ie: org attributes). We partly have to
     // do this because CO Enrollment Attributes and CMP Enrollment Attributes
@@ -940,19 +949,34 @@ class CoEnrollmentAttribute extends AppModel {
         }
       }
     }
-    
-    // Check for default values from env variables.
-    
-    for($i = 0;$i < count($enrollmentAttributes);$i++) {
-      // Skip anything that's hidden. This will prevent us from setting a
-      // default value for metadata attributes, and will also prevent using
-      // default values in hidden attributes (which is probably a feature, not
-      // a bug).
-      
-      if($enrollmentAttributes[$i]['hidden']) {
-        continue;
+
+    $org_identities=array();
+    if(!empty($petition_id)) {
+
+      // create a list of OrgIdentities we can use to take defaults from
+      // get all possible fields for default values as well
+      // We do not take the EnrolleeOrgIdentity, because that is the destination
+      // identity we might want to copy values to
+      $args = array();
+      $args['conditions']['CoPetition.id'] = intval($petition_id);
+      $args['contain'] = array(
+        'OrgIdentitySourceRecord' => array(
+          'OrgIdentity' => array ('PrimaryName','Address','EmailAddress','Identifier','Name','TelephoneNumber'))
+      );
+
+      $petition = $this->CoEnrollmentFlow->CoPetition->find('first', $args);
+
+      if(!empty($petition) && isset($petition['OrgIdentitySourceRecord'])) {
+        foreach($petition['OrgIdentitySourceRecord'] as $ois) {
+          $org_identities[]=$ois['OrgIdentity'];
+        }
       }
-      
+    }
+
+    // Check for default values from env variables.
+
+    for($i = 0;$i < count($enrollmentAttributes);$i++) {
+
       if(!empty($enrollmentAttributes[$i]['CoEnrollmentAttribute']['default_env'])) {
         if(strstr($enrollmentAttributes[$i]['attribute'], ':name:')) {
           // Handle name specially
@@ -964,15 +988,89 @@ class CoEnrollmentAttribute extends AppModel {
         }
         
         $enrollmentAttributes[$i]['default'] = getenv($envVar);
-        
-        // In the new style, these are defaults, not canonical values
-        $enrollmentAttributes[$i]['modifiable'] = true;
+      }
+
+      if( empty($enrollmentAttributes[$i]['default']) && $enrollmentAttributes[$i]['org_identity']) {
+
+        // if we have an OrgIdentity attached to this EF, try to pick a default from that
+        // This solves the use case where we have an OIS plugin in authenticate mode that
+        // reads a source for us and allows us to prepopulate the petitioner attributes
+        //
+        // We match in two loops: one for a very specific match (home address => home address only)
+        // and one for a loose match (email address => any email address)
+
+        foreach($org_identities as $oi) {
+          $enrollmentAttributes[$i]['default'] = $this->mapOrgIdentityToDefault($enrollmentAttributes[$i], $oi, true);
+          if(!empty($enrollmentAttributes[$i]['default'])) {
+            break;
+          }
+        }
+
+        if(empty($enrollmentAttributes[$i]['default'])) {
+          foreach($org_identities as $oi) {
+            $enrollmentAttributes[$i]['default'] = $this->mapOrgIdentityToDefault($enrollmentAttributes[$i], $oi, false);
+            if(!empty($enrollmentAttributes[$i]['default'])) {
+              break;
+            }
+          }
+        }
       }
     }
     
     return $enrollmentAttributes;
   }
   
+  /**
+   * Try to match an enrollment attribute to a field on one of the attached OrgIdentities
+   *
+   * @since  COmanage Registry vTODO
+   * @param  Array ea enrollment attribute definition
+   * @param  Array oi OrgIdentity object
+   * @param  Bool strict_match if true, only match exact address/emailaddress/name types
+   * @return String default value, empty if none found
+   */
+  private function mapOrgIdentityToDefault($ea, $oi, $strict_match) {
+    $retval = "";
+
+    $a = explode(':', $ea['attribute'], 4);
+
+    // See availableAttributes() for the various codes
+    $attrCode = array_shift($a);
+
+    // attribute name (as per availableAttributes)
+    $attrName = array_shift($a);
+    $attrModelName = Inflector::camelize($attrName);
+
+    // optional constraining type, for multi-valued attributes
+    $attrType = array_shift($a);
+
+    switch($attrCode) {
+    case 'r': // CoPersonRole related fields
+    case 'o': // OrgIdentity related fields
+      if(!empty($oi[$attrName])) {
+        $retval = $oi[$attrName];
+      }
+      break;
+    case 'p':       // CoPerson related fields
+    case 'm':       // multi-valued CoPersonRole related fields
+    case 'i':       // multi-valued OrgIdentity related fields
+      if(isset($oi[$attrModelName])) {
+        $field = $ea['field'];
+        foreach($oi[$attrModelName] as $data) {
+          // if it is set and of the same type, or we do not check types
+          if(isset($data[$field]) && (!$strict_match || $data["type"]==$attrType)) {
+            $retval = $data[$field];
+          }
+        }
+      }
+      break;
+    default:
+      break;
+    }
+
+    return $retval;
+  }
+
   /**
    * Check if a given extended type is in use by any Enrollment Attribute.
    *

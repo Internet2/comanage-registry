@@ -438,11 +438,11 @@ class CoPetitionsController extends StandardController {
               }
             }
           }
-          
+
           $enrollmentAttributes = $this->CoPetition
                                        ->CoEnrollmentFlow
                                        ->CoEnrollmentAttribute
-                                       ->mapEnvAttributes($enrollmentAttributes, array());
+                                       ->mapEnvAttributes($enrollmentAttributes, array(), $this->parseCoPetitionId());
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);

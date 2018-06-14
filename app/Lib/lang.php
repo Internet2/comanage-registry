@@ -1082,6 +1082,8 @@ original notification at
   'fd.ed.default' =>  'Default Value',
   'fd.ed.modify'  =>  'Modifiable',
   'fd.ed.modify.desc' => 'If false, the Petitioner cannot change the default value placed into the Petition',
+  'fd.ed.default_oi' => 'Take default from OrgIdentity',
+  'fd.ed.default_oi.desc' => 'If checked, try to find a default value on any attached OrgIdentity for this petitioner if no default was found through environment values.',
   'fd.ef.aea' =>      'Require Authentication For Administrator Enrollment',
   'fd.ef.aea.desc' => 'If administrator enrollment is enabled, require enrollees to authenticate to the platform in order to complete their enrollment',
   'fd.ef.aee' =>      'Require Email Confirmation For Administrator Enrollment',

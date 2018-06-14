@@ -177,7 +177,7 @@
       $fieldName = $ea['model'] . '.' . $ea['field'];
     }
 
-    print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    print $this->Form->hidden($fieldName, array('default' => isset($ea['default'])? $ea['default']:'')) . "\n";
   }
 
   // Print the ones not hidden
