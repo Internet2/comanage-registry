@@ -614,13 +614,16 @@ class CoEnrollmentAttribute extends AppModel {
                && isset($efAttr['CoEnrollmentAttribute']['ignore_authoritative'])
                && $efAttr['CoEnrollmentAttribute']['ignore_authoritative']);
             
+            // if configured hidden, hide it
+            $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden']) && $efAttr['CoEnrollmentAttribute']['hidden']);
+
             // We hide language, primary_name, type, status, and verified
             $attr['hidden'] = ($k == 'language'
                                || $k == 'login'
                                || $k == 'primary_name'
                                || $k == 'type'
                                || $k == 'status'
-                               || $k == 'verified' ? 1 : 0);
+                               || $k == 'verified' ? true : $attr['hidden']);
             
             if($attr['hidden']) {
               // Populate a default value.
@@ -658,6 +661,8 @@ class CoEnrollmentAttribute extends AppModel {
                   // Verified defaults to false
                   $attr['default'] = 0;
                   break;
+                default:
+                  $attr['default'] = isset($efAttr['CoEnrollmentAttributeDefault'][0]['value']) ? $efAttr['CoEnrollmentAttributeDefault'][0]['value'] : null;
               }
             } else {
               // Label
