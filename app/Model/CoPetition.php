@@ -303,7 +303,7 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['hidden'] && !$efAttr['default']) {
+      if($efAttr['hidden'] && empty($efAttr['default'])) {
         // Skip hidden fields because they aren't user-editable, unless they are default attributes
         continue;
       }

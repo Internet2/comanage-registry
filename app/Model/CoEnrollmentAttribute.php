@@ -350,13 +350,8 @@ class CoEnrollmentAttribute extends AppModel {
         // Description
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
         
-        // Single value attributes are never hidden, unless there is a non-modifable
-        // default value
-        $attr['hidden'] =
-          (isset($efAttr['CoEnrollmentAttribute']['hidden'])
-           && $efAttr['CoEnrollmentAttribute']['hidden']
-           && isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
-           && !$efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']);
+        // If configured as hidden, hide it
+        $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden']) && $efAttr['CoEnrollmentAttribute']['hidden']);
         
         // Org attributes can ignore authoritative values
         $attr['ignore_authoritative'] =
@@ -382,10 +377,8 @@ class CoEnrollmentAttribute extends AppModel {
         
         if(isset($defaultValues[ $attr['model'] ][ $attr['field'] ])) {
           // These are default values created by the Controller, eg for prepopulating Name.
-          // Currently, they are always modifiable.
           $attr['default'] = $defaultValues[ $attr['model'] ][ $attr['field'] ];
-          $attr['modifiable'] = true;
-        } elseif(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+        } else if(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
           // These are the default values configured per-enrollment flow attribute
           
           if(($attrCode == 'r'
@@ -425,10 +418,11 @@ class CoEnrollmentAttribute extends AppModel {
           } else {
             $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
           }
-          
-          $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         }
-        
+        $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+                               ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                               : false);
+
         // Attach the validation rules so the form knows how to render the field.
         if($attrCode == 'o') {
           $attr['validate'] = $attrModel->validate[$attrName];
@@ -554,7 +548,6 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['field'] = "co_enrollment_attribute_id";
         
         $attrs[] = $attr;
-        
         // Loop through the fields in the model.
         
         foreach(array_keys($attrModel->validate) as $k) {
@@ -617,14 +610,16 @@ class CoEnrollmentAttribute extends AppModel {
                && isset($efAttr['CoEnrollmentAttribute']['ignore_authoritative'])
                && $efAttr['CoEnrollmentAttribute']['ignore_authoritative']);
             
+            // if configured hidden, hide it
+            $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden']) && $efAttr['CoEnrollmentAttribute']['hidden']);
+
             // We hide language, primary_name, type, status, and verified
             $attr['hidden'] = ($k == 'language'
                                || $k == 'login'
                                || $k == 'primary_name'
                                || $k == 'type'
                                || $k == 'status'
-                               || $k == 'verified' ? 1 : 0);
-            
+                               || $k == 'verified' ? true : $attr['hidden']);
             if($attr['hidden']) {
               // Populate a default value.
               
@@ -661,6 +656,8 @@ class CoEnrollmentAttribute extends AppModel {
                   // Verified defaults to false
                   $attr['default'] = 0;
                   break;
+                default:
+                  $attr['default'] = isset($efAttr['CoEnrollmentAttributeDefault'][0]['value']) ? $efAttr['CoEnrollmentAttributeDefault'][0]['value'] : null;
               }
             } else {
               // Label
@@ -697,7 +694,12 @@ class CoEnrollmentAttribute extends AppModel {
               // If this is a select field, get the set of options
               $attr['select'] = $attrModel->validEnumsForSelect($attrName);
             }
-            
+
+            // copy modifiable settings
+            $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+                                   ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                                   : false);
+
             $attrs[] = $attr;
           }
         }
@@ -940,19 +942,11 @@ class CoEnrollmentAttribute extends AppModel {
         }
       }
     }
-    
+
     // Check for default values from env variables.
-    
+
     for($i = 0;$i < count($enrollmentAttributes);$i++) {
-      // Skip anything that's hidden. This will prevent us from setting a
-      // default value for metadata attributes, and will also prevent using
-      // default values in hidden attributes (which is probably a feature, not
-      // a bug).
-      
-      if($enrollmentAttributes[$i]['hidden']) {
-        continue;
-      }
-      
+
       if(!empty($enrollmentAttributes[$i]['CoEnrollmentAttribute']['default_env'])) {
         if(strstr($enrollmentAttributes[$i]['attribute'], ':name:')) {
           // Handle name specially
@@ -964,15 +958,12 @@ class CoEnrollmentAttribute extends AppModel {
         }
         
         $enrollmentAttributes[$i]['default'] = getenv($envVar);
-        
-        // In the new style, these are defaults, not canonical values
-        $enrollmentAttributes[$i]['modifiable'] = true;
       }
+
     }
-    
     return $enrollmentAttributes;
   }
-  
+
   /**
    * Check if a given extended type is in use by any Enrollment Attribute.
    *
