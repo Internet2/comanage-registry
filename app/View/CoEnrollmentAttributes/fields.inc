@@ -647,6 +647,19 @@
               ? _txt('fd.yes') : _txt('fd.no'))); ?>
         </td>
       </tr>
+      <tr class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.ed.default_oi'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ed.default_oi.desc'); ?></span>
+        </td>
+        <td>
+          <?php print ($e
+            ? $this->Form->input('CoEnrollmentAttributeDefault.0.org_identity',
+              array('default' => true))
+            : ($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['org_identity']
+              ? _txt('fd.yes') : _txt('fd.no'))); ?>
+        </td>
+      </tr>
     </tbody>
     <tfoot>
       <tr>

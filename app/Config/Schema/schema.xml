@@ -1425,6 +1425,7 @@
     <field name="affiliation" type="C" size="32" />
     <field name="value" type="C" size="80" />
     <field name="modifiable" type="L" />
+    <field name="org_identity" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_attribute_default_id" type="I">
