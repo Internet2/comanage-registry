@@ -238,7 +238,7 @@ class CoDashboardsController extends StandardController {
       // to any registered CO Person. (However the widgets will honor the dashboard's
       // visibility, and so the content of the dashboard might not render.)
       
-      $p['dashboard'] = ($roles['cmadmin'] || $roles['comember']);
+      $p['dashboard'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     }
     
     // Delete an existing Dashboard?

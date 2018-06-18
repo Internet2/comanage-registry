@@ -52,16 +52,18 @@
 <?php
   if(!empty($vv_dashboard)) {
     foreach($vv_dashboard['CoDashboardWidget'] as $w) {
-      $pmodel = 'Co'.$w['plugin'];
-      
-      $args = array(
-        'plugin' => Inflector::underscore($w['plugin']),
-        'controller' => Inflector::tableize($pmodel),
-        'action' => 'display',
-        $w[$pmodel]['id']
-      );
-      
-      print "$('#widget" . $w['id'] . "').load('" . $this->Html->url($args) . "');\n";
+      if($w['status'] == StatusEnum::Active) {
+        $pmodel = 'Co'.$w['plugin'];
+        
+        $args = array(
+          'plugin' => Inflector::underscore($w['plugin']),
+          'controller' => Inflector::tableize($pmodel),
+          'action' => 'display',
+          $w[$pmodel]['id']
+        );
+        
+        print "$('#widget" . $w['id'] . "').load('" . addslashes($this->Html->url($args)) . "');\n";
+      }
     }
   }
 ?>
@@ -70,9 +72,11 @@
 <div class="table-container">
 <?php if(!empty($vv_dashboard)): ?>
   <?php foreach($vv_dashboard['CoDashboardWidget'] as $w): ?>
+    <?php if($w['status'] == StatusEnum::Active): ?>
     <hr />
     <h2><?php print filter_var($w['description'], FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
     <div id="widget<?php print $w['id']; ?>"></div>
+    <?php endif; // Active ?>
   <?php endforeach; // dashboard widget ?>
 <?php else: // $vv_dashboard ?>
 <!-- XXX this doesn't really render correctly -->
