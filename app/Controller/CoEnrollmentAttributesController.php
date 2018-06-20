@@ -62,7 +62,6 @@ class CoEnrollmentAttributesController extends StandardController {
   
   function add() {
     if(!empty($this->request->data)) {
-      $this->clearUnassociatedRequestData();
       
       if(!isset($this->request->data['CoEnrollmentAttribute']['ordr'])
          || $this->request->data['CoEnrollmentAttribute']['ordr'] == '') {
