@@ -353,8 +353,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'voPersonAuthorName':
                 // Walk through each name
                 foreach($provisioningData['Name'] as $n) {
+                  $llattr = $lattr;
+                  
                   if($attropts && !empty($n['language'])) {
-                    $llattr = $lattr . ";lang-" . $n['language'];
+                    $llattr .= ";lang-" . $n['language'];
                   }
                   
                   if(empty($targetType) || ($targetType == $n['type'])) {
