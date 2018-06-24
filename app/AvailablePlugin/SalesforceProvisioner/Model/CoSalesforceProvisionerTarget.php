@@ -26,7 +26,7 @@
  */
 
 App::uses("CoProvisionerPluginTarget", "Model");
-App::import("SalesforceProvisioner.Model", "Salesforce");
+App::import("SalesforceProvisioner.Model", "Salesforcep");
 
 class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
   // Define class name for cake
@@ -161,12 +161,12 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
         break;
     }
     
-    $Salesforce = new Salesforce();
+    $Salesforcep = new Salesforcep();
     
     // If we have something to do, build an HTTP Client
     if($deletePerson || $syncPerson) {
-      $Salesforce->connect($coProvisioningTargetData['CoSalesforceProvisionerTarget']['server_id'],
-                           $coProvisioningTargetData['CoSalesforceProvisionerTarget']['id']);
+      $Salesforcep->connect($coProvisioningTargetData['CoSalesforceProvisionerTarget']['server_id'],
+                            $coProvisioningTargetData['CoSalesforceProvisionerTarget']['id']);
     }
     
     if($syncPerson) {
@@ -286,14 +286,14 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
         // which fields changed, so we send all fields again rather than consume an
         // API call.
         
-        $r = $Salesforce->request("/services/data/v39.0/sobjects/Contact/" . $sfids['contact'],
-                                  $sfData,
-                                  "patch");
+        $r = $Salesforcep->request("/services/data/v39.0/sobjects/Contact/" . $sfids['contact'],
+                                   $sfData,
+                                   "patch");
       } else {
         // Create a new record. Push the record and grab the Salesforce ID.
-        $r = $Salesforce->request("/services/data/v39.0/sobjects/Contact/",
-                                  $sfData,
-                                  "post");
+        $r = $Salesforcep->request("/services/data/v39.0/sobjects/Contact/",
+                                   $sfData,
+                                   "post");
         
         if(isset($r->success) && (bool)$r->success) {
           // Store the Contact ID
@@ -346,18 +346,18 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
 
         if(!empty($sfids['copersonobj'])) {
           // Update the existing record
-          $r = $Salesforce->request("/services/data/v39.0/sobjects/CoPerson__c/" . $sfids['copersonobj'],
-                                    $sfData,
-                                    "patch");
+          $r = $Salesforcep->request("/services/data/v39.0/sobjects/CoPerson__c/" . $sfids['copersonobj'],
+                                     $sfData,
+                                     "patch");
         } else {
           // Add a new record
           
           // We need to add the key to the parent record on Add only, not on Update
           $sfData['Contact__c'] = $sfids['contact'];
           
-          $r = $Salesforce->request("/services/data/v39.0/sobjects/CoPerson__c/",
-                                    $sfData,
-                                    "post");
+          $r = $Salesforcep->request("/services/data/v39.0/sobjects/CoPerson__c/",
+                                     $sfData,
+                                     "post");
           
           if(isset($r->success) && (bool)$r->success) {
             // Store the Object ID
@@ -414,7 +414,7 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     $this->CoProvisioningTarget->Co->CoPerson->Identifier->clear();
-    $this->CoProvisioningTarget->Co->CoPerson->Identifier->save($args);
+    $this->CoProvisioningTarget->Co->CoPerson->Identifier->save($args, array('provision' => false));
     
     return $this->CoProvisioningTarget->Co->CoPerson->Identifier->id;
   }

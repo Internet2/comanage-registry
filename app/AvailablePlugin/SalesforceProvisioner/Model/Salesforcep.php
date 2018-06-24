@@ -31,7 +31,10 @@ App::uses("CoSalesforceProvisionerTarget", "SalesforceProvisioner.Model");
 App::uses("Oauth2Server", "Model");
 App::uses('CoHttpClient', 'Lib');
 
-class Salesforce {
+// XXX We have to call this "Salesforcep" (or more accurately anything other than "Salesforce")
+// to avoid conflicting with SalesforceSource/Model/Salesforce. These two files should
+// probably be merged, or at leaste namespaced with the migration to Cake 3+.
+class Salesforcep {
   // Local copy of access token, in case it's updated in-flight
   protected $accessToken = null;
   protected $instanceUrl = null;
