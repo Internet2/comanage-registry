@@ -303,7 +303,7 @@ class CoPetition extends AppModel {
         continue;
       }
       
-      if($efAttr['hidden'] && !$efAttr['default']) {
+      if($efAttr['hidden'] && empty($efAttr['default'])) {
         // Skip hidden fields because they aren't user-editable, unless they are default attributes
         continue;
       }
@@ -2097,9 +2097,9 @@ class CoPetition extends AppModel {
                       ActionEnum::CoPetitionUpdated,
                       $comment,
                       array(
-                        'controller' => 'co_petitions',
-                        'action'     => 'view',
-                        'id'         => $id
+                        'controller' => 'co_people',
+                        'action'     => 'canvas',
+                        'id'         => $pt['CoPetition']['enrollee_co_person_id']
                       ),
                       false,
                       $pt['CoEnrollmentFlow']['notify_from'],

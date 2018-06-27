@@ -476,7 +476,7 @@ original notification at
   
   'en.enrollment.orgid' => array(
     EnrollmentOrgIdentityModeEnum::OISAuthenticate    => 'Authenticate',
-    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
+//    EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
     EnrollmentOrgIdentityModeEnum::OISIdentify        => 'Identify',
     EnrollmentOrgIdentityModeEnum::OISSearch          => 'Search',
     EnrollmentOrgIdentityModeEnum::OISSearchRequired  => 'Search, Required',
@@ -668,7 +668,7 @@ original notification at
     SshKeyTypeEnum::RSA      => 'RSA',
     SshKeyTypeEnum::RSA1     => 'RSA1'
   ),
-  
+
   'en.status' =>      array(StatusEnum::Active              => 'Active',
                             StatusEnum::Approved            => 'Approved',
                             StatusEnum::Confirmed           => 'Confirmed',
@@ -796,7 +796,7 @@ original notification at
     UrlEnum::Official => 'Official',
     UrlEnum::Personal => 'Personal',
   ),
-  
+
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
@@ -1082,6 +1082,8 @@ original notification at
   'fd.ed.default' =>  'Default Value',
   'fd.ed.modify'  =>  'Modifiable',
   'fd.ed.modify.desc' => 'If false, the Petitioner cannot change the default value placed into the Petition',
+  'fd.ed.default_oi' => 'Take default from OrgIdentitySource',
+  'fd.ed.default_oi.desc' => 'If checked, try to find a default value on any attached OrgIdentitySource record for this petitioner if no default was found through environment values.',
   'fd.ef.aea' =>      'Require Authentication For Administrator Enrollment',
   'fd.ef.aea.desc' => 'If administrator enrollment is enabled, require enrollees to authenticate to the platform in order to complete their enrollment',
   'fd.ef.aee' =>      'Require Email Confirmation For Administrator Enrollment',
@@ -1425,6 +1427,8 @@ original notification at
   'fd.tc.agree.no' => 'Not Agreed',
   'fd.tc.agree.yes' => 'Agreed',
   'fd.tc.archived' => 'The definition of this T&C changed after the agreement was recorded',
+  'fd.tc.body' => 'Content',
+  'fd.tc.body.desc' => 'HTML content of these T&C',
   'fd.tc.cou.desc' => 'If set, this T&C only applies to members of the specified COU',
   'fd.tc.for' =>      'Terms and Conditions for %1$s (%2$s)',
   'fd.tc.mode.login' => 'Terms and Conditions Mode',
@@ -1469,6 +1473,13 @@ original notification at
   'fd.url.url' =>     'URL',
   'fd.url.url.desc' => 'URL, including protocol (ie: http://myvo.org, not just myvo.org)',
   'fd.url' =>         'URL',
+  'fd.ssh_key' =>     'SSH Key',
+  'fd.ssh_key.comment' => 'Comment',
+  'fd.ssh_key.comment.desc' =>     'Description of this SSH key',
+  'fd.ssh_key.type' => 'Key type',
+  'fd.ssh_key.type.desc' =>     'Type of key',
+  'fd.ssh_key.skey' => 'SSH Key',
+  'fd.ssh_key.skey.desc' =>     'SSH key content',
   'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
   'fd.valid_from.desc' => 'Leave blank for immediate validity',

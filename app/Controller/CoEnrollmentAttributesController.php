@@ -62,7 +62,6 @@ class CoEnrollmentAttributesController extends StandardController {
   
   function add() {
     if(!empty($this->request->data)) {
-      $this->clearUnassociatedRequestData();
       
       if(!isset($this->request->data['CoEnrollmentAttribute']['ordr'])
          || $this->request->data['CoEnrollmentAttribute']['ordr'] == '') {
@@ -279,93 +278,7 @@ class CoEnrollmentAttributesController extends StandardController {
     // Or try the default behavior
     return parent::calculateImpliedCoId();
   }
-  
-  /**
-   * Perform any followups following a write operation.  Note that if this
-   * method fails, it must return a warning or REST response, but that the
-   * overall transaction is still considered a success (add/edit is not
-   * rolled back).
-   *
-   * @since  COmanage Registry v0.8.1
-   * @param  Array Request data
-   * @param  Array Current data
-   * @param  Array Original request data (unmodified by callbacks)
-   * @return boolean true if dependency checks succeed, false otherwise.
-   */
-  
-  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    // Perform a quick check to see if the attribute can no longer have a default attribute.
-    // Currently, only types 'g', 'o', 'r', and 'x' can.
-    
-    if(!empty($curdata['CoEnrollmentAttributeDefault'][0]['id'])) {
-      // There is an existing default
-      
-      $attrinfo = explode(':', $reqdata['CoEnrollmentAttribute']['attribute']);
-      
-      // This list is also in clearUnassociatedRequestData()
-      if($attrinfo[0] != 'g' && $attrinfo[0] != 'o' && $attrinfo[0] != 'r' && $attrinfo[0] != 'x') {
-        // Ignore return code
-        $this->CoEnrollmentAttribute->CoEnrollmentAttributeDefault->delete($curdata['CoEnrollmentAttributeDefault'][0]['id'],
-                                                                           false);
-      }
-    }
-    
-    return true;      
-  }
-  
-  /**
-   * Clear unnecessary data from a form submission.
-   * - postcondition: $this->request->data updated
-   *
-   * @since  COmanage Registry v2.0.0
-   */
-  
-  protected function clearUnassociatedRequestData() {
-    // Because of the mechanics of how the the form is set up, we may
-    // get potentially unrelated data (values used for form rendering),
-    // AttributeDefaults even when the object doesn't support attribute
-    // defaults, etc. We clear out unrelated objects to avoid problems
-    // with checkWriteFollowups trying to delete already deleted (ie: empty)
-    // records.
-    
-    // It's easier to rebuild than to remove keys we don't want
-    $requestData = array();
-    
-    // Always copy the core attribute
-    $requestData['CoEnrollmentAttribute'] = $this->request->data['CoEnrollmentAttribute'];
-    
-    // If the attribute is of the right type, copy the attribute default
-    $attrinfo = explode(':', $this->request->data['CoEnrollmentAttribute']['attribute']);
-    
-    // This list is also in checkWriteFollowups?
-    if($attrinfo[0] == 'g' || $attrinfo[0] == 'o' || $attrinfo[0] == 'r' || $attrinfo[0] == 'x') {
-      $requestData['CoEnrollmentAttributeDefault'] = $this->request->data['CoEnrollmentAttributeDefault'];
-    }
-    
-    $this->request->data = $requestData;
-  }
-  
-  /**
-   * Update an Enrollment Attribute.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - precondition: <id> must exist
-   * - postcondition: On GET, $<object>s set (HTML)
-   * - postcondition: On POST success, object updated
-   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On POST error, $invalid_fields set (REST)
-   *
-   * @since  COmanage Registry v2.0.0
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-  
-  function edit($id) {
-    if(!empty($this->request->data)) {
-      $this->clearUnassociatedRequestData();
-    }
-    
-    parent::edit($id);
-  }
-    
+
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions

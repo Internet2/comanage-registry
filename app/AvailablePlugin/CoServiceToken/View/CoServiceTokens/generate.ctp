@@ -1,4 +1,5 @@
 <?php
+
 /**
  * COmanage Registry CO Service Tokens Generate View
  *
@@ -27,6 +28,9 @@
   
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
+
+  // Add QRCode Javascript
+  echo $this->Html->script('qrcode/qrcode.min.js', array('inline' => false));
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -59,9 +63,25 @@
         <?php print _txt('pl.coservicetoken.token'); ?>
       </th>
       <td>
-        <span style="font-size:20px; font-family:courier;"><?php print filter_var($vv_token, FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+        <?php if($vv_token_type == CoServiceTokenTypeEnum::TOTP_secret): ?>
+         <div id="qrcode"></div>
+        <?php else: ?>
+          <span style="font-size:20px; font-family:courier;"><?php print filter_var($vv_token, FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+        <?php endif; ?>
       </td>
     </tr>
   </tbody>
 </table>
 </div>
+<?php if($vv_token_type == CoServiceTokenTypeEnum::TOTP_secret): ?>
+<script>
+  var qrcode = new QRCode(document.getElementById("qrcode"), {
+    text: "otpauth://totp/<?php print filter_var($vv_co_service['CoService']['name'], FILTER_SANITIZE_SPECIAL_CHARS); ?>?secret=<?php print filter_var($vv_token, FILTER_SANITIZE_SPECIAL_CHARS); ?>",
+    width: 128,
+    height: 128,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    correctLevel : QRCode.CorrectLevel.L
+  });
+</script>
+<?php endif; ?>

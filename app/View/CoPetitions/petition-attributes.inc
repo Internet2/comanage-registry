@@ -118,6 +118,61 @@
     //$(":submit").attr('disabled', true);
   }
 <?php endif; ?>
+
+  $(document).ready(function() {
+    $('.field-p_ssh_key-skey').on('change',function() {      
+        // check to see if the pasted text by chance contains a full SSH authorized key,
+        // including a type and a comment. If so, parse it and set the comment and type
+        // fields instead
+        var value = $.trim($(this).val());
+
+        var typeToCO = {
+          "ssh-dss": <?php echo json_encode(SshKeyTypeEnum::DSA); ?>,
+          "ssh-rsa": <?php echo json_encode(SshKeyTypeEnum::RSA); ?>,
+          "ssh-ed25519": <?php echo json_encode(SshKeyTypeEnum::ED25519); ?>,
+          "ecdsa-sha2-nistp256": <?php echo json_encode(SshKeyTypeEnum::ECDSA); ?>
+        };
+
+        if(value.indexOf(' ') !== -1) {
+          var values=value.split(' ');
+          var type = values[0];
+          var key = values.length > 1 ? values[1] : '';
+          var comment = values.length > 2 ? values[2] : '';
+          
+          // check the type and key
+          // type should be one of the ssh-<keytype> fields and key should
+          // only contain base64 characters
+          if(typeToCO[type]) {
+            $('.field-p_ssh_key-comment',$(this).parents('.modelbox-data').first()).val(comment);
+            $('.field-p_ssh_key-type',$(this).parents('.modelbox-data').first()).val(typeToCO[type]);
+            $('.field-p_ssh_key-skey',$(this).parents('.modelbox-data').first()).val(key);
+          }          
+        }
+        else if(value.match(/^[A-Za-z0-9\+\/]+=*$/) !== null) {
+          // no spaces, but we can determine the type on the base64 encoded key
+          var type=null;
+          if(value.indexOf('AAAAB3NzaC1kc3M') === 0) {
+            // ssh-dss => DSA
+            type='ssh-dss';
+          }
+          else if(value.indexOf('AAAAB3NzaC1yc2E') === 0) {
+            // ssh-rsa => RSA
+            type='ssh-rsa';
+          } 
+          else if(value.indexOf('AAAAC3NzaC1lZDI1NTE5') === 0) {
+            // ssh-ed25519
+            type='ssh-ed25519';
+          } 
+          else if(value.indexOf('AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYA') === 0) {
+            // ecdsa-sha2-nistp256
+            type='ecdsa-sha2-nistp256';
+          }
+          if(type !== null) {
+            $('.field-p_ssh_key-type',$(this).parents('.modelbox-data')).val(typeToCO[type]);
+          }
+        }
+    });
+  });
   
   $(function() {
     $("#dialog-review").dialog({
@@ -177,7 +232,7 @@
       $fieldName = $ea['model'] . '.' . $ea['field'];
     }
 
-    print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    print $this->Form->hidden($fieldName, array('default' => isset($ea['default'])? $ea['default']:'')) . "\n";
   }
 
   // Print the ones not hidden
@@ -302,6 +357,9 @@
               if ($coe_attribute_index == 0) {
                 $args['class'] .= ' focusFirst';
               }
+              
+              // Add the attribute as a class type
+              $args['class'].= ' field-'.str_replace(':','_',$ea['attribute']).'-'.$ea['field'];
 
               // Render the form field, label, and error (if any)
               print $this->Form->select($fieldName, $ea['select'], $args);
@@ -381,6 +439,9 @@
               if ($coe_attribute_index == 0) {
                 $args['class'] .= ' focusFirst';
               }
+
+              // Add the attribute as a class type
+              $args['class'].= ' field-'.str_replace(':','_',$ea['attribute']).'-'.$ea['field'];
 
               $matchable = false;
               $matchableInfoId = "";
@@ -532,12 +593,19 @@
       </div>
       <ul id="co_petition_tandc">
         <?php foreach($vv_terms_and_conditions as $t): ?>
+          <?php $url = empty($t['CoTermsAndConditions']['tc_body'])
+                  ? $t['CoTermsAndConditions']['url']
+                  : Router::url(array(
+                    "controller" => "CoTermsAndConditions",
+                    "action" => "raw_view",
+                    $t['CoTermsAndConditions']['id']
+                  )); ?>
           <li class="line<?php print ($l % 2); $l++; ?>">
               <strong><?php print filter_var($t['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></strong><br/>
               <button class="checkbutton"
                       type="button"
                       onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
-                        '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
+                        '<?php print addslashes($url); ?>',
                         '<?php print addslashes($t['CoTermsAndConditions']['id']); ?>')">
                 <?php print _txt('op.tc.review'); ?>
               </button>

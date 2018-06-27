@@ -1412,6 +1412,8 @@ class OrgIdentitySource extends AppModel {
       // For each record in the source, if there is no OrgIdentity linked
       // run createOrgIdentity
       
+      $sourceKeys = array();
+      $knownKeys = array();
       $newKeys = array();
       
       try {

@@ -119,6 +119,7 @@ class CoServiceTokensController extends StandardController {
     }
     
     $this->set('vv_co_person_id', $this->request->params['named']['copersonid']);
+    $this->set('vv_token_type', $tokenSetting['CoServiceTokenSetting']['token_type']);
     $this->set('vv_token', $this->CoServiceToken->generate($this->request->params['named']['copersonid'],
                                                            $tokenSetting['CoServiceTokenSetting']['co_service_id'],
                                                            $tokenSetting['CoServiceTokenSetting']['token_type'],

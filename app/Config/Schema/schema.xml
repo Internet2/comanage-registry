@@ -1419,6 +1419,7 @@
     <field name="affiliation" type="C" size="32" />
     <field name="value" type="C" size="80" />
     <field name="modifiable" type="L" />
+    <field name="org_identity" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_attribute_default_id" type="I">
@@ -2062,6 +2063,7 @@
     </field>
     <field name="description" type="C" size="256" />
     <field name="url" type="C" size="256" />
+    <field name="tc_body" type="X2" />
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
