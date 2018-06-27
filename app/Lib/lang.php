@@ -668,7 +668,7 @@ original notification at
     SshKeyTypeEnum::RSA      => 'RSA',
     SshKeyTypeEnum::RSA1     => 'RSA1'
   ),
-  
+
   'en.status' =>      array(StatusEnum::Active              => 'Active',
                             StatusEnum::Approved            => 'Approved',
                             StatusEnum::Confirmed           => 'Confirmed',
@@ -796,7 +796,7 @@ original notification at
     UrlEnum::Official => 'Official',
     UrlEnum::Personal => 'Personal',
   ),
-  
+
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
@@ -1473,6 +1473,13 @@ original notification at
   'fd.url.url' =>     'URL',
   'fd.url.url.desc' => 'URL, including protocol (ie: http://myvo.org, not just myvo.org)',
   'fd.url' =>         'URL',
+  'fd.ssh_key' =>     'SSH Key',
+  'fd.ssh_key.comment' => 'Comment',
+  'fd.ssh_key.comment.desc' =>     'Description of this SSH key',
+  'fd.ssh_key.type' => 'Key type',
+  'fd.ssh_key.type.desc' =>     'Type of key',
+  'fd.ssh_key.skey' => 'SSH Key',
+  'fd.ssh_key.skey.desc' =>     'SSH key content',
   'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
   'fd.valid_from.desc' => 'Leave blank for immediate validity',

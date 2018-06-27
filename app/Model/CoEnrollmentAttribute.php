@@ -178,6 +178,9 @@ class CoEnrollmentAttribute extends AppModel {
     foreach(array_keys($urlTypes) as $k)
       $ret['p:url:'.$k] = _txt('fd.url.url') . " (" . $urlTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
     
+    // SshKey is not an extended type
+    $ret['p:ssh_key'] = _txt('fd.ssh_key') . " (" . _txt('ct.co_people.1') . ")";
+
     // (2a) Group Memberships are Multi valued CO Person attributes, but have all sorts
     // of special logic around them so they get their own code (code=g)
     
@@ -599,13 +602,10 @@ class CoEnrollmentAttribute extends AppModel {
               // We use allowEmpty to check, which is more accurate than $validate->required.
               // Required is true if the attribute is required by the enrollment flow configuration,
               // AND if the MVPA's element is also required/allowEmpty (eg: Email requires mail to be set).
-              
-              $attr['required'] = ($attr['mvpa_required']
-                                   &&
-  // XXX need to look for other places where ['content'] needs to be added
-                                   isset($attrModel->validate[$k]['content']['allowEmpty'])
-                                   &&
-                                   !$attrModel->validate[$k]['content']['allowEmpty']);
+
+              // XXX need to look for other places where ['content'] needs to be added
+              $attr['required'] = isset($attrModel->validate[$k]['content']['allowEmpty'])
+                                   && !$attrModel->validate[$k]['content']['allowEmpty'];
             }
             
             // Org attributes can ignore authoritative values
@@ -618,10 +618,11 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden']) && $efAttr['CoEnrollmentAttribute']['hidden']);
 
             // We hide language, primary_name, type, status, and verified
+            // Allow setting the ssh-key type
             $attr['hidden'] = ($k == 'language'
                                || $k == 'login'
                                || $k == 'primary_name'
-                               || $k == 'type'
+                               || ($k == 'type' && $attrName != 'ssh_key')
                                || $k == 'status'
                                || $k == 'verified' ? true : $attr['hidden']);
             
@@ -693,11 +694,22 @@ class CoEnrollmentAttribute extends AppModel {
               $attr['validate']['content']['rule'][1]['coid'] = $efAttr['CoEnrollmentFlow']['co_id'];
             }
             
-            if($k != 'type'
+            // Create a selection field if the validation rule has a limited set
+            // Make an exception for the SshKey type field
+            CakeLog::write('debug','testing attribute field '.$k.': '.json_encode($attr));
+            if(($k != 'type' || $attrName == 'ssh_key')
                && isset($attr['validate']['content']['rule'][0])
                && $attr['validate']['content']['rule'][0] == 'inList') {
               // If this is a select field, get the set of options
-              $attr['select'] = $attrModel->validEnumsForSelect($attrName);
+              
+              // For SshKey, create a list based on the SshKey attribute
+              // Not sure what the use case is for other models here, or
+              // whether $fieldName should always be $k instead of $attrName
+              $fieldName = $attrName;
+              if($attrName == 'ssh_key') {
+                  $fieldName=$k;
+              }
+              $attr['select'] = $attrModel->validEnumsForSelect($fieldName);
             }
 
             // copy modifiable and org_identity-default-source settings
