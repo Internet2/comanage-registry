@@ -127,7 +127,7 @@ class Salesforcep {
       )
     );
 
-    $results = $this->Http->$action($this->Http->buildUrl($urlPath),
+    $results = $this->Http->$action($urlPath,
                                     json_encode($data),
                                     $options);
     

@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Servers Controller
+ * COmanage Registry HTTP Servers Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,15 +27,15 @@
 
 App::uses("StandardController", "Controller");
 
-class ServersController extends StandardController {
+class HttpServersController extends StandardController {
   // Class name, used by Cake
-  public $name = "Servers";
+  public $name = "HttpServers";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 50,
     'order' => array(
-      'Server.description' => 'asc'
+      'HttpServer.serverurl' => 'asc'
     )
   );
   
@@ -43,23 +43,8 @@ class ServersController extends StandardController {
   public $requires_co = true;
   
   public $view_contains = array(
-    'HttpServer',
-    'LdapServer',
-    'Oauth2Server',
-    'SqlServer'
+    'Server'
   );
-  
-  /**
-   * Callback before views are rendered.
-   *
-   * @since  COmanage Registry v3.2.0
-   */
-  
-  public function beforeRender() {
-    parent::beforeRender();
-    
-    $this->set('vv_server_type_models', $this->Server->serverTypeModels);
-  }
   
   /**
    * Authorization for this Controller, called by Auth component
@@ -78,47 +63,38 @@ class ServersController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // Add a new Server?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Delete an existing Server?
-    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Edit an existing Server?
+    // Edit an existing SQL Server?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // View all Servers?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
-    // View this Server?
+    // View this SQL Server?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];
   }
   
+// XXX maybe we need an intermediate controller for servers?
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
    * @since  COmanage Registry v3.2.0
    */
-  
+
   function performRedirect() {
-    // On add, redirect to the edit view for the appropriate server type.
-    
-    if($this->action == 'add' && !empty($this->Server->data)) {
-      $smodel = $this->Server->serverTypeModels[ $this->Server->data['Server']['server_type'] ];
-      
-      $target = array(
-        'controller' => Inflector::tableize($smodel),
-        'action'     => 'edit',
-        $this->Server->data[$smodel]['id']
-      );
-      
-      $this->redirect($target);
+    $target = array();
+    $target['plugin'] = null;
+
+    if(!empty($this->request->params['pass'][0])) {
+      $target['controller'] = 'http_servers';
+      $target['action'] = 'edit';
+      $target[] = filter_var($this->request->params['pass'][0], FILTER_SANITIZE_SPECIAL_CHARS);
     } else {
-      parent::performRedirect();
+      $target['controller'] = "servers";
+      $target['action'] = 'index';
+      $target['co'] = $this->cur_co['Co']['id'];
     }
+
+    $this->redirect($target);
   }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Servers Controller
+ * COmanage Registry CO Crowd Provisioner Targets Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,40 +25,32 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-App::uses("StandardController", "Controller");
+App::uses("SPTController", "Controller");
 
-class ServersController extends StandardController {
+class CoCrowdProvisionerTargetsController extends SPTController {
   // Class name, used by Cake
-  public $name = "Servers";
+  public $name = "CoCrowdProvisionerTargets";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
-    'limit' => 50,
+    'limit' => 25,
     'order' => array(
-      'Server.description' => 'asc'
+      'server_id' => 'asc'
     )
   );
   
-  // This controller needs a CO to be set
-  public $requires_co = true;
-  
-  public $view_contains = array(
-    'HttpServer',
-    'LdapServer',
-    'Oauth2Server',
-    'SqlServer'
-  );
-  
   /**
-   * Callback before views are rendered.
+   * Callback after controller methods are invoked but before views are rendered.
    *
    * @since  COmanage Registry v3.2.0
    */
-  
-  public function beforeRender() {
+
+  function beforeRender() {
     parent::beforeRender();
     
-    $this->set('vv_server_type_models', $this->Server->serverTypeModels);
+    if(!$this->request->is('restful')) {
+      $this->set('vv_identifiers_types', $this->CoCrowdProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    }
   }
   
   /**
@@ -78,47 +70,19 @@ class ServersController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // Add a new Server?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Delete an existing Server?
+    // Delete an existing CO Provisioning Target?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Edit an existing Server?
+    
+    // Edit an existing CO Provisioning Target?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // View all Servers?
+    // View all existing CO Provisioning Targets?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // View this Server?
+    // View an existing CO Provisioning Target?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
-    return $p[$this->action];
-  }
-  
-  /**
-   * Perform a redirect back to the controller's default view.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v3.2.0
-   */
-  
-  function performRedirect() {
-    // On add, redirect to the edit view for the appropriate server type.
-    
-    if($this->action == 'add' && !empty($this->Server->data)) {
-      $smodel = $this->Server->serverTypeModels[ $this->Server->data['Server']['server_type'] ];
-      
-      $target = array(
-        'controller' => Inflector::tableize($smodel),
-        'action'     => 'edit',
-        $this->Server->data[$smodel]['id']
-      );
-      
-      $this->redirect($target);
-    } else {
-      parent::performRedirect();
-    }
+    return($p[$this->action]);
   }
 }

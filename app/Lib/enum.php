@@ -558,6 +558,8 @@ class RequiredNameFieldsEnum
 
 class ServerEnum
 {
+  // When adding a new server type, be sure to add it to ServersController::view_contains
+  const HttpServer    = 'HT';
   const LdapServer    = 'LD';
   const Oauth2Server  = 'O2';
   // Generic SQL Server, not "MS SQL Server"

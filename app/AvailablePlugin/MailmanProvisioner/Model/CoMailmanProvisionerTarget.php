@@ -69,7 +69,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => true,
       'allowEmpty' => false
     ),
-    'pref_identifier_type' => array(
+    'pref_email_type' => array(
       'rule' => array('validateExtendedType',
                       array('attribute' => 'EmailAddress.type',
                             'default' => array(EmailAddressEnum::Delivery,
@@ -100,7 +100,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                       $this->data['CoMailmanProvisionerTarget']['adminuser'],
                       $this->data['CoMailmanProvisionerTarget']['password']);
     
-    $results = $Http->get($Http->buildUrl('/3.1/domains/' . $this->data['CoMailmanProvisionerTarget']['domain']));
+    $results = $Http->get('/3.1/domains/' . rawurlencode($this->data['CoMailmanProvisionerTarget']['domain']));
     
     // If the domain is not there, we'll get a 404
     if($results->code == 404) {
@@ -110,7 +110,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       );
       
       // Add the domain
-      $results = $Http->post($Http->buildUrl('/3.1/domains'), $domain);
+      $results = $Http->post('/3.1/domains', $domain);
       
       if($results->code != 201) {
         throw new RuntimeException($results->reasonPhrase);
@@ -149,7 +149,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     if(!empty($mailmanList)) {
       $listId = $mailmanList['CoMailmanList']['mailman_list_identifier'];
-      $results = $Http->delete($Http->buildUrl('/3.1/lists/' . $listId));
+      $results = $Http->delete('/3.1/lists/' . rawurlencode($listId));
       
       if($results->code == 204) {
         // Create a history record
@@ -219,7 +219,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       );
       
       // Add the user
-      $results = $Http->post($Http->buildUrl('/3.1/users'), $mailmanUser);
+      $results = $Http->post('/3.1/users', $mailmanUser);
       
       // Note if the email address happens to already exist, this will throw 400.
       // It's unclear what to do then... we could grab the user ID and link it to
@@ -250,7 +250,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     // Get the list of known email addresses for this user
-    $results = $Http->get($Http->buildUrl('/3.1/users/' . $mailmanId . '/addresses'));
+    $results = $Http->get('/3.1/users/' . rawurlencode($mailmanId) . '/addresses');
     
     $curAddresses = array();
     $curPrefAddress = null;
@@ -278,7 +278,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     foreach($toadd as $a) {
       // Add this address to the user.
       
-      $results = $Http->post($Http->buildUrl('/3.1/users/' . $mailmanId . '/addresses'),
+      $results = $Http->post('/3.1/users/' . rawurlencode($mailmanId) . '/addresses',
                              array('email' => $a));
       // For now we'll ignore the results
     }
@@ -291,7 +291,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     foreach($toremove as $a) {
       // Delete this address.
       
-      $results = $Http->delete($Http->buildUrl('/3.1/addresses/' . $a));
+      $results = $Http->delete('/3.1/addresses/' . rawurlencode($a));
       // For now we'll ignore the results
     }
     
@@ -300,7 +300,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     //     https://gitlab.com/mailman/mailman/issues/240
     
     if($prefAddress['mail'] && ($curPrefAddress != $prefAddress['mail'])) {
-      $results = $Http->patch($Http->buildUrl('/3.1/users/' . $mailmanId),
+      $results = $Http->patch('/3.1/users/' . rawurlencode($mailmanId),
                               array('preferred_address' => $prefAddress['mail']));
       
       // We expect a 204 on success, but will accept anything in the 2xx range
@@ -533,7 +533,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                $mailmanListId,
                                $listRole,
                                $actorCoPersonId) {
-    $results = $Http->post($Http->buildUrl('/3.1/members'),
+    $results = $Http->post('/3.1/members',
                            array('list_id' => $mailmanListId,
                                  'subscriber' => $mailmanId,
                                  'role' => $listRole,
@@ -601,13 +601,13 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       
       $listname = $listname . '@' . $domain;
       
-      $results = $Http->post($Http->buildUrl('/3.1/lists'), array('fqdn_listname' => $listname));
+      $results = $Http->post('/3.1/lists', array('fqdn_listname' => $listname));
       
       if($results->code == 201
          || ($results->code == 400 && $results->body == 'Mailing list exists')) {
         // On 200, the listname is in the location header, but for list exists we need to query for it
         
-        $results = $Http->get($Http->buildUrl('/3.1/lists/' . $listname));
+        $results = $Http->get('/3.1/lists/' . rawurlencode($listname));
         
         if($results->code != 200) {
           throw new RuntimeException($results->body);
@@ -647,7 +647,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // description when we create the list, and we'd have to make a call to get
     // the current description on update, so we may as well just issue the patch.
     
-    $results = $Http->patch($Http->buildUrl('/3.1/lists/' . $listId . '/config'),
+    $results = $Http->patch('/3.1/lists/' . rawurlencode($listId) . '/config',
                             array('description' => $listDescription));
     // We sort of don't care about $results here
     
@@ -707,7 +707,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       // Pull the current subscribers of the list with the specified role
-      $results = $Http->get($Http->buildUrl('/3.1/lists/' . urlencode($listId) . '/roster/' . $listRole));
+      $results = $Http->get('/3.1/lists/' . rawurlencode($listId) . '/roster/' . rawurlencode($listRole));
       
       if($results->code != 200) {
         throw new RuntimeException($results->body);
@@ -900,7 +900,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     $curMemberships = array();
     
-    $results = $Http->get($Http->buildUrl('/3.1/addresses/' . $prefAddress['mail'] . '/memberships'));
+    $results = $Http->get('/3.1/addresses/' . rawurlencode($prefAddress['mail']) . '/memberships');
     
     // Without this flag json_decode interprets the int as a float.
     // (This shouldn't be needed anymore since mailman > 3.1 no longer uses ints as IDs,
@@ -1009,7 +1009,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                  $actorCoPersonId) {
     // Delete keys on the list membership ID, which is not the user ID
     // (membership ID = user ID + list ID + list role)
-    $results = $Http->delete($Http->buildUrl('/3.1/members/' . $membershipId));
+    $results = $Http->delete('/3.1/members/' . rawurlencode($membershipId));
     
     // 204 on success
     $cmt = ($results->code >= 200 && $results->code < 300)
@@ -1051,7 +1051,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     $Http->setBaseUrl($serverUrl);
     $Http->configAuth('Basic', $adminUser, $password);
     
-    $results = $Http->get($Http->buildUrl('/3.1/domains'));
+    $results = $Http->get('/3.1/domains');
     
     if($results->code != 200) {
       $jres = json_decode($results->body);

@@ -124,7 +124,7 @@ class Salesforce {
       )
     );
     
-    $results = $this->Http->$action($this->Http->buildUrl($urlPath),
+    $results = $this->Http->$action($urlPath,
                                     // $data is json_encoded in Provisioner, make consistent?
                                     $data,
                                     $options);

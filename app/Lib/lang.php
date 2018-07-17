@@ -161,6 +161,8 @@ $cm_texts['en_US'] = array(
   'ct.enrollment_flows.pl' =>   'Enrollment Flows',
   'ct.history_records.1' =>     'History Record',
   'ct.history_records.pl' =>    'History Records',
+  'ct.http_servers.1' =>        'HTTP Server',
+  'ct.http_servers.pl' =>       'HTTP Servers',
   'ct.identifiers.1' =>         'Identifier',
   'ct.identifiers.pl' =>        'Identifiers',
   'ct.ldap_servers.1' =>        'LDAP Server',
@@ -671,6 +673,7 @@ original notification at
                               RequiredNameFieldsEnum::GivenFamily => 'Given Name, Family Name'),
   
   'en.server' => array(
+    ServerEnum::HttpServer   => 'HTTP',
     ServerEnum::LdapServer   => 'LDAP',
     ServerEnum::Oauth2Server => 'OAuth2',
     ServerEnum::SqlServer    => 'SQL'

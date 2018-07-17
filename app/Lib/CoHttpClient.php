@@ -29,6 +29,7 @@ App::uses('HttpSocket', 'Network/Http');
 
 class CoHttpClient extends HttpSocket {
   protected $_baseUrl = null;
+  protected $_requestOptions = array();
   
   /**
    * Build a URL using the configured base URL.
@@ -43,6 +44,102 @@ class CoHttpClient extends HttpSocket {
   }
   
   /**
+   * Override HttpSocket delete() to apply requested configuration.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String $uri     URI fragment (appended to $_baseURL) to request
+   * @param  Array  $data    Array of request body data keys and values.
+   * @param  Array  $request An indexed array with indexes such as 'method' or uri
+   * @return Mixed           Result of request
+   */
+  
+  public function delete($uri=null, $query=array(), $request=array()) {
+    return parent::delete($this->buildurl($uri),
+                          $query,
+                          Hash::merge($this->_requestOptions, $request));
+  }
+  
+  /**
+   * Override HttpSocket get() to apply requested configuration.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String $uri     URI fragment (appended to $_baseURL) to request
+   * @param  Array  $data    Array of request body data keys and values.
+   * @param  Array  $request An indexed array with indexes such as 'method' or uri
+   * @return Mixed           Result of request
+   */
+  
+  public function get($uri=null, $query=array(), $request=array()) {
+    return parent::get($this->buildurl($uri),
+                       $query,
+                       Hash::merge($this->_requestOptions, $request));
+  }
+  
+  /**
+   * Override HttpSocket head() to apply requested configuration.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String $uri     URI fragment (appended to $_baseURL) to request
+   * @param  Array  $data    Array of request body data keys and values.
+   * @param  Array  $request An indexed array with indexes such as 'method' or uri
+   * @return Mixed           Result of request
+   */
+  
+  public function head($uri=null, $query=array(), $request=array()) {
+    return parent::head($this->buildurl($uri),
+                        $query,
+                        Hash::merge($this->_requestOptions, $request));
+  }
+  
+  /**
+   * Override HttpSocket patch() to apply requested configuration.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String $uri     URI fragment (appended to $_baseURL) to request
+   * @param  Array  $data    Array of request body data keys and values.
+   * @param  Array  $request An indexed array with indexes such as 'method' or uri
+   * @return Mixed           Result of request
+   */
+  
+  public function patch($uri=null, $query=array(), $request=array()) {
+    return parent::patch($this->buildurl($uri),
+                         $query,
+                         Hash::merge($this->_requestOptions, $request));
+  }
+  
+  /**
+   * Override HttpSocket post() to apply requested configuration.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String $uri     URI fragment (appended to $_baseURL) to request
+   * @param  Array  $data    Array of request body data keys and values.
+   * @param  Array  $request An indexed array with indexes such as 'method' or uri
+   * @return Mixed           Result of request
+   */
+  
+  public function post($uri=null, $query=array(), $request=array()) {
+    return parent::post($this->buildurl($uri),
+                        $query,
+                        Hash::merge($this->_requestOptions, $request));
+  }
+  
+  /**
+   * Override HttpSocket put() to apply requested configuration.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  String $uri     URI fragment (appended to $_baseURL) to request
+   * @param  Array  $data    Array of request body data keys and values.
+   * @param  Array  $request An indexed array with indexes such as 'method' or uri
+   * @return Mixed           Result of request
+   */
+  
+  public function put($uri=null, $query=array(), $request=array()) {
+    return parent::put($this->buildurl($uri),
+                       $query,
+                       Hash::merge($this->_requestOptions, $request));
+  }
+  
+  /**
    * Set the base URL used for REST connections.
    *
    * @since  COmanage Registry v3.1.0
@@ -54,5 +151,16 @@ class CoHttpClient extends HttpSocket {
     // so make sure there aren't any trailing slashes.
     
     $this->_baseUrl = rtrim($baseUrl, '/');
+  }
+  
+  /**
+   * Set common config options for each request.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Array $options Request Options
+   */
+  
+  public function setRequestOptions($options) {
+    $this->_requestOptions = $options;
   }
 }
