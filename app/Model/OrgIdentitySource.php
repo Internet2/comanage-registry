@@ -66,14 +66,14 @@ class OrgIdentitySource extends AppModel {
     'co_id' => array(
       'content' => array(
         'rule' => 'numeric',
-        'required' => false,
-        'allowEmpty' => true
+        'required' => true,
+        'allowEmpty' => false
       )
     ),
     'description' => array(
       'rule' => array('validateInput'),
-      'required' => false,
-      'allowEmpty' => true
+      'required' => true,
+      'allowEmpty' => false
     ),
     'plugin' => array(
       // XXX This should be a dynamically generated list based on available plugins

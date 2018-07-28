@@ -242,13 +242,14 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     
     // selectEnrollee hasn't run yet so we can't pull the target CO Person from the
     // petition, but for OISAuthenticate, it's the current user (ie: $actorCoPersonId)
-    // that we always want to link to.
+    // that we always want to link to. Actually, it isn't (CO-1619), but the enrollment
+    // flow should later correctly link the identity.
       
     $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
                                                             $sorid,
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
-                                                            $actorCoPersonId,
+                                                            null,
                                                             false,
                                                             $id);
     
