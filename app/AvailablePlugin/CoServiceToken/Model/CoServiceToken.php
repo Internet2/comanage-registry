@@ -80,7 +80,8 @@ class CoServiceToken extends AppModel {
   public function cmPluginMenus() {
     return array(
       "coconfig" => array(_txt('ct.co_service_token_settings.pl') =>
-                          array('controller' => 'co_service_token_settings',
+                          array('icon'       => 'vpn_key',
+                                'controller' => 'co_service_token_settings',
                                 'action'     => 'configure')),
       "coperson" => array(_txt('ct.co_service_tokens.pl') =>
                           array('controller' => "co_service_tokens",

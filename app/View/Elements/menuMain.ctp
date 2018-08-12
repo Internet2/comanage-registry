@@ -148,7 +148,14 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       }
 
       if(!empty($menuContent['plugins'])) {
-        render_plugin_menus($this->Html, $menuContent['plugins'], 'copeople', $menuCoId);
+        $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'copeople', $menuCoId);
+        
+        foreach($pluginLinks as $plabel => $pcfg) {
+          print '<li class="mdl-js-ripple-effect">';
+          print $this->Html->link($plabel, $pcfg['url']);
+          print '<span class="mdl-ripple"></span>';
+          print '</li>';
+        }
       }
 
       print "</ul>";
@@ -189,7 +196,14 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
         // Plugins
         if (!empty($menuContent['plugins'])) {
-          render_plugin_menus($this->Html, $menuContent['plugins'], 'cogroups', $menuCoId);
+          $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId);
+          
+          foreach($pluginLinks as $plabel => $pcfg) {
+            print '<li class="mdl-js-ripple-effect">';
+            print $this->Html->link($plabel, $pcfg['url']);
+            print '<span class="mdl-ripple"></span>';
+            print '</li>';
+          }
         }
 
         print "</ul>";
@@ -305,12 +319,6 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
   
           print "</li>";
         }
-        
-        // Plugins
-        /* XXX These need a home
-        if(!empty($menuContent['plugins'])) {
-          render_plugin_menus($this->Html, $menuContent['plugins'], 'coservices', $menuCoId);
-        } */
       }
 
       // Jobs Menu
@@ -347,6 +355,25 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
 
         print "</li>";
+      }
+      
+      // Insert plugin menu links, if any
+      if(!empty($menuContent['plugins'])) {
+        $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'comain', $menuCoId);
+        
+        if(!empty($pluginLinks)) {
+          foreach($pluginLinks as $plabel => $pcfg) {
+            print '<li class="configMenu">';
+
+            $linkContent = '<em class="material-icons" aria-hidden="true">' . $pcfg['icon'] .
+              '</em><span class="menuTitle">' . $plabel .
+              '</span><span class="mdl-ripple"></span>';
+
+            print $this->Html->link($linkContent, $pcfg['url'], array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+
+            print "</li>";
+          }
+        }
       }
       
       // Configuration Menu
@@ -445,7 +472,14 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
       // Plugins
       if(!empty($menuContent['plugins'])) {
-        render_plugin_menus($this->Html, $menuContent['plugins'], 'cmp');
+        $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'cmp');
+        
+        foreach($pluginLinks as $plabel => $pcfg) {
+          print '<li class="mdl-js-ripple-effect">';
+          print $this->Html->link($plabel, $pcfg['url']);
+          print '<span class="mdl-ripple"></span>';
+          print '</li>';
+        }
       }
 
       print '</ul>';
@@ -461,11 +495,5 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     print $this->Html->link($linkContent, '/', array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
 
     print "</li>";
-
-    // Plugins
-    if (!empty($menuContent['plugins'])) {
-      render_plugin_menus($this->Html, $menuContent['plugins'], 'cos');
-    }
   ?>
-
 </ul>
