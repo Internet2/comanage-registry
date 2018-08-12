@@ -229,5 +229,19 @@ class CoDashboardWidgetsController extends StandardController {
 
       $this->redirect($target);
     }
+    
+    if(!empty($this->request->data['CoDashboardWidget']['co_dashboard_id'])) {
+      // Redirect to the widget index
+      
+      $target = array();
+      $target['plugin'] = null;
+      $target['controller'] = 'co_dashboard_widgets';
+      $target['action'] = 'index';
+      $target['codashboard'] = filter_var($this->request->data['CoDashboardWidget']['co_dashboard_id'],FILTER_SANITIZE_SPECIAL_CHARS);
+
+      $this->redirect($target);
+    }
+    
+    parent::performRedirect();
   }
 }

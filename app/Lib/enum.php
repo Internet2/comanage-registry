@@ -28,6 +28,7 @@
 class ActionEnum
 {
   // Codes beginning with 'X' (eg: 'XABC') are reserved for local use
+  // Codes beginning with a lowercase 'p' (eg: 'pABC') are reserved for plugin use
   const AuthenticatorDeleted            = 'DAUT';
   const AuthenticatorEdited             = 'EAUT';
   const AuthenticatorStatusEdited       = 'EATS';

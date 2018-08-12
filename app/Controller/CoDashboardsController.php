@@ -69,7 +69,7 @@ class CoDashboardsController extends StandardController {
       }
     }
   }
-      
+  
   /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
@@ -293,6 +293,7 @@ class CoDashboardsController extends StandardController {
   public function search() {
     $results = array();
     $roles = array();
+    $models = array();
     
     if(!empty($this->request->query['q'])) {
       /* To add a new backend to search:
@@ -318,6 +319,25 @@ class CoDashboardsController extends StandardController {
         'TelephoneNumber' => array('cmadmin', 'coadmin', 'couadmin'),
       );
       
+      // Determine which plugin models are searchable
+      $plugins = $this->loadAvailablePlugins('all', 'simple');
+      
+      // And track the display fields for the view
+      $pdisplay = array();
+
+      foreach($plugins as $plugin) {
+        if(method_exists($this->$plugin, 'cmPluginSearchModels')) {
+          $pSearchInfo = $this->$plugin->cmPluginSearchModels();
+          
+          foreach($pSearchInfo as $pmodel => $pcfg) {
+            $models[$pmodel] = $pcfg['permissions'];
+            $pdisplay[$pmodel] = $pcfg['displayField'];
+          }
+        }
+      }
+      
+      $this->set('vv_plugin_display_fields', $pdisplay);
+      
       // Which models we search depends on our permissions
       
       $roles = $this->Role->calculateCMRoles();
@@ -338,8 +358,12 @@ class CoDashboardsController extends StandardController {
           
           $this->loadModel($m);
           
-          $results[$m] = $this->$m->search($this->cur_co['Co']['id'],
-                                           $this->request->query['q']);
+          // If we're searching a plugin model, we need the base name of the 
+          // model itself (not the full plugin.model name)
+          $smodel = preg_replace('/.*\./', '', $m);
+          
+          $results[$m] = $this->$smodel->search($this->cur_co['Co']['id'],
+                                                $this->request->query['q']);
         }
       }
     }
@@ -391,7 +415,30 @@ class CoDashboardsController extends StandardController {
       // Otherwise redirect to the model's view. We don't really know if the current
       // person can edit or just view, so if they're an admin we redirect them to edit
       // otherwise view.
+      
+      $plugin = null;
+      
+      if(!isset($models[$matchModel])) {
+        // This is probably a plugin model, so we need to walk through the list
+        // of models looking for the right one
+        
+        foreach($models as $m => $d) {
+          if(strpos($m, '.')) {
+            // We have something of the form Plugin.Model
+            
+            $ms = explode('.', $m, 2);
+            
+            if($ms[1] == $matchModel) {
+              // This is the right plugin
+              $plugin = Inflector::underscore($ms[0]);
+              break;
+            }
+          }
+        }
+      }
+      
       $args = array(
+        'plugin'     => $plugin,
         'controller' => Inflector::tableize($matchModel),
         'action'     => ((isset($roles['cmadmin']) && $roles['cmadmin'])
                          || (isset($roles['coadmin']) && $roles['coadmin'])

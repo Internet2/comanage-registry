@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO URL Widgets Controller
+ * COmanage Registry CO Announcement Channels Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,26 +25,41 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-App::uses("SDWController", "Controller");
+App::uses("StandardController", "Controller");
 
-class CoUrlWidgetsController extends SDWController {
+class CoAnnouncementChannelsController extends StandardController {
   // Class name, used by Cake
-  public $name = "CoUrlWidgets";
+  public $name = "CoAnnouncementChannels";
+  
+  // Establish pagination parameters for HTML views
+  public $paginate = array(
+    'limit' => 25,
+    'order' => array(
+      'CoAnnouncementChannel.name' => 'asc'
+    )
+  );
+  
+  // This controller needs a CO to be set
+  public $requires_co = true;
   
   /**
-   * Render the widget according to the requested user and current configuration.
+   * Callback after controller methods are invoked but before views are rendered.
    *
    * @since  COmanage Registry v3.2.0
-   * @param  Integer $id CO Notifications Widget ID
    */
-  
-  public function display($id) {
-    $cfg = $this->CoUrlWidget->getConfig();
+ 
+  function beforeRender() {
+    if(!$this->request->is('restful')) {
+      // Pull the list of available groups
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+      $args['order'] = array('CoGroup.name ASC');
+
+      $this->set('vv_co_groups', $this->Co->CoGroup->find("list", $args));
+    }
     
-    $this->set('vv_url', $cfg['CoUrlWidget']['url']);
-    
-    // Pass the config so we know which div to overwrite
-    $this->set('vv_config', $cfg);
+    parent::beforeRender();
   }
   
   /**
@@ -57,25 +72,29 @@ class CoUrlWidgetsController extends SDWController {
    */
   
   function isAuthorized() {
-    $roles = $this->Role->calculateCMRoles();
-
-    // Determine what operations this user can perform
+    $roles = $this->Role->calculateCMRoles();             // What was authenticated
     
     // Construct the permission set for this user, which will also be passed to the view.
-    // Ask the parent to calculate the display permission, based on the configuration.
-    // Note that the display permission is set at the Dashboard, not Dashboard Widget level.
-    $p = $this->calculateParentPermissions($roles);
-
-    // Delete an existing CO URL Widget?
+    $p = array();
+    
+    // Determine what operations this user can perform
+    
+    // Add a new CO Announcement Channel?
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Delete an existing CO Announcement Channel?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // Edit an existing CO URL Widget?
+    // Edit an existing CO Announcement Channel?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // View an existing CO URL Widget?
-    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // View all existing CO Announcement Channel?
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // View an existing CO Announcement Channel?
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 }

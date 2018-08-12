@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Dashboards Index View
+ * COmanage Registry CO Announcement Channels Index View
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,7 +27,7 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $this->Html->addCrumb(_txt('ct.co_dashboards.pl'));
+  $this->Html->addCrumb(_txt('ct.co_announcement_channels.pl'));
 
   // Add page title
   $params = array();
@@ -38,9 +38,9 @@
 
   if($permissions['add']) {
     $params['topLinks'][] = $this->Html->link(
-      _txt('op.add-a',array(_txt('ct.co_dashboards.1'))),
+      _txt('op.add-a',array(_txt('ct.co_announcement_channels.1'))),
       array(
-        'controller' => 'co_dashboards',
+        'controller' => 'co_announcement_channels',
         'action' => 'add',
         'co' => $cur_co['Co']['id']
       ),
@@ -52,75 +52,41 @@
 ?>
 
 <div class="table-container">
-  <table id="co_dashboards">
+  <table id="co_announcement_channels">
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-        <th><?php print $this->Paginator->sort('visibility', _txt('fd.visibility')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
 
     <tbody>
       <?php $i = 0; ?>
-      <?php foreach ($co_dashboards as $c): ?>
+      <?php foreach ($co_announcement_channels as $c): ?>
       <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
           <?php
-            print $this->Html->link($c['CoDashboard']['name'],
-                                    array('controller' => 'co_dashboards',
+            print $this->Html->link($c['CoAnnouncementChannel']['name'],
+                                    array('controller' => 'co_announcement_channels',
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                          $c['CoDashboard']['id']));
+                                          $c['CoAnnouncementChannel']['id']));
           ?>
         </td>
         <td>
           <?php
-            if(!empty($c['CoDashboard']['status'])) {
-              print _txt('en.status', null, $c['CoDashboard']['status']);
+            if(!empty($c['CoAnnouncementChannel']['status'])) {
+              print _txt('en.status', null, $c['CoAnnouncementChannel']['status']);
             }
           ?>
         </td>
         <td>
           <?php
-            if(!empty($c['CoDashboard']['visibility'])) {
-              print _txt('en.visibility', null, $c['CoDashboard']['visibility']);
-              
-              if($c['CoDashboard']['visibility'] == VisibilityEnum::CoGroupMember
-                 && !empty($c['CoDashboard']['visibility_co_group_id'])) {
-                print " ("
-                  . $this->Html->link($vv_co_groups[ $c['CoDashboard']['visibility_co_group_id'] ],
-                                      array(
-                                       'controller' => 'co_groups',
-                                       'action' => 'edit',
-                                       $c['CoDashboard']['visibility_co_group_id']
-                                      ))
-                  . ")";
-              }
-            }
-          ?>
-        </td>
-        <td>
-          <?php
-            if($permissions['dashboard']) {
-              print $this->Html->link(_txt('op.render'),
-                                      array('controller' => 'co_dashboards',
-                                            'action' => 'dashboard',
-                                            $c['CoDashboard']['id']),
-                                      array('class' => 'runbutton')) . "\n";
-            }
-            
             if($permissions['edit']) {
               print $this->Html->link(_txt('op.edit'),
-                                      array('controller' => 'co_dashboards',
+                                      array('controller' => 'co_announcement_channels',
                                             'action' => 'edit',
-                                            $c['CoDashboard']['id']),
-                                      array('class' => 'editbutton')) . "\n";
-              
-              print $this->Html->link(_txt('op.edit-a', array(_txt('ct.co_dashboard_widgets.pl'))),
-                                      array('controller'  => 'co_dashboard_widgets',
-                                            'action'      => 'index',
-                                            'codashboard' => $c['CoDashboard']['id']),
+                                            $c['CoAnnouncementChannel']['id']),
                                       array('class' => 'editbutton')) . "\n";
             }
 
@@ -130,15 +96,15 @@
                 . _txt('js.remove') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
                   array(
-                    'controller' => 'co_dashboards',
+                    'controller' => 'co_announcement_channels',
                     'action' => 'delete',
-                    $c['CoDashboard']['id']
+                    $c['CoAnnouncementChannel']['id']
                   )
                 ) . '\',\''
                 . _txt('op.remove') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
                 . _txt('op.remove') . '\',[\''   // dialog title
-                . filter_var(_jtxt($c['CoDashboard']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . filter_var(_jtxt($c['CoAnnouncementChannel']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                 . '\']);">'
                 . _txt('op.delete')
                 . '</button>';

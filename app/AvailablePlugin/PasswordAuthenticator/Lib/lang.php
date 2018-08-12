@@ -45,9 +45,9 @@ $cm_password_authenticator_texts['en_US'] = array(
   // Plugin texts
   'pl.passwordauthenticator.info'           => 'Your new password must be between %1$s and %2$s characters in length.',
   'pl.passwordauthenticator.maxlen'         => 'Maximum Password Length',
-  'pl.passwordauthenticator.maxlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 8',
+  'pl.passwordauthenticator.maxlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 64',
   'pl.passwordauthenticator.minlen'         => 'Minimum Password Length',
-  'pl.passwordauthenticator.minlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 64',
+  'pl.passwordauthenticator.minlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 8',
   'pl.passwordauthenticator.mod'            => 'Last changed %1$s UTC',
   'pl.passwordauthenticator.password.again' => 'New Password Again',
   'pl.passwordauthenticator.password.current' => 'Current Password',

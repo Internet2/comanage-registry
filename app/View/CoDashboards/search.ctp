@@ -185,6 +185,35 @@
         print "</div>\n";
       }
     }
+    
+    // Plugins: We walk the results for models of the form Plugin.Model, then
+    // use the model name to determine a heading
+    foreach(array_keys($vv_results) as $m) {
+      if(!empty($vv_results[$m]) && strstr($m, '.')) {
+        list($plugin, $pmodel) = explode('.', $m, 2);
+        
+        $mpl = Inflector::tableize($pmodel);
+        print '<div class="co-card">';
+        print "<h2>" . _txt('ct.'.$mpl.'.pl') . "</h2>";
+        print "<ul>";
+        
+        foreach($vv_results[$m] as $r) {
+          $field = $vv_plugin_display_fields[$m];
+          
+          $args = array(
+            'plugin'     => $plugin,
+            'controller' => $mpl,
+            'action'     => 'view',
+            $r[$pmodel]['id']
+          );
+          
+          print "<li>" . $this->Html->link($r[$pmodel][$field], $args). "</li>\n";
+        }
+        
+        print "</ul>\n";
+        print "</div>\n";
+      }
+    }
   ?>
   </div>
 </section>

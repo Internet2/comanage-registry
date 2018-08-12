@@ -81,9 +81,6 @@ class CoNotificationsWidgetsController extends SDWController {
     // Edit an existing CO Notifications Widget?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
 
-    // View all existing CO Notifications Widget?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
-
     // View an existing CO Notifications Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
