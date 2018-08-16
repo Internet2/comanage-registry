@@ -227,7 +227,7 @@
 
           // insert the page internal content
           print $this->fetch('content');
-          print '</div>';
+          print '</div>'; // end #content-inner
 
           if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
             print '<div id="right-sidebar" class="mdl-cell mdl-cell--3-col mdl-cell--9-col-tablet mdl-cell--9-col-phone">';
