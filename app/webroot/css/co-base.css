@@ -614,11 +614,13 @@ body.co_people.canvas .titleNavContainer {
   height: 33px;
 }
 /* DASHBOARDS */
-#dashboard-desc,
 #dashboard-tabs {
   clear: both;
+  margin: 1em 0;
+  padding-top: 1em;
 }
 #dashboard-desc {
+  clear: both;
   margin-top: 1em;
 }
 #dashboard-tabs .mdl-tabs__tab-bar {
