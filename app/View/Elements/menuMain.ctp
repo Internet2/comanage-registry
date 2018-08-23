@@ -487,13 +487,24 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     }
 
     // Collaborations Menu
-    print '<li class="collabMenu">';
+    // Load the list of COs so we can count them
+    if($menuContent['cos']) {
+      $cos = $this->viewVars['menuContent']['cos'];
+    } else {
+      $cos = array();
+    }
 
-    $linkContent = '<em class="material-icons" aria-hidden="true">transfer_within_a_station</em><span class="menuTitle">' . _txt('me.collaborations') .
-      '</span><span class="mdl-ripple"></span>';
+    // Only show the Collaborations menu if user has access to more than one CO
+    if(count($cos) > 1) {
 
-    print $this->Html->link($linkContent, '/', array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+      print '<li class="collabMenu">';
 
-    print "</li>";
+      $linkContent = '<em class="material-icons" aria-hidden="true">transfer_within_a_station</em><span class="menuTitle">' . _txt('me.collaborations') .
+        '</span><span class="mdl-ripple"></span>';
+
+      print $this->Html->link($linkContent, '/', array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+
+      print "</li>";
+    }
   ?>
 </ul>
