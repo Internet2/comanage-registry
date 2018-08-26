@@ -84,7 +84,13 @@ _bootstrap_plugin_enum();
 include APP."Lib/lang.php";
 include APP."Lib/util.php";
 
-CakePlugin::loadAll();
+// Allow plugins to inject bootstrapping and routes
+// Contrary to the documentation, this needs to be an array of an array
+CakePlugin::loadAll(array(array(
+	'ignoreMissing' => true,
+	'bootstrap' 		=> true,
+	'routes'				=> true
+)));
 
 /**
  * You can attach event listeners to the request lifecyle as Dispatcher Filter . By Default CakePHP bundles two filters:

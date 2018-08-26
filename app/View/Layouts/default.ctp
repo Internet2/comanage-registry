@@ -41,7 +41,7 @@
     <?php print $this->Html->meta(array('name' => 'viewport', 'content' => 'width=device-width, initial-scale=1.0')) . "\n"; ?>
     <?php print $this->Html->charset() . "\n"; ?>
 
-    <title><?php print _txt('coordinate') . ': ' . filter_var($title_for_layout,FILTER_SANITIZE_STRING); ?></title>
+    <title><?php print filter_var($title_for_layout,FILTER_SANITIZE_STRING); ?></title>
     <!-- <?php
       // Include version number, but only if logged in
       if($this->Session->check('Auth.User')) {
