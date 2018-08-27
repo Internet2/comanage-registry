@@ -303,45 +303,46 @@ function processTemplate($template, $substitutions, $identifiers=array()) {
 }
 
 /**
- * Render menu links for plugin-defined menu items.
+ * Retrieve menu links for plugin-defined menu items.
  * - postcondition: HTML emitted
  *
- * @param HtmlHelper Helper to use to render links
- * @param Array Array of plugins as created by AppController
- * @param String Which menu items to render
- * @param Integer Co Id
+ * @since  COmanage Registry v3.2.0
+ * @param  Array   $plugins Array of plugins as created by AppController
+ * @param  String  $context Which menu items to render
+ * @param  Integer $coId    CO ID
+ * @return Array            Array of menu labels and their URL information
  */
 
-function render_plugin_menus() {
-  // When called from dropMenu element there may be 4 arguments and
-  // when called from secondaryMenu element there may be 3 arguments.
-  $htmlHelper = func_get_arg(0);
-  $plugins = func_get_arg(1);
-  $menu = func_get_arg(2);
-  $coid = null;
-  
-  if(func_num_args() == 4
-     && ($menu == 'coconfig' || $menu == 'copeople')){
-    $coid = func_get_arg(3);
-  }
-  
+function retrieve_plugin_menus($plugins, $menu, $coId=null) {
+  $ret = array();
+ 
   if(!empty($plugins)) {
     foreach(array_keys($plugins) as $plugin) {
       if(isset($plugins[$plugin][$menu])) {
         foreach(array_keys($plugins[$plugin][$menu]) as $label) {
           $args = $plugins[$plugin][$menu][$label];
+          
           if(is_array($args)) {
             $args['plugin'] = Inflector::underscore($plugin);
-            if(!empty($coid)){
-              $args['co'] = $coid;
+            
+            if(!empty($coId)){
+              $args['co'] = $coId;
             }
           }
-          // else probably just a string url
-          print "<li>" . $htmlHelper->link($label, $args) . "</li>\n";
+          
+          // Migrate 'icon' to its own key
+          if(!empty($args['icon'])) {
+            $ret[$label]['icon'] = $args['icon'];
+            unset($args['icon']);
+          }
+          
+          $ret[$label]['url'] = $args;
         }
       }
     }
   }
+  
+  return $ret;
 }
 
 /**

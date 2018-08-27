@@ -253,6 +253,7 @@ body.logged-in #user-menu {
   line-height: 1.3em;
   padding: 0.5em 1em;
   border-bottom: 1px solid #dae7ef;
+  color: #444;
 }
 #notifications .notification a {
   display: block;
@@ -499,9 +500,9 @@ form#notificationStatus {
 #breadcrumbs {
   font-size: 0.9em;
 }
-body.co_petitions.view #titleNavContainer,
-body.co_person_roles #titleNavContainer,
-body.co_people.canvas #titleNavContainer {
+body.co_petitions.view .titleNavContainer,
+body.co_person_roles .titleNavContainer,
+body.co_people.canvas .titleNavContainer {
   padding-bottom: 0;
 }
 .pageTitle {
@@ -611,6 +612,35 @@ body.co_people.canvas #titleNavContainer {
   position: relative;
   top: -2px;
   height: 33px;
+}
+/* DASHBOARDS */
+#dashboard-tabs {
+  clear: both;
+  margin: 1em 0;
+  padding-top: 1em;
+}
+#dashboard-desc {
+  clear: both;
+  margin-top: 1em;
+}
+#dashboard-tabs .mdl-tabs__tab-bar {
+  justify-content: left;
+}
+#dashboard-tabs .mdl-tabs__tab {
+  position: relative;
+  top: -1px;
+}
+#dashboard-tabs .mdl-tabs__tab.selected {
+  background-color: #f8f8f8;
+  border: 1px solid #f2f2f2;
+  border-bottom: none;
+}
+.mini-spinner {
+  position: relative;
+}
+/* hide H1 tags found in URL widgets pointing into COmanage for both cleaner styling and accessibility */
+.dashboard-widget-container .titleNavContainer {
+  display: none;
 }
 /* REDIRECT PAGE */
 #redirect-box {

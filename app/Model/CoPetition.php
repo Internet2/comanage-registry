@@ -1924,7 +1924,8 @@ class CoPetition extends AppModel {
           $this->Co->CoTermsAndConditions->CoTAndCAgreement->record($coTAndCId,
                                                                     $coPersonId,
                                                                     $coPersonId,
-                                                                    $requestData['CoTermsAndConditions'][$coTAndCId]);
+                                                                    $requestData['CoTermsAndConditions'][$coTAndCId],
+                                                                    false);
           
           // Also create a Petition History Record of the agreement
           

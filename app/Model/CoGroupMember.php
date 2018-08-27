@@ -291,11 +291,12 @@ class CoGroupMember extends AppModel {
    * @param  Integer Maximium number of results to retrieve (or null)
    * @param  Integer Offset to start retrieving results from (or null)
    * @param  String Field to sort by (or null)
+   * @param  Boolean Whether to only return valid (validfrom/through) entries
    * @return Array Group information, as returned by find
    * @todo   Rewrite to a custom find type
    */
   
-  public function findForCoGroup($coGroupId, $limit=null, $offset=null, $order=null) {
+  public function findForCoGroup($coGroupId, $limit=null, $offset=null, $order=null, $validOnly=false) {
     $args = array();
     $args['joins'][0]['table'] = 'co_groups';
     $args['joins'][0]['alias'] = 'CoGroup';
@@ -306,6 +307,21 @@ class CoGroupMember extends AppModel {
     );
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
     $args['conditions']['CoGroup.id'] = $coGroupId;
+    if($validOnly) {
+      // Only pull currently valid group memberships
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_from IS NULL',
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_through IS NULL',
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      );
+    }
     $args['contain'] = false;
     
     return $this->findForUpdate($args['conditions'],

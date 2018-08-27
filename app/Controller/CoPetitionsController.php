@@ -1961,7 +1961,7 @@ class CoPetitionsController extends StandardController {
     // Edit an existing CO Petition?
     $p['edit'] = false;
     
-    // Match against existing CO People? If the match policy is Advisory or Automatic, we
+    // Match against existing CO People? If the match policy is Advisory, we
     // allow matching to take place as long as $canInitiate is also true. (Note we don't
     // necessarily have a petition ID.)
     // Note this same permission exists in CO People
@@ -1970,8 +1970,7 @@ class CoPetitionsController extends StandardController {
                                                                     array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
     $p['match'] = (($roles['cmadmin'] || $canInitiate)
                    &&
-                   ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
-                    || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
+                   ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory));
     
     $pool = isset($this->viewVars['pool_org_identities']) && $this->viewVars['pool_org_identities'];
     

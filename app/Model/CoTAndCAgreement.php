@@ -86,12 +86,13 @@ class CoTAndCAgreement extends AppModel {
    * @param  Integer CO Person identifier of CO Person agreeing to T&C
    * @param  Integer CO Person identifier of CO Person actually clicking agree button (admins can agree on behalf of other CO people)
    * @param  String Identifier of $actorCoPersonId
+   * @param  Boolean Whether to trigger provisioning
    * @return Boolean True if successful
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function record($coTAndCId, $coPersonId, $actorCoPersonId, $identifier) {
+  public function record($coTAndCId, $coPersonId, $actorCoPersonId, $identifier, $provision=true) {
     // Pull the T&C label
     
     $label = $this->CoTermsAndConditions->field('description',
@@ -114,7 +115,7 @@ class CoTAndCAgreement extends AppModel {
     // Call create in case we have multiple agreements written in a transaction
     $this->create($tandcData);
     
-    if(!$this->save($tandcData)) {
+    if(!$this->save($tandcData, array('provision' => $provision))) {
       throw new RuntimeException(_txt('er.db.save'));
     }
     

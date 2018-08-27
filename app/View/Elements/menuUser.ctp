@@ -33,7 +33,10 @@
     <?php
       $options = array(
         'type' => 'get',
-        'url' => array('action' => 'search')
+        'url' => array(
+          'plugin' => null,
+          'action' => 'search'
+        )
       );
       print $this->Form->create('CoDashboard', $options);
       print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search') . '</span><em class="material-icons">search</em>');

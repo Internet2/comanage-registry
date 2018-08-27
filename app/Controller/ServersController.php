@@ -43,6 +43,7 @@ class ServersController extends StandardController {
   public $requires_co = true;
   
   public $view_contains = array(
+    'HttpServer',
     'LdapServer',
     'Oauth2Server',
     'SqlServer'

@@ -36,6 +36,7 @@ class Server extends AppModel {
   public $belongsTo = array("Co");
   
   public $hasOne = array(
+    "HttpServer" => array('dependent' => true),
     "LdapServer" => array('dependent' => true),
     "Oauth2Server" => array('dependent' => true),
     "SqlServer" => array('dependent' => true)
@@ -60,7 +61,8 @@ class Server extends AppModel {
       'allowEmpty' => false
     ),
     'server_type' => array(
-      'rule' => array('inList', array(ServerEnum::LdapServer,
+      'rule' => array('inList', array(ServerEnum::HttpServer,
+                                      ServerEnum::LdapServer,
                                       ServerEnum::Oauth2Server,
                                       ServerEnum::SqlServer)),
       'required' => true,
@@ -76,6 +78,7 @@ class Server extends AppModel {
   
   // Mapping from server type to model
   public $serverTypeModels = array(
+    ServerEnum::HttpServer   => 'HttpServer',
     ServerEnum::LdapServer   => 'LdapServer',
     ServerEnum::Oauth2Server => 'Oauth2Server',
     ServerEnum::SqlServer    => 'SqlServer'

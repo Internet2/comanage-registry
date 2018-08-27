@@ -723,8 +723,7 @@ class CoPeopleController extends StandardController {
                                                                                     array('CoEnrollmentFlow.id' => $this->request->named['coef']));
       $p['match'] = (($roles['cmadmin'] || $flowAuthorized)
                      &&
-                     ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory
-                      || $p['match_policy'] == EnrollmentMatchPolicyEnum::Automatic));
+                     ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory));
     }
     
     if(!empty($this->request->params['named']['copetitionid'])) {

@@ -1,0 +1,133 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Announcements Widget Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="co_announcement_channels">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="status" type="C" size="2" />
+    <field name="author_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="reader_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="register_notifications" type="L" />
+    <field name="publish_html" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_announcement_channel_id" type="I">
+      <constraint>REFERENCES cm_co_announcement_channels(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />    
+    
+    <index name="co_announcement_channels_i1">
+      <col>co_id</col>
+    </index>
+    
+    <index name="co_announcement_channels_i2">
+      <col>co_announcement_channel_id</col>
+    </index>
+    
+<!-- XXX name is indexed for searching, but really needs to be lower() indexed -->
+    <index name="co_announcement_channels_i3">
+      <col>name</col>
+    </index>
+  </table>
+  
+  <table name="co_announcements">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_announcement_channel_id" type="I">
+      <constraint>REFERENCES cm_co_announcement_channels(id)</constraint>
+    </field>
+    <field name="title" type="C" size="256" />
+    <field name="body" type="X" size="4000" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <!-- For now this is sort of like actor_identifier, but as an RFE we could
+         allow this to be set (eg so an admin can post on behalf of someone else)
+    -->
+    <field name="poster_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_announcement_id" type="I">
+      <constraint>REFERENCES cm_co_announcements(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_announcements_i1">
+      <col>co_announcements_widget_id</col>
+    </index>
+    
+    <index name="co_announcements_i2">
+      <col>co_announcement_id</col>
+    </index>
+    
+<!-- XXX title and body are indexed for searching, but really need to be lower() indexed -->
+    <index name="co_announcements_i3">
+      <col>title</col>
+    </index>
+    
+    <index name="co_announcements_i4">
+      <col>body</col>
+    </index>
+  </table>
+  
+  <table name="co_announcements_widgets">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_dashboard_widget_id" type="I">
+      <constraint>REFERENCES cm_co_dashboard_widgets(id)</constraint>
+    </field>
+    <field name="co_announcement_channel_id" type="I">
+      <constraint>REFERENCES cm_co_announcement_channels(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_announcements_widgets_i1">
+      <col>co_dashboard_widget_id</col>
+      <unique />
+    </index>
+  </table>
+</schema>

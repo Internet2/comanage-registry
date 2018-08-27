@@ -2395,6 +2395,25 @@
     </index>
   </table>
   
+  <table name="http_servers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
+    <field name="serverurl" type="C" size="256" />
+    <field name="username" type="C" size="128" />
+    <field name="password" type="C" size="80" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="http_servers_i1">
+      <col>server_id</col>
+    </index>
+  </table>
+  
   <table name="ldap_servers">
     <field name="id" type="I">
       <key />

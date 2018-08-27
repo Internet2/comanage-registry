@@ -28,6 +28,7 @@
 class ActionEnum
 {
   // Codes beginning with 'X' (eg: 'XABC') are reserved for local use
+  // Codes beginning with a lowercase 'p' (eg: 'pABC') are reserved for plugin use
   const AuthenticatorDeleted            = 'DAUT';
   const AuthenticatorEdited             = 'EAUT';
   const AuthenticatorStatusEdited       = 'EATS';
@@ -558,6 +559,8 @@ class RequiredNameFieldsEnum
 
 class ServerEnum
 {
+  // When adding a new server type, be sure to add it to ServersController::view_contains
+  const HttpServer    = 'HT';
   const LdapServer    = 'LD';
   const Oauth2Server  = 'O2';
   // Generic SQL Server, not "MS SQL Server"

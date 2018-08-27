@@ -116,6 +116,12 @@
                                             'action' => 'edit',
                                             $c['CoDashboard']['id']),
                                       array('class' => 'editbutton')) . "\n";
+              
+              print $this->Html->link(_txt('op.edit-a', array(_txt('ct.co_dashboard_widgets.pl'))),
+                                      array('controller'  => 'co_dashboard_widgets',
+                                            'action'      => 'index',
+                                            'codashboard' => $c['CoDashboard']['id']),
+                                      array('class' => 'editbutton')) . "\n";
             }
 
             if($permissions['delete']) {

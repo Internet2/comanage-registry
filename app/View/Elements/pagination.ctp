@@ -111,7 +111,7 @@
         class="pagination-form"
         method="get"
         onsubmit="limitPage(this.pageLimit.value,recordCount,currentPage); return false;">
-    <?php print _txt('fd.page.limit.display'); ?>
+    <label for="pageLimit"><?php print _txt('fd.page.limit.display'); ?></label>
     <select name="pageLimit" id="pageLimit">
       <option value="25">25</option>
       <option value="50">50</option>
