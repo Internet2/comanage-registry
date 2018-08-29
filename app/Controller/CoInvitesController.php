@@ -386,9 +386,26 @@ class CoInvitesController extends AppController {
         $this->Flash->set($confirm ? _txt('rs.inv.conf') : _txt('rs.inv.dec'), array('key' => 'success'));
       }
       
-      // If a login identifier was provided, force a logout
+      // If a login identifier was provided, redirect to a meaningful page
       if($loginIdentifier) {
-        $this->redirect("/auth/logout");
+        if(!empty($invite['CoInvite']['email_address_id'])) {
+          // if we confirmed an address, review the final result
+
+          $redirect = array(
+            'controller' => 'email_addresses',
+            'action'     => 'view',
+            $invite['CoInvite']['email_address_id']
+          );
+        } else {
+          // Else review the user information
+
+          $redirect = array(
+            'controller' => 'co_people',
+            'action'     => 'canvas',
+            $invite['CoInvite']['co_person_id']
+          );
+        }
+        $this->redirect($redirect);
       } else {
         $this->redirect("/");
       }
