@@ -371,13 +371,7 @@ class CoInvitesController extends AppController {
         // supported enrollment flow involves a new Org Identity for the CO, so
         // there won't be an existing CO Person identity linked to use instead.
         // At some point (ie: additional Role enrollment; CO-310) this will change.
-        
-        $token = Security::generateAuthKey();
-        
-        $this->CoInvite->CoPetition->id = $invite['CoPetition']['id'];
-        $this->CoInvite->CoPetition->saveField('enrollee_token', $token);
-        
-        $redirect['token'] = $token;
+        $redirect['token'] = $this->CoInvite->CoPetition->ensureEnrolleeToken($invite['CoPetition']['id']);
         
         $this->redirect($redirect);
       } elseif(!empty($invite['CoInvite']['email_address_id'])) {
