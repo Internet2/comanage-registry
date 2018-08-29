@@ -1729,30 +1729,48 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function execute_sendConfirmation($id) {
-    $this->CoPetition->sendConfirmation($id, $this->Session->read('Auth.User.co_person_id'));
+
+    $ea = $this->CoPetition->needConfirmation($id);
+    if(!empty($ea)) {
+
+      $this->CoPetition->sendConfirmation($id, $ea, $this->Session->read('Auth.User.co_person_id'));
     
-    $this->CoPetition->updateStatus($id,
+      $this->CoPetition->updateStatus($id,
                                     PetitionStatusEnum::PendingConfirmation, 
                                     $this->Session->read('Auth.User.co_person_id'));
     
-    // The step is done
+      // The step is done
     
-    $debug = Configure::read('debug');
+      $debug = Configure::read('debug');
     
-    if(!$debug) {
-      $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
-    } else {
-      // We need to populate the view var to render the debug link
-      $coInviteId = $this->CoPetition->field('co_invite_id',
+      if(!$debug) {
+        $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
+      } else {
+        // We need to populate the view var to render the debug link
+        $coInviteId = $this->CoPetition->field('co_invite_id',
                                              array('CoPetition.id' => $id));
       
-      if($coInviteId) {
-        $args = array();
-        $args['conditions']['CoInvite.id'] = $coInviteId;
-        $args['contain'] = false;
+        if($coInviteId) {
+          $args = array();
+          $args['conditions']['CoInvite.id'] = $coInviteId;
+          $args['contain'] = false;
         
-        $this->set('vv_co_invite', $this->CoPetition->CoInvite->find('first', $args));
+          $this->set('vv_co_invite', $this->CoPetition->CoInvite->find('first', $args));
+        }
       }
+    }
+    else {
+
+      // there are no unconfirmed addresses left, directly proceed to processConfirmation
+      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      $this->CoPetition->updateStatus($id, PetitionStatusEnum::Confirmed, $coPersonId);
+
+      $redirect = $this->generateDoneRedirect('processConfirmation', $id);
+
+      // we need to switch from PetitionerToken to EnrolleeToken, which is normally done in the
+      // process of sending an invite and confirming it
+      $redirect['token'] = $this->CoPetition->ensureEnrolleeToken($id);
+      $this->redirect($redirect);
     }
   }
   

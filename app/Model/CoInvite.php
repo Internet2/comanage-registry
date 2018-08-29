@@ -106,7 +106,7 @@ class CoInvite extends AppModel {
       // Check invite validity
       
       if(time() < strtotime($invite['CoInvite']['expires'])) {
-        if($verifyEmail) {
+        if($verifyEmail && $confirm) {
           // Verifying an email address
           
           try {
@@ -121,12 +121,9 @@ class CoInvite extends AppModel {
             $dbc->rollback();
             throw new RuntimeException($e->getMessage());
           }
-        } elseif(isset($invite['CoPetition']['id'])) {
-          // Before we can delete the invitation, we need to unlink it from the petition
-          
-          $this->CoPetition->id = $invite['CoPetition']['id'];
-          $this->CoPetition->saveField('co_invite_id', null);
-        } else {
+        }
+
+        if(!isset($invite['CoPetition']['id'])) {
           // Default (ie: non-enrollment flow) behavior: update CO Person
           
           $this->CoPerson->id = $invite['CoPerson']['id'];
@@ -137,58 +134,7 @@ class CoInvite extends AppModel {
           }
         }
         
-        // Mark the email address associated with this invite as verified.
-        
-        if($confirm) {
-          // We're actually verifying an org identity email address even though we're
-          // getting to the EmailAddress object via CoPerson
-          
-          $orgId = null;
-          
-          if(isset($invite['CoPetition']['enrollee_org_identity_id'])) {
-            $orgId = $invite['CoPetition']['enrollee_org_identity_id'];
-          } elseif(empty($invite['CoPetition'])) {
-            // Try to find the org identity associated with this invite
-            
-            $args = array();
-            $args['conditions']['CoOrgIdentityLink.co_person_id'] = $invite['CoPerson']['co_person_id'];
-            $args['conditions']['EmailAddress.mail'] = $invite['CoInvite']['mail'];
-            $args['joins'][0]['table'] = 'cm_email_addresses';
-            $args['joins'][0]['alias'] = 'EmailAddress';
-            $args['joins'][0]['type'] = 'INNER';
-            $args['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.org_identity_id=EmailAddress.org_identity_id';
-            $args['contain'] = false;
-            
-            // This *should* generate one result...
-            $link = $this->CoPerson->CoOrgIdentityLink->find('first', $args);
-            
-            if(!empty($link['CoOrgIdentityLink']['org_identity_id'])) {
-              $orgId = $link['CoOrgIdentityLink']['org_identity_id'];
-            }
-          }
-          
-          if($orgId) {
-            try {
-              $this->CoPerson->EmailAddress->verify($orgId, null, $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
-            }
-            catch(Exception $e) {
-              $dbc->rollback();
-              throw new RuntimeException($e->getMessage());
-            }
-          }
-        }
-        
-        // Toss the invite
-        $this->delete($invite['CoInvite']['id']);
       } else {
-        if(!empty($invite['CoPetition']['id'])) {
-          // Before we can delete the invitation, we need to unlink it from the petition
-          
-          $this->CoPetition->id = $invite['CoPetition']['id'];
-          $this->CoPetition->saveField('co_invite_id', null);
-        }
-        
-        $this->delete($invite['CoInvite']['id']);
         
         // Record a history record that the invitation expired
         try {
@@ -209,6 +155,17 @@ class CoInvite extends AppModel {
         throw new OutOfBoundsException(_txt('er.inv.exp'));
       }
       
+      if(!empty($invite['CoPetition']['id'])) {
+
+        // Before we can delete the invitation, we need to unlink it from the petition
+
+        $this->CoPetition->id = $invite['CoPetition']['id'];
+        $this->CoPetition->saveField('co_invite_id', null);
+      }
+
+      // Toss the invite
+      $this->delete($invite['CoInvite']['id']);
+
       // Create a history record
       
       if($verifyEmail) {
