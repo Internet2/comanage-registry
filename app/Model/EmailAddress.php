@@ -196,15 +196,13 @@ class EmailAddress extends AppModel {
       
       $curdata = $this->find('first', $args);
       
+      $this->data['EmailAddress']['verified'] = $curdata['EmailAddress']['verified'];
       if(!$trustVerified) {
         if(!empty($curdata['EmailAddress']['mail'])
            && !empty($this->data['EmailAddress']['mail'])
            && $curdata['EmailAddress']['mail'] != $this->data['EmailAddress']['mail']) {
           // Email address was changed, flag as unverified
           $this->data['EmailAddress']['verified'] = false;
-        } else {
-          // Use prior setting
-          $this->data['EmailAddress']['verified'] = $curdata['EmailAddress']['verified'];
         }
       }
       
@@ -329,6 +327,58 @@ class EmailAddress extends AppModel {
     }
     catch(Exception $e) {
       throw new RuntimeException($e->getMessage());
+    }
+  }
+
+  /**
+   * Check for copied email addresses with different verified/unverified statusses
+   *
+   * @since  COmanage Registry vTODO
+   * @param  Array   list of Integer Org Identity IDs
+   * @param  Integer CoPersonId
+   * @throws RuntimeException
+   */
+  public function testVerifiedAddresses($ois, $coPersonId) {
+
+    // When EmailAddress records are copied during enrollment, the verification status is lost. Even if that
+    // were fixed, if a user enters a manual email address that just happens to match with one of the
+    // verified addresses, that address can be considered verified immediately. This could be fixed partially
+    // by changes to the datamodel (making EmailAddress unique for combinations of OrgIdentity and CoPerson),
+    // but all the possible exceptions make that complicated.
+
+    $args=array();
+    if(!empty($ois) && !empty($coPersonId)) {
+      $args['conditions']['OR']['EmailAddress.org_identity_id']=$ois;
+      $args['conditions']['OR']['EmailAddress.co_person_id']=$coPersonId;
+    } else if(!empty($ois)) {
+      $args['conditions']['EmailAddress.org_identity_id']=$ois;
+    } else {
+      $args['conditions']['EmailAddress.co_person_id']=$coPersonId;
+    }
+    $args['contain']=false;
+
+    $emails = $this->find('all',$args);
+
+    $verifiedAddresses=array();
+    if(!empty($emails)) {
+      foreach($emails as $ea) {
+        if($ea['EmailAddress']['verified']) {
+          $verifiedAddresses[strtolower($ea['EmailAddress']['mail'])] = true;
+        }
+      }
+
+      foreach($emails as $ea) {
+        if(!$ea['EmailAddress']['verified']) {
+
+          if(isset($verifiedAddresses[strtolower($ea['EmailAddress']['mail'])])) {
+            $this->id = $ea['EmailAddress']['id'];
+
+            if(!$this->saveField('verified', true, array('callbacks' => false))) {
+              throw new RuntimeException(_txt('er.db.save'));
+            }
+          }
+        }
+      }
     }
   }
 }
