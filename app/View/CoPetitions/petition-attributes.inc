@@ -211,7 +211,9 @@
 
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
-          if($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view') {
+          if( (($mvpa && $coe_attributes[0]['mvpa_required']) 
+              || (!$mvpa && $coe_attributes[0]['required']))
+             && $this->action != 'view') {
             print "<span class=\"required\">*</span>\n";
           }
           
@@ -294,7 +296,20 @@
                 $args['value'] = $ea['default'];
                 $args['disabled'] = !$ea['modifiable'];
               }
-              $args['empty'] = !$ea['required'];
+
+              // An attribute is required if (1) it is part of an MVPA that is required
+              // and the field itself is required, or (2) it is not part of an MVPA and
+              // the field itself is required
+              $args['required'] = false;
+              if(isset($ea['mvpa_required']) && $ea['mvpa_required']) {
+                  $args['required'] = $ea['required'];
+              } else {
+                $args['required'] = $ea['required'];
+              }
+
+              // Always show an empty field, even if required
+              // This forces users to choose (CO-1655)
+              $args['empty'] = '';
               $args['class'] = 'co-selectfield';
               $args['aria-label'] = $m;
 

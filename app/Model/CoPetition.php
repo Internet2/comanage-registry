@@ -1625,6 +1625,14 @@ class CoPetition extends AppModel {
     $coData = array();
     $coRoleData = array();
     
+    // set enrollmentflow related base data to pass basic validation
+    $requestData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
+    $requestData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
+
+    // if no CoPerson available yet, trick validation using a '0'
+    $requestData['EnrolleeCoPersonRole']['co_person_id'] = empty($coPersonId) ? 0 : $coPersonId;
+    $requestData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
+
     // Validate the provided attributes
     
     $CmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
@@ -1731,9 +1739,6 @@ class CoPetition extends AppModel {
     }
     
     if(!empty($coData) && !$coPersonId) {
-      // Insert some additional attributes
-      $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
-      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       
       // Save the CO Person Data
       
@@ -1792,9 +1797,8 @@ class CoPetition extends AppModel {
     }
     
     if(!empty($coRoleData) && !$coPersonRoleId) {
-      // Insert some additional attributes
+      // Link the Role to the Person
       $coRoleData['EnrolleeCoPersonRole']['co_person_id'] = $coPersonId;
-      $coRoleData['EnrolleeCoPersonRole']['status'] = StatusEnum::Pending;
       
       // Set the current timezone for CoPersonRole::afterSave
       $this->EnrolleeCoPersonRole->setTimeZone($this->tz);
@@ -2994,6 +2998,7 @@ class CoPetition extends AppModel {
       // missing) related models.
       $errFields = $this->$pmodel->invalidFields();
       
+      $fail = false;
       if(!empty($errFields)) {
         $fail = true;
       }
@@ -3002,7 +3007,7 @@ class CoPetition extends AppModel {
       
       $v = $this->validateRelated($pmodel, $requestData, $ret, $efAttrs);
       
-      if($v) {
+      if($v && !$fail) {
         $ret = $v;
       } else {
         throw new RuntimeException(_txt('er.validation'));
