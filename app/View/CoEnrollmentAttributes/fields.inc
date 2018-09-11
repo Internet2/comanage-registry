@@ -86,91 +86,82 @@
   }
   
   function toggle_attr_def_div() {
-    // For now, only CO Person Role attributes (type 'r'), Organizational Identity
-    // attributes (type 'o'), or Extended Attributes (type 'x') can have default values.
-    
     var curattr = document.getElementById('CoEnrollmentAttributeAttribute').value;
     var attrtype = curattr[0];
     
-    if(attrtype == "r" || attrtype == "o" || attrtype == "x" || attrtype == "g") {
-      $("#attr_def_div").show("fade", { "direction" : "up" });
+    // Adjust the gadgets shown
       
-      // Adjust the gadgets shown
+    $("#attr_def_val_div").hide();
+    $("#attr_def_val_affil_div").hide();
+    $("#attr_def_val_cou_div").hide();
+    $("#attr_def_val_date_div").hide();
+    $("#attr_def_val_enum_div").hide();
+    $("#attr_def_val_group_div").hide();
+    $("#attr_def_val_sponsor_div").hide();
       
-      $("#attr_def_val_div").hide();
-      $("#attr_def_val_affil_div").hide();
-      $("#attr_def_val_cou_div").hide();
-      $("#attr_def_val_date_div").hide();
-      $("#attr_def_val_enum_div").hide();
-      $("#attr_def_val_group_div").hide();
-      $("#attr_def_val_sponsor_div").hide();
+    var curval = document.getElementById('CoEnrollmentAttributeDefault0Value').value;
       
-      var curval = document.getElementById('CoEnrollmentAttributeDefault0Value').value;
+    var curattrarr = curattr.split(":");
+    var curattrcode = curattrarr[0];
+    var curattrname = curattrarr[1];
       
-      var curattrarr = curattr.split(":");
-      var curattrcode = curattrarr[0];
-      var curattrname = curattrarr[1];
+    // if x:foo then pull foo and lookup in $vv_ext_attr_types to find type
+    // (write javascript array based on $vv_ext contents?)
       
-      // if x:foo then pull foo and lookup in $vv_ext_attr_types to find type
-      // (write javascript array based on $vv_ext contents?)
+    var enums = enum_for_attr(curattr);
       
-      var enums = enum_for_attr(curattr);
-      
-      if(enums != undefined) {
-        // Enumerations are defined for the attribute, so generate an appropriate select
-        var options = "<option value=''></option>";
-        for(var i=0;i < enums.length;i++) {
-          options += "<option value='" + enums[i] + "'>" + enums[i] + "</option>";
-        }
-        $("#def_enum_val").find('option').remove().end().append($(options));
-        
-        document.getElementById('def_enum_val').value = curval;
-        $("#attr_def_val_enum_div").show("fade");
-      } else if((curattrcode == "o" || curattrcode == "r")
-         && curattrname == "affiliation") {
-        // Set current value before showing
-        document.getElementById('def_affil_val').value = curval;
-        $("#attr_def_val_affil_div").show("fade");
-      } else if(curattrcode == "r" && curattrname == "cou_id") {
-        // Set current value before showing
-        document.getElementById('def_cou_val').value = curval;
-        $("#attr_def_val_cou_div").show("fade");
-      } else if(curattrcode == "r" && curattrname == "sponsor_co_person_id") {
-        // Set current value before showing
-        document.getElementById('def_sponsor_val').value = curval;
-        $("#attr_def_val_sponsor_div").show("fade");
-      } else if((curattrcode == "r"
-                 && (curattrname == "valid_from" || curattrname == "valid_through"))
-                ||
-                (curattrcode == "x"
-                 && ext_attr_type(curattrname) == "<?php print ExtendedAttributeEnum::Timestamp; ?>")) {
-        // Set current value before showing
-        var fixedre = /^[0-9]{4}\-[0-2][0-9]\-[0-9]{2}$/;   // YYYY-MM-DD
-        var nextre = /^[0-2][0-9]\-[0-9]{2}$/;              // MM-DD
-        var offsetre = /^\+[0-9]+$/;                        // +DD
-        
-        if(fixedre.test(curval)) {
-          document.getElementById('def_date_val_fixed').value = curval;
-          set_attr_def_date_radio('fixed');
-        } else if(nextre.test(curval)) {
-          document.getElementById('def_date_val_next').value = curval;
-          set_attr_def_date_radio('next');
-        } else if(offsetre.test(curval)) {
-          // Trim the leading plus (it will get added back to curval by set_attr_def_date_radio)
-          document.getElementById('def_date_val_offset').value = curval.replace("+", "");
-          set_attr_def_date_radio('offset');
-        }
-        
-        $("#attr_def_val_date_div").show("fade");
-      } else if(curattrcode == "g") {
-        // Set current value before showing
-        document.getElementById('def_group_val').value = curval;
-        $("#attr_def_val_group_div").show("fade");
-      } else {
-        $("#attr_def_val_div").show();
+    if(enums != undefined) {
+      // Enumerations are defined for the attribute, so generate an appropriate select
+      var options = "<option value=''></option>";
+      for(var i=0;i < enums.length;i++) {
+        options += "<option value='" + enums[i] + "'>" + enums[i] + "</option>";
       }
+      $("#def_enum_val").find('option').remove().end().append($(options));
+        
+      document.getElementById('def_enum_val').value = curval;
+      $("#attr_def_val_enum_div").show("fade");
+    } else if((curattrcode == "o" || curattrcode == "r")
+       && curattrname == "affiliation") {
+      // Set current value before showing
+      document.getElementById('def_affil_val').value = curval;
+      $("#attr_def_val_affil_div").show("fade");
+    } else if(curattrcode == "r" && curattrname == "cou_id") {
+      // Set current value before showing
+      document.getElementById('def_cou_val').value = curval;
+      $("#attr_def_val_cou_div").show("fade");
+    } else if(curattrcode == "r" && curattrname == "sponsor_co_person_id") {
+      // Set current value before showing
+      document.getElementById('def_sponsor_val').value = curval;
+      $("#attr_def_val_sponsor_div").show("fade");
+    } else if((curattrcode == "r"
+               && (curattrname == "valid_from" || curattrname == "valid_through"))
+              ||
+              (curattrcode == "x"
+               && ext_attr_type(curattrname) == "<?php print ExtendedAttributeEnum::Timestamp; ?>")) {
+      // Set current value before showing
+      var fixedre = /^[0-9]{4}\-[0-2][0-9]\-[0-9]{2}$/;   // YYYY-MM-DD
+      var nextre = /^[0-2][0-9]\-[0-9]{2}$/;              // MM-DD
+      var offsetre = /^\+[0-9]+$/;                        // +DD
+        
+      if(fixedre.test(curval)) {
+        document.getElementById('def_date_val_fixed').value = curval;
+        set_attr_def_date_radio('fixed');
+      } else if(nextre.test(curval)) {
+        document.getElementById('def_date_val_next').value = curval;
+        set_attr_def_date_radio('next');
+      } else if(offsetre.test(curval)) {
+        // Trim the leading plus (it will get added back to curval by set_attr_def_date_radio)
+        document.getElementById('def_date_val_offset').value = curval.replace("+", "");
+        set_attr_def_date_radio('offset');
+      }
+
+      $("#attr_def_val_date_div").show("fade");
+    } else if(curattrcode == "g") {
+      // Set current value before showing
+      document.getElementById('def_group_val').value = curval;
+      $("#attr_def_val_group_div").show("fade");
     } else {
-      $("#attr_def_div").hide("fade", { "direction" : "up" });
+      $("#attr_def_val_div").show();
     }
   }
   
@@ -494,7 +485,7 @@
         </td>
       </tr>
     </tbody>
-    <tbody id="attr_def_div" style="display: none">
+    <tbody id="attr_def_div">
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td width="50%">
           <b><?php print _txt('fd.ed.default'); ?></b><br />
