@@ -25,24 +25,31 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 ?>
-<ul>
+<ul class="widget-announcements widget-list">
 <?php foreach($vv_widget_announcements as $a): ?>
   <li>
-    <b><?php print $a['CoAnnouncement']['title']; ?></b>
+    <div class="announcement-title"><?php print $a['CoAnnouncement']['title']; ?></div>
     <?php if(!empty($a['PosterCoPerson']['PrimaryName']['id'])): ?>
-      <br /><i><?php print filter_var(generateCn($a['PosterCoPerson']['PrimaryName']), FILTER_SANITIZE_SPECIAL_CHARS); ?></i>
+      <div class="announcement-meta">
+        <em class="announcement-poster"><?php print filter_var(generateCn($a['PosterCoPerson']['PrimaryName']), FILTER_SANITIZE_SPECIAL_CHARS); ?>,</em>
+        <em class="announcement-created"><?php print  $this->Time->format('Y-n-d g:i a', $a['CoAnnouncement']['created']); ?></em>
+      </div>
     <?php endif; // PrimaryName ?>
-    <p>
+    <div class="announcement-body">
       <?php
         // Render HTML or not according to channel configuration
         if(isset($a['CoAnnouncementChannel']['publish_html']) && $a['CoAnnouncementChannel']['publish_html']) {
           print $a['CoAnnouncement']['body'];
         } else {
-          print filter_var($a['CoAnnouncement']['body'], FILTER_SANITIZE_SPECIAL_CHARS);
+          // Also insert <br/> tags before newlines within the sanitized string
+          $announcementBody = filter_var($a['CoAnnouncement']['body'], FILTER_SANITIZE_SPECIAL_CHARS);
+          // the FILTER converts all newlines to &#10;, so simply convert them:
+          $announcementBody = str_replace('&#10;', '<br />', $announcementBody);
+          print $announcementBody;
         }
       ?>
       <?php  ?>
-    </p>
+    </div>
   </li>
 <?php endforeach; ?>
 </ul>

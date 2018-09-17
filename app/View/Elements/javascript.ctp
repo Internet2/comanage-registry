@@ -320,6 +320,14 @@
     });
 
     // Datepickers
+
+    <?php /* For all calls to datepicker, wrap the calling date field in a
+      container of class .modelbox-data: this allows us to show the datepicker next to
+      the appropriate field because jQuery drops the div at the bottom of the body and
+      that approach doesn't work well with Material Design Light (MDL). If you do not
+      do this, the datepicker will float up to the top of the browser window. See
+      app/View/CoGroupMembers for an example. */ ?>
+
     $(".datepicker").datepicker({
       changeMonth: true,
       changeYear: true,

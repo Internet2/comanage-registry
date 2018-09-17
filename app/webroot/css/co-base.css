@@ -59,8 +59,13 @@ h1.firstPrompt {
   margin: 0.5em 0;
 }
 h2 {
-  font-size: 24px;
-  line-height: 28px;
+  font-size: 2em;
+  line-height: 2.5em;
+  margin: 0;
+}
+h3 {
+  font-size: 1.6em;
+  line-height: 1.6em;
   margin: 0;
 }
 a {
@@ -641,6 +646,25 @@ body.co_people.canvas .titleNavContainer {
 /* hide H1 tags found in URL widgets pointing into COmanage for both cleaner styling and accessibility */
 .dashboard-widget-container .titleNavContainer {
   display: none;
+}
+/* DASHBOARD WIDGETS */
+.widget-list {
+  list-style: none;
+  margin-top: 0;
+  padding-left: 0;
+}
+.widget-list li {
+  padding: 1em;
+}
+.widget-list li:nth-child(2n+1) {
+  background-color: #f8f8f8;
+}
+.widget-list .announcement-title {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+.widget-list .announcement-body {
+  padding-top: 1em;
 }
 /* REDIRECT PAGE */
 #redirect-box {

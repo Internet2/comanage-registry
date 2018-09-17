@@ -398,7 +398,8 @@
   body.petitionerAttributes .modelbox {
     margin: 0 0.5em 1.5em 0;
   }
-  /* SERVICE PORTAL */
+  /* DASHBOARDS and WIDGETS */
+  /* Service Portal */
   #co-services {
     display: flex;
     flex-direction: row;
@@ -414,6 +415,9 @@
     min-height: 150px;
     min-width: 0;
     width: 180px;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);
+    box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);
   }
   .co-dept ul.form-list .field-title {
     font-weight: normal;
@@ -434,6 +438,24 @@
     position: absolute;
     bottom: 1em;
     left: 1em;
+  }
+  /* Announcements Widget */
+  .widget-list li {
+    padding: 1.25em 1.5em;
+    margin: 0 0.25em 1.25em 0;
+    border: 1px solid #eee;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);
+    box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);
+  }
+  .widget-list .announcement-title {
+    float: left;
+  }
+  .widget-list .announcement-meta {
+    float: right;
+  }
+  .widget-list .announcement-body {
+    clear: both;
   }
   /* GENERAL */
   .two-col {
