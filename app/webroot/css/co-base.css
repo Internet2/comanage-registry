@@ -552,6 +552,10 @@ body.co_people.canvas .titleNavContainer {
 #topLinks a:hover {
   color: #222;
 }
+#main #topLinks a:active,
+#main #topLinks a:hover {
+  text-decoration: underline;
+}
 /* RIGHT SIDEBAR */
 #right-sidebar {
   background-color: #fafafa;
@@ -669,7 +673,14 @@ body.co_people.canvas .titleNavContainer {
 .widget-actions {
   margin: -0.5em 0 1em 0;
   padding: 0;
+}
+.widget-actions li {
+  display: inline-block;
   list-style: none;
+  font-size: 0.9em;
+}
+.widget-actions .material-icons {
+  color: #2395E0;
 }
 /* REDIRECT PAGE */
 #redirect-box {

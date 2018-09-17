@@ -30,7 +30,7 @@
     <em class="material-icons" aria-hidden="true">announcement</em>
     <?php
       print $this->Html->link(
-        _txt('pl.announcementswidget.all'),
+        _txt('pl.announcementswidget.view_all'),
         array(
           'plugin'     => 'announcements_widget',
           'controller' => 'co_announcements',
@@ -42,6 +42,27 @@
       );
     ?>
   </li>
+  <?php /* XXX Keep for enhancement (render "Add Announcement" link in widget)
+  <li>
+    <?php /* insert icons directly because this widget will be pulled in via ajax * / ? >
+    <span class="ui-button-icon ui-icon ui-icon-circle-plus"></span>
+    <span class="ui-button-icon-space"> </span>
+    <?php
+      if($permissions['add']) {
+        print $this->Html->link(
+          _txt('op.add-a', array(_txt('ct.co_announcements.1'))),
+          array(
+            'plugin'     => 'announcements_widget',
+            'controller' => 'co_announcements',
+            'action' => 'add',
+            'co' => $cur_co['Co']['id']
+          ),
+          array('class' => 'addbutton')
+        );
+      }
+    ?>
+  </li>
+  */ ?>
 </ul>
 <ul class="widget-announcements widget-list">
 <?php foreach($vv_widget_announcements as $a): ?>

@@ -461,6 +461,9 @@
     margin: -2.5em 0.5em 1em 0;
     float: right;
   }
+  .widget-actions li {
+    margin-left: 1em;
+  }
   /* GENERAL */
   .two-col {
     -webkit-column-count: 2; /* Chrome, Safari, Opera */
