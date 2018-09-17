@@ -44,6 +44,7 @@ $cm_announcements_widget_texts['en_US'] = array(
 //  'er.announcementswidget.foobar'        => 'Some error here',
   
   // Plugin texts
+  'pl.announcementswidget.all'         => 'All Announcements',
   'pl.announcementswidget.author'      => 'Author Group',
   'pl.announcementswidget.author.desc' => 'Members of this group can add announcements to this channel',
   'pl.announcementswidget.body'        => 'Message Body',

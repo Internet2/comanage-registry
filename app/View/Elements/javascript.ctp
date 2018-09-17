@@ -358,8 +358,6 @@
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
 
-
-
     $(".datepicker-m").datepicker({
       changeMonth: true,
       dateFormat: "mm-dd",

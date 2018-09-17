@@ -25,6 +25,24 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 ?>
+<ul class="widget-actions">
+  <li>
+    <em class="material-icons" aria-hidden="true">announcement</em>
+    <?php
+      print $this->Html->link(
+        _txt('pl.announcementswidget.all'),
+        array(
+          'plugin'     => 'announcements_widget',
+          'controller' => 'co_announcements',
+          'action'     => 'index',
+          'co'         => $cur_co['Co']['id'],
+          'sort'       => 'CoAnonuncement.created',
+          'direction'  => 'desc'
+        )
+      );
+    ?>
+  </li>
+</ul>
 <ul class="widget-announcements widget-list">
 <?php foreach($vv_widget_announcements as $a): ?>
   <li>
