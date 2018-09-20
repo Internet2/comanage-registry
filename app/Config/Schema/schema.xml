@@ -1294,6 +1294,7 @@
     <field name="authz_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="my_identity_shortcut" type="L" />
     <field name="co_pipeline_id" type="I">
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
     </field>

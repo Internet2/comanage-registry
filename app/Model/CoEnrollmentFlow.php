@@ -126,6 +126,9 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'my_identity_shortcut' => array(
+      'rule' => 'boolean'
+    ),
     'co_pipeline_id' => array(
       'rule' => 'numeric',
       'required' => false,
