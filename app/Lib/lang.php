@@ -1217,6 +1217,8 @@ original notification at
   'fd.ef.saml.desc' => 'If the enrollee is authenticated via a SAML IdP with attributes released, examine the SAML assertion for authoritative attributes',
   'fd.ef.sea' =>      'Require Authentication For Self Enrollment',
   'fd.ef.sea.desc' => 'If self enrollment is enabled, require enrollees who are self-enrolling to authenticate to the platform',
+  'fd.ef.shortcut' => 'Enable My Identity Shortcut',
+  'fd.ef.shortcut.desc' => 'If the current user is authorized to start the flow, display a link to the flow from the "My Identity" menu',
   'fd.ef.tandc' =>    'Terms and Conditions Mode',
   'fd.ef.tandc.desc' => 'How to handle Terms and Conditions at enrollment, if any are defined. See <a href="https://spaces.internet2.edu/display/COmanage/Registry+Terms+and+Conditions">Terms and Conditions</a>',
   'fd.ef.vbody' =>    'Verification Email Body',
