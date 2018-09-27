@@ -78,8 +78,35 @@
     // END DESKTOP MENU DRAWER BEHAVIOR
 
     // USER MENU BEHAVIORS
-    $("#global-search label").click(function () {
-      $("#global-search-box").toggle();
+    // Toggle the global search box
+    $("#global-search label").click(function (e) {
+      e.stopPropagation();
+      if ($("#global-search-box").is(":visible")) {
+        $("#global-search-box").hide();
+        $("#global-search-box").attr("aria-expanded","false");
+      } else {
+        $("#global-search-box").show();
+        $("#global-search-box").attr("aria-expanded","true");
+      }
+    });
+
+    // Toggle the custom user panel in the user menu
+    $("#user-panel-toggle").click(function(e) {
+      e.stopPropagation();
+      if ($("#user-panel").is(":visible")) {
+        $("#user-panel").hide();
+        $("#user-panel").attr("aria-expanded","false");
+      } else {
+        $("#user-panel").show();
+        $("#user-panel").attr("aria-expanded","true");
+      }
+    });
+
+    // Hide custom user menu items on click outside
+    $(document).on('click', function (e) {
+      if ($(e.target).closest("#user-panel, #global-search-box").length === 0) {
+        $("#user-panel, #global-search-box").hide();
+      }
     });
 
     // Accordion

@@ -1089,7 +1089,39 @@ class AppController extends Controller {
     $args['contain'] = false;
     
     $menu['cous'] = $this->Co->Cou->find('list', $args);
-    
+
+    // Gather the available Enrollment Flows available to the current user.
+    // This will be used on the user panel.
+    // XXX Limit this to flows that are flagged to appear in panel
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    // XXX FILTER ON ADDITIONAL FLAG HERE
+    $args['order']['CoEnrollmentFlow.name'] = 'asc';
+    $args['contain'][] = false;
+
+    $this->loadModel('CoEnrollmentFlow');
+    $flows = $this->CoEnrollmentFlow->find('all', $args);
+
+    // Walk through the list of flows and see which ones this user is authorized to run
+    $authedFlows = array();
+    $roles = $this->Role->calculateCMRoles();
+
+    foreach($flows as $f) {
+      // pass $role to model->authorize
+
+      if($roles['cmadmin']
+        || $this->CoEnrollmentFlow->authorize($f,
+          $this->Session->read('Auth.User.co_person_id'),
+          $this->Session->read('Auth.User.username'),
+          $this->Role)) {
+        $authedFlows[] = $f;
+      }
+    }
+
+    $menu['flows'] = $authedFlows;
+
+
     // Determine what menu contents plugins want available
     $plugins = $this->loadAvailablePlugins('all', 'simple');
     
