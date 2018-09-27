@@ -56,7 +56,7 @@ if($this->action != "add") {
     );
   }
 
-  if($permissions['edit']) {
+  if($permissions['addhistory']) {
     $params['topLinks'][] = $this->Html->link(
       _txt('op.petition.comment'),
       array(
