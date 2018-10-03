@@ -25,24 +25,70 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 ?>
-<ul>
+<ul class="widget-actions">
+  <li>
+    <em class="material-icons" aria-hidden="true">announcement</em>
+    <?php
+      print $this->Html->link(
+        _txt('pl.announcementswidget.view_all'),
+        array(
+          'plugin'     => 'announcements_widget',
+          'controller' => 'co_announcements',
+          'action'     => 'index',
+          'co'         => $cur_co['Co']['id'],
+          'sort'       => 'CoAnonuncement.created',
+          'direction'  => 'desc'
+        )
+      );
+    ?>
+  </li>
+  <?php /* XXX Keep for enhancement (render "Add Announcement" link in widget)
+  <li>
+    <?php /* insert icons directly because this widget will be pulled in via ajax * / ? >
+    <span class="ui-button-icon ui-icon ui-icon-circle-plus"></span>
+    <span class="ui-button-icon-space"> </span>
+    <?php
+      if($permissions['add']) {
+        print $this->Html->link(
+          _txt('op.add-a', array(_txt('ct.co_announcements.1'))),
+          array(
+            'plugin'     => 'announcements_widget',
+            'controller' => 'co_announcements',
+            'action' => 'add',
+            'co' => $cur_co['Co']['id']
+          ),
+          array('class' => 'addbutton')
+        );
+      }
+    ?>
+  </li>
+  */ ?>
+</ul>
+<ul class="widget-announcements widget-list">
 <?php foreach($vv_widget_announcements as $a): ?>
   <li>
-    <b><?php print $a['CoAnnouncement']['title']; ?></b>
+    <div class="announcement-title"><?php print $a['CoAnnouncement']['title']; ?></div>
     <?php if(!empty($a['PosterCoPerson']['PrimaryName']['id'])): ?>
-      <br /><i><?php print filter_var(generateCn($a['PosterCoPerson']['PrimaryName']), FILTER_SANITIZE_SPECIAL_CHARS); ?></i>
+      <div class="announcement-meta">
+        <em class="announcement-poster"><?php print filter_var(generateCn($a['PosterCoPerson']['PrimaryName']), FILTER_SANITIZE_SPECIAL_CHARS); ?>,</em>
+        <em class="announcement-created"><?php print  $this->Time->format('Y-n-d g:i a', $a['CoAnnouncement']['created']); ?></em>
+      </div>
     <?php endif; // PrimaryName ?>
-    <p>
+    <div class="announcement-body">
       <?php
         // Render HTML or not according to channel configuration
         if(isset($a['CoAnnouncementChannel']['publish_html']) && $a['CoAnnouncementChannel']['publish_html']) {
           print $a['CoAnnouncement']['body'];
         } else {
-          print filter_var($a['CoAnnouncement']['body'], FILTER_SANITIZE_SPECIAL_CHARS);
+          // Also insert <br/> tags before newlines within the sanitized string
+          $announcementBody = filter_var($a['CoAnnouncement']['body'], FILTER_SANITIZE_SPECIAL_CHARS);
+          // the FILTER converts all newlines to &#10;, so simply convert them:
+          $announcementBody = str_replace('&#10;', '<br />', $announcementBody);
+          print $announcementBody;
         }
       ?>
       <?php  ?>
-    </p>
+    </div>
   </li>
 <?php endforeach; ?>
 </ul>

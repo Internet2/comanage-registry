@@ -67,7 +67,7 @@
                    : filter_var($certificates[0]['Certificate']['issuer_dn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <li>
+  <li class="modelbox-data">
     <div class="field-name">
       <?php
         if($e) {
@@ -103,7 +103,7 @@
       ?>
     </div>
   </li>
-  <li>
+  <li class="modelbox-data">
     <div class="field-name">
       <?php
         if($e) {

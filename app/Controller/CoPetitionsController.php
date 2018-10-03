@@ -1961,6 +1961,11 @@ class CoPetitionsController extends StandardController {
     // Edit an existing CO Petition?
     $p['edit'] = false;
     
+    // We don't allow editing at the moment, but we do allow adding comments.
+    // This permission correlates to CoPetitionHistoryRecords::add
+    $p['addhistory'] = ($roles['cmadmin'] || $roles['coadmin']
+                        || ($canInitiate && $roles['couadmin']));
+    
     // Match against existing CO People? If the match policy is Advisory, we
     // allow matching to take place as long as $canInitiate is also true. (Note we don't
     // necessarily have a petition ID.)

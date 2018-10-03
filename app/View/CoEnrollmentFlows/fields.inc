@@ -310,6 +310,20 @@
       </div>
     </div>
   </li>
+  <li>
+    <div class="field-name vtop">
+      <div class="field-title">
+        <?php print _txt('fd.ef.shortcut'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.shortcut.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('my_identity_shortcut') . 
+                     $this->Form->label('my_identity_shortcut', _txt('fd.ef.shortcut'))
+                   : ($co_enrollment_flows[0]['CoEnrollmentFlow']['my_identity_shortcut'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+    </div>
+  </li>
   <?php if(!empty($vv_co_pipelines)): ?>
   <li>
     <div class="field-name">
