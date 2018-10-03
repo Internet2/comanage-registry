@@ -1421,6 +1421,7 @@ original notification at
   'fd.pi.sync.role' => 'Create CO Person Role Record',
   'fd.pi.sync.str' => 'Sync Strategy',
   'fd.pi.sync.upd' => 'Sync on Update',
+  'fd.pi.sync.link' => 'Link Name',
   'fd.pipeline' =>    'Pipeline',
   'fd.pipeline.desc.ef' => 'Org Identities created directly (not via an Org Identity Source) from this Enrollment Flow will be processed using the specified Pipeline',
   'fd.pipeline.desc.ois' => 'Org Identities created from this Source will be processed using the specified Pipeline',

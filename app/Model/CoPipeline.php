@@ -110,6 +110,11 @@ class CoPipeline extends AppModel {
       'required'   => false,
       'allowEmpty' => true
     ),
+    'link_name' => array(
+      'rule'       => 'boolean',
+      'required'   => false,
+      'allowEmpty' => true
+    ),
     'create_role' => array(
       'rule'       => 'boolean',
       'required'   => false,
@@ -539,11 +544,15 @@ class CoPipeline extends AppModel {
         throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
       }
       
-      // And create a Primary Name. We use the source's Primary Name here, but
-      // we don't actually link it to the source. This is in case the source record
-      // goes away and we want to ensure we still have a name record attached to the
-      // CO Person. (Under most circumstances the OIS name will be preserved, but eg
+      // And create a Primary Name. We use the source's Primary Name here.
+      // If 'link_name' is false, we do not actually link the name to the source.
+      // This is meant to cover cases where the source record goes away and we
+      // want to ensure we still have a name record attached to the CO Person.
+      // (Under most circumstances the OIS name will be preserved, but eg
       // an admin might try to clear out all associated data.)
+      //
+      // However, this also prevents updates of the name if the record does
+      // change on the OrgIdentity side (name corrections, marital status, etc.)
       
       $name = array(
         'Name' => array(
@@ -555,7 +564,7 @@ class CoPipeline extends AppModel {
           'suffix'         => $orgIdentity['PrimaryName']['suffix'],
           'type'           => $orgIdentity['PrimaryName']['type'],
           'primary_name'   => true,
-//          'source_name_id' => $orgIdentity['PrimaryName']['id'],
+          'source_name_id' => $coPipeline['CoPipeline']['link_name'] ? $orgIdentity['PrimaryName']['id'] : null,
         )
       );
       
