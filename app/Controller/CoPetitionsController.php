@@ -816,6 +816,9 @@ class CoPetitionsController extends StandardController {
           
           // Make sure we don't issue a redirect
           return;
+        } else {
+          // Not in a plugin and this step is optional. Redirect to the plugin phase 
+          $this->redirect($onFinish);
         }
       }
     }
