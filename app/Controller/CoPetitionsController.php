@@ -741,6 +741,10 @@ class CoPetitionsController extends StandardController {
             $redirect['token'] = $token;
           }
           
+          if($step == "start" && !empty($this->request->params['named']['return'])) {
+            $redirect['return'] = $this->request->params['named']['return'];
+          }
+
           $this->redirect($redirect);
           break;
         }
@@ -756,6 +760,10 @@ class CoPetitionsController extends StandardController {
         
         // Generate hint URL for where to go when the step is completed
         $onFinish = $this->generateDoneRedirect($step, $id, $curPlugin);
+        if($step == "start" && !empty($this->request->params['named']['return'])) {
+          $onFinish['return'] = $this->request->params['named']['return'];
+        }
+
         $this->set('vv_on_finish_url', $onFinish);
         
         // Run the step
