@@ -781,7 +781,7 @@ class CoPetitionsController extends StandardController {
             // Log the error into the petition history
             $this->CoPetition
                  ->CoPetitionHistoryRecord
-                 ->record($coPetitionId,
+                 ->record($id,
                           $this->Session->read('Auth.User.co_person_id'),
                           PetitionActionEnum::StepFailed,
                           $e->getMessage());
@@ -862,8 +862,7 @@ class CoPetitionsController extends StandardController {
           // Because the URL is in a parameter, we expect it to be encoded.
           // We use base64 to avoid weird parsing errors with partially
           // visible URLs in a URL.
-          
-          $returnUrl = base64_decode($this->request->params['named']['return']);
+          $returnUrl = base64_decode(str_replace("-","/",$this->request->params['named']['return']));
         }
         
         $ptid = $this->CoPetition->initialize($efId,
