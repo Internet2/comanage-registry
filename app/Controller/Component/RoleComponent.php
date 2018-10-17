@@ -444,7 +444,9 @@ class RoleComponent extends Component {
     $controller = $this->_Collection->getController();
     
     $coId = $controller->cur_co['Co']['id'];
-    
+    if(empty($coId)) {
+      $coId = $controller->parseCOID();
+    }
     // Figure out the revelant CO Person ID for the current user and the current CO
     
     $CoPerson = ClassRegistry::init('CoPerson');
