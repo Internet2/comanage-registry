@@ -305,12 +305,13 @@ body.logged-in #user-menu {
 #user-panel #panel-orgid-container h2 {
   margin-top: -0.25em;
 }
-#user-panel .panel-orgid-ids {
+#user-panel .org-ids {
   font-style: italic;
 }
 #user-panel #user-panel-flows {
   column-count: 2;
 }
+#user-panel #user-panel-flows,
 #user-panel #user-panel-invite,
 #user-panel #panel-orgid {
   margin-top: 0;

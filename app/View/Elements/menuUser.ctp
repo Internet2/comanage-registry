@@ -245,59 +245,46 @@
       ?>
 
       <!-- Org Ids -->
-      <?php if(!empty($co_people[0]['CoOrgIdentityLink'])): // temporary test ?>
-      <div id="panel-orgid-container">
-        <h2><?php print _txt('me.orgids'); ?></h2>
-        <!-- Org Identity Data -->
-        <?php if(!empty($co_people[0]['CoOrgIdentityLink'])): ?>
+      <?php if(!empty($menuContent['orgIDs'])): ?>
+        <div id="panel-orgid-container">
+          <h2><?php print _txt('me.orgids'); ?></h2>
+          <!-- Org Identity Data -->
           <ul id="panel-orgid">
-          <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
-            <li>
-              <?php
-                // Name
-                if(!empty($link['OrgIdentity']['PrimaryName'])) {
-                  print filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
-                }
-
-                // Identifier
-                if(!empty($link['OrgIdentity']['Identifier'])) {
-                  print '<span class="panel-orgid-ids">';
-                  foreach($link['OrgIdentity']['Identifier'] as $id) {
-                    if(!empty($id['identifier'])
-                      && $id['login']
-                      && $id['status'] == StatusEnum::Active) {
-                      print ' ' . filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+            <?php foreach($menuContent['orgIDs'] as $orgID): ?>
+              <li class="panel-orgid-ids">
+                <?php if(!empty($orgID['orgName'])): ?>
+                  <span class="org-name">
+                    <?php
+                      print $this->Html->link($orgID['orgName'],
+                        array(
+                          'controller' => 'org_identities',
+                          'action' => ('view'),
+                          $orgID['orgID_id']
+                        )
+                      ) . ": ";
+                    ?>
+                  </span>
+                <?php endif; ?>
+                <span class="org-ids">
+                  <?php
+                    // Identifier - could send these to each identifier view using
+                    // controller 'identifiers' with $id['identifier_id'] but let's
+                    // keep this simple: for now the ids will also link to the Org ID view.
+                    foreach($orgID['identifiers'] as $id) {
+                      print $this->Html->link($id['identifier'],
+                        array(
+                          'controller' => 'org_identities',
+                          'action' => ('view'),
+                          $orgID['orgID_id']
+                        )
+                      ) . " ";
                     }
-                  }
-                  print '</span>';
-                }
-
-                /* XXX Need to work out the permissions for these, if they are to be used.
-                print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
-                    array('controller' => 'org_identities',
-                      'action' => ($e && !$es ? 'edit' : 'view'),
-                      $link['OrgIdentity']['id']),
-                    array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
-
-                if($permissions['relink']) {
-                  print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
-                }
-
-                if($permissions['delete']
-                  && count($co_people[0]['CoOrgIdentityLink']) > 1) {
-                  // An Org Identity Link can only be removed if there is at least one other remaining
-                  // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
-                  // away, even if it's the last one attached to the CO Preson.
-
-                  print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'])) . '\');">' . _txt('op.unlink') . '</a>' . "\n";
-                }
-                */
-              ?>
+                  ?>
+                </span>
               </li>
             <?php endforeach; ?>
           </ul>
-        <?php endif; ?>
-      </div><!-- panel-orgid -->
+        </div><!-- panel-orgid -->
       <?php endif; ?>
 
       <?php

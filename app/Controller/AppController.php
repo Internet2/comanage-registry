@@ -1092,11 +1092,11 @@ class AppController extends Controller {
 
     // Gather the available Enrollment Flows available to the current user.
     // This will be used on the user panel.
-    // XXX Limit this to flows that are flagged to appear in panel
+    // Limit this to flows that are flagged to appear in panel
     $args = array();
     $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
     $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
-    // XXX FILTER ON ADDITIONAL FLAG HERE
+    $args['conditions']['CoEnrollmentFlow.my_identity_shortcut'] = true;
     $args['order']['CoEnrollmentFlow.name'] = 'asc';
     $args['contain'][] = false;
 
@@ -1120,6 +1120,50 @@ class AppController extends Controller {
     }
 
     $menu['flows'] = $authedFlows;
+
+
+    // Gather up the appropriate OrgId identifiers for the current user.
+    // These will be presented on the user panel.
+    // Limit these to login identifiers that are active.
+    $menu['orgIDs'] = array();
+    if($this->Session->check('Auth.User.co_person_id')) {
+      $userId = $this->Session->read('Auth.User.co_person_id');
+
+      $this->loadModel('CoOrgIdentityLink');
+      $this->loadModel('OrgIdentity');
+
+      $args = array();
+      $args['joins'][0]['table'] = 'co_org_identity_links';
+      $args['joins'][0]['alias'] = 'CoOrgIdentityLink';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=CoOrgIdentityLink.org_identity_id';
+      $args['joins'][1]['table'] = 'identifiers';
+      $args['joins'][1]['alias'] = 'Identifier';
+      $args['joins'][1]['type'] = 'INNER';
+      $args['joins'][1]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+      $args['conditions']['CoOrgIdentityLink.co_person_id'] = $userId;
+      $args['conditions']['Identifier.status'] = StatusEnum::Active;
+      $args['conditions']['Identifier.login'] = true;
+
+      $userOrgIDs = $this->CoOrgIdentityLink->OrgIdentity->find('all', $args);
+
+      // Build a simplified structure for the menu
+      $menuOrgIDs = array();
+
+      foreach($userOrgIDs as $i => $uoid) {
+        $menuOrgIDs[$i]['orgName'] = $uoid['OrgIdentity']['o'];
+        $menuOrgIDs[$i]['orgID_id'] = $uoid['OrgIdentity']['id'];
+        $menuOrgIDs[$i]['identifiers'] = array();
+        foreach ($uoid['Identifier'] as $j => $identifier) {
+          $menuOrgIDs[$i]['identifiers'][$j]['identifier'] = $identifier['identifier'];
+          $menuOrgIDs[$i]['identifiers'][$j]['identifier_id'] = $identifier['id'];
+        }
+      }
+
+      if (!empty($menuOrgIDs)) {
+        $menu['orgIDs'] = $menuOrgIDs;
+      }
+    }
 
 
     // Determine what menu contents plugins want available
