@@ -80,7 +80,8 @@ class CoService extends AppModel {
       'allowEmpty' => true
     ),
     'service_url' => array(
-      'rule' => array('url', true),
+      // We can't set this to 'url' because url validation doesn't understand ssh:
+      'rule' => array('validateInput'),
       'required' => false,
       'allowEmpty' => true
     ),

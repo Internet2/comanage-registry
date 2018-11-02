@@ -126,6 +126,7 @@
         }
       ?>
     </div>
+  </li>
   <?php if($e): ?>
   <li class="fields-submit">
     <div class="field-name">

@@ -1095,7 +1095,7 @@ class AppController extends Controller {
     // Limit this to flows that are flagged to appear in panel
     $args = array();
     $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
     $args['conditions']['CoEnrollmentFlow.my_identity_shortcut'] = true;
     $args['order']['CoEnrollmentFlow.name'] = 'asc';
     $args['contain'][] = false;
