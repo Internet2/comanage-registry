@@ -52,6 +52,22 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     )
   );
   
+  public $duplicatableModels = array(
+    // Must explicitly list this model in the order it should be duplicated
+    "CoLdapProvisionerTarget" => array(
+      "parent" => "CoProvisioningTarget",
+      "fk"     => "co_provisioning_target_id"
+    ),
+    "CoLdapProvisionerAttribute" => array(
+      "parent" => "CoLdapProvisionerTarget",
+      "fk"     => "co_ldap_provisioner_target_id"
+    ),
+    "CoLdapProvisionerAttrGrouping" => array(
+      "parent" => "CoLdapProvisionerTarget",
+      "fk"     => "co_ldap_provisioner_target_id"
+    )
+  );
+  
   // Default display field for cake generated views
   public $displayField = "serverurl";
   

@@ -54,6 +54,12 @@ class CoProvisioningTarget extends AppModel {
     "Identifier" => array('dependent' => true)
   );
   
+  public $hasManyPlugins = array(
+    "provisioner" => array(
+      'coreModelFormat' => 'Co%sTarget'
+    )
+  );
+  
   // Default display field for cake generated views
   public $displayField = "description";
   

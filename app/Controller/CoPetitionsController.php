@@ -661,7 +661,7 @@ class CoPetitionsController extends StandardController {
     $status = $this->CoPetition->CoEnrollmentFlow->field('status',
                                                          array('CoEnrollmentFlow.id' => $efId));
     
-    if($status != EnrollmentFlowStatusEnum::Active) {
+    if($status != TemplateableStatusEnum::Active) {
       $this->Flash->set(_txt('er.ef.active'), array('key' => 'error'));
       $this->performRedirect();
     }

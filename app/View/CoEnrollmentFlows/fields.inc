@@ -214,19 +214,19 @@
       <?php
         global $cm_lang, $cm_texts;
         $attrs = array();
-        $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : EnrollmentFlowStatusEnum::Active);
+        $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] : TemplateableStatusEnum::Active);
         $attrs['empty'] = false;
 
         if($e) {
           print $this->Form->select('status',
-                                    $cm_texts[ $cm_lang ]['en.status.ef'],
+                                    $cm_texts[ $cm_lang ]['en.status.temp'],
                                     $attrs);
 
           if($this->Form->isFieldError('status')) {
             print $this->Form->error('status');
           }
         } else {
-          print _txt('en.status', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['status']);
+          print _txt('en.status.temp', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['status']);
         }
       ?>
     </div>

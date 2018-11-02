@@ -42,6 +42,18 @@ class CoAnnouncementsWidget extends CoDashboardWidgetBackend {
 	
 	public $hasMany = array(
 	);
+  
+  public $duplicatableModels = array(
+    "CoAnnouncementChannel" => array(
+      "parent" => "Co",
+      "fk"     => "co_id"
+    ),
+    // Must explicitly list this model in the order it should be duplicated
+    "CoAnnouncementsWidget" => array(
+      "parent" => "CoDashboardWidget",
+      "fk"     => "co_dashboard_widget_id"
+    )
+  );
 	
   // Default display field for cake generated views
   public $displayField = "co_announcement_channel_id";

@@ -309,7 +309,7 @@ class CoEnrollmentFlowsController extends StandardController {
     
     $args = array();
     $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
     $args['order']['CoEnrollmentFlow.name'] = 'asc';
     $args['contain'][] = false;
     

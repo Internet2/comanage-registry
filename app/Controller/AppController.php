@@ -822,7 +822,7 @@ class AppController extends Controller {
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoSetting.co_id=Co.id';
       $args['conditions']['Co.name'] = 'COmanage';
-      $args['conditions']['Co.status'] = StatusEnum::Active;
+      $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
       $args['contain'][] = 'CoTheme';
       
       $this->loadModel('CoSetting');
@@ -1053,7 +1053,7 @@ class AppController extends Controller {
     
     if($this->viewVars['permissions']['menu']['admin']) {
       // Show all active COs for admins
-      $params = array('conditions' => array('Co.status' => StatusEnum::Active),
+      $params = array('conditions' => array('Co.status' => TemplateableStatusEnum::Active),
                       'fields'     => array('Co.id', 'Co.name', 'Co.description'),
                       'recursive'  => false
                      );
@@ -1106,7 +1106,7 @@ class AppController extends Controller {
     // (or similar) instead, since we won't have a big multi-CO menu.
     
     $args = array();
-    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
     $args['fields'][] = 'DISTINCT CoEnrollmentFlow.co_id';
     $args['order'][] = 'CoEnrollmentFlow.co_id ASC';
     $args['contain'] = false;

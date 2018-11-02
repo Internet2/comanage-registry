@@ -58,6 +58,12 @@ class OrgIdentitySource extends AppModel {
     )
   );
   
+  public $hasManyPlugins = array(
+    "orgidsource" => array(
+      'coreModelFormat' => '%s'
+    )
+  );
+  
   // Default display field for cake generated views
   public $displayField = "description";
   

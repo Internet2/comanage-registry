@@ -230,13 +230,6 @@ class EnrollmentDupeModeEnum
   const NewRoleCouCheck = 'C';
 }
 
-class EnrollmentFlowStatusEnum
-{
-  const Active              = 'A';
-  const Suspended           = 'S';
-  const Template            = 'T';
-}
-
 class EnrollmentMatchPolicyEnum {
   const Advisory  = "A";
   const Automatic = "M";
@@ -691,6 +684,13 @@ class TAndCLoginModeEnum
   const NotEnforced        = 'X';
   const RegistryLogin      = 'R';
   const DisableAllServices = 'D';
+}
+
+class TemplateableStatusEnum
+{
+  const Active              = 'A';
+  const Suspended           = 'S';
+  const Template            = 'T';
 }
 
 class UrlEnum {

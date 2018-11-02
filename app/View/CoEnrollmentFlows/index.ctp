@@ -83,7 +83,7 @@
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoEnrollmentFlow']['id'], 'co' => $this->request->params['named']['co']));
           ?>
         </td>
-        <td><?php print _txt('en.status.ef', null, $c['CoEnrollmentFlow']['status']); ?></td>
+        <td><?php print _txt('en.status.temp', null, $c['CoEnrollmentFlow']['status']); ?></td>
         <td>
           <?php
             print _txt('en.enrollment.authz', null, $c['CoEnrollmentFlow']['authz_level']);
@@ -115,7 +115,7 @@
         <td>
           <?php
             if($permissions['select']
-               && $c['CoEnrollmentFlow']['status'] == EnrollmentFlowStatusEnum::Active) {
+               && $c['CoEnrollmentFlow']['status'] == TemplateableStatusEnum::Active) {
               print $this->Html->link(_txt('op.begin'),
                                       array(
                                         'controller' => 'co_petitions',

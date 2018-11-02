@@ -233,7 +233,7 @@ class CoAnnouncementsController extends StandardController {
       
       if(!empty($this->request->params['named']['filter'])
          && $this->request->params['named']['filter'] == 'active') {
-        // Only show active annoucements (ie: those within the validity window)
+        // Only show active announcements (ie: those within the validity window)
         $ret['conditions']['AND'][] = array(
           'OR' => array(
             'CoAnnouncement.valid_from IS NULL',

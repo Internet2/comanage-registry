@@ -44,6 +44,12 @@ class Authenticator extends AppModel {
     "AuthenticatorStatus"
   );
   
+  public $hasManyPlugins = array(
+    "authenticator" => array(
+      'coreModelFormat' => '%s'
+    )
+  );
+  
   // Default display field for cake generated views
   public $displayField = "description";
   

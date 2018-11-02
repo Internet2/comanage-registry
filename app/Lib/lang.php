@@ -726,12 +726,6 @@ original notification at
     AuthenticatorStatusEnum::NotSet               => 'Not Set'
   ),
   
-  'en.status.ef' => array(
-    EnrollmentFlowStatusEnum::Active              => 'Active',
-    EnrollmentFlowStatusEnum::Suspended           => 'Suspended',
-    EnrollmentFlowStatusEnum::Template            => 'Template'
-  ),
-  
   'en.status.job' => array(
     JobStatusEnum::Canceled   => 'Canceled',
     JobStatusEnum::Complete   => 'Complete',
@@ -787,6 +781,12 @@ original notification at
   'en.status.susp' => array(
     SuspendableStatusEnum::Active              => 'Active',
     SuspendableStatusEnum::Suspended           => 'Suspended'
+  ),
+  
+  'en.status.temp' => array(
+    TemplateableStatusEnum::Active              => 'Active',
+    TemplateableStatusEnum::Suspended           => 'Suspended',
+    TemplateableStatusEnum::Template            => 'Template'
   ),
   
   'en.sync.action' => array(

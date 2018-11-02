@@ -27,7 +27,7 @@
 
 class AnnouncementsWidget extends AppModel {
   // Define class name for cake
-  public $name = "AnnoucementsWidget";
+  public $name = "AnnouncementsWidget";
 
   // Required by COmanage Plugins
   public $cmPluginType = "dashboardwidget";
@@ -37,10 +37,7 @@ class AnnouncementsWidget extends AppModel {
 	
   // Document foreign keys
   public $cmPluginHasMany = array(
-    "Co" => array("CoAnnouncementChannel")
-  /*
-    XXX We need to do something like this, but it's not currently supported
-    XXX Also what about
+    "Co" => array("CoAnnouncementChannel"),
     "CoPerson" => array(
       "CoAnnouncementPosterCoPerson" => array(
         'className'  => 'CoAnnouncement',
@@ -56,7 +53,7 @@ class AnnouncementsWidget extends AppModel {
         'className'  => 'CoAnnouncementChannel',
         'foreignKey' => 'reader_co_group_id'
       )
-    )*/
+    )
 	);
 	
 	// Association rules from this model to other models
