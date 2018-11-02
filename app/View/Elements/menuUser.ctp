@@ -40,7 +40,7 @@
       );
       print $this->Form->create('CoDashboard', $options);
       print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search') . '</span><em class="material-icons">search</em>');
-      print '<div id="global-search-box">';
+      print '<div id="global-search-box" aria-expanded="false" style="display: none;">';
       $options = array(
         'label' => false,
       );
@@ -108,7 +108,7 @@
 
 <?php if($this->Session->check('Auth.User.name')): ?>
   <div id="user">
-    <a href="#" class="topMenu" id="user-links">
+    <a href="#" class="topMenu" id="user-panel-toggle" aria-controls="user-panel">
       <span id="user-common-name">
         <?php
           // Print the user's name
@@ -119,64 +119,9 @@
       <em class="material-icons icon-adjust">person</em>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
     </a>
-    <ul id="user-links-menu" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="user-links">
-      <li id="user-links-cn"><?php print $userCN; ?></li>
-      <li id="user-links-id"><?php print $this->Session->read('Auth.User.username'); ?></li>
-      <!-- Account Dropdown -->
-      <?php
-        // Profiles
-        if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile']) {
-          // Link to identity for self service.
-
-          foreach($menuContent['cos'] as $co) {
-            // The person must have an Active/GracePeriod status and at least
-            // one defined role.
-
-            if(isset($co['co_person']['status'])
-               && ($co['co_person']['status'] == StatusEnum::Active
-                   || $co['co_person']['status'] == StatusEnum::GracePeriod)
-               && !empty($co['co_person']['CoPersonRole'])) {
-              print '<li class="mdl-menu__item">';
-              $args = array(
-                'plugin' => '',
-                'controller' => 'co_people',
-                'action' => 'canvas',
-                $co['co_person_id']
-              );
-              print $this->Html->link(_txt('me.identity.for', array($co['co_name'])), $args);
-              print "</li>";
-            }
-          }
-        }
-
-        // Plugin submenus
-        // This rendering is a bit different from how render_plugin_menus() does it...
-        foreach(array_keys($menuContent['plugins']) as $plugin) {
-          if(isset($menuContent['plugins'][$plugin]['coperson'])) {
-            foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
-              print '<li> 
-                       <a href="#">'.$label.'</a>
-                       <span class="sf-sub-indicator"> »</span>
-                       <ul>';
-
-              foreach($menuContent['cos'] as $co) {
-                if(empty($co['co_person_id']))
-                  continue;
-
-                $args = $menuContent['plugins'][$plugin]['coperson'][$label];
-
-                $args[] = 'copersonid:' . $co['co_person_id'];
-                $args['plugin'] = Inflector::underscore($plugin);
-
-                print '<li class="mdl-menu__item">' . $this->Html->link($co['co_name'], $args) . "</li>\n";
-              }
-
-              print "</ul></li>";
-            }
-          }
-        }
-      ?>
-      <li id="logout-in-menu" class="co-menu-button">
+    <!-- Account Dropdown -->
+    <div id="user-panel" aria-expanded="false" style="display: none;">
+      <div id="logout-in-panel">
         <?php
           $args = array('controller' => 'auth',
             'action'     => 'logout',
@@ -184,8 +129,169 @@
           print $this->Html->link(_txt('op.logout') . ' <span class="fa fa-sign-out"></span>',
             $args, array('escape'=>false, 'class' => 'mdl-button mdl-js-button mdl-js-ripple-effect'));
         ?>
-      </li>
-    </ul>
+      </div>
+      <div id="user-panel-user-info">
+        <em class="material-icons">person</em>
+        <div id="user-panel-cn"><?php print $userCN; ?></div>
+        <div id="user-panel-id"><?php print $this->Session->read('Auth.User.username'); ?></div>
+      </div>
+      <?php
+        // Profile
+        if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile']) {
+          // Link to identity for self service.
+          if(isset($cur_co)) {
+            foreach ($menuContent['cos'] as $co) {
+              // Only display a profile link for the current CO
+              if ($co['co_id'] == $cur_co['Co']['id']) {
+                // The person must have an Active/GracePeriod status and at least
+                // one defined role.
+                if (isset($co['co_person']['status'])
+                  && ($co['co_person']['status'] == StatusEnum::Active
+                    || $co['co_person']['status'] == StatusEnum::GracePeriod)
+                  && !empty($co['co_person']['CoPersonRole'])
+                ) {
+                  $args = array(
+                    'plugin' => '',
+                    'controller' => 'co_people',
+                    'action' => 'canvas',
+                    $co['co_person_id']
+                  );
+                  print $this->Html->link('<em class="material-icons" aria-hidden="true">account_circle</em>' . _txt('me.profile.for', array($co['co_name'])), $args,
+                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                }
+              }
+            }
+          }
+        }
+
+        // Enrollment flows / Invitations
+        if(isset($cur_co)) {
+          // Convert the list of COs with enrollment flows defined into a more useful format
+          $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
+
+          if (in_array($cur_co['Co']['id'], $efcos)) {
+            // If we have enrollment flows, display them directly
+            if (!empty($menuContent['flows']) && ($permissions['menu']['createpetition'] || $permissions['menu']['invite'])) {
+              print '<div id="user-panel-flows-container">';
+              print '<h2>' . _txt('me.flows') . '</h2>';
+              print '<ul id="user-panel-flows">';
+              foreach ($menuContent['flows'] as $flow) {
+                print '<li>';
+                print $this->Html->link(filter_var($flow['CoEnrollmentFlow']['name'], FILTER_SANITIZE_SPECIAL_CHARS),
+                  array(
+                    'controller' => 'co_petitions',
+                    'action' => 'start',
+                    'coef' => $flow['CoEnrollmentFlow']['id']
+                  )
+                );
+                print '</li>';
+              }
+              print '</ul>';
+              print '</div>';
+            }
+          } else {
+            // Provide an invite link (default enrollment) otherwise if allowed
+            if (isset($permissions['menu']['invite']) && $permissions['menu']['invite']) {
+              print '<div id="user-panel-flows-container">';
+              print '<h2>' . _txt('me.invite') . '</h2>';
+              print '<ul id="user-panel-invite">';
+              print '<li>';
+
+              $args = array();
+              $args['plugin'] = null;
+              $args['controller'] = 'org_identities';
+              $args['action'] = 'find';
+              $args['co'] = $cur_co['Co']['id'];
+              print $this->Html->link(_txt('op.inv.new'), $args);
+
+              print '</li>';
+              print '</ul>';
+              print '</div>';
+            }
+          }
+        }
+
+        // Plugin submenus
+        // This rendering is a bit different from how render_plugin_menus() does it...
+        if (!empty(array_keys($menuContent['plugins']))) {
+          print("<ul>");
+          foreach (array_keys($menuContent['plugins']) as $plugin) {
+            if (isset($menuContent['plugins'][$plugin]['coperson'])) {
+              foreach (array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
+                print '<li> 
+                         <a href="#">' . $label . '</a>
+                         <span class="sf-sub-indicator"> »</span>
+                         <ul>';
+
+                foreach ($menuContent['cos'] as $co) {
+                  if (empty($co['co_person_id'])) {
+                    continue;
+                  }
+
+                  $args = $menuContent['plugins'][$plugin]['coperson'][$label];
+
+                  $args[] = 'copersonid:' . $co['co_person_id'];
+                  $args['plugin'] = Inflector::underscore($plugin);
+
+                  print '<li>' . $this->Html->link($co['co_name'], $args) . "</li>\n";
+                }
+
+                print "</ul></li>";
+              }
+            }
+          }
+          print "</ul>";
+        }
+      ?>
+
+      <!-- Org Ids -->
+      <?php if(!empty($menuContent['orgIDs'])): ?>
+        <div id="panel-orgid-container">
+          <h2><?php print _txt('me.orgids'); ?></h2>
+          <!-- Org Identity Data -->
+          <ul id="panel-orgid">
+            <?php foreach($menuContent['orgIDs'] as $orgID): ?>
+              <li class="panel-orgid-ids">
+                <?php if(!empty($orgID['orgName'])): ?>
+                  <span class="org-name">
+                    <?php
+                      print $this->Html->link($orgID['orgName'],
+                        array(
+                          'controller' => 'org_identities',
+                          'action' => ('view'),
+                          $orgID['orgID_id']
+                        )
+                      ) . ": ";
+                    ?>
+                  </span>
+                <?php endif; ?>
+                <span class="org-ids">
+                  <?php
+                    // Identifier - could send these to each identifier view using
+                    // controller 'identifiers' with $id['identifier_id'] but let's
+                    // keep this simple: for now the ids will also link to the Org ID view.
+                    foreach($orgID['identifiers'] as $id) {
+                      print $this->Html->link($id['identifier'],
+                        array(
+                          'controller' => 'org_identities',
+                          'action' => ('view'),
+                          $orgID['orgID_id']
+                        )
+                      ) . " ";
+                    }
+                  ?>
+                </span>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div><!-- panel-orgid -->
+      <?php endif; ?>
+
+      <?php
+        // Last login
+        print $this->element("lastlogin");
+      ?>
+    </div>
   </div>
 <?php endif ?>
 

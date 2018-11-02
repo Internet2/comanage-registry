@@ -76,11 +76,20 @@
     position: relative;
     top: -1px;
   }
-  #user-links-cn {
-    display: none;
+  #user-panel {
+    min-width: 400px;
   }
-  #user-links-id {
-    margin-top: -8px;
+  #user-panel-user-info {
+    border-top: none;
+    margin: 0 80px 0 0;
+    padding-top: 0;
+  }
+  #user-panel-user-info #user-panel-cn {
+  }
+  #logout-in-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
   #notifications li.notification:nth-child(n+4) { /* show all notifications on tablets (and larger) */
     display: block;
