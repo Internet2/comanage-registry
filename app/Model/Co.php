@@ -35,42 +35,49 @@ class Co extends AppModel {
   // Add behaviors
   public $actsAs = array('Containable');
   
-  // Association rules from this model to other models
+  // Association rules from this model to other models.
+  // Models here should be listed in reverse dependency order. ie: for a delete,
+  // the models at the end of the dependency tree need to be deleted first.
+  // Note when adding configuration related models they may need to be added
+  // to duplicate(), below.
   public $hasMany = array(
     "AttributeEnumeration" => array('dependent' => true),
     "Authenticator" => array('dependent' => true),
+    // A CO can have zero or more provisioning targets
+    "CoProvisioningTarget" => array('dependent' => true),
+    "CoService" => array('dependent' => true),
     "CoDashboard" => array('dependent' => true),
     "CoDepartment" => array('dependent' => true),
     "CoEmailList" => array('dependent' => true),
     // A CO has zero or more enrollment flows
     "CoEnrollmentFlow" => array('dependent' => true),
+    "CoExpirationPolicy" => array('dependent' => true),
     // A CO has zero or more extended attributes
     "CoExtendedAttribute" => array('dependent' => true),
     "CoExtendedType" => array('dependent' => true),
     // A CO has zero or more groups
-    "CoGroup" => array('dependent' => true),
-    // A CO can have zero or more CO people
     "CoIdentifierAssignment" => array('dependent' => true),
     "CoIdentifierValidator" => array('dependent' => true),
     "CoJob" => array('dependent' => true),
     "CoLocalization" => array('dependent' => true),
+    "CoMessageTemplate" => array('dependent' => true),
+    "CoNavigationLink" => array('dependent' => true),
+    // A CO can have zero or more CO people
     "CoPerson" => array('dependent' => true),
     // A CO can have zero or more petitions
     "CoPetition" => array('dependent' => true),
-    "CoPipeline" => array('dependent' => true),
-    // A CO can have zero or more provisioning targets
-    "CoProvisioningTarget" => array('dependent' => true),
     "CoSelfServicePermission" => array('dependent' => true),
-    "CoService" => array('dependent' => true),
     "CoTermsAndConditions" => array('dependent' => true),
     "CoTheme" => array('dependent' => true),
-    // A CO has zero or more COUs
-    "Cou" => array('dependent' => true),
     // A CO has zero or more OrgIdentities, depending on if they are pooled.
     // It's OK to make the model dependent, because if they are pooled the
     // link won't be there to delete.
     "OrgIdentity" => array('dependent' => true),
     "OrgIdentitySource" => array('dependent' => true),
+    "CoPipeline" => array('dependent' => true),
+    "CoGroup" => array('dependent' => true),
+    // A CO has zero or more COUs
+    "Cou" => array('dependent' => true),
     "Server" => array('dependent' => true)
   );
   
@@ -130,6 +137,68 @@ class Co extends AppModel {
     return true;
   }
   
+  /**
+   * Delete a CO.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  int  $id      CO ID
+   * @param  bool $cascade Whether to cascade the delete to related models
+   * @return bool          True on success, false otherwise
+   */
+  
+  public function delete($id = NULL, $cascade = true) {
+    // Completely wiping a CO requires special handing.
+    // (Unclear what we would do if $cascade is false or $id is NULL...)
+    
+    if(!$id || !$cascade) {
+      return false;
+    }
+    
+    // Cake doesn't always successfully figure out our dependencies, and we're
+    // constrained in how we can provide hints. (eg: We can order within $hasMany,
+    // but not across $hasOne and $hasMany.) As a hack, we clear out things that
+    // we know have caused problems.
+    
+    // Unset foreign keys from CO Settings
+    $this->CoSetting->updateAll(
+      array(
+        'CoSetting.sponsor_co_group_id' => null,
+        'CoSetting.default_co_pipeline_id' => null,
+        'CoSetting.co_theme_id' => null,
+        'CoSetting.co_dashboard_id' => null
+      ),
+      array('CoSetting.co_id' => $id)
+    );
+    
+    // Trigger the delete of models associated with plugins before we clean up
+    // data structures they might point to
+    
+    foreach(array("Authenticator",
+                  "CoDashboard", // triggers CoDashboardWidget
+                  "CoProvisioningTarget",
+                  "OrgIdentitySource") as $m) {
+      // If set, we use duplicatableModels as a sort of inverse logic for cleanup
+      
+      if($this->$m->Behaviors->enabled('Changelog')) {
+        $this->$m->reloadBehavior('Changelog', array('expunge' => true));
+      }
+      
+      $this->$m->deleteAll(
+        array($m.'.co_id' => $id),
+        true,
+        // We need AppModel::beforeDelete to run so that model dependencies get
+        // updated, at the expense of extra callbacks
+        true
+      );
+    }
+    
+    // Unload TreeBehavior from Cou, since it throws errors and we don't need to
+    // rebalance a tree that we're about to remove entirely.
+    $this->Cou->Behaviors->unload('Tree');
+    
+    return parent::delete($id, $cascade);
+  }
+
   /**
    * Duplicate an existing CO.
    *

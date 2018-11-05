@@ -38,10 +38,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   public $actsAs = array('Containable');
 	
   // Document foreign keys
-//  public $cmPluginHasMany = array(
-// XXX unclear that we're using this correctly here or elsewhere, review other (newer) plugins
-//		"CoPerson" => array("Password")
-//	);
+  public $cmPluginHasMany = array(
+    "CoPerson" => array("Password")
+	);
 	
 	// Association rules from this model to other models
 	public $belongsTo = array(

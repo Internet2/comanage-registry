@@ -37,12 +37,6 @@ class Certificate extends AppModel {
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
   
-  // Document foreign keys
-  public $cmPluginHasMany = array(
-// XXX unclear that we're using this correctly here or elsewhere, review other (newer) plugins
-//              "CoPerson" => array("Certificate")
-  );
-  
   // Association rules from this model to other models
   public $belongsTo = array(
     "CertificateAuthenticator.CertificateAuthenticator",

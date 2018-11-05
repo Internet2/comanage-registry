@@ -35,8 +35,15 @@ class ChangelogBehavior extends ModelBehavior {
   
   public function afterSave(Model $model, $created, $options = array()) {
     $mname = $model->name;
+    $malias = $model->alias;
     $parentfk = Inflector::underscore($mname) . "_id";
     $dataSource = $model->getDataSource();
+    
+    if(isset($this->settings[$malias]['expunge'])
+       && $this->settings[$malias]['expunge']) {
+      // We're in the middle of an expunge, so don't do anything
+      return true;
+    }
     
     if(!$created
        && !empty($options['fieldList'])
@@ -284,6 +291,12 @@ class ChangelogBehavior extends ModelBehavior {
     $mname = $model->name;
     $malias = $model->alias;
     $parentfk = Inflector::underscore($mname) . "_id";
+    
+    if(isset($this->settings[$malias]['expunge'])
+       && $this->settings[$malias]['expunge']) {
+      // We're in the middle of an expunge, so don't do anything
+      return true;
+    }
     
     if(!empty($model->data[$malias]['id'])) {
       // Before we do anything, make sure we're operating on the latest version of
