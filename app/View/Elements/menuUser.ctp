@@ -103,21 +103,23 @@
   </div>
 <?php endif; ?>
 
-<?php if($this->Session->check('Auth.User.name')): ?>
+<?php if($this->Session->check('Auth.User.username')): ?>
   <div id="user">
     <a href="#" class="topMenu" id="user-links">
       <span id="user-common-name">
         <?php
-          // Print the user's name
-          $userCN = generateCn($this->Session->read('Auth.User.name'));
-          print $userCN;
+          if($this->Session->check('Auth.User.name')) {
+            // Print the user's name
+            $userCN = generateCn($this->Session->read('Auth.User.name'));
+            print $userCN;
+          }
         ?>
       </span>
       <em class="material-icons icon-adjust">person</em>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
     </a>
     <ul id="user-links-menu" class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="user-links">
-      <li id="user-links-cn"><?php print $userCN; ?></li>
+      <li id="user-links-cn"><?php if(isset($userCN)) print $userCN; ?></li>
       <li id="user-links-id"><?php print $this->Session->read('Auth.User.username'); ?></li>
       <!-- Account Dropdown -->
       <?php
