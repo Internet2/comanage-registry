@@ -392,6 +392,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'o':
               case 'ou':
               case 'title':
+              case 'voPersonAffiliation':
                 // Map the attribute to the column
                 $cols = array(
                   'eduPersonAffiliation' => 'affiliation',
@@ -399,7 +400,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'employeeType' => 'affiliation',
                   'o' => 'o',
                   'ou' => 'ou',
-                  'title' => 'title'
+                  'title' => 'title',
+                  'voPersonAffiliation' => 'affiliation',
                 );
                 
                 // Walk through each role
@@ -1813,6 +1815,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'required'    => false
         ),
         'attributes' => array(
+          'voPersonAffiliation' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
           'voPersonApplicationUID' => array(
             'required'  => false,
             'multiple'  => true,
