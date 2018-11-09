@@ -129,7 +129,7 @@ print $this->element("pageTitleAndButtons", $params);
 
     <tfoot>
     <tr>
-      <th colspan="3">
+      <th colspan="2">
         <?php print $this->element("pagination"); ?>
       </th>
     </tr>
