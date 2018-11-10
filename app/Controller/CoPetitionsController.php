@@ -741,6 +741,11 @@ class CoPetitionsController extends StandardController {
             $redirect['token'] = $token;
           }
           
+          // If we're in the start step and a return URL is present, insert that
+          if($step == 'start' && !empty($this->request->params['named']['return'])) {
+            $redirect['return'] = $this->request->params['named']['return'];
+          }
+          
           $this->redirect($redirect);
           break;
         }
@@ -781,7 +786,7 @@ class CoPetitionsController extends StandardController {
             // Log the error into the petition history
             $this->CoPetition
                  ->CoPetitionHistoryRecord
-                 ->record($coPetitionId,
+                 ->record($id,
                           $this->Session->read('Auth.User.co_person_id'),
                           PetitionActionEnum::StepFailed,
                           $e->getMessage());
@@ -863,7 +868,17 @@ class CoPetitionsController extends StandardController {
           // We use base64 to avoid weird parsing errors with partially
           // visible URLs in a URL.
           
-          $returnUrl = base64_decode($this->request->params['named']['return']);
+          // base64 encoding can generate some HTML special characters.
+          // We could urlencode, but that creates various confusion with different
+          // parts of the web transaction possibly urldecoding prematurely, so
+          // instead we substitute the problematic characters with others. See
+          // discussion in CO-1667 and https://stackoverflow.com/questions/1374753/passing-base64-encoded-strings-in-url
+          $returnUrl = base64_decode(str_replace(array(".", "_", "-"),
+                                                 // This mapping is the same as the one used by the YUI library.
+                                                 // RFC 4648 base64url is another option, but strangely doesn't
+                                                 // map the padding character (=).
+                                                 array("+", "/", "="),
+                                                 $this->request->params['named']['return']));
         }
         
         $ptid = $this->CoPetition->initialize($efId,
@@ -1857,6 +1872,11 @@ class CoPetitionsController extends StandardController {
       $ret[] = $id;
     } else {
       $ret['coef'] = $this->cachedEnrollmentFlowID;
+    }
+    
+    if($step == 'start' && !empty($this->request->params['named']['return'])) {
+      // Propagte the return URL since we don't store it until the step is done
+      $ret['return'] = $this->request->params['named']['return'];
     }
     
     $token = $this->parseToken();
