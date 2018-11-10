@@ -821,6 +821,10 @@ class CoPetitionsController extends StandardController {
           
           // Make sure we don't issue a redirect
           return;
+        } elseif($steps[$step]['enabled'] == RequiredEnum::Optional) {
+          // Redirect into the plugins to see if any want to run
+          
+          $this->redirect($onFinish);
         }
       }
     }
