@@ -443,7 +443,11 @@ class RoleComponent extends Component {
     // Pull the current CO from our invoking controller
     $controller = $this->_Collection->getController();
     
-    $coId = $controller->cur_co['Co']['id'];
+    if(!empty($controller->cur_co['Co']['id'])) {
+      $coId = $controller->cur_co['Co']['id'];
+    } else {
+      $coId = $controller->parseCOID();
+    }
     
     // Figure out the revelant CO Person ID for the current user and the current CO
     
