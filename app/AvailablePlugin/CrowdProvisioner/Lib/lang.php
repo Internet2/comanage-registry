@@ -37,7 +37,8 @@ $cm_crowd_provisioner_texts['en_US'] = array(
   'ct.co_crowd_provisioner_targets.pl' => 'Crowd Provisioner Targets',
   
   // Error messages
-//  'er.crowdprovisioner.id.none'      => 'No identifier of type %1$s found for CO Person',
+  'er.crowdprovisioner.id.none'        => 'No identifier of type %1$s found for CO Person',
+  'er.crowdprovisioner.mail.none'      => 'No email address found for CO Person',
   
   // Plugin texts
   'pl.crowdprovisioner.pref_username'      => 'Username Identifier Type',
