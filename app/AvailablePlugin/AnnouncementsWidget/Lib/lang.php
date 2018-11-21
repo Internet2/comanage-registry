@@ -47,6 +47,7 @@ $cm_announcements_widget_texts['en_US'] = array(
   'pl.announcementswidget.author'      => 'Author Group',
   'pl.announcementswidget.author.desc' => 'Members of this group can add announcements to this channel',
   'pl.announcementswidget.body'        => 'Message Body',
+  'pl.announcementswidget.none'        => 'No announcements',
   'pl.announcementswidget.nt.add'      => 'Announcement Posted',
   'pl.announcementswidget.nt.edit'     => 'Announcement Updated',
   'pl.announcementswidget.notify'      => 'Send Notifications',

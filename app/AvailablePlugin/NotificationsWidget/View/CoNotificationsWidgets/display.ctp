@@ -26,6 +26,9 @@
  */
 ?>
 <ul>
+<?php if(empty($vv_widget_notifications)): ?>
+  <li><?php print _txt('pl.notificationswidget.none'); ?></li>
+<?php endif; ?>
 <?php foreach($vv_widget_notifications as $n): ?>
   <li class="notification">
     <?php

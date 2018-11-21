@@ -42,4 +42,5 @@ $cm_notifications_widget_texts['en_US'] = array(
   // Plugin texts
   'pl.notificationswidget.max'      => 'Maximum Notifications',
   'pl.notificationswidget.max.desc' => 'Maximum number of notifications to display, defaults to 10',
+  'pl.notificationswidget.none'     => 'No notifications',
 );

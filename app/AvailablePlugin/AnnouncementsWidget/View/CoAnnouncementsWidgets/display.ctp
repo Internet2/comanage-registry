@@ -65,6 +65,9 @@
   */ ?>
 </ul>
 <ul class="widget-announcements widget-list">
+<?php if(empty($vv_widget_announcements)): ?>
+  <li><?php print _txt('pl.announcementswidget.none'); ?></li>
+<?php endif; ?>
 <?php foreach($vv_widget_announcements as $a): ?>
   <li>
     <div class="announcement-title"><?php print $a['CoAnnouncement']['title']; ?></div>
