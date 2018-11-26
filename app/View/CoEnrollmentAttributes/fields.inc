@@ -654,7 +654,7 @@
         <td>
           <?php
           if($e) {
-            print $this->Form->submit($submit_label, array('onClick' => 'on_submit()'));
+            print $this->Form->submit($submit_label);
           }
           ?>
         </td>

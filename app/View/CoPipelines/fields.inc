@@ -561,7 +561,7 @@
             <li class="fields-submit">
               <div class="field-name"><span class="required"><?php print _txt('fd.req'); ?></span></div>
               <div class="field-info">
-                <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+                <?php print $this->Form->submit($submit_label); ?>
               </div>
             </li>
           </ul>

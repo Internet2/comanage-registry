@@ -128,7 +128,7 @@
         <em><span class="required"><?php print _txt('fd.req'); ?></span></em><br />
       </div>
       <div class="field-info">
-        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+        <?php print $this->Form->submit($submit_label); ?>
       </div>
     </li>
   <?php endif; ?>
