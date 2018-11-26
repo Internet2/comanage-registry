@@ -82,14 +82,11 @@
 
 <div class="table-container">
   <?php if(!empty($vv_dashboard)): ?>
-    <?php /* XXX Keep if we want to display the dashboard description, but this might be better served with a
-             display field used specifically for this purpose, or perhaps an HTML widget
-    <?php if(!empty($vv_dashboard['CoDashboard']['description'])): ?>
-      <div id="dashboard-desc">
-        <?php print $vv_dashboard['CoDashboard']['description']; ?>
+    <?php if(!empty($vv_dashboard['CoDashboard']['header_text'])): ?>
+      <div id="dashboard-header">
+        <?php print $vv_dashboard['CoDashboard']['header_text']; ?>
       </div>
     <?php endif; ?>
-    */ ?>
     <?php if(!empty($vv_dashboard['CoDashboardWidget'])): ?>
       <?php foreach($vv_dashboard['CoDashboardWidget'] as $w): ?>
         <?php if($w['status'] == StatusEnum::Active): ?>
@@ -104,6 +101,11 @@
       <?php endforeach; // dashboard widget ?>
     <?php else: ?>
       <?php print _txt('in.widgets.none'); ?>
+    <?php endif; ?>
+    <?php if(!empty($vv_dashboard['CoDashboard']['footer_text'])): ?>
+      <div id="dashboard-footer">
+        <?php print $vv_dashboard['CoDashboard']['footer_text']; ?>
+      </div>
     <?php endif; ?>
   <?php else: // $vv_dashboard ?>
   <!-- XXX this doesn't really render correctly -->

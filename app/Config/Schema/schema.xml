@@ -2262,6 +2262,8 @@
     </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
+    <field name="header_text" type="X" size="4000" />
+    <field name="footer_text" type="X" size="4000" />
     <field name="visibility" type="C" size="2" />
     <field name="visibility_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>

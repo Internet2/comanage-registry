@@ -1094,6 +1094,10 @@ original notification at
   'fd.dashboard.visibility.group' => 'Group',
   'fd.dashboard.primary' => 'Primary Dashboard',
   'fd.dashboard.primary.desc' => 'Default Dashboard for the CO landing page',
+  'fd.dashboard.header' => 'Header',
+  'fd.dashboard.header.desc' => 'Optional text to display at the top of a Dashboard, under the title. May contain HTML.',
+  'fd.dashboard.footer' => 'Footer',
+  'fd.dashboard.footer.desc' => 'Optional text to display at the bottom of a Dashboard. May contain HTML.',
   'fd.deleted' =>     'Deleted',
   // Demographics fields
   'fd.de.persid'  =>  'Person ID',
