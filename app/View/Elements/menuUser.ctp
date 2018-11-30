@@ -254,30 +254,23 @@
               <li class="panel-orgid-ids">
                 <?php if(!empty($orgID['orgName'])): ?>
                   <span class="org-name">
-                    <?php
-                      print $this->Html->link($orgID['orgName'],
-                        array(
-                          'controller' => 'org_identities',
-                          'action' => ('view'),
-                          $orgID['orgID_id']
-                        )
-                      ) . ": ";
-                    ?>
+                    <?php print $orgID['orgName']; ?>
                   </span>
                 <?php endif; ?>
                 <span class="org-ids">
                   <?php
-                    // Identifier - could send these to each identifier view using
-                    // controller 'identifiers' with $id['identifier_id'] but let's
-                    // keep this simple: for now the ids will also link to the Org ID view.
+                    // Identifier - link to the Org ID view.
                     foreach($orgID['identifiers'] as $id) {
+                      if(!empty($orgID['orgName'])) print "(";
                       print $this->Html->link($id['identifier'],
                         array(
                           'controller' => 'org_identities',
                           'action' => ('view'),
                           $orgID['orgID_id']
                         )
-                      ) . " ";
+                      );
+                      if(!empty($orgID['orgName'])) print ")";
+                      print " "; // in the event of more than one id
                     }
                   ?>
                 </span>
