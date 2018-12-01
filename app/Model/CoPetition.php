@@ -2058,8 +2058,8 @@ class CoPetition extends AppModel {
     
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
-    $args['contain']['CoEnrollmentFlow'] = 'CoEnrollmentFlowApprovalMessageTemplate';
-    $args['contain']['CoEnrollmentFlow'] = 'CoEnrollmentFlowFinMessageTemplate';
+    $args['contain']['CoEnrollmentFlow'][] = 'CoEnrollmentFlowApprovalMessageTemplate';
+    $args['contain']['CoEnrollmentFlow'][] = 'CoEnrollmentFlowFinMessageTemplate';
     $args['contain']['EnrolleeCoPerson'] = array('PrimaryName', 'Identifier');
     $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
     $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
