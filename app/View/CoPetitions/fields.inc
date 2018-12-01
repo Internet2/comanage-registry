@@ -247,7 +247,7 @@
               <?php print _txt('fd.pt.identities'); ?>
             </a>
 
-            <ul id=co_petition_identities" class="fields form-list">
+            <ul id="co_petition_identities" class="fields form-list">
               <li>
                 <div class="field-name"><?php print _txt('ct.co_people.1'); ?></div>
                 <div class="field-info">
