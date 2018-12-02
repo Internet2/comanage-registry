@@ -106,14 +106,16 @@
   </div>
 <?php endif; ?>
 
-<?php if($this->Session->check('Auth.User.name')): ?>
+<?php if($this->Session->check('Auth.User.username')): ?>
   <div id="user">
     <a href="#" class="topMenu" id="user-panel-toggle" aria-controls="user-panel">
       <span id="user-common-name">
         <?php
-          // Print the user's name
-          $userCN = generateCn($this->Session->read('Auth.User.name'));
-          print $userCN;
+          if($this->Session->check('Auth.User.name')) {
+            // Print the user's name
+            $userCN = generateCn($this->Session->read('Auth.User.name'));
+            print $userCN;
+          }
         ?>
       </span>
       <em class="material-icons icon-adjust">person</em>

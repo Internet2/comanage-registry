@@ -482,6 +482,29 @@ class CoPersonRole extends AppModel {
     
     $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, $activeEligible, $provision);
     $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, $allEligible, $provision);
+
+    // Remove group memberships if the COU ID or CO Person ID has changed.
+    if (isset($this->cachedData)) {
+
+      // If the COU has changed, remove memberships for the old COU.
+      if (isset($this->cachedData[$this->alias]['cou_id'])) {
+        $oldCouId = $this->cachedData[$this->alias]['cou_id'];
+        if ($oldCouId !== $couId) {
+          $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $oldCouId, $coPersonId, false, $provision);
+          $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $oldCouId, $coPersonId, false, $provision);
+        }
+      }
+
+      // If the person has changed, remove memberships for the old person.
+      if (isset($this->cachedData[$this->alias]['co_person_id'])) {
+        $oldCoPersonId = $this->cachedData[$this->alias]['co_person_id'];
+        if ($oldCoPersonId !== $coPersonId) {
+          $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $oldCoPersonId, false, $provision);
+          $this->CoPerson->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $oldCoPersonId, false, $provision);
+        }
+      }
+    }
+
   }
   
   /**
