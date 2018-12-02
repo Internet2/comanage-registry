@@ -164,12 +164,12 @@
           }
         }
 
-        // Enrollment flows / Invitations
+        // Enrollment flows
         if(isset($cur_co)) {
           // Convert the list of COs with enrollment flows defined into a more useful format
           $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
-          if (in_array($cur_co['Co']['id'], $efcos)) {
+          if(in_array($cur_co['Co']['id'], $efcos)) {
             // If we have enrollment flows, display them directly
             if (!empty($menuContent['flows']) && ($permissions['menu']['createpetition'] || $permissions['menu']['invite'])) {
               print '<div id="user-panel-flows-container">';
@@ -186,25 +186,6 @@
                 );
                 print '</li>';
               }
-              print '</ul>';
-              print '</div>';
-            }
-          } else {
-            // Provide an invite link (default enrollment) otherwise if allowed
-            if (isset($permissions['menu']['invite']) && $permissions['menu']['invite']) {
-              print '<div id="user-panel-flows-container">';
-              print '<h2>' . _txt('me.invite') . '</h2>';
-              print '<ul id="user-panel-invite">';
-              print '<li>';
-
-              $args = array();
-              $args['plugin'] = null;
-              $args['controller'] = 'org_identities';
-              $args['action'] = 'find';
-              $args['co'] = $cur_co['Co']['id'];
-              print $this->Html->link(_txt('op.inv.new'), $args);
-
-              print '</li>';
               print '</ul>';
               print '</div>';
             }
