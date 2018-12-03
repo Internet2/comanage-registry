@@ -603,23 +603,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
 
                 foreach($provisioningData['CoTAndCAgreement'] as $tc) {
                   if(!empty($tc['agreement_time'])
-                     && !(empty($tc['CoTermsAndConditions']['url'])
-                          && empty($tc['CoTermsAndConditions']['tc_body']))
+                     && !empty($tc['CoTermsAndConditions']['url'])
                      && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active) {
-
-                    $url = empty($tc['CoTermsAndConditions']['tc_body'])
-                           ? $tc['CoTermsAndConditions']['url']
-                           : Router::url(array(
-                             "controller" => "CoTermsAndConditions",
-                             "action" => "raw_view",
-                             $tc['CoTermsAndConditions']['id']
-                           ), true);
 
                     if($attropts) {
                       $lrattr = $lattr . ";time-" . strtotime($tc['agreement_time']);
-                      $attributes[$lrattr][] = $url;
+                      $attributes[$lrattr][] = $tc['CoTermsAndConditions']['url'];
                     } else {
-                      $attributes[$attr][] = $url;
+                      $attributes[$attr][] = $tc['CoTermsAndConditions']['url'];
                     }
                   }
                 }

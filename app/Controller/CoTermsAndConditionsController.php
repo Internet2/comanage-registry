@@ -196,32 +196,31 @@ class CoTermsAndConditionsController extends StandardController {
     $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     // A raw view of the T&C content is always allowed
-    $p['raw_view']=TRUE;
+    $p['display']=true;
 
     $this->set('permissions', $p);
     return $p[$this->action];
   }
 
   /**
-   * Raw view of the T&C
-   * Necessary for CO-1605, to enable viewing of T&C through the existing
-   * framework, as well as storing the relevant T&C as URL in the LDAP
-   * provisioner.
+   * Display the T&C body text
+   * Necessary to enable viewing of T&C as stored in the database. This
+   * conveniently provides a valid URL to place in the relevant URL field
+   * of the T&C model, if no other value is available.
    *
    * @since  COmanage Registry v3.2.0
    * @param  Integer $id CO Terms and Agreements identifier
    * @return void
    */
 
-  public function raw_view($id) {
+  public function display($id) {
     $args = array();
     $args['conditions'][$this->modelClass.'.id'] = $id;
 
     $tc = $this->CoTermsAndConditions->find('first', $args);
 
-    print ($tc[$this->modelClass]['tc_body']);
-
-    exit(0);
+    $this->layout='raw';
+    $this->set("body",$tc[$this->modelClass]['body']);
   }
 
   /**

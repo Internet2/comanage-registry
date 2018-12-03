@@ -532,19 +532,12 @@
       </div>
       <ul id="co_petition_tandc">
         <?php foreach($vv_terms_and_conditions as $t): ?>
-          <?php $url = empty($t['CoTermsAndConditions']['tc_body']) 
-                  ? $t['CoTermsAndConditions']['url'] 
-                  : Router::url(array(
-                    "controller" => "CoTermsAndConditions",
-                    "action" => "raw_view",
-                    $t['CoTermsAndConditions']['id']
-                  )); ?>
           <li class="line<?php print ($l % 2); $l++; ?>">
               <strong><?php print filter_var($t['CoTermsAndConditions']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></strong><br/>
               <button class="checkbutton"
                       type="button"
                       onClick="open_tandc('<?php print addslashes($t['CoTermsAndConditions']['description']); ?>',
-                        '<?php print addslashes($url); ?>',
+                        '<?php print addslashes($t['CoTermsAndConditions']['url']); ?>',
                         '<?php print addslashes($t['CoTermsAndConditions']['id']); ?>')">
                 <?php print _txt('op.tc.review'); ?>
               </button>
