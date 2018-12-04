@@ -36,7 +36,7 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<div id="co-services">
+<div class="co-services">
   
   <?php foreach ($co_services as $c): ?>
 

@@ -409,7 +409,7 @@
   }
   /* DASHBOARDS and WIDGETS */
   /* Service Portal */
-  #co-services {
+  .co-services {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
