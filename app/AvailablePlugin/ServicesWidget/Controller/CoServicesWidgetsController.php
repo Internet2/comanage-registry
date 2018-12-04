@@ -77,13 +77,13 @@ class CoServicesWidgetsController extends SDWController {
     // Note that the display permission is set at the Dashboard, not Dashboard Widget level.
     $p = $this->calculateParentPermissions($roles);
 
-    // Delete an existing CO Notifications Widget?
+    // Delete an existing CO Services Widget?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // Edit an existing CO Notifications Widget?
+    // Edit an existing CO Services Widget?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
 
-    // View an existing CO Notifications Widget?
+    // View an existing CO Services Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);

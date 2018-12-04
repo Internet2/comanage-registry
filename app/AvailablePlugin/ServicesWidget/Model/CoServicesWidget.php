@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Notifications Widget Model
+ * COmanage Registry CO Services Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.

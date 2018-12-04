@@ -36,7 +36,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="co_notifications_widgets_i1">
+    <index name="co_services_widgets_i1">
       <col>co_dashboard_widget_id</col>
       <unique />
     </index>
