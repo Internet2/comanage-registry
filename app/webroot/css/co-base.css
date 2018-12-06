@@ -340,10 +340,10 @@ body.logged-in #user-menu {
   display: block;
 }
 #notifications .notification:nth-child(odd) {
-  background-color: #fdfdfd;
+  background-color: #fff;
 }
 #notifications .notification:nth-child(even) {
-  background-color: #f5f5f5;
+  background-color: #fafafa;
 }
 #notifications li.notification:nth-child(n+4) {
   /* only show three notifications on mobile phones. */
@@ -757,7 +757,8 @@ body.co_people.canvas .titleNavContainer {
   font-size: 0.9em;
 }
 .widget-actions .material-icons {
-  color: #2395E0;
+  /* color: #2395E0; - original blue; doesn't pass WCAG contrast ratios at small sizes */
+  color: #07b;
 }
 /* REDIRECT PAGE */
 #redirect-box {
@@ -1448,8 +1449,7 @@ a#top-search-toggle:hover {
   margin: 0.25em;
 }
 /* SERVICE PORTAL */
-#co-services,
-#co-departments {
+.co-services {
   clear: both;
 }
 .co-card h2  {
@@ -1852,6 +1852,9 @@ p { /* MDL override */
 ul, ol { /* MDL override */
   font-size: 12px;
   line-height: 20px;
+}
+.clearfix {
+  clear: both;
 }
 .fieldTitle {
   font-weight: bold;
