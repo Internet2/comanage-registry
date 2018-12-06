@@ -753,16 +753,19 @@ class AppController extends Controller {
               'co_id'         => $co['co_id'],
               'co_name'       => $co['co_name'],
               'co_person_id'  => $co['co_person_id'],
-              'notifications' => $this->CoNotification->pending($co['co_person_id'])
+              'notifications' => $this->CoNotification->pending($co['co_person_id'], 5)
             );
           }
         }
-        
+
+        // XXX we don't use this anywhere, but if we do at some point we probably need to
+        // add vv_all_notification_count
         $this->set('vv_all_notifications', $n);
       }
     } else {
       if(!empty($copersonid)) {
-        $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid));
+        $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid, 5));
+        $this->set('vv_my_notification_count', $this->CoNotification->pending($copersonid, 0));
         $this->set('vv_co_person_id_notifications', $copersonid);
       }
     }

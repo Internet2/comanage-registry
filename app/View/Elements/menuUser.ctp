@@ -59,7 +59,7 @@
   <div id="notifications">
     <a href="#" class="topMenu" id="user-notifications">
       <span id="user-notification-count">
-         <?php print count($vv_my_notifications); ?>
+         <?php print $vv_my_notification_count; ?>
       </span>
       <?php if(count($vv_my_notifications) > 0): ?>
         <em class="material-icons icon-adjust">notifications_active</em>
