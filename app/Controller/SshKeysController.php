@@ -224,7 +224,8 @@ class SshKeysController extends StandardController {
     $p['delete'] = ($roles['cmadmin'] || $managed || $self);
     
     // Edit an existing SSH Key?
-    $p['edit'] = ($roles['cmadmin'] || $managed || $self);
+    // As of v3.2.0 (CO-1616), editing a key is no longer permitted
+    $p['edit'] = false;
     
     // View all SSH Keys?
     $p['index'] = $roles['cmadmin'];

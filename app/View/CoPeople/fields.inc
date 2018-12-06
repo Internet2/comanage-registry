@@ -1049,11 +1049,10 @@
                 foreach($co_people[0]['SshKey'] as $sk) {
                   print '<li class="field-data-container">';
                   print '<div class="field-data">';
-                  print $this->Html->link($sk['comment'], array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']));
+                  print $this->Html->link($sk['comment'], array('controller' => 'ssh_keys', 'action' => 'view', $sk['id']));
                   print ' (' . _txt('en.sshkey.type', null, $sk['type']). ')';
                   print '</div>';
                   print '<div class="field-actions">';
-                  // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
                   print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                     . '" onclick="javascript:js_confirm_generic(\''
                     . _txt('js.remove') . '\',\''    // dialog body text
@@ -1071,9 +1070,9 @@
                     . '\']);">'
                     . _txt('op.delete')
                     . '</button>';
-                  print $this->Html->link(_txt('op.edit'),
-                      array('controller' => 'ssh_keys', 'action' => 'edit', $sk['id']),
-                      array('class' => 'editbutton')) . "\n";
+                  print $this->Html->link(_txt('op.view'),
+                      array('controller' => 'ssh_keys', 'action' => 'view', $sk['id']),
+                      array('class' => 'viewbutton')) . "\n";
                   print '</div>';
                   print '</li>';
                 }
