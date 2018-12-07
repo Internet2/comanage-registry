@@ -203,7 +203,7 @@ class CoEnrollmentAttribute extends AppModel {
     $extAttrs = $this->CoEnrollmentFlow->Co->CoExtendedAttribute->findAllByCoId($coid);
     
     foreach($extAttrs as $e)
-      $ret['x:' . $e['CoExtendedAttribute']['name']] = $e['CoExtendedAttribute']['display_name'];
+      $ret['x:' . $e['CoExtendedAttribute']['name']] = $e['CoExtendedAttribute']['display_name'] . " (" . _txt('ct.co_person_roles.1') . ")";
     
     $cmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
     
