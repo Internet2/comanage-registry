@@ -1077,6 +1077,47 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   }
   
   /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+
+  public function beforeSave($options = array()) {
+    // Verify that a scope is defined (scope_suffix) if an attribute requiring scope
+    // is defined (eduPersonScopedAffiliation, eduPersonUniqueId).
+    
+    // Only do this check if no scope is set.
+    if(empty($this->data['CoLdapProvisionerTarget']['scope_suffix'])) {
+      $attrs = $this->supportedAttributes();
+      
+      // Walk through the list of attributes looking for those that require scope.
+      // If we find any that are enabled for export, throw an error.
+      
+      foreach($attrs as $oc => $occfg) {
+        // Check that the objectclass is enabled
+        $occol = "oc_" . strtolower($oc);
+        
+        if($occfg['objectclass']['required']
+           // If !isset, it's probably a plugin schema, which is always enabled
+           || !isset($this->data['CoLdapProvisionerTarget'][$occol])
+           || $this->data['CoLdapProvisionerTarget'][$occol]) {
+          foreach($occfg['attributes'] as $attr => $acfg) {
+            if(isset($acfg['requirescope']) && $acfg['requirescope']) {
+              // This attribute requires scope, see if it is required or enabled
+              $dbCfg = Hash::extract($this->data['CoLdapProvisionerAttribute'], '{n}.CoLdapProvisionerAttribute[attribute='.$attr.']');
+              
+              if($acfg['required']
+                 || (isset($dbCfg[0]['export']) && $dbCfg[0]['export'])) {
+                throw new InvalidArgumentException(_txt('er.ldapprovisioner.scope', array($attr)));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * Provision for the specified CO Person.
    *
    * @since  COmanage Registry v0.8
@@ -1720,13 +1761,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           ),
           'eduPersonScopedAffiliation' => array(
             'required'  => false,
-            'multiple'  => true
+            'multiple'  => true,
+            'requirescope' => true
           ),
           'eduPersonUniqueId' => array(
             'required'  => false,
             'multiple'  => false,
             'extendedtype' => 'identifier_types',
-            'defaulttype' => IdentifierEnum::Enterprise
+            'defaulttype' => IdentifierEnum::Enterprise,
+            'requirescope' => true
           )
         )
       ),
