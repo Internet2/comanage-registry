@@ -305,18 +305,51 @@ class CoDashboardsController extends StandardController {
        */
       
       $models = array(
-        'Address' => array('cmadmin', 'coadmin', 'couadmin'),
-        'CoDepartment' => array('cmadmin', 'coadmin', 'couadmin', 'comember'),
-        'CoEmailList' => array('cmadmin', 'coadmin', 'couadmin'),
-        'CoEnrollmentFlow' => array('cmadmin', 'coadmin'),
-        'CoGroup' => array('cmadmin', 'coadmin', 'couadmin', 'comember'),
-        'CoPersonRole' => array('cmadmin', 'coadmin', 'couadmin'),
+        'Address' => array(
+          'parent' => 'CoPersonRole',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
+        'CoDepartment' => array(
+          'parent' => 'Co',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin', 'comember')
+        ),
+        'CoEmailList' => array(
+          'parent' => 'Co',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
+        'CoEnrollmentFlow' => array(
+          'parent' => 'Co',
+          'roles' => array('cmadmin', 'coadmin')
+        ),
+        'CoGroup' => array(
+          'parent' => 'Co',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin', 'comember')
+        ),
+        'CoPersonRole' => array(
+          'parent' => 'CoPreson',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
         // CoService does not allow comember since portals may be constrained by cou
-        'CoService' => array('cmadmin', 'coadmin', 'couadmin'),
-        'EmailAddress' => array('cmadmin', 'coadmin', 'couadmin'),
-        'Identifier' => array('cmadmin', 'coadmin', 'couadmin'),
-        'Name' => array('cmadmin', 'coadmin', 'couadmin'),
-        'TelephoneNumber' => array('cmadmin', 'coadmin', 'couadmin'),
+        'CoService' => array(
+          'parent' => 'Co',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
+        'EmailAddress' => array(
+          'parent' => 'CoPerson',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
+        'Identifier' => array(
+          'parent' => 'CoPerson',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
+        'Name' => array(
+          'parent' => 'CoPerson',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
+        'TelephoneNumber' => array(
+          'parent' => 'CoPersonRole',
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        )
       );
       
       // Determine which plugin models are searchable
@@ -330,7 +363,12 @@ class CoDashboardsController extends StandardController {
           $pSearchInfo = $this->$plugin->cmPluginSearchModels();
           
           foreach($pSearchInfo as $pmodel => $pcfg) {
-            $models[$pmodel] = $pcfg['permissions'];
+            $models[$pmodel] = array(
+              // Hardcoding parent probably isn't right, but it covers our
+              // immediate use case (filtering duplicate search results)
+              'parent' => 'Co',
+              'roles' => $pcfg['permissions']
+            );
             $pdisplay[$pmodel] = $pcfg['displayField'];
           }
         }
@@ -345,7 +383,7 @@ class CoDashboardsController extends StandardController {
       foreach(array_keys($models) as $m) {
         $authorized = false;
         
-        foreach($models[$m] as $role) {
+        foreach($models[$m]['roles'] as $role) {
           if(isset($roles[$role]) && $roles[$role]) {
             $authorized = true;
             break;
@@ -368,18 +406,37 @@ class CoDashboardsController extends StandardController {
       }
     }
     
-    // If we get exactly search result, redirect to that record. This is slightly
+    // If we get exactly one search result, redirect to that record. This is slightly
     // tricky in that we could get multiple results that point to the same object
     // (eg: because there are multiple similar names attached to a CO Person).
+    // So we sort the results according to the parent model. Models with a parent
+    // of CO are not considered duplicates.
     
-    $matches = Hash::extract($results, '{s}.{n}');
-    $pmatches = array_filter(array_unique(Hash::extract($results, '{s}.{n}.{s}.co_person_id')));
-    $prmatches = array_filter(array_unique(Hash::extract($results, '{s}.{n}.{s}.co_person_role_id')));
+    $c = array(
+      // For models with a parent of CO, we just need a count
+      'Co' => 0,
+      // Otherwise we need to track which IDs we've seen
+      'CoPerson' => array(),
+      'CoPersonRole' => array()
+    );
+    
+    foreach(array_keys($models) as $m) {
+      $p = $models[$m]['parent'];
+      
+      if($p == 'Co') {
+        $c[$p] += count($results[$m]);
+      } elseif($p == 'CoPerson') {
+        $c['CoPerson'] = array_filter(array_unique(array_merge($c['CoPerson'], Hash::extract($results, $m.'.{n}.'.$m.'.co_person_id'))));
+      } else {
+        $c['CoPersonRole'] = array_filter(array_unique(array_merge($c['CoPersonRole'], Hash::extract($results, $m.'.{n}.'.$m.'.co_person_role_id'))));
+      }
+    }
     
     // It's a single match if there is a single person or person role result,
     // or if there is a single result overall, redirect to that result.
-    if(((count($pmatches) + count($prmatches)) == 1)
-       || count($matches) == 1) {
+    if(($c['Co'] == 0 && (count($c['CoPerson']) + count($c['CoPersonRole']) == 1))
+       || $c['Co'] == 1 && (count($c['CoPerson']) + count($c['CoPersonRole']) == 0)) {
+      $matches = Hash::extract($results, '{s}.{n}');
       $match = Hash::get($matches, '0');
       
       // Figure out what model the results are for
