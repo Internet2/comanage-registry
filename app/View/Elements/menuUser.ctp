@@ -111,6 +111,8 @@
     <a href="#" class="topMenu" id="user-panel-toggle" aria-controls="user-panel">
       <span id="user-common-name">
         <?php
+          $userCN = "";
+          
           if($this->Session->check('Auth.User.name')) {
             // Print the user's name
             $userCN = generateCn($this->Session->read('Auth.User.name'));
