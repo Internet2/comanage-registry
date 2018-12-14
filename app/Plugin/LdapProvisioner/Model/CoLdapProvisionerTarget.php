@@ -605,7 +605,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   if(!empty($tc['agreement_time'])
                      && !empty($tc['CoTermsAndConditions']['url'])
                      && $tc['CoTermsAndConditions']['status'] == SuspendableStatusEnum::Active) {
-
                     if($attropts) {
                       $lrattr = $lattr . ";time-" . strtotime($tc['agreement_time']);
                       $attributes[$lrattr][] = $tc['CoTermsAndConditions']['url'];
