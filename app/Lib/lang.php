@@ -991,6 +991,7 @@ original notification at
   'er.prov.plugin' => 'Provisioning failed for %1$s: %2$s',
   'er.pt.dupe.cou' => 'The target CO Person already has a Role in the specified COU',
   'er.pt.duplicate' => 'The identifier "%1$s" is already attached to an identity enrolled in this CO. This petition has been flagged as a duplicate.',
+  'er.pt.mail' =>     'No email address found for %1$s to use for confirmation',
   'er.pt.readonly' => 'Petition is now read only (status=%1$s)',
   'er.pt.relink.org' => 'Could not automatically relink Org Identity due to another existing CO Person record',
   'er.pt.relink.role.c' => 'Could not automatically relink CO Person Role due to another existing CO Person record',

@@ -140,8 +140,12 @@ class CoInvite extends AppModel {
         // Mark the email address associated with this invite as verified.
         
         if($confirm) {
-          // We're actually verifying an org identity email address even though we're
-          // getting to the EmailAddress object via CoPerson
+          // For historical reasons, we don't attach the email_address_id to the invite
+          // when we're in a petition context. (That's how we distinguish petition
+          // vs not, above.) This all needs to get rewritten (currently scheduled
+          // for v4.0.0), but in the mean time we have to check both Org Identity
+          // and CO Person attached Email Addresses, since we might have confirmed
+          // either one.
           
           $orgId = null;
           
@@ -169,7 +173,10 @@ class CoInvite extends AppModel {
           
           if($orgId) {
             try {
-              $this->CoPerson->EmailAddress->verify($orgId, null, $invite['CoInvite']['mail'], $invite['CoPetition']['enrollee_co_person_id']);
+              $this->CoPerson->EmailAddress->verify($orgId,
+                                                    $invite['CoPetition']['enrollee_co_person_id'],
+                                                    $invite['CoInvite']['mail'],
+                                                    $invite['CoPetition']['enrollee_co_person_id']);
             }
             catch(Exception $e) {
               $dbc->rollback();
