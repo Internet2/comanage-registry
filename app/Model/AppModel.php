@@ -1467,4 +1467,23 @@ class AppModel extends Model {
     
     return $ret;
   }
+
+  /**
+   * Validate that at least one of the named fields contains a value.
+   *
+   * @since  COmanage Registry vTODO
+   * @param  string field Name of field within model, as known to $validates
+   * @param  array fields List of field names to match
+   * @return array Array suitable for generating a select via FormHelper
+   */
+  public function validateOneOfMany($field, $fields) {
+    $status = false;
+    foreach($fields as $name) {
+      if(!empty($this->data[$this->alias][$name])) {
+        $status = true;
+        break;
+      }
+    }
+    return $status;
+  }
 }

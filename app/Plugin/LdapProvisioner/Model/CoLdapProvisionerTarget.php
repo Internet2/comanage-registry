@@ -620,7 +620,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 if(!$attropts) {
                   $attributes[$attr] = array();
                 }
-                
+
                 foreach($provisioningData['CoTAndCAgreement'] as $tc) {
                   if(!empty($tc['agreement_time'])
                      && !empty($tc['CoTermsAndConditions']['url'])

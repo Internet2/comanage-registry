@@ -50,10 +50,16 @@ class CoTermsAndConditions extends AppModel {
       'allowEmpty' => false
     ),
     'url' => array(
-      'rule' => array('url', true),
-      'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A URL must be provided'
+      'rule' => array("validateOneOfMany", array("url","body")),
+      'required' => false,
+      'type' => 'textarea',
+      'message' => "" // empty message causes field to get error state without duplicate message
+    ),
+    'body' => array(
+      'rule' => array("validateOneOfMany", array("url","body")),
+      'required' => false,
+      'type' => 'textarea',
+      'message' => 'Either URL or Content must be set for this T&C'
     ),
     'cou_id' => array(
       'rule' => 'numeric',
@@ -202,6 +208,39 @@ class CoTermsAndConditions extends AppModel {
       $this->data['CoTermsAndConditions']['ordr'] = $n;
     }
 
+    // if we have a body for our T&C, override any URL with a local
+    // URL to display said body
+    if (!empty($this->data['CoTermsAndConditions']['body'])) {
+      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
+                             "controller" => "CoTermsAndConditions",
+                             "action" => "display",
+                             $this->data['CoTermsAndConditions']['id']
+                           ), true);
+    }
+
     return true;
   }
+
+  /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+
+  public function afterSave($created, $options = array()) {
+
+    // if we created a new T&C and added a URL pointing to our T&C body,
+    // we need to re-save the model with the newly created model id
+    if($created && !empty($this->data['CoTermsAndConditions']['body'])) {
+      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
+                             "controller" => "CoTermsAndConditions",
+                             "action" => "display",
+                             $this->data['CoTermsAndConditions']['id']
+                           ), true);
+      $this->save();
+    }
+
+    return true;
+  }
+  
 }
