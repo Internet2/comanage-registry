@@ -36,18 +36,19 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                        "OrgIdentitySource",
                        "OrcidSource",
                        "OrcidSource.OrcidSourceBackend");
-
+  
   /**
-   * Enrollment Flow selectOrgIdentity (authenticate mode)
+   * Dispatch an ORCID Callback.
    *
-   * @since  COmanage Registry v2.0.0
+   * @since  COmanage Registry v3.2.0
+   * @param  String  $action Enrollment step to dispatch the call for
    * @param  Integer $id CO Petition ID
-   * @param  Array $oiscfg Array of configuration data for this plugin
-   * @param  Array $onFinish URL, in Cake format
+   * @param  Array   $oiscfg Array of configuration data for this plugin
+   * @param  Array   $onFinish URL, in Cake format
    * @param  Integer $actorCoPersonId CO Person ID of actor
    */
   
-  protected function execute_plugin_selectOrgIdentityAuthenticate($id, $oiscfg, $onFinish, $actorCoPersonId) {
+  protected function dispatch_orcid_call($action, $id, $oiscfg, $onFinish, $actorCoPersonId) {
     // First pull our Oauth2Server configuration
     
     $args = array();
@@ -77,10 +78,17 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
     $callback = array(
       'plugin'     => 'orcid_source',
       'controller' => 'orcid_source_co_petitions',
-      'action'     => 'selectOrgIdentityAuthenticate',
+      'action'     => $action,
       $id,
       'oisid'      => $oiscfg['OrgIdentitySource']['id']
     );
+    
+    // Primarily for collectIdentifierIdentify, if a token was passed into this
+    // request inject it into the callback for authz purposes.
+    
+    if(!empty($this->request->params['named']['token'])) {
+      $callback['token'] = filter_var($this->request->params['named']['token'], FILTER_SANITIZE_SPECIAL_CHARS);
+    }
     
     // Build the redirect URI
     $redirectUri = Router::url($callback, array('full' => true));
@@ -124,7 +132,7 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                                                               $actorCoPersonId,
                                                               $this->cur_co['Co']['id'],
                                                               $actorCoPersonId,
-                                                              true,
+                                                              false,
                                                               $id);
       
       // Record the ORCID into History and Petition History
@@ -148,5 +156,33 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
     // The step is done
 
     $this->redirect($onFinish);
+  }
+  
+  /**
+   * Enrollment Flow collectIdentifierIdentify (Identify mode)
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $id CO Petition ID
+   * @param  Array   $oiscfg Array of configuration data for this plugin
+   * @param  Array   $onFinish URL, in Cake format
+   * @param  Integer $actorCoPersonId CO Person ID of actor
+   */
+  
+  protected function execute_plugin_collectIdentifierIdentify($id, $oiscfg, $onFinish, $actorCoPersonId) {
+    $this->dispatch_orcid_call('collectIdentifierIdentify', $id, $oiscfg, $onFinish, $actorCoPersonId);
+  }
+  
+  /**
+   * Enrollment Flow selectOrgIdentityAuthenticate (Authenticate mode)
+   *
+   * @since  COmanage Registry v2.0.0
+   * @param  Integer $id CO Petition ID
+   * @param  Array   $oiscfg Array of configuration data for this plugin
+   * @param  Array   $onFinish URL, in Cake format
+   * @param  Integer $actorCoPersonId CO Person ID of actor
+   */
+    
+  protected function execute_plugin_selectOrgIdentityAuthenticate($id, $oiscfg, $onFinish, $actorCoPersonId) {
+    $this->dispatch_orcid_call('selectOrgIdentityAuthenticate', $id, $oiscfg, $onFinish, $actorCoPersonId);
   }
 }

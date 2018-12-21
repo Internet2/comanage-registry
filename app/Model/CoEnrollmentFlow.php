@@ -561,6 +561,17 @@ class CoEnrollmentFlow extends AppModel {
         $ret['collectIdentifier']['enabled'] = RequiredEnum::Required;
       } else {
         $ret['collectIdentifier']['enabled'] = RequiredEnum::NotPermitted;
+
+        if(!empty($ef['CoEnrollmentSource'])) {
+          // Walk the list of sources and look for at least one in Identify mode.
+          // Similar to the check a few lines above...
+          
+          foreach($ef['CoEnrollmentSource'] as $es) {
+            if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISIdentify) {
+              $ret['collectIdentifier']['enabled'] = RequiredEnum::Required;
+            }
+          }
+        }
       }
       
       $ret['checkEligibility']['role'] = EnrollmentRole::Enrollee;

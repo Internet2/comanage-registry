@@ -600,6 +600,11 @@ class CoPetitionsController extends StandardController {
       $this->redirect("/");
     }
     
+    // Determine the current CO Person ID, who at this point is presumed to be the
+    // Actor since we're in an Enrollee driven phase of enrollment.
+   
+    $enrolleeCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    
     // Construct a redirect URL
     $onFinish = $this->generateDoneRedirect('collectIdentifier', $id, null, $oiscfg['OrgIdentitySource']['id']);
     $this->set('vv_on_finish_url', $onFinish);
@@ -607,7 +612,7 @@ class CoPetitionsController extends StandardController {
     $fname = "execute_plugin_collectIdentifierIdentify";
     
     try {
-      $this->$fname($id, $oiscfg, $onFinish, $this->Session->read('Auth.User.co_person_id'));
+      $this->$fname($id, $oiscfg, $onFinish, $enrolleeCoPersonId);
     }
     catch(Exception $e) {
       $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -616,7 +621,7 @@ class CoPetitionsController extends StandardController {
       $this->CoPetition
            ->CoPetitionHistoryRecord
            ->record($id,
-                    $this->Session->read('Auth.User.co_person_id'),
+                    $enrolleeCoPersonId,
                     PetitionActionEnum::StepFailed,
                     $e->getMessage());
            
@@ -1036,10 +1041,10 @@ class CoPetitionsController extends StandardController {
         $petitionerToken = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
 
         $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
+        
         if(isset($steps[$action]) && $steps[$action]['role'] == EnrollmentRole::Enrollee) {
           $token = empty($enrolleeToken) ? $petitionerToken : $enrolleeToken;
-        }
-        else {
+        } else {
           $token = empty($petitionerToken) ? $enrolleeToken : $petitionerToken;
         }
 
