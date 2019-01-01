@@ -671,8 +671,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     // There's probably a better place for this (an enum somewhere?)
                     switch($up['password_type']) {
                       // XXX we can't use PasswordAuthenticator's enums in case the plugin isn't installed
-                      case 'CR':
-                        $attributes[$attr][] = '{CRYPT}' . $up['password'];
+                      // For now we only support Salted SHA 1 as the "least bad" out of the
+                      // box option for OpenLDAP.
+                      case 'SH':
+                        $attributes[$attr][] = '{SSHA}' . $up['password'];
                         break;
                       default:
                         // Silently ignore other types

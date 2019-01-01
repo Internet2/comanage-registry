@@ -34,6 +34,9 @@
     </field>
     <field name="min_length" type="I" />
     <field name="max_length" type="I" />
+    <field name="format_crypt_php" type="L" />
+    <field name="format_plaintext" type="L" />
+    <field name="format_sha1_ldap" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
@@ -59,5 +62,9 @@
     <field name="password_type" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    
+    <index name="passwords_i1">
+      <col>co_person_id</col>
+    </index>
   </table>
 </schema>

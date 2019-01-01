@@ -59,6 +59,36 @@
       <?php print ($e ? $this->Form->input('max_length') : filter_var($password_authenticators[0]['PasswordAuthenticator']['max_length'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.hash.crypt'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.hash.crypt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        // Crypt format is currently required since that's what we use during password change
+        if($e) print $this->Form->input('format_crypt_php', array('checked' => true, 'disabled' => true));
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.hash.ssha'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.hash.ssha.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if($e) print $this->Form->input('format_sha1_ldap'); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.hash.plain'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.hash.plain.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if($e) print $this->Form->input('format_plaintext'); ?>
+    </div>
+  </li>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

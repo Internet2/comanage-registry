@@ -59,7 +59,12 @@ class Password extends AppModel {
       'allowEmpty' => false
     ),
 		'password_type' => array(
-      'rule' => array('inList', array(PasswordEncodingEnum::Crypt)),
+      'rule' => array('inList', 
+                      array(
+                        PasswordEncodingEnum::Crypt,
+                        PasswordEncodingEnum::Plain,
+                        PasswordEncodingEnum::SSHA
+                      )),
       'required' => true,
       'allowEmpty' => false
     )

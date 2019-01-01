@@ -27,6 +27,7 @@
 
 class PasswordEncodingEnum
 {
-  const Crypt = 'CR';    // Crypt/bcrypt/etc
-  const SSHA  = 'SH';    // Salted SHA 1
+  const Crypt = 'CR';    // Crypt/bcrypt/etc as implemented by php's password_hash
+  const Plain = 'NO';    // Not hashed
+  const SSHA  = 'SH';    // Salted SHA 1 as intended for LDAP
 }
