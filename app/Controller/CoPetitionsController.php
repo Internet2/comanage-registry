@@ -998,14 +998,14 @@ class CoPetitionsController extends StandardController {
                                              $id,
                                              $newOrgId['OrgIdentitySourceRecord']['org_identity_id'],
                                              $this->Session->read('Auth.User.co_person_id'));
-          // If there is already a CO Person attached to the Petition (from selectEnrollee),
-          // create a CoOrgIdentityLink for that CO Person to this Org Identity.
-          // (This would typically be for an account linking flow.)
-          // Otherwise, we don't create an org identity link since saveAttributes will do that.
-
           $pCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
 
           if($pCoPersonId) {
+            // If there is already a CO Person attached to the Petition (from selectEnrollee),
+            // create a CoOrgIdentityLink for that CO Person to this Org Identity.
+            // (This would typically be for an account linking flow.)
+            // Otherwise, we don't create an org identity link since saveAttributes will do that.
+            
             $coOrgLink = array();
             $coOrgLink['CoOrgIdentityLink']['org_identity_id'] = $newOrgId['OrgIdentitySourceRecord']['org_identity_id'];
             $coOrgLink['CoOrgIdentityLink']['co_person_id'] = $pCoPersonId;
@@ -1013,11 +1013,28 @@ class CoPetitionsController extends StandardController {
             // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
             // provisioning just in case that changes in the future. We'll also ignore
             // any error in the unlikely event there is already a link in place.
+            
             try {
-              if($this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false)));
+              $this->CoPetition->EnrolleeCoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false));
             }
             catch(Exception $e) {
 
+            }
+          } else {
+            // If there is no CO Person in the Petition but there *is* a CO Person linked
+            // to the Org Identity, link the CO Person into the petition. It was probably
+            // created by a Pipeline (probably via an Enrollment Source in authenticate mode).
+            
+            $linkCoPersonId = $this->CoPetition
+                                   ->EnrolleeCoPerson
+                                   ->CoOrgIdentityLink->field('co_person_id',
+                                                              array('CoOrgIdentityLink.org_identity_id' => $newOrgId['OrgIdentitySourceRecord']['org_identity_id']));
+            
+            if($linkCoPersonId) {
+              $this->CoPetition->linkCoPerson($this->cachedEnrollmentFlowID,
+                                              $id,
+                                              $linkCoPersonId,
+                                              $this->Session->read('Auth.User.co_person_id'));
             }
           }
         }

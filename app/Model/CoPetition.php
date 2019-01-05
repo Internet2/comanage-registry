@@ -1730,7 +1730,12 @@ class CoPetition extends AppModel {
       }
     }
     
-    if(!empty($coData) && !$coPersonId) {
+    if(!empty($coData)) {
+      if($coPersonId) {
+        // A CO Person ID might have been created by a pipeline
+        $coData['EnrolleeCoPerson']['id'] = $coPersonId;
+      }
+      
       // Insert some additional attributes
       $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
       $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
@@ -1740,8 +1745,10 @@ class CoPetition extends AppModel {
       if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false,
                                                                 "atomic" => true,
                                                                 "provision" => false))) {
-        $coPersonId = $this->EnrolleeCoPerson->id;
-        $createLink = true;
+        if(!$coPersonId) {
+          $coPersonId = $this->EnrolleeCoPerson->id;
+          $createLink = true;
+        }
         
         // Update the petition with the new identifier
         $this->saveField('enrollee_co_person_id', $coPersonId);
