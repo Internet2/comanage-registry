@@ -87,15 +87,14 @@
 
     <tbody>
       <?php $i = 0; ?>
-      <?php foreach ($co_people as $p): ?>
+      <?php foreach($co_people as $p): ?>
       <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
           <?php
             print $this->Html->link(generateCn($p['PrimaryName']),
                                     array('controller' => 'co_people',
                                           'action' => 'canvas',
-                                          $p['CoPerson']['id'],
-                                          'co' => $cur_co['Co']['id']));
+                                          $p['CoPerson']['id']));
           ?>
         </td>
         <td class = "<?php print _txt('en.status', null, $p['CoPerson']['status']); ?>">
@@ -105,16 +104,16 @@
         </td>
         <td>
           <?php
-            $isMember = isset($co_group_roles['members'][$p['CoPerson']['id']])
-                        && $co_group_roles['members'][$p['CoPerson']['id']];
-            $isOwner = isset($co_group_roles['owners'][$p['CoPerson']['id']])
-                       && $co_group_roles['owners'][$p['CoPerson']['id']];
+            $isMember = isset($co_group_roles['members'][ $p['CoPerson']['id'] ])
+                        && $co_group_roles['members'][ $p['CoPerson']['id'] ];
+            $isOwner = isset($co_group_roles['owners'][ $p['CoPerson']['id'] ])
+                       && $co_group_roles['owners'][ $p['CoPerson']['id'] ];
             $gmid = null;
 
             if($isMember) {
-              $gmid = $co_group_roles['members'][$p['CoPerson']['id']];
+              $gmid = $co_group_roles['members'][ $p['CoPerson']['id'] ];
             } elseif($isOwner) {
-              $gmid = $co_group_roles['owners'][$p['CoPerson']['id']];
+              $gmid = $co_group_roles['owners'][ $p['CoPerson']['id'] ];
             }
 
             if($gmid) {
@@ -156,3 +155,6 @@
     </tfoot>
   </table>
 </div>
+
+<?php
+  print $this->element("pagination");
