@@ -315,7 +315,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           $args['controller'] = 'co_services';
           $args['action'] = 'portal';
           if($sCouId > -1) {
-            $args['couid'] = $sCouId;
+            $args['cou'] = $sCouId;
           } else {
             $args['co'] = $menuCoId;
           }
