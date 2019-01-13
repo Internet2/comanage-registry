@@ -136,7 +136,9 @@ class CoDashboardsController extends StandardController {
       $args = array();
       $args['conditions']['CoDashboard.id'] = $dashboardid;
       $args['conditions']['CoDashboard.status'] = StatusEnum::Active;
-      $args['contain'][] = 'CoDashboardWidget';
+      $args['contain'] = array(
+        'CoDashboardWidget' => array('order' => 'CoDashboardWidget.ordr ASC')
+      );
       // This doesn't work because the widget model is not (necessarily) Changelog enabled.
       //$args['contain']['CoDashboardWidget'] = $pcontain;
       
