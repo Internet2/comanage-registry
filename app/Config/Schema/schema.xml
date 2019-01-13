@@ -1327,6 +1327,9 @@
     <field name="approval_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
+    <field name="denial_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="notify_on_finalize" type="L" />
     <field name="finalization_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
@@ -1521,6 +1524,7 @@
     <field name="petitioner_token" type="C" size="48" />
     <field name="enrollee_token" type="C" size="48" />
     <field name="return_url" type="C" size="256" />
+    <field name="approver_comment" type="C" size="256" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

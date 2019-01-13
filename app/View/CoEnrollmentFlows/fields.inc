@@ -61,8 +61,10 @@
     
     if(approval) {
       document.getElementById('approvergroupdiv').style.display = "block";
+      document.getElementById('approvalnotifydiv').style.display = "block";
     } else {
       document.getElementById('approvergroupdiv').style.display = "none";
+      document.getElementById('approvalnotifydiv').style.display = "none";
       document.getElementById('CoEnrollmentFlowApproverCoGroupId').value = "";
     }
   }
@@ -146,6 +148,7 @@
       var atemplate = document.getElementById('CoEnrollmentFlowApprovalTemplateId').value;
       
       $("#CoEnrollmentFlowApprovalTemplateId").closest("li").show('fade');
+      $("#CoEnrollmentFlowDenialTemplateId").closest("li").show('fade');
       
       if(atemplate) {
         $("#CoEnrollmentFlowApprovalSubject").closest("li").hide('fade');
@@ -158,6 +161,7 @@
       $("#CoEnrollmentFlowApprovalTemplateId").closest("li").hide('fade');
       $("#CoEnrollmentFlowApprovalSubject").closest("li").hide('fade');
       $("#CoEnrollmentFlowApprovalBody").closest("li").hide('fade');
+      $("#CoEnrollmentFlowDenialTemplateId").closest("li").hide('fade');
     }
     
     // If notify on finalize is enabled, show the template selector
@@ -617,82 +621,113 @@
       ?>
     </div>
   </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('fd.ef.noap'); ?>
+  <div id="approvalnotifydiv" class="subfield" style="display:none">
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('fd.ef.noap'); ?>
+        </div>
+        <div class="field-desc"><?php print _txt('fd.ef.noap.desc'); ?></div>
       </div>
-      <div class="field-desc"><?php print _txt('fd.ef.noap.desc'); ?></div>
-    </div>
-    <div class="field-info checkbox">
-      <?php print ($e
-                   ? $this->Form->input('notify_on_approval', array('onChange' => 'fields_update_gadgets();')) . ' ' .
-                     $this->Form->label('notify_on_approval', _txt('fd.ef.noap'))
-                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-    </div>
-    <ul class="field-children">
+      <div class="field-info checkbox">
+        <?php print ($e
+                     ? $this->Form->input('notify_on_approval', array('onChange' => 'fields_update_gadgets();')) . ' ' .
+                       $this->Form->label('notify_on_approval', _txt('fd.ef.noap'))
+                     : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['notify_on_approval'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      </div>
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.amt'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.amt.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
+                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
+                : null);
+              $attrs['empty'] = true;
+              $attrs['onchange'] = "fields_update_gadgets();";
 
-      <li>
-        <div class="field-name">
-          <div class="field-title"><?php print _txt('fd.ef.amt'); ?></div>
-          <div class="field-desc"><?php print _txt('fd.ef.amt.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php
-            global $cm_lang, $cm_texts;
-            $attrs = array();
-            $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])
-              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id']
-              : null);
-            $attrs['empty'] = true;
-            $attrs['onchange'] = "fields_update_gadgets();";
+              if($e) {
+                print $this->Form->select('approval_template_id',
+                  (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
+                    ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
+                    : array()),
+                  $attrs);
 
-            if($e) {
-              print $this->Form->select('approval_template_id',
-                (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
-                  ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
-                  : array()),
-                $attrs);
-
-              if($this->Form->isFieldError('approval_template_id')) {
-                print $this->Form->error('approval_template_id');
+                if($this->Form->isFieldError('approval_template_id')) {
+                  print $this->Form->error('approval_template_id');
+                }
+              } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
+                print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
               }
-            } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'])) {
-              print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
-            }
-          ?>
-        </div>
-      </li>
-      <li style="display:none">
-        <div class="field-name">
-          <div class="field-title">
-            <?php print ($e ? $this->Form->label('approval_subject',_txt('fd.ef.asub')) : _txt('fd.ef.asub')); ?>
+            ?>
           </div>
-          <div class="field-desc"><?php print _txt('fd.ef.asub.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php print ($e
-            ? $this->Form->input('approval_subject',
-              array('default' => _txt('em.approval.subject.ef')))
-            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-      </li>
-      <li class="field-stack" style="display:none">
-        <div class="field-name">
-          <div class="field-title">
-            <?php print ($e ? $this->Form->label('approval_body', _txt('fd.ef.abody')) : _txt('fd.ef.abody')); ?>
+        </li>
+        <li style="display:none">
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('approval_subject',_txt('fd.ef.asub')) : _txt('fd.ef.asub')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.ef.asub.desc'); ?></div>
           </div>
-          <div class="field-desc"><?php print _txt('fd.ef.abody.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php print ($e
-            ? $this->Form->input('approval_body',
-              array('default' => _txt('em.approval.body.ef')))
-            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-      </li>
-    </ul>
-  </li>
+          <div class="field-info">
+            <?php print ($e
+              ? $this->Form->input('approval_subject',
+                array('default' => _txt('em.approval.subject.ef')))
+              : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+          </div>
+        </li>
+        <li class="field-stack" style="display:none">
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('approval_body', _txt('fd.ef.abody')) : _txt('fd.ef.abody')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.ef.abody.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php print ($e
+              ? $this->Form->input('approval_body',
+                array('default' => _txt('em.approval.body.ef')))
+              : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+          </div>
+        </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.dmt'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.dmt.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['denial_template_id'])
+                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['denial_template_id']
+                : null);
+              $attrs['empty'] = true;
+
+              if($e) {
+                print $this->Form->select('denial_template_id',
+                  (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApproval])
+                    ? $vv_message_templates[MessageTemplateEnum::EnrollmentApproval]
+                    : array()),
+                  $attrs);
+
+                if($this->Form->isFieldError('denial_template_id')) {
+                  print $this->Form->error('denial_template_id');
+                }
+              } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['denial_template_id'])) {
+                print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentApproval][ $co_enrollment_flows[0]['CoEnrollmentFlow']['denial_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+            ?>
+          </div>
+        </li>
+      </ul>
+    </li>
+  </div>
   <li>
     <div class="field-name">
       <div class="field-title">

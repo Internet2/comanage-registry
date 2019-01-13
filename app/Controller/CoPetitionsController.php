@@ -154,9 +154,7 @@ class CoPetitionsController extends StandardController {
     'processConfirmation'          => 'collectIdentifier',
     'collectIdentifier'            => 'checkEligibility',
     // approve is re-entry point following approval
-    'approve'                      => 'sendApprovalNotification',
-    'sendApprovalNotification'     => 'finalize',
-    'deny'                         => 'finalize',
+    'approve'                      => 'finalize',
     'finalize'                     => 'provision',
     'provision'                    => 'redirectOnConfirm'
   );
@@ -214,10 +212,10 @@ class CoPetitionsController extends StandardController {
     }
     
     if(!$this->request->is('restful')) {
-      if(!in_array($this->action, array('finalize', 'provision', 'redirectOnConfirm', 'start', 'view'))) {
+      if(!in_array($this->action, array('approve', 'finalize', 'provision', 'redirectOnConfirm', 'start', 'view'))) {
         // If the petition is Finalized (or Denied/Declined), no further actions are permitted
         // (except the post processing actions of provisioning and redirection). We also need
-        // to allow finalize so plugins can run.
+        // to allow approve and finalize so plugins can run.
         
         $status = $this->CoPetition->field('status', array('CoPetition.id' => $this->parseCoPetitionId()));
         
@@ -226,7 +224,7 @@ class CoPetitionsController extends StandardController {
                                      PetitionStatusEnum::Denied,
                                      PetitionStatusEnum::Duplicate,
                                      PetitionStatusEnum::Finalized))) {
-          $this->Flash->set(_txt('er.pt.readonly'), array('key' => 'error'));
+          $this->Flash->set(_txt('er.pt.readonly'), array($status));
           $this->redirect("/");
         }
       }
@@ -630,17 +628,6 @@ class CoPetitionsController extends StandardController {
     
     // Make sure we don't issue a redirect
     return;
-  }
-  
-  /**
-   * Deny a petition.
-   *
-   * @since  COmanage Registry v0.5
-   * @param  Integer Petition ID
-   */
-  
-  public function deny($id) {
-    $this->dispatch('deny', $id);
   }
   
   /**
@@ -1140,21 +1127,39 @@ class CoPetitionsController extends StandardController {
    * Execute CO Petition 'approve' step
    *
    * @since  COmanage Registry v0.9.4
-   * @param Integer $id CO Petition ID
+   * @param  Integer $id CO Petition ID
    * @throws Exception
    */
   
   protected function execute_approve($id) {
     // Let any Exceptions pass through
     
-    $this->CoPetition->updateStatus($id,
-                                    PetitionStatusEnum::Approved,
-                                    $this->Session->read('Auth.User.co_person_id'));
+    // As of v3.2.0, execute_approve handles both approve and deny.
+    $action = PetitionStatusEnum::Denied;
+    $result = _txt('rs.pt.deny');
+    $comment = "";
     
-    $this->Flash->set(_txt('rs.pt.approve'), array('key' => 'success'));
+    if(!empty($this->request->data['action'])
+       && $this->request->data['action'] == _txt('op.approve')) {
+      $action = PetitionStatusEnum::Approved;
+      $result = _txt('rs.pt.approve');
+    }
+    
+    if(!empty($this->request->data['CoPetition']['approver_comment'])) {
+      $comment = $this->request->data['CoPetition']['approver_comment'];
+    }
+    
+    $this->CoPetition->updateStatus($id,
+                                    $action,
+                                    $this->Session->read('Auth.User.co_person_id'),
+                                    $comment);
+    
+    $this->Flash->set($result, array('key' => 'success'));
+
+    // Send out approval or denial notification, if configured
+    $this->CoPetition->sendApprovalNotification($id, $this->Session->read('Auth.User.co_person_id'));
     
     // The step is done
-    
     $this->redirect($this->generateDoneRedirect('approve', $id));    
   }
   
@@ -1228,28 +1233,6 @@ class CoPetitionsController extends StandardController {
     
     $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));    
   }
-  
-  /**
-   * Execute CO Petition 'deny' step
-   *
-   * @since  COmanage Registry v0.9.4
-   * @param Integer $id CO Petition ID
-   * @throws Exception
-   */
-  
-  protected function execute_deny($id) {
-    // Let any Exceptions pass through
-    
-    $this->CoPetition->updateStatus($id,
-                                    PetitionStatusEnum::Denied,
-                                    $this->Session->read('Auth.User.co_person_id'));
-    
-    $this->Flash->set(_txt('rs.pt.deny'), array('key' => 'success'));
-    
-    // The step is done
-    
-    $this->redirect($this->generateDoneRedirect('deny', $id));    
-  }  
   
   /**
    * Execute CO Petition 'finalize' step
@@ -1729,22 +1712,6 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
-   * Execute CO Petition 'sendApprovalNotification' step
-   *
-   * @since  COmanage Registry v0.9.4
-   * @param Integer $id CO Petition ID
-   * @throws Exception
-   */
-  
-  protected function execute_sendApprovalNotification($id) {
-    $this->CoPetition->sendApprovalNotification($id, $this->Session->read('Auth.User.co_person_id'));
-    
-    // The step is done
-    
-    $this->redirect($this->generateDoneRedirect('sendApprovalNotification', $id));
-  }
-  
-  /**
    * Execute CO Petition 'sendApproverNotification' step
    *
    * @since  COmanage Registry v0.9.4
@@ -1904,7 +1871,7 @@ class CoPetitionsController extends StandardController {
     }
     
     if($step == 'start' && !empty($this->request->params['named']['return'])) {
-      // Propagte the return URL since we don't store it until the step is done
+      // Propagate the return URL since we don't store it until the step is done
       $ret['return'] = $this->request->params['named']['return'];
     }
     
@@ -2112,8 +2079,6 @@ class CoPetitionsController extends StandardController {
       }
       // Actual approval is handled by the approver
       $p['approve'] = $isApprover;
-      $p['deny'] = $isApprover;
-      $p['sendApprovalNotification'] = $isApprover;
       // Finalize and finalize steps could be reached by anyone, in theory
       foreach(array('finalize', 'provision') as $xstep) {
         switch($steps[$xstep]['role']) {
@@ -2530,17 +2495,6 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
-   * Send approval notification for a new CO Petition
-   *
-   * @since  COmanage Registry v0.9.4
-   * @param  Integer $id CO Petition ID
-   */
-  
-  public function sendApprovalNotification($id) {
-    $this->dispatch('sendApprovalNotification', $id);
-  }
-  
-    /**
    * Send approver notification for a new CO Petition
    *
    * @since  COmanage Registry v0.9.4

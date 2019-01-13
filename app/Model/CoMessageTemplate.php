@@ -43,9 +43,13 @@ class CoMessageTemplate extends AppModel {
       'className' => 'CoExpirationPolicy',
       'foreignKey' => 'act_notification_template_id'
     ),
-    "CoEnrollmentFlowApprovalMessageTemplate" => array(
+    "CoEnrollmentFlowAppMessageTemplate" => array(
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'approval_template_id'
+    ),
+    "CoEnrollmentFlowDenMessageTemplate" => array(
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'denial_template_id'
     ),
     "CoEnrollmentFlowFinMessageTemplate" => array(
       // "Finalization" makes the label too long

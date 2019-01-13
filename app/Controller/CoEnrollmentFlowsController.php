@@ -131,13 +131,13 @@ class CoEnrollmentFlowsController extends StandardController {
         MessageTemplateEnum::EnrollmentVerification
       );
       $args['fields'] = array(
-        'CoEnrollmentFlowApprovalMessageTemplate.id',
-        'CoEnrollmentFlowApprovalMessageTemplate.description',
-        'CoEnrollmentFlowApprovalMessageTemplate.context'
+        'CoEnrollmentFlowAppMessageTemplate.id',
+        'CoEnrollmentFlowAppMessageTemplate.description',
+        'CoEnrollmentFlowAppMessageTemplate.context'
       );
       
       $this->set('vv_message_templates',
-                 $this->CoEnrollmentFlow->CoEnrollmentFlowApprovalMessageTemplate->find('list', $args));
+                 $this->CoEnrollmentFlow->CoEnrollmentFlowAppMessageTemplate->find('list', $args));
       
       // Pull the set of available themes
       $args = array();
