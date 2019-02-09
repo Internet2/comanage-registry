@@ -894,6 +894,38 @@
     </index>
   </table>
   
+  <table name="co_group_nestings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <!-- calling this "source_co_group_id" makes things complicated 
+         with cake associations and ChangelogBehavior -->
+    <field name="co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="target_co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_group_nesting_id" type="I">
+      <constraint>REFERENCES cm_co_group_nestings(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_group_nestings_i1">
+      <col>source_co_group_id</col>
+    </index>
+    <index name="co_group_nestings_i2">
+      <col>target_co_group_id</col>
+    </index>
+  </table>
+  
   <table name="co_group_members">
     <field name="id" type="I">
       <key />
@@ -913,6 +945,9 @@
     <field name="valid_through" type="T" />
     <field name="source_org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="co_group_nesting_id" type="I">
+      <constraint>REFERENCES cm_co_group_nestings(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />

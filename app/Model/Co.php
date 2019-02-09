@@ -192,6 +192,29 @@ class Co extends AppModel {
       );
     }
     
+    // CoGroupNestings have two parent CoGroup pointers, which makes them hard
+    // to delete, so we'll delete them manually. They also have a foreign key
+    // into co_group_members that needs to be cleared as well. We'll clean up
+    // based on the target_co_group_id since that covers both cases.
+    
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $id;
+    $args['fields'] = array('id', 'name');
+    $args['contain'] = false;
+    
+    $groups = $this->CoGroup->find('list', $args);
+    
+    if(count($groups) > 0) {
+      // We normally don't use updateAll since callbacks aren't fired, but in this
+      // case that's fine.
+      
+      $this->CoGroup->CoGroupMember->updateAll(array('CoGroupMember.co_group_nesting_id' => null),
+                                               array('CoGroupMember.co_group_id' => array_keys($groups)));
+      
+      // By skipping callbacks we don't need to disable ChangelogBehavior
+      $this->CoGroup->CoGroupNesting->deleteAll(array('CoGroupNesting.co_group_id' => array_keys($groups)));
+    }
+    
     // Unload TreeBehavior from Cou, since it throws errors and we don't need to
     // rebalance a tree that we're about to remove entirely.
     $this->Cou->Behaviors->unload('Tree');
@@ -273,6 +296,7 @@ class Co extends AppModel {
         'CoEnrollmentAttribute' => 'CoEnrollmentFlow',
         'CoEnrollmentSource' => 'CoEnrollmentFlow',
         'CoGroupOisMapping' => 'OrgIdentitySource',
+        'CoGroupNesting' => 'CoGroup',
         'HttpServer' => 'Server',
         'Oauth2Server' => 'Server',
         'SqlServer' => 'Server',
