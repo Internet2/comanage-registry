@@ -234,7 +234,7 @@ class CoService extends AppModel {
     $args['contain'] = false;
     
     $services = $this->find('all', $args);
-    $groupIds = null;
+    $groupIds = array();
     
     if(!empty($groups) && !empty($services) && $coPersonId) {
       // If $coPersonId is not set, there won't be any services with a CoGroupMember visibility
