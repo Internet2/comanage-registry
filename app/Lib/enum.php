@@ -582,6 +582,8 @@ class SshKeyTypeEnum
   // Protocol v2
   const DSA         = 'DSA';
   const ECDSA       = 'ECDSA';
+  const ECDSA384    = 'ECDSA384';
+  const ECDSA521    = 'ECDSA521';
   const ED25519     = 'ed25519';
   const RSA         = 'RSA';
   // Protocol v1
@@ -814,11 +816,13 @@ $name_ti = array(
 );
 
 $ssh_ti = array(
-  'DSA'     => 'ssh-dss',
-  'ECDSA'   => 'ecdsa-sha2-nistp256',
-  'ED25519' => 'ssh-ed25519',
-  'RSA'     => 'ssh-rsa',
-  'RSA1'    => 'ssh-rsa1'
+  'DSA'      => 'ssh-dss',
+  'ECDSA'    => 'ecdsa-sha2-nistp256',
+  'ECDSA384' => 'ecdsa-sha2-nistp384',
+  'ECDSA521' => 'ecdsa-sha2-nistp521',
+  'ED25519'  => 'ssh-ed25519',
+  'RSA'      => 'ssh-rsa',
+  'RSA1'     => 'ssh-rsa1'
 );
 
 $status_t = array(

@@ -699,6 +699,8 @@ original notification at
   'en.sshkey.type' => array(
     SshKeyTypeEnum::DSA      => 'DSA',
     SshKeyTypeEnum::ECDSA    => 'ECDSA',
+    SshKeyTypeEnum::ECDSA384 => 'ECDSA384',
+    SshKeyTypeEnum::ECDSA521 => 'ECDSA521',
     SshKeyTypeEnum::ED25519  => 'ed25519',
     SshKeyTypeEnum::RSA      => 'RSA',
     SshKeyTypeEnum::RSA1     => 'RSA1'
