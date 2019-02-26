@@ -91,8 +91,8 @@
             '<?php print _txt('er.pagenum.nan');?>',
             '<?php print _txt('er.pagenum.exceeded', array($this->Paginator->counter('{:pages}')));?>');
             return false;">
-      <?php print _txt('fd.page.goto'); ?>
-      <input type="text" size="3" name="pageNum"/>
+      <label for="pageNum"><?php print _txt('fd.page.goto'); ?></label>
+      <input type="text" size="3" name="pageNum" id="pageNum"/>
       <input type="submit" value="<?php print _txt('op.go'); ?>"/>
     </form>
   <?php endif; ?>

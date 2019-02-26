@@ -98,9 +98,9 @@
           ?>
         </li>
       <?php endforeach; ?>
-      <li id="see-all" class="co-menu-button">
+      <li id="see-all">
         <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"
-           class="mdl-button mdl-js-button mdl-js-ripple-effect"><?php print _txt('op.see.notifications')?></a>
+           class="co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"><?php print _txt('op.see.notifications')?></a>
       </li>
     </ul>
   </div>
@@ -161,7 +161,7 @@
                     $co['co_person_id']
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">account_circle</em>' . _txt('me.profile.for', array($co['co_name'])), $args,
-                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
                 }
               }
             }

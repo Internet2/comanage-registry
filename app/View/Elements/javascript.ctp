@@ -49,6 +49,16 @@
     if (Cookies.get("desktop-drawer-state") == "half-closed") {
       $("#navigation-drawer").addClass("half-closed");
       $("#main").addClass("drawer-half-closed");
+    } else {
+      // Preserve the state of the most recently selected menu item if it is expandable (a "menuTop" item)
+      // (we only use this behavior when the the drawer is fully-open)
+      var mainMenuSelectedParentId = Cookies.get("main-menu-selected-parent-id");
+      console.log(mainMenuSelectedParentId);
+      if(mainMenuSelectedParentId != undefined && mainMenuSelectedParentId != "") {
+        $("#" + mainMenuSelectedParentId).addClass("active");
+        $("#" + mainMenuSelectedParentId + " > a.menuTop").attr("aria-expanded","true");
+        $("#" + mainMenuSelectedParentId + " > ul").addClass("in");
+      }
     }
 
     // Desktop hamburger menu-drawer toggle
@@ -69,12 +79,21 @@
       }
     });
 
-    // Desktop half-closed drawer behavior
+    // Desktop half-closed drawer behavior & expandable menu items
     $('#navigation-drawer a.menuTop').click(function () {
       if (Cookies.get("desktop-drawer-state") == "half-closed") {
         $("#navigation-drawer").toggleClass("half-closed");
       }
+
+      // Save the ID of the most recently expanded menuTop item for use on reload
+      if ($(this).attr("aria-expanded") == "true") {
+        var parentId = $(this).parent().attr("id");
+        Cookies.set("main-menu-selected-parent-id", parentId);
+      } else {
+        Cookies.set("main-menu-selected-parent-id", "");
+      }
     });
+
     // END DESKTOP MENU DRAWER BEHAVIOR
 
     // USER MENU BEHAVIORS

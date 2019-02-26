@@ -46,7 +46,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
       // People Menu
       if (isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
-        print '<li class="peopleMenu">';
+        print '<li id="peopleMenu" class="co-expandable-menu-item">';
         print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
         print '<em class="material-icons" aria-hidden="true">person</em>';
         print '<span class="menuTitle">' . _txt('me.people') . '</span>';
@@ -166,7 +166,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
       // Groups Menu
       if (isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
-        print '<li class="groupMenu">';
+        print '<li id="groupMenu" class="co-expandable-menu-item">';
 
         print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
         //print '<span class="fa fa-users fa-fw"></span>';
@@ -212,10 +212,11 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         print "</ul>";
         print "</li>";
       }
+      // END Groups Menu
       
       // Departments Menu
       if($permissions['menu']['codepartments']) {
-        print '<li class="configMenu">';
+        print '<li id="deptMenu">';
 
         $linkContent = '<em class="material-icons" aria-hidden="true">business</em><span class="menuTitle">' . _txt('ct.co_departments.pl') .
           '</span><span class="mdl-ripple"></span>';
@@ -230,10 +231,11 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
         print "</li>";
       }
+      // END Departments Menu
       
       // Email Lists Menu
       if($permissions['menu']['colists']) {
-        print '<li class="configMenu">';
+        print '<li id="emailMenu">';
 
         $linkContent = '<em class="material-icons" aria-hidden="true">email</em><span class="menuTitle">' . _txt('ct.co_email_lists.pl') .
           '</span><span class="mdl-ripple"></span>';
@@ -248,7 +250,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
         print "</li>";
       }
-      // END Groups Menu
+      // END Email Lists Menu
 
       // Services Menu
       if(!empty($menuContent['services'])) {
@@ -266,7 +268,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         if(count(array_keys($services)) > 1) {
           // Multiple entries, so render a link to each COU.
           
-          print '<li class="serviceMenu">';
+          print '<li id="serviceMenu">';
           print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
           print '<em class="material-icons" aria-hidden="true">apps</em>';
           print '<span class="menuTitle">' . _txt('ct.co_services.pl') . '</span>';
@@ -305,7 +307,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
           // Everything has the same COU ID, so we can just look at the first entry.
           $sCouId = key($services);
           
-          print '<li class="serviceMenu">';
+          print '<li id="serviceMenu">';
   
           $linkContent = '<em class="material-icons" aria-hidden="true">apps</em><span class="menuTitle">' . _txt('ct.co_services.pl') .
             '</span><span class="mdl-ripple"></span>';
@@ -328,7 +330,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
       // Jobs Menu
       if ($permissions['menu']['cojobs']) {
-        print '<li class="configMenu">';
+        print '<li id="jobsMenu">';
 
         $linkContent = '<em class="material-icons" aria-hidden="true">assignment</em><span class="menuTitle">' . _txt('ct.co_jobs.pl') .
           '</span><span class="mdl-ripple"></span>';
@@ -347,7 +349,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       
       // Servers Menu
       if ($permissions['menu']['servers']) {
-        print '<li class="configMenu">';
+        print '<li id="serversMenu">';
 
         $linkContent = '<em class="material-icons" aria-hidden="true">storage</em><span class="menuTitle">' . _txt('ct.servers.pl') .
           '</span><span class="mdl-ripple"></span>';
@@ -369,8 +371,10 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
         $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'comain', $menuCoId);
         
         if(!empty($pluginLinks)) {
+          $itemIndex = 0;
           foreach($pluginLinks as $plabel => $pcfg) {
-            print '<li class="configMenu">';
+            $itemId = 'pluginMenu' . $itemIndex;
+            print '<li id="' . $itemId . '">';
 
             $linkContent = '<em class="material-icons" aria-hidden="true">' . $pcfg['icon'] .
               '</em><span class="menuTitle">' . $plabel .
@@ -379,14 +383,15 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
             print $this->Html->link($linkContent, $pcfg['url'], array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
 
             print "</li>";
+            $itemIndex++;
           }
         }
       }
-      // END Plugin Menus
+      // END Plugins Menu
       
       // Configuration Menu
       if ($permissions['menu']['coconfig']) {
-        print '<li class="configMenu">';
+        print '<li id="configMenu">';
 
         $linkContent = '<em class="material-icons" aria-hidden="true">settings</em><span class="menuTitle">' . _txt('me.configuration') .
           '</span><span class="mdl-ripple"></span>';
@@ -406,7 +411,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 
     // Platform Menu
     if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']) {
-      print '<li class="platformMenu">';
+      print '<li id="platformMenu" class="co-expandable-menu-item">';
       print '<a href="#" class="menuTop mdl-js-ripple-effect" aria-expanded="false">';
       print '<em class="material-icons" aria-hidden="true">build</em>';
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
@@ -507,7 +512,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
     // Only show the Collaborations menu if user has access to more than one CO
     if(count($cos) > 1) {
 
-      print '<li class="collabMenu">';
+      print '<li id="collabMenu">';
 
       $linkContent = '<em class="material-icons" aria-hidden="true">transfer_within_a_station</em><span class="menuTitle">' . _txt('me.collaborations') .
         '</span><span class="mdl-ripple"></span>';

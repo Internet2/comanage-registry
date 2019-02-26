@@ -69,11 +69,12 @@ h3 {
   margin: 0;
 }
 a {
-  color: #07b; /* slightly darker: passes accessibility contrast checks */
+  color: #07b; /* slightly darker: passes accessibility contrast checks against white */
   text-decoration: none;
 }
 #main a:active,
 #main a:hover {
+  color: #0067A3; /* to ensure accessibility on hover when backgrounds change as low as #e5e5e5 */
   text-decoration: underline;
 }
 #main a.mdl-button:active,
@@ -228,7 +229,6 @@ body.logged-in #user-menu {
 #user {
   margin-top: 2px;
 }
-
 #user-panel {
   position: absolute;
   right: 0;
@@ -274,16 +274,6 @@ body.logged-in #user-menu {
 #user-panel .co-info-topbox strong {
   font-weight: normal;
 }
-#user-panel #co-profile-link {
-  display: block;
-  vertical-align: middle;
-  background-color: #f4f4f4;
-  /*border: 1px solid #eee;*/
-  margin-top: 1em;
-  font-weight: normal;
-  font-size: 1.1em;
-  /*text-transform: unset;*/
-}
 #user-panel #co-profile-link:hover {
   background-color: #eee;
 }
@@ -328,7 +318,6 @@ body.logged-in #user-menu {
 }
 #notifications #notifications-menu {
   width: 220px;
-  background-color: #f55;
 }
 #notifications .notification {
   line-height: 1.3em;
@@ -343,7 +332,7 @@ body.logged-in #user-menu {
   background-color: #fff;
 }
 #notifications .notification:nth-child(even) {
-  background-color: #fafafa;
+  background-color: #f8f8f8;
 }
 #notifications li.notification:nth-child(n+4) {
   /* only show three notifications on mobile phones. */
@@ -357,6 +346,9 @@ body.logged-in #user-menu {
 }
 #notifications .notification-created a {
   color: #444;
+}
+#see-all a.co-raised-button {
+  margin: 1em 1em 0.5em;
 }
 /* Notification page */
 ul.form-list.notification-list .field-name {
@@ -411,9 +403,9 @@ form#notificationStatus {
   margin: 4px 0 -8px;
   text-align: right;
 }
+/* Specialty Buttons */
 .co-menu-button a {
   background-color: #2395E0;
-  /*background-color: #186696;*/
   color: white;
   text-align: center;
   padding: 0.4em;
@@ -422,6 +414,15 @@ form#notificationStatus {
 }
 .co-menu-button a:hover {
   background-color: #53B1F4;
+}
+.co-raised-button { /* should be used with mdl-button--raised */
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  background-color: #f4f4f4;
+  margin-top: 1em;
+  font-weight: normal;
+  font-size: 1.1em;
 }
 /* Shib IDP */
 #idp-select-container {
@@ -520,7 +521,7 @@ form#notificationStatus {
   font-size: 0.9em;
   padding: 7px 8px 7px 16px;
   line-height: 1.4em;
-  color: #2395E0;
+  color: #07b;
   border: 1px solid transparent;
 }
 #main-menu > li a:hover,
@@ -529,6 +530,16 @@ form#notificationStatus {
 }
 #main-menu > li li a:focus {
   border: 1px dotted #53B1F4;
+}
+#main-menu a.selected {
+  background-color: #f5f5f5;
+}
+#main-menu li li a.selected {
+  color: #07b;
+  background-color: #fafafa;
+  /* keep these if we find a better method of selecting sub-menu items:
+  color: #0067A3;
+  background-color: #e6f4ff; */
 }
 #main-menu .fa-fw {
   width: 2em;
@@ -546,7 +557,7 @@ form#notificationStatus {
   margin-right: 6px;
   vertical-align: bottom;
 }
-#main-menu .serviceMenu ul .material-icons {
+#main-menu #serviceMenu ul .material-icons {
   font-size: 1.1em;
   position: relative;
   top: -2px;
@@ -1319,7 +1330,8 @@ body.co_petitions .ui-dialog {
 #co_people .ui-widget-content .ui-state-focus,
 #co_people .ui-widget-header .ui-state-focus {
   border: 1px solid #79b7e7;
-  background-color: #d0e5f5;
+  /*background-color: #d0e5f5;*/
+  background-color: #e6f4ff;
   color: #1d5987;
 }
 #co_people .ui-state-active,
@@ -1977,6 +1989,11 @@ th.actionButtons {
 }
 .line2 {
   background-color: #e5e5e5;
+}
+.line0 a,
+.line1 a,
+.line2 a {
+  color: #0067a3; /* to ensure WCAG AA contrast is acceptable against the bg colors */
 }
 td.indented {
   border-left: 3em solid #fff;
