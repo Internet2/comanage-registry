@@ -818,15 +818,21 @@ class CoGroupMember extends AppModel {
    * @param  Integer CO Person ID
    * @param  Array Array of CO Group Member attributes (id, co_group_id, member, owner)
    * @param  Integer CO Person ID of requester
+   * @param  Boolean True if $requesterCoPersonId is a CO admin
    * @return Boolean True on success, false otherwise
    * @throws LogicException
    */
   
-  public function updateMemberships($coPersonId, $memberships, $requesterCoPersonId) {
+  public function updateMemberships($coPersonId,
+                                    $memberships,
+                                    $requesterCoPersonId,
+                                    $requesterIsAdmin=false) {
     if($coPersonId && !empty($memberships)) {
       // First, pull the current group roles.
-      
       $curRoles = $this->findCoPersonGroupRoles($coPersonId);
+      
+      // And also the roles of $requesterCoPersonId, in case we need to check ownership
+      $requesterRoles = $this->findCoPersonGroupRoles($requesterRoles);
       
       foreach($memberships as $m) {
         // Reset model state between transactions
@@ -843,13 +849,20 @@ class CoGroupMember extends AppModel {
         
         $grp = $this->CoGroup->find('first', $args);
         
-        // If this is an automatic group skip it
-        if(!empty($grp)) {
-          if(isset($grp['CoGroup']['auto']) && $grp['CoGroup']['auto']) {
-            continue;
-          }
-        } else {
+        if(empty($grp)) {
           throw new InvalidArgumentException(_txt('er.gr.nf', array($m['co_group_id'])));
+        }
+        
+        // If this is an automatic group skip it
+        if(isset($grp['CoGroup']['auto']) && $grp['CoGroup']['auto']) {
+          continue;
+        }
+        
+        // If this is a closed group and $requesterCoPersonId is not an owner or admin, skip it
+        if(!$requesterIsAdmin
+           && (!isset($grp['CoGroup']['open']) || !$grp['CoGroup']['open'])
+           && !in_array($m['co_group_id'], $requesterRoles['owner'])) {
+          continue;
         }
         
         if(!empty($m['id'])) {

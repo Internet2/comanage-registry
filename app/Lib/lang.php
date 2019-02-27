@@ -700,6 +700,8 @@ original notification at
   'en.sshkey.type' => array(
     SshKeyTypeEnum::DSA      => 'DSA',
     SshKeyTypeEnum::ECDSA    => 'ECDSA',
+    SshKeyTypeEnum::ECDSA384 => 'ECDSA384',
+    SshKeyTypeEnum::ECDSA521 => 'ECDSA521',
     SshKeyTypeEnum::ED25519  => 'ed25519',
     SshKeyTypeEnum::RSA      => 'RSA',
     SshKeyTypeEnum::RSA1     => 'RSA1'
@@ -975,6 +977,7 @@ original notification at
   'er.ois.search.none' => 'No searchable backends were found',
   'er.ois.search.mail.none' => 'No records were found matching the email address "%1$s"',
   'er.ois.sync.full.inventory' => 'OIS backend is configured for full sync, but backend does not support inventory() call',
+  'er.ois.sync.login' => 'Error while logging in %1$s: %2$s',
   'er.ois.val.name' => 'Backend did not provide a valid Primary Name',
   'er.orgp.nomail' => '%1$s (Org Identity %2$s) has no known email address.<br />Add an email address and then try again.',
   'er.orgp.pool' =>   'Failed to pool organizational identities',

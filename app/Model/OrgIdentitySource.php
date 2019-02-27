@@ -764,7 +764,10 @@ class OrgIdentitySource extends AppModel {
             }
             catch(Exception $e) {
               // XXX We don't want to break the loop on an exception, and it's not really
-              // clear what we should do with it. Maybe register as a Notification to admins?
+              // clear what we should do with it. We log it so we don't lose it entirely,
+              // but perhaps we should register as a Notification to admins? Or render a
+              // popup to the user logging in?
+              $this->log(_txt('er.ois.sync.login', array($identifier, $e->getMessage())));
             }
           }
         }

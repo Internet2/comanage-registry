@@ -68,6 +68,8 @@ class SshKey extends AppModel {
       'content' => array(
         'rule' => array('inList', array(SshKeyTypeEnum::DSA,
                                         SshKeyTypeEnum::ECDSA,
+                                        SshKeyTypeEnum::ECDSA384,
+                                        SshKeyTypeEnum::ECDSA521,
                                         SshKeyTypeEnum::ED25519,
                                         SshKeyTypeEnum::RSA,
                                         SshKeyTypeEnum::RSA1)),
@@ -115,6 +117,12 @@ class SshKey extends AppModel {
     switch($bits[0]) {
       case 'ecdsa-sha2-nistp256':
         $keyType = SshKeyTypeEnum::ECDSA;
+        break;
+      case 'ecdsa-sha2-nistp384':
+        $keyType = SshKeyTypeEnum::ECDSA384;
+        break;
+      case 'ecdsa-sha2-nistp521':
+        $keyType = SshKeyTypeEnum::ECDSA521;
         break;
       case 'ssh-dss':
         $keyType = SshKeyTypeEnum::DSA;

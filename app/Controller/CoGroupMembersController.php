@@ -586,10 +586,14 @@ class CoGroupMembersController extends StandardController {
     if(!$this->request->is('restful')) {
       $targetCoPersonId = $this->request->data['CoGroupMember']['co_person_id'];
       $userCoPersonId   = $this->Session->read('Auth.User.co_person_id');
+      $requesterIsAdmin = $this->Role->isCoAdmin($userCoPersonId, $this->cur_co['Co']['id'])
+                          || $this->Role->identifierIsCmpAdmin($this->Session->read('Auth.User.username'));
+      
       try {
         $this->CoGroupMember->updateMemberships($targetCoPersonId,
                                                 $this->request->data['CoGroupMember']['rows'],
-                                                $userCoPersonId);
+                                                $userCoPersonId,
+                                                $requesterIsAdmin);
         
         $this->Flash->set(_txt('rs.saved'), array('key' => 'success'));
       }

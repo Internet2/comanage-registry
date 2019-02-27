@@ -92,7 +92,7 @@
             print '</span>';
 
             $notificationCount++;
-            if ($notificationCount > 4) {
+            if($notificationCount > 4) {
               break;
             }
           ?>
@@ -144,12 +144,12 @@
         if(isset($permissions['menu']['coprofile']) && $permissions['menu']['coprofile']) {
           // Link to identity for self service.
           if(isset($cur_co)) {
-            foreach ($menuContent['cos'] as $co) {
+            foreach($menuContent['cos'] as $co) {
               // Only display a profile link for the current CO
-              if ($co['co_id'] == $cur_co['Co']['id']) {
+              if($co['co_id'] == $cur_co['Co']['id']) {
                 // The person must have an Active/GracePeriod status and at least
                 // one defined role.
-                if (isset($co['co_person']['status'])
+                if(isset($co['co_person']['status'])
                   && ($co['co_person']['status'] == StatusEnum::Active
                     || $co['co_person']['status'] == StatusEnum::GracePeriod)
                   && !empty($co['co_person']['CoPersonRole'])
@@ -175,11 +175,11 @@
 
           if(in_array($cur_co['Co']['id'], $efcos)) {
             // If we have enrollment flows, display them directly
-            if (!empty($menuContent['flows']) && ($permissions['menu']['createpetition'] || $permissions['menu']['invite'])) {
+            if(!empty($menuContent['flows']) && ($permissions['menu']['createpetition'] || $permissions['menu']['invite'])) {
               print '<div id="user-panel-flows-container">';
               print '<h2>' . _txt('me.flows') . '</h2>';
               print '<ul id="user-panel-flows">';
-              foreach ($menuContent['flows'] as $flow) {
+              foreach($menuContent['flows'] as $flow) {
                 print '<li>';
                 print $this->Html->link(filter_var($flow['CoEnrollmentFlow']['name'], FILTER_SANITIZE_SPECIAL_CHARS),
                   array(
@@ -198,18 +198,18 @@
 
         // Plugin submenus
         // This rendering is a bit different from how render_plugin_menus() does it...
-        if (!empty(array_keys($menuContent['plugins']))) {
+        if(!empty($menuContent['plugins'])) { // XXX This test is inadequate. See CO-1713.
           print("<ul>");
-          foreach (array_keys($menuContent['plugins']) as $plugin) {
-            if (isset($menuContent['plugins'][$plugin]['coperson'])) {
-              foreach (array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
+          foreach(array_keys($menuContent['plugins']) as $plugin) {
+            if(isset($menuContent['plugins'][$plugin]['coperson'])) {
+              foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
                 print '<li> 
                          <a href="#">' . $label . '</a>
                          <span class="sf-sub-indicator"> »</span>
                          <ul>';
 
-                foreach ($menuContent['cos'] as $co) {
-                  if (empty($co['co_person_id'])) {
+                foreach($menuContent['cos'] as $co) {
+                  if(empty($co['co_person_id'])) {
                     continue;
                   }
 

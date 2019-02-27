@@ -1046,31 +1046,44 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     if($modify && $attropts) {
-      $currec = $this->queryLdap($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'],
-                                 $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
-                                 $coProvisioningTargetData['CoLdapProvisionerTarget']['password'],
-                                 // We need the DN, which provision() already assemebled. Specifically,
-                                 // if there is a rename in progress we need the old dn since that's still
-                                 // what physically in the LDAP server. (The rename hasn't happened yet.)
-                                 $dns['olddn'],
-                                 "(objectclass=*)");
-      
-      if($currec['count'] != 1) {
-        throw new RuntimeException(_txt('er.ldapprovisioner.basedn'));
+      try {
+        $currec = $this->queryLdap($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'],
+                                   $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
+                                   $coProvisioningTargetData['CoLdapProvisionerTarget']['password'],
+                                   // We need the DN, which provision() already assemebled. Specifically,
+                                   // if there is a rename in progress we need the old dn since that's still
+                                   // what physically in the LDAP server. (The rename hasn't happened yet.)
+                                   $dns['olddn'],
+                                   "(objectclass=*)");
+      }
+      catch(Exception $e) {
+        if($e->getCode() == 32) { // LDAP_NO_SUCH_OBJECT
+          // No such object, maybe it was manually removed?
+          // We'll continue processing as if !$modify
+        } else {
+          // Rethrow the exception
+          throw new RuntimeException($e->getMessage());
+        }
       }
       
-      for($i = 0;$i < $currec[0]['count'];$i++) {
-        $fattr = $currec[0][$i]; // eg: cn;lang-es
-        $cattr = substr($fattr, 0, strpos($fattr, ';')); // eg: cn
-        // If there is no ; in $fattr, substr will return an empty string
-        if(!$cattr) { $cattr = $fattr; }
+      if(!empty($currec)) {
+        if($currec['count'] != 1) {
+          throw new RuntimeException(_txt('er.ldapprovisioner.basedn'));
+        }
         
-        // Is this attribute (currently in LDAP) not in our export?
-        if(!isset($lcattributes[strtolower($fattr)])
-           // And is it an attribute we are configured to manage/export?
-           && in_array(strtolower($cattr), $sattributes)) {
-          // Insert a blank record for this attribute to delete it
-          $attributes[$fattr] = array();
+        for($i = 0;$i < $currec[0]['count'];$i++) {
+          $fattr = $currec[0][$i]; // eg: cn;lang-es
+          $cattr = substr($fattr, 0, strpos($fattr, ';')); // eg: cn
+          // If there is no ; in $fattr, substr will return an empty string
+          if(!$cattr) { $cattr = $fattr; }
+          
+          // Is this attribute (currently in LDAP) not in our export?
+          if(!isset($lcattributes[strtolower($fattr)])
+             // And is it an attribute we are configured to manage/export?
+             && in_array(strtolower($cattr), $sattributes)) {
+            // Insert a blank record for this attribute to delete it
+            $attributes[$fattr] = array();
+          }
         }
       }
     }
