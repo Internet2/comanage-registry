@@ -78,10 +78,9 @@
     </span>
   <?php endif; ?>
 
-  <?php if($this->paginator->hasPage(10)): ?>
+  <?php if($this->paginator->hasPage(2)): ?>
     <?php
-    // show the Goto page form if there are more than 9 pages (thus
-    // hiding some pagination numbers)
+    // show the Goto page form if there is more than 1 page
     ?>
     <form id="goto-page"
           class="pagination-form"
