@@ -1960,14 +1960,14 @@ th, td {
   font-weight: normal;
 }
 th {
-  /*background-color: #9fc6e2;*/
   background-color: #186696;
   color: white;
 }
 th a {
   color: white;
 }
-th a:hover {
+th a:hover,
+#main th a:hover {
   color: #ff3;
   text-decoration: none !important;
 }
