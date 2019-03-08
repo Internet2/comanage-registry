@@ -974,7 +974,8 @@ iframe#tandc_content {
 }
 /* PETITIONS */
 #view_co_petition .status {
-  margin: 0 1em 0 0;
+  display: inline-block;
+  font-size: 1.4em;
 }
 #view_co_petition .status.N,
 #view_co_petition .status.Y,
@@ -992,7 +993,8 @@ iframe#tandc_content {
   color: white;
 }
 #view_co_petition .ui-button {
-  margin: 0 0 0 0.25em;
+  margin: 0.5em 0.5em 1.5em 0;
+  padding: 0 2em;
 }
 body.co_petitions.view th,
 body.co_petitions.view td,
@@ -1049,25 +1051,27 @@ body.co_petitions .approve-button .ui-icon,
 body.co_petitions .deny-button .ui-icon {
   background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
 }
-body.co_petitions .approve-button {
-  background-color: #2a2;
-  background-image: none;
-  border: 1px solid #191;
+body.co_petitions .approve-button,
+body.co_petitions .deny-button {
   color: white !important;
-  font-weight: bold;
+  font-weight: normal;
+  letter-spacing: 1px;
+  border: none;
+}
+body.co_petitions .approve-button {
+  float: left;
+  background-color: #2a2 !important;
+  background-image: none;
 }
 body.co_petitions .approve-button:hover {
   background-color: #3b3;
 }
 body.co_petitions .deny-button {
-  background-color: #c33;
+  background-color: #c33 !important;
   background-image: none;
-  border: 1px solid #b22;
-  color: white !important;
-  font-weight: bold;
 }
 body.co_petitions .deny-button:hover {
-  background-color: #d44;
+  background-color: #d44 !important;
 }
 /* for T&Cs */
 .tc-checkbox-and-label {
@@ -1918,6 +1922,7 @@ a.desc::before {
 .ui-button {
   font-size: 0.9em !important;
   padding: 0.3em 0.75em 0.3em 0.5em;
+  /*margin: 0.25em 0.25em 0.25em 0; keep for now */
 }
 .co-grid {
   clear: both;
@@ -2022,6 +2027,7 @@ td.indented {
 }
 .mdl-button--raised.mdl-button--colored:hover {
   background-color: #222 !important;
+  color: white !important;
 }
 .mdl-button:hover {
   background-color: #f2f2f2;

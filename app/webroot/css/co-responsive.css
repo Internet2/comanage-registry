@@ -156,6 +156,9 @@
     margin-top: 0.5em;
     width: 65%;
   }
+  #petition .field-name-status {
+    float: left;
+  }
   /* PETITION ATTRIBUTES */
   .modelbox .mdl-textfield {
     display: block;

@@ -139,7 +139,7 @@
 
             <ul id="<?php print $this->action; ?>_co_petition" class="fields form-list">
               <li>
-                <div class="field-name"><?php print _txt('fd.status'); ?></div>
+                <div class="field-name field-name-status"><?php print _txt('fd.status'); ?></div>
                 <div class="field-info">
                   <?php
                     print '<span class="status ' . $co_petitions[0]['CoPetition']['status'] . '">';
@@ -169,27 +169,28 @@
                       );
                       
                       print $this->Form->create('CoPetition', $args);
-                      
-                      print '<div class="field-desc">' . _txt('fd.pt.approver_comment.desc') . '</div>';
-                      print $this->Form->input('approver_comment', 
+
+                      if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
+                        print $this->Form->submit(_txt('op.approve'),
+                          array(
+                            'class' => 'checkbutton approve-button',
+                            'name'  => 'action')
+                        );
+                      }
+                      print $this->Form->submit(_txt('op.deny'),
+                        array(
+                          'class' => 'cancelbutton deny-button',
+                          'name'  => 'action')
+                      );
+
+                      print $this->Form->input('approver_comment',
                                                array(
                                                  'label' => _txt('fd.pt.approver_comment'),
                                                  'placeholder' => _txt('en.required', null, RequiredEnum::Optional)
                                               ));
-                      
-                      if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
-                        print $this->Form->submit(_txt('op.approve'), 
-                                                  array(
-                                                    'class' => 'checkbutton approve-button',
-                                                    'name'  => 'action')
-                                                  );
-                      }
-                      print $this->Form->submit(_txt('op.deny'),
-                                                array(
-                                                  'class' => 'cancelbutton deny-button',
-                                                  'name'  => 'action')
-                                                );
-                      
+
+                      print '<div class="field-desc">' . _txt('fd.pt.approver_comment.desc') . '</div>';
+
                       print $this->Form->end();
                     }
                   ?>
