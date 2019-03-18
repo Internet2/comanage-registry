@@ -581,10 +581,10 @@ class SshKeyTypeEnum
 {
   // Protocol v2
   const DSA         = 'DSA';
-  const ECDSA       = 'ECDSA';
-  const ECDSA384    = 'ECDSA384';
-  const ECDSA521    = 'ECDSA521';
-  const ED25519     = 'ed25519';
+  const ECDSA       = 'ecdsa-sha2-nistp256';
+  const ECDSA384    = 'ecdsa-sha2-nistp384';
+  const ECDSA521    = 'ecdsa-sha2-nistp521';
+  const ED25519     = 'ssh-ed25519';
   const RSA         = 'RSA';
   // Protocol v1
   const RSA1        = 'RSA1';
