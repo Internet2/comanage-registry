@@ -1270,6 +1270,7 @@ body.co_petitions .ui-dialog {
   display: block;
 }
 #co_people .role-panel {
+  display: none;
   margin-left: 25px;
   clear: both;
   position: relative;
@@ -1366,8 +1367,7 @@ a.ui-button:visited,
    and Side Search (person canvas) */
 .top-search {
   margin-top: 0.5em;
-  padding: 0.5em;
-  background-color: #eee;
+  padding: 0;
 }
 .side-search {
   margin-top: 2em;
@@ -1382,23 +1382,26 @@ a.ui-button:visited,
   top: -1px;
 }
 .top-search fieldset {
+  clear: both;
   position: relative;
-  padding: 0;
+  padding: 0.5em 0.5em 0;
   margin: 0;
+  background-color: #f5f5f5;
+}
+.top-search.open fieldset {
+  padding-bottom: 0.5em;
 }
 .top-search legend {
   width: 100%;
-}
-a#top-search-toggle {
-  display: block;
-  width: 100%;
-  color: #222;
-}
-a#top-search-toggle:hover {
-  text-decoration: none;
+  background-color: #f5f5f5;
+  margin: 0 -0.5em;
+  padding: 0.5em 0.5em 0;
+  line-height: 2em;
+  cursor: pointer;
 }
 #top-search-fields {
   display: none;
+  padding: 0.25em 0.5em;
 }
 .top-search input[type=text],
 .top-search select,
@@ -1436,6 +1439,27 @@ a#top-search-toggle:hover {
 .top-search label,
 .side-search label {
   display: none;
+}
+#top-search-active-filters {
+  margin-left: 1em;
+  font-style: italic;
+  padding: 0.5em 0;
+}
+.top-search-active-filter {
+  margin: 0 1em 0 0;
+  white-space: nowrap;
+  color: #b00;
+}
+.top-search-active-filter-title::after {
+  content: ": ";
+}
+.top-search-active-filters-remove button {
+  margin-left: 2em;
+  font-size: 0.9em;
+  background-color: #f5f5f5;
+}
+.top-search-active-filters-remove button:hover {
+  background-color: #eee;
 }
 /* top filter form, similar to top search */
 .top-filter {

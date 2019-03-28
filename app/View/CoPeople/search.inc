@@ -42,20 +42,15 @@ global $cm_lang, $cm_texts;
   }
 
   $(function() {
-    var searchFieldsAreOpen = (Cookies.get('comanage-top-search-fields-visible') === 'true');
-    if (searchFieldsAreOpen) {
-      $('#coPeopleSearch').addClass('open');
-      $('#top-search-fields').show();
-    }
-
     $( "#top-search-toggle").click(function() {
       $("#top-search-fields").toggle();
       var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
-      Cookies.set('comanage-top-search-fields-visible', searchFieldsAreOpen);
       if (searchFieldsAreOpen) {
         $("#coPeopleSearch").addClass('open');
+        $("#top-search-active-filters").hide();
       } else {
         $("#coPeopleSearch").removeClass('open');
+        $("#top-search-active-filters").show();
       }
     });
   });
@@ -70,12 +65,57 @@ global $cm_lang, $cm_texts;
   }
   ?>
   <fieldset>
-    <legend>
-      <a href="#" id="top-search-toggle">
-        <em class="material-icons">search</em>
-        <?php print _txt('op.filter');?>
-        <em class="material-icons drop-arrow">arrow_drop_down</em>
-      </a>
+    <legend id="top-search-toggle">
+      <em class="material-icons">search</em>
+      <?php print _txt('op.filter');?>
+
+      <?php if(!empty($this->request->params['named']['Search.givenName'])  ||
+        !empty($this->request->params['named']['Search.familyName']) ||
+        !empty($this->request->params['named']['Search.mail'])       ||
+        !empty($this->request->params['named']['Search.identifier']) ||
+        !empty($this->request->params['named']['Search.status'])     ||
+        !empty($this->request->params['named']['Search.couid'])):?>
+
+        <span id="top-search-active-filters">
+          <?php if (!empty($this->request->params['named']['Search.givenName'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.name.given'); ?></span>
+              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.givenName']; ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.familyName'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.name.family'); ?></span>
+              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.familyName']; ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.mail'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.email_address.mail'); ?></span>
+              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.mail']; ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.identifier.identifier'); ?></span>
+              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.identifier']; ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.status'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
+              <span class="top-search-active-filter-value"><?php print $vv_statuses[$this->request->params['named']['Search.status']]; ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.couid'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.cou'); ?></span>
+              <span class="top-search-active-filter-value"><?php print $vv_cous[$this->request->params['named']['Search.couid']]; ?></span>
+            </span>
+          <?php endif; ?>
+        </span>
+      <?php endif; ?>
+      <em class="material-icons drop-arrow">arrow_drop_down</em>
     </legend>
 
     <div id="top-search-fields">
@@ -163,5 +203,6 @@ global $cm_lang, $cm_texts;
       </div>
     </div>
   </fieldset>
+
   <?php print $this->Form->end();?>
 </div>
