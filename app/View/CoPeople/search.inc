@@ -47,10 +47,8 @@ global $cm_lang, $cm_texts;
       var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
       if (searchFieldsAreOpen) {
         $("#coPeopleSearch").addClass('open');
-        $("#top-search-active-filters").hide();
       } else {
         $("#coPeopleSearch").removeClass('open');
-        $("#top-search-active-filters").show();
       }
     });
   });
@@ -80,19 +78,19 @@ global $cm_lang, $cm_texts;
           <?php if (!empty($this->request->params['named']['Search.givenName'])): ?>
             <span class="top-search-active-filter">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.given'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.givenName']; ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.givenName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </span>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.familyName'])): ?>
             <span class="top-search-active-filter">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.family'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.familyName']; ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.familyName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </span>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.mail'])): ?>
             <span class="top-search-active-filter">
               <span class="top-search-active-filter-title"><?php print _txt('fd.email_address.mail'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.mail']; ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </span>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
@@ -104,13 +102,13 @@ global $cm_lang, $cm_texts;
           <?php if (!empty($this->request->params['named']['Search.status'])): ?>
             <span class="top-search-active-filter">
               <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $vv_statuses[$this->request->params['named']['Search.status']]; ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['Search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </span>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.couid'])): ?>
             <span class="top-search-active-filter">
               <span class="top-search-active-filter-title"><?php print _txt('fd.cou'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $vv_cous[$this->request->params['named']['Search.couid']]; ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_cous[$this->request->params['named']['Search.couid']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </span>
           <?php endif; ?>
         </span>
@@ -124,7 +122,6 @@ global $cm_lang, $cm_texts;
       $args = array();
       $args['label'] = _txt('fd.name.given');
       $args['placeholder'] = _txt('fd.name.given');
-      //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.name.given');
       // XXX shouldn't these fields be sanitized?
       $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
@@ -133,7 +130,6 @@ global $cm_lang, $cm_texts;
       $args = array();
       $args['label'] = _txt('fd.name.family');
       $args['placeholder'] = _txt('fd.name.family');
-      //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.name.family');
       $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
       print $this->Form->input('Search.familyName',$args);
@@ -141,7 +137,6 @@ global $cm_lang, $cm_texts;
       $args = array();
       $args['label'] = _txt('fd.email_address.mail');
       $args['placeholder'] = _txt('fd.email_address.mail');
-      //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.email_address.mail');
       $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
       print $this->Form->input('Search.mail', $args);
@@ -153,7 +148,6 @@ global $cm_lang, $cm_texts;
       $args = array();
       $args['label'] = _txt('fd.identifier.identifier');
       $args['placeholder'] = _txt('fd.identifier.identifier');
-      //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.identifier.identifier');
       $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
       print $this->Form->input('Search.identifier', $args);
@@ -162,7 +156,6 @@ global $cm_lang, $cm_texts;
         'type'    => 'select',
         'empty'   => ' ',
         'label'   => _txt('fd.status'),
-        //'class'   => 'co-selectfield',
         'aria-label'   => _txt('fd.status'),
         'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
         'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
@@ -174,7 +167,6 @@ global $cm_lang, $cm_texts;
           'type' => 'select',
           'empty' => ' ',
           'label' => _txt('fd.cou'),
-          //'class'   => 'co-selectfield',
           'aria-label' => _txt('fd.cou'),
           'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
           'value' => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
@@ -187,8 +179,6 @@ global $cm_lang, $cm_texts;
       <div class="topSearchSubmit">
         <?php
         $args = array();
-        //$args['type'] = 'button';
-
         // search button (submit)
         $args['aria-label'] = _txt('op.filter');
         $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
