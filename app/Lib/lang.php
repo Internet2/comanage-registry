@@ -1656,6 +1656,7 @@ original notification at
   'me.orgids'          => 'My Organizational Identities',
   'me.people'          => 'People',
   'me.platform'        => 'Platform',
+  'me.plugins'         => 'Plugins',
   'me.population'      => 'My Population',
   'me.population.cou'  => 'My %1$s Population',
   'me.profile.for'     => 'My Profile (%1$s)',

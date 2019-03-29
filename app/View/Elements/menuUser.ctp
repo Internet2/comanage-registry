@@ -198,34 +198,45 @@
 
         // Plugin submenus
         // This rendering is a bit different from how render_plugin_menus() does it...
-        if(!empty($menuContent['plugins'])) { // XXX This test is inadequate. See CO-1713.
-          print("<ul>");
+        if(!empty($menuContent['plugins'])) {
+          $userPluginsExist = false;
           foreach(array_keys($menuContent['plugins']) as $plugin) {
-            if(isset($menuContent['plugins'][$plugin]['coperson'])) {
-              foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
-                print '<li> 
-                         <a href="#">' . $label . '</a>
-                         <span class="sf-sub-indicator"> »</span>
-                         <ul>';
-
-                foreach($menuContent['cos'] as $co) {
-                  if(empty($co['co_person_id'])) {
-                    continue;
-                  }
-
-                  $args = $menuContent['plugins'][$plugin]['coperson'][$label];
-
-                  $args[] = 'copersonid:' . $co['co_person_id'];
-                  $args['plugin'] = Inflector::underscore($plugin);
-
-                  print '<li>' . $this->Html->link($co['co_name'], $args) . "</li>\n";
-                }
-
-                print "</ul></li>";
-              }
+            if (isset($menuContent['plugins'][$plugin]['coperson'])) {
+              $userPluginsExist = true;
+              break;
             }
           }
-          print "</ul>";
+          if ($userPluginsExist) {
+            print '<div id="user-panel-plugins-container">';
+            print '<h2>' . _txt('me.plugins') . '</h2>';
+            print '<ul id="user-panel-plugins">';
+            foreach (array_keys($menuContent['plugins']) as $plugin) {
+              if (isset($menuContent['plugins'][$plugin]['coperson'])) {
+                foreach (array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
+                  print '<li>';
+                    print '<span class="user-plugin-label">' . $label . '</span>';
+                    print '<ul>';
+  
+                    foreach ($menuContent['cos'] as $co) {
+                      if (empty($co['co_person_id'])) {
+                        continue;
+                      }
+  
+                      $args = $menuContent['plugins'][$plugin]['coperson'][$label];
+  
+                      $args[] = 'copersonid:' . $co['co_person_id'];
+                      $args['plugin'] = Inflector::underscore($plugin);
+  
+                      print '<li>' . $this->Html->link($co['co_name'], $args) . "</li>\n";
+                    }
+  
+                    print '</ul>';
+                  print '</li>';
+                }
+              }
+            }
+            print "</ul></div>";
+          }
         }
       ?>
 
