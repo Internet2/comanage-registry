@@ -327,6 +327,7 @@ class CoInvite extends AppModel {
       $substitutions = array_merge($subs, array(
         'CO_NAME'   => $coName,
         'INVITE_URL' => Router::url(array(
+                                    'plugin'     => null,
                                     'controller' => 'co_invites',
                                     'action'     => 'reply',
                                     $invite['CoInvite']['invitation']
