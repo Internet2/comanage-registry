@@ -258,24 +258,35 @@ class OrgIdentity extends AppModel {
     
     foreach(array_keys($this->hasOne) as $m)
     {
-      if($this->hasOne[$m]['dependent'])
+      if($this->hasOne[$m]['dependent'] && !in_array($m, array('OrgIdentitySourceRecord','PipelineCoPersonRole')))
       {
         foreach(array_keys($src[$m]) as $k)
         {
-          if($k != 'id' && $k != 'created' && $k != 'modified')
+          if($k != 'id' && $k != 'created' && $k != 'modified' && $k != 'OrgIdentity') {
             $new[$m][$k] = $src[$m][$k];
+          }
         }
       }
     }
-    
+
+    // An Org Identity can be attached to one or more CO Person
+    // The current design requires all links to be dropped manually
     foreach(array_keys($this->hasMany) as $m)
     {
-      if($this->hasMany[$m]['dependent'] && $m != 'CoPetition')
+      if($this->hasMany[$m]['dependent'] && !in_array($m, array('CoPetition', 'CoOrgIdentityLink','ArchivedCoPetition','HistoryRecord','PipelineCoGroupMember')))
       {
-        foreach(array_keys($src[$m]) as $k)
+        // numeric indexes
+        foreach($src[$m] as $model)
         {
-          if($k != 'id' && $k != 'created' && $k != 'modified')
-            $new[$m][$k] = $src[$m][$k];
+          $copy=array();
+          foreach($model as $k=>$v) {
+            if($k != 'id' && $k != 'created' && $k != 'modified' && $k != 'OrgIdentity') {
+              $copy[$k] = $v;
+            }
+          }
+          if(!empty($copy)) {
+            $new[$m][]=$copy;
+          }
         }
       }
     }
