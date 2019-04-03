@@ -32,6 +32,16 @@
   // Add page title & page buttons
   $params = array();
   $params['title'] = $title_for_layout;
+
+  // For Authenticators during enrollment
+  if(!empty($vv_co_enrollment_authenticator)
+     && ($vv_co_enrollment_authenticator['CoEnrollmentAuthenticator']['required'] == RequiredEnum::Optional)
+     && !empty($this->request->params['named']['onFinish'])) {
+    $params['topLinks'][] = $this->Html->link(_txt('op.skip'),
+                                              urldecode($this->request->params['named']['onFinish']),
+                                              array('class' => 'forwardbutton'));
+  }
+  
   if(!empty($this->plugin)) {
     if(file_exists(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/buttons.inc")) {
       include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/buttons.inc");

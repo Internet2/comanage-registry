@@ -1381,6 +1381,7 @@
     <field name="co_theme_id" type="I">
       <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
+    <field name="establish_authenticators" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">
@@ -2058,6 +2059,37 @@
     </index>
   </table>
 
+  <table name="co_enrollment_authenticators">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="authenticator_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_authenticators(id)</constraint>
+    </field>
+    <field name="required" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_enrollment_authenticator_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_authenticators(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_enrollment_authenticators_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+    <index name="co_enrollment_authenticators_i2">
+      <col>co_enrollment_authenticator_id</col>
+    </index>
+  </table>
+  
   <table name="co_navigation_links">
     <field name="id" type="I">
       <key />
@@ -2184,36 +2216,6 @@
       <col>lkey</col>
       <col>language</col>
       <unique />
-    </index>
-  </table>
-  
-  <table name="ssh_keys">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_person_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="comment" type="C" size="256" />
-    <field name="type" type="C" size="16" />
-    <!-- mysql doesn't want a column called "key" -->
-    <field name="skey" type="X" size="4000" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="ssh_key_id" type="I">
-      <constraint>REFERENCES cm_ssh_keys(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="ssh_keys_i1">
-      <col>co_person_id</col>
-    </index>
-    <index name="ssh_keys_i2">
-      <col>ssh_key_id</col>
     </index>
   </table>
   

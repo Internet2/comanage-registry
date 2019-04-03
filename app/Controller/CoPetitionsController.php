@@ -123,7 +123,7 @@ class CoPetitionsController extends StandardController {
   // Here are the required tasks when adding a new step:
   // - Figure out the correct ordering of the step and insert it into $nextSteps
   // -- dispatch() has special logic for the last step (ie: provision) that will need updating
-  //    if insterting a step after "provision"
+  //    if inserting a step after "provision"
   // - Update CoEnrollmentFlow::configuredSteps()
   // - Add an appropriate STEP function (eg: approve()), and update isAuthorized()
   // - Add an appropriate execute_STEP function (eg: execute_approve())
@@ -143,7 +143,11 @@ class CoPetitionsController extends StandardController {
     'sendConfirmation'             => 'waitForConfirmation',
     // execution continues here if confirmation not required
     'waitForConfirmation'          => 'checkEligibility',
-    'checkEligibility'             => 'sendApproverNotification',
+    'checkEligibility'             => 'establishAuthenticators',
+    // It might be preferable for establishAuthenticators to run after approval,
+    // but we don't currently have a model to move from approver back to enrollee
+    // (which would require something like "click here to upload your ssh key" in the approval message)
+    'establishAuthenticators'      => 'sendApproverNotification',
     // We have both redirectOnConfirm and waitForApproval because depending on the
     // confirmation we might have different paths to completing the processConfirmation step
     'sendApproverNotification'     => 'waitForApproval',
@@ -939,6 +943,82 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Dispatch enrollment authenticator plugins.
+   *
+   * @param Integer $id             CO Petition ID
+   * @param Array   $authenticators Array of Enrollment Authenticators
+   */
+  
+  protected function dispatch_enrollment_authenticators($id, $authenticators) {
+    // Overlap between the and dispatch_enrollment_sources...
+    
+    if(!empty($authenticators)) {
+      // Find the next plugin to run
+      $current = 0;
+      
+      if(!empty($this->request->params['named']['piddone'])) {
+        // First check $authenticators
+        
+        for($c = 0;$c < count($authenticators);$c++) {
+          if($authenticators[$c]['CoEnrollmentAuthenticator']['id'] == $this->request->params['named']['piddone']) {
+            // The specified plugin ID matches, so this is the config we just completed
+            $current = $c+1;
+            break;
+          }
+        }
+      }
+      
+      // Make sure the next plugin is actually enabled (both in the Enrollment Flow
+      // and the associated Authenticator)
+      while($current < count($authenticators)) {
+        if($authenticators[$current]['CoEnrollmentAuthenticator']['required'] != RequiredEnum::NotPermitted
+           && $authenticators[$current]['Authenticator']['status'] == SuspendableStatusEnum::Active) {
+          break;
+        } else {
+          $current++;
+        }
+      }
+      
+      if($current < count($authenticators)) {
+        // Redirect into the next plugin
+        
+        $plugin = $authenticators[$current]['Authenticator']['plugin'];
+        
+        // Determine the current CO Person ID, who at this point is presumed to be the
+        // Actor since we're in an Enrollee driven phase of enrollment.
+       
+        $enrolleeCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+        
+        // Construct a redirect URL
+        $onFinish = $this->generateDoneRedirect('establishAuthenticators', $id, null, $authenticators[$current]['CoEnrollmentAuthenticator']['id']);
+        
+        $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
+        
+        if(!$token) {
+          throw new InvalidArgumentException(_txt('er.token'));
+        }
+
+        // In order to know where to redirect we need to know if the plugin supports
+        // multiple authenticators per instance (eg: SSH Keys) or not (eg: Password).
+        
+        $this->loadModel($plugin.'.'.$plugin);
+        
+        $redirect = array(
+          'plugin'       => Inflector::underscore($plugin),
+          'controller'   => Inflector::tableize(substr($plugin, 0, strlen($plugin)-13)), // Remove "Authenticator"
+          'action'       => $this->$plugin->multiple ? 'add' : 'manage',
+          'authenticatorid' => $authenticators[$current]['Authenticator']['id'],
+          'copetitionid' => $id,
+          'token'        => $token,
+          'onFinish'     => urlencode(Router::url(array_merge($onFinish, array('base' => false))))
+        );
+        
+        $this->redirect($redirect);
+      }
+    }
+  }
+  
+  /**
    * Dispatch enrollment source plugins.
    *
    * @param Integer $id          CO Petition ID
@@ -1124,6 +1204,18 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Establish authenticators. Note the plural of the name vs singular for the
+   * plugin parent call.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function establishAuthenticators($id) {
+    $this->dispatch('establishAuthenticators', $id);
+  }
+  
+  /**
    * Execute CO Petition 'approve' step
    *
    * @since  COmanage Registry v0.9.4
@@ -1234,6 +1326,32 @@ class CoPetitionsController extends StandardController {
     $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));    
   }
   
+  /**
+   * Execute CO Petition 'establishAuthenticators' step
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_establishAuthenticators($id) {
+    // If there are any attached enrollment authenticators, run those.
+    
+    $authenticators = $this->CoPetition
+                           ->CoEnrollmentFlow
+                           ->CoEnrollmentAuthenticator
+                           ->active($this->cachedEnrollmentFlowID);
+    
+    if(!empty($authenticators)) {
+      // If there are plugins to run, we might redirect here. Once done, we'll fall through.
+      $this->dispatch_enrollment_authenticators($id, $authenticators);
+    }
+    
+    // The step is done
+    
+    $this->redirect($this->generateDoneRedirect('establishAuthenticators', $id));    
+  }
+
   /**
    * Execute CO Petition 'finalize' step
    *
@@ -2067,6 +2185,12 @@ class CoPetitionsController extends StandardController {
         // Eligibility triggered by petitioner
         $p['checkEligibility'] = $isPetitioner;
       }
+      // Only the enrollee can (currently) set up their authenticators. This requires
+      // email confirmation to be enabled so that enrollee_token gets set. (Trying to
+      // allow petitioner_token as well becomes complicated.)
+      $p['establishAuthenticators'] = $isEnrollee;
+      // Authenticator Plugin steps for establishAuthenticators get the same permissions
+      $p['establishAuthenticator'] = $p['establishAuthenticators'];
       // Approval steps could be triggered by petitioner or enrollee, according to configuration
       if($steps['sendApproverNotification']['role'] == EnrollmentRole::Enrollee) {
         // Confirmation required, so approval steps get triggered by enrollee

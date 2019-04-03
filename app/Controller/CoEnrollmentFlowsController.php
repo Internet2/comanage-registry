@@ -45,6 +45,7 @@ class CoEnrollmentFlowsController extends StandardController {
   public $uses = array('CoEnrollmentFlow', 'CmpEnrollmentConfiguration');
   
   public $edit_contains = array(
+    'CoEnrollmentAuthenticator',
     'CoEnrollmentFlowAuthzCoGroup',
     'CoEnrollmentFlowAuthzCou',
     'CoEnrollmentSource'
@@ -145,6 +146,14 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['order'] = array('CoTheme.name ASC');
       
       $this->set('vv_co_themes', $this->CoEnrollmentFlow->Co->CoTheme->find("list", $args));
+      
+      // Pull the set of available authenticators
+      $args = array();
+      $args['conditions']['Authenticator.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['Authenticator.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('vv_authenticators', $this->CoEnrollmentFlow->Co->Authenticator->find('list', $args));
     }
     
     parent::beforeRender();

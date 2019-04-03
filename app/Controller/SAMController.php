@@ -30,7 +30,14 @@ App::uses("StandardController", "Controller");
 class SAMController extends StandardController {
   public $requires_co = true;
   
-  public $uses = array('Authenticator', 'CoPerson');
+  // Confusingly, we only want this for the REST API
+  public $requires_person = false;
+  
+  public $uses = array('Authenticator',
+                       'CoEnrollmentAuthenticator',
+                       'CoEnrollmentFlow',
+                       'CoPerson',
+                       'CoPetition');
   
   /**
    * Add an Authenticator Model Object.
@@ -42,7 +49,9 @@ class SAMController extends StandardController {
   public function add() {
     parent::add();
     
-    $this->set('title_for_layout', _txt('op.add-a', array($this->viewVars['vv_authenticator']['Authenticator']['description'])));
+    if(!$this->request->is('restful')) {
+      $this->set('title_for_layout', _txt('op.add-a', array($this->viewVars['vv_authenticator']['Authenticator']['description'])));
+    }
   }
   
   /**
@@ -59,15 +68,11 @@ class SAMController extends StandardController {
     // that's first in $uses.)
     $this->modelClass = Inflector::singularize($this->name);
     
-    parent::beforeFilter();
+    if($this->request->is('restful')) {
+      $this->requires_person = true;
+    }
     
-    // These are set by calculateParentPermissions, if that's called
-    $this->setViewVars(!empty($this->request->params['named']['authenticatorid'])
-                       ? $this->request->params['named']['authenticatorid']
-                       : null,
-                       !empty($this->request->params['named']['copersonid'])
-                       ? $this->request->params['named']['copersonid']
-                       : null);
+    parent::beforeFilter();
   }
   
   /**
@@ -127,7 +132,7 @@ class SAMController extends StandardController {
                                          array($this->modelClass.'.id' => $this->request->params['pass'][0]));
       
       $authmodel = $this->modelClass . "Authenticator";
-      $modelAuthenticatorId = $this->$model->field(strtolower($this->modelClass) . '_authenticator_id',
+      $modelAuthenticatorId = $this->$model->field(Inflector::underscore($this->modelClass) . '_authenticator_id',
                                                    array($this->modelClass.'.id' => $this->request->params['pass'][0]));
       
       if($modelAuthenticatorId) {
@@ -144,6 +149,7 @@ class SAMController extends StandardController {
       }
     }
     
+    // We mostly set view vars at other points, but we need them for
     // Set view vars and load plugins in case they're needed at various points
     $this->setViewVars($authenticatorId, $coPersonId);
     
@@ -152,7 +158,10 @@ class SAMController extends StandardController {
         $self = true;
         
         if(!empty($authenticatorId)) {
-          // See if the authenticator is locked
+          // See if the authenticator is locked. For this to work we need the plugin
+          // models to be loaded, so we trigger setViewVars as a hack to do so.
+          
+          $this->setViewVars($authenticatorId, $coPersonId);
           
           $status = $this->Authenticator->status($authenticatorId, $roles['copersonid']);
           
@@ -163,6 +172,62 @@ class SAMController extends StandardController {
       }
       
       $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'], $coPersonId);
+    } else {
+      if(!empty($this->request->params['named']['copetitionid'])
+         && !empty($this->request->params['named']['token'])) {
+        // We're in an enrollment flow and are establishing authenticators.
+        // Check for and validate the token.
+        
+        try {
+          // Authenticators can only be set when the petition is in "Confirmed" status,
+          // ie: after the enrollee has confirmed email.
+          $tokenRole = $this->CoPetition->validateToken($this->request->params['named']['copetitionid'],
+                                                        $this->request->params['named']['token'],
+                                                        PetitionStatusEnum::Confirmed);
+          
+          if($tokenRole == 'enrollee') {
+            $self = true;
+
+            // If we're in an enrollment flow, pull the enrollment authenticator configuration.
+            // We do this here rather than beforeFilter (where it should more logically go)
+            // since we've already verified the token status and that copetitionid is valid.
+            // We'll also grab the CO Person.
+            
+            $args = array();
+            $args['conditions']['CoPetition.id'] = $this->request->params['named']['copetitionid'];
+            $args['contain'] = false;
+            
+            $pt = $this->CoPetition->find('first', $args);
+            
+            // We shouldn't get here if $pt is empty since we just verified the token
+            $coPersonId = $pt['CoPetition']['enrollee_co_person_id'];
+            
+            $efId = $pt['CoPetition']['co_enrollment_flow_id'];
+            
+            if($efId) {
+              $args = array();
+              $args['conditions']['CoEnrollmentAuthenticator.co_enrollment_flow_id'] = $efId;
+              $args['conditions']['CoEnrollmentAuthenticator.authenticator_id'] = $authenticatorId;
+              $args['contain'] = false;
+              
+              $eAuthenticator = $this->CoEnrollmentAuthenticator->find('first', $args);
+              
+              if(empty($eAuthenticator)
+                 || $eAuthenticator['CoEnrollmentAuthenticator']['required'] == RequiredEnum::NotPermitted) {
+                throw new InvalidArgumentException(_txt('er.setting'));
+              }
+              
+              $this->set('vv_co_enrollment_authenticator', $eAuthenticator);
+            }
+          }
+        }
+        catch(Exception $e) {
+          // We don't really need to know why the token failed, we just won't set any permissions
+        }
+      }
+      
+      // Set view vars and load plugins in case they're needed at various points
+      $this->setViewVars($authenticatorId, $coPersonId);
       
       // Set for use in the view
       if($self || $managed) {
@@ -339,7 +404,9 @@ class SAMController extends StandardController {
   public function index() {
     parent::index();
     
-    $this->set('title_for_layout', $this->viewVars['vv_authenticator']['Authenticator']['description']);
+    if(!$this->request->is('restful')) {
+      $this->set('title_for_layout', $this->viewVars['vv_authenticator']['Authenticator']['description']);
+    }
   }
   
   /**
@@ -370,11 +437,13 @@ class SAMController extends StandardController {
     $this->Authenticator->$plugin->setConfig($this->viewVars['vv_authenticator']);        
     
     // Pull current data, if any
-      
     $this->set('vv_current',
                $this->Authenticator->$plugin->current($this->viewVars['vv_authenticator']['Authenticator']['id'],
                                                       $this->viewVars['vv_authenticator'][$plugin]['id'],
-                                                      $this->request->params['named']['copersonid']));
+                                                      $this->viewVars['vv_co_person']['CoPerson']['id']));
+    
+    // If we're in an enrollment flow and the enrollment authenticator is optional,
+    // provide a "skip" button.
     
     if($this->request->is('get')) {
       // Just let the form render
@@ -382,7 +451,7 @@ class SAMController extends StandardController {
       // Hand off to the plugin to handle the save.
       // Note we don't do anything to the data received from the plugin's form
       // other than let the normal Cake routines (validation, callbacks) run.
-            
+      
       try {
         // We pass the data to the main Plugin model rather than to the actual
         // authenticator backend for a couple of reasons, though this might change in the future.
@@ -392,8 +461,10 @@ class SAMController extends StandardController {
         $msg = $this->Authenticator->$plugin->manage($this->request->data,
                                                      $this->Session->read('Auth.User.co_person_id'));
         
-        $this->Authenticator->provision($this->request->params['named']['copersonid']);
-                                                     
+        if(!isset($this->request->params['named']['copetitionid'])) {
+          $this->Authenticator->provision($this->request->params['named']['copersonid']);
+        }
+        
         $this->Flash->set($msg, array('key' => 'success'));
         $this->performRedirect();
       }
@@ -444,6 +515,10 @@ class SAMController extends StandardController {
    */
   
   public function performRedirect() {
+    if(!empty($this->request->params['named']['onFinish'])) {
+      $this->redirect(urldecode($this->request->params['named']['onFinish']));
+    }
+    
     $copersonid = null;
     
     if(!empty($this->viewVars['vv_co_person']['CoPerson']['id'])) {

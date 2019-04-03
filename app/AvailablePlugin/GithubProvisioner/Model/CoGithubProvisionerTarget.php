@@ -553,14 +553,12 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
     // There typically won't be more than a couple of keys per user, so we don't bother
     // with optimizing search via hashes.
     
-    global $ssh_ti;
-    
     foreach($sshKeys as $k) {
       // Convert the key into the format returned by GH and see if it's there.
       // Note we only look at the key type and the key itself, we ignore the key title
       // (as known to GH) or comment (as known to COmanage).
       
-      $fkey = $ssh_ti[ $k['type'] ] . " " . $k['skey'];
+      $fkey = $k['type'] . " " . $k['skey'];
       
       $found = false;
       

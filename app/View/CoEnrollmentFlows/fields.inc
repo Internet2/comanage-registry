@@ -171,6 +171,14 @@
     } else {
       $("#CoEnrollmentFlowFinalizationTemplateId").closest("li").hide('fade');
     }
+    
+    // If Establish Authenticators is enabled, show the available authenticators
+    
+    if(document.getElementById('CoEnrollmentFlowEstablishAuthenticators').checked) {
+      $("#authenticators").show('fade');
+    } else {
+      $("#authenticators").hide('fade');
+    }
   }
   
   function tandc_update_gadgets() {
@@ -902,6 +910,90 @@
     </div>
   </li>
   <?php endif; ?>
+  <?php if(!empty($vv_authenticators)): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('establish_authenticators', _txt('fd.ef.authenticators')) : _txt('fd.ea.authenticators')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.authenticators.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        print ($e
+               ? $this->Form->input('establish_authenticators',
+                                    array('onChange' => 'fields_update_gadgets();',
+                                          'default' => false))
+               : ($co_enrollment_flows[0]['CoEnrollmentFlow']['establish_authenticators']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
+    </div>
+    <div id="authenticators" style="display:none">
+    <ul class="field-children">
+      <?php 
+        // We need to make sure fields match to Cake's index number, unless we
+        // have a new authenticator. This is similar logic to LdapProvisioner.
+        
+        $newid = count($vv_authenticators);
+        
+        foreach($vv_authenticators as $authid => $authname): 
+      ?>
+      <li>
+        <div class="field-name">
+          <div class="field-title"><?php print filter_var($authname,FILTER_SANITIZE_SPECIAL_CHARS); ?></div>
+        </div>
+        <div class="field-info">
+          <?php
+            if($e) {
+              // Do we have a current record for this authenticator?
+              $cur = Hash::extract($co_enrollment_flows[0]['CoEnrollmentAuthenticator'],
+                                   '{n}[authenticator_id='.$authid.']');
+              $checked = false;
+              
+              $xindex = -1;
+              
+              if(!empty($cur[0]['id'])) {
+                $xindex = $cur[0]['id'];
+              } else {
+                $xindex = $newid;
+                $newid++;
+              }
+              
+              $xprefix = 'CoEnrollmentAuthenticator.' . $xindex;
+              
+              if(!empty($cur)) {
+                print $this->Form->hidden($xprefix . '.id', array('default' => $cur[0]['id']));
+              }
+              
+              print $this->Form->hidden($xprefix . '.co_enrollment_flow_id', 
+                                        array('default' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']));
+              
+              print $this->Form->hidden($xprefix . '.authenticator_id', 
+                                        array('default' => $authid));
+              
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (isset($cur[0]['required'])
+                                 ? $cur[0]['required']
+                                 : RequiredEnum::NotPermitted);
+              $attrs['empty'] = false;
+              
+              print $this->Form->select($xprefix . '.required',
+                                        $cm_texts[ $cm_lang ]['en.required'],
+                                        $attrs);
+              
+              if($this->Form->isFieldError($xprefix . '.required')) {
+                print $this->Form->error($xprefix . '.required');
+              }
+            }
+          ?>
+        </div>
+      </li>
+    <?php endforeach; // vv_authenticators ?>
+    </ul>
+    </div>
+  </li>
+  <?php endif; // vv_authenticators ?>
   <li>
     <div class="field-name">
       <?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?>

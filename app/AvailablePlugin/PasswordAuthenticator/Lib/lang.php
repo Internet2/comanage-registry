@@ -35,6 +35,8 @@ $cm_password_authenticator_texts['en_US'] = array(
   // Titles, per-controller
   'ct.password_authenticators.1'  => 'Password Authenticator',
   'ct.password_authenticators.pl' => 'Password Authenticators',
+  'ct.passwords.1'                => 'Password',
+  'ct.passwords.pl'               => 'Passwords',
   
   // Error messages
   'er.passwordauthenticator.current'   => 'Current password is required',

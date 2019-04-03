@@ -82,6 +82,7 @@ class CoEnrollmentFlow extends AppModel {
   public $hasMany = array(
     // A CO Enrollment Flow has many CO Enrollment Attributes
     "CoEnrollmentAttribute" => array('dependent' => true),
+    "CoEnrollmentAuthenticator" => array('dependent' => true),
     "CoEnrollmentSource" => array('dependent' => true),
     // A CO Enrollment Flow may have zero or more CO Petitions
     "CoPetition" => array('dependent' => true)
@@ -604,6 +605,15 @@ class CoEnrollmentFlow extends AppModel {
     } else {
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Petitioner;
       $ret['waitForApproval']['role'] = EnrollmentRole::Petitioner;
+    }
+    
+    // Maybe collect identifiers
+    if(isset($ef['CoEnrollmentFlow']['establish_authenticators'])
+       && $ef['CoEnrollmentFlow']['establish_authenticators']) {
+      $ret['establishAuthenticators']['enabled'] = RequiredEnum::Required;
+      $ret['establishAuthenticators']['role'] = EnrollmentRole::Enrollee;
+    } else {
+      $ret['establishAuthenticators']['enabled'] = RequiredEnum::NotPermitted;
     }
     
     // If approval is required, run the appropriate steps

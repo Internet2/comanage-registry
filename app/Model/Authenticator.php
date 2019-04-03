@@ -41,7 +41,8 @@ class Authenticator extends AppModel {
   );
   
   public $hasMany = array(
-    "AuthenticatorStatus"
+    "AuthenticatorStatus",
+    "CoEnrollmentAuthenticator" => array('dependent' => true)
   );
   
   public $hasManyPlugins = array(

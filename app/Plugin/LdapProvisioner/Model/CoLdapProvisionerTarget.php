@@ -655,9 +655,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               // Authenticators
               case 'sshPublicKey':
                 foreach($provisioningData['SshKey'] as $sk) {
-                  global $ssh_ti;
-                  
-                  $attributes[$attr][] = $ssh_ti[ $sk['type'] ] . " " . $sk['skey'] . " " . $sk['comment'];
+                  $attributes[$attr][] = $sk['type'] . " " . $sk['skey'] . " " . $sk['comment'];
                 }
                 break;
               case 'userPassword':

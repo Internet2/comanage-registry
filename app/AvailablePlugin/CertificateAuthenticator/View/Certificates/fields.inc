@@ -36,6 +36,9 @@
   print $this->Form->hidden('certificate_authenticator_id',
                             array('default' => $vv_authenticator['CertificateAuthenticator']['id'])) . "\n";
   print $this->Form->hidden('co_person_id', array('default' => $vv_co_person['CoPerson']['id'])) . "\n";
+  
+  // Add breadcrumbs
+  print $this->element("coCrumb", array('authenticator' => 'Certificate'));
 ?>
 
 <ul id="<?php print $this->action; ?>_certificate" class="fields form-list form-list-admin">

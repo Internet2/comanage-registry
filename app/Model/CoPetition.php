@@ -3300,4 +3300,46 @@ class CoPetition extends AppModel {
       return $ret;
     }
   }
+  
+  /**
+   * Validate a token associated with a Petition
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Integer $id    CO Petition ID
+   * @param  Integer $token Token to verify
+   * @param  PetitionStatusEnum $petitionStatus If provided, require the petition to be in this status
+   * @return string         "petitioner" or "enrollee", according to the token validated
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   * @todo   Update other token validation code to use this function
+   */
+
+  public function validateToken($id, $token, $petitionStatus=null) {
+    // First pull the petition record
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'] = false;
+    
+    $pt = $this->find('first', $args);
+    
+    if(!$pt) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
+    }
+    
+    // If requested, check the status of the petition
+    if($petitionStatus && $pt['CoPetition']['status'] != $petitionStatus) {
+      throw new RuntimeException(_txt('er.status.not', array($petitionStatus)));
+    }
+    
+    if($token == $pt['CoPetition']['petitioner_token']) {
+      return 'petitioner';
+    }
+    
+    if($token == $pt['CoPetition']['enrollee_token']) {
+      return 'enrollee';
+    }
+    
+    throw new InvalidArgumentException(_txt('er.token'));
+  }
 }
