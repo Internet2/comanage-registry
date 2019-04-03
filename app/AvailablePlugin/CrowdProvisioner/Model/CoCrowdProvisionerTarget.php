@@ -227,7 +227,7 @@ class CoCrowdProvisionerTarget extends CoProvisionerPluginTarget {
     $ids = Hash::extract($identifiers, '{n}[type='.$usernameType.']');
 
     if(empty($ids)) {
-      throw new RuntimeException(_txt('er.mailmanprovisioner.id.none', array($usernameType)));
+      throw new RuntimeException(_txt('er.crowdprovisioner.id.none', array($usernameType)));
     }
     
     $response = $this->Http->delete("/usermanagement/1/user?username=" . urlencode($ids[0]['identifier']));
@@ -408,12 +408,12 @@ class CoCrowdProvisionerTarget extends CoProvisionerPluginTarget {
     $ids = Hash::extract($identifiers, '{n}[type='.$usernameType.']');
 
     if(empty($ids)) {
-      throw new RuntimeException(_txt('er.mailmanprovisioner.id.none', array($usernameType)));
+      throw new RuntimeException(_txt('er.crowdprovisioner.id.none', array($usernameType)));
     }
       
     if(empty($emailAddresses[0]['mail'])) {
       // Crowd requires an email address
-      throw new RuntimeException(_txt('er.mailmanprovisioner.mail.none'));
+      throw new RuntimeException(_txt('er.crowdprovisioner.mail.none'));
     }
     
     $crowdUsername = $ids[0]['identifier'];

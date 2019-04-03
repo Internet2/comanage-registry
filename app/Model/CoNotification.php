@@ -281,10 +281,11 @@ class CoNotification extends AppModel {
    *
    * @since  COmanage Registry v0.8.4
    * @param  Integer  $coPersonId CO Person ID to obtain notifications for
-   * @return Array    Set of pending notifications
+   * @param  Integer  $max        Maximum number of notifications to obtain, null for all or 0 for a count
+   * @return Mixed    Array of pending notifications, or Integer of count of notifications
    */
   
-  public function pending($coPersonId) {
+  public function pending($coPersonId, $max=null) {
     // We need the groups the person is a member of. There's probably a clever join
     // to pull from co_notifications in one query, put the obvious joins aren't working.
     
@@ -320,9 +321,16 @@ class CoNotification extends AppModel {
     $args['conditions']['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
                                                          NotificationStatusEnum::PendingResolution);
     $args['order']['CoNotification.created'] = 'desc';
+    if($max > 0) {
+      $args['limit'] = $max;
+    }
     $args['contain'] = false;
     
-    return $this->find('all', $args);
+    if($max === 0) {
+      return $this->find('count', $args);
+    } else {
+      return $this->find('all', $args);
+    }
   }
   
   /**
@@ -708,6 +716,12 @@ class CoNotification extends AppModel {
       // Make sure we don't lose it
       $notificationId = $this->id;
       
+      $args = array();
+      $args['conditions']['ActorCoPerson.id'] = $actorCoPersonId;
+      $args['contain'][] = 'PrimaryName';
+      
+      $actor = $this->ActorCoPerson->find('first', $args);
+      
       foreach($recipients as $recipient) {
         $toaddr = null;
         
@@ -732,7 +746,7 @@ class CoNotification extends AppModel {
                              $coName,
                              $comment,
                              $sourceurl,
-                             null,
+                             !empty($actor['PrimaryName']) ? generateCn($actor['PrimaryName']) : "(?)",
                              $fromAddress,
                              false,
                              $cc,

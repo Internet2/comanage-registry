@@ -69,6 +69,16 @@ class CoDashboard extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'header_text' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'footer_text' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'visibility' => array(
       'rule' => array('inList', array(VisibilityEnum::CoAdmin,
                                       VisibilityEnum::CoGroupMember,

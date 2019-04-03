@@ -49,6 +49,16 @@
     if (Cookies.get("desktop-drawer-state") == "half-closed") {
       $("#navigation-drawer").addClass("half-closed");
       $("#main").addClass("drawer-half-closed");
+    } else {
+      // Preserve the state of the most recently selected menu item if it is expandable (a "menuTop" item)
+      // (we only use this behavior when the the drawer is fully-open)
+      var mainMenuSelectedParentId = Cookies.get("main-menu-selected-parent-id");
+      console.log(mainMenuSelectedParentId);
+      if(mainMenuSelectedParentId != undefined && mainMenuSelectedParentId != "") {
+        $("#" + mainMenuSelectedParentId).addClass("active");
+        $("#" + mainMenuSelectedParentId + " > a.menuTop").attr("aria-expanded","true");
+        $("#" + mainMenuSelectedParentId + " > ul").addClass("in");
+      }
     }
 
     // Desktop hamburger menu-drawer toggle
@@ -69,17 +79,53 @@
       }
     });
 
-    // Desktop half-closed drawer behavior
+    // Desktop half-closed drawer behavior & expandable menu items
     $('#navigation-drawer a.menuTop').click(function () {
       if (Cookies.get("desktop-drawer-state") == "half-closed") {
         $("#navigation-drawer").toggleClass("half-closed");
       }
+
+      // Save the ID of the most recently expanded menuTop item for use on reload
+      if ($(this).attr("aria-expanded") == "true") {
+        var parentId = $(this).parent().attr("id");
+        Cookies.set("main-menu-selected-parent-id", parentId);
+      } else {
+        Cookies.set("main-menu-selected-parent-id", "");
+      }
     });
+
     // END DESKTOP MENU DRAWER BEHAVIOR
 
     // USER MENU BEHAVIORS
-    $("#global-search label").click(function () {
-      $("#global-search-box").toggle();
+    // Toggle the global search box
+    $("#global-search label").click(function (e) {
+      e.stopPropagation();
+      if ($("#global-search-box").is(":visible")) {
+        $("#global-search-box").hide();
+        $("#global-search-box").attr("aria-expanded","false");
+      } else {
+        $("#global-search-box").show();
+        $("#global-search-box").attr("aria-expanded","true");
+      }
+    });
+
+    // Toggle the custom user panel in the user menu
+    $("#user-panel-toggle").click(function(e) {
+      e.stopPropagation();
+      if ($("#user-panel").is(":visible")) {
+        $("#user-panel").hide();
+        $("#user-panel").attr("aria-expanded","false");
+      } else {
+        $("#user-panel").show();
+        $("#user-panel").attr("aria-expanded","true");
+      }
+    });
+
+    // Hide custom user menu items on click outside
+    $(document).on('click', function (e) {
+      if ($(e.target).closest("#user-panel, #global-search-box").length === 0) {
+        $("#user-panel, #global-search-box").hide();
+      }
     });
 
     // Accordion
@@ -320,6 +366,14 @@
     });
 
     // Datepickers
+
+    <?php /* For all calls to datepicker, wrap the calling date field in a
+      container of class .modelbox-data: this allows us to show the datepicker next to
+      the appropriate field because jQuery drops the div at the bottom of the body and
+      that approach doesn't work well with Material Design Light (MDL). If you do not
+      do this, the datepicker will float up to the top of the browser window. See
+      app/View/CoGroupMembers for an example. */ ?>
+
     $(".datepicker").datepicker({
       changeMonth: true,
       changeYear: true,
@@ -349,8 +403,6 @@
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
-
-
 
     $(".datepicker-m").datepicker({
       changeMonth: true,

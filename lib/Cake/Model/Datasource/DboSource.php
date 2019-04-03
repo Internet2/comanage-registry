@@ -109,7 +109,7 @@ class DboSource extends DataSource {
 /**
  * Result
  *
- * @var array
+ * @var array|PDOStatement
  */
 	protected $_result = null;
 
@@ -248,6 +248,13 @@ class DboSource extends DataSource {
 	protected $_methodCacheChange = false;
 
 /**
+ * Map of the columns contained in a result.
+ *
+ * @var array
+ */
+	public $map = array();
+
+/**
  * Constructor
  *
  * @param array $config Array of configuration information for the Datasource.
@@ -270,6 +277,16 @@ class DboSource extends DataSource {
 		if ($autoConnect) {
 			$this->connect();
 		}
+	}
+
+/**
+ * Connects to the database.
+ *
+ * @return bool
+ */
+	public function connect() {
+		// This method is implemented in subclasses
+		return $this->connected;
 	}
 
 /**
@@ -620,6 +637,16 @@ class DboSource extends DataSource {
 	}
 
 /**
+ * Builds a map of the columns contained in a result
+ *
+ * @param PDOStatement $results The results to format.
+ * @return void
+ */
+	public function resultSet($results) {
+		// This method is implemented in subclasses
+	}
+
+/**
  * Returns a row from current resultset as an array
  *
  * @param string $sql Some SQL to be executed.
@@ -913,7 +940,7 @@ class DboSource extends DataSource {
 				)
 			);
 		}
-		if (preg_match('/^[\w-_\s]*[\w-_]+/', $data)) {
+		if (preg_match('/^[\w\-_\s]*[\w\-_]+/', $data)) {
 			return $this->cacheMethod(__FUNCTION__, $cacheKey, $this->startQuote . $data . $this->endQuote);
 		}
 		return $this->cacheMethod(__FUNCTION__, $cacheKey, $data);
@@ -1076,7 +1103,7 @@ class DboSource extends DataSource {
 
 		for ($i = 0; $i < $count; $i++) {
 			$schema = $Model->schema();
-			$valueInsert[] = $this->value($values[$i], $Model->getColumnType($fields[$i]), isset($schema[$fields[$i]]) ? $schema[$fields[$i]]['null'] : true);
+			$valueInsert[] = $this->value($values[$i], $Model->getColumnType($fields[$i]), isset($schema[$fields[$i]]['null']) ? $schema[$fields[$i]]['null'] : true);
 			$fieldInsert[] = $this->name($fields[$i]);
 			if ($fields[$i] === $Model->primaryKey) {
 				$id = $values[$i];
@@ -2177,7 +2204,7 @@ class DboSource extends DataSource {
 			$update = $quoted . ' = ';
 
 			if ($quoteValues) {
-				$update .= $this->value($value, $Model->getColumnType($field), isset($schema[$field]) ? $schema[$field]['null'] : true);
+				$update .= $this->value($value, $Model->getColumnType($field), isset($schema[$field]['null']) ? $schema[$field]['null'] : true);
 			} elseif ($Model->getColumnType($field) === 'boolean' && (is_int($value) || is_bool($value))) {
 				$update .= $this->boolean($value, true);
 			} elseif (!$alias) {
@@ -3046,12 +3073,12 @@ class DboSource extends DataSource {
 		if (!is_array($keys)) {
 			$keys = array($keys);
 		}
-
 		$keys = array_filter($keys);
 
 		$result = array();
 		while (!empty($keys)) {
-			list($key, $dir) = each($keys);
+			$key = key($keys);
+			$dir = current($keys);
 			array_shift($keys);
 
 			if (is_numeric($key)) {
@@ -3512,7 +3539,7 @@ class DboSource extends DataSource {
 		} elseif (isset($column['null']) && $column['null'] === false) {
 			$out .= ' NOT NULL';
 		}
-		if ($type === 'timestamp' && isset($column['default']) && strtolower($column['default']) === 'current_timestamp') {
+		if (in_array($type, array('timestamp', 'datetime')) && isset($column['default']) && strtolower($column['default']) === 'current_timestamp') {
 			$out = str_replace(array("'CURRENT_TIMESTAMP'", "'current_timestamp'"), 'CURRENT_TIMESTAMP', $out);
 		}
 		return $this->_buildFieldParameters($out, $column, 'afterDefault');

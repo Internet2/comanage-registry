@@ -443,7 +443,11 @@ class RoleComponent extends Component {
     // Pull the current CO from our invoking controller
     $controller = $this->_Collection->getController();
     
-    $coId = $controller->cur_co['Co']['id'];
+    if(!empty($controller->cur_co['Co']['id'])) {
+      $coId = $controller->cur_co['Co']['id'];
+    } else {
+      $coId = $controller->parseCOID();
+    }
     
     // Figure out the revelant CO Person ID for the current user and the current CO
     
@@ -747,7 +751,7 @@ class RoleComponent extends Component {
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoPerson.co_id=Co.id';
       $args['conditions']['Co.name'] = 'COmanage';
-      $args['conditions']['Co.status'] = StatusEnum::Active;
+      $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
       $args['conditions']['CoPerson.id'] = $coPersonIds;
       $args['contain'] = false;
       

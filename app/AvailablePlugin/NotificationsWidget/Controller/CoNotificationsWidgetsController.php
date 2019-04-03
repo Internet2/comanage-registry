@@ -43,17 +43,17 @@ class CoNotificationsWidgetsController extends SDWController {
   public function display($id) {
     $cfg = $this->CoNotificationsWidget->getConfig();
     
-    $maxWidgets = $cfg['CoNotificationsWidget']['max_notifications'];
+    $max = $cfg['CoNotificationsWidget']['max_notifications'];
     
-    if(!$maxWidgets) {
-      $maxWidgets = 10;
+    if(!$max) {
+      $max = 10;
     }
     
     // Pull the number of notifications configured for the current user. Note AppController
     // pulls notifications for the default layout, but we don't seem to tickle that code
     // from here (so vv_my_notifications is not set).
     
-    $this->set('vv_widget_notifications', array_slice($this->CoNotification->pending($this->reqCoPersonId), 0, $maxWidgets));
+    $this->set('vv_widget_notifications', $this->CoNotification->pending($this->reqCoPersonId, $max));
   }
   
   /**

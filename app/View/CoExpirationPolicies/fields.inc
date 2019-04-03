@@ -581,7 +581,7 @@
             <li class="fields-submit">
               <div class="field-name"></div>
               <div class="field-info">
-                <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+                <?php print $this->Form->submit($submit_label); ?>
               </div>
             </li>
           </ul>

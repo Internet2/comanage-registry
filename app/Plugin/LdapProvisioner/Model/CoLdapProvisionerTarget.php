@@ -52,6 +52,22 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     )
   );
   
+  public $duplicatableModels = array(
+    // Must explicitly list this model in the order it should be duplicated
+    "CoLdapProvisionerTarget" => array(
+      "parent" => "CoProvisioningTarget",
+      "fk"     => "co_provisioning_target_id"
+    ),
+    "CoLdapProvisionerAttribute" => array(
+      "parent" => "CoLdapProvisionerTarget",
+      "fk"     => "co_ldap_provisioner_target_id"
+    ),
+    "CoLdapProvisionerAttrGrouping" => array(
+      "parent" => "CoLdapProvisionerTarget",
+      "fk"     => "co_ldap_provisioner_target_id"
+    )
+  );
+  
   // Default display field for cake generated views
   public $displayField = "serverurl";
   
@@ -376,6 +392,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               case 'o':
               case 'ou':
               case 'title':
+              case 'voPersonAffiliation':
                 // Map the attribute to the column
                 $cols = array(
                   'eduPersonAffiliation' => 'affiliation',
@@ -383,7 +400,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   'employeeType' => 'affiliation',
                   'o' => 'o',
                   'ou' => 'ou',
-                  'title' => 'title'
+                  'title' => 'title',
+                  'voPersonAffiliation' => 'affiliation',
                 );
                 
                 // Walk through each role
@@ -602,7 +620,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 if(!$attropts) {
                   $attributes[$attr] = array();
                 }
-                
+
                 foreach($provisioningData['CoTAndCAgreement'] as $tc) {
                   if(!empty($tc['agreement_time'])
                      && !empty($tc['CoTermsAndConditions']['url'])
@@ -637,9 +655,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
               // Authenticators
               case 'sshPublicKey':
                 foreach($provisioningData['SshKey'] as $sk) {
-                  global $ssh_ti;
-                  
-                  $attributes[$attr][] = $ssh_ti[ $sk['type'] ] . " " . $sk['skey'] . " " . $sk['comment'];
+                  $attributes[$attr][] = $sk['type'] . " " . $sk['skey'] . " " . $sk['comment'];
                 }
                 break;
               case 'userPassword':
@@ -653,8 +669,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     // There's probably a better place for this (an enum somewhere?)
                     switch($up['password_type']) {
                       // XXX we can't use PasswordAuthenticator's enums in case the plugin isn't installed
-                      case 'CR':
-                        $attributes[$attr][] = '{CRYPT}' . $up['password'];
+                      // For now we only support Salted SHA 1 as the "least bad" out of the
+                      // box option for OpenLDAP.
+                      case 'SH':
+                        $attributes[$attr][] = '{SSHA}' . $up['password'];
                         break;
                       default:
                         // Silently ignore other types
@@ -1026,36 +1044,90 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     if($modify && $attropts) {
-      $currec = $this->queryLdap($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'],
-                                 $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
-                                 $coProvisioningTargetData['CoLdapProvisionerTarget']['password'],
-                                 // We need the DN, which provision() already assemebled. Specifically,
-                                 // if there is a rename in progress we need the old dn since that's still
-                                 // what physically in the LDAP server. (The rename hasn't happened yet.)
-                                 $dns['olddn'],
-                                 "(objectclass=*)");
-      
-      if($currec['count'] != 1) {
-        throw new RuntimeException(_txt('er.ldapprovisioner.basedn'));
+      try {
+        $currec = $this->queryLdap($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'],
+                                   $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
+                                   $coProvisioningTargetData['CoLdapProvisionerTarget']['password'],
+                                   // We need the DN, which provision() already assemebled. Specifically,
+                                   // if there is a rename in progress we need the old dn since that's still
+                                   // what physically in the LDAP server. (The rename hasn't happened yet.)
+                                   $dns['olddn'],
+                                   "(objectclass=*)");
+      }
+      catch(Exception $e) {
+        if($e->getCode() == 32) { // LDAP_NO_SUCH_OBJECT
+          // No such object, maybe it was manually removed?
+          // We'll continue processing as if !$modify
+        } else {
+          // Rethrow the exception
+          throw new RuntimeException($e->getMessage());
+        }
       }
       
-      for($i = 0;$i < $currec[0]['count'];$i++) {
-        $fattr = $currec[0][$i]; // eg: cn;lang-es
-        $cattr = substr($fattr, 0, strpos($fattr, ';')); // eg: cn
-        // If there is no ; in $fattr, substr will return an empty string
-        if(!$cattr) { $cattr = $fattr; }
+      if(!empty($currec)) {
+        if($currec['count'] != 1) {
+          throw new RuntimeException(_txt('er.ldapprovisioner.basedn'));
+        }
         
-        // Is this attribute (currently in LDAP) not in our export?
-        if(!isset($lcattributes[strtolower($fattr)])
-           // And is it an attribute we are configured to manage/export?
-           && in_array(strtolower($cattr), $sattributes)) {
-          // Insert a blank record for this attribute to delete it
-          $attributes[$fattr] = array();
+        for($i = 0;$i < $currec[0]['count'];$i++) {
+          $fattr = $currec[0][$i]; // eg: cn;lang-es
+          $cattr = substr($fattr, 0, strpos($fattr, ';')); // eg: cn
+          // If there is no ; in $fattr, substr will return an empty string
+          if(!$cattr) { $cattr = $fattr; }
+          
+          // Is this attribute (currently in LDAP) not in our export?
+          if(!isset($lcattributes[strtolower($fattr)])
+             // And is it an attribute we are configured to manage/export?
+             && in_array(strtolower($cattr), $sattributes)) {
+            // Insert a blank record for this attribute to delete it
+            $attributes[$fattr] = array();
+          }
         }
       }
     }
     
     return $attributes;
+  }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+
+  public function beforeSave($options = array()) {
+    // Verify that a scope is defined (scope_suffix) if an attribute requiring scope
+    // is defined (eduPersonScopedAffiliation, eduPersonUniqueId).
+    
+    // Only do this check if no scope is set.
+    if(empty($this->data['CoLdapProvisionerTarget']['scope_suffix'])) {
+      $attrs = $this->supportedAttributes();
+      
+      // Walk through the list of attributes looking for those that require scope.
+      // If we find any that are enabled for export, throw an error.
+      
+      foreach($attrs as $oc => $occfg) {
+        // Check that the objectclass is enabled
+        $occol = "oc_" . strtolower($oc);
+        
+        if($occfg['objectclass']['required']
+           // If !isset, it's probably a plugin schema, which is always enabled
+           || !isset($this->data['CoLdapProvisionerTarget'][$occol])
+           || $this->data['CoLdapProvisionerTarget'][$occol]) {
+          foreach($occfg['attributes'] as $attr => $acfg) {
+            if(isset($acfg['requirescope']) && $acfg['requirescope']) {
+              // This attribute requires scope, see if it is required or enabled
+              $dbCfg = Hash::extract($this->data['CoLdapProvisionerAttribute'], '{n}.CoLdapProvisionerAttribute[attribute='.$attr.']');
+              
+              if($acfg['required']
+                 || (isset($dbCfg[0]['export']) && $dbCfg[0]['export'])) {
+                throw new InvalidArgumentException(_txt('er.ldapprovisioner.scope', array($attr)));
+              }
+            }
+          }
+        }
+      }
+    }
   }
   
   /**
@@ -1702,13 +1774,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           ),
           'eduPersonScopedAffiliation' => array(
             'required'  => false,
-            'multiple'  => true
+            'multiple'  => true,
+            'requirescope' => true
           ),
           'eduPersonUniqueId' => array(
             'required'  => false,
             'multiple'  => false,
             'extendedtype' => 'identifier_types',
-            'defaulttype' => IdentifierEnum::Enterprise
+            'defaulttype' => IdentifierEnum::Enterprise,
+            'requirescope' => true
           )
         )
       ),
@@ -1797,6 +1871,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           'required'    => false
         ),
         'attributes' => array(
+          'voPersonAffiliation' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
           'voPersonApplicationUID' => array(
             'required'  => false,
             'multiple'  => true,

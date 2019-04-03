@@ -148,6 +148,43 @@ class CosController extends StandardController {
   }
 
   /**
+   * Duplicate an existing CO.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $id CO ID
+   */
+
+  public function duplicate($id) {
+    if($this->request->is('restful')) {
+      if(!$id) {
+        $this->Api->restResultHeader(400, "Invalid Fields");
+      } else {
+        try {
+          $newCoId = $this->Co->duplicate($id);
+          $this->Api->restResultHeader(201, "Added");
+          $this->set('co_id', $newCoId);
+        }
+        catch(InvalidArgumentException $e) {
+          $this->Api->restResultHeader(404, "CO Unknown");
+        }
+        catch(Exception $e) {
+          $this->Api->restResultHeader(500, $e->getMessage());
+        }
+      }
+    } else {
+      try {
+        $this->Co->duplicate($id);
+        $this->Flash->set(_txt('rs.copy-a1', array(_txt('ct.cos.1'))), array('key' => 'success'));
+      }
+      catch(Exception $e) {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
+
+      $this->performRedirect();
+    }
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -169,6 +206,9 @@ class CosController extends StandardController {
     
     // Delete an existing CO?
     $p['delete'] = $roles['cmadmin'];
+    
+    // Duplicate an existing CO?
+    $p['duplicate'] = $roles['cmadmin'];
     
     // Edit an existing CO?
     $p['edit'] = $roles['cmadmin'];

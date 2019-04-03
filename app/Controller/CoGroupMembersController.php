@@ -514,37 +514,49 @@ class CoGroupMembersController extends StandardController {
    */
   
   function select() {
-    // Find all available CO people
+    // Start by using paginate to pull the set of group members.
+    
+    if(!$this->gid) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_groups.1'))));
+    }
+    
+    $this->Paginator->settings = $this->paginate;
+    $this->Paginator->settings['joins'][0] = array(
+      'table'      => 'co_groups',
+      'alias'      => 'CoGroup',
+      'type'       => 'INNER',
+      'conditions' => array('CoPerson.co_id=CoGroup.co_id')
+    );
+    $this->Paginator->settings['conditions'] = array('CoGroup.id' => $this->gid);
+    $this->Paginator->settings['contain'] = array(
+      // Make sure to contain only the CoGroupMembership we're interested in
+// This doesn't appear to actually work, so we'll pull the group membership separately
+//      'CoGroupMember' => array('conditions' => array('CoGroupMember.id' => $this->gid)),
+      'PrimaryName'
+    );
+    
+    $coPeople = $this->Paginator->paginate('CoPerson');
+
+    $this->set('co_people', $coPeople);
+    
+    // Pull the CoGroupMemberships for the retrieved CoPeople
+    $coPids = Hash::extract($coPeople, '{n}.CoPerson.id');
     
     $args = array();
-    $args['joins'][0]['table'] = 'co_groups';
-    $args['joins'][0]['alias'] = 'CoGroup';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.co_id=CoGroup.co_id';
-    $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
-    $args['order'][] = 'PrimaryName.family';
-    $args['contain'][] = 'PrimaryName';
-    
-    $this->set('co_people', $this->CoGroupMember->CoPerson->find('all', $args));
-    
-    // Find current group members/owners, and rehash to make it easier for the
-    // view to process
-    
-    $args = array();
-    $args['conditions']['CoGroupMember.co_group_id'] = $this->request->params['named']['cogroup'];
-    $args['recursive'] = -1;
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPids;
+    $args['conditions']['CoGroupMember.co_group_id'] = $this->gid;
+    $args['contain'] = false;
     
     $coGroupMembers = $this->CoGroupMember->find('all', $args);
     $coGroupRoles = array();
     
+    // Make one pass through to facilitate rendering
     foreach($coGroupMembers as $m) {
       if(isset($m['CoGroupMember']['member']) && $m['CoGroupMember']['member']) {
-        // Make it easy to find the corresponding co_group_member:id
         $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ] = $m['CoGroupMember']['id'];
       }
       
       if(isset($m['CoGroupMember']['owner']) && $m['CoGroupMember']['owner']) {
-        // Make it easy to find the corresponding co_group_member:id
         $coGroupRoles['owners'][ $m['CoGroupMember']['co_person_id'] ] = $m['CoGroupMember']['id'];
       }
     }
@@ -554,8 +566,8 @@ class CoGroupMembersController extends StandardController {
     // Also find the Group so that its details like name can be rendered
     
     $args = array();
-    $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
-    $args['contain']['Co'] = 'Cou';
+    $args['conditions']['CoGroup.id'] = $this->gid;
+    $args['contain'] = array('Co');
     
     $coGroup = $this->CoGroupMember->CoGroup->find('first', $args);
     
@@ -574,10 +586,14 @@ class CoGroupMembersController extends StandardController {
     if(!$this->request->is('restful')) {
       $targetCoPersonId = $this->request->data['CoGroupMember']['co_person_id'];
       $userCoPersonId   = $this->Session->read('Auth.User.co_person_id');
+      $requesterIsAdmin = $this->Role->isCoAdmin($userCoPersonId, $this->cur_co['Co']['id'])
+                          || $this->Role->identifierIsCmpAdmin($this->Session->read('Auth.User.username'));
+      
       try {
         $this->CoGroupMember->updateMemberships($targetCoPersonId,
                                                 $this->request->data['CoGroupMember']['rows'],
-                                                $userCoPersonId);
+                                                $userCoPersonId,
+                                                $requesterIsAdmin);
         
         $this->Flash->set(_txt('rs.saved'), array('key' => 'success'));
       }

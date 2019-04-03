@@ -47,6 +47,8 @@ class CoGroupsController extends StandardController {
   );
   
   public $edit_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
     'EmailListAdmin',
     'EmailListMember',
     'EmailListModerator'
@@ -420,9 +422,12 @@ class CoGroupsController extends StandardController {
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
+    // Nest a Group within another Group?
+    // This aligns with CoGroupNestingsController::isAuthorized
+    $p['nest'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // Reconcile memberships in a members group?
-    $p['reconcile'] = ((empty($this->request->params['pass'][0]) || $readonly)
-                       && ($roles['cmadmin'] || $roles['coadmin']));
+    $p['reconcile'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     if($this->action == 'index' && $p['index']
        && ($roles['cmadmin'] || $roles['coadmin'])) {
@@ -588,23 +593,8 @@ class CoGroupsController extends StandardController {
       return; 
     } else {
       // Find the group with the input id.
-      $args = array();
-      $args['conditions']['CoGroup.id'] = $id;
-      $args['contain'] = false;
-      $group = $this->CoGroup->find('first', $args);
-      
-      if(empty($group)) {
-        $this->Api->restResultHeader(400, 'Not a valid id');
-        return;
-      }
-      
-      if(!$group['CoGroup']['auto']) {
-        $this->Api->restResultHeader(400, 'Not an automatic group');
-        return;
-      }
-      
       try {
-        $this->CoGroup->reconcileAutomaticGroup($id);
+        $this->CoGroup->reconcile($id);
         $this->Api->restResultHeader(200, 'OK');
       }
       catch(Exception $e) {

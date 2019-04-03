@@ -112,7 +112,10 @@ class CoPetitionHistoryRecordsController extends StandardController {
         $flowAuthorized = $this->CoPetitionHistoryRecord
                                ->CoPetition
                                ->CoEnrollmentFlow
-                               ->authorizeById($coef, $roles['copersonid'], $this->Role);
+                               ->authorizeById($coef, 
+                                               $roles['copersonid'],
+                                               $this->Session->read('Auth.User.username'),
+                                               $this->Role);
       }
     }
     
@@ -120,8 +123,8 @@ class CoPetitionHistoryRecordsController extends StandardController {
     
     // Add a new CO Petition History Record (comment)? This will correlate to editing
     // a CO Petition.
-    $p['add'] = ($roles['cmadmin']
-                 || ($flowAuthorized && ($roles['coadmin'] || $roles['couadmin'])));
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']
+                 || ($flowAuthorized && $roles['couadmin']));
     
     $this->set('permissions', $p);
     return $p[$this->action];

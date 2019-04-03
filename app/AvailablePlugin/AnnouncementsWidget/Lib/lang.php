@@ -47,6 +47,7 @@ $cm_announcements_widget_texts['en_US'] = array(
   'pl.announcementswidget.author'      => 'Author Group',
   'pl.announcementswidget.author.desc' => 'Members of this group can add announcements to this channel',
   'pl.announcementswidget.body'        => 'Message Body',
+  'pl.announcementswidget.none'        => 'No announcements',
   'pl.announcementswidget.nt.add'      => 'Announcement Posted',
   'pl.announcementswidget.nt.edit'     => 'Announcement Updated',
   'pl.announcementswidget.notify'      => 'Send Notifications',
@@ -57,4 +58,5 @@ $cm_announcements_widget_texts['en_US'] = array(
   'pl.announcementswidget.publish_html.desc' => 'If not enabled, HTML tags will be stripped when rendering announcements in this channel.<br />ENABLE ONLY FOR TRUSTED AUTHOR GROUPS.',
   'pl.announcementswidget.reader'      => 'Reader Group',
   'pl.announcementswidget.reader.desc' => 'Members of this group can view announcements in this channel, leave blank for public visibility',
+  'pl.announcementswidget.view_all'         => 'View All Announcements',
 );

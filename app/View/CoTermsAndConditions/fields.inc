@@ -96,14 +96,26 @@
       <div class="field-name">
         <div class="field-title">
           <?php print ($e ? $this->Form->label('url', _txt('fd.url')) : _txt('fd.url')); ?>
-          <span class="required">*</span>
         </div>
         <div class="field-desc"><?php print _txt('fd.tc.url.desc'); ?></div>
       </div>
       <div class="field-info">
         <?php print ($e
-                     ? $this->Form->input('url', array('size' => '60'))
+                     ? $this->Form->input('url', array('size' => '60', 'required'=>false))
                      : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      </div>
+    </li>
+    <li class="field-stack">
+      <div class="field-name">
+        <div class="field-title">
+          <?php print ($e ? $this->Form->label('tc_body', _txt('fd.tc.body')) : _txt('fd.tc.body')); ?>
+        </div>
+        <span class="descr"><?php print _txt('fd.tc.body.desc'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print ($e
+                     ? $this->Form->input('body', array('required'=>false))
+                     : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       </div>
     </li>
     <li>
@@ -155,7 +167,7 @@
       <li class="fields-submit">
         <div class="field-name"></div>
         <div class="field-info">
-          <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+          <?php print $this->Form->submit($submit_label); ?>
         </div>
       </li>
     <?php endif; ?>

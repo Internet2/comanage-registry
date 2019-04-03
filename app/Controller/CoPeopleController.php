@@ -65,7 +65,6 @@ class CoPeopleController extends StandardController {
                           'SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'PrimaryName',
-    'SshKey',
     'Url' => array('SourceUrl' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
@@ -114,7 +113,7 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-      $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+      $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
       $args['contain'] = false;
       
       $this->set('co_enrollment_flows', $this->Co->CoEnrollmentFlow->find('all', $args));

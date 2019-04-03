@@ -35,6 +35,8 @@ $cm_password_authenticator_texts['en_US'] = array(
   // Titles, per-controller
   'ct.password_authenticators.1'  => 'Password Authenticator',
   'ct.password_authenticators.pl' => 'Password Authenticators',
+  'ct.passwords.1'                => 'Password',
+  'ct.passwords.pl'               => 'Passwords',
   
   // Error messages
   'er.passwordauthenticator.current'   => 'Current password is required',
@@ -43,6 +45,12 @@ $cm_password_authenticator_texts['en_US'] = array(
   'er.passwordauthenticator.len.min'   => 'Password must be at least %1$s characters',
   
   // Plugin texts
+  'pl.passwordauthenticator.hash.crypt'     => 'Store as Crypt',
+  'pl.passwordauthenticator.hash.crypt.desc' => 'The password will be stored in Crypt format (required by the plugin)',
+  'pl.passwordauthenticator.hash.plain'     => 'Store as Plain Text',
+  'pl.passwordauthenticator.hash.plain.desc' => 'If enabled, the password will be stored unhashed in the database',
+  'pl.passwordauthenticator.hash.ssha'      => 'Store as Salted SHA 1',
+  'pl.passwordauthenticator.hash.ssha.desc' => 'If enabled, the password will be stored in Salted SHA 1 format',
   'pl.passwordauthenticator.info'           => 'Your new password must be between %1$s and %2$s characters in length.',
   'pl.passwordauthenticator.maxlen'         => 'Maximum Password Length',
   'pl.passwordauthenticator.maxlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 64',

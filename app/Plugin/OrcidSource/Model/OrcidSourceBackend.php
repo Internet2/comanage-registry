@@ -48,8 +48,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   public function callbackUrl($oisid=null) {
     return array(
       'plugin'     => 'orcid_source',
-      'controller' => 'orcid_source_co_petitions',
-      'action'     => 'selectOrgIdentityAuthenticate'
+      'controller' => 'orcid_source_co_petitions'
     );
   }
   

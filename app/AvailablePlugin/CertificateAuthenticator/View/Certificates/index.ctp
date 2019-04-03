@@ -26,9 +26,8 @@
  */
  
   // Add breadcrumbs
-  print $this->element("coCrumb");
-  $this->Html->addCrumb(_txt('ct.certificates.pl'));
-
+  print $this->element("coCrumb", array('authenticator' => 'Certificate'));
+  
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;

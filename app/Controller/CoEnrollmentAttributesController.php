@@ -305,8 +305,12 @@ class CoEnrollmentAttributesController extends StandardController {
       // This list is also in clearUnassociatedRequestData()
       if($attrinfo[0] != 'g' && $attrinfo[0] != 'o' && $attrinfo[0] != 'r' && $attrinfo[0] != 'x') {
         // Ignore return code
-        $this->CoEnrollmentAttribute->CoEnrollmentAttributeDefault->delete($curdata['CoEnrollmentAttributeDefault'][0]['id'],
+        try {
+          $this->CoEnrollmentAttribute->CoEnrollmentAttributeDefault->delete($curdata['CoEnrollmentAttributeDefault'][0]['id'],
                                                                            false);
+        } catch (RuntimeException $e) {
+          // ignore already-deleted errors and other such results
+        }
       }
     }
     

@@ -36,6 +36,7 @@ class CoGroupMember extends AppModel {
   public $belongsTo = array(
     // A CoGroupMember is attached to one CoGroup
     "CoGroup",
+    "CoGroupNesting",
     // A CoGroupMember is attached to one CoPerson
     "CoPerson",
     // A CoGroupMember created from a Pipeline has a Source Org Identity
@@ -89,6 +90,13 @@ class CoGroupMember extends AppModel {
       )
     ),
     'source_org_identity_id' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'co_nested_group_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,
@@ -157,6 +165,79 @@ class CoGroupMember extends AppModel {
       $msg = _txt('er.grm.history', array($coPersonId, $group['CoGroup']['name']));
       $this->log($msg);
     }      
+  }
+  
+  /**
+   * Execute logic after model delete.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+
+  public function afterDelete() {
+    // On save, we pull any nestings for this group and sync memberships for the
+    // parent group(s). (We don't need to recurse since that should trigger a
+    // CO Group Member update for that group, which will then call afterSave
+    // again.)
+    
+    // Due to ChangelogBehavior these references should still be valid after delete.
+    
+    $group = $this->field('co_group_id');
+    $person = $this->field('co_person_id');
+    
+    if($group && $person) {
+      $args = array();
+      $args['conditions']['CoGroupNesting.co_group_id'] = $group;
+      $args['contain'][] = 'TargetCoGroup';
+      
+      $nestings = $this->CoGroupNesting->find('all', $args);
+      
+      if(!empty($nestings)) {
+        foreach($nestings as $n) {
+          $this->syncNestedMembership($n['TargetCoGroup'],
+                                      $n['CoGroupNesting']['id'],
+                                      $person,
+                                      false);
+        }
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Callback after model save.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Boolean $created True if new model is saved (ie: add)
+   * @param  Array $options Options, as based to model::save()
+   * @return Boolean True on success
+   */
+
+  public function afterSave($created, $options = Array()) {
+    // On save, we pull any nestings for this group and sync memberships for the
+    // parent group(s). (We don't need to recurse since that should trigger a
+    // CO Group Member update for that group, which will then call afterSave
+    // again.)
+    
+    if(!empty($this->data['CoGroupMember']['co_group_id'])
+       && !empty($this->data['CoGroupMember']['co_person_id'])) {
+      $args = array();
+      $args['conditions']['CoGroupNesting.co_group_id'] = $this->data['CoGroupMember']['co_group_id'];
+      $args['contain'][] = 'TargetCoGroup';
+      
+      $nestings = $this->CoGroupNesting->find('all', $args);
+      
+      if(!empty($nestings)) {
+        foreach($nestings as $n) {
+          $this->syncNestedMembership($n['TargetCoGroup'],
+                                      $n['CoGroupNesting']['id'],
+                                      $this->data['CoGroupMember']['co_person_id'],
+                                      $this->data['CoGroupMember']['member']);
+        }
+      }
+    }
+    
+    return true;
   }
   
   /**
@@ -669,21 +750,89 @@ class CoGroupMember extends AppModel {
   }
   
   /**
+   * Sync a group membership based on a nested membership.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Array     $targetGroup      Array describing CO Group to add the membership to
+   * @param  Array     $coGroupNestingId CO Group Nesting ID
+   * @param  Integer   $coPersonId       CO Person ID of member
+   * @param  Boolean   $eligible         Whether the CO Person is eligible to be a member of $targetGroup
+   */
+  
+  public function syncNestedMembership($targetGroup, $coGroupNestingId, $coPersonId, $eligible) {
+    // This is similar to syncMembership(), however we assume our caller has already
+    // determined the correct current state.
+    
+    if($eligible) {
+      $this->clear();
+      
+      $data = array();
+      $data['CoGroupMember']['co_group_id'] = $targetGroup['id'];
+      $data['CoGroupMember']['co_person_id'] = $coPersonId;
+      $data['CoGroupMember']['member'] = true;
+      $data['CoGroupMember']['owner'] = false;
+      $data['CoGroupMember']['co_group_nesting_id'] = $coGroupNestingId;
+      
+      $this->save($data);
+      
+      $htxtkey = 'rs.grm.added-n';
+      $hAction = ActionEnum::CoGroupMemberAdded;
+    } else {
+      $conditions = array(
+        'CoGroupMember.co_person_id' => $coPersonId,
+        'CoGroupMember.co_group_nesting_id' => $coGroupNestingId
+      );
+      
+      $this->deleteAll($conditions, true, true);
+      
+      $htxtkey = 'rs.grm.deleted-n';
+      $hAction = ActionEnum::CoGroupMemberDeleted;
+    }
+    
+    // Pull the nested group name
+    $args = array();
+    $args['CoGroupNesting.id'] = $coGroupNestingId;
+    $args['contain'] = array('CoGroup');
+
+    $coGroupNesting = $this->CoGroup->CoGroupNesting->find('first', $args);
+    
+    $hText = _txt($htxtkey, array($targetGroup['name'],
+                                  $targetGroup['id'],
+                                  !empty($coGroupNesting['CoGroup']['name']) ? $coGroupNesting['CoGroup']['name'] : "(?)",
+                                  !empty($coGroupNesting['CoGroup']['id']) ? $coGroupNesting['CoGroup']['id'] : "(?)"));
+    
+    // Cut a history record
+    $this->CoPerson->HistoryRecord->record($coPersonId,
+                                           null,
+                                           null,
+                                           null,
+                                           $hAction,
+                                           $hText,
+                                           $targetGroup['id']);
+  }
+  
+  /**
    * Update the CO Group Memberships for a CO Person.
    *
    * @since  COmanage Registry v0.8
    * @param  Integer CO Person ID
    * @param  Array Array of CO Group Member attributes (id, co_group_id, member, owner)
    * @param  Integer CO Person ID of requester
+   * @param  Boolean True if $requesterCoPersonId is a CO admin
    * @return Boolean True on success, false otherwise
    * @throws LogicException
    */
   
-  public function updateMemberships($coPersonId, $memberships, $requesterCoPersonId) {
+  public function updateMemberships($coPersonId,
+                                    $memberships,
+                                    $requesterCoPersonId,
+                                    $requesterIsAdmin=false) {
     if($coPersonId && !empty($memberships)) {
       // First, pull the current group roles.
-      
       $curRoles = $this->findCoPersonGroupRoles($coPersonId);
+      
+      // And also the roles of $requesterCoPersonId, in case we need to check ownership
+      $requesterRoles = $this->findCoPersonGroupRoles($requesterRoles);
       
       foreach($memberships as $m) {
         // Reset model state between transactions
@@ -700,13 +849,20 @@ class CoGroupMember extends AppModel {
         
         $grp = $this->CoGroup->find('first', $args);
         
-        // If this is an automatic group skip it
-        if(!empty($grp)) {
-          if(isset($grp['CoGroup']['auto']) && $grp['CoGroup']['auto']) {
-            continue;
-          }
-        } else {
+        if(empty($grp)) {
           throw new InvalidArgumentException(_txt('er.gr.nf', array($m['co_group_id'])));
+        }
+        
+        // If this is an automatic group skip it
+        if(isset($grp['CoGroup']['auto']) && $grp['CoGroup']['auto']) {
+          continue;
+        }
+        
+        // If this is a closed group and $requesterCoPersonId is not an owner or admin, skip it
+        if(!$requesterIsAdmin
+           && (!isset($grp['CoGroup']['open']) || !$grp['CoGroup']['open'])
+           && !in_array($m['co_group_id'], $requesterRoles['owner'])) {
+          continue;
         }
         
         if(!empty($m['id'])) {

@@ -925,7 +925,6 @@ class ProvisionerBehavior extends ModelBehavior {
       'Identifier',
       'Name',
       'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
-      'SshKey',
       'Url'
     );
     
@@ -974,7 +973,11 @@ class ProvisionerBehavior extends ModelBehavior {
         if(!empty($p[$authplugin]['authenticator_id'])) {
           $args = array();
           $args['conditions']['Authenticator.id'] = $p[$authplugin]['authenticator_id'];
-          $args['contain'][] = 'AuthenticatorStatus';
+          $args['contain'] = array(
+            'AuthenticatorStatus' => array(
+              'conditions' => array('AuthenticatorStatus.co_person_id' => $coPersonId)
+            )
+          );
           
           $aStatus = $coPersonModel->$authmodel->$authplugin->Authenticator->find('first', $args);
           

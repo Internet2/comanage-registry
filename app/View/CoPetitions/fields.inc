@@ -139,40 +139,59 @@
 
             <ul id="<?php print $this->action; ?>_co_petition" class="fields form-list">
               <li>
-                <div class="field-name"><?php print _txt('fd.status'); ?></div>
+                <div class="field-name field-name-status"><?php print _txt('fd.status'); ?></div>
                 <div class="field-info">
                   <?php
                     print '<span class="status ' . $co_petitions[0]['CoPetition']['status'] . '">';
                     print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
                     print '</span>';
-
-                    if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
-                      if($permissions['approve']) {
-                        print $this->Html->link(
-                          _txt('op.approve'),
-                          array('controller' => 'co_petitions',
-                                'action' => 'approve',
-                                $co_petitions[0]['CoPetition']['id'],
-                                'co' => $co_petitions[0]['CoPetition']['co_id'],
-                                'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
-                          array('class' => 'checkbutton approve-button')
-                        );
-                      }
-                    }
-
+                    
                     if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
                        || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
-                      if($permissions['deny']) {
-                        print $this->Html->link(
-                          _txt('op.deny'),
-                          array('controller' => 'co_petitions',
-                                'action' => 'deny',
-                                $co_petitions[0]['CoPetition']['id'],
-                                'co' => $co_petitions[0]['CoPetition']['co_id'],
-                                'coef' => $co_petitions[0]['CoPetition']['co_enrollment_flow_id']),
-                          array('class' => 'cancelbutton deny-button')
+                      
+                      // We create a form here as part of CO-1658, since it's cleaner than
+                      // grabbing the comment and stuffing it into a GET paramater on submit.
+                      // For now this isn't a problem because even though we're in fields.inc,
+                      // petitions only get rendered via view, not edit. However, whenever CO-431
+                      // (edit petitions) gets implemented this would change. At that time
+                      // this may need to be reimplemented, possibly with the use of the HTML5
+                      // "form" attribute eg <input type="text" form="approverForm" ...>
+                      // (browser support should be better by then), or by simply only allowing
+                      // approval/denial when viewing (not editing) the petition.
+                      
+                      $args = array(
+                        'type' => 'post',
+                        'url' => array(
+                          'controller' => 'co_petitions', 
+                          'action' => 'approve',
+                          $co_petitions[0]['CoPetition']['id']
+                        )
+                      );
+                      
+                      print $this->Form->create('CoPetition', $args);
+
+                      if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
+                        print $this->Form->submit(_txt('op.approve'),
+                          array(
+                            'class' => 'checkbutton approve-button',
+                            'name'  => 'action')
                         );
                       }
+                      print $this->Form->submit(_txt('op.deny'),
+                        array(
+                          'class' => 'cancelbutton deny-button',
+                          'name'  => 'action')
+                      );
+
+                      print $this->Form->input('approver_comment',
+                                               array(
+                                                 'label' => _txt('fd.pt.approver_comment'),
+                                                 'placeholder' => _txt('en.required', null, RequiredEnum::Optional)
+                                              ));
+
+                      print '<div class="field-desc">' . _txt('fd.pt.approver_comment.desc') . '</div>';
+
+                      print $this->Form->end();
                     }
                   ?>
                 </div>
@@ -221,6 +240,16 @@
                 </div>
               </li>
               <li>
+                <div class="field-name"><?php print _txt('fd.pt.approver_comment'); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(isset($co_petitions[0]['CoPetition']['approver_comment'])) {
+                      print filter_var($co_petitions[0]['CoPetition']['approver_comment'],FILTER_SANITIZE_SPECIAL_CHARS);
+                    }
+                  ?>
+                </div>
+              </li>
+              <li>
                 <div class="field-name"><?php print _txt('fd.identifier.identifier'); ?></div>
                 <div class="field-info">
                   <?php
@@ -247,7 +276,7 @@
               <?php print _txt('fd.pt.identities'); ?>
             </a>
 
-            <ul id=co_petition_identities" class="fields form-list">
+            <ul id="co_petition_identities" class="fields form-list">
               <li>
                 <div class="field-name"><?php print _txt('ct.co_people.1'); ?></div>
                 <div class="field-info">

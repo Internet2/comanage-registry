@@ -35,7 +35,8 @@ class UpgradeVersionShell extends AppShell {
                     'CoExtendedType',
                     'CoGroup',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
-                    'Identifier');
+                    'Identifier',
+                    'SshKeyAuthenticator.SshKeyAuthenticator');
   
   // A list of known versions, must be semantic versioning compliant. The value
   // is a "blocker" if it is a version that prevents an upgrade from happening.
@@ -74,7 +75,10 @@ class UpgradeVersionShell extends AppShell {
     "2.0.3" => array('block' => false),
     "3.0.0" => array('block' => false),
     "3.1.0" => array('block' => false, 'post' => 'post310'),
-    "3.1.1" => array('block' => false)
+    "3.1.1" => array('block' => false),
+    "3.2.0" => array('block' => false),
+    "3.2.1" => array('block' => false),
+    "3.3.0" => array('block' => false, 'post' => 'post330'),
   );
   
   public function getOptionParser() {
@@ -375,6 +379,23 @@ class UpgradeVersionShell extends AppShell {
       $this->out('- ' . $co['Co']['name']);
 
       $this->CoExtendedType->addDefault($co['Co']['id'], 'Url.type');
+    }
+  }
+
+  public function post330() {
+    // 3.3.0 moves SSH key management into an authenticator plugin.
+    $this->out(_txt('sh.ug.330.ssh'));
+
+    $args = array();
+    $args['contain'] = false;
+    
+    $cos = $this->Co->find('all', $args);
+    
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+      
+      $this->SshKeyAuthenticator->_ug330($co['Co']['id']);
     }
   }
 }

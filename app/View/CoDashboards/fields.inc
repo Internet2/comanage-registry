@@ -182,13 +182,39 @@
       </div>
     </div>
   </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('header_text', _txt('fd.dashboard.header')) : _txt('fd.dashboard.header')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.dashboard.header.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('header_text')
+        : filter_var($co_dashboards[0]['CoDashboard']['header_text'],FILTER_UNSAFE_RAW)); /* UNFILTERED */ ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('footer_text', _txt('fd.dashboard.footer')) : _txt('fd.dashboard.footer')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.dashboard.footer.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('footer_text')
+        : filter_var($co_dashboards[0]['CoDashboard']['footer_text'],FILTER_UNSAFE_RAW)); /* UNFILTERED */ ?>
+    </div>
+  </li>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">
         <span class="required"><?php print _txt('fd.req'); ?></span>
       </div>
       <div class="field-info">
-        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+        <?php print $this->Form->submit($submit_label); ?>
       </div>
     </li>
   <?php endif; ?>

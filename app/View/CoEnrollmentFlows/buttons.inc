@@ -80,7 +80,7 @@ if($e)
 if($this->action != "add"
   && $permissions['select']
   && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['status'])
-  && $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] == EnrollmentFlowStatusEnum::Active) {
+  && $co_enrollment_flows[0]['CoEnrollmentFlow']['status'] == TemplateableStatusEnum::Active) {
   // Shortcut to start enrollment flow
 
   $params['topLinks'][] = $this->Html->link(

@@ -110,10 +110,6 @@ class ActionEnum
   const OrgIdRemovedSource              = 'ROIS';
   const ProvisionerAction               = 'PRVA';
   const ProvisionerFailed               = 'PRVX';
-  const SshKeyAdded                     = 'SSHA';
-  const SshKeyDeleted                   = 'SSHD';
-  const SshKeyEdited                    = 'SSHE';
-  const SshKeyUploaded                  = 'SSHU';
 }
 
 class AdministratorEnum
@@ -228,13 +224,6 @@ class EnrollmentDupeModeEnum
   const Merge           = 'M';
   const NewRole         = 'R';
   const NewRoleCouCheck = 'C';
-}
-
-class EnrollmentFlowStatusEnum
-{
-  const Active              = 'A';
-  const Suspended           = 'S';
-  const Template            = 'T';
 }
 
 class EnrollmentMatchPolicyEnum {
@@ -584,17 +573,6 @@ class SqlServerEnum
   const SqlServer = 'MS';
 }
 
-class SshKeyTypeEnum
-{
-  // Protocol v2
-  const DSA         = 'DSA';
-  const ECDSA       = 'ECDSA';
-  const ED25519     = 'ed25519';
-  const RSA         = 'RSA';
-  // Protocol v1
-  const RSA1        = 'RSA1';
-}
-
 class StatusEnum
 {
   const Active              = 'A';
@@ -693,6 +671,13 @@ class TAndCLoginModeEnum
   const DisableAllServices = 'D';
 }
 
+class TemplateableStatusEnum
+{
+  const Active              = 'A';
+  const Suspended           = 'S';
+  const Template            = 'T';
+}
+
 class UrlEnum {
   const Official      = 'official';
   const Personal      = 'personal';
@@ -737,7 +722,6 @@ global $contact_t, $contact_ti;
 global $extattr_t, $extattr_ti;
 global $identifier_t, $identifier_ti;
 global $name_t, $name_ti;
-global $ssh_ti;  // Used for ldap and github provisioner
 global $status_t, $status_ti;
 
 $affil_t = array(
@@ -811,14 +795,6 @@ $name_ti = array(
   'FKA' => 'fka',
   'Official' => 'official',
   'Preferred' => 'preferred'
-);
-
-$ssh_ti = array(
-  'DSA'     => 'ssh-dss',
-  'ECDSA'   => 'ecdsa-sha2-nistp256',
-  'ED25519' => 'ssh-ed25519',
-  'RSA'     => 'ssh-rsa',
-  'RSA1'    => 'ssh-rsa1'
 );
 
 $status_t = array(

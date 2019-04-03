@@ -81,39 +81,55 @@
         </td>
         <td><?php print filter_var($c['Co']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
-          <?php print _txt('en.status', null, $c['Co']['status']); ?>
+          <?php print _txt('en.status.temp', null, $c['Co']['status']); ?>
         </td>
         <td>
           <?php
-            if($permissions['edit'] && $c['Co']['name'] != 'COmanage')
-              print $this->Html->link(
-                _txt('op.edit'),
-                array(
-                  'controller' => 'cos',
-                  'action' => 'edit',
-                  $c['Co']['id']
-                ),
-                array('class' => 'editbutton')
-              ) . "\n";
-
-            if($permissions['delete'] && $c['Co']['name'] != 'COmanage') {
-              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.remove') . '\',\''    // dialog body text
-                . $this->Html->url(              // dialog confirm URL
+            if($c['Co']['name'] != 'COmanage') {
+              if($permissions['edit']) {
+                print $this->Html->link(
+                  _txt('op.edit'),
                   array(
                     'controller' => 'cos',
-                    'action' => 'delete',
+                    'action' => 'edit',
                     $c['Co']['id']
-                  )
-                ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
-                . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
-                . filter_var(_jtxt($c['Co']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\']);">'
-                . _txt('op.delete')
-                . '</button>';
+                  ),
+                  array('class' => 'editbutton')
+                ) . "\n";
+              }
+              
+// XXX should this (and CoEnrollmentFlow::duplicate) use js_confirm_generic?
+              if($permissions['duplicate']) {
+                print $this->Html->link(
+                  _txt('op.dupe'),
+                  array(
+                    'controller' => 'cos',
+                    'action' => 'duplicate',
+                    $c['Co']['id']
+                  ),
+                  array('class' => 'copybutton')
+                ) . "\n";
+              }
+
+              if($permissions['delete']) {
+                print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
+                  . '" onclick="javascript:js_confirm_generic(\''
+                  . _txt('js.remove') . '\',\''    // dialog body text
+                  . $this->Html->url(              // dialog confirm URL
+                    array(
+                      'controller' => 'cos',
+                      'action' => 'delete',
+                      $c['Co']['id']
+                    )
+                  ) . '\',\''
+                  . _txt('op.remove') . '\',\''    // dialog confirm button
+                  . _txt('op.cancel') . '\',\''    // dialog cancel button
+                  . _txt('op.remove') . '\',[\''   // dialog title
+                  . filter_var(_jtxt($c['Co']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                  . '\']);">'
+                  . _txt('op.delete')
+                  . '</button>';
+              }
             }
           ?>
           <?php ; ?>

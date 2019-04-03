@@ -67,10 +67,13 @@
     // And start the form according to what we're relinking
     
     if(!empty($vv_co_org_identity_link['CoPerson'])) {
-      print $this->Form->Create(
+      print $this->Form->create(
         'CoOrgIdentityLink',
         array(
-          'action' => 'edit/' . $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
+          'url' => array(
+            'action' => 'edit',
+            $vv_co_org_identity_link['CoOrgIdentityLink']['id']
+          ),
           'type'   => 'post',
           'inputDefaults' => array(
             'label' => false,
@@ -82,10 +85,13 @@
       print $this->Form->hidden('org_identity_id',
                                 array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['org_identity_id'])) . "\n";
     } elseif(!empty($vv_co_person_role['CoPersonRole'])) {
-      print $this->Form->Create(
+      print $this->Form->create(
         'CoPersonRole',
         array(
-          'action' => 'relink/' . $vv_co_person_role['CoPersonRole']['id'],
+          'url' => array(
+            'action' => 'relink',
+            $vv_co_person_role['CoPersonRole']['id']
+          ),
           'type'   => 'post',
           'inputDefaults' => array(
             'label' => false,

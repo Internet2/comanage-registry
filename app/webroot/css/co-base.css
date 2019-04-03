@@ -59,17 +59,22 @@ h1.firstPrompt {
   margin: 0.5em 0;
 }
 h2 {
-  font-size: 24px;
-  line-height: 28px;
+  font-size: 2em;
+  line-height: 2.5em;
+  margin: 0;
+}
+h3 {
+  font-size: 1.6em;
+  line-height: 1.6em;
   margin: 0;
 }
 a {
-  /*color: #2395E0;*/
-  color: #07b; /* slightly darker: passes accessibility contrast checks */
+  color: #07b; /* slightly darker: passes accessibility contrast checks against white */
   text-decoration: none;
 }
 #main a:active,
 #main a:hover {
+  color: #0067A3; /* to ensure accessibility on hover when backgrounds change as low as #e5e5e5 */
   text-decoration: underline;
 }
 #main a.mdl-button:active,
@@ -146,8 +151,10 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 }
 /* USER MENU */
 #user-menu {
-  text-align: right;
   z-index: 4;
+}
+body.logged-out #user-menu {
+  text-align: right;
 }
 body.logged-in #user-menu {
   float: right;
@@ -162,13 +169,15 @@ body.logged-in #user-menu {
   position: relative;
   color: white;
 }
+#user-menu #global-search {
+  text-align: right;
+}
 #user-menu #global-search .material-icons {
   margin: 4px 22px 0 1px;
   vertical-align: bottom;
   font-size: 20px;
 }
 #global-search-box {
-  display: none; /* toggled by the field label */
   position: relative;
   z-index: 10;
   margin: 5px 22px 0 0;
@@ -220,22 +229,84 @@ body.logged-in #user-menu {
 #user {
   margin-top: 2px;
 }
-#user-links-menu li {
-  text-align: center;
+#user-panel {
+  position: absolute;
+  right: 0;
+  top: 27px;
+  z-index: 200;
+  color: #222;
+  background-color: #f8f8f8;
+  border: 1px solid #eee;
+  padding: 1em;
+  min-width: calc(100vw - 50px);
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
-#user-links-cn {
-  background-color: #1C77AF;
-  color: white;
+#user-panel a:hover {
+  text-decoration: underline;
+}
+#user-panel-cn {
   margin-top: -8px;
-  text-align: center;
-  padding: 0.4em;
+  padding: 1em 0 0 0;
+  font-size: 1.2em;
+  line-height: 1em;
 }
-#user-links-id {
-  background-color: #2395E0;
-  /*background-color: #186696;*/
-  color: white;
-  text-align: center;
+#user-panel-id {
   padding: 0.4em;
+  max-width: 80vw;
+  word-wrap:break-word;
+}
+#user-panel-user-info { /* mobile only styling */
+  border-top: 1px solid #ddd;
+  margin-top: 1em;
+  padding-top: 1em;
+}
+#user-panel-user-info .material-icons {
+  float: left;
+  font-size: 5em;
+}
+#user-panel ul {
+  padding-left: 2em;
+}
+#user-panel .co-info-topbox {
+  background-color: #f3f3f3;
+  margin-top: 2em;
+}
+#user-panel .co-info-topbox strong {
+  font-weight: normal;
+}
+#user-panel #co-profile-link:hover {
+  background-color: #eee;
+}
+#user-panel #co-profile-link .material-icons {
+  vertical-align: middle;
+  margin-right: 0.25em;
+  font-size: 16px;
+  color: #666;
+}
+#user-panel h2 {
+  font-size: 1.1em;
+  font-weight: normal;
+  margin: 1em 0 0 1em;
+  font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
+}
+#user-panel #panel-orgid-container {
+  margin-top: 2em;
+  border-top: 1px solid #ddd;
+  padding-top: 1em;
+}
+#user-panel #panel-orgid-container h2 {
+  margin-top: -0.25em;
+}
+#user-panel .org-ids {
+  font-style: italic;
+}
+#user-panel #user-panel-flows {
+  column-count: 2;
+}
+#user-panel #user-panel-flows,
+#user-panel #user-panel-invite,
+#user-panel #panel-orgid {
+  margin-top: 0;
 }
 /* NOTIFICATIONS */
 #notifications {
@@ -247,21 +318,21 @@ body.logged-in #user-menu {
 }
 #notifications #notifications-menu {
   width: 220px;
-  background-color: #f55;
 }
 #notifications .notification {
   line-height: 1.3em;
   padding: 0.5em 1em;
   border-bottom: 1px solid #dae7ef;
+  color: #444;
 }
 #notifications .notification a {
   display: block;
 }
 #notifications .notification:nth-child(odd) {
-  background-color: #fdfdfd;
+  background-color: #fff;
 }
 #notifications .notification:nth-child(even) {
-  background-color: #f5f5f5;
+  background-color: #f8f8f8;
 }
 #notifications li.notification:nth-child(n+4) {
   /* only show three notifications on mobile phones. */
@@ -275,6 +346,9 @@ body.logged-in #user-menu {
 }
 #notifications .notification-created a {
   color: #444;
+}
+#see-all a.co-raised-button {
+  margin: 1em 1em 0.5em;
 }
 /* Notification page */
 ul.form-list.notification-list .field-name {
@@ -325,12 +399,13 @@ form#notificationStatus {
 #logout {
   display: none;
 }
-#logout-in-menu {
+#logout-in-panel {
   margin: 4px 0 -8px;
+  text-align: right;
 }
+/* Specialty Buttons */
 .co-menu-button a {
   background-color: #2395E0;
-  /*background-color: #186696;*/
   color: white;
   text-align: center;
   padding: 0.4em;
@@ -339,6 +414,15 @@ form#notificationStatus {
 }
 .co-menu-button a:hover {
   background-color: #53B1F4;
+}
+.co-raised-button { /* should be used with mdl-button--raised */
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  background-color: #f4f4f4;
+  margin-top: 1em;
+  font-weight: normal;
+  font-size: 1.1em;
 }
 /* Shib IDP */
 #idp-select-container {
@@ -437,7 +521,7 @@ form#notificationStatus {
   font-size: 0.9em;
   padding: 7px 8px 7px 16px;
   line-height: 1.4em;
-  color: #2395E0;
+  color: #07b;
   border: 1px solid transparent;
 }
 #main-menu > li a:hover,
@@ -446,6 +530,16 @@ form#notificationStatus {
 }
 #main-menu > li li a:focus {
   border: 1px dotted #53B1F4;
+}
+#main-menu a.selected {
+  background-color: #f5f5f5;
+}
+#main-menu li li a.selected {
+  color: #07b;
+  background-color: #fafafa;
+  /* keep these if we find a better method of selecting sub-menu items:
+  color: #0067A3;
+  background-color: #e6f4ff; */
 }
 #main-menu .fa-fw {
   width: 2em;
@@ -463,7 +557,7 @@ form#notificationStatus {
   margin-right: 6px;
   vertical-align: bottom;
 }
-#main-menu .serviceMenu ul .material-icons {
+#main-menu #serviceMenu ul .material-icons {
   font-size: 1.1em;
   position: relative;
   top: -2px;
@@ -499,9 +593,9 @@ form#notificationStatus {
 #breadcrumbs {
   font-size: 0.9em;
 }
-body.co_petitions.view #titleNavContainer,
-body.co_person_roles #titleNavContainer,
-body.co_people.canvas #titleNavContainer {
+body.co_petitions.view .titleNavContainer,
+body.co_person_roles .titleNavContainer,
+body.co_people.canvas .titleNavContainer {
   padding-bottom: 0;
 }
 .pageTitle {
@@ -545,6 +639,10 @@ body.co_people.canvas #titleNavContainer {
 }
 #topLinks a:hover {
   color: #222;
+}
+#main #topLinks a:active,
+#main #topLinks a:hover {
+  text-decoration: underline;
 }
 /* RIGHT SIDEBAR */
 #right-sidebar {
@@ -611,6 +709,67 @@ body.co_people.canvas #titleNavContainer {
   position: relative;
   top: -2px;
   height: 33px;
+}
+/* DASHBOARDS */
+#dashboard-tabs {
+  clear: both;
+  margin: 1em 0;
+  padding-top: 1em;
+}
+#dashboard-desc {
+  clear: both;
+  margin-top: 1em;
+}
+#dashboard-tabs .mdl-tabs__tab-bar {
+  justify-content: left;
+}
+#dashboard-tabs .mdl-tabs__tab {
+  position: relative;
+  top: -1px;
+}
+#dashboard-tabs .mdl-tabs__tab.selected {
+  background-color: #f8f8f8;
+  border: 1px solid #f2f2f2;
+  border-bottom: none;
+}
+.mini-spinner {
+  position: relative;
+}
+/* hide H1 tags found in URL widgets pointing into COmanage for both cleaner styling and accessibility */
+.dashboard-widget-container .titleNavContainer {
+  display: none;
+}
+/* DASHBOARD WIDGETS */
+.widget-list {
+  list-style: none;
+  margin-top: 0;
+  padding-left: 0;
+}
+.widget-list li {
+  padding: 1em;
+}
+.widget-list li:nth-child(2n+1) {
+  background-color: #f8f8f8;
+}
+.widget-list .announcement-title {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+.widget-list .announcement-body {
+  padding-top: 1em;
+}
+.widget-actions {
+  margin: -0.5em 0 1em 0;
+  padding: 0;
+}
+.widget-actions li {
+  display: inline-block;
+  list-style: none;
+  font-size: 0.9em;
+}
+.widget-actions .material-icons {
+  /* color: #2395E0; - original blue; doesn't pass WCAG contrast ratios at small sizes */
+  color: #07b;
 }
 /* REDIRECT PAGE */
 #redirect-box {
@@ -815,7 +974,8 @@ iframe#tandc_content {
 }
 /* PETITIONS */
 #view_co_petition .status {
-  margin: 0 1em 0 0;
+  display: inline-block;
+  font-size: 1.4em;
 }
 #view_co_petition .status.N,
 #view_co_petition .status.Y,
@@ -833,7 +993,8 @@ iframe#tandc_content {
   color: white;
 }
 #view_co_petition .ui-button {
-  margin: 0 0 0 0.25em;
+  margin: 0.5em 0.5em 1.5em 0;
+  padding: 0 2em;
 }
 body.co_petitions.view th,
 body.co_petitions.view td,
@@ -890,25 +1051,27 @@ body.co_petitions .approve-button .ui-icon,
 body.co_petitions .deny-button .ui-icon {
   background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
 }
-body.co_petitions .approve-button {
-  background-color: #2a2;
-  background-image: none;
-  border: 1px solid #191;
+body.co_petitions .approve-button,
+body.co_petitions .deny-button {
   color: white !important;
-  font-weight: bold;
+  font-weight: normal;
+  letter-spacing: 1px;
+  border: none;
+}
+body.co_petitions .approve-button {
+  float: left;
+  background-color: #2a2 !important;
+  background-image: none;
 }
 body.co_petitions .approve-button:hover {
   background-color: #3b3;
 }
 body.co_petitions .deny-button {
-  background-color: #c33;
+  background-color: #c33 !important;
   background-image: none;
-  border: 1px solid #b22;
-  color: white !important;
-  font-weight: bold;
 }
 body.co_petitions .deny-button:hover {
-  background-color: #d44;
+  background-color: #d44 !important;
 }
 /* for T&Cs */
 .tc-checkbox-and-label {
@@ -1107,6 +1270,7 @@ body.co_petitions .ui-dialog {
   display: block;
 }
 #co_people .role-panel {
+  display: none;
   margin-left: 25px;
   clear: both;
   position: relative;
@@ -1171,7 +1335,8 @@ body.co_petitions .ui-dialog {
 #co_people .ui-widget-content .ui-state-focus,
 #co_people .ui-widget-header .ui-state-focus {
   border: 1px solid #79b7e7;
-  background-color: #d0e5f5;
+  /*background-color: #d0e5f5;*/
+  background-color: #e6f4ff;
   color: #1d5987;
 }
 #co_people .ui-state-active,
@@ -1202,8 +1367,7 @@ a.ui-button:visited,
    and Side Search (person canvas) */
 .top-search {
   margin-top: 0.5em;
-  padding: 0.5em;
-  background-color: #eee;
+  padding: 0;
 }
 .side-search {
   margin-top: 2em;
@@ -1218,23 +1382,26 @@ a.ui-button:visited,
   top: -1px;
 }
 .top-search fieldset {
+  clear: both;
   position: relative;
-  padding: 0;
+  padding: 0.5em 0.5em 0;
   margin: 0;
+  background-color: #f5f5f5;
+}
+.top-search.open fieldset {
+  padding-bottom: 0.5em;
 }
 .top-search legend {
   width: 100%;
-}
-a#top-search-toggle {
-  display: block;
-  width: 100%;
-  color: #222;
-}
-a#top-search-toggle:hover {
-  text-decoration: none;
+  background-color: #f5f5f5;
+  margin: 0 -0.5em;
+  padding: 0.5em 0.5em 0;
+  line-height: 2em;
+  cursor: pointer;
 }
 #top-search-fields {
   display: none;
+  padding: 0.25em 0.5em;
 }
 .top-search input[type=text],
 .top-search select,
@@ -1273,6 +1440,27 @@ a#top-search-toggle:hover {
 .side-search label {
   display: none;
 }
+#top-search-active-filters {
+  margin-left: 1em;
+  font-style: italic;
+  padding: 0.5em 0;
+}
+.top-search-active-filter {
+  margin: 0 1em 0 0;
+  white-space: nowrap;
+  color: #b00;
+}
+.top-search-active-filter-title::after {
+  content: ": ";
+}
+.top-search-active-filters-remove button {
+  margin-left: 2em;
+  font-size: 0.9em;
+  background-color: #f5f5f5;
+}
+.top-search-active-filters-remove button:hover {
+  background-color: #eee;
+}
 /* top filter form, similar to top search */
 .top-filter {
   clear: both;
@@ -1301,8 +1489,7 @@ a#top-search-toggle:hover {
   margin: 0.25em;
 }
 /* SERVICE PORTAL */
-#co-services,
-#co-departments {
+.co-services {
   clear: both;
 }
 .co-card h2  {
@@ -1706,6 +1893,9 @@ ul, ol { /* MDL override */
   font-size: 12px;
   line-height: 20px;
 }
+.clearfix {
+  clear: both;
+}
 .fieldTitle {
   font-weight: bold;
 }
@@ -1756,6 +1946,7 @@ a.desc::before {
 .ui-button {
   font-size: 0.9em !important;
   padding: 0.3em 0.75em 0.3em 0.5em;
+  /*margin: 0.25em 0.25em 0.25em 0; keep for now */
 }
 .co-grid {
   clear: both;
@@ -1793,14 +1984,14 @@ th, td {
   font-weight: normal;
 }
 th {
-  /*background-color: #9fc6e2;*/
   background-color: #186696;
   color: white;
 }
 th a {
   color: white;
 }
-th a:hover {
+th a:hover,
+#main th a:hover {
   color: #ff3;
   text-decoration: none !important;
 }
@@ -1827,6 +2018,11 @@ th.actionButtons {
 }
 .line2 {
   background-color: #e5e5e5;
+}
+.line0 a,
+.line1 a,
+.line2 a {
+  color: #0067a3; /* to ensure WCAG AA contrast is acceptable against the bg colors */
 }
 td.indented {
   border-left: 3em solid #fff;
@@ -1855,6 +2051,7 @@ td.indented {
 }
 .mdl-button--raised.mdl-button--colored:hover {
   background-color: #222 !important;
+  color: white !important;
 }
 .mdl-button:hover {
   background-color: #f2f2f2;

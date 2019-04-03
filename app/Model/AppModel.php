@@ -98,22 +98,102 @@ class AppModel extends Model {
    */
   
   public function beforeDelete($cascade = true) {
+    // We need to do a lot of manual work because our data model relations are
+    // way more complex than Cake assumes, including dynamic relations created
+    // by plugins.
+    
+    // Cascading deletes are also complicated by Cake not really ordering for
+    // deep associations, so we might delete a parent model before we've deleted
+    // objects that point into the parent model. For example, a number of models
+    // point into CoGroup, but if we try to delete CoGroup first we'll fail since
+    // the foreign keys still exist. (Cake assumes developers don't bother with
+    // foreign keys in the database, relying on the framework to maintain
+    // associations.) To some degree, this is primarily only an issue when
+    // deleting a CO, since otherwise ChangelogBehavior will generally maintain
+    // referential integrity.
+    
+    // Since we also need to dynamically update plugin relations, while we're here
+    // if (1) Changelog "expunge" is true OR Changelog is not enabled, and
+    //    (2) this model hasMany where dependent=false,
+    // then we'll update the hasMany model foreign keys back to this model to NULL.
+    
+    $hardDelete = false;
+    
+    $changelogConfig = $this->Behaviors->__get('Changelog');
+    
+    if(!isset($changelogConfig->settings[$this->name])
+       || (isset($changelogConfig->settings[$this->name]['expunge'])
+           && $changelogConfig->settings[$this->name]['expunge'])) {
+      $hardDelete = true;
+    }
+    
     if($cascade) {
       // Load any plugins and figure out which (if any) have foreign keys to belongTo this model
       
       foreach(App::objects('plugin') as $p) {
         $pluginModel = ClassRegistry::init($p . "." . $p);
         
+        // Check if the plugin has explicitly listed relationships
         if(!empty($pluginModel->cmPluginHasMany)
            && !empty($pluginModel->cmPluginHasMany[ $this->name ])) {
-          foreach($pluginModel->cmPluginHasMany[ $this->name ] as $fkModel) {
+          foreach($pluginModel->cmPluginHasMany[ $this->name ] as $fkModel => $acfg) {
             $assoc = array();
-            $assoc['hasMany'][ $fkModel ] = array(
-              'className' => $fkModel,
-              'dependent' => true
-            );
+            
+            if(is_array($acfg)) {
+              // Use the plugin's association settings
+              $assoc['hasMany'][ $fkModel ] = $acfg;
+              
+              if($this->id
+                 && $hardDelete 
+                 && (!isset($acfg['dependent']) || !$acfg['dependent'])) {
+                // Clear foreign keys pointing to the current record. We use
+                // updateAll since it won't run callbacks.
+                $updateModel = ClassRegistry::init($p . "." . $acfg['className']);
+                
+                $field = $acfg['className'].".".$acfg['foreignKey'];
+                
+                $updateModel->updateAll(
+                  array($field => null),
+                  array($field => $this->id)
+                );
+              }
+            } else {
+              // The model is actually $acfg because of the way PHP handles
+              // singletons in an array (ie: 0 => CoAnnouncementChannel)
+              
+              // Default association settings
+              $assoc['hasMany'][ $acfg ] = array(
+                'className' => $acfg,
+                'dependent' => true
+              );
+            }
             
             $this->bindModel($assoc, false);
+          }
+        }
+        
+        // Check if this model has an automatic relationship with plugins
+        // XXX Possibly for v4.0.0, we should do this bind in initialize()
+        // for all operations
+        
+        if(!empty($this->hasManyPlugins)) {
+          foreach($this->hasManyPlugins as $ptype => $pcfg) {
+            if($pluginModel->isPlugin($ptype)) {
+              // For some plugin types, the core model isn't something like
+              // "FooPlugin" but instead "CoFooPlugin". We ultimately need to
+              // delete that core model instead.
+              
+              $corem = sprintf($pcfg['coreModelFormat'], $p);
+              
+              // Plugin is a type of interest
+              $assoc = array();
+              $assoc['hasMany'][ $corem ] = array(
+                'className' => $p . "." . $corem,
+                'dependent' => true
+              );
+              
+              $this->bindModel($assoc, false);
+            }
           }
         }
       }
@@ -1386,5 +1466,24 @@ class AppModel extends Model {
     }
     
     return $ret;
+  }
+
+  /**
+   * Validate that at least one of the named fields contains a value.
+   *
+   * @since  COmanage Registry vTODO
+   * @param  string field Name of field within model, as known to $validates
+   * @param  array fields List of field names to match
+   * @return array Array suitable for generating a select via FormHelper
+   */
+  public function validateOneOfMany($field, $fields) {
+    $status = false;
+    foreach($fields as $name) {
+      if(!empty($this->data[$this->alias][$name])) {
+        $status = true;
+        break;
+      }
+    }
+    return $status;
   }
 }

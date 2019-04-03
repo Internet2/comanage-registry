@@ -58,7 +58,7 @@ if(!$e && !$v)
 
 // Add buttons
 if($permissions['reconcile']) {
-  // Reconcile read only groups
+  // Reconcile groups
   
   $buttonUrl = array(
     'controller'    => 'co_groups',
@@ -94,6 +94,19 @@ if(!empty($co_groups[0]['CoGroup']['id'])
     ),
     array('class' => 'editbutton')
   );
+  
+  if($permissions['nest']) {
+    // Add a nested group
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.add-a', array(_txt('ct.co_group_nestings.1'))),
+      array(
+        'controller' => 'co_group_nestings',
+        'action'     => 'add',
+        'cogroup'    => $co_groups[0]['CoGroup']['id']
+      ),
+      array('class' => 'addbutton')
+    );
+  }
 }
 
 if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {

@@ -36,11 +36,12 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<div id="co-services">
+<div class="co-services">
   
   <?php foreach ($co_services as $c): ?>
 
     <?php
+    $containerClass = "";
     if(!empty($c['CoService']['co_group_id'])) {
       // Possibly render a join/leave link, depending on whether
       // the group is open and if this person is currently a member.
@@ -62,7 +63,6 @@
       );
       $action = "";
       $attribs = null;
-      $containerClass = "";
 
       if($isMember) {
         if($isOpen) {

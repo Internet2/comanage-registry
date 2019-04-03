@@ -78,10 +78,9 @@
     </span>
   <?php endif; ?>
 
-  <?php if($this->paginator->hasPage(10)): ?>
+  <?php if($this->paginator->hasPage(2)): ?>
     <?php
-    // show the Goto page form if there are more than 9 pages (thus
-    // hiding some pagination numbers)
+    // show the Goto page form if there is more than 1 page
     ?>
     <form id="goto-page"
           class="pagination-form"
@@ -91,8 +90,8 @@
             '<?php print _txt('er.pagenum.nan');?>',
             '<?php print _txt('er.pagenum.exceeded', array($this->Paginator->counter('{:pages}')));?>');
             return false;">
-      <?php print _txt('fd.page.goto'); ?>
-      <input type="text" size="3" name="pageNum"/>
+      <label for="pageNum"><?php print _txt('fd.page.goto'); ?></label>
+      <input type="text" size="3" name="pageNum" id="pageNum"/>
       <input type="submit" value="<?php print _txt('op.go'); ?>"/>
     </form>
   <?php endif; ?>
@@ -111,7 +110,7 @@
         class="pagination-form"
         method="get"
         onsubmit="limitPage(this.pageLimit.value,recordCount,currentPage); return false;">
-    <?php print _txt('fd.page.limit.display'); ?>
+    <label for="pageLimit"><?php print _txt('fd.page.limit.display'); ?></label>
     <select name="pageLimit" id="pageLimit">
       <option value="25">25</option>
       <option value="50">50</option>

@@ -41,6 +41,9 @@
   // rewriting (maybe just override manage()?) to write multiple records for one password.
   // XXX maybe login in PasswordAuthenticator handles this instead?
   //print $this->Form->hidden('password_type', array('default' => PasswordEncodingEnum::SSHA)) . "\n";
+  
+  // Add breadcrumbs
+  print $this->element("coCrumb", array('authenticator' => 'Password'));
 ?>
 
 <div class="co-info-topbox">

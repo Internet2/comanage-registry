@@ -105,7 +105,6 @@ print $this->element("pageTitleAndButtons", $params);
     <tr>
       <th><?php print _txt('fd.order'); ?></th>
       <th><?php print _txt('fd.desc'); ?></th>
-      <th><?php print _txt('fd.plugin'); ?></th>
     </tr>
     </thead>
 
@@ -130,7 +129,7 @@ print $this->element("pageTitleAndButtons", $params);
 
     <tfoot>
     <tr>
-      <th colspan="3">
+      <th colspan="2">
         <?php print $this->element("pagination"); ?>
       </th>
     </tr>

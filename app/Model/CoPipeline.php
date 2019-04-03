@@ -918,7 +918,7 @@ class CoPipeline extends AppModel {
     // If the OrgIdentity came from an OIS, see if there are mapped group memberships
     $memberGroups = array();
     
-    // We need the raw record pass in vs pulling it from OrgIdentitySourceRecord
+    // We need the raw record passed in vs pulling it from OrgIdentitySourceRecord
     // because the letter may have a hashed version that we can't parse.
     if(!empty($orgIdentity['OrgIdentitySourceRecord']['org_identity_source_id'])
        && !empty($oisRawRecord)) {
@@ -940,44 +940,144 @@ class CoPipeline extends AppModel {
       }
     }
     
-    if(!empty($memberGroups)) {
-      // Group memberships are a bit trickier than other MVPAs, since we can't have
-      // multiple memberships in the same group. So we only add a membership if there
-      // is no existing membership (not if there is no existing membership linked
-      // to this pipeline), and we only delete memberships linked to this pipeline
-      // if there is no longer eligibility.
+    // Group memberships are a bit trickier than other MVPAs, since we can't have
+    // multiple memberships in the same group. So we only add a membership if there
+    // is no existing membership (not if there is no existing membership linked
+    // to this pipeline), and we only delete memberships linked to this pipeline
+    // if there is no longer eligibility.
+    
+    // Start by pulling the list of current group memberships.
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['conditions']['CoGroupMember.member'] = true;
+    $args['contain'] = false;
+    
+    $curGroupMemberships = $this->Co->CoGroup->CoGroupMember->find('all', $args);
+    
+    // For each mapped group membership, create the membership if it doesn't exist
+    
+    foreach($memberGroups as $gm) {
+      $curGm = Hash::extract($curGroupMemberships, '{n}.CoGroupMember[co_group_id='.$gm['CoGroup']['id'].']');
       
-      // Start by pulling the list of current group memberships.
-      
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
-      $args['conditions']['CoGroupMember.member'] = true;
-      $args['contain'] = false;
-      
-      $curGroupMemberships = $this->Co->CoGroup->CoGroupMember->find('all', $args);
-      
-      // For each mapped group membership, create the membership if it doesn't exist
-      
-      foreach($memberGroups as $gm) {
-        $curGm = Hash::extract($curGroupMemberships, '{n}.CoGroupMember[co_group_id='.$gm['CoGroup']['id'].']');
+      if(!$curGm) {
+        // Create a membership
+        $newGroupMember = array(
+          'CoGroupMember' => array(
+            'co_group_id'            => $gm['CoGroup']['id'],
+            'co_person_id'           => $coPersonId,
+            'member'                 => true,
+            'owner'                  => false,
+            'valid_from'             => $mappedGroups[ $gm['CoGroup']['id'] ]['valid_from'],
+            'valid_through'          => $mappedGroups[ $gm['CoGroup']['id'] ]['valid_through'],
+            'source_org_identity_id' => $orgIdentity['OrgIdentity']['id']
+          )
+        );
         
-        if(!$curGm) {
-          // Create a membership
-          $newGroupMember = array(
-            'CoGroupMember' => array(
-              'co_group_id'            => $gm['CoGroup']['id'],
-              'co_person_id'           => $coPersonId,
-              'member'                 => true,
-              'owner'                  => false,
-              'valid_from'             => $mappedGroups[ $gm['CoGroup']['id'] ]['valid_from'],
-              'valid_through'          => $mappedGroups[ $gm['CoGroup']['id'] ]['valid_through'],
-              'source_org_identity_id' => $orgIdentity['OrgIdentity']['id']
-            )
-          );
+        $this->Co->CoPerson->CoGroupMember->clear();
+        
+        if(!$this->Co->CoPerson->CoGroupMember->save($newGroupMember, array("provision" => false))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
+        }
+        
+        // Cut history
+        $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                   null,
+                                                   $orgIdentity['OrgIdentity']['id'],
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoGroupMemberAddedPipeline,
+                                                   _txt('rs.grm.added', array($gm['CoGroup']['name'],
+                                                                              $gm['CoGroup']['id'],
+                                                                              _txt($newGroupMember['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
+                                                                              _txt($newGroupMember['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
+                                                   $gm['CoGroup']['id']);
+        
+        $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                   null,
+                                                   $orgIdentity['OrgIdentity']['id'],
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoGroupMemberAddedPipeline,
+                                                   _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
+                                                                              $coPipeline['CoPipeline']['name'],
+                                                                              $coPipeline['CoPipeline']['id'])),
+                                                   $gm['CoGroup']['id']);
+        
+        $doProvision = true;
+      } else {
+        // Make sure validity dates are in sync. We could do a role check here too
+        // but we don't currently support anything other than member. Note we only
+        // update group memberships from our source identity, so if the person was
+        // manually added to a group we won't updated it.
+        
+        if($curGm[0]['source_org_identity_id'] == $orgIdentity['OrgIdentity']['id']) {
+          // For now we just check valid from/through`
+          if(($curGm[0]['valid_from'] != $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_from'])
+             || ($curGm[0]['valid_through'] != $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_through'])) {
+            $newGroupMember = array(
+              'CoGroupMember' => array(
+                'id'                     => $curGm[0]['id'],
+                'co_group_id'            => $curGm[0]['co_group_id'],
+                'co_person_id'           => $curGm[0]['co_person_id'],
+                'member'                 => true,
+                'owner'                  => false,
+                'valid_from'             => $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_from'],
+                'valid_through'          => $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_through'],
+                'source_org_identity_id' => $curGm[0]['source_org_identity_id']
+              )
+            );
+            
+            $this->Co->CoPerson->CoGroupMember->clear();
+            
+            if(!$this->Co->CoPerson->CoGroupMember->save($newGroupMember, array("provision" => false))) {
+              throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
+            }
+            
+            // Cut history
+            $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                       null,
+                                                       $curGm[0]['source_org_identity_id'],
+                                                       $actorCoPersonId,
+                                                       ActionEnum::CoGroupMemberEditedPipeline,
+                                                       $this->Co
+                                                            ->CoGroup
+                                                            ->CoGroupMember
+                                                            ->changesToString($newGroupMember,
+                                                                              array('CoGroupMember' => $curGm[0])),
+                                                       $gm['CoGroup']['id']);
+            
+            $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                       null,
+                                                       $orgIdentity['OrgIdentity']['id'],
+                                                       $actorCoPersonId,
+                                                       ActionEnum::CoGroupMemberEditedPipeline,
+                                                       _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
+                                                                                  $coPipeline['CoPipeline']['name'],
+                                                                                  $coPipeline['CoPipeline']['id'])),
+                                                       $gm['CoGroup']['id']);
+            
+            $doProvision = true;
+          }
+        }
+      }
+    }
+    
+    // Walk through current list of Group Memberships and remove any associated
+    // with this pipeline and not present in $memberGroups.
+    
+    foreach($curGroupMemberships as $cgm) {
+      if($cgm['CoGroupMember']['source_org_identity_id']
+         && $cgm['CoGroupMember']['source_org_identity_id'] == $orgIdentity['OrgIdentity']['id']) {
+        // This group came from this source org identity, is it still valid?
+        // (Cake's Hash syntax is a bit obscure...)
+        $gid = $cgm['CoGroupMember']['co_group_id'];
+        
+        if(!Hash::check($memberGroups, '{n}.CoGroup[id='.$gid.'].id')) {
+          // Not a valid group membership anymore, delete it. We need to pull the
+          // group to get the name for history.
           
-          $this->Co->CoPerson->CoGroupMember->clear();
+          $gname = $this->Co->CoGroup->field('name', array('CoGroup.id' => $gid));
           
-          if(!$this->Co->CoPerson->CoGroupMember->save($newGroupMember, array("provision" => false))) {
+          if(!$this->Co->CoPerson->CoGroupMember->delete($cgm['CoGroupMember']['id'], array("provision" => false))) {
             throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
           }
           
@@ -986,123 +1086,21 @@ class CoPipeline extends AppModel {
                                                      null,
                                                      $orgIdentity['OrgIdentity']['id'],
                                                      $actorCoPersonId,
-                                                     ActionEnum::CoGroupMemberAddedPipeline,
-                                                     _txt('rs.grm.added', array($gm['CoGroup']['name'],
-                                                                                $gm['CoGroup']['id'],
-                                                                                _txt($newGroupMember['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
-                                                                                _txt($newGroupMember['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
-                                                     $gm['CoGroup']['id']);
+                                                     ActionEnum::CoGroupMemberDeletedPipeline,
+                                                     _txt('rs.grm.deleted', array($gname, $gid)),
+                                                     $gid);
           
           $this->Co->CoPerson->HistoryRecord->record($coPersonId,
                                                      null,
                                                      $orgIdentity['OrgIdentity']['id'],
                                                      $actorCoPersonId,
-                                                     ActionEnum::CoGroupMemberAddedPipeline,
+                                                     ActionEnum::CoGroupMemberDeletedPipeline,
                                                      _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
                                                                                 $coPipeline['CoPipeline']['name'],
                                                                                 $coPipeline['CoPipeline']['id'])),
-                                                     $gm['CoGroup']['id']);
+                                                     $gid);
           
           $doProvision = true;
-        } else {
-          // Make sure validity dates are in sync. We could do a role check here too
-          // but we don't currently support anything other than member. Note we only
-          // update group memberships from our source identity, so if the person was
-          // manually added to a group we won't updated it.
-          
-          if($curGm[0]['source_org_identity_id'] == $orgIdentity['OrgIdentity']['id']) {
-            // For now we just check valid from/through`
-            if(($curGm[0]['valid_from'] != $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_from'])
-               || ($curGm[0]['valid_through'] != $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_through'])) {
-              $newGroupMember = array(
-                'CoGroupMember' => array(
-                  'id'                     => $curGm[0]['id'],
-                  'co_group_id'            => $curGm[0]['co_group_id'],
-                  'co_person_id'           => $curGm[0]['co_person_id'],
-                  'member'                 => true,
-                  'owner'                  => false,
-                  'valid_from'             => $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_from'],
-                  'valid_through'          => $mappedGroups[ $curGm[0]['co_group_id'] ]['valid_through'],
-                  'source_org_identity_id' => $curGm[0]['source_org_identity_id']
-                )
-              );
-              
-              $this->Co->CoPerson->CoGroupMember->clear();
-              
-              if(!$this->Co->CoPerson->CoGroupMember->save($newGroupMember, array("provision" => false))) {
-                throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
-              }
-              
-              // Cut history
-              $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                         null,
-                                                         $curGm[0]['source_org_identity_id'],
-                                                         $actorCoPersonId,
-                                                         ActionEnum::CoGroupMemberEditedPipeline,
-                                                         $this->Co
-                                                              ->CoGroup
-                                                              ->CoGroupMember
-                                                              ->changesToString($newGroupMember,
-                                                                                array('CoGroupMember' => $curGm[0])),
-                                                         $gm['CoGroup']['id']);
-              
-              $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                         null,
-                                                         $orgIdentity['OrgIdentity']['id'],
-                                                         $actorCoPersonId,
-                                                         ActionEnum::CoGroupMemberEditedPipeline,
-                                                         _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
-                                                                                    $coPipeline['CoPipeline']['name'],
-                                                                                    $coPipeline['CoPipeline']['id'])),
-                                                         $gm['CoGroup']['id']);
-              
-              $doProvision = true;
-            }
-          }
-        }
-      }
-      
-      // Walk through current list of Group Memberships and remove any associated
-      // with this pipeline and not present in $memberGroups.
-      
-      foreach($curGroupMemberships as $cgm) {
-        if($cgm['CoGroupMember']['source_org_identity_id']
-           && $cgm['CoGroupMember']['source_org_identity_id'] == $orgIdentity['OrgIdentity']['id']) {
-          // This group came from this source org identity, is it still valid?
-          // (Cake's Hash syntax is a bit obscure...)
-          $gid = $cgm['CoGroupMember']['co_group_id'];
-          
-          if(!Hash::check($memberGroups, '{n}.CoGroup[id='.$gid.'].id')) {
-            // Not a valid group membership anymore, delete it. We need to pull the
-            // group to get the name for history.
-            
-            $gname = $this->Co->CoGroup->field('name', array('CoGroup.id' => $gid));
-            
-            if(!$this->Co->CoPerson->CoGroupMember->delete($cgm['CoGroupMember']['id'], array("provision" => false))) {
-              throw new RuntimeException(_txt('er.db.save-a', array('CoGroupMember')));
-            }
-            
-            // Cut history
-            $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                       null,
-                                                       $orgIdentity['OrgIdentity']['id'],
-                                                       $actorCoPersonId,
-                                                       ActionEnum::CoGroupMemberDeletedPipeline,
-                                                       _txt('rs.grm.deleted', array($gname, $gid)),
-                                                       $gid);
-            
-            $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                       null,
-                                                       $orgIdentity['OrgIdentity']['id'],
-                                                       $actorCoPersonId,
-                                                       ActionEnum::CoGroupMemberDeletedPipeline,
-                                                       _txt('rs.pi.sync-a', array(_txt('ct.co_group_members.1'),
-                                                                                  $coPipeline['CoPipeline']['name'],
-                                                                                  $coPipeline['CoPipeline']['id'])),
-                                                       $gid);
-            
-            $doProvision = true;
-          }
         }
       }
     }

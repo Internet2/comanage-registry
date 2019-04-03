@@ -24,6 +24,8 @@
  * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+
+App::uses('CakeTime', 'Utility');
   
 class CoGroupOisMapping extends AppModel {
   // Define class name for cake
@@ -160,13 +162,59 @@ class CoGroupOisMapping extends AppModel {
                             $m['CoGroupOisMapping']['comparison'],
                             $m['CoGroupOisMapping']['pattern'])) {
             // Match found
+            
             $r = array(
               'role' => 'member',
               'valid_from' => (isset($v['valid_from']) ? $v['valid_from'] : null),
               'valid_through' => (isset($v['valid_through']) ? $v['valid_through'] : null),
             );
             
-            $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
+            if(!empty($ret[ $m['CoGroupOisMapping']['co_group_id'] ])) {
+              // It's possible that there could be more than one mapping with
+              // different validity dates (eg: representing memberships in the
+              // same committee but for different periods/years), but that's not
+              // really supported in the CoGroupMember model. (Technically we
+              // could store multiple rows in co_group_members, but nothing
+              // really supports that right now.)
+              
+              // If there is more than one entry, we'll pick the latest one based
+              // on valid_through date, unless that entry is in the future and we
+              // have a current record. This won't cover every use case, but is
+              // probably a good enough first pass.
+              
+              $f0 = $ret[ $m['CoGroupOisMapping']['co_group_id'] ]['valid_from']
+                    ? CakeTime::toUnix($ret[ $m['CoGroupOisMapping']['co_group_id'] ]['valid_from']) : null;
+              $t0 = $ret[ $m['CoGroupOisMapping']['co_group_id'] ]['valid_through']
+                    ? CakeTime::toUnix($ret[ $m['CoGroupOisMapping']['co_group_id'] ]['valid_through']) : null;
+              $f1 = $r['valid_from'] ? CakeTime::toUnix($r['valid_from']) : null;
+              $t1 = $r['valid_through'] ? CakeTime::toUnix($r['valid_through']) : null;
+              $now = time();
+              
+              if((!$f0 || ($f0 < $now))
+                 || (!$t0 || ($t0 > $now))) {
+                // The record we already have is "current", so ignore the new one,
+                // unless the next record has a later validity date.
+                
+                if(!$t0 
+                   || ($t1 && ($t0 > $t1))) {
+                  continue;
+                }
+              }
+              
+              // The record we already have is not "current", if the new one is
+              // use that instead.
+              
+              if(((!$f1 || ($f1 < $now))
+                  || ($t1 || ($t1 > $now)))
+                 ||
+                 // If neither is "current", pick the latest valid through
+                 ($t1 && ($t1 > $t0))) {
+                // Use this record instead
+                $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
+              }
+            } else {
+              $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
+            }
           }
         }
       }

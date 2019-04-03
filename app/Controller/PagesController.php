@@ -60,11 +60,12 @@ class PagesController extends AppController {
   
   function beforeFilter() {
     if($this->name == 'Pages') {
-      if($this->request->params['pass'][0] == 'home'
-         && (!$this->Session->check('Auth.User'))) {
-        // Allow the front page to render without authentication. If there is an
-        // authenticated user, we want Auth to run to set up authorizations.
-        $this->Auth->allow();
+      if($this->request->params['pass'][0] == 'home') {
+        if(!$this->Session->check('Auth.User')) {
+          // Allow the front page to render without authentication. If there is an
+          // authenticated user, we want Auth to run to set up authorizations.
+          $this->Auth->allow();
+        }
       } elseif($this->request->params['pass'][0] == 'public') {
         // Allow public pages to render without authentication.
         $this->Auth->allow();
@@ -99,7 +100,40 @@ class PagesController extends AppController {
 
     parent::beforeFilter();
   }
-
+  
+  /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+  
+  public function beforeRender() {
+    parent::beforeRender();
+    
+    if($this->Session->check('Auth.User')
+       && $this->request->params['pass'][0] == 'home') {
+      // This isn't really the best place to do this (in PagesController),
+      // but the only other option is to do something in JavaScript in
+      // home.ctp, which seems worse. Something to clean up at some point...
+      
+      // If the user is a member of exactly one CO, redirect to that CO's dashboard
+      if(count($this->viewVars['menuContent']['cos']) == 1) {
+        $co = reset($this->viewVars['menuContent']['cos']);
+        
+        if(isset($co['co_person']['status']) 
+           // If the person is not active or graceperiod, they'll get stuck in an
+           // infinite loop on login
+           && ($co['co_person']['status'] == StatusEnum::Active
+               || $co['co_person']['status'] == StatusEnum::GracePeriod)) {
+          $this->redirect(array(
+            'controller' => 'co_dashboards',
+            'action'     => 'dashboard',
+            'co'         => $co['co_id']
+          ));
+        }
+      }
+    }
+  }
 
 /**
  * Displays a view

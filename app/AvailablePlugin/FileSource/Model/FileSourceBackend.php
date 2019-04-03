@@ -216,8 +216,13 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     $orgdata = array();
     $orgdata['OrgIdentity'] = array();
     
-    // Until we have some rules, everyone is a member
-    $orgdata['OrgIdentity']['affiliation'] = AffiliationEnum::Member;
+    if(!empty($result[22])) {
+      // We don't currently sanity check the value passed, if it's bad the save will fail
+      $orgdata['OrgIdentity']['affiliation'] = $result[22];
+    } else {
+      // Until we have some rules, everyone is a member
+      $orgdata['OrgIdentity']['affiliation'] = AffiliationEnum::Member;
+    }
     
     if(!empty($result[17]))
       $orgdata['OrgIdentity']['o'] = $result[17];
@@ -293,6 +298,38 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
         'status'     => StatusEnum::Active,
         'type'       => IdentifierEnum::Reference
       );
+    }
+    
+    if(!empty($result[23])) {
+      // This field allows a semi-colon separated lists of identifiers of the form
+      // identifiertype[+login]:identifier
+      // where identifiertype is a non-extended type, since Org Identities don't
+      // currently support extended types (CO-530).
+      
+      $ids = explode(';', $result[23]);
+      
+      foreach($ids as $id) {
+        $i = explode(':', $id, 2);
+        
+        $login = false;
+        $idtype = $i[0];
+        
+        if(strlen($i[0]) > 6) {
+          $p = strpos($i[0], "+login", -6);
+          
+          if($p) {
+            $login = true;
+            $idtype = substr($i[0], 0, $p);
+          }
+        }
+        
+        $orgdata['Identifier'][] = array(
+          'identifier' => $i[1],
+          'login'      => $login,
+          'status'     => StatusEnum::Active,
+          'type'       => $idtype
+        );
+      }
     }
     
     if(!empty($result[19]))

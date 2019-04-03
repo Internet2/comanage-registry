@@ -40,6 +40,12 @@ class CoDashboardWidget extends AppModel {
     "CoDashboard"
   );
   
+  public $hasManyPlugins = array(
+    "dashboardwidget" => array(
+      'coreModelFormat' => 'Co%s'
+    )
+  );
+  
   // Default display field for cake generated views
   public $displayField = "CoDashboardWidget.description";
   

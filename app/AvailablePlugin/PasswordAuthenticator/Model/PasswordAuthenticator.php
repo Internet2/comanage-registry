@@ -38,10 +38,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   public $actsAs = array('Containable');
 	
   // Document foreign keys
-//  public $cmPluginHasMany = array(
-// XXX unclear that we're using this correctly here or elsewhere, review other (newer) plugins
-//		"CoPerson" => array("Password")
-//	);
+  public $cmPluginHasMany = array(
+    "CoPerson" => array("Password")
+	);
 	
 	// Association rules from this model to other models
 	public $belongsTo = array(
@@ -71,7 +70,22 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       'rule' => 'numeric',
 			'required' => false,
 			'allowEmpty' => true
-		)
+		),
+    'format_crypt_php' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'format_plaintext' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'format_sha1_ldap' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    )
 	);
 	
 	// Does we support multiple authenticators per instantiation?
@@ -137,6 +151,11 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 		if($data['Password']['password'] != $data['Password']['password2']) {
 			throw new InvalidArgumentException(_txt('er.passwordauthenticator.match'));
 		}
+    
+    // Make sure we have a CO Person ID to operate over
+    if(empty($data['Password']['co_person_id'])) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
+    }
 		
 		// First see if there are any existing records
 		$this->_begin();
@@ -157,24 +176,63 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 				throw new InvalidArgumentException(_txt('er.passwordauthenticator.current'));
 			}
 		}
+    
+    // Delete any existing password for the user. We do it this way in case the
+    // plugin configuration is changed. We skip callbacks so as to not trigger
+    // provisioning (and they aren't required since this table is not Changelog
+    // enabled).
+    $this->Password->deleteAll(array('Password.co_person_id' => $data['Password']['co_person_id']));
 		
-		// We'll store one entry per hashing type, but for now we only support CRYPT
+		// We'll store one entry per hashing type. We always store CRYPT
 		// so we can use the native php routines (which require PHP 5.5+).
+    // Enabling SSHA requires PHP 7 for random_bytes.
+    
+    // We could use something like https://multiformats.io/multihash, but the
+    // password_type column basically accomplishes the same thing.
 		
-		$pData = array(
-			'Password' => array(
-				'password_authenticator_id' => $data['Password']['password_authenticator_id'],
+    $pData = array();
+    
+    if(true || $this->pluginCfg['PasswordAuthenticator']['format_crypt_php']) {
+      // We use password_hash, which due to various portability issues with crypt
+      // is really only useful with password_verify.
+      
+      $pData[] = array(
+        'password_authenticator_id' => $data['Password']['password_authenticator_id'],
 				'co_person_id'							=> $data['Password']['co_person_id'],
-				'password'									=> password_hash($data['Password']['password'], PASSWORD_DEFAULT),
-				'password_type'							=> PasswordEncodingEnum::Crypt
-			)
-		);
+        'password'									=> password_hash($data['Password']['password'], PASSWORD_DEFAULT),
+        'password_type'							=> PasswordEncodingEnum::Crypt
+      );
+    }
+    
+    if($this->pluginCfg['PasswordAuthenticator']['format_sha1_ldap']) {
+      // Salted SHA1 isn't really a great algorithm (and our salt generation)
+      // could probably be better, but OpenLDAP doesn't support a better option
+      // out of the box.
+      
+      $salt = substr(bin2hex(random_bytes(8)),0,4);
+      $shapwd = base64_encode(sha1($data['Password']['password'].$salt, true) . $salt);
+      
+      $pData[] = array(
+        'password_authenticator_id' => $data['Password']['password_authenticator_id'],
+				'co_person_id'							=> $data['Password']['co_person_id'],
+        'password'									=> $shapwd,
+        'password_type'							=> PasswordEncodingEnum::SSHA
+      );
+    }
+    
+    if($this->pluginCfg['PasswordAuthenticator']['format_plaintext']) {
+      // Other than being easily readable by admins, plaintext is arguably not
+      // that much less secure than the other supported options...
+      
+      $pData[] = array(
+        'password_authenticator_id' => $data['Password']['password_authenticator_id'],
+				'co_person_id'							=> $data['Password']['co_person_id'],
+        'password'									=> $data['Password']['password'],
+        'password_type'							=> PasswordEncodingEnum::Plain
+      );
+    }
 		
-		if(!empty($currec)) {
-			$pData['Password']['id'] = $currec['Password']['id'];
-		}
-		
-		if(!$this->Password->save($pData)) {
+		if(!$this->Password->saveMany($pData)) {
 			$this->_rollback();
 			throw new RuntimeException(_txt('er.db.save-a', array('Password')));
 		}
@@ -251,6 +309,8 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 		$args = array();
 		$args['conditions']['Password.password_authenticator_id'] = $this->pluginCfg['PasswordAuthenticator']['id'];
 		$args['conditions']['Password.co_person_id'] = $coPersonId;
+    // We constrain to type CRYPT since we require that type
+		$args['conditions']['Password.password_type'] = PasswordEncodingEnum::Crypt;
 		$args['contain'] = false;
 		
 		$modtime = $this->Password->field('modified', $args['conditions']);

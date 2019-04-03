@@ -268,11 +268,24 @@ class ApiComponent extends Component {
     $this->request = $controller->request;
     $this->response = $controller->response;
     
-    $mName = $controller->modelClass;
-    $this->reqModel = $controller->$mName;
-    $this->reqModelName = $controller->modelClass;
-    $this->reqModelNamePl = Inflector::pluralize($this->reqModelName);
-    
+    if($controller->name != 'Authenticators') {
+      // SAMController already cleans this up in beforeFilter, but apparently that
+      // doesn't get called earlier enough for initialize(). This is a big mess
+      // that hopefully gets cleaned up in Registry PE.
+      if($controller->modelClass == 'Authenticator') {
+        $mName = Inflector::singularize($controller->name);
+        
+        $controller->loadModel($mName.'Authenticator.'.$mName);
+        $this->reqModel = $controller->$mName;
+        $this->reqModelName = Inflector::singularize($controller->name);
+      } else {
+        $mName = $controller->modelClass;
+        $this->reqModel = $controller->$mName;
+        $this->reqModelName = $controller->modelClass;
+      }
+      $this->reqModelNamePl = Inflector::pluralize($this->reqModelName);
+    }
+
     // Add a detector so we can call request->is('restful')
     // If we want to check the Accept header we'll need a slightly more complicated detector
     $this->request->addDetector('restful', array('param' => 'ext', 'options' => array('json', 'xml')));

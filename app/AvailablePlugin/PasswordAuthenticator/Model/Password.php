@@ -32,12 +32,6 @@ class Password extends AppModel {
 	// Add behaviors
   public $actsAs = array('Containable');
 	
-  // Document foreign keys
-  public $cmPluginHasMany = array(
-// XXX unclear that we're using this correctly here or elsewhere, review other (newer) plugins
-//		"CoPerson" => array("Password")
-	);
-	
 	// Association rules from this model to other models
 	public $belongsTo = array(
     "PasswordAuthenticator.PasswordAuthenticator",
@@ -65,7 +59,12 @@ class Password extends AppModel {
       'allowEmpty' => false
     ),
 		'password_type' => array(
-      'rule' => array('inList', array(PasswordEncodingEnum::Crypt)),
+      'rule' => array('inList', 
+                      array(
+                        PasswordEncodingEnum::Crypt,
+                        PasswordEncodingEnum::Plain,
+                        PasswordEncodingEnum::SSHA
+                      )),
       'required' => true,
       'allowEmpty' => false
     )

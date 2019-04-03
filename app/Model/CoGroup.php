@@ -36,6 +36,14 @@ class CoGroup extends AppModel {
   public $hasMany = array(
     // A CoGroup has zero or more members
     "CoGroupMember" => array('dependent' => true),
+    "CoGroupNesting" => array(
+      'dependent' => true,
+      'foreignKey' => 'target_co_group_id'
+    ),
+    "SourceCoGroupNesting" => array(
+      'className' => 'CoGroupNesting',
+      'foreignKey' => 'co_group_id'
+    ),
     "CoDashboardVisibilityCoGroup" => array(
       'className' => 'CoDashboard',
       'foreignKey' => 'visibility_co_group_id'
@@ -648,31 +656,114 @@ class CoGroup extends AppModel {
   }
   
   /**
-   * Reconcile CO Person memberships in an automatic group.
+   * Reconcile CO Person memberships in a regular group.
    * 
-   * @since COmanage Registry 0.9.3
+   * @since COmanage Registry 3.3.0
    * @param Integer CoGroup Id
    * @return true on success
    * @throws InvalidArgumentException
    */
   
-  public function reconcileAutomaticGroup($id) {
+  public function reconcile($id) {
     // First find the group
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
-    $args['contain'] = false;
+    $args['contain'][] = 'CoGroupNesting';
     
     $group = $this->find('first', $args);
-      
+    
     if(empty($group['CoGroup'])) {
       throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
     }
     
-    // Make sure the group is an automatic group.    
-    if(!$group['CoGroup']['auto']) {
-      throw new InvalidArgumentException(_txt('er.gr.reconcile.inv'));
+    // If this is an automatic group, hand off to reconcileAutomaticGroup()
+    if($group['CoGroup']['auto']) {
+      return $this->reconcileAutomaticGroup($group);
     }
+    
+    // XXX we run into a similar problem here as in CoPipeline, which is that
+    // we can't have more than one CoGroupMember per CoPerson+GoGroup. While we
+    // can work around that here, it does mean that it's going to be hard to tell
+    // via the UI what direct, indirect, and automatic memberships a CO Person
+    // should have. This will need to get fixed in v5.0.0. (CO-1585)
+    // Until this is fixed, this could cause problems with some edge cases
+    // unlikely to occur in most deployments.
+    
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $id;
+    // Since we're not checking validity dates here, an expired group membership
+    // will prevent a nested membership from manifesting. Is that a bug or a feature?
+    // Will it change in v5?
+    $args['contain'] = false;
+    
+    $tMembers = $this->CoGroupMember->find('all', $args);
 
+    $nMembers = array();
+    
+    foreach($group['CoGroupNesting'] as $n) {
+      // Pull the list of members of each nested group. This approach won't scale
+      // well to very large groups, but we can't use subselects because Cake doesn't
+      // support them natively, and buildStatement isn't directly supported by
+      // ChangelogBehavior. Joins aren't much more elegant.
+      
+      $args = array();
+      $args['conditions']['CoGroupMember.co_group_id'] = $n['co_group_id'];
+      $args['fields'] = array('co_person_id', 'id');
+      
+      $nMembers[ $n['id'] ] = $this->CoGroupMember->find('list', $args);
+    }
+    
+    // We start by deleting any no-longer-valid memberships, in case another group
+    // will re-grant eligibility. While we're here, build a hash of co person
+    // to group nestings.
+    
+    $tMembersByPerson = array();
+    
+    foreach($tMembers as $t) {
+      if(!$t['CoGroupMember']['co_group_nesting_id']) {
+        // This record is not from a nesting, so skip it
+        continue;
+      }
+      
+      if(!isset($nMembers[ $t['CoGroupMember']['co_group_nesting_id'] ][ $t['CoGroupMember']['co_person_id'] ])) {
+        // Remove the CoGroupMember record
+        $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $t['CoGroupMember']['co_group_nesting_id'], $t['CoGroupMember']['co_person_id'], false);
+      } else {
+        $tMembersByPerson[ $t['CoGroupMember']['co_person_id'] ] = $t['CoGroupMember']['id'];
+      }
+    }
+    
+    // Pull the list of members of the nested group ($n) that are not already in
+    // the target group ($id) and add them.
+    
+    foreach($group['CoGroupNesting'] as $n) {
+      foreach($nMembers[ $n['id'] ] as $ncopid => $gmid) {
+        if(!isset($tMembersByPerson[$ncopid])) {
+          // For each person in $nMembers but not $tMembers, add them.
+          $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $n['id'], $ncopid, true);
+          
+          // Also update $tMembers so we don't add them again from another group.
+          $tMembersByPerson[$ncopid] = $gmid;
+        }
+      }
+    }
+    
+    // For now, at least, we don't trigger reconciliation of the parent group,
+    // leaving that in the hands of the admin.
+    
+    return true;
+  }
+  
+  /**
+   * Reconcile CO Person memberships in an automatic group.
+   * 
+   * @since COmanage Registry 0.9.3
+   * @param  Array Array of CO Group info to reconcile
+   * @return true on success
+   * @throws InvalidArgumentException
+   */
+  
+  protected function reconcileAutomaticGroup($group) {
     // Determine the set of people who should be in the target group.
     // Currently we only support ActiveMembers and AllMembers.
     
@@ -703,8 +794,8 @@ class CoGroup extends AppModel {
     
     // Determine the set of people currently in the target group
     $args = array();
-    $args['conditions']['CoGroupMember.co_group_id'] = $id;
-    $args['conditions']['CoGroupMember.co_group_id'] = $id;
+    $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
+    $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
     $args['fields'] = array('CoGroupMember.co_person_id', 'CoGroupMember.id' );
     $args['contain'] = false;
     
@@ -728,7 +819,7 @@ class CoGroup extends AppModel {
     
     foreach($toAdd as $coPersonId) {
       $data = array();
-      $data['CoGroupMember']['co_group_id'] = $id;
+      $data['CoGroupMember']['co_group_id'] = $group['CoGroup']['id'];
       $data['CoGroupMember']['co_person_id'] = $coPersonId;
       $data['CoGroupMember']['member'] = true;
       $data['CoGroupMember']['owner'] = false;

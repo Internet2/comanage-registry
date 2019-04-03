@@ -46,8 +46,8 @@ class CoAnnouncementChannel extends AppModel {
   );
   
   public $hasMany = array(
-    "CoAnnouncement",
-    "CoAnnouncementsWidget"
+    "CoAnnouncement" => array('dependent' => true),
+    "CoAnnouncementsWidget" => array('dependent' => true)
   );
   
   // Default display field for cake generated views

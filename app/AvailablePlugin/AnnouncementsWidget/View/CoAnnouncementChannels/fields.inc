@@ -186,7 +186,7 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('register_notifications', array('class' => 'focusFirst'))
+                   ? $this->Form->input('register_notifications')
                    : ($co_announcement_channels[0]['CoAnnouncementChannel']['register_notifications'] ? _txt('fd.yes') : _txt('fd.no')));
       ?>
     </div>
@@ -201,7 +201,7 @@
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('publish_html', array('class' => 'focusFirst'))
+                   ? $this->Form->input('publish_html')
                    : ($co_announcement_channels[0]['CoAnnouncementChannel']['publish_html'] ? _txt('fd.yes') : _txt('fd.no')));
       ?>
     </div>
@@ -212,7 +212,7 @@
         <span class="required"><?php print _txt('fd.req'); ?></span>
       </div>
       <div class="field-info">
-        <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+        <?php print $this->Form->submit($submit_label); ?>
       </div>
     </li>
   <?php endif; ?>

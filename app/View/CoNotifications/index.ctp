@@ -60,8 +60,8 @@
 <div id="notificationsFilter" class="top-filter">
   <form method="get" id="notificationStatus" action="<?php print $furl; ?>">
     <span class="filters">
-      <span class="select-name"><?php print _txt('op.filter.status'); ?></span>
-      <select name="status">
+      <label for="status" class="select-name"><?php print _txt('op.filter.status'); ?></label>
+      <select id="status" name="status">
         <option value=""><?php print _txt('fd.unresolved'); ?></option>
         <option value="all"<?php if($curstatus == "all") print " selected";?>><?php print _txt('fd.all'); ?></option>
 

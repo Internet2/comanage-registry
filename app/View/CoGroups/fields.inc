@@ -158,6 +158,63 @@
 </ul>
 
 <?php if($this->action != 'add'): ?>
+<h3><?php print _txt('ct.co_group_nestings.pl'); ?></h3>
+<div class="table-container">
+<div class="table-container">
+  <table id="nestings">
+    <?php foreach(array('source' => 'CoGroupNesting',
+                        'target' => 'SourceCoGroupNesting') as $k => $m): ?>
+    <thead>
+      <tr>
+        <th>
+          <?php print _txt('fd.co_group.'.$k); ?><br />
+          <?php print _txt('fd.co_group.'.$k.'.desc', array(filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_STRING))); ?>
+        </th>
+        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php if(!empty($co_groups[0][$m])): ?>
+      <?php foreach($co_groups[0][$m] as $n): ?>
+      <tr>
+        <td><?php
+          // The model that we want to render, as contain'd by CoGroupNesting
+          $gnm = ($k == 'source' ? "CoGroup" : "TargetCoGroup");
+          
+          print $this->Html->link($n[$gnm]['name'],
+                                  array('controller' => 'co_groups',
+                                        'action' => 'edit',
+                                        $n[$gnm]['id']));
+        ?></td>
+        <td><?php
+          if($permissions['nest']) {
+            print '<a class="deletebutton" title="' . _txt('op.remove')
+              . '" onclick="javascript:js_confirm_generic(\''
+              . _txt('js.remove.nesting') . '\',\''    // dialog body text
+              . $this->Html->url(              // dialog confirm URL
+                array(
+                  'controller' => 'co_group_nestings',
+                  'action' => 'delete',
+                  $n['id']
+                )
+              ) . '\',\''
+              . _txt('op.remove') . '\',\''    // dialog confirm button
+              . _txt('op.cancel') . '\',\''    // dialog cancel button
+              . _txt('op.remove') . '\',[\''   // dialog title
+              . filter_var(_jtxt($n[$gnm]['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+              . '\']);">'
+              . _txt('op.remove')
+              . '</a>';
+          }
+        ?></td>
+      </tr>
+    <?php endforeach; // $n ?>
+    <?php endif; // $m ?>
+    </tbody>
+    <?php endforeach; // $k, $m ?>
+  </table>
+</div>
+  
 <h3><?php print _txt('ct.co_email_lists.pl'); ?></h3>
 <div class="table-container">
   <table id="emailLists">
@@ -209,6 +266,18 @@
   </table>
 </div>
 
+<?php
+  // Index the nested groups for rendering purposes
+  $nGroups = array();
+  
+  if(!empty($co_groups[0]['CoGroupNesting'])) {
+    foreach($co_groups[0]['CoGroupNesting'] as $n) {
+      // We filter_var here since these names are probably going to be printed
+      $nGroups[ $n['id'] ] = filter_var($n['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+  }
+?>
+
 <h3><?php print _txt('ct.co_group_members.pl'); ?></h3>
 <div class="table-container">
   <table id="groupMembers">
@@ -248,14 +317,20 @@
 
           // Group role (owner vs member)
           print '<td>';
-          if($g['CoGroupMember']['owner']) {
-            if($g['CoGroupMember']['member']) {
-              print _txt('fd.group.grmemown');
-            } else {
-              print _txt('fd.group.own.only');
+          
+          // Is this from a nested group?
+          if(!empty($g['CoGroupMember']['co_group_nesting_id'])) {
+            print _txt('fd.co_group_member.member.via', array($nGroups[ $g['CoGroupMember']['co_group_nesting_id'] ]));
+          } else {
+            if($g['CoGroupMember']['owner']) {
+              if($g['CoGroupMember']['member']) {
+                print _txt('fd.group.grmemown');
+              } else {
+                print _txt('fd.group.own.only');
+              }
+            } elseif($g['CoGroupMember']['member']) {
+              print _txt('fd.group.mem');
             }
-          } elseif($g['CoGroupMember']['member']) {
-            print _txt('fd.group.mem');
           }
           
           // Warn if membership is invalid
@@ -271,8 +346,9 @@
 
           print '<td class="actions">';
           if($e) {
-            // Do not show edit or delete buttons if this is an automatic group.
-            if(!$co_groups[0]['CoGroup']['auto']) {
+            // Do not show edit or delete buttons if this is an automatic group
+            // or if the membership is due to a nesting.
+            if(!$co_groups[0]['CoGroup']['auto'] && !$g['CoGroupMember']['co_group_nesting_id']) {
               print $this->Html->link(
                 _txt('op.edit'),
                 array(

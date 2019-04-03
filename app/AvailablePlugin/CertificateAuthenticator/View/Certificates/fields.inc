@@ -36,6 +36,9 @@
   print $this->Form->hidden('certificate_authenticator_id',
                             array('default' => $vv_authenticator['CertificateAuthenticator']['id'])) . "\n";
   print $this->Form->hidden('co_person_id', array('default' => $vv_co_person['CoPerson']['id'])) . "\n";
+  
+  // Add breadcrumbs
+  print $this->element("coCrumb", array('authenticator' => 'Certificate'));
 ?>
 
 <ul id="<?php print $this->action; ?>_certificate" class="fields form-list form-list-admin">
@@ -67,7 +70,7 @@
                    : filter_var($certificates[0]['Certificate']['issuer_dn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <li>
+  <li class="modelbox-data">
     <div class="field-name">
       <?php
         if($e) {
@@ -103,7 +106,7 @@
       ?>
     </div>
   </li>
-  <li>
+  <li class="modelbox-data">
     <div class="field-name">
       <?php
         if($e) {

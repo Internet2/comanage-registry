@@ -45,6 +45,7 @@ class CoEnrollmentFlowsController extends StandardController {
   public $uses = array('CoEnrollmentFlow', 'CmpEnrollmentConfiguration');
   
   public $edit_contains = array(
+    'CoEnrollmentAuthenticator',
     'CoEnrollmentFlowAuthzCoGroup',
     'CoEnrollmentFlowAuthzCou',
     'CoEnrollmentSource'
@@ -131,13 +132,13 @@ class CoEnrollmentFlowsController extends StandardController {
         MessageTemplateEnum::EnrollmentVerification
       );
       $args['fields'] = array(
-        'CoEnrollmentFlowApprovalMessageTemplate.id',
-        'CoEnrollmentFlowApprovalMessageTemplate.description',
-        'CoEnrollmentFlowApprovalMessageTemplate.context'
+        'CoEnrollmentFlowAppMessageTemplate.id',
+        'CoEnrollmentFlowAppMessageTemplate.description',
+        'CoEnrollmentFlowAppMessageTemplate.context'
       );
       
       $this->set('vv_message_templates',
-                 $this->CoEnrollmentFlow->CoEnrollmentFlowApprovalMessageTemplate->find('list', $args));
+                 $this->CoEnrollmentFlow->CoEnrollmentFlowAppMessageTemplate->find('list', $args));
       
       // Pull the set of available themes
       $args = array();
@@ -145,6 +146,14 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['order'] = array('CoTheme.name ASC');
       
       $this->set('vv_co_themes', $this->CoEnrollmentFlow->Co->CoTheme->find("list", $args));
+      
+      // Pull the set of available authenticators
+      $args = array();
+      $args['conditions']['Authenticator.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['Authenticator.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('vv_authenticators', $this->CoEnrollmentFlow->Co->Authenticator->find('list', $args));
     }
     
     parent::beforeRender();
@@ -309,7 +318,7 @@ class CoEnrollmentFlowsController extends StandardController {
     
     $args = array();
     $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    $args['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
     $args['order']['CoEnrollmentFlow.name'] = 'asc';
     $args['contain'][] = false;
     

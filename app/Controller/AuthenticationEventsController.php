@@ -86,7 +86,7 @@ class AuthenticationEventsController extends StandardController {
       if($pool) {
         $managed = $roles['admin'] || $roles['subadmin'];
       } else {
-        // We need to figure out if the current user is an admin for the requested identifer.
+        // We need to figure out if the current user is an admin for the requested identifier.
         // Since we don't require a CO, we only know the current user's Org Identities, and
         // need to leverage that to see if they are an admin in the appropriate CO.
         

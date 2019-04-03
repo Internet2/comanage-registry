@@ -35,6 +35,50 @@
     $this->Html->addCrumb($cur_co['Co']['name'], $args);
   }
   
+  // Possibly emit Authenticator specific breadcrumbs
+  if(!empty($authenticator)) {
+    // $authenticator = SshKey
+    // $auth = ssh_key
+    $auth = Inflector::underscore($authenticator);
+    // $authpl = ssh_keys
+    $authpl = Inflector::tableize($authenticator);
+    
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+    
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'canvas';
+    $args[] = $vv_co_person['CoPerson']['id'];
+    $this->Html->addCrumb(generateCn($vv_co_person['PrimaryName']), $args);
+
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'authenticators';
+    $args['action'] = 'status';
+    $args['copersonid'] = $vv_co_person['CoPerson']['id'];
+    $this->Html->addCrumb(_txt('ct.authenticators.pl'), $args);
+    
+    if($this->action == 'index') {
+      $this->Html->addCrumb($vv_authenticator['Authenticator']['description']);
+    } else {
+      $args = array();
+      $args['plugin'] = $auth . '_authenticator';
+      $args['controller'] = $authpl;
+      $args['action'] = 'index';
+      $args['authenticatorid'] = $vv_authenticator[$authenticator.'Authenticator']['authenticator_id'];
+      $args['copersonid'] = $vv_co_person['CoPerson']['id'];
+      $this->Html->addCrumb($vv_authenticator['Authenticator']['description'], ($this->action != 'manage' ? $args : null));
+
+      $this->Html->addCrumb(_txt('op.' . $this->action));
+    }
+  }
+  
   // Possibly emit MVPA specific breadcrumbs
   if(!empty($mvpa)) {
     if(!empty($vv_pid['codeptid'])) {

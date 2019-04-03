@@ -894,6 +894,38 @@
     </index>
   </table>
   
+  <table name="co_group_nestings">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <!-- calling this "source_co_group_id" makes things complicated 
+         with cake associations and ChangelogBehavior -->
+    <field name="co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="target_co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_group_nesting_id" type="I">
+      <constraint>REFERENCES cm_co_group_nestings(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_group_nestings_i1">
+      <col>source_co_group_id</col>
+    </index>
+    <index name="co_group_nestings_i2">
+      <col>target_co_group_id</col>
+    </index>
+  </table>
+  
   <table name="co_group_members">
     <field name="id" type="I">
       <key />
@@ -913,6 +945,9 @@
     <field name="valid_through" type="T" />
     <field name="source_org_identity_id" type="I">
       <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="co_group_nesting_id" type="I">
+      <constraint>REFERENCES cm_co_group_nestings(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -1294,6 +1329,7 @@
     <field name="authz_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="my_identity_shortcut" type="L" />
     <field name="co_pipeline_id" type="I">
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
     </field>
@@ -1326,6 +1362,9 @@
     <field name="approval_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
+    <field name="denial_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="notify_on_finalize" type="L" />
     <field name="finalization_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
@@ -1342,6 +1381,7 @@
     <field name="co_theme_id" type="I">
       <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
+    <field name="establish_authenticators" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">
@@ -1520,6 +1560,7 @@
     <field name="petitioner_token" type="C" size="48" />
     <field name="enrollee_token" type="C" size="48" />
     <field name="return_url" type="C" size="256" />
+    <field name="approver_comment" type="C" size="256" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -2018,6 +2059,37 @@
     </index>
   </table>
 
+  <table name="co_enrollment_authenticators">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="authenticator_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_authenticators(id)</constraint>
+    </field>
+    <field name="required" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_enrollment_authenticator_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_authenticators(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_enrollment_authenticators_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+    <index name="co_enrollment_authenticators_i2">
+      <col>co_enrollment_authenticator_id</col>
+    </index>
+  </table>
+  
   <table name="co_navigation_links">
     <field name="id" type="I">
       <key />
@@ -2069,6 +2141,7 @@
     </field>
     <field name="description" type="C" size="256" />
     <field name="url" type="C" size="256" />
+    <field name="body" type="X" size="4000" />
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
@@ -2143,36 +2216,6 @@
       <col>lkey</col>
       <col>language</col>
       <unique />
-    </index>
-  </table>
-  
-  <table name="ssh_keys">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_person_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="comment" type="C" size="256" />
-    <field name="type" type="C" size="16" />
-    <!-- mysql doesn't want a column called "key" -->
-    <field name="skey" type="X" size="4000" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="ssh_key_id" type="I">
-      <constraint>REFERENCES cm_ssh_keys(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="ssh_keys_i1">
-      <col>co_person_id</col>
-    </index>
-    <index name="ssh_keys_i2">
-      <col>ssh_key_id</col>
     </index>
   </table>
   
@@ -2261,6 +2304,8 @@
     </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
+    <field name="header_text" type="X" size="4000" />
+    <field name="footer_text" type="X" size="4000" />
     <field name="visibility" type="C" size="2" />
     <field name="visibility_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>

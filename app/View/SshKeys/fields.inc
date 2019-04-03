@@ -45,6 +45,8 @@
   } elseif(isset($this->request->data['SshKey']['co_person_id'])) {
     print $this->Form->hidden('co_person_id', array('default' => filter_var($this->request->data['SshKey']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
     $idForBreadcrumbs = $this->request->data['SshKey']['co_person_id'];
+  } elseif(!empty($ssh_keys[0]['SshKey']['co_person_id'])) {
+    $idForBreadcrumbs = $ssh_keys[0]['SshKey']['co_person_id'];
   }
 
   // Add breadcrumbs
@@ -69,6 +71,8 @@
   $this->Html->addCrumb($crumbTxt);
 
 ?>
+<!-- As of v3.2.0 (CO-1616), we no longer allow manual editing of SSH Keys -->
+<?php if($this->action == 'view'): ?>
 <ul id="<?php print $this->action; ?>_ssh_key" class="fields form-list">
   <li>
     <div class="field-name">
@@ -97,7 +101,7 @@
             print $this->Form->error('type');
           }
         } else {
-          print filter_var($contact_t[ $ssh_keys[0]['SshKey']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+          print filter_var($cm_texts[ $cm_lang ]['en.sshkey.type'][ $ssh_keys[0]['SshKey']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
         }
       ?>
     </div>
@@ -123,14 +127,11 @@
     </li>
   <?php endif; ?>
 </ul>
-<?php if($this->action == 'add' && $e): ?>
-  <hr />
-  <h2><?php print _txt('op.upload.new', array(_txt('ct.ssh_keys.1'))); ?></h2>
-
+<?php elseif($this->action == 'add' && $e): // view ?>
   <ul id="<?php print $this->action; ?>_ssh_key_upload" class="fields form-list">
     <li>
       <div class="field-name">
-        <?php print _txt('fd.sshkey.skey'); ?>
+        <?php print _txt('op.upload.new', array(_txt('ct.ssh_keys.1'))); ?>
       </div>
       <div class="field-info">
         <?php
@@ -161,7 +162,7 @@
       </div>
     </li>
   </ul>
-<?php endif; // add ?>
+<?php endif; // view/add ?>
 
 <?php
   print $this->element("changelog");

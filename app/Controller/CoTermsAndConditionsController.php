@@ -195,10 +195,34 @@ class CoTermsAndConditionsController extends StandardController {
     // Modify ordering for display via AJAX
     $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
 
+    // A raw view of the T&C content is always allowed
+    $p['display']=true;
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-  
+
+  /**
+   * Display the T&C body text
+   * Necessary to enable viewing of T&C as stored in the database. This
+   * conveniently provides a valid URL to place in the relevant URL field
+   * of the T&C model, if no other value is available.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Integer $id CO Terms and Agreements identifier
+   * @return void
+   */
+
+  public function display($id) {
+    $args = array();
+    $args['conditions'][$this->modelClass.'.id'] = $id;
+
+    $tc = $this->CoTermsAndConditions->find('first', $args);
+
+    $this->layout='raw';
+    $this->set("body",$tc[$this->modelClass]['body']);
+  }
+
   /**
    * Pull T&C for review
    * - precondition: The named parameter 'copersonid' is populated with the target CO Person ID
