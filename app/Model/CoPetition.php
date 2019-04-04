@@ -543,7 +543,7 @@ class CoPetition extends AppModel {
                   // Note that we found something
                   if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
                     $searchSources[ $es['id'] ] = true;
-                  } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
+                  } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
                     $requiredSources[ $es['id'] ] = true;
                   }
                   
