@@ -30,6 +30,7 @@ App::uses('Co', 'Model');
 class CoTest extends CakeTestCase {
   public $fixtures = array(
     'app.CoTest/CoTestCo',
+    'app.CoDashboard',
     'app.CoDepartment',
     'app.CoEmailList',
     'app.CoEnrollmentFlow',
@@ -37,6 +38,7 @@ class CoTest extends CakeTestCase {
     'app.CoExtendedType',
     'app.CoGroup',
     'app.CoGroupMember',
+    'app.CoGroupNesting',
     'app.CoNotification',
     'app.CoProvisioningExport',
     'app.CoProvisioningTarget',

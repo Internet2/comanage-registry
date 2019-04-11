@@ -32,6 +32,7 @@ class CoGroupTest extends CakeTestCase {
   public $fixtures = array(
     'app.Co',
     'app.Cou',
+    'app.CoDashboard',
     'app.CoDepartment',
     'app.CoEmailList',
     'app.CoEnrollmentFlow',
@@ -39,6 +40,7 @@ class CoGroupTest extends CakeTestCase {
     'app.CoExtendedType',
     'app.CoGroup',
     'app.CoGroupMember',
+    'app.CoGroupNesting',
     'app.CoNotification',
     'app.CoOrgIdentityLink',
     'app.CoPerson',
@@ -50,8 +52,7 @@ class CoGroupTest extends CakeTestCase {
     'app.EmailAddress',
     'app.HistoryRecord',
     'app.Identifier',
-    'app.Name',
-    'app.SshKey',
+    'app.Name'
   );
 
   /**
@@ -102,16 +103,16 @@ class CoGroupTest extends CakeTestCase {
    * Test adding default groups to a Co that does not exist.
    */
   public function testAddDefaultsNoCoId() {
-    $this->setExpectedException(InvalidArgumentException::class, 'CO "CO_ID_THAT_DOES_NOT_EXIST" Not Found');
-    $this->CoGroup->addDefaults('CO_ID_THAT_DOES_NOT_EXIST');
+    $this->setExpectedException(InvalidArgumentException::class, 'CO "91" Not Found');
+    $this->CoGroup->addDefaults('91');
   }
 
   /**
    * Test adding default groups to a Cou that does not exist.
    */
   public function testAddDefaultsNoCouId() {
-    $this->setExpectedException(InvalidArgumentException::class, 'COU "COU_ID_THAT_DOES_NOT_EXIST" Not Found');
-    $this->CoGroup->addDefaults(1, 'COU_ID_THAT_DOES_NOT_EXIST');
+    $this->setExpectedException(InvalidArgumentException::class, 'COU "91" Not Found');
+    $this->CoGroup->addDefaults(1, '91');
   }
 
   /**

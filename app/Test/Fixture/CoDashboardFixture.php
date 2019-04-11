@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry SshKey Fixture
+ * COmanage Registry CO Dashboard Fixture
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,12 +21,12 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.2.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class SshKeyFixture extends CakeTestFixture {
+class CoDashboardFixture extends CakeTestFixture {
 
   // Import schema and records for the model from the default database
-  public $import = array('model' => 'SshKey', 'records' => true);
+  public $import = array('model' => 'CoDashboard', 'records' => true);
 }
