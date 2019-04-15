@@ -37,6 +37,7 @@ class CoProvisioningExport extends AppModel {
     "CoEmailList",
     "CoGroup",
     "CoPerson",
+    "CoService",
     "CoProvisioningTarget"
   );
   
@@ -65,6 +66,11 @@ class CoProvisioningExport extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'co_service_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'exporttime' => array(
       'rule' => 'notBlank'
     )
@@ -82,12 +88,13 @@ class CoProvisioningExport extends AppModel {
    * @throws RuntimeException For other errors
    */
   
-  public function record($coProvisioningTargetId, $coPersonId, $coGroupId=null, $coEmailListId=null) {
+  public function record($coProvisioningTargetId, $coPersonId, $coGroupId=null, $coEmailListId=null, $coServiceId=null) {
     $data = array();
     $data['CoProvisioningExport']['co_provisioning_target_id'] = $coProvisioningTargetId;
     $data['CoProvisioningExport']['co_person_id'] = $coPersonId;
     $data['CoProvisioningExport']['co_group_id'] = $coGroupId;
     $data['CoProvisioningExport']['co_email_list_id'] = $coEmailListId;
+    $data['CoProvisioningExport']['co_service_id'] = $coServiceId;
     $data['CoProvisioningExport']['exporttime'] = date('Y-m-d H:i:s');
     
     // See if we already have a row to update
@@ -97,8 +104,10 @@ class CoProvisioningExport extends AppModel {
       $args['conditions']['CoProvisioningExport.co_person_id'] = $coPersonId;
     } elseif($coGroupId) {
       $args['conditions']['CoProvisioningExport.co_group_id'] = $coGroupId;
-    } else {
+    } elseif($coEmailListId) {
       $args['conditions']['CoProvisioningExport.co_email_list_id'] = $coEmailListId;
+    } else {
+      $args['conditions']['CoProvisioningExport.co_service_id'] = $coServiceId;
     }
     $args['contain'] = false;
     $export = $this->find('first', $args);

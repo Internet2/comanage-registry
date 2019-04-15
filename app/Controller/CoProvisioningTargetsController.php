@@ -200,6 +200,23 @@ class CoProvisioningTargetsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_co_groups', $this->CoProvisioningTarget->Co->CoGroup->find('list', $args));
+
+      $args = array();
+      $args['conditions']['CoEmailList.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoEmailList.id', 'CoEmailList.status');
+      $args['order'] = array('CoEmailList.id' => 'asc');
+      $args['contain'] = false;
+
+      $this->set('vv_co_email_lists', $this->CoProvisioningTarget->Co->CoEmailList->find('list', $args));
+
+      $args = array();
+      $args['conditions']['CoService.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('CoService.id', 'CoService.status');
+      $args['order'] = array('CoService.id' => 'asc');
+      $args['contain'] = false;
+
+      $this->set('vv_co_services', $this->CoProvisioningTarget->Co->CoService->find('list', $args));
+
     }
   }
   
@@ -336,6 +353,10 @@ class CoProvisioningTargetsController extends StandardController {
         $sId = $this->request->params['named']['coemaillistid'];
         $sModel = 'CoEmailList';
         $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
+      } elseif(!empty($this->request->params['named']['coserviceid'])) {
+        $sId = $this->request->params['named']['coserviceid'];
+        $sModel = 'CoService';
+        $sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
       } else {
         $this->Api->restResultHeader(500, "Bad Request");
       }
@@ -365,7 +386,9 @@ class CoProvisioningTargetsController extends StandardController {
                                                                   ($sModel == 'CoPerson' ? $sId : null),
                                                                   ($sModel == 'CoGroup' ? $sId : null),
                                                                   $sAction,
-                                                                  ($sModel == 'CoEmailList' ? $sId : null));
+                                                                  ($sModel == 'CoEmailList' ? $sId : null),
+                                                                  null, // CoGroupMemberId
+                                                                  ($sModel == 'CoService' ? $sId : null));
       }
       catch(InvalidArgumentException $e) {
         switch($e->getMessage()) {

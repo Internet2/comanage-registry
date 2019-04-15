@@ -1943,6 +1943,9 @@
     <field name="co_email_list_id" type="I">
       <constraint>REFERENCES cm_co_email_lists(id)</constraint>
     </field>
+    <field name="co_service_id" type="I">
+      <constraint>REFERENCES cm_co_services(id)</constraint>
+    </field>
     <field name="actor_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
@@ -1994,6 +1997,9 @@
     <field name="co_email_list_id" type="I">
       <constraint>REFERENCES cm_co_email_lists(id)</constraint>
     </field>
+    <field name="co_service_id" type="I">
+      <constraint>REFERENCES cm_co_services(id)</constraint>
+    </field>
     <field name="exporttime" type="T" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -2013,6 +2019,12 @@
     <index name="co_provisioning_exports_i3">
       <col>co_provisioning_target_id</col>
       <col>co_email_list_id</col>
+      <unique />
+    </index>
+
+    <index name="co_provisioning_exports_i4">
+      <col>co_provisioning_target_id</col>
+      <col>co_service_id</col>
       <unique />
     </index>
   </table>

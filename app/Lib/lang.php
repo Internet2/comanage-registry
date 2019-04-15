@@ -1812,7 +1812,7 @@ original notification at
   'op.proceed.ok' =>  'Are you sure you wish to proceed?',
   'op.prov' =>        'Provision',
   'op.prov.all' =>    'Reprovision All',
-  'op.prov.all.confirm' => 'Are you sure you wish to (re)provision all records? This will affect %1$s CO People and %2$s CO Groups.',
+  'op.prov.all.confirm' => 'Are you sure you wish to (re)provision all records? This will affect %1$s CO People, %2$s CO Groups, %3$s CO Email Lists and %4$s Co Services.',
   'op.prov.confirm' => 'Are you sure you wish to (re)provision this record?',
   'op.prov.view' =>   'Provisioned Services',
   'op.prov.wait' =>   'Requesting provisioning, please wait...',

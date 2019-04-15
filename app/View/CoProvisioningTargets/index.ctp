@@ -69,16 +69,14 @@
 <script type="text/javascript">
   // The controller passes a list of IDs, which we need to convert to a javascript array.
   // This won't scale to superhuge lists, but should be good enough for typical CO populations.
-  var ids = [
-    <?php
-      foreach(array_keys($vv_co_people) as $id) {
-        print '["p","' . $id . '"],';
-      }
-      foreach(array_keys($vv_co_groups) as $id) {
-        print '["g","' . $id . '"],';
-      }
-    ?>
-  ];
+  <?php
+  $pids = array_map(function($i) { return array("p",$i); },array_keys($vv_co_people));
+  $gids = array_map(function($i) { return array("g",$i); },array_keys($vv_co_groups));
+  $eids = array_map(function($i) { return array("e",$i); },array_keys($vv_co_email_lists));
+  $lids = array_map(function($i) { return array("s",$i); },array_keys($vv_co_services));
+  $ids = array_merge($pids,$gids,$eids,$lids);
+  ?>
+  var ids = <?php echo json_encode($ids); ?>;
   
   // Have we been interrupted by the user?
   var canceled = 0;
@@ -106,10 +104,21 @@
       $("#provision-progressbar").progressbar("option", "value", index);
       
       // Initiate the provisioning request
-      var jqxhr = $.post(targetUrl +  (id[0] == 'p' ? '/copersonid:' : '/cogroupid:') + id[1] + '.json',
-                         '{ "RequestType":"'
-                         + (id[0] == 'p' ? 'CoPersonProvisioning' : 'CoGroupProvisioning')
-                         + '","Version":"1.0","Synchronous":true }');
+      var modeltype="copersonid";
+      var provisioningtype="CoPersonProvisioning";
+      if(id[0] == 'g') {
+        modeltype = "cogroupid";
+        provisioningtype = "CoGroupProvisioning";
+      } else if(id[0] == 'e') {
+        modeltype = 'coemaillistid';
+        provisioningtype = "CoEmailListProvisioning";
+      } else if(id[0] == 's') {
+        modeltype = 'coserviceid';
+        provisioningtype = "CoServiceProvisioning";
+      }
+      var jqxhr = $.post(targetUrl +  "/" + modeltype + ':' + id[1] + '.json',
+                         '{ "RequestType":"' + provisioningtype + '","' +
+                         '"Version":"1.0","Synchronous":true }');
       
       // On success, fire the next request
       jqxhr.done(function(data, textStatus, jqXHR) {
@@ -349,7 +358,7 @@
 </div>
 
 <div id="provision-dialog" title="<?php print _txt('op.prov'); ?>">
-  <p><?php print _txt('op.prov.all.confirm', array(count($vv_co_people), count($vv_co_groups))); ?></p>
+  <p><?php print _txt('op.prov.all.confirm', array(count($vv_co_people), count($vv_co_groups), count($vv_co_email_lists), count($vv_co_services))); ?></p>
 </div>
 
 <div id="result-dialog" title="<?php print _txt('op.prov'); ?>">
