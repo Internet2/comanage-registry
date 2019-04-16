@@ -458,6 +458,12 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // If we have something to do, build an HTTP Client
     $Http = null;
     
+    $actorCoPersonId = null;
+    
+    if(session_status() == PHP_SESSION_ACTIVE) {
+      $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
+    }
+
     if($deleteList || $syncList || $syncListMembers || $syncPerson) {
       $Http = new CoHttpClient();
       
@@ -471,7 +477,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       $this->deleteList($Http,
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['id'],
                         $provisioningData['CoEmailList']['id'],
-                        CakeSession::read('Auth.User.co_person_id'));
+                        $actorCoPersonId);
     }
     
     if($syncList) {
@@ -481,7 +487,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                       $provisioningData['CoEmailList']['id'],
                       $provisioningData['CoEmailList']['name'],
                       $provisioningData['CoEmailList']['description'],
-                      CakeSession::read('Auth.User.co_person_id'));  
+                      $actorCoPersonId);  
     }
     
     if($syncListMembers) {
@@ -491,7 +497,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['pref_email_type'],
                              $provisioningData['CoEmailList']['id'],
                              $provisioningData['CoEmailList']['status'],
-                             CakeSession::read('Auth.User.co_person_id'));  
+                             $actorCoPersonId);  
     }
     
     if($syncPerson) {
@@ -505,7 +511,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                         Hash::extract($provisioningData, 'CoGroupMember.{n}.CoGroup.EmailListMember.0'),
                         Hash::extract($provisioningData, 'CoGroupMember.{n}.CoGroup.EmailListAdmin.0'),
                         Hash::extract($provisioningData, 'CoGroupMember.{n}.CoGroup.EmailListModerator.0'),
-                        CakeSession::read('Auth.User.co_person_id'));  
+                        $actorCoPersonId);  
     }
     
     return true;

@@ -470,8 +470,15 @@ class ChangelogBehavior extends ModelBehavior {
       
       // Set common attributes for add and edit
       $model->data[$malias]['deleted'] = false;
-      // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
-      $model->data[$malias]['actor_identifier'] = CakeSession::read('Auth.User.username');
+      
+      if(session_status() == PHP_SESSION_ACTIVE) {
+        // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
+        $model->data[$malias]['actor_identifier'] = CakeSession::read('Auth.User.username');
+      } else {
+        // We're probably at the command line
+        $user = posix_getpwuid(posix_getuid());
+        $model->data[$malias]['actor_identifier'] = _txt('fd.actor.shell', array($user['name']));
+      }
     }
     
     return true;

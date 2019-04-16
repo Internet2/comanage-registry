@@ -67,22 +67,6 @@
 
 ?>
 <script type="text/javascript">
-  // The controller passes a list of IDs, which we need to convert to a javascript array.
-  // This won't scale to superhuge lists, but should be good enough for typical CO populations.
-  var ids = [
-    <?php
-      foreach(array_keys($vv_co_people) as $id) {
-        print '["p","' . $id . '"],';
-      }
-      foreach(array_keys($vv_co_groups) as $id) {
-        print '["g","' . $id . '"],';
-      }
-    ?>
-  ];
-  
-  // Have we been interrupted by the user?
-  var canceled = 0;
-  
   function js_confirm_provision(targetUrl) {
     // Prep confirmation dialog
     $("#provision-dialog").dialog("option",
@@ -90,7 +74,7 @@
                                   [ { text: "<?php print _txt('op.cancel'); ?>", click: function() { $(this).dialog("close"); } },
                                     { text: "<?php print _txt('op.prov'); ?>", click: function() {
                                       $(this).dialog("close");
-                                      js_request_provisioning(targetUrl);
+                                      window.location.href = targetUrl;
                                     } }
                                   ] );
     
@@ -98,103 +82,7 @@
     $("#provision-dialog").dialog("open");
   }
   
-  function js_execute_provisioning(index, targetUrl) {
-    if(!canceled && index < ids.length) {
-      var id = ids[index];
-      
-      // Update the progress bar
-      $("#provision-progressbar").progressbar("option", "value", index);
-      
-      // Initiate the provisioning request
-      var jqxhr = $.post(targetUrl +  (id[0] == 'p' ? '/copersonid:' : '/cogroupid:') + id[1] + '.json',
-                         '{ "RequestType":"'
-                         + (id[0] == 'p' ? 'CoPersonProvisioning' : 'CoGroupProvisioning')
-                         + '","Version":"1.0","Synchronous":true }');
-      
-      // On success, fire the next request
-      jqxhr.done(function(data, textStatus, jqXHR) {
-                  js_execute_provisioning(index+1, targetUrl);
-                });
-      
-      jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
-                  // Note we're getting 200 here but it's actually a success (perhaps because no body returned; CO-984)
-                  if(jqXHR.status != "200") {
-                    $("#progressbar-dialog").dialog("close");
-                    $("#result-dialog").html("<p><?php print _txt('er.prov'); ?>" + " " + errorThrown + " (" +  jqXHR.status + ")</p>");
-                    // Configure buttons so user can elect to continue or cancel
-                    $("#result-dialog").dialog("option", "buttons", {
-                      "<?php print _txt('op.cancel'); ?>": function() {
-                        $(this).dialog("close");
-                      },
-                      "<?php print _txt('op.cont'); ?>": function() {
-                        $(this).dialog("close");
-                        $("#progressbar-dialog").dialog("open");
-                        js_execute_provisioning(index+1, targetUrl);
-                      }
-                    });
-                    $("#result-dialog").dialog("open");
-                  } else {
-                    js_execute_provisioning(index+1, targetUrl);
-                  }
-                });
-    } else {
-      // We're done, close progress bar
-      $("#provision-progressbar").progressbar("option", "value", index);
-      $("#progressbar-dialog").dialog("close");
-      if(!canceled) {
-        // Make sure result dialog has only one button, and reset the text
-        $("#result-dialog").dialog("option", "buttons", {
-          "<?php print _txt('op.ok'); ?>": function() {
-            $(this).dialog("close");
-          },
-        });
-        $("#result-dialog").html("<p><?php print _txt('rs.prov.ok'); ?></p>");
-        $("#result-dialog").dialog("open");
-      }
-      
-      // Reset in case user tries again
-      canceled = 0;
-      $("#provision-progressbar").progressbar("option", "value", 0);
-    }
-  }
-  
-  function js_request_provisioning(targetUrl) {
-    // Open the progress bar dialog
-    $("#progressbar-dialog").dialog("open");
-    
-    // Fire off the first request
-    js_execute_provisioning(0, targetUrl);
-  }
-  
   $(function() {
-    // Define progressbar
-    $("#provision-progressbar").progressbar({
-      value: 0,
-      max: ids.length
-    });
-    
-    // Progress bar dialog
-    $("#progressbar-dialog").dialog({
-      create: function() {
-        // We want to know when a user cancels the operation in progress, which
-        // we can't use beforeClose for since that will fire when the dialog
-        // closes for any reason. Based on http://stackoverflow.com/questions/7924152
-        $(this).closest('div.ui-dialog')
-               .find('button.ui-dialog-titlebar-close')
-               .click(function(e) {
-                  canceled = 1;
-               });
-      },
-      autoOpen: false,
-      modal: true,
-      show: {
-        effect: "fade"
-      },
-      hide: {
-        effect: "fade"
-      }
-    });
-    
     // Provisioning dialog
     $("#provision-dialog").dialog({
       autoOpen: false,
@@ -204,25 +92,7 @@
         },
         "<?php print _txt('op.prov'); ?>": function() {
           $(this).dialog("close");
-          js_progressbar_dialog();
         }
-      },
-      modal: true,
-      show: {
-        effect: "fade"
-      },
-      hide: {
-        effect: "fade"
-      }
-    });
-    
-    // Result dialog
-    $("#result-dialog").dialog({
-      autoOpen: false,
-      buttons: {
-        "<?php print _txt('op.ok'); ?>": function() {
-          $(this).dialog("close");
-        },
       },
       modal: true,
       show: {
@@ -236,7 +106,7 @@
 </script>
 
 <div class="table-container">
-  <table id="cos">
+  <table id="co_provisioning_targets">
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
@@ -327,7 +197,7 @@
                         title="' . _txt('op.prov.all') . '"
                         onclick="javascript:js_confirm_provision(\'' .
                                                                  $this->Html->url(array('controller' => 'co_provisioning_targets',
-                                                                                                        'action' => 'provision',
+                                                                                                        'action' => 'provisionall',
                                                                                                         $c['CoProvisioningTarget']['id']))
                                                                 . '\');">'
                     . _txt('op.prov.all') . "</a>\n";
@@ -343,15 +213,6 @@
   
 <?php print $this->element("pagination"); ?>
 
-<div id="progressbar-dialog" title="<?php print _txt('op.prov'); ?>">
-  <p><?php print _txt('op.prov.wait'); ?></p>
-  <div id="provision-progressbar"></div>
-</div>
-
 <div id="provision-dialog" title="<?php print _txt('op.prov'); ?>">
-  <p><?php print _txt('op.prov.all.confirm', array(count($vv_co_people), count($vv_co_groups))); ?></p>
-</div>
-
-<div id="result-dialog" title="<?php print _txt('op.prov'); ?>">
-  <p><?php print _txt('rs.prov.ok'); ?></p>
+  <p><?php print _txt('op.prov.all.confirm'); ?></p>
 </div>

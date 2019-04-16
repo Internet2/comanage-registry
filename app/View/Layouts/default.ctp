@@ -50,6 +50,16 @@
     ?> -->
 
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')) . "\n"; ?>
+    
+    <!-- Allow pages to request periodic refresh -->
+    <?php
+    if(!empty($vv_refresh_interval)) {
+      print $this->Html->meta(array(
+        'http-equiv' => 'refresh',
+        'content' => $vv_refresh_interval)
+      );
+    }
+    ?>
 
     <!-- Load CSS -->
     <?php

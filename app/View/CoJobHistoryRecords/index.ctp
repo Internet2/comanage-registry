@@ -112,7 +112,14 @@
           ?>
         </td>
         <td>
-          <?php print filter_var(_txt('en.job.type', null, $c['CoJob']['job_type'])); ?>
+          <?php 
+            // XXX CO-1310 Simplify this
+            if(strlen($c['CoJob']['job_type'])==2) {
+              print _txt('en.job.type', null, $c['CoJob']['job_type']);
+            } else {
+              print filter_var($c['CoJob']['job_type'], FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+          ?>
         </td>
         <td>
           <?php
