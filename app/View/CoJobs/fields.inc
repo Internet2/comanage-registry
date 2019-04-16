@@ -44,6 +44,14 @@
   $this->Html->addCrumb($co_jobs[0]['CoJob']['id']);
   
   $l = 1;
+  
+  $pctComplete = null;
+  
+  if(!empty($co_jobs[0]['CoJob']['percent_complete'])) {
+    $pctComplete = $co_jobs[0]['CoJob']['percent_complete'];
+  } elseif($co_jobs[0]['CoJob']['percent_complete'] === 0) {
+    $pctComplete = 0;
+  }
 ?>
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
@@ -51,7 +59,7 @@
   $(function() {
     // Define progressbar
     $("#job-progressbar").progressbar({
-      value: <?php print !empty($co_jobs[0]['CoJob']['percent_complete']) ? $co_jobs[0]['CoJob']['percent_complete'] : "false"; ?>
+      value: <?php print ($pctComplete === null) ? "false" : $pctComplete; ?>
     });
   });
 </script>
@@ -100,8 +108,8 @@
         print _txt('en.status.job', null, $co_jobs[0]['CoJob']['status']);
         
         if($co_jobs[0]['CoJob']['status'] == JobStatusEnum::InProgress
-           && !empty($co_jobs[0]['CoJob']['percent_complete'])) {
-          print " (" . $co_jobs[0]['CoJob']['percent_complete'] . "%)";
+           && $pctComplete !== null) {
+          print " (" . $pctComplete . "%)";
         }
         
         // This array corresponds to CoJob::cancel()
