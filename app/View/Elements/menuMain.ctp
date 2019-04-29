@@ -165,52 +165,60 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       // END People Menu
 
       // Groups Menu
-      if (isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
-        print '<li id="groupMenu" class="co-expandable-menu-item">';
+      if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
+        if(empty(retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId))) {
+          // we have no groups plugins: make this a top-level menu item
+          print '<li id="groupMenu">';
 
-        print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
-        //print '<span class="fa fa-users fa-fw"></span>';
-        print '<em class="material-icons" aria-hidden="true">group</em>';
-        print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
-        print '<span class="fa arrow fa-fw"></span>';
-        print '<span class="mdl-ripple"></span>';
-        print '</a>';
-        print '<ul aria-expanded="false" class="collapse">';
+          $linkContent = '<em class="material-icons" aria-hidden="true">group</em><span class="menuTitle">' . _txt('ct.co_groups.pl') .
+            '</span><span class="mdl-ripple"></span>';
 
-        print '<li class="mdl-js-ripple-effect">';
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_groups';
-        $args['action'] = 'select';
-        $args['co'] = $menuCoId;
-        print $this->Html->link(_txt('op.grm.my.groups'), $args);
-        print '<span class="mdl-ripple"></span>';
-        print "</li>";
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_groups';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
 
-        print '<li class="mdl-js-ripple-effect">';
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_groups';
-        $args['action'] = 'index';
-        $args['co'] = $menuCoId;
-        print $this->Html->link(_txt('ct.co_all_groups'), $args);
-        print '<span class="mdl-ripple"></span>';
-        print "</li>";
+          print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
 
-        // Plugins
-        if (!empty($menuContent['plugins'])) {
+          print "</li>";
+
+        } else {
+          // we have groups plugins: make this an expandable menu item
+          print '<li id="groupMenu" class="co-expandable-menu-item">';
+
+          print '<a class="menuTop mdl-js-ripple-effect" aria-expanded="false" href="#">';
+          //print '<span class="fa fa-users fa-fw"></span>';
+          print '<em class="material-icons" aria-hidden="true">group</em>';
+          print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
+          print '<span class="fa arrow fa-fw"></span>';
+          print '<span class="mdl-ripple"></span>';
+          print '</a>';
+          print '<ul aria-expanded="false" class="collapse">';
+
+          print '<li class="mdl-js-ripple-effect">';
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_groups';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
+          print $this->Html->link(_txt('ct.co_all_groups'), $args);
+          print '<span class="mdl-ripple"></span>';
+          print "</li>";
+
+          // Plugins
           $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId);
-          
-          foreach($pluginLinks as $plabel => $pcfg) {
+
+          foreach ($pluginLinks as $plabel => $pcfg) {
             print '<li class="mdl-js-ripple-effect">';
             print $this->Html->link($plabel, $pcfg['url']);
             print '<span class="mdl-ripple"></span>';
             print '</li>';
           }
-        }
 
-        print "</ul>";
-        print "</li>";
+          print "</ul>";
+          print "</li>";
+        }
       }
       // END Groups Menu
       

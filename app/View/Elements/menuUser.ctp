@@ -147,6 +147,9 @@
             foreach($menuContent['cos'] as $co) {
               // Only display a profile link for the current CO
               if($co['co_id'] == $cur_co['Co']['id']) {
+
+                print '<div id="co-profile-buttons">';
+
                 // The person must have an Active/GracePeriod status and at least
                 // one defined role.
                 if(isset($co['co_person']['status'])
@@ -161,8 +164,24 @@
                     $co['co_person_id']
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">account_circle</em>' . _txt('me.profile.for', array($co['co_name'])), $args,
-                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-profile-button co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
                 }
+
+                // Groups
+                // Show the groups link too, if permissions allow
+                if (isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
+                  $args = array(
+                    'plugin' => '',
+                    'controller' => 'co_groups',
+                    'action' => 'select',
+                    'copersonid' => $co['co_person_id'],
+                    'co' => $co['co_id']
+                  );
+                  print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groups'), $args,
+                    array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                }
+
+                print '</div>';
               }
             }
           }

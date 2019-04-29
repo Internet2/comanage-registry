@@ -273,10 +273,10 @@ body.logged-in #user-menu {
 #user-panel .co-info-topbox strong {
   font-weight: normal;
 }
-#user-panel #co-profile-link:hover {
+#user-panel .co-profile-button:hover {
   background-color: #eee;
 }
-#user-panel #co-profile-link .material-icons {
+#user-panel .co-profile-button .material-icons {
   vertical-align: middle;
   margin-right: 0.25em;
   font-size: 16px;
