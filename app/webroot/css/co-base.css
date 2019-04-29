@@ -69,12 +69,11 @@ h3 {
   margin: 0;
 }
 a {
-  color: #07b; /* slightly darker: passes accessibility contrast checks against white */
+  color: #06c; /* passes accessibility contrast checks against white down to #eee */
   text-decoration: none;
 }
 #main a:active,
 #main a:hover {
-  color: #0067A3; /* to ensure accessibility on hover when backgrounds change as low as #e5e5e5 */
   text-decoration: underline;
 }
 #main a.mdl-button:active,
@@ -96,7 +95,7 @@ a {
 }
 #skip-to-content {
   position: relative;
-  background-color: #07b;
+  background-color: #06c;
   color: white;
   padding: 0 1em 0.25em ;
   border-bottom-left-radius: 10px;
@@ -521,7 +520,7 @@ form#notificationStatus {
   font-size: 0.9em;
   padding: 7px 8px 7px 16px;
   line-height: 1.4em;
-  color: #07b;
+  color: #06c;
   border: 1px solid transparent;
 }
 #main-menu > li a:hover,
@@ -535,7 +534,7 @@ form#notificationStatus {
   background-color: #f5f5f5;
 }
 #main-menu li li a.selected {
-  color: #07b;
+  color: #06c;
   background-color: #fafafa;
   /* keep these if we find a better method of selecting sub-menu items:
   color: #0067A3;
@@ -765,11 +764,13 @@ body.co_people.canvas .titleNavContainer {
 .widget-actions li {
   display: inline-block;
   list-style: none;
-  font-size: 0.9em;
 }
 .widget-actions .material-icons {
-  /* color: #2395E0; - original blue; doesn't pass WCAG contrast ratios at small sizes */
-  color: #07b;
+  color: #06c;
+}
+.widget-actions .ui-button {
+  background: none;
+  border: none;
 }
 /* REDIRECT PAGE */
 #redirect-box {
@@ -1092,7 +1093,7 @@ body.co_petitions .ui-dialog {
   min-height: 1.5em;
   padding: 0.5em;
   /*background-color: #9FC6E2;*/
-  background-color: #186696;
+  background-color: #1D7AB4;
   color: white;
   text-align: center;
 }
@@ -1505,7 +1506,7 @@ a.ui-button:visited,
   border: 1px solid #eee;
 }
 .co-card.is-member {
-  border-bottom: 1px solid #07b;
+  border-bottom: 1px solid #06c;
 }
 .co-card img {
   min-width: 100%;
@@ -1583,6 +1584,10 @@ a.ui-button:visited,
 .coAddEditButtons {
   float: right;
   clear: left;
+}
+body.co_people .addbutton {
+  border: none;
+  background: none;
 }
 /* DATA LISTS */
 /*** ul.data-list is the main structure for representing data
@@ -1716,13 +1721,13 @@ ul.form-list {
   padding: 0;
 }
 ul.form-list li {
-  background-color: #f5f5f5;
+  background-color: #f8f8f8;
   margin: 0 0 2px;
   padding: 0.5em;
   list-style: none;
 }
 ul.form-list li:nth-child(even) {
-  background-color: #e5e5e5;
+  background-color: #eee;
 }
 ul.form-list li.fields-submit {
   background-color: unset;
@@ -1907,7 +1912,7 @@ ul, ol { /* MDL override */
   font-size: 0.9em;
 }
 .required {
-  color: red;
+  color: #c00;
 }
 .center {
   text-align: center;
@@ -1941,7 +1946,7 @@ a.desc::before {
 }
 .ui-widget-header {
   /*background-color: #9FC6E2;*/
-  background-color: #186696;
+  background-color: #1D7AB4;
 }
 .ui-button {
   font-size: 0.9em !important;
@@ -1976,6 +1981,9 @@ table {
   overflow: auto;
   clear: both;
 }
+table.common-table {
+  margin-bottom: 1em;
+}
 th, td {
   padding: 0.5em;
   text-align: left;
@@ -1983,8 +1991,11 @@ th, td {
   border-bottom: 2px solid #fff;
   font-weight: normal;
 }
+table.common-table td {
+  padding: 0.25em 0.25em 0.25em 0.5em;
+}
 th {
-  background-color: #186696;
+  background-color: #1D7AB4;
   color: white;
 }
 th a {
@@ -2009,20 +2020,18 @@ th.actionButtons {
   width:70px;
 }
 /* legacy zebra stripes for rows;
-   0 used for autoincrementing line counters; */
+   0 used for autoincrementing line counters;
+   Use table.common-table for newer CSS approach to zebra stripes. */
 .line0 {
-  background-color: #e5e5e5;
+  background-color: #eee;
 }
+table.common-table tr:nth-child(odd) td,
 .line1 {
-  background-color: #f5f5f5;
+  background-color: #f8f8f8;
 }
+table.common-table tr:nth-child(even) td,
 .line2 {
-  background-color: #e5e5e5;
-}
-.line0 a,
-.line1 a,
-.line2 a {
-  color: #0067a3; /* to ensure WCAG AA contrast is acceptable against the bg colors */
+  background-color: #eee;
 }
 td.indented {
   border-left: 3em solid #fff;

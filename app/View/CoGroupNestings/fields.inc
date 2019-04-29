@@ -62,7 +62,7 @@
 <ul id="<?php print $this->action; ?>_co_group_nestings" class="fields form-list">
   <li>
     <div class="field-name">
-      <?php print _txt('fd.co_group.target'); ?>
+      <?php print _txt('fd.co_group.target.1'); ?>
     </div>
     <div class="field-info">
       <?php print filter_var($vv_parent_group['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS); ?>

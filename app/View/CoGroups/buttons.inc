@@ -82,33 +82,6 @@ if($permissions['reconcile']) {
   );
 }
 
-if(!empty($co_groups[0]['CoGroup']['id'])
-   && !$co_groups[0]['CoGroup']['auto']) {
-  // Manage group memberships
-  $params['topLinks'][] = $this->Html->link(
-    _txt('op.manage.grm'),
-    array(
-      'controller' => 'co_group_members',
-      'action'     => 'select',
-      'cogroup'    => $co_groups[0]['CoGroup']['id']
-    ),
-    array('class' => 'editbutton')
-  );
-  
-  if($permissions['nest']) {
-    // Add a nested group
-    $params['topLinks'][] = $this->Html->link(
-      _txt('op.add-a', array(_txt('ct.co_group_nestings.1'))),
-      array(
-        'controller' => 'co_group_nestings',
-        'action'     => 'add',
-        'cogroup'    => $co_groups[0]['CoGroup']['id']
-      ),
-      array('class' => 'addbutton')
-    );
-  }
-}
-
 if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
   // Provisioning status
   $params['topLinks'][] = $this->Html->link(
