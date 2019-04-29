@@ -44,17 +44,51 @@
   $this->Html->addCrumb($co_jobs[0]['CoJob']['id']);
   
   $l = 1;
+  
+  $pctComplete = null;
+  
+  if(!empty($co_jobs[0]['CoJob']['percent_complete'])) {
+    $pctComplete = $co_jobs[0]['CoJob']['percent_complete'];
+  } elseif($co_jobs[0]['CoJob']['percent_complete'] === 0) {
+    $pctComplete = 0;
+  }
 ?>
+<script type="text/javascript">
+  <!-- /* JS specific to these fields */ -->
+  
+  $(function() {
+    // Define progressbar
+    $("#job-progressbar").progressbar({
+      value: <?php print ($pctComplete === null) ? "false" : $pctComplete; ?>
+    });
+  });
+</script>
 <ul id="<?php print $this->action; ?>_co_job" class="fields form-list">
   <li>
     <div class="field-name">
       <?php print _txt('fd.job.type'); ?>
     </div>
     <div class="field-info">
-      <?php
-        print _txt('en.job.type', null, $co_jobs[0]['CoJob']['job_type'])
-            . " (" . $co_jobs[0]['CoJob']['job_type_fk'] . ")";
+      <?php 
+        // CO-1310 simplify
+        if(strlen($co_jobs[0]['CoJob']['job_type'])==2) {
+          print _txt('en.job.type', null, $co_jobs[0]['CoJob']['job_type']);
+        } else {
+          print filter_var($co_jobs[0]['CoJob']['job_type'], FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+        
+        if(!empty($co_jobs[0]['CoJob']['job_type_fk'])) {
+          print " (" . $co_jobs[0]['CoJob']['job_type_fk'] . ")";
+        }
       ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print _txt('fd.job.params'); ?>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_jobs[0]['CoJob']['job_params'], FILTER_SANITIZE_STRING); ?>
     </div>
   </li>
   <li>
@@ -72,6 +106,11 @@
     <div class="field-info">
       <?php
         print _txt('en.status.job', null, $co_jobs[0]['CoJob']['status']);
+        
+        if($co_jobs[0]['CoJob']['status'] == JobStatusEnum::InProgress
+           && $pctComplete !== null) {
+          print " (" . $pctComplete . "%)";
+        }
         
         // This array corresponds to CoJob::cancel()
         if(in_array($co_jobs[0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
@@ -91,6 +130,8 @@
                 . '\']);">'
                 . _txt('op.cancel')
                 . '</button>';
+          
+          print '<div id="job-progressbar"></div>';
         }
       ?>
     </div>

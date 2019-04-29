@@ -39,6 +39,8 @@ class CoProvisioningTargetsController extends StandardController {
     )
   );
   
+  public $uses = array('CoProvisioningTarget', 'CoJob');
+  
   // This controller needs a CO to be set
   public $requires_co = true;
   
@@ -169,56 +171,7 @@ class CoProvisioningTargetsController extends StandardController {
     }
     
     return true;
-  }
-  
-  /**
-   * Obtain all CO Provisioning Targets
-   *
-   * @since  COmanage Registry v0.9.2
-   */
-
-  public function index() {
-    parent::index();
-    
-    if(!$this->request->is('restful')) {
-      // Pull the list of CO Person IDs and CO Group IDs to faciliate "Reprovision All".
-      // We include all people and groups, even those not active, so we can unprovision
-      // as needed.
-      
-      $args = array();
-      $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
-      $args['fields'] = array('CoPerson.id', 'CoPerson.status');
-      $args['order'] = array('CoPerson.id' => 'asc');
-      $args['contain'] = false;
-      
-      $this->set('vv_co_people', $this->CoProvisioningTarget->Co->CoPerson->find('list', $args));
-      
-      $args = array();
-      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
-      $args['fields'] = array('CoGroup.id', 'CoGroup.status');
-      $args['order'] = array('CoGroup.id' => 'asc');
-      $args['contain'] = false;
-      
-      $this->set('vv_co_groups', $this->CoProvisioningTarget->Co->CoGroup->find('list', $args));
-
-      $args = array();
-      $args['conditions']['CoEmailList.co_id'] = $this->cur_co['Co']['id'];
-      $args['fields'] = array('CoEmailList.id', 'CoEmailList.status');
-      $args['order'] = array('CoEmailList.id' => 'asc');
-      $args['contain'] = false;
-
-      $this->set('vv_co_email_lists', $this->CoProvisioningTarget->Co->CoEmailList->find('list', $args));
-
-      $args = array();
-      $args['conditions']['CoService.co_id'] = $this->cur_co['Co']['id'];
-      $args['fields'] = array('CoService.id', 'CoService.status');
-      $args['order'] = array('CoService.id' => 'asc');
-      $args['contain'] = false;
-
-      $this->set('vv_co_services', $this->CoProvisioningTarget->Co->CoService->find('list', $args));
-
-    }
-  }
+  }  
   
   /**
    * Authorization for this Controller, called by Auth component
@@ -388,6 +341,7 @@ class CoProvisioningTargetsController extends StandardController {
                                                                   $sAction,
                                                                   ($sModel == 'CoEmailList' ? $sId : null),
                                                                   null, // CoGroupMemberId
+                                                                  null, // ActorCoPersonId
                                                                   ($sModel == 'CoService' ? $sId : null));
       }
       catch(InvalidArgumentException $e) {
@@ -406,6 +360,48 @@ class CoProvisioningTargetsController extends StandardController {
       catch(RuntimeException $e) {
         $this->Api->restResultHeader(500, $e->getMessage());
       }
+    }
+  }
+  
+  /**
+   * Run Provisioning for a specific provisioning target.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+  
+  public function provisionall($id) {
+    // Queue a CO Job to reprovision all subjects for the specified target
+    
+    try {
+      $jobid = $this->CoJob->register($this->cur_co['Co']['id'],
+                                      'Provisioner',
+                                      null,
+                                      "",
+                                      // Update with CO-1729
+                                      _txt('rs.jb.started.web', array($this->Session->read('Auth.User.username'), $this->Session->read('Auth.User.co_person_id'))),
+                                      true,
+                                      false,
+                                      array(
+                                        'co_provisioning_target_id' => $id,
+                                        'record_type' => 'CoPerson'
+                                      ));
+      
+      $this->Flash->set(_txt('rs.jb.registered', array($jobid)), array('key' => 'success'));
+      
+      // Issue a redirect to the job
+      $this->redirect(array(
+        'controller' => 'co_jobs',
+        'action' => 'view',
+        $jobid
+      ));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      
+      $this->redirect(array(
+        'action' => 'index',
+        'co' => $this->cur_co['Co']['id']
+      ));
     }
   }
 }

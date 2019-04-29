@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry SshKey Fixture
+ * COmanage Registry SSH Key Authenticator Routes
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -18,15 +18,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
- * @since         COmanage Registry v3.2.0
+ * @package       registry-plugin
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class SshKeyFixture extends CakeTestFixture {
-
-  // Import schema and records for the model from the default database
-  public $import = array('model' => 'SshKey', 'records' => true);
-}
+Router::mapResources(array(
+  'SshKeyAuthenticator.ssh_keys',
+));

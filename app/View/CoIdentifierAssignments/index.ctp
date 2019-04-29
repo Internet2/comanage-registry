@@ -53,8 +53,9 @@
       _txt('op.id.auto.all') .
       '" onclick="javascript:js_confirm_autogenerate(\'' .
       $this->Html->url(array(
-          'controller' => 'identifiers',
-          'action' => 'assign.json')
+          'controller' => 'co_identifier_assignments',
+          'action' => 'assignall',
+          'co' => $cur_co['Co']['id'])
       ) . '\');">' . _txt('op.id.auto.all') .
       "</a>\n";
   }
@@ -63,21 +64,6 @@
 
 ?>
 <script type="text/javascript">
-  // This is based in large part on CoProvisioningTargets/index.ctp
-
-  // The controller passes a list of IDs, which we need to convert to a javascript array.
-  // This won't scale to superhuge lists, but should be good enough for typical CO populations.
-  var ids = [
-    <?php
-      foreach(array_keys($vv_co_people) as $id) {
-        print $id . ',';
-      }
-    ?>
-  ];
-
-  // Have we been interrupted by the user?
-  var canceled = 0;
-
   function js_confirm_autogenerate(targetUrl) {
     // Prep confirmation dialog
     $("#autogenerate-dialog").dialog("option",
@@ -85,7 +71,7 @@
       [ { text: "<?php print _txt('op.cancel'); ?>", click: function() { $(this).dialog("close"); } },
         { text: "<?php print _txt('op.id.auto'); ?>", click: function() {
           $(this).dialog("close");
-          js_request_autogenerate(targetUrl);
+          window.location.href = targetUrl;
         } }
       ] );
 
@@ -93,119 +79,7 @@
     $("#autogenerate-dialog").dialog("open");
   }
 
-  function js_execute_autogenerate(index, targetUrl) {
-    if(!canceled && index < ids.length) {
-      var id = ids[index];
-
-      // Update the progress bar
-      $("#autogenerate-progressbar").progressbar("option", "value", index);
-      
-      var jsondoc = '{"RequestType":"Identifiers",' +
-                     '"Version":"1.0",' +
-                     '"Identifiers":[{' +
-                      '"Version":"1.0",' +
-                      '"Person":{"Type":"CO","Id":"' + id + '"}' +
-                      '}]}';
-
-      // Initiate the autogenerate request
-      
-      // We need to set the contentType to json (which, as an aside, PHP does not
-      // automatically parse -- see ApiComponent::parseRestRequestDocument), so we
-      // need to use ajax() instead of post().
-      // var jqxhr = $.post(targetUrl, jsondoc);
-
-      var jqxhr = $.ajax({
-        type: "POST",
-        url: targetUrl,
-   			contentType: "application/json",
-        data: jsondoc
-        //JSON.stringify(reqdoc)
-      });
-
-      // On success, fire the next request
-      jqxhr.done(function(data, textStatus, jqXHR) {
-        js_execute_autogenerate(index+1, targetUrl);
-      });
-
-      jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
-        // Note we're getting 200 here but it's actually a success (perhaps because no body returned; CO-984)
-        if(jqXHR.status != "200") {
-          $("#progressbar-dialog").dialog("close");
-          $("#result-dialog").html("<p><?php print _txt('er.ia'); ?>" + " " + errorThrown + " (" +  jqXHR.status + ")</p>");
-          // Configure buttons so user can elect to continue or cancel
-          $("#result-dialog").dialog("option", "buttons", {
-            "<?php print _txt('op.cancel'); ?>": function() {
-              $(this).dialog("close");
-            },
-            "<?php print _txt('op.cont'); ?>": function() {
-              $(this).dialog("close");
-              $("#progressbar-dialog").dialog("open");
-              js_execute_autogenerate(index+1, targetUrl);
-            }
-          });
-          $("#result-dialog").dialog("open");
-        } else {
-          js_execute_autogenerate(index+1, targetUrl);
-        }
-      });
-    } else {
-      // We're done, close progress bar
-      $("#autogenerate-progressbar").progressbar("option", "value", index);
-      $("#progressbar-dialog").dialog("close");
-      if(!canceled) {
-        // Make sure result dialog has only one button, and reset the text
-        $("#result-dialog").dialog("option", "buttons", {
-          "<?php print _txt('op.ok'); ?>": function() {
-            $(this).dialog("close");
-          },
-        });
-        $("#result-dialog").html("<p><?php print _txt('rs.ia.ok'); ?></p>");
-        $("#result-dialog").dialog("open");
-      }
-
-      // Reset in case user tries again
-      canceled = 0;
-      $("#autogenerate-progressbar").progressbar("option", "value", 0);
-    }
-  }
-
-  function js_request_autogenerate(targetUrl) {
-    // Open the progress bar dialog
-    $("#progressbar-dialog").dialog("open");
-
-    // Fire off the first request
-    js_execute_autogenerate(0, targetUrl);
-  }
-
   $(function() {
-    // Define progressbar
-    $("#autogenerate-progressbar").progressbar({
-      value: 0,
-      max: ids.length
-    });
-
-    // Progress bar dialog
-    $("#progressbar-dialog").dialog({
-      create: function() {
-        // We want to know when a user cancels the operation in progress, which
-        // we can't use beforeClose for since that will fire when the dialog
-        // closes for any reason. Based on http://stackoverflow.com/questions/7924152
-        $(this).closest('div.ui-dialog')
-          .find('button.ui-dialog-titlebar-close')
-          .click(function(e) {
-            canceled = 1;
-          });
-      },
-      autoOpen: false,
-      modal: true,
-      show: {
-        effect: "fade"
-      },
-      hide: {
-        effect: "fade"
-      }
-    });
-
     // Autogenerate dialog
     $("#autogenerate-dialog").dialog({
       autoOpen: false,
@@ -215,25 +89,7 @@
         },
         "<?php print _txt('op.id.auto'); ?>": function() {
           $(this).dialog("close");
-          js_progressbar_dialog();
         }
-      },
-      modal: true,
-      show: {
-        effect: "fade"
-      },
-      hide: {
-        effect: "fade"
-      }
-    });
-
-    // Result dialog
-    $("#result-dialog").dialog({
-      autoOpen: false,
-      buttons: {
-        "<?php print _txt('op.ok'); ?>": function() {
-          $(this).dialog("close");
-        },
       },
       modal: true,
       show: {
@@ -247,7 +103,7 @@
 </script>
 
 <div class="table-container">
-  <table id="cous">
+  <table id="co_identifier_assignments">
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
@@ -306,15 +162,6 @@
 
 <?php print $this->element("pagination"); ?>
 
-<div id="progressbar-dialog" title="<?php print _txt('op.id.auto'); ?>">
-  <p><?php print _txt('op.id.auto.wait'); ?></p>
-  <div id="autogenerate-progressbar"></div>
-</div>
-
 <div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
-  <p><?php print _txt('op.id.auto.all.confirm', array(count($vv_co_people))); ?></p>
-</div>
-
-<div id="result-dialog" title="<?php print _txt('op.id.auto'); ?>">
-  <p><?php print _txt('rs.ia.ok'); ?></p>
+  <p><?php print _txt('op.id.auto.all.confirm'); ?></p>
 </div>

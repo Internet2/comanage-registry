@@ -51,13 +51,16 @@ class CoJob extends AppModel {
       'message' => 'A CO ID must be provided'
     ),
     'job_type' => array(
-      'rule' => array('inList', array(JobTypeEnum::Expiration,
-                                      JobTypeEnum::GroupValidity,
-                                      JobTypeEnum::OrgIdentitySync)),
+      'rule' => array('maxLength', 64),
       'required' => true,
       'allowEmpty' => false
     ),
     'job_mode' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'job_params' => array(
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
@@ -100,6 +103,11 @@ class CoJob extends AppModel {
       'rule' => 'datetime',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'percent_complete' => array(
+      'rule' => array('range', -1, 101),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -115,6 +123,10 @@ class CoJob extends AppModel {
    */
   
   public function cancel($id, $actor) {
+    if(!$id) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
     // Make sure the job is in a cancelable status
     
     $curStatus = $this->field('status', array('CoJob.id' => $id));
@@ -164,6 +176,10 @@ class CoJob extends AppModel {
    */
   
   public function finish($id, $summary="", $result=JobStatusEnum::Complete) {
+    if(!$id) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
     // There's not really an elegant way to update more than 1 but less than all fields...
     
     $this->id = $id;
@@ -216,11 +232,12 @@ class CoJob extends AppModel {
    * @param  String      $summary    Summary
    * @param  Boolean     $queued     Whether the job is queued (true) or started (false)
    * @param  Boolean     $concurrent Whether multiple instances of this job (coid+jobtype+jobtypefk) are permitted to run concurrently
+   * @param  Array       $params     Parameters to pass to job plugin
    * @return Integer                 Job ID
    * @throws RuntimeException
    */
   
-  public function register($coId, $jobType, $jobTypeFk=null, $jobMode="", $summary="", $queued=false, $concurrent=false) {
+  public function register($coId, $jobType, $jobTypeFk=null, $jobMode="", $summary="", $queued=false, $concurrent=false, $params) {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
@@ -247,9 +264,13 @@ class CoJob extends AppModel {
     
     $coJob = array();
     $coJob['CoJob']['co_id'] = $coId;
-    $coJob['CoJob']['job_type'] = $jobType;
-    $coJob['CoJob']['job_type_fk'] = $jobTypeFk;
-    $coJob['CoJob']['job_mode'] = $jobMode;
+      $coJob['CoJob']['job_type'] = $jobType;
+    if($params) {
+      $coJob['CoJob']['job_params'] = json_encode($params);
+    } else {
+      $coJob['CoJob']['job_type_fk'] = $jobTypeFk;
+      $coJob['CoJob']['job_mode'] = $jobMode;
+    }
     $coJob['CoJob']['queue_time'] = date('Y-m-d H:i:s', time());
     if(!empty($jobs)) {
       $coJob['CoJob']['status'] = JobStatusEnum::Failed;
@@ -266,7 +287,7 @@ class CoJob extends AppModel {
     
     if(!$this->save($coJob)) {
       $dbc->rollback();
-      throw new RuntimeException(_txt('er.db.save-a', array('CoJob')));
+      throw new RuntimeException(_txt('er.db.save-a', array('CoJob::register')));
     }
     
     $dbc->commit();
@@ -280,6 +301,21 @@ class CoJob extends AppModel {
   }
   
   /**
+   * Set the percentage complete of the job.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $id      Job ID
+   * @param  integer $percent Percent complete, between 0 and 100
+   */
+
+  public function setPercentComplete($id, $percent) {
+    $this->clear();
+    $this->id = $id;
+    // Cake validation will allow floats in a range, we we cast to integer
+    $this->saveField('percent_complete', (integer)$percent);
+  }
+
+  /**
    * Update a job as started (if it was queued).
    *
    * @since  COmanage Registry v2.0.0
@@ -289,6 +325,10 @@ class CoJob extends AppModel {
    */
   
   public function start($id, $summary="") {
+    if(!$id) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
     // There's not really an elegant way to update more than 1 but less than all fields...
     
     $this->clear();
@@ -318,5 +358,50 @@ class CoJob extends AppModel {
     }
     
     return strtotime($start);
+  }
+  
+  /**
+   * Update job information. Once set, values cannot be changed to null via this function.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $id           CO Job ID
+   * @param  integer $jobTypeFk    CO Job Foreign Key
+   * @param  string  $jobMode      CO Job Mode
+   * @param  string  $startSummary Job start summary
+   * @throws RuntimeException
+   */
+  
+  public function update($id, $jobTypeFk=null, $jobMode=null, $startSummary=null) {
+    if(!$id) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
+    $fieldList = array();
+    
+    $coJob = array(
+      'CoJob' => array('id' => $id)
+    );
+    
+    if($jobTypeFk) {
+      $coJob['CoJob']['job_type_fk'] = $jobTypeFk;
+      $fieldList[] = 'job_type_fk';
+    }
+    
+    if($jobMode) {
+      $coJob['CoJob']['job_mode'] = $jobMode;
+      $fieldList[] = 'job_mode';
+    }
+    
+    if($startSummary) {
+      $coJob['CoJob']['start_summary'] = $startSummary;
+      $fieldList[] = 'start_summary';
+    }
+    
+    // Call create since we might have multiple records written in a transaction
+    $this->create();
+    
+    if(!$this->save($coJob, array('fieldList' => $fieldList))) {
+      throw new RuntimeException(_txt('er.db.save-a', array('CoJob::update')));
+    }
   }
 }

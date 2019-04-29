@@ -45,6 +45,26 @@
     </index>
   </table>
   
+  <table name="locks">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="label" type="C" size="32" />
+    <field name="pid" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="locks_i1">
+      <col>co_id</col>
+      <col>label</col>
+      <unique />
+    </index>
+  </table>
+  
   <table name="cous">
     <field name="id" type="I">
       <key />
@@ -1854,9 +1874,11 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
-    <field name="job_type" type="C" size="2" />
+    <field name="job_type" type="C" size="64" />
+    <!-- job_type_fk and job_mode are deprecated and will be removed in v4.0.0 (CO-1310) -->
     <field name="job_type_fk" type="I" />
     <field name="job_mode" type="C" size="16" />
+    <field name="job_params" type="X" size="4000" />
     <field name="status" type="C" size="2" />
     <field name="register_summary" type="C" size="256" />
     <field name="start_summary" type="C" size="256" />
@@ -1864,6 +1886,7 @@
     <field name="queue_time" type="T" />
     <field name="start_time" type="T" />
     <field name="complete_time" type="T" />
+    <field name="percent_complete" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

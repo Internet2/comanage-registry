@@ -32,7 +32,7 @@ class CoIdentifierAssignmentsController extends StandardController {
   public $name = "CoIdentifierAssignments";
   
   // When using additional models, we must also specify our own
-//  public $uses = array('CoIdentifierAssignment', 'Identifier');
+  public $uses = array('CoIdentifierAssignment', 'CoJob');
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -44,6 +44,45 @@ class CoIdentifierAssignmentsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  /**
+   * Run Identifier Assignment for all members of a CO.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+  
+  public function assignall() {
+    // Queue a CO Job to assign all identifiers for the specified CO
+    
+    try {
+      $jobid = $this->CoJob->register($this->cur_co['Co']['id'],
+                                      'IdAssigner',
+                                      null,
+                                      "",
+                                      // Update with CO-1729
+                                      _txt('rs.jb.started.web', array($this->Session->read('Auth.User.username'), $this->Session->read('Auth.User.co_person_id'))),
+                                      true,
+                                      false,
+                                      array());
+      
+      $this->Flash->set(_txt('rs.jb.registered', array($jobid)), array('key' => 'success'));
+      
+      // Issue a redirect to the job
+      $this->redirect(array(
+        'controller' => 'co_jobs',
+        'action' => 'view',
+        $jobid
+      ));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      
+      $this->redirect(array(
+        'action' => 'index',
+        'co' => $this->cur_co['Co']['id']
+      ));
+    }
+  }
   
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -66,30 +105,6 @@ class CoIdentifierAssignmentsController extends StandardController {
     $vrule[1]['coid'] = $this->cur_co['Co']['id'];
     
     $this->CoIdentifierAssignment->validator()->getField('identifier_type')->getRule('content')->rule = $vrule;
-  }
-  
-  /**
-   * Obtain all CO Identifier Assignments
-   *
-   * @since  COmanage Registry v0.9.2
-   */
-
-  public function index() {
-    parent::index();
-    
-    if(!$this->request->is('restful')) {
-      // Pull the list of CO Person IDs to faciliate "Autogenerate Identifiers for All".
-      // We currently pull active records only, for alignment with Petition behavior.
-      
-      $args = array();
-      $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
-      $args['conditions']['CoPerson.status'] = StatusEnum::Active;
-      $args['fields'] = array('CoPerson.id', 'CoPerson.status');
-      $args['order'] = array('CoPerson.id' => 'asc');
-      $args['contain'] = false;
-      
-      $this->set('vv_co_people', $this->CoIdentifierAssignment->Co->CoPerson->find('list', $args));
-    }
   }
   
   /**
@@ -129,5 +144,23 @@ class CoIdentifierAssignmentsController extends StandardController {
 
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+  
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v3.3.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    if($this->action == 'assignall') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+
+    return parent::parseCOID();
   }
 }

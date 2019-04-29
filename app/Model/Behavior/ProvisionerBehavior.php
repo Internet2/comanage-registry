@@ -74,7 +74,14 @@ class ProvisionerBehavior extends ModelBehavior {
         // We do want an explicit Delete operation for CoEmailList
         $model->data = $model->cacheData;
         
-        return $this->determineProvisioning($model, false, ProvisioningActionEnum::CoEmailListDeleted);
+        $actorCoPersonId = null;
+        
+        if(session_status() == PHP_SESSION_ACTIVE) {
+          // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
+          $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
+        }
+
+        return $this->determineProvisioning($model, false, ProvisioningActionEnum::CoEmailListDeleted, $actorCoPersonId);
       }
       if($model->name == 'CoService') {
         // We also want an explicit Delete operation for CoService
@@ -114,7 +121,14 @@ class ProvisionerBehavior extends ModelBehavior {
       return true;
     }
     
-    return $this->determineProvisioning($model, $created);
+    $actorCoPersonId = null;
+    
+    if(session_status() == PHP_SESSION_ACTIVE) {
+      // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
+      $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
+    }
+
+    return $this->determineProvisioning($model, $created, $actorCoPersonId);
   }
   
   /**
@@ -159,12 +173,20 @@ class ProvisionerBehavior extends ModelBehavior {
       if(!empty($model->data[ $model->name ]['id'])) {
         // Invoke all provisioning plugins
         
+        $actorCoPersonId = null;
+        
+        if(session_status() == PHP_SESSION_ACTIVE) {
+          // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
+          $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
+        }
+
         try {
           $this->invokePlugins($model,
                                $model->data,
                                $model->name == 'CoPerson'
                                ? ProvisioningActionEnum::CoPersonDeleted
-                               : ProvisioningActionEnum::CoGroupDeleted);
+                               : ProvisioningActionEnum::CoGroupDeleted,
+                               $actorCoPersonId);
         }    
         // What we really want to do here is catch the result (success or exception)
         // and set the appropriate session flash message, but we don't have access to
@@ -219,11 +241,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  Model $model Model instance
    * @param  boolean $created indicates whether the node just saved was created or updated
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @param  integer $actorCoPersonId Actor CO Person ID
    * @return $return boolean true on success
    * @throws InvalidArgumentException
    */
   
-  protected function determineProvisioning(Model $model, $created, $provisioningAction=null) {
+  protected function determineProvisioning(Model $model, $created, $provisioningAction=null, $actorCoPersonId=null) {
     $pmodel = null;
     $pdata = null;
     $paction = null;
@@ -257,7 +280,7 @@ class ProvisionerBehavior extends ModelBehavior {
       
       // XXX note we only need to look at $id right now. if we need other attributes, merge
       // back into logic below (which handle eg saveField)
-      $this->provisionEmailLists($model, array($model->id), $created, $provisioningAction);
+      $this->provisionEmailLists($model, array($model->id), $created, $provisioningAction, $actorCoPersonId);
       
       return true;
     }
@@ -477,17 +500,17 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if($model->name == 'CoGroup') {
       if($gmodel) {
-        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid);
+        $this->provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $copid, $actorCoPersonId);
       }
       // else we could be CoGroupMember being promoted to afterSave in the middle of
       // a CoGroup being deleted. In that scenario, we don't actually need to try
       // to re-provision the CoGroup, so just move on to the person.
       if($pmodel) {
-        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction, $actorCoPersonId);
       }
     } else {
       if($pmodel) {
-        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction);
+        $this->provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction, $actorCoPersonId);
       }
       if($gmodel) {
         // If $provisioningAction is CoPersonReprovisionRequested, switch the action
@@ -500,7 +523,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                ($provisioningAction == ProvisioningActionEnum::CoPersonReprovisionRequested
                                 ? ProvisioningActionEnum::CoGroupReprovisionRequested
                                 : $provisioningAction), 
-                               $copid);
+                               $copid,
+                               $actorCoPersonId);
       }
     }
     
@@ -514,12 +538,13 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  Array $coProvisioningTarget Array of CoProvisioningTarget data, as returned by find()
    * @param  Array $provisioningData Data to pass to plugin, as returned by marshallCoPersonData() or marshallCoGroupData()
    * @param  ProvisioningActionEnum $action Action triggering provisioning
+   * @param  Integer $actorCoPersonId Actor CO Person ID
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  private function invokePlugin($coProvisioningTarget, $provisioningData, $action) {
+  private function invokePlugin($coProvisioningTarget, $provisioningData, $action, $actorCoPersonId) {
     $pAction = $action; // We might override the provided action
     
     // Before we do anything else, see if this plugin is configured to only operate
@@ -611,7 +636,7 @@ class ProvisionerBehavior extends ModelBehavior {
               null,
               null,
               null,
-              CakeSession::read('Auth.User.co_person_id'),
+              $actorCoPersonId,
               ($pAction == ProvisioningActionEnum::CoEmailListReprovisionRequested
                ? ActionEnum::CoEmailListManuallyProvisioned
                : ActionEnum::CoEmailListProvisioned),
@@ -626,7 +651,7 @@ class ProvisionerBehavior extends ModelBehavior {
               null,
               null,
               null,
-              CakeSession::read('Auth.User.co_person_id'),
+              $actorCoPersonId,
               ($pAction == ProvisioningActionEnum::CoGroupReprovisionRequested
                ? ActionEnum::CoGroupManuallyProvisioned
                : ActionEnum::CoGroupProvisioned),
@@ -640,7 +665,7 @@ class ProvisionerBehavior extends ModelBehavior {
               $provisioningData['CoPerson']['id'],
               null,
               null,
-              CakeSession::read('Auth.User.co_person_id'),
+              $actorCoPersonId,
               ($pAction == ProvisioningActionEnum::CoPersonReprovisionRequested
                ? ActionEnum::CoPersonManuallyProvisioned
                : ActionEnum::CoPersonProvisioned),
@@ -658,7 +683,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                               ? $provisioningData['CoEmailList']['id'] : null),
                                              (!empty($provisioningData['CoService']['id'])
                                               ? $provisioningData['CoService']['id'] : null),
-                                             $e->getMessage());
+                                             $e->getMessage(),
+                                             $actorCoPersonId);
           
           throw new InvalidArgumentException($e->getMessage());
         }
@@ -672,7 +698,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                               ? $provisioningData['CoEmailList']['id'] : null),
                                              (!empty($provisioningData['CoService']['id'])
                                               ? $provisioningData['CoService']['id'] : null),
-                                             $e->getMessage());
+                                             $e->getMessage(),
+                                             $actorCoPersonId);
           
           throw new RuntimeException($e->getMessage());
         }
@@ -682,7 +709,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                     (!empty($provisioningData['CoPerson']['id'])
                                      ? $provisioningData['CoPerson']['id'] : null),
                                     (!empty($provisioningData['CoGroup']['id'])
-                                     ? $provisioningData['CoGroup']['id'] : null));
+                                     ? $provisioningData['CoGroup']['id'] : null),
+                                    $actorCoPersonId);
       } else {
         throw new InvalidArgumentException(_txt('er.copt.unk'));
       }
@@ -700,11 +728,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  Model $model CoPerson or CoGroup Model
    * @param  Array $provisioningData Data to pass to plugins, as returned by marshallCoPersonData() or marshallCoGroupData()
    * @param  ProvisioningActionEnum $action Action triggering provisioning
+   * @param  Integer $actorCoPersonId Actor CO Person ID
    * @return boolean true on success
    * @throws RuntimeException
    */
   
-  private function invokePlugins($model, $provisioningData, $action) {
+  private function invokePlugins($model, $provisioningData, $action, $actorCoPersonId=null) {
     $err = "";
     
     // Pull the Provisioning Targets for this CO. We use the CO ID from $provisioningData.
@@ -746,7 +775,8 @@ class ProvisionerBehavior extends ModelBehavior {
         try {
           $this->invokePlugin($target['CoProvisioningTarget'],
                               $provisioningData,
-                              $action);
+                              $action,
+                              $actorCoPersonId);
         }
         catch(InvalidArgumentException $e) {
           $err .= _txt('er.prov.plugin', array($target['CoProvisioningTarget']['description'], $e->getMessage())) . ";";
@@ -775,6 +805,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @param  integer $coEmailListId CO Email List to (re)provision
    * @param  integer $coGroupMemberId CO Group Member to (re)provision
+   * @param  integer $actorCoPersonId Actor CO Person ID
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -787,6 +818,7 @@ class ProvisionerBehavior extends ModelBehavior {
                                   $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
                                   $coEmailListId=null,
                                   $coGroupMemberId=null,
+                                  $actorCoPersonId=null,
                                   $coServiceId=null) {
     // First marshall the provisioning data
     $provisioningData = array();
@@ -830,7 +862,8 @@ class ProvisionerBehavior extends ModelBehavior {
         try {
           $this->invokePlugin($copt['CoProvisioningTarget'],
                               $provisioningData,
-                              $provisioningAction);
+                              $provisioningAction,
+                              $actorCoPersonId);
         }
         catch(InvalidArgumentException $e) {
           throw new InvalidArgumentException($e->getMessage());
@@ -858,7 +891,7 @@ class ProvisionerBehavior extends ModelBehavior {
         $model->id = $coServiceId;
       }
       
-      return $this->determineProvisioning($model, false, $provisioningAction);
+      return $this->determineProvisioning($model, false, $provisioningAction, $actorCoPersonId);
     }
     
     return true;
@@ -1193,11 +1226,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  Array                  $coEmailListIds     Array of Email List IDs to provision
    * @param  Boolean                $created            As passed to afterSave()
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @param  Integer                $actorCoPersonId    Actor CO Person ID
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  protected function provisionEmailLists($model, $coEmailListIds, $created, $provisioningAction) {
+  protected function provisionEmailLists($model, $coEmailListIds, $created, $provisioningAction, $actorCoPersonId=null) {
     foreach($coEmailListIds as $coEmailListId) {
       $emaillist = $this->marshallCoEmailListData($model, $coEmailListId);
       
@@ -1217,7 +1251,8 @@ class ProvisionerBehavior extends ModelBehavior {
       try {
         $this->invokePlugins($model,
                              $emaillist,
-                             $paction);
+                             $paction,
+                             $actorCoPersonId);
       }    
       // What we really want to do here is catch the result (success or exception)
       // and set the appropriate session flash message, but we don't have access to
@@ -1243,11 +1278,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  Boolean $created As passed to afterSave()
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @param  Integer $coPersonId CO Person who triggered group update, if relevant
+   * @param  Integer $actorCoPersonId Actor CO Person ID
    * @return Boolean
    * @throws InvalidArgumentException
    */
   
-  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $coPersonId=null) {
+  protected function provisionGroups($model, $gmodel, $coGroupIds, $created, $provisioningAction, $coPersonId=null, $actorCoPersonId=null) {
     foreach($coGroupIds as $coGroupId) {
       try {
         $pdata = $this->marshallCoGroupData($gmodel, $coGroupId, $coPersonId);
@@ -1268,7 +1304,8 @@ class ProvisionerBehavior extends ModelBehavior {
       try {
         $this->invokePlugins($gmodel,
                              $pdata,
-                             $paction);
+                             $paction,
+                             $actorCoPersonId);
       }    
       // What we really want to do here is catch the result (success or exception)
       // and set the appropriate session flash message, but we don't have access to
@@ -1299,11 +1336,12 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param Array $coPersonIds Array of person IDs to provision
    * @param Boolean $created As passed to afterSave()
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @param  Integer                $actorCoPersonId    Actor CO Person ID
    * @return Boolean
    * @throws InvalidArgumentException
    */
   
-  protected function provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction) {
+  protected function provisionPeople($model, $pmodel, $coPersonIds, $created, $provisioningAction, $actorCoPersonId=null) {
     foreach($coPersonIds as $cpid) {
       // $cpid could be null during a delete operation. If so, we're probably
       // in the process of removing a related model, so just skip it.
@@ -1360,7 +1398,8 @@ class ProvisionerBehavior extends ModelBehavior {
       try {
         $this->invokePlugins($pmodel,
                              $pdata,
-                             $paction);
+                             $paction,
+                             $actorCoPersonId);
       }    
       // What we really want to do here is catch the result (success or exception)
       // and set the appropriate session flash message, but we don't have access to
@@ -1392,6 +1431,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  integer $targetCoGroupId CO Group being provisioned
    * @param  integer $targetCoEmailListId CO Email List being provisioned
    * @param  string  $msg Error message
+   * @param  integer $actorCoPersonId Actor CO Person ID
    */
   
   protected function registerFailureNotification($coProvisionerTarget,
@@ -1399,7 +1439,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                                  $targetCoGroupId,
                                                  $targetCoEmailListId,
                                                  $targetCoServiceId,
-                                                 $msg) {
+                                                 $msg,
+                                                 $actorCoPersonId) {
     $Co = ClassRegistry::init('Co');
     
     if(!$targetCoEmailListId && !$targetCoServiceId) {
@@ -1434,7 +1475,7 @@ class ProvisionerBehavior extends ModelBehavior {
         // Register the notification
         $Co->CoPerson->CoNotificationSubject->register($targetCoPersonId,
                                                        $targetCoGroupId,
-                                                       CakeSession::read('Auth.User.co_person_id'),
+                                                       $actorCoPersonId,
                                                        'cogroup',
                                                        $cogr['CoGroup']['id'],
                                                        ActionEnum::ProvisionerFailed,
@@ -1449,7 +1490,7 @@ class ProvisionerBehavior extends ModelBehavior {
       $Co->CoPerson->HistoryRecord->record($targetCoPersonId,
                                            null,
                                            null,
-                                           CakeSession::read('Auth.User.co_person_id'),
+                                           $actorCoPersonId,
                                            ActionEnum::ProvisionerFailed,
                                            _txt('er.prov.plugin', array($coProvisionerTarget['description'], $msg)),
                                            $targetCoGroupId,
@@ -1468,11 +1509,13 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  integer $coProvisionerTargetId CO Provisioner Target invoked
    * @param  integer $targetCoPersonId CO Person being provisioned
    * @param  integer $targetCoGroupId CO Group being provisioned
+   * @param  integer $actorCoPersonId Actor CO Person ID
    */
   
   protected function resolveNotifications($coProvisionerTargetId,
                                           $targetCoPersonId,
-                                          $targetCoGroupId) {
+                                          $targetCoGroupId,
+                                          $actorCoPersonId=null) {
     $CoNotification = ClassRegistry::init('CoNotification');
     
     // Assemble the source array for the notification
@@ -1495,6 +1538,6 @@ class ProvisionerBehavior extends ModelBehavior {
     $src['val0'] = $coProvisionerTargetId;
     
     // Resolve any outstanding notifications
-    $CoNotification->resolveFromSource($src, CakeSession::read('Auth.User.co_person_id'));
+    $CoNotification->resolveFromSource($src, $actorCoPersonId);
   }
 }

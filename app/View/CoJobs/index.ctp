@@ -49,7 +49,16 @@
       <?php $i = 0; ?>
       <?php foreach ($co_jobs as $c): ?>
       <tr class="line<?php print ($i % 2)+1; ?>">
-        <td><?php print _txt('en.job.type', null, $c['CoJob']['job_type']); ?></td>
+        <td>
+          <?php 
+            // XXX CO-1310 simplify
+            if(strlen($c['CoJob']['job_type'])==2) {
+              print _txt('en.job.type', null, $c['CoJob']['job_type']);
+            } else {
+              print filter_var($c['CoJob']['job_type'], FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+          ?>
+        </td>
         <td><?php print $this->Html->link(_txt('en.status.job', null, $c['CoJob']['status']),
                                           array(
                                             'controller' => 'co_jobs',

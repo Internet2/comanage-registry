@@ -46,6 +46,25 @@ class CoJobsController extends StandardController {
   );
   
   /**
+   * Perform filtering of COU parent options for dropdown.
+   * - postcondition: parent_options set
+   *
+   * @since  COmanage Registry v0.3
+   */
+
+  function beforeRender() {
+    parent::beforeRender();
+    
+    if($this->action == 'view') {
+      if(in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+        // Request the page auto-refresh
+        
+        $this->set('vv_refresh_interval', 15);
+      }
+    }
+  }
+  
+  /**
    * Cancel the specified Job. Note that while the Job status is updated to canceled, it is
    * up to the running process to detect the status change and actually stop.
    *
