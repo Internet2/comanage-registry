@@ -169,7 +169,7 @@
 
                 // Groups
                 // Show the groups link too, if permissions allow
-                if (isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
+                if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
                   $args = array(
                     'plugin' => '',
                     'controller' => 'co_groups',
@@ -220,24 +220,24 @@
         if(!empty($menuContent['plugins'])) {
           $userPluginsExist = false;
           foreach(array_keys($menuContent['plugins']) as $plugin) {
-            if (isset($menuContent['plugins'][$plugin]['coperson'])) {
+            if(isset($menuContent['plugins'][$plugin]['coperson'])) {
               $userPluginsExist = true;
               break;
             }
           }
-          if ($userPluginsExist) {
+          if($userPluginsExist) {
             print '<div id="user-panel-plugins-container">';
             print '<h2>' . _txt('me.plugins') . '</h2>';
             print '<ul id="user-panel-plugins">';
-            foreach (array_keys($menuContent['plugins']) as $plugin) {
-              if (isset($menuContent['plugins'][$plugin]['coperson'])) {
-                foreach (array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
+            foreach(array_keys($menuContent['plugins']) as $plugin) {
+              if(isset($menuContent['plugins'][$plugin]['coperson'])) {
+                foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
                   print '<li>';
                     print '<span class="user-plugin-label">' . $label . '</span>';
                     print '<ul>';
   
-                    foreach ($menuContent['cos'] as $co) {
-                      if (empty($co['co_person_id'])) {
+                    foreach($menuContent['cos'] as $co) {
+                      if(empty($co['co_person_id'])) {
                         continue;
                       }
   
