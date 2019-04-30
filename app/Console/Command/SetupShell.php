@@ -133,15 +133,6 @@
       if(isset($db->config['prefix']))
         $prefix = $db->config['prefix'];
       
-      $this->out("- " . _txt('se.users.view'));
-      $this->Identifier->query("CREATE VIEW " . $prefix . "users AS
-SELECT a.username as username, a.password as password, a.id as api_user_id
-FROM cm_api_users a
-UNION SELECT i.identifier as username, '*' as password, null as api_user_id
-FROM cm_identifiers i
-WHERE i.login=true;
-");
-      
       // We need the following:
       // - The COmanage CO
       // - An OrgIdentity representing the administrator

@@ -419,16 +419,7 @@ $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
       print '<span class="mdl-ripple"></span>';
       print '</a>';
       print '<ul aria-expanded="false" class="collapse">';
-
-      print '<li class="mdl-js-ripple-effect">';
-      $args = array();
-      $args['plugin'] = null;
-      $args['controller'] = 'api_users';
-      $args['action'] = 'index';
-      print $this->Html->link(_txt('ct.api_users.pl'), $args);
-      print '<span class="mdl-ripple"></span>';
-      print '</li>';
-
+      
       if($pool_org_identities) {
         print '<li class="mdl-js-ripple-effect">';
         $args = array();

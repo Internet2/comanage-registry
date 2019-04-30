@@ -37,45 +37,200 @@
     return false;
 
   // Add breadcrumbs
-  $this->Html->addCrumb(_txt('ct.api_users.pl'), array('controller' => 'api_users', 'action' => 'index'));
+  $this->Html->addCrumb(_txt('ct.api_users.pl'), array('controller' => 'api_users', 'action' => 'index', 'co' => $cur_co['Co']['id']));
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.api_users.1')));
   $this->Html->addCrumb($crumbTxt);
 
+  // Inject the CO ID
+  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id']));
 ?>
+<?php if($cur_co['Co']['id'] == 1): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('ap.note.privs'); ?>
+  <?php print _txt('in.api.cmp'); ?>
 </div>
-
+<?php endif; // co_id == 1 ?>
 <ul id="<?php print $this->action; ?>_api_users" class="fields form-list">
   <li>
     <div class="field-name vtop">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('username', _txt('fd.username.api')) : _txt('fd.username.api')); ?>
+        <?php print ($e ? $this->Form->label('username', _txt('fd.api.username')) : _txt('fd.api.username')); ?>
         <span class="required">*</span>
       </div>
+      <div class="field-desc"><?php print _txt('fd.api.username.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e
-        ? $this->Form->input('username', array('class' => 'focusFirst'))
+        ? $this->Form->input('username', array('class' => 'focusFirst', 'default' => $cur_co['Co']['name'].'.'))
         : filter_var($api_users[0]['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      <span class="ui-icon ui-icon-info co-info"></span>
-      <span class="desc"><?php print _txt('ap.note.username'); ?></span>
     </div>
   </li>
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('password', _txt('fd.password')) : _txt('fd.password')); ?>
+        <?php print ($e ? $this->Form->label('password', _txt('fd.api.key')) : _txt('fd.api.key')); ?>
+        <span class="required">*</span>
+      </div>
+      <?php if($this->action == 'add'): ?>
+      <div class="field-desc"><?php print _txt('fd.api.key.desc'); ?></div>
+    <?php endif; // add ?>
+    </div>
+    <div class="field-info">
+      <?php
+        print (!empty($api_users[0]['ApiUser']['password']) ? _txt('fd.set') : _txt('fd.set.not'));
+        
+        if($permissions['generate'] && !empty($api_users[0]['ApiUser']['id'])) {
+          print '<button type="button" class="provisionbutton" title="' . _txt('op.api.key.generate')
+            . '" onclick="javascript:js_confirm_generic(\''
+            . _txt('op.api.key.confirm') . '\',\''    // dialog body text
+            . $this->Html->url(              // dialog confirm URL
+                array(
+                  'controller'   => 'api_users',
+                  'action'       => 'generate',
+                  $api_users[0]['ApiUser']['id']
+                )
+              ) . '\',\''
+            . _txt('op.api.key.generate') . '\',\''    // dialog confirm button
+            . _txt('op.cancel') . '\',\''    // dialog cancel button
+            . _txt('op.api.key.generate') . '\',[\''   // dialog title
+            . ''  // dialog body text replacement strings
+            . '\']);">'
+            . _txt('op.api.key.generate')
+            . '</button>';
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.status'); ?>
         <span class="required">*</span>
       </div>
     </div>
     <div class="field-info">
-      <?php print ($e
-                   ? $this->Form->password('password')
-        : filter_var($api_users[0]['ApiUser']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($api_users[0]['ApiUser']['status'])
+                           ? $api_users[0]['ApiUser']['status']
+                           : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
+          }
+        } else {
+          print _txt('en.status', null, $api_users[0]['ApiUser']['status']);
+        }
+      ?>
     </div>
   </li>
+  <li class="modelbox-data">
+    <div class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('valid_from', _txt('fd.valid_from.tz', array($vv_tz)));
+        } else {
+          print _txt('fd.valid_from');
+        }
+      ?><br />
+      <span class="field-descr"><?php print _txt('fd.valid_from.desc'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php
+        if($e) {
+          $args = array(
+            'class' => 'datepicker-f'
+          );
+
+          if(!empty($api_users[0]['ApiUser']['valid_from'])) {
+            if(!empty($vv_tz)) {
+              // We need to adjust the UTC value to the user's local time
+              $args['value'] = $this->Time->format($api_users[0]['ApiUser']['valid_from'], "%F %T", false, $vv_tz);
+            } else {
+              $args['value'] = $api_users[0]['ApiUser']['valid_from'];
+            }
+          }
+
+          print $this->Form->text('valid_from', $args);
+        } else {
+          if(!empty($api_users[0]['ApiUser']['valid_from'])) {
+            print $this->Time->format($api_users[0]['ApiUser']['valid_from'], "%c $vv_tz", false, $vv_tz);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li class="modelbox-data">
+    <div class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('valid_through', _txt('fd.valid_through.tz', array($vv_tz)));
+        } else {
+          print _txt('fd.valid_through');
+        }
+      ?><br />
+      <span class="field-descr"><?php print _txt('fd.valid_through.desc'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php
+        if($e) {
+          $args = array(
+            'class' => 'datepicker-u'
+          );
+
+          if(!empty($api_users[0]['ApiUser']['valid_through'])) {
+            if(!empty($vv_tz)) {
+              // We need to adjust the UTC value to the user's local time
+              $args['value'] = $this->Time->format($api_users[0]['ApiUser']['valid_through'], "%F %T", false, $vv_tz);
+            } else {
+              $args['value'] = $api_users[0]['ApiUser']['valid_through'];
+            }
+          }
+
+          print $this->Form->text('valid_through', $args);
+        } else {
+          if(!empty($api_users[0]['ApiUser']['valid_through'])) {
+            print $this->Time->format($api_users[0]['ApiUser']['valid_through'], "%c $vv_tz", false, $vv_tz);
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('remote_ip', _txt('fd.ip')) : _txt('fd.ip')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.api.ip.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('remote_ip')
+        : filter_var($api_users[0]['ApiUser']['remote_ip'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <?php if($cur_co['Co']['id'] > 1): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('privileged', _txt('fd.api.priv')) : _txt('fd.api.priv')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.api.priv.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print $this->Form->input('privileged'); ?>
+    </div>
+  </li>
+  <?php else: // co > 1 ?>
+    <?php print $this->Form->hidden('privileged', array('default' => true)); ?>
+  <?php endif; // co > 1 ?>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

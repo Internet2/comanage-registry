@@ -385,7 +385,7 @@ class RoleComponent extends Component {
    * - admin: Valid admin in any CO
    * - subadmin: Valid admin for any COU
    * - user: Valid user in any CO (ie: to the platform)
-   * - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
+   * - apiuser: Valid API (REST) user (not necessarily for the current CO)
    * - orgidentityid: Org Identity ID of current user (or false)
    * - copersonid: CO Person ID of current user in current CO (or false, including if co person is not in current CO)
    * - orgidentities: Array of Org Identities for current user
@@ -420,11 +420,30 @@ class RoleComponent extends Component {
       $username = $this->Session->read('Auth.User.username');
     }
     
+    // Pull the current CO from our invoking controller
+    $controller = $this->_Collection->getController();
+    
+    if(!empty($controller->cur_co['Co']['id'])) {
+      $coId = $controller->cur_co['Co']['id'];
+    } else {
+      $coId = $controller->parseCOID();
+    }
+    
     // API user or Org Person?
     
-    if($this->Session->check('Auth.User.api_user_id')) {
+    if($this->Session->check('Auth.User.api')) {
       $ret['apiuser'] = true;
-      $ret['cmadmin'] = true;  // API users are currently platform admins (CO-91)
+      
+      $authCoId = $this->Session->read('Auth.User.co_id');
+      $privd = $this->Session->read('Auth.User.privileged');
+      
+      if($authCoId == 1) {
+        // API users in CO 1 are given platform privileges
+        $ret['cmadmin'] = true;
+      } elseif(($coId == $authCoId) && $privd) {
+        // Privileged users in other COs are given CO privileges
+        $ret['coadmin'] = true;
+      }
       
       // Return here to avoid triggering a bunch of RoleComponent queries that
       // may fail since api users are not currently enrolled in any CO.
@@ -438,15 +457,6 @@ class RoleComponent extends Component {
     
     if($username != null) {
       $ret['cmadmin'] = $this->identifierIsCmpAdmin($username);
-    }
-    
-    // Pull the current CO from our invoking controller
-    $controller = $this->_Collection->getController();
-    
-    if(!empty($controller->cur_co['Co']['id'])) {
-      $coId = $controller->cur_co['Co']['id'];
-    } else {
-      $coId = $controller->parseCOID();
     }
     
     // Figure out the revelant CO Person ID for the current user and the current CO

@@ -118,6 +118,22 @@ class CoInvitesController extends AppController {
    */
   
   protected function calculateImpliedCoId($data = null) {
+    if($this->action == "add" && !empty($data['co_person_id'])) {
+      // For historical reasons, CO ID is also passed in, but we need to ignore
+      // it and lookup via the CO Person ID.
+      
+      $coId = $this->CoInvite->CoPerson->field('co_id',
+                                               array('id' => $data['co_person_id']));
+      
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.co_people.1'),
+                                                      filter_var($data['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))));
+      }
+    }
+    
     if($this->action == "confirm" || $this->action == "authconfirm") {
       // Identifier assignment requires the CO ID to be set, but since CO ID isn't
       // provided as an explicit parameter, beforeFilter can't find it.
@@ -249,7 +265,7 @@ class CoInvitesController extends AppController {
     // Determine what operations this user can perform
     
     // Send an invite? (REST only)
-    $p['add'] = $roles['apiuser'];
+    $p['add'] = $roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']);
     
     // Confirm an invite? (HTML, auth required)
     $p['authconfirm'] = true;
@@ -264,7 +280,7 @@ class CoInvitesController extends AppController {
     $p['decline'] = true;
     
     // Confirm or decline an invite? (REST only)
-    $p['index'] = $roles['apiuser'];
+    $p['index'] = $roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']);
     
     // Reply to an invite? (HTML only)
     $p['reply'] = true;

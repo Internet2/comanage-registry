@@ -49,10 +49,6 @@ $cm_texts['en_US'] = array(
   // What an Org is called
   'org' =>            'Organization',
   
-  // API User texts
-  'ap.note.privs' =>  'API Users are currently given full privileges to all Registry data. This is subject to change in a future release (<a href="https://bugs.internet2.edu/jira/browse/CO-91">CO-91</a>).',
-  'ap.note.username' => 'The API username selected here cannot conflict with any identifier used by anyone to login to the platform',
-  
   // Authnz
   'au.not' =>         'Not Logged In',
   
@@ -831,6 +827,7 @@ original notification at
   // Errors
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.archived' =>    'This record is already archived and cannot be edited',
+  'er.api.username.prefix' => 'API username must begin with "%1$s"',
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
@@ -1044,6 +1041,13 @@ original notification at
   'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.at.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
   'fd.all' =>         'All',
   'fd.an.desc' =>     'Alphanumeric characters only',
+  'fd.api.key' =>     'API Key',
+  'fd.api.key.desc' => 'The API Key can be generated after creating the API User',
+  'fd.api.ip.desc' => 'If specified, a <a href="https://www.php.net/manual/en/reference.pcre.pattern.syntax.php">regular expression</a> describing the IP address(es) from which this API User may connect. Be sure to escape dots (eg: "/10\.0\.1\.150/").',
+  'fd.api.priv' =>    'Privileged',
+  'fd.api.priv.desc' => 'A privileged API user has full access to the CO. Unprivileged API users may be granted specific permissions where supported.',
+  'fd.api.username' => 'API User Name',
+  'fd.api.username.desc' => 'The API User Name must be prefixed with the name of the CO followed by a dot',
   'fd.approver' =>    'Approver',
   'fd.archived' =>    'Archived',
   'fd.attribute' =>   'Attribute',
@@ -1564,7 +1568,6 @@ original notification at
   'fd.url.url' =>     'URL',
   'fd.url.url.desc' => 'URL, including protocol (ie: http://myvo.org, not just myvo.org)',
   'fd.url' =>         'URL',
-  'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
   'fd.valid_from.desc' => 'Leave blank for immediate validity',
   'fd.valid_from.tz' => 'Valid From (%1$s)',
@@ -1612,6 +1615,8 @@ original notification at
   'fd.yes' =>         'Yes',
 
   // Informational messages
+  'in.api.cmp'         => 'API Users created in the COmanage CO are given full privileges to all Registry data.',
+  'in.api.key'         => 'This newly generated API Key cannot be recovered. If it is lost a new key must be generated.',
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.id.prov'         => 'This identifier was created by the %1$s Provisioning Target. Editing it may cause operational inconsistencies if the change is not coordinated with the target.',
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
@@ -1692,6 +1697,8 @@ original notification at
   'op.add' =>         'Add',
   'op.add-a' =>       'Add %1$s',
   'op.add.new' =>     'Add a New %1$s',
+  'op.api.key.generate' => 'Generate API Key',
+  'op.api.key.confirm' => 'Are you sure you wish to generate a new API Key?',
   'op.approve' =>     'Approve',
   'op.back' =>        'Back',
   'op.begin' =>       'Begin',
@@ -2080,7 +2087,9 @@ original notification at
   'sh.ug.110.gr' =>       'Renaming and reconciling automatic groups (please wait, this may take some time)',
   'sh.ug.110.is' =>       'Updating inactive identifier status',
   'sh.ug.310.url' =>      'Instantiating default URL Extended Types',
+  'sh.ug.330.api' =>      'Updating API User Permissions',
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
+  'sh.ug.330.users' =>    'Dropping users View',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

@@ -108,217 +108,210 @@ class UsersController extends AppController {
       $u = $this->Session->read('Auth.User.username');
       
       if(!empty($u)) {
-        if(!$this->Session->check('Auth.User.api_user_id')) {
-          // This is an Org Identity. Figure out which Org Identities this username
-          // (identifier) is associated with. First, pull the identifiers.
+        // This is an Org Identity. Figure out which Org Identities this username
+        // (identifier) is associated with. First, pull the identifiers.
+        
+        // We use $oargs here instead of $args because we may reuse this below
+        $oargs = array();
+        $oargs['joins'][0]['table'] = 'identifiers';
+        $oargs['joins'][0]['alias'] = 'Identifier';
+        $oargs['joins'][0]['type'] = 'INNER';
+        $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+        $oargs['conditions']['Identifier.identifier'] = $u;
+        $oargs['conditions']['Identifier.login'] = true;
+        // Join on identifiers that aren't deleted (including if they have no status)
+        $oargs['conditions']['OR'][] = 'Identifier.status IS NULL';
+        $oargs['conditions']['OR'][]['Identifier.status <>'] = SuspendableStatusEnum::Suspended;
+        // As of v2.0.0, OrgIdentities have validity dates, so only accept valid dates (if specified)
+        // Through the magic of containable behaviors, we can get all the associated
+        $oargs['conditions']['AND'][] = array(
+          'OR' => array(
+            'OrgIdentity.valid_from IS NULL',
+            'OrgIdentity.valid_from < ' => date('Y-m-d H:i:s', time())
+          )
+        );
+        $oargs['conditions']['AND'][] = array(
+          'OR' => array(
+            'OrgIdentity.valid_through IS NULL',
+            'OrgIdentity.valid_through > ' => date('Y-m-d H:i:s', time())
+          )
+        );
+        // data we need in one clever find
+        $oargs['contain'][] = 'PrimaryName';
+        $oargs['contain'][] = 'Identifier';
+        $oargs['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
+        $oargs['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
+        $oargs['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
+        
+        $orgIdentities = $this->OrgIdentity->find('all', $oargs);
+        
+        // Grab the org IDs and CO information
+        $orgs = array();
+        $cos = array();
+        
+        // XXX deprecated as of 3.1.0, remove in 4.0.0
+        // Determine if we are collecting authoritative attributes from $ENV
+        // (the only support mechanism at the moment). If so, this will be an array
+        // of those value. If not, false.
+        $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
+        
+        if(!empty($envValues)) {
+          // Walk through the Org Identities and update any configured/collected attributes.
+          // Track if we made any changes.
           
-          // We use $oargs here instead of $args because we may reuse this below
-          $oargs = array();
-          $oargs['joins'][0]['table'] = 'identifiers';
-          $oargs['joins'][0]['alias'] = 'Identifier';
-          $oargs['joins'][0]['type'] = 'INNER';
-          $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
-          $oargs['conditions']['Identifier.identifier'] = $u;
-          $oargs['conditions']['Identifier.login'] = true;
-          // Join on identifiers that aren't deleted (including if they have no status)
-          $oargs['conditions']['OR'][] = 'Identifier.status IS NULL';
-          $oargs['conditions']['OR'][]['Identifier.status <>'] = SuspendableStatusEnum::Suspended;
-          // As of v2.0.0, OrgIdentities have validity dates, so only accept valid dates (if specified)
-          // Through the magic of containable behaviors, we can get all the associated
-          $oargs['conditions']['AND'][] = array(
-            'OR' => array(
-              'OrgIdentity.valid_from IS NULL',
-              'OrgIdentity.valid_from < ' => date('Y-m-d H:i:s', time())
-            )
-          );
-          $oargs['conditions']['AND'][] = array(
-            'OR' => array(
-              'OrgIdentity.valid_through IS NULL',
-              'OrgIdentity.valid_through > ' => date('Y-m-d H:i:s', time())
-            )
-          );
-          // data we need in one clever find
-          $oargs['contain'][] = 'PrimaryName';
-          $oargs['contain'][] = 'Identifier';
-          $oargs['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
-          $oargs['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
-          $oargs['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
+          $orgIdentityChanged = false;
           
-          $orgIdentities = $this->OrgIdentity->find('all', $oargs);
-          
-          // Grab the org IDs and CO information
-          $orgs = array();
-          $cos = array();
-          
-          // XXX deprecated as of 3.1.0, remove in 4.0.0
-          // Determine if we are collecting authoritative attributes from $ENV
-          // (the only support mechanism at the moment). If so, this will be an array
-          // of those value. If not, false.
-          $envValues = $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv();
-          
-          if(!empty($envValues)) {
-            // Walk through the Org Identities and update any configured/collected attributes.
-            // Track if we made any changes.
-            
-            $orgIdentityChanged = false;
-            
-            foreach($orgIdentities as $o) {
-              if(!empty($o['Identifier'])) {
-                // Does this org identity's identifier match the authenticated identifier?
-                
-                foreach($o['Identifier'] as $i) {
-                  if(isset($i['login']) && $i['login']
-                     && !empty($i['status']) && $i['status'] == StatusEnum::Active
-                     && !empty($i['identifier'])
-                     && $i['identifier'] == $u) {
-                    // We have a match, possibly update associated attributes
+          foreach($orgIdentities as $o) {
+            if(!empty($o['Identifier'])) {
+              // Does this org identity's identifier match the authenticated identifier?
+              
+              foreach($o['Identifier'] as $i) {
+                if(isset($i['login']) && $i['login']
+                   && !empty($i['status']) && $i['status'] == StatusEnum::Active
+                   && !empty($i['identifier'])
+                   && $i['identifier'] == $u) {
+                  // We have a match, possibly update associated attributes
+                  
+                  $newOrgIdentity = $this->OrgIdentity->updateFromEnv($o['OrgIdentity']['id'], $envValues);
+                  
+                  if(!empty($newOrgIdentity)) {
+                    // Update our session store with the new values
                     
-                    $newOrgIdentity = $this->OrgIdentity->updateFromEnv($o['OrgIdentity']['id'], $envValues);
-                    
-                    if(!empty($newOrgIdentity)) {
-                      // Update our session store with the new values
-                      
-                      $orgIdentityChanged = true;
-                    }
-                    
-                    // No need to walk through any other identifiers attached to this org identity
-                    break;
+                    $orgIdentityChanged = true;
                   }
+                  
+                  // No need to walk through any other identifiers attached to this org identity
+                  break;
                 }
               }
             }
-            
-            if($orgIdentityChanged) {
-              // Simply reread the org identities... this is easier than trying to
-              // collate the new identity into the old one. (We don't track all potentially
-              // updated attributes in the session.)
-              
-              $orgIdentities = $this->OrgIdentity->find('all', $oargs);
-            }
           }
           
-          foreach($orgIdentities as $o) {
-            $orgs[] = array(
-              'org_id' => $o['OrgIdentity']['id'],
-              'co_id' => $o['OrgIdentity']['co_id']
+          if($orgIdentityChanged) {
+            // Simply reread the org identities... this is easier than trying to
+            // collate the new identity into the old one. (We don't track all potentially
+            // updated attributes in the session.)
+            
+            $orgIdentities = $this->OrgIdentity->find('all', $oargs);
+          }
+        }
+        
+        foreach($orgIdentities as $o) {
+          $orgs[] = array(
+            'org_id' => $o['OrgIdentity']['id'],
+            'co_id' => $o['OrgIdentity']['co_id']
+          );
+          
+          foreach($o['CoOrgIdentityLink'] as $l)
+          {
+            // If org identities are pooled, OrgIdentity:co_id will be null, so look at
+            // the identity links to get the COs (via CO Person).
+            
+            $cos[ $l['CoPerson']['Co']['name'] ] = array(
+              'co_id' => $l['CoPerson']['Co']['id'],
+              'co_name' => $l['CoPerson']['Co']['name'],
+              'co_person_id' => $l['co_person_id'],
+              'co_person' => $l['CoPerson']
             );
             
-            foreach($o['CoOrgIdentityLink'] as $l)
-            {
-              // If org identities are pooled, OrgIdentity:co_id will be null, so look at
-              // the identity links to get the COs (via CO Person).
-              
-              $cos[ $l['CoPerson']['Co']['name'] ] = array(
-                'co_id' => $l['CoPerson']['Co']['id'],
-                'co_name' => $l['CoPerson']['Co']['name'],
-                'co_person_id' => $l['co_person_id'],
-                'co_person' => $l['CoPerson']
-              );
-              
-              // And assemble the Group Memberships
-              
+            // And assemble the Group Memberships
+            
+            $params = array(
+              'conditions' => array(
+                'CoGroupMember.co_person_id' => $l['co_person_id'],
+                'AND' => array(
+                  array('OR' => array(
+                    'CoGroupMember.valid_from IS NULL',
+                    'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+                  )),
+                  array('OR' => array(
+                    'CoGroupMember.valid_through IS NULL',
+                    'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+                  ))
+                )
+              ),
+              'contain' => false
+            );
+            $memberships = $this->CoGroupMember->find('all', $params);
+            
+            foreach($memberships as $m){
               $params = array(
                 'conditions' => array(
-                  'CoGroupMember.co_person_id' => $l['co_person_id'],
-                  'AND' => array(
-                    array('OR' => array(
-                      'CoGroupMember.valid_from IS NULL',
-                      'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-                    )),
-                    array('OR' => array(
-                      'CoGroupMember.valid_through IS NULL',
-                      'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-                    ))
-                  )
+                  'CoGroup.id' => $m['CoGroupMember']['co_group_id']
                 ),
                 'contain' => false
               );
-              $memberships = $this->CoGroupMember->find('all', $params);
+              $result = $this->CoGroup->find('first', $params);
               
-              foreach($memberships as $m){
-                $params = array(
-                  'conditions' => array(
-                    'CoGroup.id' => $m['CoGroupMember']['co_group_id']
-                  ),
-                  'contain' => false
+              if(!empty($result)) {
+                $group = $result['CoGroup'];
+                
+                $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $group['name'] ] = array(
+                  'co_group_id' => $m['CoGroupMember']['co_group_id'],
+                  'name' => $group['name'],
+                  'member' => $m['CoGroupMember']['member'],
+                  'owner' => $m['CoGroupMember']['owner']
                 );
-                $result = $this->CoGroup->find('first', $params);
-                
-                if(!empty($result)) {
-                  $group = $result['CoGroup'];
-                  
-                  $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $group['name'] ] = array(
-                    'co_group_id' => $m['CoGroupMember']['co_group_id'],
-                    'name' => $group['name'],
-                    'member' => $m['CoGroupMember']['member'],
-                    'owner' => $m['CoGroupMember']['owner']
-                  );
-                }
               }
             }
           }
-          
-          $this->Session->write('Auth.User.org_identities', $orgs);
-          $this->Session->write('Auth.User.cos', $cos);
-          
-          // Use the primary organizational name as the session name.
-          
-          if(isset($orgIdentities[0]['PrimaryName'])) {
-            $this->Session->write('Auth.User.name', $orgIdentities[0]['PrimaryName']);
-          }
-          
-          // Determine if there are any pending T&Cs
-          
-          foreach($cos as $co) {
-            // First see if T&Cs are enforced at login for this CO
-            
-            if($this->CoSetting->getTAndCLoginMode($co['co_id']) == TAndCLoginModeEnum::RegistryLogin) {
-              $pending = $this->CoTermsAndConditions->pending($co['co_person_id']);
-              
-              if(!empty($pending)) {
-                // Store the pending T&C in the session so that beforeFilter() can check it.
-                // This isn't ideal, but should be preferable to beforeFilter performing the
-                // check before every action. It also means T&C are enforced once per login
-                // rather than if the T&C change in the middle of a user's session.
-                
-                $this->Session->write('Auth.User.tandc.pending.' . $co['co_id'], $pending);
-              }
-            }
-          }
-          
-          // Determine last login for the identifier. Do this before we record
-          // the current login. We don't currently check identifiers associated with
-          // other Org Identities because doing so would be a bit challenging...
-          // we're logging in at a platform level, which COs do we query? For now,
-          // someone who wants more login details can view them via their canvas.
-          
-          $lastlogins = array();
-          
-          if(!empty($orgIdentities[0]['Identifier'])) {
-            foreach($orgIdentities[0]['Identifier'] as $id) {
-              if(!empty($id['identifier']) && isset($id['login']) && $id['login']) {
-                $lastlogins[ $id['identifier'] ] = $this->AuthenticationEvent->lastlogin($id['identifier']);
-              }
-            }
-          }
-          
-          $this->Session->write('Auth.User.lastlogin', $lastlogins);
-          
-          // Record the login
-          $this->AuthenticationEvent->record($u, AuthenticationEventEnum::RegistryLogin, $_SERVER['REMOTE_ADDR']);
-          
-          // Update Org Identities associated with an Enrollment Source, if configured.
-          // Note we're performing CO specific work here, even though we're not in a CO context yet.
-          
-          $this->OrgIdentitySource->syncByIdentifier($u);
-          
-          $this->redirect($this->Auth->redirectUrl());
-        } else {
-          // This is an API user. We don't do anything special at the moment, other
-          // than record the login event
-          
-          $this->AuthenticationEvent->record($u, AuthenticationEventEnum::ApiLogin, $_SERVER['REMOTE_ADDR']);
         }
+        
+        $this->Session->write('Auth.User.org_identities', $orgs);
+        $this->Session->write('Auth.User.cos', $cos);
+        
+        // Use the primary organizational name as the session name.
+        
+        if(isset($orgIdentities[0]['PrimaryName'])) {
+          $this->Session->write('Auth.User.name', $orgIdentities[0]['PrimaryName']);
+        }
+        
+        // Determine if there are any pending T&Cs
+        
+        foreach($cos as $co) {
+          // First see if T&Cs are enforced at login for this CO
+          
+          if($this->CoSetting->getTAndCLoginMode($co['co_id']) == TAndCLoginModeEnum::RegistryLogin) {
+            $pending = $this->CoTermsAndConditions->pending($co['co_person_id']);
+            
+            if(!empty($pending)) {
+              // Store the pending T&C in the session so that beforeFilter() can check it.
+              // This isn't ideal, but should be preferable to beforeFilter performing the
+              // check before every action. It also means T&C are enforced once per login
+              // rather than if the T&C change in the middle of a user's session.
+              
+              $this->Session->write('Auth.User.tandc.pending.' . $co['co_id'], $pending);
+            }
+          }
+        }
+        
+        // Determine last login for the identifier. Do this before we record
+        // the current login. We don't currently check identifiers associated with
+        // other Org Identities because doing so would be a bit challenging...
+        // we're logging in at a platform level, which COs do we query? For now,
+        // someone who wants more login details can view them via their canvas.
+        
+        $lastlogins = array();
+        
+        if(!empty($orgIdentities[0]['Identifier'])) {
+          foreach($orgIdentities[0]['Identifier'] as $id) {
+            if(!empty($id['identifier']) && isset($id['login']) && $id['login']) {
+              $lastlogins[ $id['identifier'] ] = $this->AuthenticationEvent->lastlogin($id['identifier']);
+            }
+          }
+        }
+        
+        $this->Session->write('Auth.User.lastlogin', $lastlogins);
+        
+        // Record the login
+        $this->AuthenticationEvent->record($u, AuthenticationEventEnum::RegistryLogin, $_SERVER['REMOTE_ADDR']);
+        
+        // Update Org Identities associated with an Enrollment Source, if configured.
+        // Note we're performing CO specific work here, even though we're not in a CO context yet.
+        
+        $this->OrgIdentitySource->syncByIdentifier($u);
+        
+        $this->redirect($this->Auth->redirectUrl());
       } else {
         throw new RuntimeException(_txt('er.auth.empty'));
       }

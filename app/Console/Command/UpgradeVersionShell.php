@@ -28,6 +28,7 @@
 class UpgradeVersionShell extends AppShell {
   var $uses = array('Meta',
                     'Address',
+                    'ApiUser',
                     'CmpEnrollmentConfiguration',
                     'Co',
                     'CoEnrollmentAttributeDefault',
@@ -397,5 +398,28 @@ class UpgradeVersionShell extends AppShell {
       
       $this->SshKeyAuthenticator->_ug330($co['Co']['id']);
     }
+    
+    // The users view is no longer required.
+    $prefix = "";
+    $db = ConnectionManager::getDataSource('default');
+
+    if(isset($db->config['prefix'])) {
+      $prefix = $db->config['prefix'];
+    }
+    
+    $this->out(_txt('sh.ug.330.users'));
+    $this->Co->query("DROP VIEW " . $prefix . "users");
+    
+    // API Users is now more configurable. Set existing api users to be
+    // active and fully privileged.
+    $this->out(_txt('sh.ug.330.ssh'));
+    $this->ApiUser->updateAll(
+      array(
+        'ApiUser.co_id' => 1,
+        'ApiUser.privileged' => true,
+        'ApiUser.status' => "'A'"  // Wacky updateAll syntax
+      ),
+      true
+    );
   }
 }

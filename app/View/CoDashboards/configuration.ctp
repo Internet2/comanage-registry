@@ -37,6 +37,12 @@
   
   // For everything except CO Settings, we want to order by the localized text string.
   $configMenuItems = array(
+    _txt('ct.api_users.pl') => array(
+      'icon'          => 'vpn_key',
+      'permissionKey' => 'api_users',
+      'controller'    => 'api_users',
+      'action'        => 'index'
+    ),
     _txt('ct.attribute_enumerations.pl') => array(
       'icon'          => 'format_list_numbered',
       'permissionKey' => 'coattrenums',

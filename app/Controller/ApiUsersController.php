@@ -41,51 +41,49 @@ class ApiUsersController extends StandardController {
   
   public $uses = array('ApiUser', 'Identifier');
 
+  // This controller needs a CO to be set
+  public $requires_co = true;
+  
   /**
-   * Perform any dependency checks required prior to a write (add/edit) operation.
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   * Callback before other controller methods are invoked or views are rendered.
+   * - precondition:
+   * - postcondition: Auth component is configured
+   * - postcondition:
    *
-   * @since  COmanage Registry v0.8.4
-   * @param  Array Request data
-   * @param  Array Current data
-   * @return boolean true if dependency checks succeed, false otherwise.
+   * @since  COmanage Registry v3.3.0
+   * @throws UnauthorizedException (REST)
+   */
+
+  function beforeFilter() {
+    parent::beforeFilter();
+
+    if(!empty($this->viewVars['vv_tz'])) {
+      // Set the current timezone, primarily for beforeSave
+      $this->ApiUser->setTimeZone($this->viewVars['vv_tz']);
+    }
+  }
+  
+  /**
+   * Generate an API Key.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int $id API User ID
    */
   
-  function checkWriteDependencies($reqdata, $curdata = null) {
-    if(!isset($curdata['ApiUser']['username'])
-       || $curdata['ApiUser']['username'] != $reqdata['ApiUser']['username']) {
-      // Make sure identifier doesn't conflict with an existing identifier
-      
-      $args = array();
-      $args['conditions']['Identifier.identifier'] = $reqdata['ApiUser']['username'];
-      $args['conditions']['Identifier.login'] = true;
-      $args['conditions']['Identifier.status'] = StatusEnum::Active;
-      $args['contain'] = false;
-      
-      if($this->Identifier->find('count', $args)) {
-        $this->Flash->set(_txt('er.ia.exists',
-                               array(filter_var($reqdata['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))),
-                          array('key' => 'error'));
-        
-        return false;
-      }
-      
-      // Or with an existing API user
-      
-      $args = array();
-      $args['conditions']['ApiUser.username'] = $reqdata['ApiUser']['username'];
-      $args['contain'] = false;
-      
-      if($this->ApiUser->find('count', $args)) {
-        $this->Flash->set(_txt('er.ia.exists',
-                               array(filter_var($reqdata['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))),
-                          array('key' => 'error'));
-        
-        return false;
-      }
-    }
+  public function generate($id) {
+    // We don't autogenerate after add because we'd have to interfere with performRedirect.
     
-    return true;
+    try {
+      $args = array();
+      $args['conditions']['ApiUser.id'] = $id;
+      $args['contain'] = false;
+      
+      $this->set('vv_api_user', $this->ApiUser->find('first', $args));
+      $this->set('vv_api_key', $this->ApiUser->generateKey($id));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+    }
   }
   
   /**
@@ -106,19 +104,22 @@ class ApiUsersController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new API User?
-    $p['add'] = $roles['cmadmin'];
+    $p['add'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Delete an existing API User?
-    $p['delete'] = $roles['cmadmin'];
+    $p['delete'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Edit an existing API User?
-    $p['edit'] = $roles['cmadmin'];
+    $p['edit'] = $roles['cmadmin'] || $roles['coadmin'];
+    
+    // Generate a new API Key?
+    $p['generate'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // View all existing API User?
-    $p['index'] = $roles['cmadmin'];
+    $p['index'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // View an existing API User?
-    $p['view'] = $roles['cmadmin'];
+    $p['view'] = $roles['cmadmin'] || $roles['coadmin'];
     
     $this->set('permissions', $p);
     return $p[$this->action];

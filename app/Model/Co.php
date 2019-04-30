@@ -41,6 +41,7 @@ class Co extends AppModel {
   // Note when adding configuration related models they may need to be added
   // to duplicate(), below.
   public $hasMany = array(
+    "ApiUser" => array('dependent' => true),
     "AttributeEnumeration" => array('dependent' => true),
     "Authenticator" => array('dependent' => true),
     // A CO can have zero or more provisioning targets
