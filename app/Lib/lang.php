@@ -939,6 +939,7 @@ original notification at
   'er.linked' =>      'The requested CO Person and Org Identity are already linked',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.lock' =>        'Error obtaining lock: %1$s',
+  'er.lock.exists' => 'Lock #%1$s already held by pid %2$s since %3$s',
   'er.multiple' =>    'Unexpectedly found multiple results',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
   'er.nm.official.et' => 'The Name type "official" cannot be deleted or renamed',
