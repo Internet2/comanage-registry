@@ -676,6 +676,18 @@ class TemplateableStatusEnum
   const Active              = 'A';
   const Suspended           = 'S';
   const Template            = 'T';
+  
+  public static $from_api = array(
+    'Active'    => TemplateableStatusEnum::Active,
+    'Suspended' => TemplateableStatusEnum::Suspended,
+    'Template'  => TemplateableStatusEnum::Template
+  );
+
+  public static $to_api = array(
+    TemplateableStatusEnum::Active    => 'Active',
+    TemplateableStatusEnum::Suspended => 'Suspended',
+    TemplateableStatusEnum::Template  => 'Template'
+  );
 }
 
 class UrlEnum {

@@ -87,8 +87,13 @@ class ApiComponent extends Component {
         $coId = $this->reqModel->CoPerson->field('co_id',
                                                  array('CoPerson.id' => $this->reqConvData['co_person_id']));
       } elseif(!empty($this->reqConvData['co_person_role_id'])) {
-        $coId = $this->reqModel->CoPersonRole->field('co_id',
-                                                     array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
+        $coPersonId = $this->reqModel->CoPersonRole->field('co_person_id',
+                                                           array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
+
+        if($coPersonId) {
+          $coId = $this->reqModel->CoPersonRole->CoPerson->field('co_id',
+                                                                 array('CoPerson.id' => $coPersonId));
+        }
       }
       
       if($coId) {
