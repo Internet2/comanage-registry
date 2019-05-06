@@ -314,16 +314,13 @@ class CoEnrollmentFlowsController extends StandardController {
     $this->paginate['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
     $this->paginate['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
     if($enrollmentFlowName != ""){
-      // TODO have in mind that the following condition is postgresql specific since it is using iLIKE
       $this->paginate['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%{$enrollmentFlowName}%";
     }
     $this->paginate['contain'] = false;
 
-    //$this->log(get_class($this)."::{$fn}::paginate => " . print_r($this->paginate, true), LOG_DEBUG);
     $this->Paginator->settings = $this->paginate;
     $flows =  $this->Paginator->paginate('CoEnrollmentFlow');
     // Walk through the list of flows and see which ones this user is authorized to run
-    
     $authedFlows = array();
     $roles = $this->Role->calculateCMRoles();
     
