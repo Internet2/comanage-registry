@@ -312,10 +312,10 @@ class CoEnrollmentFlowsController extends StandardController {
     // Use server side pagination
     $this->paginate['conditions'] = array();
     $this->paginate['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    $this->paginate['conditions']['CoEnrollmentFlow.status'] = EnrollmentFlowStatusEnum::Active;
+    $this->paginate['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
     if($enrollmentFlowName != ""){
       // TODO have in mind that the following condition is postgresql specific since it is using iLIKE
-      $this->paginate['conditions']['CoEnrollmentFlow.name iLIKE'] = "%{$enrollmentFlowName}%";
+      $this->paginate['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%{$enrollmentFlowName}%";
     }
     $this->paginate['contain'] = false;
 
