@@ -149,7 +149,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     if(!empty($mailmanList)) {
       $listId = $mailmanList['CoMailmanList']['mailman_list_identifier'];
-      $results = $Http->delete('/3.1/lists/' . rawurlencode($listId));
+      $results = $Http->delete('/3.1/lists/' . rawurlencode(strtolower($listId)));
       
       if($results->code == 204) {
         // Create a history record
@@ -534,7 +534,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                $listRole,
                                $actorCoPersonId) {
     $results = $Http->post('/3.1/members',
-                           array('list_id' => $mailmanListId,
+                           array('list_id' => strtolower($mailmanListId),
                                  'subscriber' => $mailmanId,
                                  'role' => $listRole,
                                  'pre_verified' => true,
@@ -601,13 +601,13 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       
       $listname = $listname . '@' . $domain;
       
-      $results = $Http->post('/3.1/lists', array('fqdn_listname' => $listname));
+      $results = $Http->post('/3.1/lists', array('fqdn_listname' => strtolower($listname)));
       
       if($results->code == 201
          || ($results->code == 400 && $results->body == 'Mailing list exists')) {
         // On 200, the listname is in the location header, but for list exists we need to query for it
         
-        $results = $Http->get('/3.1/lists/' . rawurlencode($listname));
+        $results = $Http->get('/3.1/lists/' . rawurlencode(strtolower($listname)));
         
         if($results->code != 200) {
           throw new RuntimeException($results->body);
@@ -647,7 +647,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // description when we create the list, and we'd have to make a call to get
     // the current description on update, so we may as well just issue the patch.
     
-    $results = $Http->patch('/3.1/lists/' . rawurlencode($listId) . '/config',
+    $results = $Http->patch('/3.1/lists/' . rawurlencode(strtolower($listId)) . '/config',
                             array('description' => $listDescription));
     // We sort of don't care about $results here
     
@@ -707,7 +707,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       // Pull the current subscribers of the list with the specified role
-      $results = $Http->get('/3.1/lists/' . rawurlencode($listId) . '/roster/' . rawurlencode($listRole));
+      $results = $Http->get('/3.1/lists/' . rawurlencode(strtolower($listId)) . '/roster/' . rawurlencode($listRole));
       
       if($results->code != 200) {
         throw new RuntimeException($results->body);
