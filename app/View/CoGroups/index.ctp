@@ -107,29 +107,16 @@
   }
 
   print $this->element("pageTitleAndButtons", $params);
-  
-  if($permissions['select'] && $this->action == 'select') {
-    // We're using slightly the wrong permission here... edit group instead of add group member
-    // (though they work out the same)
-    print $this->Form->create('CoGroupMember',
-                              array('url' => array('action' => 'update'),
-                                    'inputDefaults' => array('label' => false,
-                                                             'div' => false))) . "\n";
-    // beforeFilter needs CO ID
-    print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
-    // Group ID must be global for isAuthorized
-    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $vv_co_person_id)) . "\n";
-  }
 ?>
 <script type="text/javascript">
   // This is based in large part on CoProvisioningTargets/index.ctp
-  
+
   // IDs of the members groups to be reconciled individually
   var ids = [ ];
-  
+
   // Have we been interrupted by the user?
   var canceled = 0;
-  
+
   function js_confirm_reconcile(targetUrl) {
     // Prep confirmation dialog
     $("#reconcile-dialog").dialog("option",
@@ -151,13 +138,13 @@
       
       // Update the progress bar
       $("#reconcile-progressbar").progressbar("option", "value", index);
-      
+
       // Initiate the reconcile request
       var jqxhr = $.ajax({
         url: baseUrl + "/" + id + ".json",
         type: 'PUT'
         });
-      
+
       // On success, fire the next request
       jqxhr.done(function(data, textStatus, jqXHR) {
                   js_execute_reconcile(index+1, baseUrl);
@@ -197,17 +184,17 @@
         $("#result-dialog").html("<p><?php print _txt('rs.gr.reconcile.ok'); ?></p>");
         $("#result-dialog").dialog("open");
       }
-      
+
       // Reset in case user tries again
       canceled = 0;
       $("#reconcile-progressbar").progressbar("option", "value", 0);
     }
   }
-  
+
   function js_request_reconcile(targetUrl) {
     // Open the progress bar dialog
     $("#progressbar-dialog").dialog("open");
-    
+
     // Reconcile existence of members groups
     var jqxhr = $.ajax({
       url: targetUrl,
@@ -309,6 +296,39 @@
     });
   });
 </script>
+
+<!-- Added this dummy div in order to force a consistent layout. Do not remove -->
+<div class="table-container"></div>
+
+<?php // Load the top search bar with its own form
+  if(isset($permissions['search'])) {
+    if(!empty($this->plugin)) {
+      $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroups/search.inc";
+      if(file_exists($fileLocation))
+        include($fileLocation);
+    } else {
+      $fileLocation = APP . "View/CoGroups/search.inc";
+      if(file_exists($fileLocation))
+        include($fileLocation);
+    }
+  }
+?>
+
+<?php // Load the form that will handle the save events
+  if($permissions['select'] && $this->action == 'select') {
+    // We're using slightly the wrong permission here... edit group instead of add group member
+    // (though they work out the same)
+    print $this->Form->create('CoGroupMember',
+        array('url' => array('action' => 'update'),
+          'id'  => 'cogroupmemberupdate_form',
+          'inputDefaults' => array('label' => false,
+            'div' => false))) . "\n";
+    // beforeFilter needs CO ID
+    print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+    // Group ID must be global for isAuthorized
+    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $vv_co_person_id)) . "\n";
+  }
+?>
 
 <div class="table-container">
   <table id="co_groups">

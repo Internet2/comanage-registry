@@ -415,6 +415,9 @@ class CoGroupsController extends StandardController {
     
     // Edit an existing Group?
     $p['edit'] = (!$readonly && ($roles['cmadmin'] || $managed));
+
+    // Search an existing Group?
+    $p['search'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
     // View history for an existing Group?
     $p['history'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
@@ -645,10 +648,17 @@ class CoGroupsController extends StandardController {
     // $this->set('co_groups', $model->find('all', $params));
 
     // Use server side pagination
-    $this->paginate['conditions'] = array(
-      'CoGroup.co_id' => $this->cur_co['Co']['id']
-    );
-    
+    $this->paginate['conditions'] = array();
+    $this->paginate['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    if(isset($this->request->params['named']['Search.name'])){
+      $this->paginate['conditions']['LOWER(CoGroup.name) LIKE'] = "%{strtolower($this->request->params['named']['Search.name'])}%";
+    }
+    if(isset($this->request->params['named']['Search.desc'])){
+      $this->paginate['conditions']['LOWER(CoGroup.description) LIKE'] = "%{strtolower($this->request->params['named']['Search.desc'])}%";
+    }
+
+    // TODO create a plugin that will allow additional fields to be added by the community.
+
     $this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
@@ -658,7 +668,7 @@ class CoGroupsController extends StandardController {
 
     $this->Paginator->settings = $this->paginate;
     $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
-  }      
+  }
   
   /**
    * Retrieve a CO Group.
@@ -678,5 +688,30 @@ class CoGroupsController extends StandardController {
     
     // Invoke the StandardController view
     parent::view($id);
+  }
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v3.x.x
+   */
+
+  public function search() {
+    $url['action'] = 'select';
+    $url['controller'] = 'CoGroups';
+
+    // build a URL will all the search elements in it
+    // the resulting URL will be
+    // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
+    foreach($this->data['Search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['Search.'.$field] = $value;
+      }
+    }
+
+    $url['co'] = $this->cur_co['Co']['id'];
+    // redirect the user to the url
+    $this->redirect($url, null, true);
   }
 }
