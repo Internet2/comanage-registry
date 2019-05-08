@@ -215,7 +215,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       
       $mailmanUser = array(
         'display_name'  => generateCn($primaryName),
-        'email'         => $prefAddress['mail']
+        'email'         => strtolower($prefAddress['mail'])
       );
       
       // Add the user
@@ -273,25 +273,25 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     // For each known CO Person address, add it to the mailman user if not already there
     
-    $toadd = array_diff(Hash::extract($emailAddresses, '{n}.mail'), $curAddresses);
+    $toadd = array_diff(array_map('strtolower', Hash::extract($emailAddresses, '{n}.mail')), $curAddresses);
     
     foreach($toadd as $a) {
       // Add this address to the user.
       
       $results = $Http->post('/3.1/users/' . rawurlencode($mailmanId) . '/addresses',
-                             array('email' => $a));
+                             array('email' => strtolower($a)));
       // For now we'll ignore the results
     }
     
     // For each mailman address, if it is no longer associated with the CO Person
     // delete it.
     
-    $toremove = array_diff($curAddresses, Hash::extract($emailAddresses, '{n}.mail'));
+    $toremove = array_diff($curAddresses, array_map('strtolower', Hash::extract($emailAddresses, '{n}.mail')));
     
     foreach($toremove as $a) {
       // Delete this address.
       
-      $results = $Http->delete('/3.1/addresses/' . rawurlencode($a));
+      $results = $Http->delete('/3.1/addresses/' . rawurlencode(strtolower($a)));
       // For now we'll ignore the results
     }
     
@@ -299,9 +299,9 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // (!) This relies on a custom patch, until the resolution of
     //     https://gitlab.com/mailman/mailman/issues/240
     
-    if($prefAddress['mail'] && ($curPrefAddress != $prefAddress['mail'])) {
+    if($prefAddress['mail'] && ($curPrefAddress != strtolower($prefAddress['mail']))) {
       $results = $Http->patch('/3.1/users/' . rawurlencode($mailmanId),
-                              array('preferred_address' => $prefAddress['mail']));
+                              array('preferred_address' => strtolower($prefAddress['mail'])));
       
       // We expect a 204 on success, but will accept anything in the 2xx range
       if($results->code < 200 || $results->code > 299) {
@@ -900,7 +900,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     $curMemberships = array();
     
-    $results = $Http->get('/3.1/addresses/' . rawurlencode($prefAddress['mail']) . '/memberships');
+    $results = $Http->get('/3.1/addresses/' . rawurlencode(strtolower($prefAddress['mail'])) . '/memberships');
     
     // Without this flag json_decode interprets the int as a float.
     // (This shouldn't be needed anymore since mailman > 3.1 no longer uses ints as IDs,
