@@ -301,7 +301,7 @@
 <div class="table-container"></div>
 
 <?php // Load the top search bar with its own form
-  if(isset($permissions['search'])) {
+  if(isset($permissions['search']) && $permissions['search'] && $this->action == 'select') {
     if(!empty($this->plugin)) {
       $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroups/search.inc";
       if(file_exists($fileLocation))
