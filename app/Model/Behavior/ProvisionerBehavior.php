@@ -774,6 +774,12 @@ class ProvisionerBehavior extends ModelBehavior {
       if($coPersonId) {
         // $model = CoPerson
         $provisioningData = $this->marshallCoPersonData($model, $coPersonId);
+
+        // For some status values no data is marshalled and sent to provisioners
+        // so we just return true to report success.
+        if(empty($provisioningData['CoPerson'])) {
+          return true;
+        }
       } elseif($coGroupId) {
         // $model = CoGroup
         $provisioningData = $this->marshallCoGroupData($model, $coGroupId);
@@ -934,6 +940,11 @@ class ProvisionerBehavior extends ModelBehavior {
     if(empty($coPersonData)) {
       throw new InvalidArgumentException(_txt('er.cop.unk'));
     }
+
+    // No data is provisioned for some status values.
+    if(!in_array($coPersonData[$coPersonModel->alias]['status'], $this->personStatuses)) {
+      return array('CoPerson' => null);
+    }
     
     // Because Authenticators are handled via plugins (which might not be configured)
     // we need to handle them specially. Pull the set of authenticators and then
@@ -996,10 +1007,6 @@ class ProvisionerBehavior extends ModelBehavior {
         }
       }
     }
-    
-    // At the moment, if a CO Person is not active we remove their Role Records
-    // (even if those are active) and group memberships, but leave the rest of the
-    // data in tact.
     
     // Remove any role records that are not valid for provisioning
     
@@ -1231,7 +1238,7 @@ class ProvisionerBehavior extends ModelBehavior {
       }
       
       // Make sure CO Person data was retrieved (it won't be for certain operations
-      // surrounding CO Person delete)
+      // surrounding CO Person delete or for CoPerson records with various status.)
       
       if(empty($pdata['CoPerson'])) {
         continue;
