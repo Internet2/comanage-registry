@@ -67,6 +67,15 @@
       array('url' => array('action'=>'search'),
         'id'  => 'form_search'));
     print $this->Form->hidden('CoGroup.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+
+    $args = array();
+    $args['label'] = _txt('fd.action');
+    $args['placeholder'] = _txt('fd.action');
+    //$args['class'] = 'mdl-textfield__input';
+    $args['aria-label'] = _txt('fd.action');
+    // XXX shouldn't these fields be sanitized?
+    $args['value'] = $this->action;
+    print $this->Form->hidden('Action.name', $args);
   ?>
   <fieldset>
     <legend>

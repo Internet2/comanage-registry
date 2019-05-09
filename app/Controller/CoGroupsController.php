@@ -651,10 +651,12 @@ class CoGroupsController extends StandardController {
     $this->paginate['conditions'] = array();
     $this->paginate['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
     if(isset($this->request->params['named']['Search.name'])){
-      $this->paginate['conditions']['LOWER(CoGroup.name) LIKE'] = "%{strtolower($this->request->params['named']['Search.name'])}%";
+      $search_name = strtolower($this->request->params['named']['Search.name']);
+      $this->paginate['conditions']['LOWER(CoGroup.name) LIKE'] = "%{$search_name}%";
     }
     if(isset($this->request->params['named']['Search.desc'])){
-      $this->paginate['conditions']['LOWER(CoGroup.description) LIKE'] = "%{strtolower($this->request->params['named']['Search.desc'])}%";
+      $search_description = strtolower($this->request->params['named']['Search.desc']);
+      $this->paginate['conditions']['LOWER(CoGroup.description) LIKE'] = "%{$search_description}%";
     }
 
     // TODO create a plugin that will allow additional fields to be added by the community.
@@ -698,7 +700,7 @@ class CoGroupsController extends StandardController {
    */
 
   public function search() {
-    $url['action'] = 'select';
+    $url['action'] = isset($this->data['Action']['name']) ? $this->data['Action']['name'] : 'index';
     $url['controller'] = 'CoGroups';
 
     // build a URL will all the search elements in it
@@ -713,5 +715,39 @@ class CoGroupsController extends StandardController {
     $url['co'] = $this->cur_co['Co']['id'];
     // redirect the user to the url
     $this->redirect($url, null, true);
+  }
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v0.8
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $pagcond = array();
+
+    // Set page title
+    $this->set('title_for_layout', _txt('fd.co_people.search'));
+    // Use server side pagination
+
+    if($this->requires_co) {
+      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Filter by name
+    if(!empty($this->params['named']['Search.name'])) {
+      $searchterm = strtolower($this->params['named']['Search.name']);
+      // We set up LOWER() indices on these columns (CO-1006)
+      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by description
+    if(!empty($this->params['named']['Search.desc'])) {
+      $searchterm = strtolower($this->params['named']['Search.desc']);
+      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+    }
+
+    return $pagcond;
   }
 }
