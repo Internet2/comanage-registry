@@ -54,7 +54,7 @@ global $cm_lang, $cm_texts;
   });
 </script>
 
-<div id="coPeopleSearch" class="top-search">
+<div id="coPeopleSearch" class="top-search top-search-hide-labels">
   <?php
   print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
   print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
