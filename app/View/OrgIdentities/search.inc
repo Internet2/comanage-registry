@@ -44,21 +44,8 @@ $tabIndex = 1;
   }
 
   $(function() {
-    var searchFieldsAreOpen = (Cookies.get('comanage-top-search-fields-visible') === 'true');
-    if (searchFieldsAreOpen) {
-      $('#coPeopleSearch').addClass('open');
-      $('#top-search-fields').show();
-    }
-
     $( "#top-search-toggle").click(function() {
       $("#top-search-fields").toggle();
-      var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
-      Cookies.set('comanage-top-search-fields-visible', searchFieldsAreOpen);
-      if (searchFieldsAreOpen) {
-        $("#coPeopleSearch").addClass('open');
-      } else {
-        $("#coPeopleSearch").removeClass('open');
-      }
     });
   });
 </script>
@@ -71,12 +58,10 @@ $tabIndex = 1;
     }
   ?>
   <fieldset>
-    <legend>
-      <a href="#" id="top-search-toggle">
-        <em class="material-icons">search</em>
-        <?php print _txt('op.filter');?>
-        <em class="material-icons drop-arrow">arrow_drop_down</em>
-      </a>
+    <legend id="top-search-toggle">
+      <em class="material-icons">search</em>
+      <?php print _txt('op.filter');?>
+      <em class="material-icons drop-arrow">arrow_drop_down</em>
     </legend>
 
     <div id="top-search-fields">
