@@ -63,7 +63,7 @@ $tabIndex = 1;
   });
 </script>
 
-<div id="orgIdSearch" class="top-search">
+<div id="orgIdSearch" class="top-search top-search-hide-labels">
   <?php
     print $this->Form->create('OrgIdentity',array('url' => array('action'=>'search')));
     if(!empty($cur_co['Co']['id'])) {
