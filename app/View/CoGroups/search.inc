@@ -44,12 +44,6 @@
   $(function() {
     $( "#top-search-toggle").click(function() {
       $("#top-search-fields").toggle();
-      var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
-      if (searchFieldsAreOpen) {
-        $("#coPeopleSearch").addClass('open');
-      } else {
-        $("#coPeopleSearch").removeClass('open');
-      }
     });
   });
 </script>
