@@ -42,46 +42,43 @@ global $cm_lang, $cm_texts;
   }
 
   $(function() {
-    var searchFieldsAreOpen = (Cookies.get('comanage-top-search-fields-visible') === 'true');
-    if (searchFieldsAreOpen) {
-      $('#coGroupsSearch').addClass('open');
-      $('#top-search-fields').show();
-    }
-
     $( "#top-search-toggle").click(function() {
       $("#top-search-fields").toggle();
-      var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
-      Cookies.set('comanage-top-search-fields-visible', searchFieldsAreOpen);
-      if (searchFieldsAreOpen) {
-        $("#coGroupsSearch").addClass('open');
-      } else {
-        $("#coGroupsSearch").removeClass('open');
-      }
     });
   });
 </script>
 
-<div id="coGroupsSearch" class="top-search">
+<div id="coEnrollmentFlowSearch" class="top-search">
   <?php
-  print $this->Form->create('CoEnrollmentFlow',array('url' => array('action'=>'search')));
-  print $this->Form->hidden('CoEnrollmentFlow.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    print $this->Form->create('CoEnrollmentFlow',array('url' => array('action'=>'search')));
+    print $this->Form->hidden('CoEnrollmentFlow.co_id', array('default' => $cur_co['Co']['id'])). "\n";
   ?>
   <fieldset>
-    <legend>
-      <a href="#" id="top-search-toggle">
-        <em class="material-icons">search</em>
-        <?php print _txt('op.filter');?>
-        <em class="material-icons drop-arrow">arrow_drop_down</em>
-      </a>
+    <legend id="top-search-toggle">
+      <em class="material-icons">search</em>
+      <?php print _txt('op.filter');?>
+      <em class="material-icons drop-arrow">arrow_drop_down</em>
+
+      <?php if(!empty($this->request->params['named']['Search.name'])):?>
+
+        <span id="top-search-active-filters">
+         <?php if (!empty($this->request->params['named']['Search.name'])): ?>
+           <span class="top-search-active-filter">
+             <span class="top-search-active-filter-title"><?php print _txt('fd.name'); ?></span>
+             <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.name'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+           </span>
+         <?php endif; ?>
+        </span>
+      <?php endif; ?>
     </legend>
 
     <div id="top-search-fields">
       <div>
       <?php
       $args = array();
+      // search button (submit)
       $args['label'] = _txt('fd.name');
       $args['placeholder'] = _txt('fd.name');
-      //$args['class'] = 'mdl-textfield__input';
       $args['aria-label'] = _txt('fd.name');
       // XXX shouldn't these fields be sanitized?
       $args['value'] = !empty($this->request->params['named']['Search.name']) ? $this->request->params['named']['Search.name'] : '';
@@ -105,5 +102,6 @@ global $cm_lang, $cm_texts;
       </div>
     </div>
   </fieldset>
+
   <?php print $this->Form->end();?>
 </div>

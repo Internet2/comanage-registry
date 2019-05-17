@@ -307,7 +307,7 @@ class CoEnrollmentFlowsController extends StandardController {
     $this->set('title_for_layout', _txt('ct.co_enrollment_flows.pl'));
 
     // Check if we have been redirected by search
-    $enrollmentFlowName = isset($this->request->params['named']['Search.name']) ? $this->request->params['named']['Search.name'] : "";
+    $enrollmentFlowName = isset($this->request->params['named']['Search.name']) ? strtolower($this->request->params['named']['Search.name']) : "";
     // Start with a list of enrollment flows
     // Use server side pagination
     $this->paginate['conditions'] = array();
