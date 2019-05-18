@@ -1007,7 +1007,7 @@ body.petitionerAttributes td {
   width: 50%;
   margin: 0 0 0 2px;
 }
-#statusFilters {
+.filters-box {
   background-color: #f5f5f5;
   border: 1px solid #a0c6e3;
   clear: both;
@@ -1015,19 +1015,19 @@ body.petitionerAttributes td {
   min-height: 2.2em;
   padding: 0 0.5em 0.5em;
 }
-#statusFilters .checkbox {
+.filters-box .checkbox {
   display: inline-block;
   margin: 0.25em 0.5em 0 0;
   color: #222;
   white-space: nowrap;
 }
-#statusFilters input {
+.filters-box input {
   margin: 4px 4px 0;
 }
-#statusFilters label {
+.filters-box label {
   vertical-align: top;
 }
-#statusFilters .submit-button {
+.filters-box .submit-button {
   float: right;
   font-size: 0.9em;
   height: 28px;
@@ -1437,7 +1437,7 @@ a.ui-button:visited,
   height: 28px;
   margin: 0.5em;
 }
-.top-search label,
+.top-search.top-search-hide-fields label,
 .side-search label {
   display: none;
 }

@@ -727,7 +727,17 @@ original notification at
     NotificationStatusEnum::PendingResolution     => 'Pending Resolution',
     NotificationStatusEnum::Resolved              => 'Resolved'
   ),
-  
+
+  'en.status.bool' => array(
+    TrueFalseEnum::True   => 'True',
+    TrueFalseEnum::False  => 'False'
+  ),
+
+  'en.status.open' => array(
+    TrueFalseEnum::True   => 'Open',
+    TrueFalseEnum::False  => 'Closed'
+  ),
+
   'en.status.org' => array(
     OrgIdentityStatusEnum::Removed => 'Removed',
     OrgIdentityStatusEnum::Synced  => 'Synced' 
@@ -1059,6 +1069,7 @@ original notification at
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.automatic' =>   'Automatic',
   'fd.bcc' =>         'BCC',
   'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
   'fd.cc' =>          'CC',
@@ -1858,6 +1869,7 @@ original notification at
   'op.see.notification.num' =>  'notification #%1$s',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select %1$s',
+  'op.select.all' =>    'All',
   'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',
   'op.select.empty' => '(select...)',
   'op.select.empty-a' => '%1$s (select...)',

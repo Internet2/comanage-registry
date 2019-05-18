@@ -421,6 +421,7 @@ class CoGroupsController extends StandardController {
     
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    $p['search'] = $p['index'];
     
     // Nest a Group within another Group?
     // This aligns with CoGroupNestingsController::isAuthorized
@@ -460,7 +461,7 @@ class CoGroupsController extends StandardController {
     
     // (Re)provision an existing CO Group?
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-    
+
     // Select from a list of potential Groups to join?
     $p['select'] = ($roles['cmadmin']
                     || ($managedp && ($roles['coadmin'] || $roles['couadmin']))
@@ -605,7 +606,110 @@ class CoGroupsController extends StandardController {
       return;
     }
   }
-  
+
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+
+  public function beforeRender() {
+    global $cm_lang, $cm_texts;
+    $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
+    $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
+    $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
+    $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
+
+    parent::beforeRender();
+  }
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v3.3
+   */
+
+  public function search() {
+    // If a person ID is provided, we're in select mode
+    if(!empty($this->data['CoGroups']['select'])) {
+      $url['action'] = 'select';
+      $url['copersonid'] = filter_var($this->data['CoPerson']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+    } else {
+      // Back to the index
+      $url['action'] = 'index';
+    }
+
+    $url['co'] = $this->cur_co['Co']['id'];
+
+    // build a URL will all the search elements in it
+    // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
+    foreach($this->data['search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['search.'.$field] = $value;
+      }
+    }
+
+    // redirect the user to the url
+    $this->redirect($url, null, true);
+  }
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v3.3
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $pagcond = array();
+
+    // Use server side pagination
+
+    if($this->requires_co) {
+      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Filter by group name
+    if(!empty($this->params['named']['search.groupName'])) {
+      $searchterm = strtolower($this->params['named']['search.groupName']);
+      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by group description
+    if(!empty($this->params['named']['search.groupDesc'])) {
+      $searchterm = strtolower($this->params['named']['search.groupDesc']);
+      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by status
+    if(!empty($this->params['named']['search.status'])) {
+      $searchterm = $this->params['named']['search.status'];
+      $pagcond['conditions']['CoGroup.status'] = $searchterm;
+    }
+
+    // Filter by openness
+    if(!empty($this->params['named']['search.open'])) {
+      $searchterm = $this->params['named']['search.open'];
+      $pagcond['conditions']['CoGroup.open'] = $searchterm;
+    }
+
+    // Filter by management type (automatic / manual)
+    if(!empty($this->params['named']['search.auto'])) {
+      $searchterm = $this->params['named']['search.auto'];
+      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+    }
+
+    // Filter by group type
+    if(!empty($this->params['named']['search.group_type'])) {
+      $searchterm = $this->params['named']['search.group_type'];
+      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+    }
+
+    return $pagcond;
+  }
+
+
   /**
    * Obtain groups available for a CO Person to join.
    * - precondition: $this->request->params holds copersonid XXX we don't do anything with this yet
@@ -644,16 +748,18 @@ class CoGroupsController extends StandardController {
     // $params['conditions'] = array($req.'.co_id' => $this->params['named']['co']); or ['url']['coid'] for REST
     // $this->set('co_groups', $model->find('all', $params));
 
-    // Use server side pagination
-    $this->paginate['conditions'] = array(
-      'CoGroup.co_id' => $this->cur_co['Co']['id']
-    );
+    // Pagination conditions must be pulled in explicitly because select() is not part of StandardController
+    $pagcond = CoGroupsController::paginationConditions();
+    $this->paginate['conditions'] = $pagcond['conditions'];
     
-    $this->paginate['contain'] = array(
+    /*$this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
         'CoPerson' => array('PrimaryName')
       )
+    );*/
+    $this->paginate['contain'] = array(
+      'CoGroupMember' => array('conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']), 'CoPerson' => array('PrimaryName'))
     );
 
     $this->Paginator->settings = $this->paginate;

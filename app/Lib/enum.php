@@ -690,6 +690,11 @@ class TemplateableStatusEnum
   );
 }
 
+class TrueFalseEnum {
+  const True = 't';
+  const False = 'f';
+}
+
 class UrlEnum {
   const Official      = 'official';
   const Personal      = 'personal';
