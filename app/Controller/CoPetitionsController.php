@@ -1480,12 +1480,45 @@ class CoPetitionsController extends StandardController {
    * @since  COmanage Registry v0.9.4
    * @param Integer $id CO Petition ID
    * @throws Exception
+   * @todo   In v5, only execute redirectOnConfirm when approval is required, otherwise redirectOnFinalize
+   * @todo   In v5 merge with execute_redirectOnFinalize
    */
   
   protected function execute_redirectOnConfirm($id) {
     // Figure out where to redirect the enrollee to
-    $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
-                                                            array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    $targetUrl = $this->CoPetition->field('return_url', array('CoPetition.id' => $id));
+
+    if($targetUrl) {
+      // Check that this URL is whitelisted
+      
+      $whiteList = $this->CoPetition->CoEnrollmentFlow->field('return_url_whitelist',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+      
+      if(!empty($whiteList)) {
+        $found = false;
+        
+        foreach(preg_split('/\R/', $whiteList) as $u) {
+          if(preg_match($u, $targetUrl)) {
+            $found = true;
+            break;
+          }
+        }
+        
+        if(!$found) {
+          // No match, so ignore
+          
+          $targetUrl = null;
+        }
+      } else {
+        // No whitelisted URLs, so ignore return_url
+        $targetUrl = null;
+      }
+    }
+    
+    if(!$targetUrl || $targetUrl == "") {
+      $targetUrl = $this->CoPetition->CoEnrollmentFlow->field('redirect_on_confirm',
+                                                              array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    }
     
     if(!$targetUrl || $targetUrl == "") {
       // Force a logout since we probably just made a change to information relevant
