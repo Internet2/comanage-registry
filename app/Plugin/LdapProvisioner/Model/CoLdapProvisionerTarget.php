@@ -1196,22 +1196,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
       case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:
-        if(!in_array($provisioningData['CoPerson']['status'],
-                     array(StatusEnum::Active,
-                           StatusEnum::Expired,
-                           StatusEnum::GracePeriod,
-                           StatusEnum::Suspended))) {
-          // Convert this to a delete operation. Basically we (may) have a record in LDAP,
-          // but the person is no longer active. Don't delete the DN though, since
-          // the underlying person was not deleted.
-          
-          $delete = true;
-        } else {
-          // An update may cause an existing person to be written to LDAP for the first time
-          // or for an unexpectedly removed entry to be replaced
-          $assigndn = true;  
-          $modify = true;
-        }
+        // An update may cause an existing person to be written to LDAP for the first time
+        // or for an unexpectedly removed entry to be replaced
+        $assigndn = true;  
+        $modify = true;
         break;
       case ProvisioningActionEnum::CoGroupAdded:
         $assigndn = true;
@@ -1236,6 +1224,24 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         // Ignore all other actions
         return true;
         break;
+    }
+    
+    if($person) {
+      if(!empty($provisioningData['CoPerson']['status'])
+         && !in_array($provisioningData['CoPerson']['status'],
+                      array(StatusEnum::Active,
+                            StatusEnum::Expired,
+                            StatusEnum::GracePeriod,
+                            StatusEnum::Suspended))) {
+        // Convert this to a delete operation. Basically we (may) have a record in LDAP,
+        // but the person is no longer active. Don't delete the DN though, since
+        // the underlying person was not deleted.
+        
+        $delete = true;
+        $add = false;
+        $assigndn = false;
+        $modify = false;
+      }
     }
     
     if($group) {
