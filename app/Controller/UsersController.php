@@ -116,12 +116,26 @@ class UsersController extends AppController {
         $oargs['joins'][0]['table'] = 'identifiers';
         $oargs['joins'][0]['alias'] = 'Identifier';
         $oargs['joins'][0]['type'] = 'INNER';
-        $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+        $oargs['joins'][0]['conditions'][0] = 'CoOrgIdentityLink.org_identity_id=Identifier.org_identity_id';
         $oargs['conditions']['Identifier.identifier'] = $u;
         $oargs['conditions']['Identifier.login'] = true;
         // Join on identifiers that aren't deleted (including if they have no status)
         $oargs['conditions']['OR'][] = 'Identifier.status IS NULL';
         $oargs['conditions']['OR'][]['Identifier.status <>'] = SuspendableStatusEnum::Suspended;
+        $oargs['contain'] = false;
+        $oargs['fields'] = array('CoOrgIdentityLink.co_person_id');
+        
+        $co_person_id = $this->CoOrgIdentityLink->find('all', $oargs);
+        $co_person_id_value = $co_person_id[0]['CoOrgIdentityLink']['co_person_id'];
+        unset($oargs);
+
+        // We use $oargs here instead of $args because we may reuse this below
+        $oargs = array();
+        $oargs['joins'][0]['table'] = 'co_org_identity_links';
+        $oargs['joins'][0]['alias'] = 'CoOrgIdentityLink';
+        $oargs['joins'][0]['type'] = 'INNER';
+        $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=CoOrgIdentityLink.org_identity_id';
+        $oargs['conditions']['CoOrgIdentityLink.co_person_id'] = $co_person_id_value;
         // As of v2.0.0, OrgIdentities have validity dates, so only accept valid dates (if specified)
         // Through the magic of containable behaviors, we can get all the associated
         $oargs['conditions']['AND'][] = array(
@@ -142,9 +156,8 @@ class UsersController extends AppController {
         $oargs['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
         $oargs['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
         $oargs['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
-        
+
         $orgIdentities = $this->OrgIdentity->find('all', $oargs);
-        
         // Grab the org IDs and CO information
         $orgs = array();
         $cos = array();
