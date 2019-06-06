@@ -210,7 +210,6 @@ class IdentifiersController extends MVPAController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     $pids = $this->parsePersonID($this->request->data);
-    
     // Is this a read only record? True if it belongs to an Org Identity that has
     // an OrgIdentity Source Record, or if it has a source identity.
     // As of the initial implementation, not even CMP admins can edit such a record.
@@ -314,5 +313,33 @@ class IdentifiersController extends MVPAController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Array $data Array of data for calculating implied CO ID
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  function parseCOID($data = null) {
+    if ($this->action == 'assign') {
+      // API call, includes a CoPerson ID
+      if(isset($data['co_person_id'])) {
+
+        $args=array();
+        $args['contain']=false;
+        $args['conditions']['CoPerson.id'] = $data['co_person_id'];
+        $coperson = $this->Identifier->CoPerson->find('first',$args);
+
+        if(!empty($coperson)) {
+          return $coperson['CoPerson']['co_id'];
+        }
+      }
+    }
+
+    return parent::parseCOID();
   }
 }
