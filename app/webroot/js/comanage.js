@@ -216,7 +216,7 @@ function gotoPage(pageNumber,maxPage,intErrMsg,maxErrMsg) {
 // pageLimit         - page limit                            (int, required)
 // recordCount       - total number of records returned      (int, requried)
 // currentPage       - current page number                   (int, required)
-function limitPage(pageLimit,recordCount,currentPage) {
+function limitPage(currentUrl, pageLimit,recordCount,currentPage) {
   var limit = parseInt(pageLimit,10);
   var count = parseInt(recordCount,10);
   var page = parseInt(currentPage,10);
@@ -228,7 +228,6 @@ function limitPage(pageLimit,recordCount,currentPage) {
   }
 
   // Add the new limit parameter to the url
-  var currentUrl =  window.location.pathname;
   currentUrl = currentUrl.replace(new RegExp('\/limit:[0-9]*', 'g'), '')+'/limit:' + limit;
 
   // Test to see if the new limit allows the current page to exist

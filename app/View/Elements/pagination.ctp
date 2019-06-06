@@ -109,7 +109,7 @@
   <form id="limit-page"
         class="pagination-form"
         method="get"
-        onsubmit="limitPage(this.pageLimit.value,recordCount,currentPage); return false;">
+        onsubmit='limitPage(<?php echo json_encode($this->Paginator->url()); ?>,this.pageLimit.value,recordCount,currentPage); return false;'>
     <label for="pageLimit"><?php print _txt('fd.page.limit.display'); ?></label>
     <select name="pageLimit" id="pageLimit">
       <option value="25">25</option>
