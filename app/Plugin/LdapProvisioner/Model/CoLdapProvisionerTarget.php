@@ -508,7 +508,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     $scope = '@' . $coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'];
                   } else {
                     // Don't add this attribute since we don't have a scope
-                    continue;
+                    break;
                   }
                 }
                 
