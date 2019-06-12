@@ -1123,6 +1123,7 @@ original notification at
   'fd.de.disab'   =>  'Disability',
   'fd.de.enable'  =>  'Enable NSF Demographics',
   'fd.default'    =>  'Default',
+  'fd.date_of_birth' => 'Date of Birth',
   'fd.dp.group.admin' => 'Administrative Group',
   'fd.dp.group.admin.desc' => 'Group containing the Department administrators',
   'fd.dp.group.leader' => 'Leadership Group',

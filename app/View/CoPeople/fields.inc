@@ -786,6 +786,30 @@
                 <?php endif; ?>
               </div>
             </li>
+            <li class="modelbox-data">
+              <div class="field-name">
+                <?php print $this->Form->label('CoPerson.date_of_birth', _txt('fd.date_of_birth')); ?>
+              </div>
+              <div class="field-info">
+                <?php
+                  if($e && !$es) {
+                    $args = array(
+                      'class' => 'datepicker'
+                    );
+
+                    if(!empty($co_people[0]['CoPerson']['date_of_birth'])) {
+                      $args['value'] = $co_people[0]['CoPerson']['date_of_birth'];
+                    }
+
+                    print $this->Form->text('date_of_birth', $args);
+                  } else {
+                    if(!empty($co_people[0]['CoPerson']['date_of_birth'])) {
+                      print $this->Time->format($co_people[0]['CoPerson']['date_of_birth'], "%F");
+                    }
+                  }
+                ?>
+              </div>
+            </li>
             <li>
               <div class="field-name">
                 <?php print $this->Form->label('CoPerson.timezone', _txt('fd.timezone')); ?>

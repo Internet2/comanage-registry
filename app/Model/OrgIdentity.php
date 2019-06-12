@@ -112,6 +112,13 @@ class OrgIdentity extends AppModel {
         'allowEmpty' => true
       )
     ),
+    'date_of_birth' => array(
+      'content' => array(
+        'rule' => array('date'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'affiliation' => array(
       'content' => array(
         'rule' => array('inList', array(AffiliationEnum::Faculty,
@@ -223,6 +230,7 @@ class OrgIdentity extends AppModel {
    * @param  integer Identifier of Org Identity to duplicate
    * @param  integer CO to attach duplicate Org Identity to
    * @return integer New Org Identity ID if successful, -1 otherwise
+   * @todo   Remove this in v5
    */
   
   public function duplicate($orgId, $coId)

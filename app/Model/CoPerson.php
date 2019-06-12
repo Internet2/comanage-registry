@@ -169,6 +169,13 @@ class CoPerson extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'date_of_birth' => array(
+      'content' => array(
+        'rule' => array('date'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

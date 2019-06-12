@@ -204,6 +204,18 @@
         <?php endforeach; // name ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
+            <?php print _txt('fd.date_of_birth'); ?>
+          </td>
+          <td>
+            <?php
+              if(!empty($vv_org_source_record['OrgIdentity']['date_of_birth'])) {
+                print filter_var($vv_org_source_record['OrgIdentity']['date_of_birth'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+            ?>
+          </td>
+        </tr>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
             <?php print _txt('fd.affiliation'); ?>
           </td>
           <td>

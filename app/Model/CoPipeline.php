@@ -515,6 +515,10 @@ class CoPipeline extends AppModel {
         )
       );
       
+      if(!empty($orgIdentity['OrgIdentity']['date_of_birth'])) {
+        $coPerson['CoPerson']['date_of_birth'] = $orgIdentity['OrgIdentity']['date_of_birth'];
+      }
+      
       // Clear here and below in case we're run in a loop
       $this->Co->CoPerson->clear();
       

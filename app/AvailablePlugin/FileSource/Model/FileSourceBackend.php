@@ -345,6 +345,9 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
       );
     }
     
+    if(!empty($result[24]))
+      $orgdata['OrgIdentity']['date_of_birth'] = $result[24];
+    
     return $orgdata;
   }
   

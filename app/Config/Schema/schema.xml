@@ -147,6 +147,7 @@
       <autoincrement />
     </field>
     <field name="status" type="C" size="2" />
+    <field name="date_of_birth" type="D" />
     <field name="affiliation" type="C" size="32" />
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
@@ -183,6 +184,7 @@
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
+    <field name="date_of_birth" type="D" />
     <field name="timezone" type="C" size="80" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

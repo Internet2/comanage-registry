@@ -313,6 +313,30 @@
               ?>
             </div>
           </li>
+          <li class="modelbox-data">
+            <div class="field-name">
+              <?php print $this->Form->label('OrgIdentity.date_of_birth', _txt('fd.date_of_birth')); ?>
+            </div>
+            <div class="field-info">
+              <?php
+                if($e) {
+                  $args = array(
+                    'class' => 'datepicker'
+                  );
+
+                  if(!empty($org_identities[0]['OrgIdentity']['date_of_birth'])) {
+                    $args['value'] = $org_identities[0]['OrgIdentity']['date_of_birth'];
+                  }
+
+                  print $this->Form->text('date_of_birth', $args);
+                } else {
+                  if(!empty($org_identities[0]['OrgIdentity']['date_of_birth'])) {
+                    print $this->Time->format($org_identities[0]['OrgIdentity']['date_of_birth'], "%F");
+                  }
+                }
+              ?>
+            </div>
+          </li>
           <li>
             <div class="field-name">
               <?php print ($e ? $this->Form->label('affiliation', _txt('fd.affiliation')) : _txt('fd.affiliation')); ?>
