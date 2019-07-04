@@ -1119,6 +1119,13 @@ class CoPeopleController extends StandardController {
     if(!empty($this->data['CoPetition']['id'])) {
       $url['action'] = 'select';
       $url['copetitionid'] = filter_var($this->data['CoPetition']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+    } elseif (!empty($this->data['CoOrgIdentityLink']['id'])){
+      $url = array(
+        'controller' => 'co_people',
+        'action' => 'relink',
+        $this->data['CoPerson']['id'],
+        'linkid' => $this->data['CoOrgIdentityLink']['id'],
+      );
     } else {
       // Back to the index
       $url['action'] = 'index';
