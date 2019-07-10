@@ -452,7 +452,7 @@ class ProvisionerBehavior extends ModelBehavior {
         return true;
       }
     }
-    
+
     // We need to be careful about the order in which we provision people and groups,
     // since if a person's identifier changes we may need the provisioner to update
     // its references (eg: DNs) before the group updates fire, and vice versa.
@@ -1085,7 +1085,20 @@ class ProvisionerBehavior extends ModelBehavior {
         }
       }
     }
-    
+
+    // Unset email list membership when the user does not have an associated
+    // group membership. This is necessary because the contain for the find on
+    // coPersonModel above does not filter out email list memberships where
+    // the associated group membership is empty.
+
+    foreach($coPersonData['CoGroupMember'] as &$membership) {
+      if(empty($membership['member'])) {
+        $membership['CoGroup']['EmailListAdmin'] = array();
+        $membership['CoGroup']['EmailListMember'] = array();
+        $membership['CoGroup']['EmailListModerator'] = array();
+      }
+    }
+
     return $coPersonData;
   }
   
@@ -1221,7 +1234,7 @@ class ProvisionerBehavior extends ModelBehavior {
       catch(InvalidArgumentException $e) {
         throw new InvalidArgumentException($e->getMessage());
       }
-      
+
       // Re-key $pdata when the person alias is EnrolleeCoPerson to make
       // everything else works more smoothly
       
