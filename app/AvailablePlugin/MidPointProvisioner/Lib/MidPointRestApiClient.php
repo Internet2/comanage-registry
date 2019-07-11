@@ -93,19 +93,58 @@ class MidPointRestApiClient extends CakeObject {
     return $Http;
   }
 
-  /**
-   * @return string TODO
-   */
-  public function logPrefix() {
-    return "MidPointRestApiClient " . $this->serverUrl;
+  public static function buildUserXml(array $user) {
+    // TODO validate $provisioningData
+    $data = array(
+      'user' => array(
+        'xmlns:' => 'http://midpoint.evolveum.com/xml/ns/public/common/common-3',
+      )
+    );
+    $data = array_merge_recursive($data, $user);
+    $options = array('pretty' => true);
+    $xmlObject = Xml::fromArray($data, $options);
+    return $xmlObject->asXML();
   }
+
+  public static function buildUserModificationXml(array $mods) {
+    $itemDeltas = array();
+    foreach ($mods as $op => $attr) {
+      // TODO op should be one of add, delete, replace
+      foreach ($attr as $path => $value) {
+        // TODO path should be one of givenName, familyName ...
+        $itemDelta = array(
+          't:modificationType' => $op,
+          't:path' => 'c:' . $path
+        );
+        if (isset($value)) {
+          $itemDelta['t:value'] = $value;
+        }
+        array_push($itemDeltas, $itemDelta);
+      }
+    }
+
+    $data = array(
+      'objectModification' => array(
+        'xmlns:' => 'http://midpoint.evolveum.com/xml/ns/public/common/api-types-3',
+        'xmlns:c' => 'http://midpoint.evolveum.com/xml/ns/public/common/common-3',
+        'xmlns:t' => 'http://prism.evolveum.com/xml/ns/public/types-3',
+        'itemDelta' => $itemDeltas
+      )
+    );
+
+    $options = array('pretty' => true);
+    $xmlObject = Xml::fromArray($data, $options);
+    return $xmlObject->asXML();
+  }
+
   /**
    * Create a midPoint user.
    *
-   * @since COmanage Registry 3.3.0
    * @param string $xml XML representation of user
+   *
    * @return string OID of midPoint User
    * @throws RuntimeException if an error occurs
+   * @since COmanage Registry 3.3.0
    */
   public function createUser($xml) {
     // TODO validate xml
@@ -118,7 +157,11 @@ class MidPointRestApiClient extends CakeObject {
 
     $http = $this->buildHttpClient();
 
-    $this->log($this->logPrefix() . " Attempting to create user :\n" . $xml, 'debug');
+    if (Configure::read('debug')) {
+      $msg = $this->logPrefix() . " Attempting to create user :\n$xml";
+      $this->log($msg, 'debug');
+    }
+
     $results = $http->post('/ws/rest/users/', $xml, $request);
 
     if ($results->code != 201) {
@@ -127,20 +170,56 @@ class MidPointRestApiClient extends CakeObject {
     }
 
     $oid = MidPointRestApiClient::extractOidFromLocation($results->getHeader('Location'));
-    $this->log($this->logPrefix() . " Created user with oid " . $oid, 'info');
+
+    if (Configure::read('debug')) {
+      $msg = $this->logPrefix() . " Created user with oid $oid";
+      $this->log($msg, 'debug');
+    }
+
     return $oid;
   }
 
-  public static function extractOidFromLocation($url) {
-    return basename(parse_url($url, PHP_URL_PATH));
+  /**
+   * Delete a midPoint user.
+   *
+   * @param $oid OID of midPoint user
+   *
+   * @return Boolean true on success
+   * @throws RuntimeException if an error occurs
+   */
+  public function deleteUser($oid) {
+
+    // TODO validate oid
+
+    $url = '/ws/rest/users/' . $oid;
+
+    $http = $this->buildHttpClient();
+
+    if (Configure::read('debug')) {
+      $this->log($this->logPrefix() . " Attempting to delete user with oid " . $oid, 'debug');
+    }
+
+    $results = $http->delete($url);
+
+    if (!$results->isOk()) {
+      $this->log($this->logPrefix() . " Unable to delete user :\n" . $results, 'debug');
+      throw new RuntimeException($results->reasonPhrase);
+    }
+
+    if (Configure::read('debug')) {
+      $this->log($this->logPrefix() . " Deleted user with oid " . $oid, 'debug');
+    }
+
+    return true;
   }
 
   /**
-   * Get a MidPoint user.
+   * Get a midPoint user.
    *
-   * @param $oid
+   * @param $oid OID of midPoint user
    *
    * @return array if found, empty array if not found, throw exception otherwise
+   * @throws RuntimeException if an error occurs
    */
   public function getUser($oid) {
 
@@ -150,12 +229,19 @@ class MidPointRestApiClient extends CakeObject {
 
     $http = $this->buildHttpClient();
 
-    $this->log($this->logPrefix() . " Attempting to get user with oid " . $oid, 'debug');
+    if (Configure::read('debug')) {
+      $msg = $this->logPrefix() . " Attempting to get user with oid $oid";
+      $this->log($msg, 'debug');
+    }
 
     $results = $http->get($url);
 
     if ($results->isOk()) {
-      $this->log($this->logPrefix() . " Found user with oid " . $oid, 'debug');
+      if (Configure::read('debug')) {
+        $msg = $this->logPrefix() . " Found user with oid $oid ";
+        $msg .= var_export($results, true);
+        $this->log($msg, 'debug');
+      }
       return Xml::toArray(Xml::build($results->body()));
     }
 
@@ -168,30 +254,52 @@ class MidPointRestApiClient extends CakeObject {
   }
 
   /**
-   * Delete a midPoint user.
+   * Modify a midPoint user.
    *
    * @param $oid OID of midPoint user
+   * @param string $xml XML representation of user modifications
    *
+   * @return Boolean true on success
    * @throws RuntimeException if an error occurs
    */
-  public function deleteUser($oid) {
-
-    // TODO validate oid
+  public function modifyUser($oid, $xml) {
+    $request = array(
+      'header' => array(
+        'Content-Type' => 'application/xml'
+      )
+    );
 
     $url = '/ws/rest/users/' . $oid;
 
     $http = $this->buildHttpClient();
 
-    $this->log($this->logPrefix() . " Attempting to delete user with oid " . $oid, 'debug');
+    if (Configure::read('debug')) {
+      $msg = $this->logPrefix() . " Attempting to modify user with oid $oid :\n$xml";
+      $this->log($msg, 'debug');
+    }
 
-    $results = $http->delete($url);
+    $results = $http->patch($url, $xml, $request);
 
     if (!$results->isOk()) {
-      $this->log($this->logPrefix() . " Unable to delete user :\n" . $results, 'debug');
+      $this->log($this->logPrefix() . " Unable to modify user :\n" . $results, 'debug');
       throw new RuntimeException($results->reasonPhrase);
     }
 
-    $this->log($this->logPrefix() . " Deleted user with oid " . $oid, 'debug');
+    if (Configure::read('debug')) {
+      $this->log($this->logPrefix() . " Modified user with oid " . $oid, 'debug');
+    }
+
+    return true;
   }
 
+  public static function extractOidFromLocation($url) {
+    return basename(parse_url($url, PHP_URL_PATH));
+  }
+
+  /**
+   * @return string Log prefix.
+   */
+  public function logPrefix() {
+    return "MidPointRestApiClient " . $this->serverUrl;
+  }
 }
