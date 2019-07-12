@@ -276,21 +276,51 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
   public function calcUser($coProvisioningTargetData, $provisioningData) {
     $user = array();
 
+    // midPoint user name
     $user['user']['name'] = $this->getUserName($coProvisioningTargetData, $provisioningData);
 
+    // midPoint user Lifecycle State
+    // TODO status $user['user']['status'] = $provisioningData['CoPerson']['status'];
+
+    // midPoint user fullName
     $user['user']['fullName'] = generateCn($provisioningData['PrimaryName'], true);
 
+    // midPoint user givenName
     $user['user']['givenName'] = $provisioningData['PrimaryName']['given'];
 
+    // midPoint user familyName
     if (!empty($provisioningData['PrimaryName']['family'])) {
       $user['user']['familyName'] = $provisioningData['PrimaryName']['family'];
     }
 
-    // TODO middleName
+    // midPoint user additionalName = middle name
+    if (!empty($provisioningData['PrimaryName']['middle'])) {
+      $user['user']['additionalName'] = $provisioningData['PrimaryName']['middle'];
+    }
 
-    // TODO status $user['user']['status'] = $provisioningData['CoPerson']['status'];
+    // midPoint user nickName
+    $user['user']['nickName'] = $provisioningData['PrimaryName']['given'];
 
-    // TODO email
+    // midPoint user honorificPrefix
+    if (!empty($provisioningData['PrimaryName']['honorific'])) {
+      $user['user']['honorificPrefix'] = $provisioningData['PrimaryName']['honorific'];
+    }
+
+    // midPoint user honorificSuffix
+    if (!empty($provisioningData['PrimaryName']['suffix'])) {
+      $user['user']['honorificSuffix'] = $provisioningData['PrimaryName']['suffix'];
+    }
+
+    // TODO midPoint user title
+
+    // midPoint user emailAddress
+    if (!empty($provisioningData['EmailAddress'][0]['mail'])) {
+      $user['user']['emailAddress'] = $provisioningData['EmailAddress'][0]['mail'];
+    }
+
+    // TODO midPoint user telephoneNumber
+
+    // TODO midPoint user employeeNumber
 
     return $user;
   }
