@@ -91,6 +91,14 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return true;
   }
 
+  /**
+   * Provision a CO person as a midPoint user.
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return boolean true if the CO person was provisioned to midPoint as a user successfully, false otherwise
+   */
   public function provisionCoPerson($coProvisioningTargetData, $provisioningData) {
     // Is the person active and should be provisioned ?
     $active = $this->isCoPersonActive($provisioningData);
@@ -103,9 +111,9 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
       return $this->createUser($coProvisioningTargetData, $provisioningData);
     }
 
-    // Modify user if active and already provisioned
+    // Update user if active and already provisioned
     if ($active and $provisioned) {
-      return $this->modifyUser($coProvisioningTargetData, $provisioningData);
+      return $this->updateUser($coProvisioningTargetData, $provisioningData);
     }
 
     // Delete user if not active and already provisioned
@@ -117,18 +125,25 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return true;
   }
 
+  /**
+   * Create a midPoint user.
+   *
+   * Saves the midPoint identifier (OID).
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return boolean true if the midPoint user was created successfully, false otherwise.
+   */
   public function createUser($coProvisioningTargetData, $provisioningData) {
     // Calculate how user should be provisioned
     $user = $this->calcUser($coProvisioningTargetData, $provisioningData);
-
-    // Build XML to create user
-    $xml = MidPointRestApiClient::buildUserXml($user);
 
     // Connect to MidPoint
     $api = new MidPointRestApiClient($coProvisioningTargetData);
 
     // Create MidPoint user
-    $oid = $api->createUser($xml);
+    $oid = $api->createUserFromArray($user);
 
     // Return false if unable to create MidPoint user
     if (empty($oid)) {
@@ -139,6 +154,16 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return $this->saveIdentifier($coProvisioningTargetData, $provisioningData, $oid);
   }
 
+  /**
+   * Create a midPoint user.
+   *
+   * Deletes the midPoint identifier (OID).
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return boolean true if the midPoint user was deleted successfully, false otherwise.
+   */
   public function deleteUser($coProvisioningTargetData, $provisioningData) {
     // Find MidPoint identifier
     $oid = $this->findIdentifier($coProvisioningTargetData, $provisioningData);
@@ -157,7 +182,17 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return false;
   }
 
-  public function modifyUser($coProvisioningTargetData, $provisioningData) {
+  /**
+   * Update a midPoint user.
+   *
+   * TODO what to return if no changes are necessary ?
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return boolean true if the midPoint user was modified successfully, false otherwise.
+   */
+  public function updateUser($coProvisioningTargetData, $provisioningData) {
     // Calculate how user should be provisioned
     $user = $this->calcUser($coProvisioningTargetData, $provisioningData);
 
@@ -184,13 +219,16 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
 
     // TODO return if no mods
 
-    // Build modification XML
-    $xml = MidPointRestApiClient::buildUserModificationXml($mods);
-
-    // Modify MidPoint user
-    return $api->modifyUser($oid, $xml);
+    return $api->modifyUserFromArray($oid, $mods);
   }
 
+  /**
+   * Whether the CO Person is active.
+   *
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return Boolean true if the CO Person is active, false otherwise
+   */
   public function isCoPersonActive($provisioningData) {
     if (in_array(
       $provisioningData['CoPerson']['status'],
@@ -204,6 +242,14 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return false;
   }
 
+  /**
+   * Whether the midPoint user is already provisioned.
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return Boolean true if the midPoint user is already provisioned, false otherwise
+   */
   public function isUserProvisioned($coProvisioningTargetData, $provisioningData) {
     // Find MidPoint identifier
     $oid = $this->findIdentifier($coProvisioningTargetData, $provisioningData);
@@ -218,37 +264,44 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return false;
   }
 
-  public function calcUser($coProvisioningTargetData, $provisioningData) {
-
-    $data['user']['name'] = $this->getUserName($coProvisioningTargetData, $provisioningData);
-
-    $data['user']['fullName'] = generateCn($provisioningData['PrimaryName'], true);
-
-    $data['user']['givenName'] = $provisioningData['PrimaryName']['given'];
-
-    if (!empty($provisioningData['PrimaryName']['family'])) {
-      $data['user']['familyName'] = $provisioningData['PrimaryName']['family'];
-    }
-
-    // TODO middleName
-
-    // TODO status $data['user']['status'] = $provisioningData['CoPerson']['status'];
-
-    // TODO email
-
-    return $data;
-  }
-
   /**
-   * Get user name based on provisioner configuration
+   * Calculate how a midPoint user should be provisioned.
    *
    * @param array $coProvisioningTargetData CO provisioning target data
    * @param array $provisioningData CO Person provisioning data
    *
-   * @return string Username or null TODO
-   * @since COmanage Registry X.Y.Z
+   * @return array Array representing how a midPoint user should be provisioned
    */
+  public function calcUser($coProvisioningTargetData, $provisioningData) {
+    $user = array();
 
+    $user['user']['name'] = $this->getUserName($coProvisioningTargetData, $provisioningData);
+
+    $user['user']['fullName'] = generateCn($provisioningData['PrimaryName'], true);
+
+    $user['user']['givenName'] = $provisioningData['PrimaryName']['given'];
+
+    if (!empty($provisioningData['PrimaryName']['family'])) {
+      $user['user']['familyName'] = $provisioningData['PrimaryName']['family'];
+    }
+
+    // TODO middleName
+
+    // TODO status $user['user']['status'] = $provisioningData['CoPerson']['status'];
+
+    // TODO email
+
+    return $user;
+  }
+
+  /**
+   * Get midPoint user name based on provisioner configuration.
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return string MidPoint user name or null
+   */
   public function getUserName($coProvisioningTargetData, $provisioningData) {
     if (isset($provisioningData['CoPerson'])) {
       $coPersonId = $provisioningData['CoPerson']['id'];
@@ -277,6 +330,15 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return null;
   }
 
+  /**
+   * Returns a normalized representation of a user.
+   *
+   * Removes metadata and other data that is not provisioned.
+   *
+   * @param array $user Array representing a midPoint user
+   *
+   * @return Array Array representing a normalized midPoint user
+   */
   public function canonicalizeUser($user) {
     $flat = $user;
 
@@ -304,6 +366,15 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return $flat;
   }
 
+  /**
+   * Compute differences between midPoint users.
+   *
+   * @param array $midPointUserAfter Array representing how a midPoint user should be provisioned
+   * @param array $midPointUserBefore Array representing how a midPoint user is provisioned
+   *
+   * @return array Array of modifications representing differences between midPoint users, the array is empty if there
+   *   are no differences
+   */
   public function diffUser($midPointUserAfter, $midPointUserBefore) {
     $mods = array();
 
@@ -333,6 +404,14 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return $mods;
   }
 
+  /**
+   * Delete the midPoint identifier (OID).
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   *
+   * @return boolean true if identifier was deleted successfully, false otherwise
+   */
   public function deleteIdentifier($coProvisioningTargetData, $provisioningData) {
     $args = array();
     $args['conditions']['Identifier.co_person_id'] = $provisioningData['CoPerson']['id'];
@@ -349,12 +428,12 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
   }
 
   /**
-   * Find the MidPoint identifier (OID).
+   * Find the midPoint identifier (OID).
    *
-   * @param $coProvisioningTargetData
-   * @param $provisioningData
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
    *
-   * @return |null
+   * @return String MidPoint identifier (OID) or null
    */
   public function findIdentifier($coProvisioningTargetData, $provisioningData) {
     $args = array();
@@ -371,6 +450,15 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     return null;
   }
 
+  /**
+   * Save the midPoint identifier.
+   *
+   * @param array $coProvisioningTargetData CO provisioning target data
+   * @param array $provisioningData CO Person provisioning data
+   * @param $oid String MidPoint user identifier (OID)
+   *
+   * @return boolean true if identifier was saved successfully, false otherwise
+   */
   public function saveIdentifier($coProvisioningTargetData, $provisioningData, $oid) {
     $args = array(
       'Identifier' => array(
