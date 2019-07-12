@@ -185,12 +185,10 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Update a midPoint user.
    *
-   * TODO what to return if no changes are necessary ?
-   *
    * @param array $coProvisioningTargetData CO provisioning target data
    * @param array $provisioningData CO Person provisioning data
    *
-   * @return boolean true if the midPoint user was modified successfully, false otherwise.
+   * @return boolean true if the midPoint user was modified successfully or no changes are necessary, false otherwise.
    */
   public function updateUser($coProvisioningTargetData, $provisioningData) {
     // Calculate how user should be provisioned
@@ -217,7 +215,10 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     // Diff
     $mods = $this->diffUser($user, $flattenedUser);
 
-    // TODO return if no mods
+    // Return true if no modifications need to be made
+    if (empty($mods)) {
+      return true;
+    }
 
     return $api->modifyUserFromArray($oid, $mods);
   }
