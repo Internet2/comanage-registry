@@ -421,10 +421,8 @@
     align-items: stretch;
   }
   .co-card {
-    float: left;
     margin: 0 1.25em 1.25em 0;
     padding: 0.75em 1.25em 4em 1.25em;
-    min-height: 150px;
     min-width: 0;
     width: 180px;
     -webkit-box-shadow: 1px 1px 1px 0px rgba(245,245,245,1);

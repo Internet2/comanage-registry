@@ -1523,6 +1523,7 @@ original notification at
   'fd.svc.label.short.desc' => 'Short label or identifier for this service, intended for use with LDAP attribute options. Alphanumeric characters only.',
   'fd.svc.mail' =>    'Service Contact Email',
   'fd.svc.mail.desc' => 'Email contact address for assistance with this Service',
+  'fd.svc.mail.prefix' => 'Service contact: ',
   'fd.svc.portal' =>  'Service Portal',
   'fd.svc.url' =>     'Service URL',
   'fd.svc.url.desc' => 'URL at which this Service is available',

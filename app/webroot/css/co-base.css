@@ -1493,8 +1493,18 @@ a.ui-button:visited,
 .co-services {
   clear: both;
 }
+.co-card.co-card-linked {
+  cursor: pointer;
+}
 .co-card h2  {
   font-size: 1.2em;
+}
+#main .co-card h2 a {
+  font-weight: bold;
+  color: #555;
+}
+#main .co-card h2 a:hover {
+  text-decoration: none;
 }
 .co-card {
   position: relative;
