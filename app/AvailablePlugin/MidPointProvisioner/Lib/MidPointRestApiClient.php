@@ -74,12 +74,12 @@ class MidPointRestApiClient extends CakeObject {
     $this->ssl_verify_peer_name  = $coProvisioningTargetData['CoMidPointProvisionerTarget']['ssl_verify_peer_name'];
 
     if (Configure::read('debug')) {
-      $this->log($this->logPrefix() ."MidPoint URL                   : $this->serverUrl");
-      $this->log($this->logPrefix() ."MidPoint username              : $this->username");
-      $this->log($this->logPrefix() ."MidPoint ssl_allow_self_signed : $this->ssl_allow_self_signed");
-      $this->log($this->logPrefix() ."MidPoint ssl_verify_host       : $this->ssl_verify_host");
-      $this->log($this->logPrefix() ."MidPoint ssl_verify_peer       : $this->ssl_verify_peer");
-      $this->log($this->logPrefix() ."MidPoint ssl_verify_peer_name  : $this->ssl_verify_peer_name");
+      $this->log($this->logPrefix() ."MidPoint URL                   : $this->serverUrl", 'debug');
+      $this->log($this->logPrefix() ."MidPoint username              : $this->username", 'debug');
+      $this->log($this->logPrefix() ."MidPoint ssl_allow_self_signed : $this->ssl_allow_self_signed", 'debug');
+      $this->log($this->logPrefix() ."MidPoint ssl_verify_host       : $this->ssl_verify_host", 'debug');
+      $this->log($this->logPrefix() ."MidPoint ssl_verify_peer       : $this->ssl_verify_peer", 'debug');
+      $this->log($this->logPrefix() ."MidPoint ssl_verify_peer_name  : $this->ssl_verify_peer_name", 'debug');
     }
   }
 
