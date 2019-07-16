@@ -100,25 +100,25 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
    * @return boolean true if the CO person was provisioned to midPoint as a user successfully, false otherwise
    */
   public function provisionCoPerson($coProvisioningTargetData, $provisioningData) {
-    // Is the person active and should be provisioned ?
-    $active = $this->isCoPersonActive($provisioningData);
+    // Should the user be provisioned ?
+    $provisionable = $this->isUserProvisionable($coProvisioningTargetData, $provisioningData);
 
     // Is the user already provisioned ?
     $provisioned = $this->isUserProvisioned($coProvisioningTargetData, $provisioningData);
 
-    // Create user if active and not provisioned
-    if ($active and !$provisioned) {
+    // Create user if user should be provisioned but is not provisioned
+    if ($provisionable and !$provisioned) {
       return $this->createUser($coProvisioningTargetData, $provisioningData);
     }
 
-    // Update user if active and already provisioned
-    if ($active and $provisioned) {
+    // Update user if user should be provisioned and is already provisioned
+    if ($provisionable and $provisioned) {
       return $this->updateUser($coProvisioningTargetData, $provisioningData);
     }
 
-    // Delete user if not active and already provisioned
-    if (!$active and $provisioned) {
-      return $this->deleteUser($coProvisioningTargetData, $provisioningData);
+    // Archive user if user should not be provisioned but is already provisioned
+    if (!$provisionable and $provisioned) {
+      // TODO return $this->deleteUser($coProvisioningTargetData, $provisioningData);
     }
 
     // Nothing to do
@@ -224,13 +224,14 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
   }
 
   /**
-   * Whether the CO Person is active.
+   * Whether the midPoint user should be provisioned.
    *
+   * @param array $coProvisioningTargetData CO provisioning target data
    * @param array $provisioningData CO Person provisioning data
    *
-   * @return Boolean true if the CO Person is active, false otherwise
+   * @return Boolean true if the midPoint user should be provisioned, false otherwise
    */
-  public function isCoPersonActive($provisioningData) {
+  public function isUserProvisionable($coProvisioningTargetData, $provisioningData) {
     if (in_array(
       $provisioningData['CoPerson']['status'],
       array(

@@ -4,6 +4,7 @@ App::uses('MidPointRestApiClient', 'MidPointProvisioner.Lib');
 
 class MidPointRestApiClientTest extends CakeTestCase {
 
+  /** @var array MidPoint connection configuration */
   public $coProvisioningTargetData = array(
     'CoMidPointProvisionerTarget' => array(
       'serverurl' => 'https://172.22.0.6:443/midpoint',
@@ -19,20 +20,10 @@ class MidPointRestApiClientTest extends CakeTestCase {
   /** @var MidPointRestApiClient $api */
   public $api;
 
-  public $minimalUserOid;
+  /** @var array Array of OIDs to be deleted during tear down */
+  public $oidsToDelete = array();
 
-  public $toDelete = array();
-
-  /** @var string XML representation of new minimal user */
-  public $minimalUserXml =
-    '<?xml version="1.0" encoding="UTF-8"?>
-       <user xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3">
-        <name>Test User</name>
-        <fullName>Test User</fullName>
-        <givenName>Test</givenName>
-        <familyName>User</familyName>
-       </user>';
-
+  /** @var array Array representation of minimal test user */
   public $minimalUser = array(
     'user' => array(
       'name' => 'Test User',
@@ -42,25 +33,75 @@ class MidPointRestApiClientTest extends CakeTestCase {
     )
   );
 
+  /** @var string XML representation of minimal test user */
+  public $minimalUserXml =
+    '<?xml version="1.0" encoding="UTF-8"?>
+       <user xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3">
+        <name>Test User</name>
+        <fullName>Test User</fullName>
+        <givenName>Test</givenName>
+        <familyName>User</familyName>
+       </user>';
+
+  /** @var array Array representation of test user */
+  public $user = array(
+    'user' => array(
+      'name' => 'Test User',
+      'fullName' => 'Test User',
+      'givenName' => 'Test',
+      'familyName' => 'User',
+      'additionalName' => 'Middle',
+      'nickName' => 'Test',
+      'honorificPrefix' => 'Dr',
+      'honorificSuffix' => 'III',
+      'emailAddress' => 'test.user@example.org'
+    )
+  );
+
+  /** @var string XML representation of test user */
+  public $userXml =
+    '<?xml version="1.0" encoding="UTF-8"?>
+       <user xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3">
+        <name>Test User</name>
+        <fullName>Test User</fullName>
+        <givenName>Test</givenName>
+        <familyName>User</familyName>
+        <additionalName>Middle</additionalName>
+        <nickName>Test</nickName>
+        <honorificPrefix>Dr</honorificPrefix>
+        <honorificSuffix>III</honorificSuffix>
+        <emailAddress>test.user@example.org</emailAddress>
+       </user>';
+
+  /**
+   * Set up API connection to midPoint.
+   */
   public function setUp() {
     parent::setUp();
-    CakeLog::debug('MidPointRestApiClientTest setUp');
     $this->api = new MidPointRestApiClient($this->coProvisioningTargetData);
   }
 
+  /**
+   * Delete test OIDs.
+   */
   public function tearDown() {
     // Delete test users.
-    foreach ($this->toDelete as $oid) {
-      CakeLog::debug("TearDown Deleting $oid");
+    foreach ($this->oidsToDelete as $oid) {
       $this->deleteUser($oid);
     }
     parent::tearDown();
-    CakeLog::debug('MidPointRestApiClientTest tearDown');
   }
 
-  public function testBuildUser() {
+  public function testBuildUserXml() {
+    $actualXml = $this->api->buildUserXml($this->user);
+    $expectedXml = $this->userXml;
+    $this->assertXmlStringEqualsXmlString($expectedXml, $actualXml);
+  }
+
+  public function testBuildUserXmlMinimal() {
     $actualXml = $this->api->buildUserXml($this->minimalUser);
-    $this->assertXmlStringEqualsXmlString($this->minimalUserXml, $actualXml);
+    $expectedXml = $this->minimalUserXml;
+    $this->assertXmlStringEqualsXmlString($expectedXml, $actualXml);
   }
 
   public function testBuildUserModsAddGivenName() {
@@ -277,14 +318,28 @@ class MidPointRestApiClientTest extends CakeTestCase {
     $this->assertXmlStringEqualsXmlString($expectedXml, $actualXml);
   }
 
-  public function createMinimalUser() {
+  public function createMinimalTestUser() {
     $oid = $this->createUser($this->minimalUserXml);
     $user = $this->api->getUser($oid);
+    $this->assertEquals('Test User', $user['user']['name']);
+    $this->assertEquals('Test User', $user['user']['fullName']);
     $this->assertEquals('Test', $user['user']['givenName']);
     $this->assertEquals('User', $user['user']['familyName']);
-    $this->assertEquals('Test User', $user['user']['fullName']);
+    return $oid;
+  }
+
+  public function createTestUser() {
+    $oid = $this->createUser($this->userXml);
+    $user = $this->api->getUser($oid);
     $this->assertEquals('Test User', $user['user']['name']);
-    //return ($oid, $user);
+    $this->assertEquals('Test User', $user['user']['fullName']);
+    $this->assertEquals('Test', $user['user']['givenName']);
+    $this->assertEquals('User', $user['user']['familyName']);
+    $this->assertEquals('Middle', $user['user']['additionalName']);
+    $this->assertEquals('Test', $user['user']['nickName']);
+    $this->assertEquals('Dr', $user['user']['honorificPrefix']);
+    $this->assertEquals('III', $user['user']['honorificSuffix']);
+    $this->assertEquals('test.user@example.org', $user['user']['emailAddress']);
     return $oid;
   }
 
@@ -292,7 +347,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
     $oid = $this->api->createUser($xml);
     $this->assertTrue(is_string($oid));
     if ($toDelete) {
-      array_push($this->toDelete, $oid);
+      array_push($this->oidsToDelete, $oid);
     }
     return $oid;
   }
@@ -302,62 +357,18 @@ class MidPointRestApiClientTest extends CakeTestCase {
     $this->assertEmpty($this->api->getUser($oid));
   }
 
-  public function modifyUserNOTUSED($op, $name, $value) {
-    // Template XML modification.
-    $xml =
-      '<?xml version="1.0" encoding="UTF-8"?>
-        <objectModification xmlns="http://midpoint.evolveum.com/xml/ns/public/common/api-types-3" xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3">
-        <itemDelta>
-            <t:modificationType>$op</t:modificationType>
-            <t:path>c:$name</t:path>
-            <t:value>$value</t:value>
-        </itemDelta>
-        </objectModification>';
-
-    // Adjust XML template.
-    CakeLog::debug("modifyAttribute 0 $xml");
-    $xml = str_replace('$op', $op, $xml);
-    $xml = str_replace('$name', $name, $xml);
-    //if (isset($value)) {
-      $xml = str_replace('$value', $value, $xml);
-    //}
-    CakeLog::debug("modifyAttribute 1 $xml");
-
-    // Create new minimal user.
-    $oid = $this->createUser($this->minimalUserXml);
-
-    // Verify newly created user.
-    $user = $this->api->getUser($oid);
-    foreach ($this->minimalUser as $expectedName => $expectedValue) {
-      $this->assertEquals($expectedValue, $user['user'][$expectedName]);
-    }
-
-    // Modify user.
-    $this->assertTrue($this->api->modifyUser($oid, $xml));
-
-    // Verify modified user.
-    $user = $this->api->getUser($oid);
-    CakeLog::debug('modified user '.var_export($user, true));
-    if ($op === 'delete') {
-      $this->assertFalse(isset($user['user'][$name]));
-    } else {
-      $this->assertEquals($value, $user['user'][$name]);
-    }
-
-    foreach ($this->minimalUser as $expectedName => $expectedValue) {
-      // Ignore modified attribute.
-      if ($expectedName === $name) {
-        continue;
-      }
-      $this->assertEquals($expectedValue, $user['user'][$expectedName]);
-    }
-  }
-
   /**
    * Test creating a user.
    */
+  public function testCreateUser() {
+    $this->createTestUser();
+  }
+
+  /**
+   * Test creating a minimal user.
+   */
   public function testCreateMinimalUser() {
-    $this->createUser($this->minimalUserXml);
+    $this->createMinimalTestUser();
   }
 
   /**
@@ -365,8 +376,8 @@ class MidPointRestApiClientTest extends CakeTestCase {
    */
   public function testCreateUserAlreadyExists() {
     $this->setExpectedException(RuntimeException::class, '409');
-    $this->createUser($this->minimalUserXml);
-    $this->createUser($this->minimalUserXml);
+    $this->createMinimalTestUser();
+    $this->createMinimalTestUser();
   }
 
   /**
@@ -389,7 +400,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
    * Test getting a user.
    */
   public function testGetUser() {
-    $oid = $this->createUser($this->minimalUserXml);
+    $oid = $this->createMinimalTestUser();
     $user = $this->api->getUser($oid);
     $this->assertEquals('Test', $user['user']['givenName']);
     $this->assertEquals('User', $user['user']['familyName']);
@@ -407,7 +418,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenName() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -431,7 +442,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenNameAndFamilyName() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -460,7 +471,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenNameAlreadyExistsAndFamilyName() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -489,7 +500,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenNameNoValueAndFamilyName() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -517,7 +528,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenNameAlreadyExists() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -541,7 +552,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenNameEmptyValue() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -565,7 +576,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserReplaceGivenNameNoValue() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Replace givenName with new value.
     $xml =
@@ -588,7 +599,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserDeleteGivenName() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Delete givenName with existing value 'Test'.
     $xml =
@@ -612,7 +623,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserDeleteGivenNameDoesNotExist() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Delete givenName with value that does not exist.
     $xml =
@@ -636,7 +647,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserDeleteGivenNameNoValue() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Delete givenName with no value.
     $xml =
@@ -659,7 +670,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserDeleteGivenNameEmptyValue() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Delete givenName with no value.
     $xml =
@@ -683,7 +694,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
 
   public function testModifyUserAddAdditionalName() {
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Delete givenName with existing value 'Test'.
     $xml =
@@ -706,13 +717,12 @@ class MidPointRestApiClientTest extends CakeTestCase {
     $this->assertEquals('Middle', $user['user']['additionalName']);
   }
 
-
   public function testModifyUserAddInvalidProperty() {
 
     $this->setExpectedException(RuntimeException::class, '500');
 
     // Create new minimal user.
-    $oid = $this->createMinimalUser();
+    $oid = $this->createMinimalTestUser();
 
     // Delete givenName with existing value 'Test'.
     $xml =
@@ -726,6 +736,4 @@ class MidPointRestApiClientTest extends CakeTestCase {
         </objectModification>';
     $this->assertTrue($this->api->modifyUser($oid, $xml));
   }
-
-
 }
