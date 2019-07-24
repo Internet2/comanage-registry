@@ -136,7 +136,7 @@
               array(
                 'class' => 'co-card-link',
                 'escape' => false,
-                'title' => _txt('fd.svc.mail.prefix') . $c['CoService']['contact_email']
+                'title' => _txt('fd.svc.mail.prefix', array($c['CoService']['contact_email']))
               ));
           }
 
