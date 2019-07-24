@@ -377,6 +377,7 @@
     $(".datepicker").datepicker({
       changeMonth: true,
       changeYear: true,
+      yearRange: "c-90:+10",
       dateFormat: "yy-mm-dd",
       numberOfMonths: 1,
       showButtonPanel: false,
