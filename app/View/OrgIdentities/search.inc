@@ -61,6 +61,74 @@ $tabIndex = 1;
     <legend id="top-search-toggle">
       <em class="material-icons">search</em>
       <?php print _txt('op.filter');?>
+
+      <?php if(!empty($this->request->params['named']['Search.givenName'])  ||
+        !empty($this->request->params['named']['Search.familyName'])        ||
+        !empty($this->request->params['named']['Search.mail'])              ||
+        !empty($this->request->params['named']['Search.identifier'])        ||
+        !empty($this->request->params['named']['Search.organization'])      ||
+        !empty($this->request->params['named']['Search.orgIdentitySource']) ||
+        !empty($this->request->params['named']['Search.department'])        ||
+        !empty($this->request->params['named']['Search.title'])             ||
+        !empty($this->request->params['named']['Search.affiliation'])):?>
+
+        <span id="top-search-active-filters">
+          <?php if (!empty($this->request->params['named']['Search.givenName'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.name.given'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.givenName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.familyName'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.name.family'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.familyName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.mail'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.email_address.mail'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.identifier.identifier'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.organization'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.o'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.organization'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.orgIdentitySource'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('ct.org_identity_sources.1'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_org_id_sources[$this->request->params['named']['Search.orgIdentitySource']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.department'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.ou'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.department'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.title'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.title'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['Search.affiliation'])): ?>
+            <span class="top-search-active-filter">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.affiliation'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_affiliations[$this->request->params['named']['Search.affiliation']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </span>
+          <?php endif; ?>
+        </span>
+      <?php endif; ?>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
     </legend>
 

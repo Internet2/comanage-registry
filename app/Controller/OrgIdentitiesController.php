@@ -150,7 +150,11 @@ class OrgIdentitiesController extends StandardController {
     $args['contain'] = false;
     
     $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));
-    
+
+    // Get the affiliations for display in the search filter bar
+    global $cm_lang, $cm_texts;
+    $this->set('vv_affiliations', $cm_texts[ $cm_lang ]['en.org_identity.affiliation']);
+
     // If an OrgIdentity was specified, see if there's an associated pipeline
     
     if(($this->action == 'edit' || $this->action == 'view')

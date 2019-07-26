@@ -96,7 +96,7 @@ global $cm_lang, $cm_texts;
           <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
             <span class="top-search-active-filter">
               <span class="top-search-active-filter-title"><?php print _txt('fd.identifier.identifier'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.identifier']; ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </span>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.status'])): ?>
