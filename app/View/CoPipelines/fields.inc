@@ -58,10 +58,16 @@
     var match = document.getElementById('CoPipelineMatchStrategy').value;
     
     if(match == '<?php print MatchStrategyEnum::EmailAddress; ?>') {
+      $("#CoPipelineMatchServerId").closest('li').hide('fade');
       $("#CoPipelineMatchType").closest('li').show('fade');
+    } else if(match == '<?php print MatchStrategyEnum::External; ?>') {
+      $("#CoPipelineMatchServerId").closest('li').show('fade');
+      $("#CoPipelineMatchType").closest('li').hide('fade');
     } else if(match == '<?php print MatchStrategyEnum::Identifier; ?>') {
+      $("#CoPipelineMatchServerId").closest('li').hide('fade');
       $("#CoPipelineMatchType").closest('li').show('fade');
     } else {
+      $("#CoPipelineMatchServerId").closest('li').hide('fade');
       $("#CoPipelineMatchType").closest('li').hide('fade');
     }
     
@@ -271,6 +277,36 @@
                   }
                 } else {
                   print filter_var($co_pipelines[0]['CoPipeline']['match_type'],FILTER_SANITIZE_SPECIAL_CHARS);
+                }
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('CoPipeline.match_server', _txt('ct.match_servers.1')) : _txt('ct.match_servers.1')); ?>
+                <span class="required">*</span>
+              </div>
+            </div>
+            <div class="field-info">
+              <?php
+                $attrs = array();
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['match_server_id'])
+                                   ? $co_pipelines[0]['CoPipeline']['match_server_id']
+                                   : '');
+                $attrs['empty'] = true;
+                
+                if($e) {
+                  $this->Form->unlockField('CoPipeline.match_server_id');
+                  print $this->Form->select('CoPipeline.match_server_id',
+                                            $vv_match_servers,
+                                            $attrs);
+                  
+                  if($this->Form->isFieldError('match_server_id')) {
+                    print $this->Form->error('match_server_id');
+                  }
+                } else {
+                  print filter_var($vv_match_servers[ $co_pipelines[0]['CoPipeline']['match_server_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
             </div>

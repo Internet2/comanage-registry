@@ -237,7 +237,7 @@ class CoJob extends AppModel {
    * @throws RuntimeException
    */
   
-  public function register($coId, $jobType, $jobTypeFk=null, $jobMode="", $summary="", $queued=false, $concurrent=false, $params) {
+  public function register($coId, $jobType, $jobTypeFk=null, $jobMode="", $summary="", $queued=false, $concurrent=false, $params=null) {
     $dbc = $this->getDataSource();
     $dbc->begin();
     

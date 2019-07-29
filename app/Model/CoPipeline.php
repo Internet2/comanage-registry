@@ -35,6 +35,10 @@ class CoPipeline extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array(
     "Co",
+    "MatchServer" => array(
+      'className'  => 'Server',
+      'foreignKey' => 'match_server_id'
+    ),
     "SyncCou" => array(
       'className' => 'Cou',
       'foreignKey'=>'sync_cou_id'
@@ -79,9 +83,8 @@ class CoPipeline extends AppModel {
       'message' => 'A valid status must be selected'
     ),
     'match_strategy' => array(
-      'rule' => array('inList', array(// Not yet implemented (XXX JIRA)
-                                      MatchStrategyEnum::EmailAddress,
-                                      // MatchStrategyEnum::External, 
+      'rule' => array('inList', array(MatchStrategyEnum::EmailAddress,
+                                      MatchStrategyEnum::External, 
                                       MatchStrategyEnum::Identifier,
                                       MatchStrategyEnum::NoMatching)),
       'required'   => true,
@@ -146,11 +149,12 @@ class CoPipeline extends AppModel {
    * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
    * @param  Boolean $provision Whether to execute provisioning
    * @param  String  $oisRawRecord If the Org Identity came from an Org Identity Source, the raw record
+   * @param  Integer $oisRecordId  If the Org Identity came from an Org Identity Source, the OIS Record ID
    * @return Boolean True on success
    * @throws InvalidArgumentException
    */
   
-  public function execute($id, $orgIdentityId, $syncAction, $actorCoPersonId=null, $provision=true, $oisRawRecord=null) {
+  public function execute($id, $orgIdentityId, $syncAction, $actorCoPersonId=null, $provision=true, $oisRawRecord=null, $oisRecordId=null) {
     // Make sure we have a valid action
     
     if(!in_array($syncAction, array(SyncActionEnum::Add,
@@ -162,23 +166,11 @@ class CoPipeline extends AppModel {
                                                 FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)))); /* was Cake's Sanitize::paranoid */
     }
     
-    // And that $orgIdentityId is in the CO. Pull the whole record since we'll
-    // probably need it again.
+    // And that $orgIdentityId is in the CO.
     
     $args = array();
     $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
-    $args['contain'] = array(
-      'Name',
-      'PrimaryName',
-      'Address',
-      'EmailAddress',
-      'Identifier',
-      'TelephoneNumber',
-      'OrgIdentitySourceRecord',
-      // These will pull associated models that were created via the Pipeline
-      'PipelineCoPersonRole',
-      'Url'
-    );
+    $args['contain'] = false;
     
     $orgIdentity = $this->Co->OrgIdentity->find('first', $args);
     
@@ -208,9 +200,9 @@ class CoPipeline extends AppModel {
     }
     
     // We need to find a CO Person to operate on.
-    $coPersonId = $this->findTargetCoPersonId($pipeline, $orgIdentityId, $actorCoPersonId);
+    $targetIds = $this->findTargetCoPersonId($pipeline, $orgIdentityId, $actorCoPersonId);
     
-    if(!$coPersonId) {
+    if(!$targetIds['co_person_id']) {
       // What we do here depends on the sync action. On add, we create a new CO Person.
       // On update, we do not and abort. This will be a bit confusing if something goes wrong
       // during an initial add, but short of a "force" (manual operation), there's
@@ -227,7 +219,103 @@ class CoPipeline extends AppModel {
        && !empty($pipeline['CoPipeline']['sync_status_on_delete'])) {
       $this->processDelete($pipeline, $orgIdentityId, $actorCoPersonId, $provision);
     } else {
-      $this->syncOrgIdentityToCoPerson($pipeline, $orgIdentity, $coPersonId, $actorCoPersonId, $provision, $oisRawRecord);
+      // Pull the full set of attributes needed for syncOrgIdentityToCoPerson.
+      // We need to do this after findTargetCoPersonId sice that function might
+      // store a Reference Identifier returned from a Match server.
+      
+      $args = array();
+      $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
+      $args['contain'] = array(
+        'Name',
+        'PrimaryName',
+        'Address',
+        'EmailAddress',
+        'Identifier',
+        'TelephoneNumber',
+        'OrgIdentitySourceRecord',
+        // These will pull associated models that were created via the Pipeline
+        'PipelineCoPersonRole',
+        'Url'
+      );
+      
+      $orgIdentity = $this->Co->OrgIdentity->find('first', $args);
+      
+      if(!$orgIdentity) {
+        // This really shouldn't happen since we already verified $orgIdentityId
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.org_identities.1', $orgIdentityId))));
+      }
+      
+      $coPersonId = $this->syncOrgIdentityToCoPerson($pipeline,
+                                                     $orgIdentity,
+                                                     $targetIds['co_person_id'],
+                                                     $actorCoPersonId,
+                                                     $provision,
+                                                     $oisRawRecord);
+     
+      // If we are creating a new CO Person and we got a Reference ID from
+      // findTargetCoPersonId, then we want to save the Reference ID to the
+      // new CO Person record.
+      
+      if($coPersonId && $targetIds['reference_identifier']) {
+        if($oisRecordId) {
+          // Attach the Reference Identifier to the OIS Record
+          $this->Co->OrgIdentity->OrgIdentitySourceRecord->clear();
+          $this->Co->OrgIdentity->OrgIdentitySourceRecord->id = $oisRecordId;
+          $this->Co->OrgIdentity->OrgIdentitySourceRecord->saveField('reference_identifier', $targetIds['reference_identifier']);
+        }
+        
+        if(!$targetIds['co_person_id']) {
+          // If there wasn't already a CO Person record, attach the Reference
+          // Identifier to the newly created CO Person
+          
+          $identifier = array(
+            'identifier'      => $targetIds['reference_identifier'],
+            'type'            => IdentifierEnum::Reference,
+            'login'           => false,
+            'status'          => SuspendableStatusEnum::Active,
+            'co_person_id'    => $coPersonId
+          );
+          
+          $this->Co->CoPerson->Identifier->clear();
+          $this->Co->CoPerson->Identifier->save($identifier);
+          
+          // Cut history
+          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                     null,
+                                                     null,
+                                                     $actorCoPersonId,
+                                                     ActionEnum::ReferenceIdentifierObtained,
+                                                     _txt('rs.match', array($targetIds['reference_identifier'])));
+        }
+      } elseif($targetIds['co_person_id']
+               && $oisRecordId
+               && $pipeline['CoPipeline']['match_strategy'] == MatchStrategyEnum::External) {
+        // If we have a CO Person ID already and we are using an External match strategy,
+        // then if we have a reference ID on the OIS record issue an update match attributes
+        // request. Note we might not actually be updating any relevant attributes, but
+        // for the moment this seems like the most logical place to do this.
+        
+        $referenceId = $this->Co->OrgIdentity->OrgIdentitySourceRecord->field('reference_identifier',
+                                                                              array('OrgIdentitySourceRecord.id' => $oisRecordId));
+        
+        if($referenceId) {
+          // We use $referenceId as an indicator that this was a pipeline initiated
+          // match request, but don't actually use it in the request.
+          
+          $this->Co->Server->MatchServer->updateMatchAttributes(
+            $pipeline['CoPipeline']['match_server_id'],
+            $orgIdentityId
+          );
+        }
+        
+        // Cut history
+        $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                   null,
+                                                   null,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::MatchAttributesUpdated);
+      }
     }
     
     if($syncAction == SyncActionEnum::Add) {
@@ -236,7 +324,7 @@ class CoPipeline extends AppModel {
         // and if so expire it. (This will typically only be useful with a Match Strategy.)
         
         try {
-          $this->ReplaceCou->CoPersonRole->expire($coPersonId,
+          $this->ReplaceCou->CoPersonRole->expire($targetIds['co_person_id'],
                                                   $pipeline['CoPipeline']['sync_replace_cou_id'],
                                                   $actorCoPersonId);
         }
@@ -252,15 +340,18 @@ class CoPipeline extends AppModel {
    * If a matching, unlinked Person is found, a new CoOrgIdentityLink will be created.
    *
    * @since  COmanage Registry v2.0.0
-   * @param  Array $pipeline Array of Pipeline configuration data
+   * @param  Array   $pipeline Array of Pipeline configuration data
    * @param  Integer $orgIdentityId Source Org Identity to run query for
    * @param  Integer $actorCoPersonId CO Person ID of actor, if interactive
-   * @return Integer CO Person ID, or null if none found
+   * @return Array   Array of co_person_id and reference_identifier, either or both of which may be null
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
   protected function findTargetCoPersonId($pipeline, $orgIdentityId, $actorCoPersonId=null) {
+    $coPersonId = null;
+    $referenceId = null;
+      
     // We can assume a CO ID since Pipelines do not support pooled org identities
     $coId = $this->Co->OrgIdentity->field('co_id', array('OrgIdentity.id' => $orgIdentityId));
     
@@ -278,7 +369,10 @@ class CoPipeline extends AppModel {
                                                                       => $orgIdentityId));
     
     if($coPersonId) {
-      return $coPersonId;
+      return array(
+        'co_person_id' => $coPersonId,
+        'reference_identifier' => null
+      );
     }
     
     // If not, then execute the appropriate Match Strategy.
@@ -310,7 +404,7 @@ class CoPipeline extends AppModel {
       
       foreach($orgRecords as $o) {
         $args = array();
-        // EmailAddress is case insensitive, but Identifer is not
+        // EmailAddress is case insensitive, but Identifier is not
         if($pipeline['CoPipeline']['match_strategy'] == MatchStrategyEnum::EmailAddress) {
           $args['conditions']['LOWER(EmailAddress.mail)'] = strtolower($o['EmailAddress']['mail']);
         } else {
@@ -344,13 +438,51 @@ class CoPipeline extends AppModel {
         // else No Match
       }
     } elseif($pipeline['CoPipeline']['match_strategy'] == MatchStrategyEnum::External) {
-      // This is where we'd call out to (eg) the CIFER/TIER ID Match API. We probably
-      // want to do something like send a bunch of attributes (as configured) and use
-      // the resulting Reference Identifier as a handle to pull the appropriate CO Person
-      // record (via the identifiers table). Unclear how to handle potential/pending matches.
-      // (CO-1343)
+      // Call out to an ID Match server via the CIFER/TIER/ITAP API
       
-      throw new InvalidArgumentException('NOT IMPLEMENTED');
+      if(empty($pipeline['CoPipeline']['match_server_id'])) {
+        throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.match_servers.1'))));
+      }
+      
+      // On error, including 202, an exception is thrown and we don't continue.
+      // If we get a Reference ID back, look for an existing CO Person with it.
+      
+      $referenceId = $this->Co->Server->MatchServer->requestReferenceIdentifier(
+        $pipeline['CoPipeline']['match_server_id'],
+        $orgIdentityId
+      );
+      
+      $this->Co->OrgIdentity->HistoryRecord->record(null,
+                                                    null,
+                                                    $orgIdentityId,
+                                                    $actorCoPersonId,
+                                                    ActionEnum::ReferenceIdentifierObtained,
+                                                    _txt('rs.match', array($referenceId)));
+      
+      $args = array();
+      $args['conditions']['Identifier.identifier'] = $referenceId;
+      $args['conditions']['Identifier.type'] = IdentifierEnum::Reference;
+      $args['conditions']['CoPerson.co_id'] = $pipeline['CoPipeline']['co_id'];
+      $args['joins'][0]['table'] = 'co_people';
+      $args['joins'][0]['alias'] = 'CoPerson';
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
+      // Make this a distinct select so we don't get tripped on (eg) the same identifier
+      // address being listed twice for the same CO Person (eg from multiple OIS records)
+      $args['fields'] = array('DISTINCT Identifier.co_person_id');
+      $args['contain'] = false;
+      
+      $matchingRecords = $this->Co->CoPerson->Identifier->find('all', $args);
+      
+      if(count($matchingRecords) == 1) {
+        $coPersonId = $matchingRecords[0]['Identifier']['co_person_id'];
+      } elseif(count($matchingRecords) > 1) {
+        // Multiple matching records shouldn't happen, throw an error
+        throw new InvalidArgumentException(_txt('er.pi.match.multi', array(_txt('en.match.strategy',
+                                                                                null,
+                                                                                $pipeline['CoPipeline']['match_strategy']))));
+      }
+      // else No Match
     }
     // else No Matching
     
@@ -384,13 +516,14 @@ class CoPipeline extends AppModel {
                                                                            _txt('en.match.strategy',
                                                                                 null,
                                                                                 $pipeline['CoPipeline']['match_strategy']))));
-      
-      return $coPersonId;
     }
     
-    // No existing record, return null.
+    // Return whatever we found.
     
-    return null;
+    return array(
+      'co_person_id' => $coPersonId,
+      'reference_identifier' => $referenceId
+    );
   }
   
   /**
@@ -489,7 +622,7 @@ class CoPipeline extends AppModel {
    * @param  Integer $actorCoPersonId  CO Person ID of actor
    * @param  Boolean $provision        Whether to trigger provisioning
    * @param  String  $oisRawRecord     If the Org Identity came from an Org Identity Source, the raw record
-   * @return Boolean true, on success
+   * @return Integer                   CO Person ID on success
    */
   
   protected function syncOrgIdentityToCoPerson($coPipeline, 
@@ -815,8 +948,9 @@ class CoPipeline extends AppModel {
       
       foreach($newRecords as $id => $nr) {
         if(isset($curRecords[$id])) {
-          // This is an update, not an add, so perform a comparison. Inject the record ID.
+          // This is an update, not an add, so perform a comparison.
           
+          // Inject the record ID.
           $newRecords[$id]['id'] = $curRecords[$id]['id'];
           
           // XXX Normalized data will make a non-diff appear as a diff (CO-1336)
@@ -1138,6 +1272,6 @@ class CoPipeline extends AppModel {
       }
     }
     
-    return true;
+    return $coPersonId;
   }
 }

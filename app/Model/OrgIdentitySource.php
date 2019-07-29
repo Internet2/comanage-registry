@@ -400,7 +400,13 @@ class OrgIdentitySource extends AppModel {
     
     // Invoke pipeline, if configured
     try {
-      $this->executePipeline($id, $orgIdentityId, SyncActionEnum::Add, $actorCoPersonId, $provision, $brec['raw']);
+      $this->executePipeline($id,
+                             $orgIdentityId,
+                             SyncActionEnum::Add,
+                             $actorCoPersonId,
+                             $provision,
+                             $brec['raw'],
+                             $this->OrgIdentitySourceRecord->OrgIdentity->OrgIdentitySourceRecord->id);
     }
     catch(Exception $e) {
       $dbc->rollback();
@@ -420,16 +426,17 @@ class OrgIdentitySource extends AppModel {
    * @param  Integer $id OrgIdentitySource
    * @param  Integer $orgIdentityId OrgIdentity ID
    * @param  Integer $actorCoPersonId CO Person ID of actor creating new Org Identity
-   * @param  String $syncAction "add", "update", or "delete"
-   * @param  String $oisRawRecord The raw record
+   * @param  String  $syncAction "add", "update", or "delete"
+   * @param  String  $oisRawRecord The raw record
+   * @param  Integer $oisRecordId  The OIS Record ID
    * @param  Boolean $provision Whether to execute provisioning
    */
   
-  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId, $provision=true, $oisRawRecord=null) {
+  protected function executePipeline($id, $orgIdentityId, $action, $actorCoPersonId, $provision=true, $oisRawRecord=null, $oisRecordId=null) {
     $pipelineId = $this->OrgIdentitySourceRecord->OrgIdentity->pipeline($orgIdentityId);
     
     if($pipelineId) {
-      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId, $provision, $oisRawRecord);
+      return $this->CoPipeline->execute($pipelineId, $orgIdentityId, $action, $actorCoPersonId, $provision, $oisRawRecord, $oisRecordId);
     }
     // Otherwise, no pipeline to run, so just return success.
     
@@ -1174,6 +1181,10 @@ class OrgIdentitySource extends AppModel {
           $oisrec['OrgIdentitySourceRecord']['id'] = $cursrcrec['OrgIdentitySourceRecord']['id'];
         }
         
+        if(!empty($cursrcrec['OrgIdentitySourceRecord']['reference_identifier'])) {
+          $oisrec['OrgIdentitySourceRecord']['reference_identifier'] = $cursrcrec['OrgIdentitySourceRecord']['reference_identifier'];
+        }
+        
         try {
           $this->OrgIdentitySourceRecord->clear();
           $this->OrgIdentitySourceRecord->save($oisrec);
@@ -1220,7 +1231,8 @@ class OrgIdentitySource extends AppModel {
                                  : SyncActionEnum::Update,
                                  $actorCoPersonId,
                                  true,
-                                 $brec['raw']);
+                                 $brec['raw'],
+                                 $cursrcrec['OrgIdentitySourceRecord']['id']);
         }
         catch(Exception $e) {
           $dbc->rollback();
