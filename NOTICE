@@ -1,6 +1,6 @@
 COmanage Registry
 
-Copyright (C) 2010-2018
+Copyright (C) 2010-2019
 University Corporation for Advanced Internet Development, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,10 @@ necessarily reflect the views of the National Science Foundation (NSF).
 
 Contributions with original copyright held by, and copyright license granted
 to the University Corporation for Advanced Internet Development, Inc. as per
-the Contributer License Agreement by,
+the Contributor License Agreement by,
+
+ GRNET SA
+ https://grnet.gr
 
  Modern Language Association
  https://www.mla.org
@@ -69,6 +72,10 @@ files and utilities for further information:
  MIT License
  http://dimsemenov.com/plugins/magnific-popup
  
+ Material Design Light (app/webroot/js/mdl)
+ Apache 2.0
+ https://getmdl.io
+ 
  noty (app/webroot/js/jquery/noty)
  MIT License
  http://ned.im/noty
@@ -77,13 +84,13 @@ files and utilities for further information:
  MIT License
  https://github.com/KnpLabs/php-github-api
  
- spin.js (app/webroot/js/jquery/spin*)
- MIT License
- http://spin.js.org
- 
  Shibboleth Embedded Discovery Service (app/webroot/js/eds)
  Apache 2.0
  https://shibboleth.net/products/embedded-discovery-service.html
+ 
+ spin.js (app/webroot/js/jquery/spin*)
+ MIT License
+ http://spin.js.org
  
  Superfish (app/webroot/js/superfish)
  MIT License
