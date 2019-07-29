@@ -132,6 +132,14 @@
           ?>
         </td>
       </tr>
+      <tr class="line2">
+        <td>
+          <?php print _txt('en.identifier.type', null, IdentifierEnum::Reference); ?>
+        </td>
+        <td>
+          <?php print filter_var($org_identity_source_records[0]['OrgIdentitySourceRecord']['reference_identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>

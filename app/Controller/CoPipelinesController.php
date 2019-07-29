@@ -86,6 +86,16 @@ class CoPipelinesController extends StandardController {
     
     $this->set('vv_delete_statuses', $statuses);
     
+    // Provide a list of available Match Servers
+    $args = array();
+    $args['conditions']['Server.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['Server.server_type'] = ServerEnum::MatchServer;
+    $args['conditions']['Server.status'] = SuspendableStatusEnum::Active;
+    $args['fields'] = array('id', 'description');
+    $args['contain'] = false;
+    
+    $this->set('vv_match_servers', $this->CoPipeline->Co->Server->find('list', $args));
+    
     parent::beforeRender();
   }
   

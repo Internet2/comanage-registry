@@ -164,6 +164,8 @@ $cm_texts['en_US'] = array(
   'ct.identifiers.pl' =>        'Identifiers',
   'ct.ldap_servers.1' =>        'LDAP Server',
   'ct.ldap_servers.pl' =>       'LDAP Servers',
+  'ct.match_servers.1' =>       'Match Server',
+  'ct.match_servers.pl' =>      'Match Servers',
   'ct.names.1' =>               'Name',
   'ct.names.pl' =>              'Names',
   'ct.navigation_links.1' =>    'Navigation Link',
@@ -316,6 +318,7 @@ original notification at
     ActionEnum::InvitationExpired           => 'Invitation Expired',
     ActionEnum::InvitationSent              => 'Invitation Sent',
     ActionEnum::InvitationViewed            => 'Invitation Viewed',
+    ActionEnum::MatchAttributesUpdated      => 'Update Match Attributes Request Sent',
     ActionEnum::NotificationAcknowledged    => 'Notification Acknowledged',
     ActionEnum::NotificationCanceled        => 'Notification Canceled',
     ActionEnum::NotificationDelivered       => 'Notification Delivered',
@@ -333,6 +336,7 @@ original notification at
     ActionEnum::OrgIdRemovedSource          => 'Org Identity Removed From Source',
     ActionEnum::ProvisionerAction           => 'Provisioner Action',
     ActionEnum::ProvisionerFailed           => 'Provisioner Failed',
+    ActionEnum::ReferenceIdentifierObtained => 'Reference Identifier Obtained From Match Server',
   ),
   
   'en.action.petition' => array(
@@ -586,8 +590,7 @@ original notification at
   
   'en.match.strategy' => array(
     MatchStrategyEnum::EmailAddress => 'EmailAddress',
-    // Not yet implemented (CO-298)
-//    MatchStrategyEnum::External   => 'External',
+    MatchStrategyEnum::External   => 'External',
     MatchStrategyEnum::Identifier   => 'Identifier',
     MatchStrategyEnum::NoMatching   => 'Do Not Match'
   ),
@@ -667,6 +670,7 @@ original notification at
   'en.server' => array(
     ServerEnum::HttpServer   => 'HTTP',
     ServerEnum::LdapServer   => 'LDAP',
+    ServerEnum::MatchServer  => 'Match',
     ServerEnum::Oauth2Server => 'OAuth2',
     ServerEnum::SqlServer    => 'SQL'
   ),
@@ -950,6 +954,7 @@ original notification at
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.lock' =>        'Error obtaining lock: %1$s',
   'er.lock.exists' => 'Lock #%1$s already held by pid %2$s since %3$s',
+  'er.match.response' => 'Match Server responded: %1$s',
   'er.multiple' =>    'Unexpectedly found multiple results',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
   'er.nm.official.et' => 'The Name type "official" cannot be deleted or renamed',
@@ -1068,6 +1073,7 @@ original notification at
   'fd.attrs.cop' =>   'Person Attributes',
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
+  'fd.attrs.match' => 'Match Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
   'fd.automatic' =>   'Automatic',
   'fd.bcc' =>         'BCC',
@@ -1481,6 +1487,10 @@ original notification at
   'fd.searchbase' =>  'Search Base',
   'fd.server' =>      'Server',
   'fd.server.hostname' => 'Hostname',
+  'fd.server.match.is_comanage_match' => 'COmanage Match',
+  'fd.server.match.is_comanage_match.desc' => 'If the match server is COmanage Match, checking this box will enable extra functionality',
+  'fd.server.match.sor_label' => 'SOR Label',
+  'fd.server.match.sor_label.desc' => 'SOR Label as configured on the match server',
   'fd.server.url'=>   'Server URL',
   'fd.server.username' => 'Username',
   'fd.server.warn' => 'Once a new server has been created, the type cannot be changed',
@@ -1951,7 +1961,9 @@ original notification at
   'rs.jb.started' =>  'Started via JobShell by %1$s (uid %2$s)',
   'rs.jb.started.web' => 'Started via JobShell by %1$s (CoPerson ID %2$s)',
   'rs.mail.verified' => 'Email Address "%1$s" verified',
-  'rs.match.possible' => 'Possible Matches',
+  'rs.match' =>       'Reference Identifier %1$s obtained from match server',
+  'rs.match.accepted' => 'Match request requires administrator intervention, Match Request ID: %1$s',
+  'rs.match.request' => 'Potential Match',
   'rs.moved.copr' =>  'CO Person Role "%1$s" (%2$s) moved from %3$s (%4$s) to %5$s (%6$s)',
   'rs.nm.primary' =>  'Primary name updated',
   'rs.nm.primary-a' => 'Primary name updated to "%1$s"',

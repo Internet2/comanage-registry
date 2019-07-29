@@ -89,6 +89,7 @@ class ActionEnum
   const InvitationExpired               = 'INVE';
   const InvitationSent                  = 'INVS';
   const InvitationViewed                = 'INVV';
+  const MatchAttributesUpdated          = 'UMAT';
   const NameAdded                       = 'ANAM';
   const NameDeleted                     = 'DNAM';
   const NameEdited                      = 'ENAM';
@@ -110,6 +111,7 @@ class ActionEnum
   const OrgIdRemovedSource              = 'ROIS';
   const ProvisionerAction               = 'PRVA';
   const ProvisionerFailed               = 'PRVX';
+  const ReferenceIdentifierObtained     = 'OIDR';
 }
 
 class AdministratorEnum
@@ -551,6 +553,7 @@ class ServerEnum
   // When adding a new server type, be sure to add it to ServersController::view_contains
   const HttpServer    = 'HT';
   const LdapServer    = 'LD';
+  const MatchServer   = 'MT';
   const Oauth2Server  = 'O2';
   // Generic SQL Server, not "MS SQL Server"
   const SqlServer     = 'SQ';
