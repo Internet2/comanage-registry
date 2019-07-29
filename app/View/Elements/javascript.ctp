@@ -128,6 +128,30 @@
       }
     });
 
+    // Toggle the top search filter box
+    $("#top-search-toggle").click(function() {
+      $("#top-search-fields").toggle();
+    });
+
+    // Clear a specific top search filter by clicking the filter button
+    $("#top-search-toggle .top-search-active-filter").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).hide();
+      filterId = '#' + $(this).attr("aria-controls");
+      $(filterId).val("");
+      $(this).closest('form').submit();
+    });
+
+    // Clear all top filters from the filter bar
+    $("#top-search-clear-all-button").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).hide();
+      $("#top-search-toggle .top-search-active-filter").hide();
+      $("#top-search-clear").click();
+    });
+
     // Accordion
     $(".accordion").accordion();
 
@@ -393,6 +417,7 @@
     $(".datepicker-f").datepicker({
       changeMonth: true,
       changeYear: true,
+      yearRange: "c-90:+10",
       dateFormat: "yy-mm-dd 00:00:00",
       numberOfMonths: 1,
       showButtonPanel: false,

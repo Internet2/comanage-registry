@@ -32,24 +32,6 @@ $tabIndex = 1;
 
 ?>
 
-<script type="text/javascript">
-  function clearSearch(formObj) {
-    for (var i=0; i<formObj.elements.length; i++) {
-      t = formObj.elements[i].type;
-      if(t == "text" || t == "select-one") {
-        formObj.elements[i].value = "";
-      }
-    }
-    formObj.submit();
-  }
-
-  $(function() {
-    $( "#top-search-toggle").click(function() {
-      $("#top-search-fields").toggle();
-    });
-  });
-</script>
-
 <div id="orgIdSearch" class="top-search top-search-hide-labels">
   <?php
     print $this->Form->create('OrgIdentity',array('url' => array('action'=>'search')));
@@ -74,59 +56,62 @@ $tabIndex = 1;
 
         <span id="top-search-active-filters">
           <?php if (!empty($this->request->params['named']['Search.givenName'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchGivenName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.given'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.givenName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.familyName'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchFamilyName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.family'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.familyName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.mail'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchMail" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.email_address.mail'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchIdentifier" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.identifier.identifier'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.organization'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchOrganization" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.o'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.organization'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.orgIdentitySource'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchOrgIdentitySource" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('ct.org_identity_sources.1'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_org_id_sources[$this->request->params['named']['Search.orgIdentitySource']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.department'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchDepartment" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.ou'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.department'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.title'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchTitle" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.title'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.affiliation'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchAffiliation" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.affiliation'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_affiliations[$this->request->params['named']['Search.affiliation']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
+          <button id="top-search-clear-all-button" class="filter-clear-all-button spin mdl-button" aria-controls="top-search-clear">
+            <?php print _txt('op.clear.filters.pl');?>
+          </button>
         </span>
       <?php endif; ?>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
@@ -210,7 +195,7 @@ $tabIndex = 1;
       ?>
       </div>
 
-      <div class="topSearchSubmit">
+      <div class="top-search-submit">
         <?php
         $args = array();
         //$args['type'] = 'button';
@@ -221,9 +206,10 @@ $tabIndex = 1;
         print $this->Form->submit(_txt('op.filter'),$args);
 
         // clear button
+        $args['id'] = 'top-search-clear';
         $args['class'] = 'clear-button spin mdl-button';
         $args['aria-label'] = _txt('op.clear.all');
-        $args['onclick'] = 'clearSearch(this.form)';
+        $args['onclick'] = 'clearTopSearch(this.form)';
         print $this->Form->button(_txt('op.clear.all'),$args);
         ?>
       </div>

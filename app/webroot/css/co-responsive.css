@@ -387,7 +387,7 @@
   .search-field-subgroup:nth-child(1) {
     margin-right: 0.5em;
   }
-  .top-search .clear-button {
+  .top-search #top-search-fields .clear-button {
     float: right;
   }
   /* PEOPLE LISTING */

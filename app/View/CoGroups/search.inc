@@ -30,24 +30,6 @@
 
 ?>
 
-<script type="text/javascript">
-  function clearSearch(formObj) {
-    for (var i=0; i<formObj.elements.length; i++) {
-      t = formObj.elements[i].type;
-      if(t == "text" || t == "select-one") {
-        formObj.elements[i].value = "";
-      }
-    }
-    formObj.submit();
-  }
-
-  $(function() {
-    $( "#top-search-toggle").click(function() {
-      $("#top-search-fields").toggle();
-    });
-  });
-</script>
-
 <div id="coGroupSearch" class="top-search">
   <?php
     print $this->Form->create('CoGroups', array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
@@ -73,40 +55,43 @@
 
         <span id="top-search-active-filters">
           <?php if (!empty($this->request->params['named']['search.groupName'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchGroupName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.groupName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.groupDesc'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searcGrouphDesc" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.description'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.groupDesc'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.status'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchStatus" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.open'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchOpen" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-value"><?php print filter_var($vv_status_open[$this->request->params['named']['search.open']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.auto'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchAuto" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.automatic'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_status_bool[$this->request->params['named']['search.auto']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.groupType'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchGroupType" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.type'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_group_type[$this->request->params['named']['search.groupType']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
+          <button id="top-search-clear-all-button" class="filter-clear-all-button spin mdl-button" aria-controls="top-search-clear">
+            <?php print _txt('op.clear.filters.pl');?>
+          </button>
         </span>
       <?php endif; ?>
     </legend>
@@ -162,7 +147,7 @@
         ?>
       </div>
 
-      <div class="topSearchSubmit">
+      <div class="top-search-submit">
         <?php
           $args = array();
           // search button (submit)
@@ -171,9 +156,10 @@
           print $this->Form->submit(_txt('op.filter'),$args);
 
           // clear button
+          $args['id'] = 'top-search-clear';
           $args['class'] = 'clear-button spin mdl-button';
           $args['aria-label'] = _txt('op.clear.all');
-          $args['onclick'] = 'clearSearch(this.form)';
+          $args['onclick'] = 'clearTopSearch(this.form)';
           print $this->Form->button(_txt('op.clear.all'),$args);
         ?>
       </div>

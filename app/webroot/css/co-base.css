@@ -1437,19 +1437,27 @@ a.ui-button:visited,
   height: 28px;
   margin: 0.5em;
 }
+.top-search .filter-clear-all-button {
+  font-size: 0.9em;
+  width: auto;
+  line-height: unset;
+}
+.top-search .filter-clear-all-button:hover {
+  background-color: unset;
+}
 .top-search.top-search-hide-fields label,
 .side-search label {
   display: none;
 }
 #top-search-active-filters {
   margin-left: 1em;
-  font-style: italic;
   padding: 0.5em 0;
 }
 .top-search-active-filter {
-  margin: 0 1em 0 0;
+  margin: 0 0.25em 0 0;
   white-space: nowrap;
-  color: #b00;
+  /*color: #b00;*/
+  font-style: italic;
 }
 .top-search-active-filter-title::after {
   content: ": ";

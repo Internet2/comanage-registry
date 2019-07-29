@@ -243,3 +243,15 @@ function limitPage(pageLimit,recordCount,currentPage) {
   // Redirect to the new page:
   window.location = currentUrl;
 }
+
+// Clear the top search form for numerous index views (people, orgids, groups)
+// formObj         - form object                      (DOM form obj, required)
+function clearTopSearch(formObj) {
+  for (var i=0; i<formObj.elements.length; i++) {
+    t = formObj.elements[i].type;
+    if(t == "text" || t == "select-one") {
+      formObj.elements[i].value = "";
+    }
+  }
+  formObj.submit();
+}
