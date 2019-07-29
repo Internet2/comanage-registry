@@ -208,9 +208,9 @@ $tabIndex = 1;
         // clear button
         $args['id'] = 'top-search-clear';
         $args['class'] = 'clear-button spin mdl-button';
-        $args['aria-label'] = _txt('op.clear.all');
+        $args['aria-label'] = _txt('op.clear');
         $args['onclick'] = 'clearTopSearch(this.form)';
-        print $this->Form->button(_txt('op.clear.all'),$args);
+        print $this->Form->button(_txt('op.clear'),$args);
         ?>
       </div>
     </div>
