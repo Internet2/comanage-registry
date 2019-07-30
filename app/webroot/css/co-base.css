@@ -1102,7 +1102,6 @@ body.co_petitions .ui-dialog {
 }
 #pagination .paginationCounter {
   display: block;
-  margin: 0.4em 0.5em 0.4em 0;
 }
 #pagination .paginationFirst,
 #pagination .paginationPrev {
@@ -1134,8 +1133,9 @@ body.co_petitions .ui-dialog {
 }
 #pagination .pagination-form input[type="submit"] {
   width: auto;
-  height: 2em;
-  padding: 0 4px;
+  height: auto;
+  padding: 2px 4px;
+  top: -1px;
   min-width: 0;
   min-height: 0;
   line-height: initial;
