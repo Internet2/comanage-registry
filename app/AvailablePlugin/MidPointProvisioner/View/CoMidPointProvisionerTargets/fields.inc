@@ -80,8 +80,29 @@
           <?php print ($e ? $this->Form->input('password') : filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
     </li>
+    <li>
+        <div class="field-name">
+            <div class="field-title"><?php print _txt('pl.midpointprovisioner.user_name_identifier'); ?><span class="required">*</span></div>
+            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.user_name_identifier.desc'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php
+          $xval = "";
 
+          if(isset($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'])) {
+            $xval = $co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'];
+          }
 
+          if($e) {
+            $args = array();
+            $args['empty'] = '(choose one)';
+            print $this->Form->select('user_name_identifier', $identifier_types, $args);
+          } else {
+            print filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+          ?>
+        </div>
+    </li>
     <li>
         <div class="field-name">
             <div class="field-title"><?php print _txt('pl.midpointprovisioner.ssl_allow_self_signed'); ?></div>
@@ -118,33 +139,6 @@
           <?php if($e) print $this->Form->input('ssl_verify_peer_name', array('checked' => filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['ssl_verify_peer_name'],FILTER_VALIDATE_BOOLEAN), 'disabled' => false)); ?>
         </div>
     </li>
-
-    <li>
-        <div class="field-name">
-            <div class="field-title"><?php print _txt('pl.midpointprovisioner.user_name_identifier'); ?><span class="required">*</span></div>
-            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.user_name_identifier.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php
-          $xval = "";
-
-          if(isset($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'])) {
-            $xval = $co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'];
-          }
-
-          if($e) {
-            $args = array();
-            $args['empty'] = '(choose one)';
-            print $this->Form->select('user_name_identifier', $identifier_types, $args);
-          } else {
-            print filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
-          }
-          ?>
-        </div>
-
-    </li>
-
-
     <?php if($e): ?>
       <li>
           <div class="field-name">

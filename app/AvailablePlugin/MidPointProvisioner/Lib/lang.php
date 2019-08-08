@@ -37,10 +37,12 @@ $cm_mid_point_provisioner_texts['en_US'] = array(
   'ct.co_mid_point_provisioner_targets.pl'            => 'MidPoint Provisioner Targets',
 
   'pl.midpointprovisioner.info'                       => 'The MidPoint server must be available and the specified credentials must be valid before this configuration can be saved.',
-  'pl.midpointprovisioner.serverurl'                  => 'MidPoint REST API base URL',
-  'pl.midpointprovisioner.serverurl.desc'             => 'Do not include API version, eg: https://localhost:8443/midpoint',
-  'pl.midpointprovisioner.username'                   => 'MidPoint REST API username',
-  'pl.midpointprovisioner.password'                   => 'MidPoint REST API password',
+  'pl.midpointprovisioner.serverurl'                  => 'REST API base URL',
+  'pl.midpointprovisioner.serverurl.desc'             => 'REST API URL to connect to. For example: https://localhost:8443/midpoint',
+  'pl.midpointprovisioner.username'                   => 'REST API username',
+  'pl.midpointprovisioner.password'                   => 'REST API password',
+  'pl.midpointprovisioner.user_name_identifier'       => 'User name identifier',
+  'pl.midpointprovisioner.user_name_identifier.desc'  => 'CO person identifier used by MidPoint as the user name',
 
   'pl.midpointprovisioner.ssl_allow_self_signed'      => 'ssl_allow_self_signed',
   'pl.midpointprovisioner.ssl_allow_self_signed.desc' => 'Allow self-signed certificates.',
@@ -50,9 +52,4 @@ $cm_mid_point_provisioner_texts['en_US'] = array(
   'pl.midpointprovisioner.ssl_verify_peer.desc'       => 'Require verification of SSL certificate.',
   'pl.midpointprovisioner.ssl_verify_peer_name'       => 'ssl_verify_peer_name',
   'pl.midpointprovisioner.ssl_verify_peer_name.desc'  => 'Require verification of peer name.',
-
-
-  'pl.midpointprovisioner.user_name_identifier'       => 'MidPoint user name identifier',
-  'pl.midpointprovisioner.user_name_identifier.desc'  => 'CO person identifier used by MidPoint as the user name',
-
 );
