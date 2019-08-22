@@ -1776,5 +1776,32 @@ class OrgIdentitySource extends AppModel {
     if(!$primaryFound) {
       throw new InvalidArgumentException(_txt('er.ois.val.name'));
     }
+    
+    // Manually run validation to report fields that won't save()
+    
+    if(!$this->Co->OrgIdentity->validateAssociated($backendRecord['orgidentity'])) {
+      // We can easily get the field names for invalid entries, but it's a bit harder
+      // to get a meaningful error message (we just get "content", and don't have
+      // a good mapping to look up).
+      
+      $err = "";
+      
+      foreach($this->Co->OrgIdentity->validationErrors as $key1 => $content) {
+        // This can be a direct key for an OrgIdentity field, or a nested array
+        // for a related model
+        
+        if(is_array($content[0])) {
+          foreach($content[0] as $key2 => $content2) {
+            $err .= $key1 . ":" . $key2 . ",";
+          }
+        } else {
+          $err .= $key1 . ",";
+        }
+      }
+      
+      $err = _txt('er.fields.api', array(rtrim($err, ",")));
+      
+      throw new InvalidArgumentException($err);
+    }
   }
 }

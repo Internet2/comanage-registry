@@ -909,6 +909,7 @@ original notification at
   'er.et.inuse.ef' => 'The extended type "%1$s" is in use by at least one Enrollment Flow (as an attribute or default value) within this CO and cannot be removed.',
   'er.field.req' =>   'This field is required',
   'er.fields' =>      'Please recheck the highlighted fields',
+  'er.fields.api' =>  'Invalid fields: %1$s',
   'er.file.none' =>   'No file specified',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
   'er.file.write' =>  'Unable to open "%1$s" for writing',
