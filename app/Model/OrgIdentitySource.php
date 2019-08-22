@@ -576,6 +576,14 @@ class OrgIdentitySource extends AppModel {
       }
     }
     
+    // Inject a SORID
+    $ret['orgidentity']['Identifier'][] = array(
+      'identifier' => $key,
+      'type'       => IdentifierEnum::SORID,
+      'status'     => StatusEnum::Active,
+      'login'      => false
+    );
+    
     return $ret;
   }
   

@@ -273,6 +273,7 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     }
     
     // Collect some identifiers
+    /* As of Registry v3.3.0, we no longer need to explicitly do this
     if(!empty($result[0])) {
       $orgdata['Identifier'][] = array(
         'identifier' => $result[0],
@@ -280,7 +281,7 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
         'status'     => StatusEnum::Active,
         'type'       => IdentifierEnum::SORID
       );
-    }
+    }*/
     
     if(!empty($result[15])) {
       $orgdata['Identifier'][] = array(

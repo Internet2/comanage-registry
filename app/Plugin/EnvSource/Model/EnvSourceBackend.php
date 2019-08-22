@@ -161,7 +161,8 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
     // Collect some identifiers
     
     $idTypes = array(
-      'sorid'   => IdentifierEnum::SORID,
+// As of Registry v3.3.0, this is handled automatically
+//      'sorid'   => IdentifierEnum::SORID,
       'eppn'    => IdentifierEnum::ePPN,
       'eptid'   => IdentifierEnum::ePTID,
       'epuid'   => IdentifierEnum::ePUID,

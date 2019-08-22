@@ -93,6 +93,40 @@ class ApiUser extends AppModel {
   );
   
   /**
+   * Obtain a list of available API Users.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int   $coId CO ID
+   * @return array       Array of valid API users, as returned by find()
+   */
+  
+  public function availableApiUsers($coId) {
+    $args = array();
+    $args['conditions']['ApiUser.co_id'] = $coId;
+    // Don't return suspended users
+    $args['conditions']['ApiUser.status'] = SuspendableStatusEnum::Active;
+    // Or those with invalid dates
+    $args['conditions']['AND'] = array(
+      0 => array(
+        'OR' => array(
+          'ApiUser.valid_from IS NULL',
+          'ApiUser.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      ),
+      1 => array(
+        'OR' => array(
+          'ApiUser.valid_through IS NULL',
+          'ApiUser.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      )
+    );
+    $args['order'] = 'ApiUser.username ASC';
+    $args['fields'] = array('id', 'username');
+    
+    return $this->find('list', $args);
+  }
+  
+  /**
    * Actions to take before a save operation is executed.
    *
    * @since  COmanage Registry v0.8.4

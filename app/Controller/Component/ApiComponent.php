@@ -375,7 +375,7 @@ class ApiComponent extends Component {
    * @param  string HTTP result comment
    */
   
-  public function restResultHeader($status, $txt) {
+  public function restResultHeader($status, $txt=null) {
     if(isset($txt)) {
       // We need to update the text associated with $status
       
