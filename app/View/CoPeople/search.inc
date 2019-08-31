@@ -32,11 +32,22 @@ global $cm_lang, $cm_texts;
 
 <div id="coPeopleSearch" class="top-search top-search-hide-labels">
   <?php
-  print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
-  print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-  if(!empty($this->request->params['named']['copetitionid'])) {
-    print $this->Form->hidden('CoPetition.id', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
-  }
+    print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
+    print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    if(!empty($this->request->params['named']['copetitionid'])) {
+      print $this->Form->hidden('CoPetition.id', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
+    }
+    print $this->Form->hidden('currentAction', array('default' => filter_var($this->request->action,FILTER_SANITIZE_SPECIAL_CHARS)));
+    if ($this->request->action == 'relink') {
+      // pass the relink parameters through the search
+      if(!empty($vv_co_org_identity_link['CoOrgIdentityLink'])) {
+        print $this->Form->hidden('Relink.id', array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id']));
+        print $this->Form->hidden('Relink.orgidlinkid', array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['id']));
+      } elseif(!empty($vv_co_person_role['CoPersonRole'])) {
+        print $this->Form->hidden('Relink.id', array('default' => $vv_co_person_role['CoPersonRole']['co_person_id']));
+        print $this->Form->hidden('Relink.roleid', array('default' => $vv_co_person_role['CoPersonRole']['id']));
+      }
+    }
   ?>
   <fieldset>
     <legend id="top-search-toggle">
