@@ -554,6 +554,7 @@ class AppModel extends Model {
    * @param  String  $identifierType Type of candidate identifier or email address
    * @param  Integer $coId           CO ID
    * @param  Boolean $emailUnique    If true, email addresses must be unique within the CO
+   * @param  String  $objectModel    Model this Identifier is linked to (eg: CoPerson, CoGroup)
    * @return Boolean True if identifier or email address is not in use
    * @throws InvalidArgumentException If $identifier is not of the correct format
    * @throws OverflowException If $identifier is already in use
@@ -561,7 +562,7 @@ class AppModel extends Model {
    * @todo   Since this only currently supports EmailAddress and Identifer, this could go in an intermediate model instead
    */
   
-  public function checkAvailability($identifier, $identifierType, $coId, $emailUnique=false) {
+  public function checkAvailability($identifier, $identifierType, $coId, $emailUnique=false, $objectModel='CoPerson') {
     $mname = $this->name;
     // Currently we support Identifier and EmailAddress
     $mattr = ($this->name == 'Identifier' ? 'identifier' : 'mail');
@@ -575,16 +576,16 @@ class AppModel extends Model {
     
     if($mname != 'EmailAddress' || $emailUnique) {
       $args = array();
-      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['conditions'][$objectModel.'.co_id'] = $coId;
       $args['conditions'][$mname.'.'.$mattr] = $identifier;
       if($mname == 'Identifier') {
         // For email address, uniqueness is regardless of type
         $args['conditions'][$mname.'.type'] = $identifierType;
       }
-      $args['joins'][0]['table'] = 'co_people';
-      $args['joins'][0]['alias'] = 'CoPerson';
+      $args['joins'][0]['table'] = Inflector::tableize($objectModel);
+      $args['joins'][0]['alias'] = $objectModel;
       $args['joins'][0]['type'] = 'INNER';
-      $args['joins'][0]['conditions'][0] = 'CoPerson.id='.$mname.'.co_person_id';
+      $args['joins'][0]['conditions'][0] = $objectModel.'.id='.$mname.'.'.Inflector::underscore($objectModel).'_id';
       $args['contain'] = false;
       
       $r = $this->findForUpdate($args['conditions'],

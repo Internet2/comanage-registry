@@ -51,7 +51,8 @@ class CoGroupsController extends StandardController {
     'SourceCoGroupNesting' => array('TargetCoGroup'),
     'EmailListAdmin',
     'EmailListMember',
-    'EmailListModerator'
+    'EmailListModerator',
+    'Identifier'
   );
   
   public $view_contains = array(
@@ -72,6 +73,26 @@ class CoGroupsController extends StandardController {
     parent::beforeFilter();
   }
 
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+
+  public function beforeRender() {
+    global $cm_lang, $cm_texts;
+    $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
+    $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
+    $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
+    $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
+    
+    $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
+
+    $this->set('vv_types', array('Identifier'   => $idTypes));
+
+    parent::beforeRender();
+  }
+  
   /**
    * Perform any dependency checks required prior to a delete operation.
    * This method is intended to be overridden by model-specific controllers.
@@ -605,22 +626,6 @@ class CoGroupsController extends StandardController {
       
       return;
     }
-  }
-
-  /**
-   * Callback after controller methods are invoked but before views are rendered.
-   *
-   * @since  COmanage Registry v0.9.4
-   */
-
-  public function beforeRender() {
-    global $cm_lang, $cm_texts;
-    $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
-    $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
-    $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
-    $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
-
-    parent::beforeRender();
   }
 
   /**

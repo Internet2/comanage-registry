@@ -154,6 +154,9 @@ class ApiComponent extends Component {
           case 'Dept':
             $this->reqConvData['co_department_id'] = $this->reqData[$attr]['Id'];
             break;
+          case 'Group':
+            $this->reqConvData['co_group_id'] = $this->reqData[$attr]['Id'];
+            break;
           case 'Org':
             $this->reqConvData['org_identity_id'] = $this->reqData[$attr]['Id'];
             break;

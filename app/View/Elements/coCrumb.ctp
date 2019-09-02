@@ -90,11 +90,27 @@
         'co' => $cur_co['Co']['id']
       );
       $this->Html->addCrumb(_txt('ct.co_departments.pl'), $args);
-  
+      
       $args = array(
         'controller' => 'co_departments',
         'action' => 'edit',
         $vv_pid['codeptid']
+      );
+      $this->Html->addCrumb($vv_bc_name, $args);
+    } elseif(!empty($vv_pid['cogroupid'])) {
+      // CO Group
+      $args = array(
+        'plugin' => null,
+        'controller' => 'co_groups',
+        'action' => 'index',
+        'co' => $cur_co['Co']['id']
+      );
+      $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+      
+      $args = array(
+        'controller' => 'co_groups',
+        'action' => 'edit',
+        $vv_pid['cogroupid']
       );
       $this->Html->addCrumb($vv_bc_name, $args);
     } elseif(!empty($vv_pid['copersonid'])) {

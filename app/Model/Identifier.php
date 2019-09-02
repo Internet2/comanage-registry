@@ -36,6 +36,7 @@ class Identifier extends AppModel {
   public $belongsTo = array(
     // An identifier may be attached to a CO Department
     "CoDepartment",
+    "CoGroup",
     // An identifier may be attached to a CO Person
     "CoPerson",
     // An identifier may be created from a Provisioner
@@ -265,7 +266,12 @@ class Identifier extends AppModel {
    */
 
   public function beforeSave($options = array()) {
-    if(!empty($this->data['Identifier']['co_person_id'])) {
+    // We don't allow duplicate identifiers for either CoPerson or CoGroup,
+    // but we (currently) don't enforce duplicate checking for CoDepartment
+    // or OrgIdentity.
+    
+    if(!empty($this->data['Identifier']['co_person_id'])
+       || !empty($this->data['Identifier']['co_group_id'])) {
       // If this is an edit operation, check if the identifier itself is being changed.
       // If not, we don't need to recheck availability.
       
@@ -296,7 +302,9 @@ class Identifier extends AppModel {
       // correct number of nested begin/commit calls when afterSave() fires.
       
       if(!isset($options['skipAvailability']) || !$options['skipAvailability']) {
-        $coId = $this->CoPerson->field('co_id', array('CoPerson.id' => $this->data['Identifier']['co_person_id']));
+        $objectModel = (!empty($this->data['Identifier']['co_group_id']) ? 'CoGroup' : 'CoPerson');
+        
+        $coId = $this->$objectModel->field('co_id', array($objectModel.'.id' => $this->data['Identifier'][Inflector::underscore($objectModel).'_id']));
         
         // Run the internal availability check. This will remain consistent until
         // afterSave, though we can't assert the same for any external services
@@ -305,7 +313,9 @@ class Identifier extends AppModel {
         try {
           $this->checkAvailability($this->data['Identifier']['identifier'],
                                    $this->data['Identifier']['type'],
-                                   $coId);
+                                   $coId,
+                                   false,
+                                   $objectModel);
         }
         catch(Exception $e) {
           // Roll back the transaction and re-throw the exception
@@ -319,6 +329,41 @@ class Identifier extends AppModel {
     // else we currently don't do anything with org identity identifiers
     
     return true;
+  }
+  
+  /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+
+  public function findCoForRecord($id) {
+    // The CO for the Identifier is available in whatever related model is populated
+
+    $args = array();
+    $args['conditions'][$this->alias.'.id'] = $id;
+    $args['contain'] = array(
+      'CoDepartment',
+      'CoGroup',
+      'CoPerson',
+      'OrgIdentity'
+    );
+
+    $id = $this->find('first', $args);
+    
+    if(!empty($id)) {
+      foreach($args['contain'] as $m) {
+        if(!empty($id[$m]['co_id'])) {
+          return $id[$m]['co_id'];
+        }
+      }
+    }
+    
+    throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.identifiers.1'), $id)));
   }
   
   /**

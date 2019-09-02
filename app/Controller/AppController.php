@@ -523,6 +523,16 @@ class AppController extends Controller {
                                                   array(_txt('ct.co_groups.1'),
                                                         filter_var($this->request->params['named']['cogroup'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
+      } elseif(!empty($p['cogroupid']) && (isset($model->CoGroup))) {
+        $coId = $model->CoGroup->field('co_id', array('id' => $p['cogroupid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.co_groups.1'),
+                                                        filter_var($p['cogroupid'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        }
       }
     }
     
@@ -586,6 +596,7 @@ class AppController extends Controller {
     $copid = $pids['copersonid'];
     $coprid = $pids['copersonroleid'];
     $codeptid = $pids['codeptid'];
+    $cogroupid = $pids['cogroupid'];
     $orgiid = $pids['orgidentityid'];
     $co = null;
     
@@ -653,6 +664,24 @@ class AppController extends Controller {
       {
         $redirect['action'] = 'edit';
         $redirect[] = $codeptid;
+        $rc = 1;
+      }
+    }
+    elseif($cogroupid != null)
+    {
+      $redirect['controller'] = 'co_groups';
+
+      $x = $model->CoGroup->findById($cogroupid);
+      
+      if(empty($x))
+      {
+        $redirect['action'] = 'index';
+        $rc = -1;
+      }
+      else
+      {
+        $redirect['action'] = 'edit';
+        $redirect[] = $cogroupid;
         $rc = 1;
       }
     }
@@ -1306,6 +1335,7 @@ class AppController extends Controller {
    * @since  COmanage Registry v0.1
    * @param  Array Retrieved data (with an identifier set in $data[$model])
    * @return Array copersonid, copersonroleid, orgidentityid (if found)
+   * @todo   In PE this should be renamed parseEntityID
    */
   
   function parsePersonID($data = null) {
@@ -1318,6 +1348,7 @@ class AppController extends Controller {
     $copid  = null;
     $coprid  = null;
     $deptid = null;
+    $groupid = null;
     $orgiid = null;
     
     if(!empty($data['co_person_id']))
@@ -1328,6 +1359,8 @@ class AppController extends Controller {
       $orgiid = $data['org_identity_id'];
     elseif(!empty($data['co_department_id']))
       $deptid = $data['co_department_id'];
+    elseif(!empty($data['co_group_id']))
+      $groupid = $data['co_group_id'];
     elseif(!empty($data[$req]['co_person_id']))
       $copid = $data[$req]['co_person_id'];
     elseif(!empty($data[$req]['co_person_role_id']))
@@ -1336,6 +1369,8 @@ class AppController extends Controller {
       $orgiid = $data[$req]['org_identity_id'];
     elseif(!empty($data[$req]['co_department_id']))
       $deptid = $data[$req]['co_department_id'];
+    elseif(!empty($data[$req]['co_group_id']))
+      $groupid = $data[$req]['co_group_id'];
     elseif(!empty($this->request->data[$req]['co_person_id']))
       $copid = $this->request->data[$req]['co_person_id'];
     elseif(!empty($this->request->data[$req]['co_person_role_id']))
@@ -1344,6 +1379,8 @@ class AppController extends Controller {
       $orgiid = $this->request->data[$req]['org_identity_id'];
     elseif(!empty($this->request->data[$req]['codeptid']))
       $deptid = $this->request->data[$req]['codeptid'];
+    elseif(!empty($this->request->data[$req]['co_group_id']))
+      $groupid = $this->request->data[$req]['co_group_id'];
     elseif(!empty($this->request->params['named']['copersonid']))
       $copid = $this->request->params['named']['copersonid'];
     elseif(!empty($this->request->params['named']['copersonroleid']))
@@ -1352,6 +1389,11 @@ class AppController extends Controller {
       $orgiid = $this->request->params['named']['orgidentityid'];
     elseif(!empty($this->request->params['named']['codeptid']))
       $deptid = $this->request->params['named']['codeptid'];
+    elseif(!empty($this->request->params['named']['cogroup']))
+      $groupid = $this->request->params['named']['cogroup'];
+    // XXX Why don't we need to check query for other parameters?
+    elseif(!empty($this->request->query['cogroupid']))
+      $groupid = $this->request->query['cogroupid'];
     elseif(isset($this->request->data[$modelcc][0]['Person'])) {
       // API / JSON
       switch($this->request->data[$modelcc][0]['Person']['Type']) {
@@ -1363,6 +1405,9 @@ class AppController extends Controller {
           break;
         case 'Dept':
           $deptid = $this->request->data[$modelcc][0]['Person']['Id'];
+          break;
+        case 'Group':
+          $groupid = $this->request->data[$modelcc][0]['Person']['Id'];
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][0]['Person']['Id'];
@@ -1380,6 +1425,9 @@ class AppController extends Controller {
           break;
         case 'Dept':
           $deptid = $this->request->data[$modelcc][$req]['Person']['Id'];
+          break;
+        case 'Group':
+          $groupid = $this->request->data[$modelcc][$req]['Person']['Id'];
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][$req]['Person']['Id'];
@@ -1408,9 +1456,12 @@ class AppController extends Controller {
         $orgiid = $rec[$req]['org_identity_id'];
       elseif(isset($rec[$req]['co_department_id']))
         $deptid = $rec[$req]['co_department_id'];
+      elseif(isset($rec[$req]['co_group_id']))
+        $groupid = $rec[$req]['co_group_id'];
     }
     
     return(array("codeptid" => $deptid,
+                 "cogroupid" => $groupid,
                  "copersonid" => $copid,
                  "copersonroleid" => $coprid,
                  "orgidentityid" => $orgiid));

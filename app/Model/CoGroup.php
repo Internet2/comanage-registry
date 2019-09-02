@@ -106,7 +106,8 @@ class CoGroup extends AppModel {
       'className' => 'CoEmailList',
       'foreignKey' => 'moderators_co_group_id'
     ),
-    "HistoryRecord"
+    "HistoryRecord",
+    "Identifier" => array('dependent' => true)
   );
 
   public $belongsTo = array(

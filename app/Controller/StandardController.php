@@ -777,6 +777,31 @@ class StandardController extends AppController {
           }
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } elseif(!empty($this->params['url']['cogroupid'])) {
+          $args = array();
+          $args['conditions'][$model->name . '.co_group_id'] = $this->params['url']['cogroupid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
+          
+          if(empty($t)) {
+            // We need to determine if cogroupid is unknown or just
+            // has no objects attached to it
+            
+            $args = array();
+            $args['conditions']['CoGroup.id'] = $this->params['url']['cogroupid'];
+            $args['contain'] = false;
+            
+            if(!$model->CoGroup->find('count', $args)) {
+              $this->Api->restResultHeader(404, "CO Group Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "CO Group Has No " . $req);
+            }
+            
+            return;
+          }
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
         } elseif(!empty($this->params['url']['copersonid'])) {
           $args = array();
           $args['conditions'][$model->name . '.co_person_id'] = $this->params['url']['copersonid'];

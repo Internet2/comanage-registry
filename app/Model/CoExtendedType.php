@@ -276,7 +276,7 @@ class CoExtendedType extends AppModel {
     $ret['Address.type'] = _txt('ct.addresses.1') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['CoPersonRole.affiliation'] = _txt('fd.affiliation') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['EmailAddress.type'] = _txt('ct.email_addresses.1') . " (" . _txt('ct.co_people.1') . ")";
-    $ret['Identifier.type'] = _txt('ct.identifiers.1') . " (" . _txt('ct.co_people.1') . ")";
+    $ret['Identifier.type'] = _txt('ct.identifiers.1') . " (" . _txt('ct.co_people.1') . ", " . _txt('ct.co_groups.1') . ")";
     $ret['Name.type'] = _txt('ct.names.1') . " (" . _txt('ct.co_people.1') . ")";
     $ret['TelephoneNumber.type'] = _txt('ct.telephone_numbers.1') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['Url.type'] = _txt('ct.urls.1') . " (" . _txt('ct.co_people.1') . ")";

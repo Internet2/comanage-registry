@@ -195,7 +195,7 @@ class IdentifiersController extends MVPAController {
       }
     }
     
-    return parent::calculateImpliedCoId();
+    return parent::calculateImpliedCoId($data);
   }
   
   /**

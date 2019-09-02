@@ -143,6 +143,8 @@ class MVPAController extends StandardController {
         // We need to manually pull a name for the breadcrumbs
         if(!empty($pid['codeptid'])) {
           $this->set('vv_bc_name', $model->CoDepartment->field('name', array('CoDepartment.id' => $pid['codeptid'])));
+        } elseif(!empty($pid['cogroupid'])) {
+          $this->set('vv_bc_name', $model->CoGroup->field('name', array('CoGroup.id' => $pid['cogroupid'])));
         } elseif(!empty($pid['copersonid'])) {
           $args = array();
           $args['conditions']['CoPerson.id'] = $pid['copersonid'];
@@ -157,7 +159,6 @@ class MVPAController extends StandardController {
           $args['contain']['CoPerson'] = 'PrimaryName';
           
           $p = $model->CoPersonRole->find('first', $args);
-//debug($p);
           
           // Set the bc name to the role's title
           $this->set('vv_bc_name', $p['CoPersonRole']['title']);
@@ -285,6 +286,14 @@ class MVPAController extends StandardController {
                                                      $this->Session->read('Auth.User.co_person_id'),
                                                      ActionEnum::OrgIdEditedManual,
                                                      $cstr);
+        } elseif(!empty($newdata[$req]['co_group_id'])) {
+          $model->CoGroup->HistoryRecord->record(null,
+                                                 null,
+                                                 null,
+                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 ActionEnum::CoGroupEdited,
+                                                 $cstr,
+                                                 $newdata[$req]['co_group_id']);
         } elseif(!empty($newdata[$req]['co_person_role_id'])) {
           // Map CO Person Role to CO Person
           $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $newdata[$req]['co_person_role_id']));
@@ -312,6 +321,14 @@ class MVPAController extends StandardController {
                                                      $this->Session->read('Auth.User.co_person_id'),
                                                      ActionEnum::OrgIdEditedManual,
                                                      $cstr);
+        } elseif(!empty($olddata[$req]['co_group_id'])) {
+          $model->CoGroup->HistoryRecord->record(null,
+                                                 null,
+                                                 null,
+                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 ActionEnum::CoGroupEdited,
+                                                 $cstr,
+                                                 $olddata[$req]['co_group_id']);
         } elseif(!empty($olddata[$req]['co_person_role_id'])) {
           // Map CO Person Role to CO Person
           $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $olddata[$req]['co_person_role_id']));

@@ -751,6 +751,9 @@
     <field name="co_department_id" type="I">
       <constraint>REFERENCES cm_co_departments(id)</constraint>
     </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="source_identifier_id" type="I">
       <constraint>REFERENCES cm_identifiers(id)</constraint>
     </field>
