@@ -1108,24 +1108,42 @@ class CoPeopleController extends StandardController {
   }
   
   /**
-   * Insert search parameters into URL for index.
+   * Insert search parameters into URL for index, select, or relink views.
    * - postcondition: Redirect generated
    *
    * @since  COmanage Registry v0.8
    */
   
   public function search() {
-    // If a petition ID is provided, we're in select mode
+    // Construct the URL based on the action mode we're in (select, relink, index)
     if(!empty($this->data['CoPetition']['id'])) {
+      
+      // If a petition ID is provided, we're in select mode
+      // XXX: search now passes the action name explicitly as data['CoPerson']['currentAction'] - could use that to test
       $url['action'] = 'select';
       $url['copetitionid'] = filter_var($this->data['CoPetition']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+      
+    } elseif($this->data['CoPerson']['currentAction'] == 'relink') {
+      
+      // relink mode
+      $url['action'] = 'relink';
+      array_push($url, filter_var($this->data['Relink']['id'], FILTER_SANITIZE_SPECIAL_CHARS));
+      
+      // the following two parameters are mutually exclusive for the two types of relinking (orgid and role)
+      if(!empty($this->data['Relink']['orgidlinkid'])) {
+        $url['linkid'] = filter_var($this->data['Relink']['orgidlinkid'], FILTER_SANITIZE_SPECIAL_CHARS);
+      } elseif(!empty($this->data['Relink']['roleid'])) {
+        $url['copersonroleid'] = filter_var($this->data['Relink']['roleid'], FILTER_SANITIZE_SPECIAL_CHARS);
+      }
+      
     } else {
       // Back to the index
       $url['action'] = 'index';
+      // Add CO to the URL. Note this also prevents truncation of email address searches (CO-1271).
+      $url['co'] = $this->cur_co['Co']['id'];
     }
     
-    // build a URL will all the search elements in it
-    // the resulting URL will be 
+    // Append the URL with all the search elements; the resulting URL will be similar to
     // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
     foreach($this->data['Search'] as $field=>$value){
       if(!empty($value)) {
@@ -1133,11 +1151,6 @@ class CoPeopleController extends StandardController {
       }
     }
     
-    if($url['action'] == 'index') {
-      // Insert CO into URL. Note this also prevents truncation of email address searches (CO-1271).
-      $url['co'] = $this->cur_co['Co']['id'];
-    }
-
     // redirect the user to the url
     $this->redirect($url, null, true);
   }

@@ -216,10 +216,14 @@ function gotoPage(pageNumber,maxPage,intErrMsg,maxErrMsg) {
 // pageLimit         - page limit                            (int, required)
 // recordCount       - total number of records returned      (int, requried)
 // currentPage       - current page number                   (int, required)
-function limitPage(pageLimit,recordCount,currentPage) {
+// currentPath       - the current URL path                  (string, required)
+// currentAction     - the current controller action         (string, required)
+function limitPage(pageLimit,recordCount,currentPage,currentPath,currentAction) {
   var limit = parseInt(pageLimit,10);
   var count = parseInt(recordCount,10);
   var page = parseInt(currentPage,10);
+  var path = currentPath;
+  var action = currentAction;
 
   // Just cancel this if we have bad inputs
   if (isNaN(limit) || isNaN(count) || isNaN(page)) {
@@ -227,10 +231,18 @@ function limitPage(pageLimit,recordCount,currentPage) {
     return false;
   }
 
-  // Add the new limit parameter to the url
-  var currentUrl =  window.location.pathname;
+  var currentUrl = path;
+
+  // Test if we are using an implicit URL
+  if (path.indexOf(action) == -1) {
+    // add the controller action explicitly
+    currentUrl = currentUrl + '/' + action;
+  }
+
+  // Set the limit
   currentUrl = currentUrl.replace(new RegExp('\/limit:[0-9]*', 'g'), '')+'/limit:' + limit;
 
+  // Set the page
   // Test to see if the new limit allows the current page to exist
   if (count / page >= limit) {
     // Current page can exist - keep the current page number
