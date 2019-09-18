@@ -169,7 +169,8 @@
 
                 // Groups
                 // Show the groups link too, if permissions allow
-                if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
+                if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']
+                   && !empty($co['co_person_id'])) {
                   $args = array(
                     'plugin' => '',
                     'controller' => 'co_groups',
