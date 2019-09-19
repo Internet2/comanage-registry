@@ -1964,6 +1964,7 @@ original notification at
   'rs.mail.verified' => 'Email Address "%1$s" verified',
   'rs.match' =>       'Reference Identifier %1$s obtained from match server',
   'rs.match.accepted' => 'Match request requires administrator intervention, Match Request ID: %1$s',
+  'rs.match.possible' => 'Possible Matches',
   'rs.match.request' => 'Potential Match',
   'rs.moved.copr' =>  'CO Person Role "%1$s" (%2$s) moved from %3$s (%4$s) to %5$s (%6$s)',
   'rs.nm.primary' =>  'Primary name updated',
