@@ -600,15 +600,16 @@ class CoEnrollmentFlow extends AppModel {
     $ret['collectIdentifier']['role'] = EnrollmentRole::Enrollee;
     
     if($ret['sendConfirmation']['enabled'] == RequiredEnum::Required) {
+      $ret['establishAuthenticators']['role'] = EnrollmentRole::Enrollee;
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Enrollee;
       $ret['waitForApproval']['role'] = EnrollmentRole::Enrollee;
     } else {
+      $ret['establishAuthenticators']['role'] = EnrollmentRole::Petitioner;
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Petitioner;
       $ret['waitForApproval']['role'] = EnrollmentRole::Petitioner;
     }
     
-    // Maybe collect identifiers
-    $ret['establishAuthenticators']['role'] = EnrollmentRole::Enrollee;
+    // Maybe collect authenticators
     
     if(isset($ef['CoEnrollmentFlow']['establish_authenticators'])
        && $ef['CoEnrollmentFlow']['establish_authenticators']) {
