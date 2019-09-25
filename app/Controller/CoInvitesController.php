@@ -836,7 +836,7 @@ class CoInvitesController extends AppController {
                                   $lnk['CoOrgIdentityLink']['co_person_id']);
               } elseif(!empty($ea['EmailAddress']['org_identity_id'])) {
                 // Redirect to the CO Person view
-                $nextPage = array('controller' => 'org_identity_id',
+                $nextPage = array('controller' => 'org_identities',
                                   'action'     => 'edit',
                                   $lnk['CoOrgIdentityLink']['org_identity_id']);
               }
