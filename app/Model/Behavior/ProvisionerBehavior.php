@@ -121,8 +121,8 @@ class ProvisionerBehavior extends ModelBehavior {
       // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
       $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
     }
-
-    return $this->determineProvisioning($model, $created, $actorCoPersonId);
+    
+    return $this->determineProvisioning($model, $created, null, $actorCoPersonId);
   }
   
   /**
@@ -1234,10 +1234,10 @@ class ProvisionerBehavior extends ModelBehavior {
   /**
    * Provision people data.
    *
-   * @param Object $model Invoking model
-   * @param Object $gmodel Person model
-   * @param Array $coPersonIds Array of person IDs to provision
-   * @param Boolean $created As passed to afterSave()
+   * @param  Object $model Invoking model
+   * @param  Object $gmodel Person model
+   * @param  Array $coPersonIds Array of person IDs to provision
+   * @param  Boolean $created As passed to afterSave()
    * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
    * @param  Integer                $actorCoPersonId    Actor CO Person ID
    * @return Boolean
