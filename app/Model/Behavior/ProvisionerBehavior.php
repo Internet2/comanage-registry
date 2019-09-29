@@ -342,26 +342,33 @@ class ProvisionerBehavior extends ModelBehavior {
     if($model->name == 'CoGroup' || $model->name == 'CoGroupMember') {
       // Find the group id
       
-      if($model->name == 'CoGroup'
-         && !empty($model->data['CoGroup']['id'])) {
-        $gmodel = $model;
-        $coGroupIds[] = $model->data['CoGroup']['id'];
-      } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
-        $gmodel = $model->CoGroup;
-        $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
-        
-        if(!empty($model->data[ $model->name ]['co_person_id'])) {
-          // We need to pass the CO Person ID to marshallCoGroupData
-          $copid = $model->data[ $model->name ]['co_person_id'];
-        }
-      } elseif(!empty($model->cacheData[ $model->name ]['co_group_id'])) {
-        // eg: CoGroupMember deleted
-        $gmodel = $model->CoGroup;
-        $coGroupIds[] = $model->cacheData[ $model->name ]['co_group_id'];
-        
-        if(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
-          // We need to pass the CO Person ID to marshallCoGroupData
-          $copid = $model->cacheData[ $model->name ]['co_person_id'];
+      if($model->name == 'CoGroupMember'
+         && isset($model->data['CoGroup']['deleted'])
+         && $model->data['CoGroup']['deleted']) {
+        // We are processing a group membership update on a group that was
+        // just deleted, so don't reprovision the group.
+      } else {
+        if($model->name == 'CoGroup'
+           && !empty($model->data['CoGroup']['id'])) {
+          $gmodel = $model;
+          $coGroupIds[] = $model->data['CoGroup']['id'];
+        } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
+          $gmodel = $model->CoGroup;
+          $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
+          
+          if(!empty($model->data[ $model->name ]['co_person_id'])) {
+            // We need to pass the CO Person ID to marshallCoGroupData
+            $copid = $model->data[ $model->name ]['co_person_id'];
+          }
+        } elseif(!empty($model->cacheData[ $model->name ]['co_group_id'])) {
+          // eg: CoGroupMember deleted
+          $gmodel = $model->CoGroup;
+          $coGroupIds[] = $model->cacheData[ $model->name ]['co_group_id'];
+          
+          if(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
+            // We need to pass the CO Person ID to marshallCoGroupData
+            $copid = $model->cacheData[ $model->name ]['co_person_id'];
+          }
         }
       }
     }
