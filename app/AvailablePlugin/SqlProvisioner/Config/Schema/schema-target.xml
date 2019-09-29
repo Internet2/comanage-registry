@@ -1,0 +1,280 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry SQL Provisioner Plugin Database Schema for Target Database
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <!-- Reference Data -->
+  
+  <table name="sp_cous">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="128" />
+    <field name="parent_id" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="sp_co_terms_and_conditions">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="url" type="C" size="256" />
+    <field name="body" type="X" size="4000" />
+    <field name="cou_id" type="I" />
+    <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <!-- Operational Records -->
+  
+  <table name="sp_co_people">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="date_of_birth" type="D" />
+    <field name="timezone" type="C" size="80" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="sp_names">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="honorific" type="C" size="32" />
+    <field name="given" type="C" size="128" />
+    <field name="middle" type="C" size="128" />
+    <field name="family" type="C" size="128" />
+    <field name="suffix" type="C" size="32" />
+    <field name="type" type="C" size="32" />
+    <field name="language" type="C" size="16" />
+    <field name="primary_name" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_names_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="sp_identifiers">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="identifier" type="C" size="256" />
+    <field name="type" type="C" size="32" />
+    <field name="login" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="sp_identifiers_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="sp_email_addresses">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="mail" type="C" size="256" />
+    <field name="description" type="C" size="128" />
+    <field name="type" type="C" size="32" />
+    <field name="verified" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_email_addresses_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="sp_urls">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="url" type="C" size="256" />
+    <field name="description" type="C" size="128" />
+    <field name="type" type="C" size="32" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_urls_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="sp_co_t_and_c_agreements">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="co_terms_and_conditions_id" type="I" />
+    <field name="agreement_time" type="T" />
+    <field name="identifier" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_co_t_and_c_agreements_i1">
+      <col>co_person_id</col>
+    </index>
+    
+    <index name="sp_co_t_and_c_agreements_i2">
+      <col>co_terms_and_conditions_id</col>
+    </index>
+  </table>
+  
+  <table name="sp_co_person_roles">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="sponsor_co_person_id" type="I" />
+    <field name="cou_id" type="I" />
+    <field name="affiliation" type="C" size="32" />
+    <field name="title" type="C" size="128" />
+    <field name="o" type="C" size="128" />
+    <field name="ou" type="C" size="128" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <field name="ordr" type="I" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_co_person_roles_i1">
+      <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="sp_addresses">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="street" type="X" size="400" />
+    <field name="room" type="C" size="64" />
+    <field name="locality" type="C" size="128" />
+    <field name="state" type="C" size="128" />
+    <field name="postal_code" type="C" size="16" />
+    <field name="country" type="C" size="128" />
+    <field name="description" type="C" size="128" />
+    <field name="type" type="C" size="32" />
+    <field name="language" type="C" size="16" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_addresses_i1">
+      <col>co_person_role_id</col>
+    </index>
+  </table>
+
+  <table name="sp_telephone_numbers">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="country_code" type="C" size="3" />
+    <field name="area_code" type="C" size="8" />
+    <field name="number" type="C" size="64" />
+    <field name="extension" type="C" size="16" />
+    <field name="description" type="C" size="128" />
+    <field name="type" type="C" size="32" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_telephone_numbers_i1">
+      <col>co_person_role_id</col>
+    </index>
+  </table>
+
+  <table name="sp_co_groups">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="cou_id" type="I" />
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="256" />
+    <field name="open" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="group_type" type="C" size="2" />
+    <field name="auto" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
+  <table name="sp_co_group_members">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES sp_co_groups(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES sp_co_people(id)</constraint>
+    </field>
+    <field name="member" type="L" />
+    <field name="owner" type="L" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="sp_co_group_members_i1">
+      <col>co_group_id</col>
+    </index>
+    <index name="sp_co_group_members_i2">
+      <col>co_person_id</col>
+    </index>
+  </table>
+</schema>
