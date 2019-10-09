@@ -939,6 +939,8 @@ original notification at
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
   'er.ia.none' =>     'No identifier assignments configured',
+  'er.ia.id.type' =>  'No identifier of type "%$1s" found',
+  'er.ia.id.type.none' =>  'No identifier type specified',
   'er.id.exists-a' => 'The identifier "%1$s" is already in use (%2$s)',
   'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
   'er.id.unk' =>      'Unknown Identifier',

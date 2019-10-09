@@ -1947,6 +1947,7 @@
     <field name="permitted" type="C" size="2" />
     <field name="collision_resolution" type="C" size="64" />
     <field name="exclusions" type="C" size="8" />
+    <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

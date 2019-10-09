@@ -38,7 +38,7 @@ class CoIdentifierAssignmentsController extends StandardController {
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'CoIdentifierAssignment.type_name' => 'asc'
+      'CoIdentifierAssignment.ordr' => 'asc'
     )
   );
   
@@ -139,6 +139,12 @@ class CoIdentifierAssignmentsController extends StandardController {
     // View all existing CO Identifier Assignments?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Edit an existing CO Identifier Assignment's order?
+    $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Modify ordering for display via AJAX 
+    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // View an existing CO Identifier Assignment?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
@@ -155,7 +161,7 @@ class CoIdentifierAssignmentsController extends StandardController {
    */
 
   public function parseCOID($data = null) {
-    if($this->action == 'assignall') {
+    if(in_array($this->action, array('assignall', 'order', 'reorder'))) {
       if(isset($this->request->params['named']['co'])) {
         return $this->request->params['named']['co'];
       }

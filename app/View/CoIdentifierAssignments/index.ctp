@@ -48,6 +48,21 @@
     );
   }
 
+  if($permissions['order']) {
+    // Reorder button
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.order-a', array(_txt('ct.co_identifier_assignments.pl'))),
+      array(
+        'controller' => 'co_identifier_assignments',
+        'action'     => 'order',
+        'co'         => $cur_co['Co']['id'],
+        'direction'  => 'asc',
+        'sort'       => 'ordr'
+      ),
+      array('class' => 'movebutton')
+    );
+  }
+  
   if($permissions['assignall']) {
     $params['topLinks'][] = '<a class="provisionbutton" title="' .
       _txt('op.id.auto.all') .
@@ -108,6 +123,7 @@
     <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('identifier_type', _txt('fd.type')); ?></th>
+      <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>
     </thead>
@@ -124,6 +140,7 @@
           ?>
         </td>
         <td><?php print filter_var($c['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print $c['CoIdentifierAssignment']['ordr']; ?></td>
         <td>
           <?php
           if($permissions['edit']) {

@@ -132,6 +132,11 @@ class CoIdentifierAssignment extends AppModel {
           IdentifierAssignmentExclusionEnum::Superstitious
         )
       )
+    ),
+    'ordr' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -214,6 +219,7 @@ class CoIdentifierAssignment extends AppModel {
     
     $base = $this->substituteParameters($iaFormat,
                                         $coPerson['PrimaryName'],
+                                        $coPerson['Identifier'],
                                         $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
     
     // Now that we've got our base, loop until we get a unique identifier.
@@ -476,12 +482,13 @@ class CoIdentifierAssignment extends AppModel {
    *
    * @since  COmanage Registry v0.6
    * @param  String CoIdentifierAssignment format
-   * @param  Array Name array
-   * @param  Enum    Acceptable characters for substituted parameters (PermittedCharacterEnum)
+   * @param  Array  Name array
+   * @param  Array  Identifiers array
+   * @param  Enum   Acceptable characters for substituted parameters (PermittedCharacterEnum)
    * @return String Identifier with paramaters substituted
    */
   
-  private function substituteParameters($format, $name, $permitted) {
+  private function substituteParameters($format, $name, $identifiers, $permitted) {
     $base = "";
     
     // Loop through the format string
@@ -537,6 +544,38 @@ class CoIdentifierAssignment extends AppModel {
               case 'G':
                 $base .= sprintf("%.".$width."s",
                                  preg_replace($charregex, '', $name['given']));
+                break;
+              case 'I':
+                // We skip the next character (a slash) and then continue reading
+                // until we get to a close parenthesis
+                $identifierType = "";
+                
+                $i+=2;
+                
+                while($format[$i] != ')' && $i < strlen($format)) {
+                  $identifierType .= $format[$i];
+                  $i++;
+                }
+                
+                // Rewind one character because we're going to advance past it
+                // again below.
+                $i--;
+                
+                if($identifierType == "") {
+                  throw new RuntimeException(_txt('er.ia.id.type.none'));
+                }
+                
+                // If we find more than one identifier of the same type, we
+                // arbitrarily pick the first.
+                
+                $id = Hash::extract($identifiers, '{n}[type='.$identifierType.']');
+                
+                if(empty($id)) {
+                  throw new RuntimeException(_txt('er.ia.id.type', array($identifierType)));
+                }
+                
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', $id[0]['identifier']));
                 break;
               case 'm':
                 $base .= sprintf("%.".$width."s",

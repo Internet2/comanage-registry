@@ -126,6 +126,18 @@
     <li>
       <div class="field-name">
         <div class="field-title">
+          <?php print ($e ? $this->Form->label('fd.order', _txt('fd.order')) :  _txt('fd.order')); ?>
+        </div>
+      </div>
+      <div class="field-info">
+        <?php print ($e
+                     ? $this->Form->input('ordr')
+                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      </div>
+    </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
           <?php print ($e ? $this->Form->label('email_type', _txt('fd.ia.type.email')) : _txt('fd.ia.type.email')); ?>
         </div>
         <div class="field-desc"><?php print _txt('fd.ia.type.email.desc'); ?></div>
