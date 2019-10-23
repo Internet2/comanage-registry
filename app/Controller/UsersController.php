@@ -32,6 +32,7 @@ class UsersController extends AppController {
                        "CmpEnrollmentConfiguration",
                        "CoGroup",
                        "CoGroupMember",
+                       "CoOrgIdentityLink",
                        "CoSetting",
                        "CoTermsAndConditions",
                        "OrgIdentity",

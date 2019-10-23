@@ -33,8 +33,12 @@ if($menuContent['cos']) {
   $cos = array();
 }
 
-// Convert the list of COs with enrollment flows defined into a more useful format
-$efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
+$efcos = array();
+
+if(!empty($vv_enrollment_flow_cos)) {
+  // Convert the list of COs with enrollment flows defined into a more useful format
+  $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
+}
 ?>
 
 <ul id="main-menu" class="metismenu">
