@@ -934,6 +934,18 @@ class AppModel extends Model {
       if(!empty($copt['CoProvisioningTarget']['co_id'])) {
         return $copt['CoProvisioningTarget']['co_id'];
       }
+    } elseif(isset($this->validate['data_filter_id'])) {
+      // Data Filter plugins will refer to a Data Filter
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'DataFilter';
+    
+      $df = $this->find('first', $args);
+      
+      if(!empty($df['DataFilter']['co_id'])) {
+        return $df['DataFilter']['co_id'];
+      }
     } elseif(isset($this->validate['org_identity_source_id'])) {
       // Org Identity Source plugins will refer to an org identity source
       

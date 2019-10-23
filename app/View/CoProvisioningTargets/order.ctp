@@ -33,7 +33,9 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $this->Html->addCrumb(_txt('ct.co_provisioning_targets.pl'), $args);
-
+  
+  $this->Html->addCrumb(_txt('op.order-a', array(_txt('ct.co_provisioning_targets.pl'))));
+  
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
@@ -41,20 +43,7 @@
   // Add top links
   $params['topLinks'] = array();
 
-  if($permissions['add']) {
-    $params['topLinks'][] = $this->Html->link(
-      _txt('op.add-a', array(_txt('ct.co_provisioning_targets.1'))),
-      array(
-        'controller' => 'co_provisioning_targets',
-        'action' => 'add',
-        'co' => $cur_co['Co']['id']
-      ),
-      array('class' => 'addbutton')
-    );
-  }
-
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
 <script type="text/javascript">
   $(function() {
@@ -147,7 +136,7 @@
   
   print $this->Html->link(_txt('op.done'),
                           $args,
-                          array('class'  => 'backbutton right'));
+                          array('class'  => 'checkbutton right'));
 ?>
 
 <div id="result-dialog" title="<?php print _txt('op.reorder'); ?>">

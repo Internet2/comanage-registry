@@ -152,7 +152,7 @@
   
   print $this->Html->link(_txt('op.done'),
                           $args,
-                          array('class'  => 'backbutton right'));
+                          array('class'  => 'checkbutton right'));
 ?>
 
 <div id="result-dialog" title="<?php print _txt('op.reorder'); ?>">

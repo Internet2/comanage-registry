@@ -73,6 +73,7 @@ class Co extends AppModel {
     // A CO has zero or more OrgIdentities, depending on if they are pooled.
     // It's OK to make the model dependent, because if they are pooled the
     // link won't be there to delete.
+    "DataFilter" => array('dependent' => true),
     "OrgIdentity" => array('dependent' => true),
     "OrgIdentitySource" => array('dependent' => true),
     "CoPipeline" => array('dependent' => true),
@@ -174,9 +175,11 @@ class Co extends AppModel {
     // Trigger the delete of models associated with plugins before we clean up
     // data structures they might point to
     
+    // Make sure to update this list in duplicate() as well
     foreach(array("Authenticator",
                   "CoDashboard", // triggers CoDashboardWidget
                   "CoProvisioningTarget",
+                  "DataFilter",
                   "OrgIdentitySource") as $m) {
       // If set, we use duplicatableModels as a sort of inverse logic for cleanup
       
@@ -283,6 +286,7 @@ class Co extends AppModel {
         'CoTheme',
         'CoEnrollmentFlow',
         'Server',
+        'DataFilter',
         'OrgIdentitySource',
         'CoProvisioningTarget',
         'CoSetting'
@@ -338,10 +342,11 @@ class Co extends AppModel {
         $plugins[$m->cmPluginType][$p] = $m;
       }
       
+      // Make sure to update this list in delete() as well
       foreach(array(
         'Authenticator' => array(
-          'type'  => 'authenticator',
-          'fk'    => 'authenticator_id',
+          'type'   => 'authenticator',
+          'fk'     => 'authenticator_id',
           'pmodel' => $this->Authenticator
         ),
         'CoDashboardWidget' => array(
@@ -350,13 +355,18 @@ class Co extends AppModel {
           'pmodel' => $this->CoDashboard->CoDashboardWidget
         ),
         'CoProvisioningTarget' => array(
-          'type'  => 'provisioner',
-          'fk'    => 'co_provisioning_target_id',
+          'type'   => 'provisioner',
+          'fk'     => 'co_provisioning_target_id',
           'pmodel' => $this->CoProvisioningTarget
         ),
+        'DataFilter' => array(
+          'type'   => 'datafilter',
+          'fk'     => 'data_filter_id',
+          'pmodel' => $this->DataFilter
+        ),
         'OrgIdentitySource' => array(
-          'type'  => 'orgidsource',
-          'fk'    => 'org_identity_source_id',
+          'type'   => 'orgidsource',
+          'fk'     => 'org_identity_source_id',
           'pmodel' => $this->OrgIdentitySource
         )
       ) as $parentm => $pmcfg) {

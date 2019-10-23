@@ -67,6 +67,12 @@
       'controller'    => 'co_dashboards',
       'action'        => 'index'
     ),
+    _txt('ct.data_filters.pl') => array(
+      'icon'          => 'filter_list',
+      'permissionKey' => 'datafilters',
+      'controller'    => 'data_filters',
+      'action'        => 'index'
+    ),
     _txt('ct.co_enrollment_flows.pl') => array(
       'icon'          => 'forward',
       'permissionKey' => 'coef',

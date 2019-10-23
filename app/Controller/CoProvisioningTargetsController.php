@@ -96,6 +96,15 @@ class CoProvisioningTargetsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_org_identity_sources', $this->Co->OrgIdentitySource->find("list", $args));
+      
+      // Pull the list of Data Filters
+      $args = array();
+      $args['conditions']['DataFilter.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['DataFilter.status'] = SuspendableStatusEnum::Active;
+      $args['order'] = array('DataFilter.description ASC');
+      $args['contain'] = false;
+      
+      $this->set('vv_data_filters', $this->Co->DataFilter->find("list", $args));
     }
     
     parent::beforeRender();

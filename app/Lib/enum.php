@@ -194,6 +194,13 @@ class ContactEnum
   const Postal      = 'postal';
 }
 
+class DataFilterContextEnum
+{
+// Not yet implemented
+//  const OrgIdentitySource  = 'OIS';
+  const ProvisioningTarget = 'PT';
+}
+
 class ElectStrategyEnum {
   const FIFO        = 'FI';
   const Manual      = 'M';

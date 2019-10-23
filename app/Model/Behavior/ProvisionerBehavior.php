@@ -538,19 +538,19 @@ class ProvisionerBehavior extends ModelBehavior {
     
     // Note there is similar logic in View/Standard/provision.ctp.
     
-    if(!empty($coProvisioningTarget['provision_co_group_id'])) {
+    if(!empty($coProvisioningTarget['CoProvisioningTarget']['provision_co_group_id'])) {
       if(!empty($provisioningData['CoPerson']['id'])) { 
         // Is this person a member of that group? We should be able to do this in a single
         // Hash::check call using [co_group_id=$foo], but that doesn't seem to actually work...
         
-        if(!in_array($coProvisioningTarget['provision_co_group_id'],
+        if(!in_array($coProvisioningTarget['CoProvisioningTarget']['provision_co_group_id'],
                      Hash::extract($provisioningData, 'CoGroupMember.{n}.co_group_id'))) {
           // Switch to a delete. We'll leave the provisioning data itself untouched.
           $pAction = ProvisioningActionEnum::CoPersonDeleted;
         }
       } elseif(!empty($provisioningData['CoGroup']['id'])
                // Is this group the configured group?
-               && ($coProvisioningTarget['provision_co_group_id']
+               && ($coProvisioningTarget['CoProvisioningTarget']['provision_co_group_id']
                    != $provisioningData['CoGroup']['id'])) {
         // Switch to a delete. We'll leave the provisioning data itself untouched.
         $pAction = ProvisioningActionEnum::CoGroupDeleted;
@@ -560,18 +560,37 @@ class ProvisionerBehavior extends ModelBehavior {
     // Perform a similar check to see if there is an associated Org Identity Source
     // record that indicates we should skip provisioning.
     
-    if(!empty($coProvisioningTarget['skip_org_identity_source_id'])
+    if(!empty($coProvisioningTarget['CoProvisioningTarget']['skip_org_identity_source_id'])
        &&
        !empty($provisioningData['CoPerson']['id'])
        &&
-       in_array($coProvisioningTarget['skip_org_identity_source_id'],
+       in_array($coProvisioningTarget['CoProvisioningTarget']['skip_org_identity_source_id'],
                 Hash::extract($provisioningData, 'CoOrgIdentityLink.{n}.OrgIdentity.OrgIdentitySourceRecord.org_identity_source_id'))) {
       // Switch to a delete. We'll leave the provisioning data itself untouched.
       $pAction = ProvisioningActionEnum::CoGroupDeleted;
     }
     
-    if(!empty($coProvisioningTarget['plugin'])) {
-      $pluginName = $coProvisioningTarget['plugin'];
+    // Pass the provisioning data through any configured data filters.
+    // The parent call should have ordered the filters already (via containable).
+    if(!empty($coProvisioningTarget['CoProvisioningTargetFilter'])) {
+      foreach($coProvisioningTarget['CoProvisioningTargetFilter'] as $filter) {
+        if(!empty($filter['DataFilter']) 
+           && $filter['DataFilter']['status'] == SuspendableStatusEnum::Active) {
+          $pluginModelName = $filter['DataFilter']['plugin'] . "." . $filter['DataFilter']['plugin'];
+          
+          $pluginModel = ClassRegistry::init($pluginModelName);
+          
+          // We let any exception pass up the stack, since presumably we shouldn't
+          // continue provisioning of the filter fails for some reason.
+          $provisioningData = $pluginModel->filter(DataFilterContextEnum::ProvisioningTarget,
+                                                   $filter['DataFilter']['id'],
+                                                   $provisioningData);
+        }
+      }
+    }
+    
+    if(!empty($coProvisioningTarget['CoProvisioningTarget']['plugin'])) {
+      $pluginName = $coProvisioningTarget['CoProvisioningTarget']['plugin'];
       $modelName = 'Co'. $pluginName . 'Target';
       $pluginModelName = $pluginName . "." . $modelName;
       
@@ -581,7 +600,7 @@ class ProvisionerBehavior extends ModelBehavior {
       $pluginModel = ClassRegistry::init($pluginModelName);
       
       $args = array();
-      $args['conditions'][$modelName.'.co_provisioning_target_id'] = $coProvisioningTarget['id'];
+      $args['conditions'][$modelName.'.co_provisioning_target_id'] = $coProvisioningTarget['CoProvisioningTarget']['id'];
       $args['contain'] = false;
       
       $pluginTarget = $pluginModel->find('first', $args);
@@ -600,7 +619,7 @@ class ProvisionerBehavior extends ModelBehavior {
              && $pAction != ProvisioningActionEnum::CoGroupDeleted
              && $pAction != ProvisioningActionEnum::CoPersonDeleted) {
             $pluginModel->CoProvisioningTarget->CoProvisioningExport->record(
-              $coProvisioningTarget['id'],
+              $coProvisioningTarget['CoProvisioningTarget']['id'],
               !empty($provisioningData['CoPerson']['id']) ? $provisioningData['CoPerson']['id'] : null,
               !empty($provisioningData['CoGroup']['id']) ? $provisioningData['CoGroup']['id'] : null,
               !empty($provisioningData['CoEmailList']['id']) ? $provisioningData['CoEmailList']['id'] : null
@@ -620,7 +639,7 @@ class ProvisionerBehavior extends ModelBehavior {
               ($pAction == ProvisioningActionEnum::CoEmailListReprovisionRequested
                ? ActionEnum::CoEmailListManuallyProvisioned
                : ActionEnum::CoEmailListProvisioned),
-              _txt('rs.prov-a', array($coProvisioningTarget['description'])),
+              _txt('rs.prov-a', array($coProvisioningTarget['CoProvisioningTarget']['description'])),
               null,
               $provisioningData['CoEmailList']['id']
             );
@@ -635,7 +654,7 @@ class ProvisionerBehavior extends ModelBehavior {
               ($pAction == ProvisioningActionEnum::CoGroupReprovisionRequested
                ? ActionEnum::CoGroupManuallyProvisioned
                : ActionEnum::CoGroupProvisioned),
-              _txt('rs.prov-a', array($coProvisioningTarget['description'])),
+              _txt('rs.prov-a', array($coProvisioningTarget['CoProvisioningTarget']['description'])),
               $provisioningData['CoGroup']['id']
             );
           } elseif(!empty($provisioningData['CoPerson']['id'])
@@ -649,12 +668,12 @@ class ProvisionerBehavior extends ModelBehavior {
               ($pAction == ProvisioningActionEnum::CoPersonReprovisionRequested
                ? ActionEnum::CoPersonManuallyProvisioned
                : ActionEnum::CoPersonProvisioned),
-              _txt('rs.prov-a', array($coProvisioningTarget['description']))
+              _txt('rs.prov-a', array($coProvisioningTarget['CoProvisioningTarget']['description']))
             );
           }
         }
         catch(InvalidArgumentException $e) {
-          $this->registerFailureNotification($coProvisioningTarget,
+          $this->registerFailureNotification($coProvisioningTarget['CoProvisioningTarget'],
                                              (!empty($provisioningData['CoPerson']['id'])
                                               ? $provisioningData['CoPerson']['id'] : null),
                                              (!empty($provisioningData['CoGroup']['id'])
@@ -667,7 +686,7 @@ class ProvisionerBehavior extends ModelBehavior {
           throw new InvalidArgumentException($e->getMessage());
         }
         catch(RuntimeException $e) {
-          $this->registerFailureNotification($coProvisioningTarget,
+          $this->registerFailureNotification($coProvisioningTarget['CoProvisioningTarget'],
                                              (!empty($provisioningData['CoPerson']['id'])
                                               ? $provisioningData['CoPerson']['id'] : null),
                                              (!empty($provisioningData['CoGroup']['id'])
@@ -681,7 +700,7 @@ class ProvisionerBehavior extends ModelBehavior {
         }
         
         // On success clear any pending notifications
-        $this->resolveNotifications($coProvisioningTarget['id'],
+        $this->resolveNotifications($coProvisioningTarget['CoProvisioningTarget']['id'],
                                     (!empty($provisioningData['CoPerson']['id'])
                                      ? $provisioningData['CoPerson']['id'] : null),
                                     (!empty($provisioningData['CoGroup']['id'])
@@ -740,7 +759,10 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       $args['order'] = array('CoProvisioningTarget.ordr ASC');
     }
-    $args['contain'] = false;
+    $args['contain'] = array('CoProvisioningTargetFilter' => array(
+      'DataFilter',
+      'order' => 'CoProvisioningTargetFilter.ordr ASC'
+    ));
     
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
     
@@ -749,7 +771,7 @@ class ProvisionerBehavior extends ModelBehavior {
         // Fire off each provisioning target
         
         try {
-          $this->invokePlugin($target['CoProvisioningTarget'],
+          $this->invokePlugin($target,
                               $provisioningData,
                               $action,
                               $actorCoPersonId);
@@ -824,7 +846,10 @@ class ProvisionerBehavior extends ModelBehavior {
       // so this find will pull the related models as well. However, to reduce the number
       // of database queries should a large number of plugins be installed, we'll use
       // containable behavior and make a second call for the plugin we want.
-      $args['contain'] = false;
+      $args['contain'] = array('CoProvisioningTargetFilter' => array(
+        'DataFilter',
+        'order' => 'CoProvisioningTargetFilter.ordr ASC'
+      ));
       
       // Currently, CoPerson and CoGroup are the only models that calls manualProvision, so we know
       // how to find CoProvisioningTarget
@@ -832,7 +857,7 @@ class ProvisionerBehavior extends ModelBehavior {
       
       if(!empty($copt)) {
         try {
-          $this->invokePlugin($copt['CoProvisioningTarget'],
+          $this->invokePlugin($copt,
                               $provisioningData,
                               $provisioningAction,
                               $actorCoPersonId);
@@ -903,7 +928,9 @@ class ProvisionerBehavior extends ModelBehavior {
     
     $args = array();
     $args['conditions']['CoGroup.id'] = $coGroupId;
-    $args['contain'] = false;
+    $args['contain'] = array(
+      'Identifier'
+    );
     
     $group = $coGroupModel->find('first', $args);
     
@@ -940,7 +967,7 @@ class ProvisionerBehavior extends ModelBehavior {
     // Only pull related models relevant for provisioning
     $args['contain'] = array(
       'Co',
-      'CoGroupMember' => array('CoGroup' => array('EmailListAdmin', 'EmailListMember', 'EmailListModerator')),
+      'CoGroupMember' => array('CoGroup' => array('EmailListAdmin', 'EmailListMember', 'EmailListModerator', 'Identifier')),
       // 'CoGroup'
       // 'CoGroupMember.CoGroup',
       'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier', 'OrgIdentitySourceRecord')),

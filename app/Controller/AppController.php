@@ -996,6 +996,9 @@ class AppController extends Controller {
       $p['menu']['codepartments'] = (boolean)$this->CoDepartment->find('count', $args);
     }
     
+    // Manage Data Filters?
+    $p['menu']['datafilters'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage CO dashboards?
     $p['menu']['dashboards'] = $roles['cmadmin'] || $roles['coadmin'];
     
