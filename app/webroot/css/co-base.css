@@ -1217,7 +1217,31 @@ body.co_petitions .ui-dialog {
   color: #333;
   text-decoration: none;
 }
-/* PEOPLE LISTING */
+/* PEOPLE LISTING - TABLE */
+#co-people-index {
+  margin-bottom: 0;
+}
+#co-people-index th {
+  padding: 0.5em 1em;
+}
+#co-people-index td {
+  padding: 0.75em 1em;
+  vertical-align: top;
+}
+#co-people-index .person-name a {
+  font-size: 1.2em;
+}
+#co-people-index .role {
+  border-top: 1px dotted #ccc;
+  padding-top: 4px;
+  margin-top: 4px;
+}
+#co-people-index .role:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+/* PEOPLE LISTING - ACCORDIANS (legacy) */
 #co_people {
   clear: both;
 }
@@ -1233,6 +1257,9 @@ body.co_petitions .ui-dialog {
   min-height: 45px;
   position: relative;
   width: 100%;
+}
+#coPeopleNoResults {
+  margin-left: 1.5em;
 }
 #noResults {
   margin: 1.5em 0 0 0;
