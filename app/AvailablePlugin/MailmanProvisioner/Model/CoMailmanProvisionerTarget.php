@@ -180,6 +180,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  Object           $Http                   CoHttpClient
    * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
    * @param  Integer          $coPersonId             CoPerson ID
+   * @param  String           $status                 CoPerson status
    * @param  Array            $primaryName            Array of member's primary name
    * @param  ArrayObject      $prefAddress            Array describing member's preferred address
    * @param  Array            $emailAddresses         Array of member's email addresses
@@ -191,6 +192,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
   protected function getPersonMailmanId($Http,
                                         $coProvisioningTargetId,
                                         $coPersonId,
+                                        $status,
                                         $primaryName,
                                         $prefAddress,
                                         $emailAddresses,
@@ -211,7 +213,14 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       
       $mailmanId = $mid['Identifier']['identifier'];
     } else {
-      // No mailman user ID. In order to create one we need an email address.
+      // No mailman user ID. Only provision the user to Mailman and create
+      // the mailman user ID for CoPerson with Active status.
+      if($status != StatusEnum::Active) {
+        $mailmanId = null;
+        return $mailmanId;
+      }
+
+      // In order to create a mailman user ID we need an email address.
       
       $mailmanUser = array(
         'display_name'  => generateCn($primaryName),
@@ -500,6 +509,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['co_provisioning_target_id'],
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['pref_email_type'],
                         $provisioningData['CoPerson']['id'],
+                        $provisioningData['CoPerson']['status'],
                         $provisioningData['PrimaryName'],
                         $provisioningData['EmailAddress'],
                         Hash::extract($provisioningData, 'CoGroupMember.{n}.CoGroup.EmailListMember.0'),
@@ -857,6 +867,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
    * @param  EmailAddressEnum $preferredEmailType     Preferred email address type, or null
    * @param  Integer          $coPersonId             CoPerson ID
+   * @param  String           $status                 CoPerson status
    * @param  Array            $primaryName            Array of person's primary name
    * @param  Array            $emailAddresses         Array of person's email addresses
    * @param  Array            $memberCoEmailLists     Array of person's email lists as implied by groups
@@ -872,6 +883,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                 $coProvisioningTargetId,
                                 $preferredEmailType,
                                 $coPersonId,
+                                $status,
                                 $primaryName,
                                 $emailAddresses,
                                 $memberCoEmailLists,
@@ -881,14 +893,22 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // If we can't find a preferred email address, this will throw an exception
     $prefAddress = $this->preferredEmailAddress($emailAddresses, $preferredEmailType);
     
+    // Find or create/provision the mailmanId.
     $mailmanId = $this->getPersonMailmanId($Http,
                                            $coProvisioningTargetId,
                                            $coPersonId,
+                                           $status,
                                            $primaryName,
                                            $prefAddress,
                                            $emailAddresses,
                                            $actorCoPersonId);
     
+    // If status is not Active getPersonMailmanId will not create the
+    // mailmanId and will return null.
+    if(is_null($mailmanId)) {
+      return true;
+    }
+
     // We now need the set of mailmain list IDs. We could pull them as needed, but
     // for now we can pull them all at once since we don't expect that many.
     
