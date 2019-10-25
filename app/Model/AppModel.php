@@ -258,6 +258,12 @@ class AppModel extends Model {
           // Chop off _co_person_id
           $afield = substr($attr, 0, strlen($attr)-13);
           $amodel = "CoPerson";
+        } elseif(preg_match('/.*_co_group_id$/', $attr)) {
+          // This is a foreign key to a CO Group (eg: admins_co_group)
+
+          // Chop off _co_group_id
+          $afield = substr($attr, 0, strlen($attr)-12);
+          $amodel = "CoGroup";
         } else {
           // Chop off _id
           $afield = substr($attr, 0, strlen($attr)-3);
