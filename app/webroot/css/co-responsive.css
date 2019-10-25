@@ -391,6 +391,21 @@
     float: right;
   }
   /* PEOPLE LISTING */
+  /* Reset table for desktop */
+  #co-people-index thead {
+    display: table-header-group;
+  }
+  #co-people-index th {
+    padding: 0.5em 1em;
+  }
+  #co-people-index td,
+  #co-people-index td.person-name,
+  #co-people-index td.person-role,
+  #co-people-index td.actions {
+    display: table-cell;
+    padding: 0.75em 1em;
+    vertical-align: top;
+  }
   #co_people .person-info-inner {
     float: left;
     width: 200px;
