@@ -819,6 +819,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
             $mailmanId = $this->getPersonMailmanId($Http,
                                                    $coProvisioningTargetId,
                                                    $gm['CoPerson']['id'],
+                                                   $gm['CoPerson']['status'],
                                                    $gm['CoPerson']['PrimaryName'],
                                                    $prefAddress,
                                                    $gm['CoPerson']['EmailAddress'],
