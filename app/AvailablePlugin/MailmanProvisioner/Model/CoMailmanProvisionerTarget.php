@@ -122,7 +122,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
   
   /**
    * Delete an Email List.
-   * 
+   *
    * @since  COmanage Registry v3.1.0
    * @param  Object  $Http            CoHttpClient
    * @param  Integer $id              CoMailmanProvisionerTarget ID
@@ -134,7 +134,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * @throws RuntimeException
    * @return boolean true
    */
-  
+ 
   protected function deleteList($Http, $id, $coEmailListId, $actorCoPersonId) {
     // Find the mailman list ID
     
@@ -167,6 +167,35 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                       $coEmailListId);
       }
       // Ignore any other results for now
+    }
+ 
+    return true;
+  }
+
+  /**
+   * Delete an CO Person.
+   *
+   * @since  COmanage Registry v3.2.3
+   * @param  Object           $Http                   CoHttpClient
+   * @param  Array            $provisioningData,      Provisioning data, populated with ['CoPerson']
+   * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
+   * @throws RuntimeException
+   * @return boolean          true
+   */
+ 
+  protected function deletePerson($Http, $provisioningData, $coProvisioningTargetId) {
+
+    if(!empty($provisioningData['Identifier'])) {
+      foreach($provisioningData['Identifier'] as $identifier) {
+        if($identifier['co_provisioning_target_id'] == $coProvisioningTargetId) {
+          $mailmanId = $identifier['identifier'];
+
+          // Delete the user. Mailman will remove the user from all lists
+          // and delete the email addresses attached to the user.
+          $result = $Http->delete('/3.1/users/' . $mailmanId);
+          break;
+        }
+      }
     }
     
     return true;
@@ -418,6 +447,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
   public function provision($coProvisioningTargetData, $op, $provisioningData) {    
     // First determine what to do
     $deleteList = false;
+    $deletePerson = false;
     $syncList = false;
     $syncListMembers = false;
     $syncPerson = false;
@@ -453,9 +483,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
         $syncPerson = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
-        // We don't do anything here because typically we don't have any useful
-        // information to process, and we've probably deprovisioned due to
-        // status change/group membership loss/etc.
+        $deletePerson = true;
         break;
       default:
         // Ignore all other actions. Note group membership changes
@@ -467,7 +495,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // If we have something to do, build an HTTP Client
     $Http = null;
     
-    if($deleteList || $syncList || $syncListMembers || $syncPerson) {
+    if($deleteList || $deletePerson || $syncList || $syncListMembers || $syncPerson) {
       $Http = new CoHttpClient();
       
       $Http->setBaseUrl($coProvisioningTargetData['CoMailmanProvisionerTarget']['serverurl']);
@@ -481,6 +509,12 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['id'],
                         $provisioningData['CoEmailList']['id'],
                         CakeSession::read('Auth.User.co_person_id'));
+    }
+
+    if($deletePerson) {
+      $this->deletePerson($Http,
+                          $provisioningData,
+                          $coProvisioningTargetData['CoMailmanProvisionerTarget']['co_provisioning_target_id']);
     }
     
     if($syncList) {
