@@ -64,7 +64,7 @@
       </div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('description') : filter_var($co_credential_stores[0]['Authenticator']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e ? $this->Form->input('description') : filter_var($authenticators[0]['Authenticator']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
