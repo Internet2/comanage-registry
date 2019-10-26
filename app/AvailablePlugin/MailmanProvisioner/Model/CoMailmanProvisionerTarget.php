@@ -821,7 +821,14 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                        array('Identifier.identifier' => $mailmanId,
                                              'Identifier.co_provisioning_target_id' => $coProvisioningTargetId,
                                              'Identifier.type' => IdentifierEnum::ProvisioningTarget));
-            
+
+            // If the mailmanId cannot be mapped to a CO Person ID, the
+            // mailman user and email address are not being managed by 
+            // this plugin so we just skip removing this membership.
+            if(empty($coPersonId)) {
+              continue;
+            }
+
             // Delete keys on the list membership ID, which is not the user ID
             $this->unsubscribe($Http,
                                $coPersonId,
