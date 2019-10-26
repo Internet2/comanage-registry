@@ -352,7 +352,8 @@
   }
   .co-grid .co-grid-header {
     display: flex;
-    background-color: #e5e5e5 !important;
+    background-color: #186696 !important;
+    color: #ffffff;
     font-weight: bold;
   }
   .side-search {
