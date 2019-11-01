@@ -645,6 +645,10 @@ FROM
         if($m['member'] && !($m['deleted']) && !($m['co_group_member_id'])) {
           $provisionerGroup = $this->CoGrouperProvisionerGroup
                                    ->findProvisionerGroup($coProvisioningTargetData, $m);
+          if(empty($provisionerGroup)) {
+            $provisionerGroup = $this->CoGrouperProvisionerGroup
+                                     ->addProvisionerGroup($coProvisioningTargetData, $m);
+          }
           $groupName = $this->CoGrouperProvisionerGroup
                             ->getGrouperGroupName($provisionerGroup);
           $groupDescription = $this->CoGrouperProvisionerGroup
