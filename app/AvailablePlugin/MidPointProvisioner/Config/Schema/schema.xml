@@ -32,13 +32,9 @@
         <field name="co_provisioning_target_id" type="I">
             <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
         </field>
-        <field name="serverurl" type="C" size="256" />
-        <field name="username" type="C" size="128" />
-        <field name="password" type="C" size="64" />
-        <field name="ssl_allow_self_signed" type="L" />
-        <field name="ssl_verify_host" type="L" />
-        <field name="ssl_verify_peer" type="L" />
-        <field name="ssl_verify_peer_name" type="L" />
+        <field name="server_id" type="I">
+            <constraint>REFERENCES cm_servers(id)</constraint>
+        </field>
         <field name="user_name_identifier" type="C" size="32" />
         <field name="created" type="T" />
         <field name="modified" type="T" />

@@ -27,6 +27,7 @@
  */
 
 App::uses('CoHttpClient', 'Lib');
+App::uses("Server", "Model");
 App::uses('Xml', 'Utility');
 
 /**
@@ -36,51 +37,18 @@ App::uses('Xml', 'Utility');
  */
 class MidPointRestApiClient extends CakeObject {
 
-  /** @var string REST API URL */
-  private $serverUrl;
+  /** @var string Server id */
+  private $serverId;
 
-  /** @var string REST API username */
-  private $username;
-
-  /** @var string REST API password */
-  private $password;
-
-  // TODO doc
-  private $ssl_allow_self_signed;
-
-  // TODO doc
-  private $ssl_verify_host;
-
-  // TODO doc
-  private $ssl_verify_peer;
-
-  // TODO doc
-  private $ssl_verify_peer_name;
+  /** @var string Server description */
+  private $serverDescription;
 
   /**
    * MidPointRestApiClient constructor.
    */
-  public function __construct($coProvisioningTargetData) {
-
-    // TODO validate
-
-    $this->serverUrl = $coProvisioningTargetData['CoMidPointProvisionerTarget']['serverurl'];
-    $this->username  = $coProvisioningTargetData['CoMidPointProvisionerTarget']['username'];
-    $this->password  = $coProvisioningTargetData['CoMidPointProvisionerTarget']['password'];
-
-    $this->ssl_allow_self_signed = $coProvisioningTargetData['CoMidPointProvisionerTarget']['ssl_allow_self_signed'];
-    $this->ssl_verify_host       = $coProvisioningTargetData['CoMidPointProvisionerTarget']['ssl_verify_host'];
-    $this->ssl_verify_peer       = $coProvisioningTargetData['CoMidPointProvisionerTarget']['ssl_verify_peer'];
-    $this->ssl_verify_peer_name  = $coProvisioningTargetData['CoMidPointProvisionerTarget']['ssl_verify_peer_name'];
-
-    if (Configure::read('debug')) {
-      $this->log($this->logPrefix() ."MidPoint URL                   : $this->serverUrl", 'debug');
-      $this->log($this->logPrefix() ."MidPoint username              : $this->username", 'debug');
-      $this->log($this->logPrefix() ."MidPoint ssl_allow_self_signed : $this->ssl_allow_self_signed", 'debug');
-      $this->log($this->logPrefix() ."MidPoint ssl_verify_host       : $this->ssl_verify_host", 'debug');
-      $this->log($this->logPrefix() ."MidPoint ssl_verify_peer       : $this->ssl_verify_peer", 'debug');
-      $this->log($this->logPrefix() ."MidPoint ssl_verify_peer_name  : $this->ssl_verify_peer_name", 'debug');
-    }
+  public function __construct($serverId) {
+    // TODO validate ?
+    $this->serverId = $serverId;
   }
 
   /**
@@ -89,16 +57,36 @@ class MidPointRestApiClient extends CakeObject {
    * @return CoHttpClient The built CoHttpClient
    */
   public function buildHttpClient() {
-    $Http = new CoHttpClient(
-      array(
-        'ssl_allow_self_signed' => $this->ssl_allow_self_signed,
-        'ssl_verify_host'       => $this->ssl_verify_host,
-        'ssl_verify_peer'       => $this->ssl_verify_peer,
-        'ssl_verify_peer_name'  => $this->ssl_verify_peer_name,
-      )
-    );
-    $Http->setBaseUrl($this->serverUrl);
-    $Http->configAuth('Basic', $this->username, $this->password);
+
+    // TODO validate username and password ?
+
+    // Pull the Server config
+    $Server = new Server();
+
+    $args = array();
+    $args['conditions']['Server.id'] = $this->serverId;
+    $args['conditions']['Server.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = array('HttpServer');
+
+    $server = $Server->find('first', $args);
+    if (!$server) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.servers.1'), $this->serverId)));
+    }
+
+    // Save server description for log prefix
+    $this->serverDescription = $server['Server']['description'];
+
+    // Pass non-null ssl_* context options to HttpClient
+    $ssl_config = array_filter($server['HttpServer'],
+      function ($value, $key) {
+        return preg_match('/^ssl_/', $key) && !is_null($value);
+      },
+      ARRAY_FILTER_USE_BOTH);
+    $Http = new CoHttpClient($ssl_config);
+
+    $Http->setBaseUrl($server['HttpServer']['serverurl']);
+    $Http->configAuth('Basic', $server['HttpServer']['username'], $server['HttpServer']['password']);
+
     return $Http;
   }
 
@@ -352,6 +340,6 @@ class MidPointRestApiClient extends CakeObject {
    * @return string Log prefix.
    */
   public function logPrefix() {
-    return "MidPointRestApiClient " . $this->serverUrl . " ";
+    return "MidPoint " . $this->serverDescription . " ";
   }
 }

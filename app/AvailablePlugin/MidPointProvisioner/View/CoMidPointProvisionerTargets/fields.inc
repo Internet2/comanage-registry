@@ -31,7 +31,7 @@
   
   if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
     $e = true;
-    
+
   // We shouldn't get here if we don't have at least read permission, but check just in case
   
   if(!$e && !$permissions['view'])
@@ -40,113 +40,74 @@
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
-<div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.midpointprovisioner.info'); ?>
+
+<?php if (empty($vv_servers)): ?>
+<div class="co-info-topbox"><i class="material-icons">info</i>
+  <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::HttpServer))); ?>
 </div>
-
+<?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_co_mid_point_provisioner_target" class="fields form-list form-list-admin">
-    <li>
-        <div class="field-name">
-            <div class="field-title">
-              <?php print _txt('pl.midpointprovisioner.serverurl'); ?>
-                <span class="required">*</span>
-                <div class="field-desc"><?php print _txt('pl.midpointprovisioner.serverurl.desc'); ?></div>
-            </div>
-        </div>
-        <div class="field-info">
-          <?php print ($e ? $this->Form->input('serverurl') : filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title">
-              <?php print _txt('pl.midpointprovisioner.username'); ?>
-                <span class="required">*</span>
-            </div>
-        </div>
-        <div class="field-info">
-          <?php print ($e ? $this->Form->input('username') : filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title">
-              <?php print _txt('pl.midpointprovisioner.password'); ?>
-                <span class="required">*</span>
-            </div>
-        </div>
-        <div class="field-info">
-          <?php print ($e ? $this->Form->input('password') : filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title"><?php print _txt('pl.midpointprovisioner.user_name_identifier'); ?><span class="required">*</span></div>
-            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.user_name_identifier.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php
-          $xval = "";
+  <li>
+    <div class="field-name">
+      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?><span class="required">*</span>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['server_id'])
+          ? $co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['server_id']
+          : null);
+        // Since required=true, this will render blank by default but not allow save until a server is selected
+        $attrs['empty'] = true;
 
-          if(isset($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'])) {
-            $xval = $co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'];
-          }
+        if ($e) {
+          print $this->Form->select('server_id',
+            $vv_servers,
+            $attrs);
 
-          if($e) {
-            $args = array();
-            $args['empty'] = '(choose one)';
-            print $this->Form->select('user_name_identifier', $identifier_types, $args);
-          } else {
-            print filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+          if ($this->Form->isFieldError('server_id')) {
+            print $this->Form->error('server_id');
           }
-          ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title"><?php print _txt('pl.midpointprovisioner.ssl_allow_self_signed'); ?></div>
-            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.ssl_allow_self_signed.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php if ($e) print $this->Form->input('ssl_allow_self_signed', array('checked' => filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['ssl_allow_self_signed'],FILTER_VALIDATE_BOOLEAN), 'disabled' => false)); ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title"><?php print _txt('pl.midpointprovisioner.ssl_verify_host'); ?></div>
-            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.ssl_verify_host.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php if($e) print $this->Form->input('ssl_verify_host', array('checked' => filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['ssl_verify_host'],FILTER_VALIDATE_BOOLEAN), 'disabled' => false)); ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title"><?php print _txt('pl.midpointprovisioner.ssl_verify_peer'); ?></div>
-            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.ssl_verify_peer.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php if($e) print $this->Form->input('ssl_verify_peer', array('checked' => filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['ssl_verify_peer'],FILTER_VALIDATE_BOOLEAN), 'disabled' => false)); ?>
-        </div>
-    </li>
-    <li>
-        <div class="field-name">
-            <div class="field-title"><?php print _txt('pl.midpointprovisioner.ssl_verify_peer_name'); ?></div>
-            <div class="field-desc"><?php print _txt('pl.midpointprovisioner.ssl_verify_peer_name.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php if($e) print $this->Form->input('ssl_verify_peer_name', array('checked' => filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['ssl_verify_peer_name'],FILTER_VALIDATE_BOOLEAN), 'disabled' => false)); ?>
-        </div>
-    </li>
-    <?php if($e): ?>
-      <li>
-          <div class="field-name">
-              <span class="required"><?php print _txt('fd.req'); ?></span>
-          </div>
-          <div class="field-info">
-            <?php print $this->Form->submit($submit_label); ?>
-          </div>
-      </li>
+        } else {
+          if (!empty($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['server_id'])) {
+            print filter_var($vv_servers[$co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['server_id']], FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+        }
+        ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.midpointprovisioner.user_name_identifier'); ?><span class="required">*</span></div>
+      <div class="field-desc"><?php print _txt('pl.midpointprovisioner.user_name_identifier.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $xval = "";
+
+        if (isset($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'])) {
+          $xval = $co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'];
+        }
+
+        if ($e) {
+          $args = array();
+          $args['empty'] = '(choose one)';
+          print $this->Form->select('user_name_identifier', $identifier_types, $args);
+        } else {
+          print filter_var($co_mid_point_provisioner_targets[0]['CoMidPointProvisionerTarget']['user_name_identifier'], FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+        ?>
+    </div>
+  </li>
+  <?php if ($e): ?>
+  <li>
+    <div class="field-name">
+      <span class="required"><?php print _txt('fd.req'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php print $this->Form->submit($submit_label); ?>
+    </div>
+  </li>
   <?php endif; ?>
 </ul>
+<?php endif; // vv_servers ?>

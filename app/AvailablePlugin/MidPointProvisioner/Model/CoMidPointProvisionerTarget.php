@@ -43,6 +43,9 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
   // Association rules from this model to other models
   public $belongsTo = array("CoProvisioningTarget");
 
+  // Request HTTP servers
+  public $cmServerType = ServerEnum::HttpServer;
+
   // Validation rules for table elements
   public $validate = array(
     'co_provisioning_target_id' => array(
@@ -50,26 +53,10 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => true,
       'message' => 'A CO Provisioning Target ID must be provided'
     ),
-    'ssl_allow_self_signed' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'ssl_verify_host' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'ssl_verify_peer' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'ssl_verify_peer_name' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
+    'server_id' => array(
+      'rule' => 'numeric',
+      'required' => true
+    )
   );
 
   public function provision($coProvisioningTargetData, $op, $provisioningData) {

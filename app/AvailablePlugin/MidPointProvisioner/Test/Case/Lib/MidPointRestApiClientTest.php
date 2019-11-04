@@ -4,18 +4,12 @@ App::uses('MidPointRestApiClient', 'MidPointProvisioner.Lib');
 
 class MidPointRestApiClientTest extends CakeTestCase {
 
-  /** @var array MidPoint connection configuration */
-  public $coProvisioningTargetData = array(
-    'CoMidPointProvisionerTarget' => array(
-      'serverurl' => 'https://172.22.0.6:443/midpoint',
-      'username' => 'Administrator',
-      'password' => '5ecr3t',
-      'ssl_allow_self_signed' => 1,
-      'ssl_verify_host' => 0,
-      'ssl_verify_peer' => 0,
-      'ssl_verify_peer_name' => 0
-    )
+  public $fixtures = array(
+    'app.HttpServer'
   );
+
+  /** @var HttpServer id */
+  public $serverId = '1';
 
   /** @var MidPointRestApiClient $api */
   public $api;
@@ -78,7 +72,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
    */
   public function setUp() {
     parent::setUp();
-    $this->api = new MidPointRestApiClient($this->coProvisioningTargetData);
+    $this->api = new MidPointRestApiClient($this->serverId);
   }
 
   /**

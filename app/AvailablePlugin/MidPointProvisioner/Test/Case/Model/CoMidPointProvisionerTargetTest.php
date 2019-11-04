@@ -12,18 +12,20 @@ class CoMidPointProvisionerTargetTest extends CakeTestCase {
     'CoExtendedType',
     //'CoIdentifierValidator',
     'CoPerson',
-    'Identifier'
+    'Identifier',
+    'Co',
+    'app.CoGroup',
+    'app.CoGroupMember',
+    'app.Cou',
+    'app.HistoryRecord'
   );
+
+  /** @var HttpServer id */
+  public $serverId = '1';
 
   public $coProvisioningTargetData = array(
     'CoMidPointProvisionerTarget' => array(
-      'serverurl' => 'https://172.22.0.6:443/midpoint',
-      'username' => 'Administrator',
-      'password' => '5ecr3t',
-      'ssl_allow_self_signed' => 1,
-      'ssl_verify_host' => 0,
-      'ssl_verify_peer' => 0,
-      'ssl_verify_peer_name' => 0,
+      'server_id' => '1',
       'user_name_identifier' => 'uid'
     )
   );
@@ -53,7 +55,7 @@ class CoMidPointProvisionerTargetTest extends CakeTestCase {
       'givenName' => 'Given',
       'familyName' => 'Family',
       'fullName' => 'Given Family',
-      'name' => 'given1.family1'
+      'name' => 'given.family'
     )
   );
 
@@ -66,7 +68,29 @@ class CoMidPointProvisionerTargetTest extends CakeTestCase {
   public function setUp() {
     parent::setUp();
     $this->target = ClassRegistry::init('CoMidPointProvisionerTarget');
-    $this->api = new MidPointRestApiClient($this->coProvisioningTargetData);
+    $this->api = new MidPointRestApiClient($this->serverId);
+  }
+
+  public function createComanagePersonMinimal() {
+    $this->Co = ClassRegistry::init('Co');
+    $cop1 = array(
+      'CoPerson' => array(
+        'co_id'         => 2,
+        'status'        => StatusEnum::Active
+      ),
+      'PrimaryName' => array(
+        'given' => 'Given',
+        'family' => 'Family',
+      ),
+    );
+    if(!$this->Co->CoPerson->save($cop1, array("provision" => false))) {
+      throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
+    }
+    // $args = array();
+    // $args['conditions']['CoPerson.id'] = 2;
+    // $args['contain'] = false;
+    // $coperson = $this->Co->CoPerson->find('first', $args);
+    // CakeLog::debug('found $cop '.var_export($coperson, true));
   }
 
   public function testCalcUserMinimal() {
