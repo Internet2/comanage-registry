@@ -376,6 +376,10 @@
     <field name="serverurl" type="C" size="256" />
     <field name="username" type="C" size="128" />
     <field name="password" type="C" size="80" />
+    <field name="ssl_allow_self_signed" type="L" />
+    <field name="ssl_verify_host" type="L" />
+    <field name="ssl_verify_peer" type="L" />
+    <field name="ssl_verify_peer_name" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
