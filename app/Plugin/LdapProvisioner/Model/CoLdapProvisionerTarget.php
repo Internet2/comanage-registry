@@ -654,6 +654,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               // Authenticators
               case 'sshPublicKey':
+                if($modify) {
+                  // Start with an empty list in case no active keys
+                  $attributes[$attr] = array();
+                }
                 foreach($provisioningData['SshKey'] as $sk) {
                   global $ssh_ti;
                   
@@ -1404,7 +1408,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
+
       if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because
