@@ -200,7 +200,7 @@ class CoGithubProvisionerTargetsController extends SPTController {
   
   public function performRedirect() {
     if($this->action == 'edit'
-       && $this->request->is('post')
+       && $this->request->is(array('post', 'put'))
        && !empty($this->viewVars['co_github_provisioner_targets'][0]['CoGithubProvisionerTarget']['client_id'])) {
       // This is a save operation, so get a (new) access token
       
