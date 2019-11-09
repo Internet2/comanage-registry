@@ -82,7 +82,7 @@ class CoGithubProvisionerTargetsController extends SPTController {
             ]
           );
           
-          $json = $response->json();
+          $json = json_decode($response->getBody()->getContents(), true);
           
           if(!empty($json['access_token'])) {
             $this->CoGithubProvisionerTarget->id = $id;
