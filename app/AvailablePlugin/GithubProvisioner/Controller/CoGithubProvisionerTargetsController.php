@@ -67,7 +67,7 @@ class CoGithubProvisionerTargetsController extends SPTController {
         
         if(!empty($curdata)) {
           // No need to use the cached client here
-          $client = new GuzzleHttp\Client(['base_url' => 'https://github.com']);
+          $client = new GuzzleHttp\Client(['base_uri' => 'https://github.com']);
           
           $response = $client->request('POST', '/login/oauth/access_token',
             [
