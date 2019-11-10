@@ -267,7 +267,6 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
                                      $coProvisioningTargetData['CoGithubProvisionerTarget']['github_org'],
                                      $provisioningData['CoGroup']['name'],
                                      $provisioningData['CoGroup']['co_id'],
-                                     $provisioningData['CoGroupMember'],
                                      $removeUnknown);
       }
     }
@@ -298,7 +297,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
    * @throws Exception
    */
   
-  protected function syncMembersForCoGroup($token, $organization, $groupName, $coId, $groupMembers, $removeUnknown=false) {
+  protected function syncMembersForCoGroup($token, $organization, $groupName, $coId, $removeUnknown=false) {
     // In order to operate on a Team, we need its ID, not its name. To get that,
     // we have to walk the list of Teams.
     
@@ -334,6 +333,8 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
     
     $githubids = array();
     
+    // FIXME this needs to be updated as the provisioningData no longer contains CoGroupMember
+    /*
     foreach($groupMembers as $gm) {
       if(isset($gm['member']) && $gm['member']) {
         $gituser = null;
@@ -354,6 +355,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
         }
       }
     }
+    */
     
     if($removeUnknown) {
       // Walk through the members list and remove any not in the COmanage group.
