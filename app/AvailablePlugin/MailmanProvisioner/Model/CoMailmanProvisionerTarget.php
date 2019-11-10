@@ -532,6 +532,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['id'],
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['co_provisioning_target_id'],
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['pref_email_type'],
+                             $coProvisioningTargetData['CoMailmanProvisionerTarget']['unmanaged_email_mode'],
                              $provisioningData['CoEmailList']['id'],
                              $provisioningData['CoEmailList']['status'],
                              CakeSession::read('Auth.User.co_person_id'));  
@@ -702,13 +703,14 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * Synchronize an Email List.
    * 
    * @since  COmanage Registry v3.1.0
-   * @param  Object                $Http                   CoHttpClient
-   * @param  Integer               $id                     CoMailmanProvisionerTarget ID
-   * @param  Integer               $coProvisioningTargetId CoProvisioningTarget ID
-   * @param  EmailAddressEnum      $preferredEmailType     Preferred email address type, or null
-   * @param  Integer               $coEmailListId          CoEmailList ID
-   * @param  SuspendableStatusEnum $coEmailListStatus      CoEmailList Status
-   * @param  Integer               $actorCoPersonId        CoPerson ID of Actor
+   * @param  Object                    $Http                   CoHttpClient
+   * @param  Integer                   $id                     CoMailmanProvisionerTarget ID
+   * @param  Integer                   $coProvisioningTargetId CoProvisioningTarget ID
+   * @param  EmailAddressEnum          $preferredEmailType     Preferred email address type, or null
+   * @param  MailmanProvUnmanEmailEnum $unmanagedEmailMode     Unmanaged email mode
+   * @param  Integer                   $coEmailListId          CoEmailList ID
+   * @param  SuspendableStatusEnum     $coEmailListStatus      CoEmailList Status
+   * @param  Integer                   $actorCoPersonId        CoPerson ID of Actor
    * @throws InvalidArgumentException
    * @throws RuntimeException
    * @return boolean true
@@ -718,6 +720,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                      $id,
                                      $coProvisioningTargetId,
                                      $preferredEmailType,
+                                     $unmanagedEmailMode,
                                      $coEmailListId,
                                      $coEmailListStatus,
                                      $actorCoPersonId) {
@@ -869,8 +872,9 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
 
             // If the mailmanId cannot be mapped to a CO Person ID, the
             // mailman user and email address are not being managed by 
-            // this plugin so we just skip removing this membership.
-            if(empty($coPersonId)) {
+            // this plugin so skip removing this membership if configured
+            // to ignore unmanaged emails.
+            if(empty($coPersonId) && ($unmanagedEmailMode == MailmanProvUnmanEmailEnum::Ignore)) {
               continue;
             }
 
