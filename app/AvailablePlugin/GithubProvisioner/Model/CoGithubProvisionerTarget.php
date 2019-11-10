@@ -201,7 +201,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       if(!$githubid) {
-        throw new RuntimeException(_txt('er.githubprovisioner.github_id'));
+        throw new RuntimeException(_txt('er.githubprovisioner.github_id') . ' (CoPerson ID ' . $provisioningData['CoPerson']['id'] . ')');
       }
     }
     
