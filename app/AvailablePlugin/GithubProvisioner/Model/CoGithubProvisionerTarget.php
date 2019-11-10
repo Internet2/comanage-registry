@@ -362,7 +362,15 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       // Walk through the members list and remove any not in the COmanage group.
       // We handle this directly since there isn't necessarily a CO Person attached
       // to the member we are removing.
-      
+      //
+      // Note that if the user to be removed has not yet accepted their invitation,
+      // the pending invitation will not be removed and the user could join the group.
+      //
+      // We can't fix this, as KnpLabs/php-github-api does not currently implement
+      // invitations: https://github.com/KnpLabs/php-github-api/issues/713
+      //
+      // See https://todos.internet2.edu/browse/CO-1818
+
       foreach($members as $m) {
         if(!isset($githubids[ $m['login'] ])) {
           $client->api('team')->removeMember($teamid, $m['login']);
