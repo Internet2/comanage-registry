@@ -210,8 +210,11 @@ class CoGithubProvisionerTargetsController extends SPTController {
       $this->Session->write('Plugin.GithubProvisioner.state', $state);
       
       $querystr = 'client_id=' . urlencode($this->viewVars['co_github_provisioner_targets'][0]['CoGithubProvisionerTarget']['client_id'])
-                  // Configured callback URL is used if redirect is not explicitly provided
-                  //. '&redirect=' . urlencode($this->viewVars['vv_github_callback_url'])
+                  . '&redirect_uri=' . urlencode(Router::url(array('plugin'     => 'github_provisioner',
+                                                                   'controller' => 'co_github_provisioner_targets',
+                                                                   'action'     => 'callback',
+                                                                   $this->viewVars['co_github_provisioner_targets'][0]['CoGithubProvisionerTarget']['id']
+                                                                  ), true))
                   . '&scope=' . urlencode($scope)
                   . '&state=' . urlencode($state);
       
