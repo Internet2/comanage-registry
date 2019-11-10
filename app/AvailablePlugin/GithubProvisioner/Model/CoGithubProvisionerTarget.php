@@ -150,37 +150,13 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
     
     $client = $this->ghConnect($token);
     
-    $orgs = $client->api('user')->organizations($username);
+    $orgs = $client->api('user')->orgs($username);
     
     $ownedOrgs = array();
-    
+
     foreach($orgs as $org) {
-      // github doesn't currently have a simple way to determine what Organizations
-      // a person can manage, so we pull all the teams for an Organization. As a
-      // workaround, we could send an empty PATCH. This will return 200 if the current user
-      // is an admin for this Organization, or 404 if not. This idea was suggested here:
-      // http://stackoverflow.com/questions/20144295/github-api-v3-determine-if-user-is-an-owner-of-an-organization
-      // However we don't do this because the api wrapper sanity checks the patch.
-      
-      $teams = $client->api('teams')->all($org['login']);
-      
-      foreach($teams as $team) {
-        if($team['name'] == 'Owners') {
-          // See if the authenticated user is a member of this team
-          try {
-            $client->api('teams')->check($team['id'], $username);
-            
-            // If we make it here, this user is an owner of this org
             $ownedOrgs[ $org['login'] ] = $org['login'];
-          }
-          catch(Exception $e) {
-            // Not a member, so not an Org Owner
-          }
-          
-          break;
-        }
       }
-    }
     
     return $ownedOrgs;
   }
