@@ -259,6 +259,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
                                      $coProvisioningTargetData['CoGithubProvisionerTarget']['github_org'],
                                      $provisioningData['CoPerson']['id'],
                                      $provisioningData['Co']['id'],
+                                     $githubid,
                                      $provisioningData['CoGroupMember']);
       }
       
@@ -386,12 +387,12 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
    * @throws Exception
    */
   
-  protected function syncGroupMember($client, $username, $groupName, $teamId, $coPersonId, $isMember) {
+  protected function syncGroupMember($client, $username, $groupName, $teamId, $coPersonId, $githubid, $isMember) {
     // Is this person currently a member?
     $inTeam = false;
     
     try {
-      $client->api('team')->check($groupName, $username);
+      $response = $client->api('team')->check($teamId, $githubid);
       $inTeam = true;
     }
     catch(Exception $e) {
@@ -409,7 +410,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
         // preview and not currently supported by the php API library. (CO-942)
         // https://developer.github.com/v3/orgs/teams/#add-team-membership
         
-        $client->api('team')->addMember($teamId, $username);
+        $client->api('team')->addMember($teamId, $githubid);
         // Rather than catch an exception here (or in history record),
         // we'll just abort and let it percolate up the stack
         
@@ -428,7 +429,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       if($inTeam) {
         // Remove from GH team
         
-        $client->api('team')->removeMember($teamId, $username);
+        $client->api('team')->removeMember($teamId, $githubid);
         
         $this->CoProvisioningTarget->Co->CoPerson->HistoryRecord->record($coPersonId,
                                                                          null,
@@ -457,7 +458,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
    * @throws Exception
    */
   
-  protected function syncGroupsForCoPerson($token, $username, $organization, $coPersonId, $coId, $groupMembers) {
+  protected function syncGroupsForCoPerson($token, $username, $organization, $coPersonId, $coId, $githubid, $groupMembers) {
     // Pull GH teams
     
     $client = $this->ghConnect($token);
@@ -471,7 +472,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
     foreach($teams as $t) {
       $teamsHash[ $t['name'] ] = $t;
     }
-    
+
     // Pull current COmanage groups
     
     $args = array();
@@ -499,7 +500,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       // Is there a corresponding team?
       
       if(isset($teamsHash[ $gname ])) {
-        $this->syncGroupMember($client, $username, $gname, $teamsHash[ $gname ]['id'], $coPersonId, isset($curGroups[ $gname ]));
+        $this->syncGroupMember($client, $username, $gname, $teamsHash[ $gname ]['id'], $coPersonId, $githubid, isset($curGroups[ $gname ]));
       }
     }
     
