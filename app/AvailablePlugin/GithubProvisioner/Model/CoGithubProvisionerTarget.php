@@ -267,7 +267,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
         $this->syncMembersForCoGroup($coProvisioningTargetData['CoGithubProvisionerTarget']['access_token'],
                                      $coProvisioningTargetData['CoGithubProvisionerTarget']['github_org'],
                                      $provisioningData['CoGroup']['name'],
-                                     $provisioningData['CoGroup']['co_id'],
+                                     $provisioningData['CoGroup']['id'],
                                      $removeUnknown);
       }
     }
@@ -298,10 +298,10 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
    * @throws Exception
    */
   
-  protected function syncMembersForCoGroup($token, $organization, $groupName, $coId, $removeUnknown=false) {
+  protected function syncMembersForCoGroup($token, $organization, $groupName, $coGroupId, $removeUnknown=false) {
     // In order to operate on a Team, we need its ID, not its name. To get that,
     // we have to walk the list of Teams.
-    
+
     $client = $this->ghConnect($token);
     
     $teams = $client->api('team')->all($organization);
@@ -328,16 +328,42 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
     foreach($members as $m) {
       $membersHash[ $m['login'] ] = true;
     }
-    
+
     // Walk through the CoGroupMembers and add any (with a GitHub identifier) to the group that
     // aren't currently in it. While we're here, assemble a list of known GitHub identifiers.
     
     $githubids = array();
-    
-    // FIXME this needs to be updated as the provisioningData no longer contains CoGroupMember
-    /*
+
+    $args = array();
+    $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
+    $args['conditions']['CoGroupMember.member'] = true;
+    // Only pull currently valid group memberships
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['contain']['CoPerson'] = array(// We only need Identifiers for this provisioning target.
+                                         // While Containable allows us to filter, Changelog doesn't
+                                         // currently support that. So we pull all Identifiers and
+                                         // filter later with Hash.
+                                         'Identifier');
+
+    $groupMembers = $this->CoProvisioningTarget
+                         ->Co
+                         ->CoGroup
+                         ->CoGroupMember
+                         ->find('all', $args);
+
     foreach($groupMembers as $gm) {
-      if(isset($gm['member']) && $gm['member']) {
+      if(isset($gm['CoGroupMember']['member']) && $gm['CoGroupMember']['member']) {
         $gituser = null;
         
         if(!empty($gm['CoPerson']['Identifier'])) {
@@ -352,11 +378,10 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
         
         if($gituser) {
           $githubids[ $gituser ] = true;
-          $this->syncGroupMember($client, $gituser, $groupName, $teamid, $gm['co_person_id'], true);
+          $this->syncGroupMember($client, $gituser, $groupName, $teamid, $gm['CoPerson']['id'], $gituser, true);
         }
       }
     }
-    */
     
     if($removeUnknown) {
       // Walk through the members list and remove any not in the COmanage group.
