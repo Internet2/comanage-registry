@@ -35,6 +35,12 @@ $cm_mailman_provisioner_texts['en_US'] = array(
   // Titles, per-controller
   'ct.co_mailman_provisioner_targets.1'  => 'Mailman Provisioner Target',
   'ct.co_mailman_provisioner_targets.pl' => 'Mailman Provisioner Targets',
+
+  // Enumerations
+  'en.mailmanprovisioner.unmanagedemail' => array(
+    MailmanProvUnmanEmailEnum::Ignore => 'Ignore',
+    MailmanProvUnmanEmailEnum::Remove => 'Remove'
+  ),
   
   // Error messages
   'er.mailmanprovisioner.listid.none'   => 'Mailman List ID for CO Email List %1$s not found',
@@ -58,4 +64,6 @@ $cm_mailman_provisioner_texts['en_US'] = array(
   'pl.mailmanprovisioner.rs.unsub'      => 'Unsubscribed from Mailman list (%1$s, role=%2$s)',
   'pl.mailmanprovisioner.serverurl'     => 'Mailman3 Admin Server Base URL',
   'pl.mailmanprovisioner.serverurl.desc' => 'Do not include API version, eg: http://myhost.org:8001',
+  'pl.mailmanprovisioner.uem'            => 'Unmanaged Email Mode',
+  'pl.mailmanprovisioner.uem.desc'       => 'How to handle <a href="https://spaces.at.internet2.edu/x/sQvABg">unmanaged email addresses</a>'
 );
