@@ -280,6 +280,7 @@
                       if(!empty($orgID['orgName'])) print "(";
                       print $this->Html->link($id['identifier'],
                         array(
+                          'plugin'     => null,
                           'controller' => 'org_identities',
                           'action' => ('view'),
                           $orgID['orgID_id']

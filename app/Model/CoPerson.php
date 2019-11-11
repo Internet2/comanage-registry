@@ -871,30 +871,26 @@ class CoPerson extends AppModel {
     }
     
     if(!empty($groupIds)) {
-      $members = array();
+      // Find the Active people in the group
+      $args = array();
+      $args['conditions']['CoGroupMember.co_group_id'] = $groupIds;
+      $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+      // Only pull currently valid group memberships
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_from IS NULL',
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_through IS NULL',
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $args['contain']['CoPerson'] = 'PrimaryName';
       
-      foreach($groupIds as $gid) {
-        // Find the Active people in the group
-        $args = array();
-        $args['conditions']['CoGroupMember.co_group_id'] = $gid;
-        $args['conditions']['CoPerson.status'] = StatusEnum::Active;
-        // Only pull currently valid group memberships
-        $args['conditions']['AND'][] = array(
-          'OR' => array(
-            'CoGroupMember.valid_from IS NULL',
-            'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-          )
-        );
-        $args['conditions']['AND'][] = array(
-          'OR' => array(
-            'CoGroupMember.valid_through IS NULL',
-            'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-          )
-        );
-        $args['contain']['CoPerson'] = 'PrimaryName';
-        
-        $members = array_merge($members, $this->CoGroupMember->find('all', $args));
-      }
+      $members = $this->CoGroupMember->find('all', $args);
       
       // Sort the results by last name
       $sorted = Hash::sort($members, '{n}.CoPerson.PrimaryName.family', 'asc');

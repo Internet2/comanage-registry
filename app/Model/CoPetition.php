@@ -2517,6 +2517,12 @@ class CoPetition extends AppModel {
     $coPersonID = $this->field('enrollee_co_person_id');
     $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
     
+    if($newStatus == PetitionStatusEnum::Confirmed
+       && $curStatus != StatusEnum::PendingConfirmation) {
+      // A Petition can only go to Confirmed if it was previously PendingConfirmation
+      throw new InvalidArgumentException(_txt('er.pt.status', array($curStatus, $newStatus)));
+    }
+    
     if($curStatus == StatusEnum::PendingConfirmation) {
       // A Petition can go from Pending Confirmation to Pending Approval, Approved, or Denied.
       // It can also go to Confirmed, though we'll override that.

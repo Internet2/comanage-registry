@@ -37,6 +37,7 @@
     <field name="password" type="C" size="64" />
     <field name="domain" type="C" size="128" />
     <field name="pref_email_type" type="C" size="32" />
+    <field name="unmanaged_email_mode" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

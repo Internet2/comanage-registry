@@ -508,7 +508,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     $scope = '@' . $coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'];
                   } else {
                     // Don't add this attribute since we don't have a scope
-                    continue;
+                    break;
                   }
                 }
                 
@@ -654,6 +654,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 break;
               // Authenticators
               case 'sshPublicKey':
+                if($modify) {
+                  // Start with an empty list in case no active keys
+                  $attributes[$attr] = array();
+                }
                 foreach($provisioningData['SshKey'] as $sk) {
                   $attributes[$attr][] = $sk['type'] . " " . $sk['skey'] . " " . $sk['comment'];
                 }
@@ -1194,22 +1198,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
       case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:
-        if(!in_array($provisioningData['CoPerson']['status'],
-                     array(StatusEnum::Active,
-                           StatusEnum::Expired,
-                           StatusEnum::GracePeriod,
-                           StatusEnum::Suspended))) {
-          // Convert this to a delete operation. Basically we (may) have a record in LDAP,
-          // but the person is no longer active. Don't delete the DN though, since
-          // the underlying person was not deleted.
-          
-          $delete = true;
-        } else {
-          // An update may cause an existing person to be written to LDAP for the first time
-          // or for an unexpectedly removed entry to be replaced
-          $assigndn = true;  
-          $modify = true;
-        }
+        // An update may cause an existing person to be written to LDAP for the first time
+        // or for an unexpectedly removed entry to be replaced
+        $assigndn = true;  
+        $modify = true;
         break;
       case ProvisioningActionEnum::CoGroupAdded:
         $assigndn = true;
@@ -1234,6 +1226,24 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         // Ignore all other actions
         return true;
         break;
+    }
+    
+    if($person) {
+      if(!empty($provisioningData['CoPerson']['status'])
+         && !in_array($provisioningData['CoPerson']['status'],
+                      array(StatusEnum::Active,
+                            StatusEnum::Expired,
+                            StatusEnum::GracePeriod,
+                            StatusEnum::Suspended))) {
+        // Convert this to a delete operation. Basically we (may) have a record in LDAP,
+        // but the person is no longer active. Don't delete the DN though, since
+        // the underlying person was not deleted.
+        
+        $delete = true;
+        $add = false;
+        $assigndn = false;
+        $modify = false;
+      }
     }
     
     if($group) {
@@ -1396,7 +1406,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
+
       if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because

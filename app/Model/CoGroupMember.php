@@ -832,7 +832,7 @@ class CoGroupMember extends AppModel {
       $curRoles = $this->findCoPersonGroupRoles($coPersonId);
       
       // And also the roles of $requesterCoPersonId, in case we need to check ownership
-      $requesterRoles = $this->findCoPersonGroupRoles($requesterRoles);
+      $requesterRoles = $this->findCoPersonGroupRoles($requesterCoPersonId);
       
       foreach($memberships as $m) {
         // Reset model state between transactions

@@ -365,26 +365,33 @@ class ProvisionerBehavior extends ModelBehavior {
     if($model->name == 'CoGroup' || $model->name == 'CoGroupMember') {
       // Find the group id
       
-      if($model->name == 'CoGroup'
-         && !empty($model->data['CoGroup']['id'])) {
-        $gmodel = $model;
-        $coGroupIds[] = $model->data['CoGroup']['id'];
-      } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
-        $gmodel = $model->CoGroup;
-        $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
-        
-        if(!empty($model->data[ $model->name ]['co_person_id'])) {
-          // We need to pass the CO Person ID to marshallCoGroupData
-          $copid = $model->data[ $model->name ]['co_person_id'];
-        }
-      } elseif(!empty($model->cacheData[ $model->name ]['co_group_id'])) {
-        // eg: CoGroupMember deleted
-        $gmodel = $model->CoGroup;
-        $coGroupIds[] = $model->cacheData[ $model->name ]['co_group_id'];
-        
-        if(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
-          // We need to pass the CO Person ID to marshallCoGroupData
-          $copid = $model->cacheData[ $model->name ]['co_person_id'];
+      if($model->name == 'CoGroupMember'
+         && isset($model->data['CoGroup']['deleted'])
+         && $model->data['CoGroup']['deleted']) {
+        // We are processing a group membership update on a group that was
+        // just deleted, so don't reprovision the group.
+      } else {
+        if($model->name == 'CoGroup'
+           && !empty($model->data['CoGroup']['id'])) {
+          $gmodel = $model;
+          $coGroupIds[] = $model->data['CoGroup']['id'];
+        } elseif(!empty($model->data[ $model->name ]['co_group_id'])) {
+          $gmodel = $model->CoGroup;
+          $coGroupIds[] = $model->data[ $model->name ]['co_group_id'];
+          
+          if(!empty($model->data[ $model->name ]['co_person_id'])) {
+            // We need to pass the CO Person ID to marshallCoGroupData
+            $copid = $model->data[ $model->name ]['co_person_id'];
+          }
+        } elseif(!empty($model->cacheData[ $model->name ]['co_group_id'])) {
+          // eg: CoGroupMember deleted
+          $gmodel = $model->CoGroup;
+          $coGroupIds[] = $model->cacheData[ $model->name ]['co_group_id'];
+          
+          if(!empty($model->cacheData[ $model->name ]['co_person_id'])) {
+            // We need to pass the CO Person ID to marshallCoGroupData
+            $copid = $model->cacheData[ $model->name ]['co_person_id'];
+          }
         }
       }
     }
@@ -475,7 +482,7 @@ class ProvisionerBehavior extends ModelBehavior {
         return true;
       }
     }
-    
+
     // We need to be careful about the order in which we provision people and groups,
     // since if a person's identifier changes we may need the provisioner to update
     // its references (eg: DNs) before the group updates fire, and vice versa.
@@ -1144,7 +1151,20 @@ class ProvisionerBehavior extends ModelBehavior {
         }
       }
     }
-    
+
+    // Unset email list membership when the user does not have an associated
+    // group membership. This is necessary because the contain for the find on
+    // coPersonModel above does not filter out email list memberships where
+    // the associated group membership is empty.
+
+    foreach($coPersonData['CoGroupMember'] as &$membership) {
+      if(empty($membership['member'])) {
+        $membership['CoGroup']['EmailListAdmin'] = array();
+        $membership['CoGroup']['EmailListMember'] = array();
+        $membership['CoGroup']['EmailListModerator'] = array();
+      }
+    }
+
     return $coPersonData;
   }
   
@@ -1285,7 +1305,7 @@ class ProvisionerBehavior extends ModelBehavior {
       catch(InvalidArgumentException $e) {
         throw new InvalidArgumentException($e->getMessage());
       }
-      
+
       // Re-key $pdata when the person alias is EnrolleeCoPerson to make
       // everything else works more smoothly
       

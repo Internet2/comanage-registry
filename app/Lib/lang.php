@@ -390,17 +390,17 @@ original notification at
   ),
 
   'en.chars.permitted.re' => array(
-    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z]',
-    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z\.\-_]',
-    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z\.\-_\']',
+    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z0-9]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z0-9\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => '.*'
   ),
   
   // The inverse of the above (NOT permitted)
   'en.chars.permitted.re.not' => array(
-    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z]',
-    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z\.\-_]',
-    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z\.\-_\']',
+    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z0-9]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z0-9\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => ''
   ),
   

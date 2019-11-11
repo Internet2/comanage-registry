@@ -228,7 +228,7 @@ class CoPetitionsController extends StandardController {
                                      PetitionStatusEnum::Denied,
                                      PetitionStatusEnum::Duplicate,
                                      PetitionStatusEnum::Finalized))) {
-          $this->Flash->set(_txt('er.pt.readonly'), array($status));
+          $this->Flash->set(_txt('er.pt.readonly', array(_txt('en.status.pt',null,$status))), array('key' => 'error'));
           $this->redirect("/");
         }
       }
