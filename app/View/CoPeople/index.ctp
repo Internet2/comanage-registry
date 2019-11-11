@@ -188,7 +188,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     </thead>
     <?php foreach ($co_people as $p): ?>
       <tr>
-        <td class="person-name <?php print $nameWithoutEmailClass; ?>">
+        <td class="person-name">
           <?php
             print $this->Html->link(generateCn($p['PrimaryName']),
               array(
