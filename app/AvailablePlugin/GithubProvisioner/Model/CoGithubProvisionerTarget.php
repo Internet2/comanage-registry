@@ -199,6 +199,10 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
           }
         }
       }
+      
+      if(!$githubid) {
+        throw new RuntimeException(_txt('er.githubprovisioner.github_id') . ' (CoPerson ID ' . $provisioningData['CoPerson']['id'] . ')');
+      }
     }
     
     // What actions should we run?
@@ -213,10 +217,8 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
       case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:
-        if(!$githubid) {
-          $syncGroupsForPerson = true;
-          $syncKeysForPerson = true;
-        }
+        $syncGroupsForPerson = true;
+        $syncKeysForPerson = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
         // We don't treat CoPersonDeleted specially, because the group membership should have been
@@ -227,9 +229,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
         break;
       case ProvisioningActionEnum::CoPersonExpired:
         // Delete group memberships, but not ssh keys
-        if(!$githubid) {
-          $syncGroupsForPerson = true;
-	}
+        $syncGroupsForPerson = true;
         break;
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
         // We don't do anything on grace period
