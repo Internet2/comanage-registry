@@ -156,6 +156,14 @@ class CoPeopleController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_authenticator_count', $this->Co->Authenticator->find('count', $args));
+      
+      // Are any clusters defined for this CO?
+      
+      $args = array();
+      $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'] = false;
+      
+      $this->set('vv_cluster_count', $this->Co->Cluster->find('count', $args));
     }
     
     parent::beforeRender();
