@@ -44,6 +44,7 @@ class Co extends AppModel {
     "ApiUser" => array('dependent' => true),
     "AttributeEnumeration" => array('dependent' => true),
     "Authenticator" => array('dependent' => true),
+    "Cluster" => array('dependent' => true),
     // A CO can have zero or more provisioning targets
     "CoProvisioningTarget" => array('dependent' => true),
     "CoService" => array('dependent' => true),

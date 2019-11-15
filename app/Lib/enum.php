@@ -291,6 +291,7 @@ class IdentifierEnum
   const ePPN               = 'eppn';
   const ePTID              = 'eptid';
   const ePUID              = 'epuid';
+  const GID                = 'gid';
   const Mail               = 'mail';
   const National           = 'national';
   const Network            = 'network';

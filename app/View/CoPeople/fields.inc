@@ -168,6 +168,20 @@
         );
       }
       
+      if(isset($vv_cluster_count) && $vv_cluster_count > 0) {
+        // Link to clusters for this person
+        
+        $sidebarButtons[] = array(
+          'icon'    => 'person',
+          'title'   => _txt('ct.clusters.pl'),
+          'url'     => array(
+            'controller' => 'clusters',
+            'action' => 'status',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
       if($vv_enable_nsf_demo) {
         // Adjust the link to the NSF Demographics Controller according to whether or
         // not data has been set.
