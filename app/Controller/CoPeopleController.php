@@ -528,12 +528,17 @@ class CoPeopleController extends StandardController {
    */
 
   public function index() {
+    if(!empty($this->request->query)) {
+      $requestKeys = array_keys($this->request->query);
+      $coidKey = array_search('coid', $requestKeys);
+      if($coidKey !== null) {
+        unset($requestKeys[$coidKey]);
+      }
+    }
     // We need to check if we're being asked to do a match via the REST API, and
     // if so dispatch it. Otherwise, just invoke the standard behavior.
-    
     if($this->request->is('restful')
-       && (isset($this->request->query['given'])
-           || isset($this->request->query['family']))) {
+       && sizeof($requestKeys)>0) {
       $this->match();
     } else {
       parent::index();
@@ -823,40 +828,43 @@ class CoPeopleController extends StandardController {
       }
     }
   }
-  
+
   /**
    * Perform a match against existing records.
    *
    * @since  COmanage Registry v0.5
    */
-  
+
   public function match() {
-    $criteria['Name.given'] = "";
-    $criteria['Name.family'] = "";
-    
+    // XXX We didn't validate CO ID exists here. (This is normally done by
+    // StandardController.)
+    $reqData = ($this->request->is('restful')) ? $this->request->query : $this->request->params['named'];
+    // Extract the coId
+    $coId = !empty($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : $this->reqData['coid'];
+    // This will be triggered only for the case of Platform API User. For CO API Users if no coId is available
+    // an HTTP 401 authentication will be returned
+    if (!isset($coId) && $this->request->is('restful')) {
+      $this->Api->restResultHeader(404, 'CO Unknown');
+      return;
+    }
+    // Validate the request data
+    list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
+    if (!empty($invalidFields)  && $this->request->is('restful')) {
+      $this->Api->restResultHeader(400, 'Invalid fields');
+      return;
+    }
+    if (!empty($unProcessedFields)  && $this->request->is('restful')) {
+      $this->Api->restResultHeader(422, 'Unprocessable Entity');
+      return;
+    }
+    // Get the matches
+    $matches = $this->CoPerson->match($coId, $criteria);
+
+    // Assign the matches
     if($this->request->is('restful')) {
-      if(isset($this->request->query['given'])) {
-        $criteria['Name.given'] = $this->request->query['given'];
-      }
-      if(isset($this->request->query['family'])) {
-        $criteria['Name.family'] = $this->request->query['family'];
-      }
-      
-      // XXX We didn't validate CO ID exists here. (This is normally done by
-      // StandardController.)
-      
-      $this->set('co_people',
-                 $this->Api->convertRestResponse($this->CoPerson->match($this->request->query['coid'],
-                                                                        $criteria)));
+      $this->set('co_people',$this->Api->convertRestResponse($matches));
     } else {
-      if(isset($this->params['named']['given'])) {
-        $criteria['Name.given'] = $this->params['named']['given'];
-      }
-      if(isset($this->params['named']['family'])) {
-        $criteria['Name.family'] = $this->params['named']['family'];
-      }
-      
-      $this->set('matches', $this->CoPerson->match($this->cur_co['Co']['id'], $criteria));
+      $this->set('matches', $matches);
     }
   }
 

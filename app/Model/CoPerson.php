@@ -651,34 +651,92 @@ class CoPerson extends AppModel {
    * @param  Array Hash of field name + search pattern pairs
    * @return Array CO Person records of matching individuals
    */
-  
+
   public function match($coId, $criteria) {
-    // XXX For now, we only support Name. That's not the right long term design.
-    
-    // We need to have at least one non-trivial condition
-    if((!isset($criteria['Name.given']) || strlen($criteria['Name.given']) < 3)
-       && (!isset($criteria['Name.family']) || strlen($criteria['Name.family']) < 3)) {
-      return(array());
+    $args = array();
+    $args['joins'] = array();
+
+    foreach($criteria as $mdl => $queryParams) {
+      // Add the conditions
+      foreach($queryParams as $field => $value){
+        $args['conditions']['LOWER(' . $mdl . '.' . $field . ') LIKE'] = strtolower($value) . '%';
+      }
+      // Join the table to the main model
+      $args_tmp = array();
+      $args_tmp['table'] = Inflector::tableize($mdl);
+      $args_tmp['alias'] = $mdl;
+      $args_tmp['type'] = 'INNER';
+      $args_tmp['conditions'][0] = 'CoPerson.id=' . $mdl . '.co_person_id';
+      array_push($args['joins'], $args_tmp);
+      unset($args_tmp);
     }
-    
-    // To perform case insensitive searching, we convert everything to lowercase
-    if(isset($criteria['Name.given'])) {
-      $args['conditions']['LOWER(Name.given) LIKE'] = strtolower($criteria['Name.given']) . '%';
+
+    if(!empty($args)) {
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['contain'][] = 'PrimaryName';
+      $args['contain'][] = 'CoPersonRole';
+    } else {
+      return [];
     }
-    if(isset($criteria['Name.family'])) {
-      $args['conditions']['LOWER(Name.family) LIKE'] = strtolower($criteria['Name.family']) . '%';
-    }
-    $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['joins'][0]['table'] = 'names';
-    $args['joins'][0]['alias'] = 'Name';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPerson.id=Name.co_person_id';
-    $args['contain'][] = 'PrimaryName';
-    $args['contain'][] = 'CoPersonRole';
-    
+
     return $this->find('all', $args);
   }
-  
+
+   /**
+   * Generate the set of querable fields for CoPerson REST API.
+   * The returned array should be of the form requestField => Model.Field
+   * Where the requestField is the query/name parameter we got from the request and
+   * the Model.Field is the actual Model and Field we need to query
+   *
+   * @since  COmanage Registry v3.3.0
+   * @return Array As specified
+   */
+
+  public function querableFields() {
+    return array(
+      'given'    => 'Name.given',
+      'family'   => 'Name.family',
+      'mail'     => 'EmailAddress.mail'
+    );
+  }
+
+  /**
+   * Validate the field values from the request
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Array The array of the query/named parameters from the request
+   * @return Array Criteria array formated properly for the needs of function match().
+   *         If nothing matched we return an empty array.
+   */
+  public function validateRequestData($request) {
+    $criteria = array();
+    $invalidFields = array();
+    $unProcessedFields = array();
+
+    foreach ($request as $field => $value) {
+      if ($field === 'coid') {
+        continue;
+      }
+      // Find any fields that are not defined in the querable List of Fields
+      if(!array_key_exists($field, $this->querableFields())) {
+        $unProcessedFields[$field] = $value;
+        continue;
+      }
+      // Any field must be at list 3 characters long
+      // The email field must be validated
+      if(strlen($value) < 3
+         || ($field === "mail" && !Validation::email($value))) {
+        $invalidFields[$field] = $value;
+        continue;
+      }
+      // Create the criteria
+      $mdlField = explode('.', $this->querableFields()[$field]);
+      $criteria[$mdlField[0]][$mdlField[1]] = $value;
+    }
+
+    return array($criteria, $invalidFields, $unProcessedFields);
+  }
+
   /**
    * Determine if an org identity is already associated with a CO.
    *
