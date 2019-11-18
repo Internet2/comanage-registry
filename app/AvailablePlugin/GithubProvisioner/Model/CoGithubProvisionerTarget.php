@@ -194,7 +194,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
           if($i['type'] == 'GitHub'
              && !empty($i['identifier'])
              && $i['status'] == StatusEnum::Active) {
-            $githubid = $i['identifier'];
+            $githubid = trim($i['identifier']);
             break;
           }
         }
@@ -370,7 +370,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
           foreach($gm['CoPerson']['Identifier'] as $i) {
             if($i['type'] == 'GitHub') {
               // Match found
-              $gituser = $i['identifier'];
+              $gituser = trim($i['identifier']);
               break;
             }
           }
