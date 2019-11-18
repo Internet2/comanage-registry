@@ -93,15 +93,6 @@
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title"><?php print _txt('fd.server.http.ssl_verify_host'); ?></div>
-      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_host.desc'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php if($e) print $this->Form->input('ssl_verify_host', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_verify_host'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => true))), 'disabled' => false)); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
       <div class="field-title"><?php print _txt('fd.server.http.ssl_verify_peer'); ?></div>
       <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_peer.desc'); ?></div>
     </div>

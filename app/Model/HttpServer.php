@@ -71,11 +71,6 @@ class HttpServer extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    'ssl_verify_host' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
     'ssl_verify_peer' => array(
       'rule' => array('boolean'),
       'required' => false,
