@@ -376,7 +376,7 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
           }
         }
         
-        if($gituser) {
+        if($gituser && ($gm['CoPerson']['status']==StatusEnum::Active)) {
           $githubids[ $gituser ] = true;
           $this->syncGroupMember($client, $gituser, $groupName, $teamid, $gm['CoPerson']['id'], $gituser, true);
         }
