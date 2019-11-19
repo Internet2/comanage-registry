@@ -1732,13 +1732,14 @@ class CoPetition extends AppModel {
     
     if(!empty($coData)) {
       if($coPersonId) {
-        // A CO Person ID might have been created by a pipeline
+        // A CO Person ID might have been created by a pipeline, or might be
+        // pre-existing from a select action
         $coData['EnrolleeCoPerson']['id'] = $coPersonId;
+      } else {
+        // Insert some initial attributes
+        $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
+        $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       }
-      
-      // Insert some additional attributes
-      $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
-      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       
       // Save the CO Person Data
       
