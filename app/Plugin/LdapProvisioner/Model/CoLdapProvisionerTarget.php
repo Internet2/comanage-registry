@@ -929,8 +929,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             }
           }
           
-          // Check if we emitted anything
-          if(!empty($attributes[$attr])) {
+          // Check if we emitted anything by comparing the keys for marshalled attributes
+          // to the attribute just considered, knowing that we may have added
+          // an attribute with a name appended with an option like ';prior'.
+          if(array_filter($attributes, function ($k) use ($attr) {return strpos($k, $attr) === 0;}, ARRAY_FILTER_USE_KEY)) {
             $attrEmitted = true;
           }
         }
