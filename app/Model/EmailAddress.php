@@ -155,14 +155,17 @@ class EmailAddress extends AppModel {
    * actions taken based on availability are atomic.
    *
    * @since  COmanage Registry v0.7
-   * @param  Integer CO Person ID
-   * @param  String Type of candidate email address
+   * @param  String  Object Type ("CoDepartment", "CoGroup", "CoPerson")
+   * @param  Integer Object ID
+   * @param  String  Type of candidate email address
    * @return Boolean True if an email address of the specified type is already assigned, false otherwise
    */
   
-  public function assigned($coPersonID, $emailType) {
+  public function assigned($objType, $objId, $emailType) {
+    $fk = Inflector::underscore($objType) . "_id";
+    
     $args = array();
-    $args['conditions']['EmailAddress.co_person_id'] = $coPersonID;
+    $args['conditions']['EmailAddress.'.$fk] = $objId;
     $args['conditions']['EmailAddress.type'] = $emailType;
     $args['contain'] = false;
 

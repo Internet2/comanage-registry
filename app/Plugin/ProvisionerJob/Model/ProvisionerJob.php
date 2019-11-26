@@ -103,7 +103,7 @@ class ProvisionerJob extends CoJobBackend {
         break;
 // XXX this will need to get updated if CoService provisioning gets implemented
       default:
-        throw new LogicException('NOt IMPLEMENTED');
+        throw new LogicException('NOT IMPLEMENTED');
         break;
     }
     

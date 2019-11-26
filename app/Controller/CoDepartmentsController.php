@@ -90,6 +90,15 @@ class CoDepartmentsController extends StandardController {
       $this->set('vv_identifiers_types', $this->CoDepartment->Identifier->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_telephone_numbers_types', $this->CoDepartment->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_urls_types', $this->CoDepartment->Url->types($this->cur_co['Co']['id'], 'type'));
+      
+      // Determine if there are any identifier assignments for this CO.
+      $args = array();
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoDepartment;
+      $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
     }
 
     parent::beforeRender();
@@ -114,6 +123,11 @@ class CoDepartmentsController extends StandardController {
     
     // Add a new CO Department?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Assign (autogenerate) Identifiers?
+    // Note that CoIdentifierAssignments Controller allows couadmin even though
+    // we don't. Probably need to rationalize this.
+    $p['assign'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing CO Department?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);

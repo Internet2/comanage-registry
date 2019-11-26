@@ -53,6 +53,50 @@
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 
+<script type="text/javascript">
+  <!-- /* JS specific to these fields */ -->
+  
+  function js_confirm_autogenerate() {
+    // Open the dialog to confirm autogeneration of identifiers
+    var $tabs = $( "#tabs" ).tabs();
+    $('#autogenerate-dialog').dialog('open');
+  }
+
+  $(function() {
+    // Autogenerate dialog
+    $("#autogenerate-dialog").dialog({
+      autoOpen: false,
+      <?php if($this->action == 'edit'): ?>
+      buttons: [
+        {
+          text : "<?php print _txt('op.cancel'); ?>",
+          click : function() {
+            $(this).dialog("close");
+          }
+        },
+        {
+          text : "<?php print _txt('op.id.auto'); ?>",
+          click: function () {
+            $(this).dialog("close");
+            displaySpinner();
+            window.location.href = "<?php print $this->Html->url(array('controller' => 'identifiers',
+            'action' => 'assign',
+            'codeptid' => $co_departments[0]['CoDepartment']['id'])); ?>";
+          }
+        }
+      ],
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+      <?php endif; // edit ?>
+    });
+  });
+</script>
+
 <div id="<?php print $this->action; ?>_department" class="explorerContainer">
   <div id="coOrgIdExplorer" class="personExplorer">
     <ul>
@@ -271,3 +315,6 @@
   </div> <!-- personExplorer -->
   <?php print $this->element("changelog"); ?>
 </div> <!-- explorerContainer -->
+<div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
+  <?php print _txt('op.id.auto.confirm'); ?>
+</div>

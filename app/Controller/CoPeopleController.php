@@ -122,6 +122,8 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoPerson;
+      $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
       $args['contain'] = false;
       
       $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));

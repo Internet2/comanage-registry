@@ -435,6 +435,26 @@ class CoGroup extends AppModel {
   }
   
   /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  boolean $created True if a new record was created (rather than update)
+   * @param  array   $options As passed into Model::save()
+   */
+
+  public function afterSave($created, $options = array()) {
+    // Maybe assign identifiers, but only for new Groups
+    if($created 
+       && !empty($this->data['CoGroup']['id'])
+       && isset($this->data['CoGroup']['auto'])   // CO-1829
+       && !$this->data['CoGroup']['auto']) {
+      $this->Identifier->assign('CoGroup', $this->data['CoGroup']['id'], null);
+    }
+
+    return true;
+  }
+  
+  /**
    * Actions to take before a save operation is executed.
    *
    * @since  COmanage Registry v2.0.0

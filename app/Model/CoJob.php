@@ -311,7 +311,7 @@ class CoJob extends AppModel {
   public function setPercentComplete($id, $percent) {
     $this->clear();
     $this->id = $id;
-    // Cake validation will allow floats in a range, we we cast to integer
+    // Cake validation will allow floats in a range, so we cast to integer
     $this->saveField('percent_complete', (integer)$percent);
   }
 

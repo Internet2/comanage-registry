@@ -35,6 +35,7 @@ class UpgradeVersionShell extends AppShell {
                     'CoEnrollmentFlow',
                     'CoExtendedType',
                     'CoGroup',
+                    'CoIdentifierAssignment',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'Identifier',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
@@ -80,7 +81,8 @@ class UpgradeVersionShell extends AppShell {
     "3.2.0" => array('block' => false),
     "3.2.1" => array('block' => false),
     "3.2.2" => array('block' => false),
-    "3.2.3" => array('block' => false)
+    "3.2.3" => array('block' => false),
+    "3.3.0" => array('block' => false, 'post' => 'post330'),
   );
   
   public function getOptionParser() {
@@ -387,7 +389,7 @@ class UpgradeVersionShell extends AppShell {
   public function post330() {
     // 3.3.0 moves SSH key management into an authenticator plugin.
     $this->out(_txt('sh.ug.330.ssh'));
-
+    
     $args = array();
     $args['contain'] = false;
     
@@ -419,6 +421,18 @@ class UpgradeVersionShell extends AppShell {
         'ApiUser.co_id' => 1,
         'ApiUser.privileged' => true,
         'ApiUser.status' => "'A'"  // Wacky updateAll syntax
+      ),
+      true
+    );
+    
+    // Identifier Assignments now have a context, all existing Identifier
+    // Assignments applied to CoPeople, and while we're here give all 
+    // everything Active status
+    $this->out(_txt('sh.ug.330.ia'));
+    $this->CoIdentifierAssignment->updateAll(
+      array(
+        'CoIdentifierAssignment.context' => "'CP'",  // Wacky updateAll syntax
+        'CoIdentifierAssignment.status' => "'A'"
       ),
       true
     );

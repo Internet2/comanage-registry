@@ -1254,7 +1254,7 @@ class CoPipeline extends AppModel {
         
       // This will return an array describing which, if any, identifiers were assigned,
       // but we don't do anything with the result here
-      $this->Co->CoPerson->Identifier->assign($coPipeline['CoPipeline']['co_id'], $coPersonId, $actorCoPersonId, false);
+      $this->Co->CoPerson->Identifier->assign('CoPerson', $coPersonId, $actorCoPersonId, false);
     
       // Trigger provisioning
       

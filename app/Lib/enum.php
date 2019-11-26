@@ -266,19 +266,6 @@ class ExtendedAttributeEnum {
   const Varchar32 = 'VARCHAR(32)';
 }
 
-class IdentifierAssignmentEnum
-{
-  const Random     = 'R';
-  const Sequential = 'S';
-}
-
-class IdentifierAssignmentExclusionEnum
-{
-  const Confusing     = 'C';
-  const Offensive     = 'O';
-  const Superstitious = 'S';
-}
-
 // Note CO or COU is determined by co_groups:cou_id
 class GroupEnum
 {
@@ -289,6 +276,26 @@ class GroupEnum
   // XXX CO-1100, not yet supported
   const NestedAdmins  = "AN";
   const NestedMembers = "MN";
+}
+
+class IdentifierAssignmentEnum
+{
+  const Random     = 'R';
+  const Sequential = 'S';
+}
+
+class IdentifierAssignmentContextEnum
+{
+  const CoDepartment = 'CD';
+  const CoGroup      = 'CG';
+  const CoPerson     = 'CP';
+}
+
+class IdentifierAssignmentExclusionEnum
+{
+  const Confusing     = 'C';
+  const Offensive     = 'O';
+  const Superstitious = 'S';
 }
 
 class IdentifierEnum

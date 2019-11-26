@@ -1934,6 +1934,8 @@
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
+    <field name="status" type="C" size="2" />
+    <field name="context" type="C" size="2" />
     <field name="identifier_type" type="C" size="32">
       <notnull />
     </field>

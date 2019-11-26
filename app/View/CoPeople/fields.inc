@@ -352,8 +352,7 @@
             displaySpinner();
             window.location.href = "<?php print $this->Html->url(array('controller' => 'identifiers',
             'action' => 'assign',
-            'copersonid' => $co_people[0]['CoPerson']['id'],
-            'co' => $cur_co['Co']['id'])); ?>";
+            'copersonid' => $co_people[0]['CoPerson']['id'])); ?>";
           }
         }
       ],

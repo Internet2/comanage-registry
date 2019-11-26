@@ -56,6 +56,12 @@ class CoGroupsController extends StandardController {
   );
   
   public $view_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
+    'EmailListAdmin',
+    'EmailListMember',
+    'EmailListModerator',
+    'Identifier'
   );
   
   /**
@@ -89,6 +95,16 @@ class CoGroupsController extends StandardController {
     $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
 
     $this->set('vv_types', array('Identifier'   => $idTypes));
+    
+    // Determine if there are any identifier assignments for this CO.
+    
+    $args = array();
+    $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoGroup;
+    $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
 
     parent::beforeRender();
   }
@@ -430,6 +446,14 @@ class CoGroupsController extends StandardController {
     
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
+    // Note we allow couadmin here beceause IdentifiersController allows it,
+    // which allows it for CoPerson identifier assignment. It's not clear if that's
+    // exactly the right permission here, but we probably don't want to allow
+    // $managed either, so maybe this is an OK compromise.
+    $p['assign'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     // Delete an existing Group?
     $p['delete'] = (!$readonly && ($roles['cmadmin'] || $managed));

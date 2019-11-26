@@ -182,22 +182,36 @@ class Identifier extends AppModel {
    * Autoassign identifiers for a CO Person.
    *
    * @since  COmanage Registry v0.6
-   * @param  Integer CO ID
-   * @param  Integer CO Person ID
+   * @param  String  Object Type ("CoDepartment", "CoGroup", "CoPerson")
+   * @param  Integer Object ID
    * @param  Integer Actor CO Person ID
-   * @return Boolean Whether or not to run provisioners on save
+   * @param  Boolean Whether or not to run provisioners on save
    * @return Array Success for each attribute, where the key is the attribute assigned and the value is 1 for success, 2 for already assigned, or an error string
    */  
   
-  function assign($coId, $coPersonId, $actorCoPersonId, $provision=true) {
+  function assign($objType, $objId, $actorCoPersonId, $provision=true) {
     $ret = array();
     
-    // First, see if there are any identifiers to autoassign for this CO. This will return the
+    // First, pull the CO ID from the object record
+    $coId = $this->$objType->field('co_id', array($objType.'.id' => $objId));
+    
+    if(!$coId) {
+      throw new InvalidArgumentException(_txt('er.co.fail'));
+    }
+    
+    // Next, see if there are any identifiers to autoassign for this CO. This will return the
     // same thing if the answer is "no" or if the answer is "invalid CO ID".
+    $contexts = array(
+      'CoDepartment' => IdentifierAssignmentContextEnum::CoDepartment,
+      'CoGroup'      => IdentifierAssignmentContextEnum::CoGroup,
+      'CoPerson'     => IdentifierAssignmentContextEnum::CoPerson
+    );
     
     $args = array();
-    $args['conditions']['Co.id'] = $coId;
-    $args['contain'][] = 'Co';
+    $args['conditions']['CoIdentifierAssignment.co_id'] = $coId;
+    $args['conditions']['CoIdentifierAssignment.context'] = $contexts[$objType];
+    $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
     
     $identifierAssignments = $this->CoPerson->Co->CoIdentifierAssignment->find('all', $args);
     
@@ -209,12 +223,13 @@ class Identifier extends AppModel {
         // Assign will throw an error if an identifier of this type already exists.
         
         try {
-          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $coPersonId, $actorCoPersonId, $provision);
+          // We don't provision here, but instead once below after all identifiers are assigned
+          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $objType, $objId, $actorCoPersonId, false);
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 1;
           $cnt++;
         }
         catch(OverflowException $e) {
-          // An identifier already exists of this type for this CO Person
+          // An identifier already exists of this type for this CO Person/CO Group
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 2;
         }
         catch(Exception $e) {
@@ -222,11 +237,17 @@ class Identifier extends AppModel {
         }
       }
       
-      if($cnt > 0 && $provision) {
+      if($cnt > 0 && $provision && $objType != 'CoDepartment') {
         // At least one identifier was assigned, so fire provisioning
+        // Currently, CoDepartments do not support provisioning
         
-        $this->CoPerson->Behaviors->load('Provisioner');
-        $this->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonUpdated);
+        $this->$objType->Behaviors->load('Provisioner');
+        
+        if($objType == 'CoGroup') {
+          $this->CoGroup->manualProvision(null, null, $objId, ProvisioningActionEnum::CoGroupUpdated);
+        } else {
+          $this->CoPerson->manualProvision(null, $objId, null, ProvisioningActionEnum::CoPersonUpdated);
+        }
       }
     }
     
@@ -241,14 +262,17 @@ class Identifier extends AppModel {
    * actions taken based on availability are atomic.
    *
    * @since  COmanage Registry v0.6
-   * @param  Integer CO Person ID
+   * @param  String  Object Type ("CoDepartment", "CoGroup", "CoPerson")
+   * @param  Integer Object ID
    * @param  String Type of candidate identifier
    * @return Boolean True if an identifier of the specified type is already assigned, false otherwise
    */
   
-  public function assigned($coPersonID, $identifierType) {
+  public function assigned($objType, $objId, $identifierType) {
+    $fk = Inflector::underscore($objType) . "_id";
+    
     $args = array();
-    $args['conditions']['Identifier.co_person_id'] = $coPersonID;
+    $args['conditions']['Identifier.'.$fk] = $objId;
     $args['conditions']['Identifier.type'] = $identifierType;
     $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
     
