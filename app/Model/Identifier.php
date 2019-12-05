@@ -211,6 +211,7 @@ class Identifier extends AppModel {
     $args['conditions']['CoIdentifierAssignment.co_id'] = $coId;
     $args['conditions']['CoIdentifierAssignment.context'] = $contexts[$objType];
     $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+    $args['order'][] = 'CoIdentifierAssignment.ordr';
     $args['contain'] = false;
     
     $identifierAssignments = $this->CoPerson->Co->CoIdentifierAssignment->find('all', $args);
