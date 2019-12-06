@@ -53,7 +53,6 @@
       // Preserve the state of the most recently selected menu item if it is expandable (a "menuTop" item)
       // (we only use this behavior when the the drawer is fully-open)
       var mainMenuSelectedParentId = Cookies.get("main-menu-selected-parent-id");
-      console.log(mainMenuSelectedParentId);
       if(mainMenuSelectedParentId != undefined && mainMenuSelectedParentId != "") {
         $("#" + mainMenuSelectedParentId).addClass("active");
         $("#" + mainMenuSelectedParentId + " > a.menuTop").attr("aria-expanded","true");
