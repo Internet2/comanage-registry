@@ -126,8 +126,11 @@ class UsersController extends AppController {
         $oargs['contain'] = false;
         $oargs['fields'] = array('CoOrgIdentityLink.co_person_id');
         
-        $co_person_id = $this->CoOrgIdentityLink->find('all', $oargs);
-        $co_person_id_value = $co_person_id[0]['CoOrgIdentityLink']['co_person_id'];
+        $co_people = $this->OrgIdentity->CoOrgIdentityLink->find('all', $oargs);
+        $co_people = empty($co_people) ? array()
+                                       : array_map(function($a) {
+                                            return $a['CoOrgIdentityLink']['co_person_id'];
+                                          }, $co_people );
         unset($oargs);
 
         // We use $oargs here instead of $args because we may reuse this below
@@ -136,7 +139,7 @@ class UsersController extends AppController {
         $oargs['joins'][0]['alias'] = 'CoOrgIdentityLink';
         $oargs['joins'][0]['type'] = 'INNER';
         $oargs['joins'][0]['conditions'][0] = 'OrgIdentity.id=CoOrgIdentityLink.org_identity_id';
-        $oargs['conditions']['CoOrgIdentityLink.co_person_id'] = $co_person_id_value;
+        $oargs['conditions']['CoOrgIdentityLink.co_person_id'] = $co_people;
         // As of v2.0.0, OrgIdentities have validity dates, so only accept valid dates (if specified)
         // Through the magic of containable behaviors, we can get all the associated
         $oargs['conditions']['AND'][] = array(
