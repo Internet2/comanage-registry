@@ -50,6 +50,9 @@ $cm_unix_cluster_texts['en_US'] = array(
   'pl.unixcluster.accounts' => '%1$s Accounts',
   'pl.unixcluster.accounts.registered' => '%1$s Account(s) Registered',
   'pl.unixcluster.fd.default_co_group_id' => 'Default Group',
+  'pl.unixcluster.fd.co_group_id.new.name' => '%1$s UnixCluster Group',
+  'pl.unixcluster.fd.co_group_id.new.desc' => 'Group created for %1$s automatically by UnixCluster',
+  'pl.unixcluster.fd.default_co_group_id.create' => 'Create a New Group For Each Account',
 // XXX link to wiki once available
   'pl.unixcluster.fd.default_co_group_id.desc' => 'Unless overridden, Unix Accounts will be given this default group. See the documentation for more information.',
   'pl.unixcluster.fd.default_shell' => 'Default Login Shell',

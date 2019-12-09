@@ -35,7 +35,8 @@ class UnixCluster extends ClusterInterface {
   public $cmPluginType = "cluster";
 	
 	// Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
 	
   // Document foreign keys
   public $cmPluginHasMany = array(
@@ -162,7 +163,232 @@ class UnixCluster extends ClusterInterface {
   public function cmPluginMenus() {
   	return array();
   }
+  
+  /**
+   * Assign accounts for the specified CO Person.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  Array   $cluster    Array of Cluster configuration
+   * @param  Integer $coPersonId CO Person ID
+   * @return Boolean             True if an account was created, false if an account already existed
+   * @throws RuntimeException
+	 */
 	
+  public function assign($cluster, $coPersonId) {
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+    
+    // Do we already have a Cluster Account for this CO Person? If so, any
+    // additional accounts must be manually created.
+    
+		$args = array();
+		$args['conditions']['UnixClusterAccount.unix_cluster_id'] = $cluster['UnixCluster']['id'];
+		$args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
+		
+    if($this->UnixClusterAccount->find('count', $args) > 0) {
+      $dbc->rollback();
+      return false;
+    }
+    
+    // No account, so create one in accordance with the UnixCluster configuration.
+    // We're passed the $cluster config because of how we're invoked, but we need
+    // to pull the CO Person record to get various attributes we need.
+    
+    $args = array();
+    $args['conditions']['CoPerson.id'] = $coPersonId;
+    // This will ensure the CO Person is in the CO
+    $args['conditions']['CoPerson.co_id'] = $cluster['Cluster']['co_id'];
+    $args['contain'] = array(
+      'Identifier' => array('conditions' => array('Identifier.status' => SuspendableStatusEnum::Active)),
+      'PrimaryName'
+    );
+    
+    $coPerson = $this->Cluster->Co->CoPerson->find('first', $args);
+    
+    if(!$coPerson) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.cop.unk'));
+    }
+    
+    // Make sure we have the necessary identifiers
+    
+    $username = Hash::extract($coPerson['Identifier'], '{n}[type='. $cluster['UnixCluster']['username_type'] .']');
+    $uid = Hash::extract($coPerson['Identifier'], '{n}[type='. $cluster['UnixCluster']['uid_type'] .']');
+    
+    if(!$username || !$uid) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.cluster.acct.ids'));
+    }
+    
+    $acct = array(
+      'unix_cluster_id' => $cluster['UnixCluster']['id'],
+      'co_person_id'    => $coPersonId,
+      'login_shell'     => $cluster['UnixCluster']['default_shell'],
+      'status'          => StatusEnum::Active,
+      'valid_from'      => null,
+      'valid_through'   => null
+    );
+    
+    // We only use Primary Name for gecos, though we could probably leverage
+    // Address and TelephoneNumber somehow...
+    $acct['gecos'] = generateCn($coPerson['PrimaryName']) . ",,,";
+    $acct['username'] = $username[0]['identifier'];
+    $acct['uid'] = $uid[0]['identifier'];
+    
+    // Construct the home directory
+    $homedirAffix = $username[0]['identifier'];
+    
+    if(!empty($cluster['UnixCluster']['homedir_subdivisions'])
+       && $cluster['UnixCluster']['homedir_subdivisions'] > 0) {
+      $infix = "";
+      
+      for($i = 0;$i < $cluster['UnixCluster']['homedir_subdivisions'];$i++) {
+        $infix .= $username[0]['identifier'][$i] . "/";
+      }
+      
+      $homedirAffix = $infix . $homedirAffix;
+    }
+    
+    $acct['home_directory'] = $cluster['UnixCluster']['homedir_prefix'] . "/" . $homedirAffix; 
+    
+    // Figure out a default group
+    if(!empty($cluster['UnixCluster']['default_co_group_id'])) {
+      // First, make sure $coPersonId is a member of $primary_co_group_id
+      if(!$this->Cluster
+               ->Co
+               ->CoGroup
+               ->CoGroupMember
+               ->isMember($cluster['UnixCluster']['default_co_group_id'], $coPersonId)) {
+        $dbc->rollback();
+        throw new RuntimeException(_txt('er.cluster.acct.grmem'));
+      }
+      
+      $acct['primary_co_group_id'] = $cluster['UnixCluster']['default_co_group_id'];
+    } else {
+      // Is there already a CO Group with a groupname_type of $username? If so, use it
+      $args = array();
+      $args['conditions']['Identifier.identifier'] = $username[0]['identifier'];
+      $args['conditions']['Identifier.type'] = $cluster['UnixCluster']['groupname_type'];
+      $args['conditions'][] = 'Identifier.co_group_id IS NOT NULL';
+      $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+      
+      // There should be at most one
+      $userCoGroupId = $this->Cluster
+                            ->Co
+                            ->CoGroup
+                            ->Identifier
+                            ->field('co_group_id', $args['conditions']);
+      
+      if(!empty($userCoGroupId)) {
+        $acct['primary_co_group_id'] = $userCoGroupId;
+      } else {
+        // Create a new CO Group, make CO Person a member and owner of it, and assign
+        // $groupname_type of $username and a $gid_type of $uid. Creating a new CO Group
+        // will also provision it.
+        
+        $g = array(
+          'CoGroup' => array(
+            'co_id' => $cluster['Cluster']['co_id'],
+            'name' => _txt('pl.unixcluster.fd.co_group_id.new.name', array($username[0]['identifier'])),
+            'description' => _txt('pl.unixcluster.fd.co_group_id.new.desc', array($username[0]['identifier'])),
+            'open' => false,
+            'status' => SuspendableStatusEnum::Active,
+            'cou_id' => null,
+            'group_type' => GroupEnum::Standard,
+            'auto' => false
+          )
+        );
+        
+        $this->Cluster->Co->CoGroup->clear();
+        
+        if(!$this->Cluster->Co->CoGroup->save($g)) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign CoGroup')));
+        }
+        
+        // Attach the necessary identifiers
+        
+        $ids = array(
+          array(
+            'Identifier' => array(
+              'identifier' => $username[0]['identifier'],
+              'type' => $cluster['UnixCluster']['groupname_type'],
+              'login' => false,
+              'status' => SuspendableStatusEnum::Active,
+              'co_group_id' => $this->Cluster->Co->CoGroup->id
+            )
+          ),
+          array(
+            'Identifier' => array(
+              'identifier' => $uid[0]['identifier'],
+              'type' => $cluster['UnixCluster']['gid_type'],
+              'login' => false,
+              'status' => SuspendableStatusEnum::Active,
+              'co_group_id' => $this->Cluster->Co->CoGroup->id
+            )
+          )
+        );
+        
+        // We need to inject the CO so extended types can be saved
+        $this->Cluster->Co->CoGroup->Identifier->validate['type']['content']['rule'][1]['coid'] = $cluster['Cluster']['co_id'];
+      
+        if(!$this->Cluster->Co->CoGroup->Identifier->saveMany($ids)) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign Identifier')));
+        }
+        
+        // Make the CO Person an owner and member of their new group
+        
+        $gm = array(
+          'CoGroupMember' => array(
+            'co_group_id' => $this->Cluster->Co->CoGroup->id,
+            'co_person_id' => $coPersonId,
+            'owner' => true,
+            'member' => true
+          )
+        );
+        
+        $this->Cluster->Co->CoGroup->CoGroupMember->clear();
+        
+        if(!$this->Cluster->Co->CoGroup->CoGroupMember->save($gm)) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign CoGroupMember')));
+        }
+        
+        $acct['primary_co_group_id'] = $this->Cluster->Co->CoGroup->id;
+        
+        // Add the CO Group to the Unix Cluster
+        
+        $ucg = array(
+          'UnixClusterGroup' => array(
+            'unix_cluster_id' => $cluster['UnixCluster']['id'],
+            'co_group_id' => $this->Cluster->Co->CoGroup->id
+          )
+        );
+        
+        $this->UnixClusterGroup->clear();
+        
+        if(!$this->UnixClusterGroup->save($ucg)) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign UnixClusterGroup')));
+        }
+      }
+    }
+    
+    // Finally ready to save the new account
+    $this->UnixClusterAccount->clear();
+    
+    if(!$this->UnixClusterAccount->save($acct)) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign UnixClusterAccount')));
+    }
+    
+    $dbc->commit();
+    
+    return true;
+  }
+  
 	/**
 	 * Obtain the current Cluster status for a CO Person.
 	 *
