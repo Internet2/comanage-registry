@@ -34,6 +34,18 @@ abstract class ClusterInterface extends AppModel {
   protected $pluginCfg = null;
   
   /**
+   * Assign accounts for the specified CO Person.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  Array   $cluster    Array of Cluster configuration
+   * @param  Integer $coPersonId CO Person ID
+   * @return Boolean             True if an account was created, false if an account already existed
+   * @throws RuntimeException
+	 */
+  
+  abstract public function assign($cluster, $coPersonId);
+  
+  /**
    * Obtain the configuration for this backend. This will correspond to FooCluster.
    *
    * @since  COmanage Registry v3.4.0

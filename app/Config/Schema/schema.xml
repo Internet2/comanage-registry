@@ -2276,9 +2276,18 @@
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="cluster_id" type="I">
+      <constraint>REFERENCES cm_clusters(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="clusters_i1">
       <col>co_id</col>
+    </index>
+    <index name="clusters_i2">
+      <col>cluster_id</col>
     </index>
   </table>
   
@@ -2448,6 +2457,9 @@
     <field name="short_label" type="C" size="32" />
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="cluster_id" type="I">
+      <constraint>REFERENCES cm_clusters(id)</constraint>
     </field>
     <field name="service_url" type="C" size="256" />
     <field name="service_label" type="C" size="1024" />

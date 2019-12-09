@@ -51,8 +51,59 @@
   // Add top links
   $params['topLinks'] = array();
   
+  if(!empty($vv_cluster_status)) {
+    // We use cluster status as a proxy for knowing that there are any Clusters defined
+    
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.cluster.acct.auto'),
+      'javascript:js_confirm_autogenerate();',
+      array('class' => 'addbutton')
+    );
+  }
+  
   print $this->element("pageTitleAndButtons", $params);
 ?>
+
+<script type="text/javascript">
+  <!-- /* JS specific to these fields */ -->
+
+  function js_confirm_autogenerate() {
+    // Open the dialog to confirm autogeneration of cluster accounts
+    $('#autogenerate-dialog').dialog('open');
+  }
+
+  $(function() {
+    // Autogenerate dialog
+    $("#autogenerate-dialog").dialog({
+      autoOpen: false,
+      buttons: [
+        {
+          text : "<?php print _txt('op.cancel'); ?>",
+          click : function() {
+            $(this).dialog("close");
+          }
+        },
+        {
+          text : "<?php print _txt('op.cluster.acct.auto'); ?>",
+          click: function () {
+            $(this).dialog("close");
+            displaySpinner();
+            window.location.href = "<?php print $this->Html->url(array('controller' => 'clusters',
+            'action' => 'assign',
+            'copersonid' => $vv_co_person['CoPerson']['id'])); ?>";
+          }
+        }
+      ],
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+    });
+  });
+</script>
 
 <table id="clusters">
   <thead>
@@ -108,3 +159,7 @@
     <?php endforeach; ?>
   </tbody>
 </table>
+
+<div id="autogenerate-dialog" title="<?php print _txt('op.cluster.acct.auto'); ?>">
+  <?php print _txt('op.cluster.acct.auto.confirm'); ?>
+</div>

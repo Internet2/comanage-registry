@@ -39,13 +39,100 @@ class ClustersController extends StandardController {
     )
   );
   
+  public $view_contains = array();
+  
+  public $edit_contains = array();
+  
+  public $delete_contains = array();
+  
   // This controller needs a CO to be set
   public $requires_co = true;
   
   // Used by AppController::calculateImpliedCoId
   public $impliedCoIdActions = array(
+    'assign' => 'copersonid',
     'status' => 'copersonid'
   );
+  
+  /**
+   * Assign Cluster Accounts for a CO Person.
+   *
+   * @since  COmanage Registry v3.4.0
+   */
+  
+  public function assign() {
+    $coPersonId = null;
+    
+    if($this->request->is('restful')) {
+      // XXX See IdentifiersController for example
+    } else {
+      if(!empty($this->request->params['named']['copersonid'])) {
+        $coPersonId = $this->request->params['named']['copersonid'];
+      }
+    }
+    
+    if($coPersonId) {
+      // Similar pattern to Identifiers::assign()
+      
+      $res = $this->Cluster->assign($coPersonId, $this->Session->read('Auth.User.co_person_id'));
+      
+      if(!empty($res)) {
+        // Loop through the results and build result messages
+        
+        $errs = "";             // Unexpected errors
+        $assigned = array();    // Cluster Accounts that were assigned
+        $existed = array();     // Cluster Accounts that already existed
+
+        foreach(array_keys($res) as $cluster) {
+          if($res[$cluster] === false) {
+            $existed[] = $cluster;
+          } elseif($res[$cluster] === true) {
+            $assigned[] = $cluster;
+          } else {
+            $errs .= $cluster . ": " . $res[$cluster] . "<br />\n";
+          }
+        }
+        
+        if($this->request->is('restful')) {
+          if($errs != "") {
+            $this->Api->restResultHeader(500, $errs);
+          } else {
+            $this->Api->restResultHeader(200, "OK");
+          }
+        } else {
+          if($errs != "") {
+            $this->Flash->set($errs, array('key' => 'error'));
+          }
+
+          if(!empty($assigned)) {
+            $this->Flash->set(_txt('rs.cluster.acct.ok', array(implode(',', $assigned))),
+                              array('key' => 'success'));
+          }
+
+          if(!empty($existed)) {
+            $this->Flash->set(_txt('er.cluster.acct.already', array(implode(',', $existed))),
+                              array('key' => 'information'));
+          }
+        }
+      } else {
+        if($this->request->is('restful')) {
+          $this->Api->restResultHeader(200, "OK");
+        } else {
+          $this->Flash->set(_txt('er.cluster.acct.none'), array('key' => 'information'));
+        }
+      }
+    } else {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, "CoPerson Does Not Exist");
+      } else {
+        $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
+      }
+    }
+    
+    if(!$this->request->is('restful')) {
+      $this->performRedirect();
+    }
+  }
   
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -68,6 +155,10 @@ class ClustersController extends StandardController {
     
     foreach(array_values($plugins) as $plugin) {
       $this->Cluster->bindModel(array('hasOne' => array($plugin => array('dependent' => true))));
+      
+      $this->delete_contains[] = $plugin;
+      $this->edit_contains[] = $plugin;
+      $this->view_contains[] = $plugin;
     }
     
     $this->set('plugins', $plugins);
@@ -112,6 +203,10 @@ class ClustersController extends StandardController {
     
     // Add a new Cluster?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+// XXX maybe this should also allow $managed || $self?
+    // Auto-assign Accounts for a CO Person on a Cluster?
+    $p['assign'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing Cluster?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -162,16 +257,15 @@ class ClustersController extends StandardController {
       $target[] = $this->Cluster->_targetid;
       
       $this->redirect($target);
-      /*
     } elseif(!empty($this->request->params['named']['copersonid'])) {
       // Redirect to the CO Person's authenticator status page
       
       $target = array();
-      $target['controller'] = 'authenticators';
+      $target['controller'] = 'clusters';
       $target['action'] = 'status';
       $target['copersonid'] = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
       
-      $this->redirect($target);*/
+      $this->redirect($target);
     } else {
       parent::performRedirect();
     }
@@ -188,12 +282,11 @@ class ClustersController extends StandardController {
     $status = array();
     
     if(!empty($this->request->params['named']['copersonid'])) {
-      // Pull the list of configured authenticators
+      // Pull the list of configured clusters
       
       $args = array();
       $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
       $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
-      $args['contain'] = false;
       // Pull the related models so we have their instantiated model ID
       $args['contain'] = array_keys($this->viewVars['plugins']);
       

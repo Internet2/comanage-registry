@@ -33,7 +33,8 @@ class Cluster extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -108,6 +109,56 @@ class Cluster extends AppModel {
     $this->_commit();
     
     return;
+  }
+  
+  /**
+   * Autogenerate Cluster Accounts for the specified CO Person.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  Integer $coPersonId
+   * @param  Integer $actorCoPersonId
+   * @return Array Array of results, where the key is the Cluster description and the value is
+   *               true if Account(s) were created, false if Account(s) already existed, or an error string
+   * @throws InvalidArgumentException
+   */
+  
+  public function assign($coPersonId, $actorCoPersonId) {
+    // Similar to Identifier::assign
+    
+    $ret = array();
+    
+    // $Map the $coPersonId to $coId
+    $coId = $this->Co->CoPerson->field('co_id', array('CoPerson.id' => $coPersonId));
+    
+    if(!$coId) {
+      throw new InvalidArgumentException(_txt('er.co.unk'));
+    }
+    
+    // Pull the list of configured clusters
+    
+    $args = array();
+    $args['conditions']['Cluster.co_id'] = $coId;
+    $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
+    
+    $clusters = $this->find('all', $args);
+    
+    foreach($clusters as $c) {
+      // Call the plugin for each Cluster
+      
+      $plugin = $c['Cluster']['plugin'];
+      
+      try {
+        $ret[ $c['Cluster']['description'] ] = $this->$plugin->assign($c, $coPersonId);
+      }
+      catch(Exception $e) {
+        $ret[ $c['Cluster']['description'] ] = $e->getMessage();
+      }
+    }
+    
+// XXX do we need to maybe fire provisioning (as per Identifier::assign?)
+// XXX do we need $actorCoPersonId?
+
+    return $ret;
   }
   
   /**

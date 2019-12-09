@@ -146,7 +146,7 @@
             print $this->Form->error('default_shell');
           }
         } else {
-//          print _txt('en.status.susp', null, $clusters[0]['Cluster']['status']);
+          print filter_var($unix_clusters[0]['UnixCluster']['default_shell'],FILTER_SANITIZE_SPECIAL_CHARS);
         }
       ?>
     </div>
@@ -243,7 +243,7 @@
         $attrs['value'] = (isset($unix_clusters[0]['UnixCluster']['default_co_group_id'])
                            ? $unix_clusters[0]['UnixCluster']['default_co_group_id']
                            : null);
-        $attrs['empty'] = true;
+        $attrs['empty'] = _txt('pl.unixcluster.fd.default_co_group_id.create');
 
         if($e) {
           print $this->Form->select('default_co_group_id',

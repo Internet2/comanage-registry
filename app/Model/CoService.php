@@ -79,6 +79,11 @@ class CoService extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'cluster_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'service_url' => array(
       // We can't set this to 'url' because url validation doesn't understand ssh:
       'rule' => array('validateInput'),
@@ -253,6 +258,28 @@ class CoService extends AppModel {
     }
     
     return $services;
+  }
+  
+  /**
+   * Map a Cluster to a CO Service short label.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  Integer $coId      CO ID
+   * @param  Integer $clusterId Cluster ID
+   * @return String             The short label, if found
+   */
+  
+  public function mapClusterToLabel($coId, $clusterId) {
+    // There should only be one instance of $clusterId across all Services
+    // within a CO, since we have to use that label when provisioning and we
+    // won't know how to handle multiple labels.
+    
+    $args = array();
+    $args['CoService.co_id'] = $coId; // Strictly speaking we don't need this
+    $args['CoService.cluster_id'] = $clusterId;
+    $args['CoService.status'] = SuspendableStatusEnum::Active;
+    
+    return $this->field('short_label', $args);
   }
   
   /**

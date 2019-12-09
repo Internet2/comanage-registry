@@ -412,6 +412,37 @@ class CoGroupMember extends AppModel {
                                 $offset,
                                 $order);
   }
+  
+  /**
+   * Determine if the specified CO Person is an active, valid member of the
+   * specified CO Group.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  Integer $coGroupId  CO Group ID
+   * @param  Integer $coPersonId CO Person ID
+   * @return boolean             True if CO Person is a member of CO Group, false otherwse
+   */
+  
+  public function isMember($coGroupId, $coPersonId) {
+    $args = array();
+    $args['conditions']['CoGroup.status'] = StatusEnum::Active;
+    $args['conditions']['CoGroupMember.co_group_id'] = $coGroupId;
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_from IS NULL',
+        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    $args['conditions']['AND'][] = array(
+      'OR' => array(
+        'CoGroupMember.valid_through IS NULL',
+        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+      )
+    );
+    
+    return (bool)$this->find('count', $args);
+  }
 
   /**
    * Map a set of CO Group Members to their Identifiers. Based on a similar function in CoLdapProvisionerDn.php.
