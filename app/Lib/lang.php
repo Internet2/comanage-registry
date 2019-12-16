@@ -271,6 +271,7 @@ original notification at
     ActionEnum::AuthenticatorDeleted        => 'Authenticator Deleted',
     ActionEnum::AuthenticatorEdited         => 'Authenticator Edited',
     ActionEnum::AuthenticatorStatusEdited   => 'Authenticator Status Edited',
+    ActionEnum::ClusterAccountAutoCreated   => 'Cluster Account Automatically Created',
     ActionEnum::CoEmailListAdded            => 'CO Email List Added',
     ActionEnum::CoEmailListDeleted          => 'CO Email List Deleted',
     ActionEnum::CoEmailListEdited           => 'CO Email List Edited',
@@ -349,6 +350,7 @@ original notification at
   
   'en.action.petition' => array(
     PetitionActionEnum::Approved            => 'Petition Approved',
+    PetitionActionEnum::ClusterAccountAutoCreated => 'Cluster Accounts Automatically Created',
     PetitionActionEnum::CommentAdded        => 'Comment Added',
     PetitionActionEnum::Created             => 'Petition Created',
     PetitionActionEnum::Declined            => 'Petition Declined',
@@ -1220,6 +1222,8 @@ original notification at
   'fd.ef.authz.cou' => 'COU',
   'fd.ef.ce' =>       'Email Confirmation Mode',
   'fd.ef.ce.desc' =>  'See <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-EmailVerification">Email Verification</a> for mode definitions',
+  'fd.ef.clusters' => 'Establish Cluster Accounts',
+  'fd.ef.clusters.desc' => 'If enabled, establish cluster accounts as part of the Enrollment',
   'fd.ef.coef' =>     'Enable Organizational Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML, however those options are not currently supported)',
   'fd.ef.concl' =>    'Conclusion',

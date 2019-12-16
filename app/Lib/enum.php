@@ -32,6 +32,7 @@ class ActionEnum
   const AuthenticatorDeleted            = 'DAUT';
   const AuthenticatorEdited             = 'EAUT';
   const AuthenticatorStatusEdited       = 'EATS';
+  const ClusterAccountAutoCreated       = 'ACAA';
   const CoEmailListAdded                = 'ACEL';
   const CoEmailListDeleted              = 'DCEL';
   const CoEmailListEdited               = 'ECEL';
@@ -466,6 +467,7 @@ class PetitionActionEnum
 {
   const Approved                = 'PY';
   const AttributesUpdated       = 'AU';
+  const ClusterAccountAutoCreated = 'CA';
   const CommentAdded            = 'CM';
   const Created                 = 'PC';
   const Declined                = 'PX';

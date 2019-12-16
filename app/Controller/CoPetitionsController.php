@@ -1389,13 +1389,15 @@ class CoPetitionsController extends StandardController {
       // LDAP DN construction), which happens when the CO Person status goes to Active.
       
       $this->CoPetition->assignIdentifiers($id,
-                                           $this->Session->read('Auth.User.co_person_id'),
-                                           false);
+                                           $this->Session->read('Auth.User.co_person_id'));
       
       // This also updates the CO Person/Role to Active
       $this->CoPetition->updateStatus($id,
                                       PetitionStatusEnum::Finalized,
                                       $this->Session->read('Auth.User.co_person_id'));
+      
+      // Maybe establish Cluster Accounts
+      $this->CoPetition->assignClusterAccounts($id, $this->Session->read('Auth.User.co_person_id'));
     }
     
     // The step is done
