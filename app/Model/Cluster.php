@@ -115,14 +115,15 @@ class Cluster extends AppModel {
    * Autogenerate Cluster Accounts for the specified CO Person.
    *
    * @since  COmanage Registry v3.4.0
-   * @param  Integer $coPersonId
-   * @param  Integer $actorCoPersonId
+   * @param  Integer $coPersonId      CO Person ID
+   * @param  Integer $actorCoPersonId Actor CO Person ID
+   * @param  Array   $clusterIds      Cluster IDs to assign for, or null to assign accounts on all Clusters
    * @return Array Array of results, where the key is the Cluster description and the value is
    *               true if Account(s) were created, false if Account(s) already existed, or an error string
    * @throws InvalidArgumentException
    */
   
-  public function assign($coPersonId, $actorCoPersonId) {
+  public function assign($coPersonId, $actorCoPersonId, $clusterId=null) {
     // Similar to Identifier::assign
     
     $ret = array();
@@ -139,6 +140,11 @@ class Cluster extends AppModel {
     $args = array();
     $args['conditions']['Cluster.co_id'] = $coId;
     $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
+    if($clusterId) {
+      // But only this cluster, if specified
+      $args['conditions']['Cluster.id'] = $clusterId;
+    }
+    $args['contain'] = false;
     
     $clusters = $this->find('all', $args);
     
@@ -148,7 +154,21 @@ class Cluster extends AppModel {
       $plugin = $c['Cluster']['plugin'];
       
       try {
-        $ret[ $c['Cluster']['description'] ] = $this->$plugin->assign($c, $coPersonId);
+        $pluginModelName = $plugin . "." . $plugin;
+
+        $pluginModel = ClassRegistry::init($pluginModelName);
+        
+        $ret[ $c['Cluster']['description'] ] = $pluginModel->assign($c, $coPersonId);
+        
+        if($ret[ $c['Cluster']['description'] ]) {
+          // Create a history record
+          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                     null,
+                                                     null,
+                                                     $actorCoPersonId,
+                                                     ActionEnum::ClusterAccountAutoCreated,
+                                                     _txt('rs.cluster.acct.ok', array($c['Cluster']['description'])));
+        }
       }
       catch(Exception $e) {
         $ret[ $c['Cluster']['description'] ] = $e->getMessage();

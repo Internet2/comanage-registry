@@ -1550,6 +1550,7 @@
       <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
     <field name="establish_authenticators" type="L" />
+    <field name="establish_cluster_accounts" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">
@@ -2287,6 +2288,37 @@
       <col>co_id</col>
     </index>
     <index name="clusters_i2">
+      <col>cluster_id</col>
+    </index>
+  </table>
+  
+  <table name="co_enrollment_clusters">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="cluster_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_clusters(id)</constraint>
+    </field>
+    <field name="enabled" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_enrollment_cluster_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_clusters(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_enrollment_clusters_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+    <index name="co_enrollment_clusters_i2">
       <col>cluster_id</col>
     </index>
   </table>

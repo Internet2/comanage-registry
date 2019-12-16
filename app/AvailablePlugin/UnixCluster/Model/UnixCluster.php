@@ -179,11 +179,23 @@ class UnixCluster extends ClusterInterface {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
+    // Pull our configuration
+    $args = array();
+    $args['conditions']['UnixCluster.cluster_id'] = $cluster['Cluster']['id'];
+    $args['contain'] = false;
+    
+    $unixCluster = $this->find('first', $args);
+    
+    if(!$unixCluster) {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.notfound', array('Cluster', $cluster['Cluster']['id'])));
+    }
+    
     // Do we already have a Cluster Account for this CO Person? If so, any
     // additional accounts must be manually created.
     
 		$args = array();
-		$args['conditions']['UnixClusterAccount.unix_cluster_id'] = $cluster['UnixCluster']['id'];
+		$args['conditions']['UnixClusterAccount.unix_cluster_id'] = $unixCluster['UnixCluster']['id'];
 		$args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
 		
     if($this->UnixClusterAccount->find('count', $args) > 0) {
@@ -213,8 +225,8 @@ class UnixCluster extends ClusterInterface {
     
     // Make sure we have the necessary identifiers
     
-    $username = Hash::extract($coPerson['Identifier'], '{n}[type='. $cluster['UnixCluster']['username_type'] .']');
-    $uid = Hash::extract($coPerson['Identifier'], '{n}[type='. $cluster['UnixCluster']['uid_type'] .']');
+    $username = Hash::extract($coPerson['Identifier'], '{n}[type='. $unixCluster['UnixCluster']['username_type'] .']');
+    $uid = Hash::extract($coPerson['Identifier'], '{n}[type='. $unixCluster['UnixCluster']['uid_type'] .']');
     
     if(!$username || !$uid) {
       $dbc->rollback();
@@ -222,9 +234,9 @@ class UnixCluster extends ClusterInterface {
     }
     
     $acct = array(
-      'unix_cluster_id' => $cluster['UnixCluster']['id'],
+      'unix_cluster_id' => $unixCluster['UnixCluster']['id'],
       'co_person_id'    => $coPersonId,
-      'login_shell'     => $cluster['UnixCluster']['default_shell'],
+      'login_shell'     => $unixCluster['UnixCluster']['default_shell'],
       'status'          => StatusEnum::Active,
       'valid_from'      => null,
       'valid_through'   => null
@@ -239,37 +251,37 @@ class UnixCluster extends ClusterInterface {
     // Construct the home directory
     $homedirAffix = $username[0]['identifier'];
     
-    if(!empty($cluster['UnixCluster']['homedir_subdivisions'])
-       && $cluster['UnixCluster']['homedir_subdivisions'] > 0) {
+    if(!empty($unixCluster['UnixCluster']['homedir_subdivisions'])
+       && $unixCluster['UnixCluster']['homedir_subdivisions'] > 0) {
       $infix = "";
       
-      for($i = 0;$i < $cluster['UnixCluster']['homedir_subdivisions'];$i++) {
+      for($i = 0;$i < $unixCluster['UnixCluster']['homedir_subdivisions'];$i++) {
         $infix .= $username[0]['identifier'][$i] . "/";
       }
       
       $homedirAffix = $infix . $homedirAffix;
     }
     
-    $acct['home_directory'] = $cluster['UnixCluster']['homedir_prefix'] . "/" . $homedirAffix; 
+    $acct['home_directory'] = $unixCluster['UnixCluster']['homedir_prefix'] . "/" . $homedirAffix; 
     
     // Figure out a default group
-    if(!empty($cluster['UnixCluster']['default_co_group_id'])) {
+    if(!empty($unixCluster['UnixCluster']['default_co_group_id'])) {
       // First, make sure $coPersonId is a member of $primary_co_group_id
       if(!$this->Cluster
                ->Co
                ->CoGroup
                ->CoGroupMember
-               ->isMember($cluster['UnixCluster']['default_co_group_id'], $coPersonId)) {
+               ->isMember($unixCluster['UnixCluster']['default_co_group_id'], $coPersonId)) {
         $dbc->rollback();
         throw new RuntimeException(_txt('er.cluster.acct.grmem'));
       }
       
-      $acct['primary_co_group_id'] = $cluster['UnixCluster']['default_co_group_id'];
+      $acct['primary_co_group_id'] = $unixCluster['UnixCluster']['default_co_group_id'];
     } else {
       // Is there already a CO Group with a groupname_type of $username? If so, use it
       $args = array();
       $args['conditions']['Identifier.identifier'] = $username[0]['identifier'];
-      $args['conditions']['Identifier.type'] = $cluster['UnixCluster']['groupname_type'];
+      $args['conditions']['Identifier.type'] = $unixCluster['UnixCluster']['groupname_type'];
       $args['conditions'][] = 'Identifier.co_group_id IS NOT NULL';
       $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
       
@@ -313,7 +325,7 @@ class UnixCluster extends ClusterInterface {
           array(
             'Identifier' => array(
               'identifier' => $username[0]['identifier'],
-              'type' => $cluster['UnixCluster']['groupname_type'],
+              'type' => $unixCluster['UnixCluster']['groupname_type'],
               'login' => false,
               'status' => SuspendableStatusEnum::Active,
               'co_group_id' => $this->Cluster->Co->CoGroup->id
@@ -322,7 +334,7 @@ class UnixCluster extends ClusterInterface {
           array(
             'Identifier' => array(
               'identifier' => $uid[0]['identifier'],
-              'type' => $cluster['UnixCluster']['gid_type'],
+              'type' => $unixCluster['UnixCluster']['gid_type'],
               'login' => false,
               'status' => SuspendableStatusEnum::Active,
               'co_group_id' => $this->Cluster->Co->CoGroup->id
@@ -362,7 +374,7 @@ class UnixCluster extends ClusterInterface {
         
         $ucg = array(
           'UnixClusterGroup' => array(
-            'unix_cluster_id' => $cluster['UnixCluster']['id'],
+            'unix_cluster_id' => $unixCluster['UnixCluster']['id'],
             'co_group_id' => $this->Cluster->Co->CoGroup->id
           )
         );
