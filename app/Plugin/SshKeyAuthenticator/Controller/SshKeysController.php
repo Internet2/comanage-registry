@@ -39,7 +39,13 @@ class SshKeysController extends SAMController {
    * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
    */
 
-  public function addKeyFile() {
+  public function add() {
+    if($this->request->is('get')) {
+      parent::add();
+
+      return;
+    }
+
     // We need a CO Person ID
 
     $p = $this->parsePersonID();
@@ -58,11 +64,16 @@ class SshKeysController extends SAMController {
                                  null);
 
           $this->Flash->set(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), array('key' => 'success'));
-          $this->redirect(array(
-                            'action'          => 'index',
-                            'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
-                            'copersonid'      => $p['copersonid']
-                          ));
+
+          if(!empty($this->request->params['named']['onFinish'])) {
+            $this->redirect(urldecode($this->request->params['named']['onFinish']));
+          } else {
+            $this->redirect(array(
+                              'action'          => 'index',
+                              'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
+                              'copersonid'      => $p['copersonid']
+                            ));
+          }
         }
         catch(InvalidArgumentException $e) {
           $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -73,7 +84,7 @@ class SshKeysController extends SAMController {
     } else {
       $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
     }
-    
+
     $this->redirect(array(
                       'action'     => 'add',
                       'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
