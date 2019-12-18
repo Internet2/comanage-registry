@@ -37,7 +37,7 @@ abstract class AuthenticatorBackend extends AppModel {
    * Obtain current data suitable for passing to manage().
    *
    * @since  COmanage Registry v3.1.0
-   * @param  integer $id				 Authenticator ID
+   * @param  integer $id         Authenticator ID
    * @param  integer $backendId  Authenticator Backend ID
    * @param  integer $coPersonId CO Person ID
    * @return Array As returned by find
@@ -91,14 +91,14 @@ abstract class AuthenticatorBackend extends AppModel {
   }
   
   /**
-	 * Manage Authenticator data, as submitted from the view.
-	 *
-	 * @since  COmanage Registry v3.1.0
-	 * @param  Array   $data					  Array of Authenticator data submitted from the view
-	 * @param  Integer $actorCoPersonId Actor CO Person ID
-	 * @return String Human readable (localized) result comment
-	 * @throws InvalidArgumentException
-	 * @throws RuntimeException
+   * Manage Authenticator data, as submitted from the view.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  Array   $data            Array of Authenticator data submitted from the view
+   * @param  Integer $actorCoPersonId Actor CO Person ID
+   * @return String Human readable (localized) result comment
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
    */
   
   public function manage($data, $actorCoPersonId) {
@@ -107,12 +107,12 @@ abstract class AuthenticatorBackend extends AppModel {
   }
   
   /**
-	 * Reset Authenticator data for a CO Person.
-	 *
-	 * @since  COmanage Registry v3.1.0
-	 * @param  integer $coPersonId			CO Person ID
-	 * @param  integer $actorCoPersonId Actor CO Person ID
-	 * @return boolean true on success
+   * Reset Authenticator data for a CO Person.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  integer $coPersonId      CO Person ID
+   * @param  integer $actorCoPersonId Actor CO Person ID
+   * @return boolean true on success
    */
   
   abstract public function reset($coPersonId, $actorCoPersonId);
@@ -129,13 +129,13 @@ abstract class AuthenticatorBackend extends AppModel {
   }
   
   /**
-	 * Obtain the current Authenticator status for a CO Person.
-	 *
-	 * @since  COmanage Registry v3.1.0
-	 * @param  integer $coPersonId			CO Person ID
-	 * @return Array Array with values
-	 * 							 status: AuthenticatorStatusEnum
-	 * 							 comment: Human readable string, visible to the CO Person
+   * Obtain the current Authenticator status for a CO Person.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  integer $coPersonId      CO Person ID
+   * @return Array Array with values
+   *               status: AuthenticatorStatusEnum
+   *               comment: Human readable string, visible to the CO Person
    */
   
   abstract public function status($coPersonId);
