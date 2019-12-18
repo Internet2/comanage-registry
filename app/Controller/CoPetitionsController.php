@@ -988,13 +988,22 @@ class CoPetitionsController extends StandardController {
         // Actor since we're in an Enrollee driven phase of enrollment.
        
         $enrolleeCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
-        
+
+        $args = array();
+        $args['conditions']['EnrolleeCoPerson.id'] = $enrolleeCoPersonId;
+        $args['contain'] = false;
+        $coPerson = $this->CoPetition->EnrolleeCoPerson->find('first', $args);
+
+        $selfActive = ($coPerson 
+                       && ($coPerson['EnrolleeCoPerson']['status'] == StatusEnum::Active)
+                       && ($enrolleeCoPersonId == $this->Session->read('Auth.User.co_person_id')));
+
         // Construct a redirect URL
         $onFinish = $this->generateDoneRedirect('establishAuthenticators', $id, null, $authenticators[$current]['CoEnrollmentAuthenticator']['id']);
         
         $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
         
-        if(!$token) {
+        if(!$token && !$selfActive) {
           throw new InvalidArgumentException(_txt('er.token'));
         }
 
@@ -1012,6 +1021,10 @@ class CoPetitionsController extends StandardController {
           'token'        => $token,
           'onFinish'     => urlencode(Router::url(array_merge($onFinish, array('base' => false))))
         );
+
+        if($selfActive) {
+          $redirect['copersonid'] = $enrolleeCoPersonId;
+        }
         
         $this->redirect($redirect);
       }
