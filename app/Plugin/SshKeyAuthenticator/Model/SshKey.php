@@ -34,7 +34,8 @@ class SshKey extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
-                         'Changelog' => array('priority' => 5));
+                         'Changelog' => array('priority' => 5),
+                         'Provisioner');
   
   // Association rules from this model to other models
   public $belongsTo = array(
