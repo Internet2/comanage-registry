@@ -123,7 +123,8 @@
     padding-left: 0.5em;
   }
   ul.form-list .field-info {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     width: 65%;
   }
   ul.form-list-admin .field-name {
@@ -136,7 +137,7 @@
   ul.form-list input[type="text"],
   ul.form-list input[type="number"],
   ul.form-list input[type="password"] {
-    width: 97%;
+    flex-grow: 1;
   }
   ul.form-list li.field-stack textarea {
     margin: 0.5em 0 0.5em 0.5em;

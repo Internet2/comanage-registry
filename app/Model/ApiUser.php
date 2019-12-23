@@ -52,9 +52,23 @@ class ApiUser extends AppModel {
       'allowEmpty' => false
     ),
     'username' => array(
-      'rule' => array('validateInput'),
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => array('maxLength', 50),
+        'required' => true,
+        'allowEmpty' => false,
+        'message' => array('Username must not exceed 50 characters.'),
+        'last' => 'true',
+      ),
+      'filter' => array(
+        'rule' => array('validateInput'),
+        'message' => array('Username contains invalid characters.'),
+        'last' => 'true',
+      ),
+      'unique' => array(
+        'rule' => array('isUnique', true),
+        'message' => array('API username already in use.'),
+        'last' => 'true',
+      ),
     ),
     // This column will be renamed api_key in v5
     'password' => array(
@@ -125,7 +139,25 @@ class ApiUser extends AppModel {
     
     return $this->find('list', $args);
   }
-  
+
+    /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+
+  public function beforeValidate($options = array())
+  {
+    if(!empty($this->data['ApiUser'])) {
+      // The username must begin with "co_<co_id>.".
+      $prefix = "co_" . $this->data['ApiUser']['co_id'] . ".";
+      // Prepend the prefix to the username i got from post
+      $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
+    }
+
+    return true;
+  }
+
   /**
    * Actions to take before a save operation is executed.
    *
@@ -133,50 +165,6 @@ class ApiUser extends AppModel {
    */
   
   public function beforeSave($options = array()) {
-    // Pull the current record (if any) and the CO's name
-    $current = null;
-    $coName = null;
-    
-    if(!empty($this->data['ApiUser']['id'])) {
-      $args = array();
-      $args['conditions']['ApiUser.id'] = $this->data['ApiUser']['id'];
-      $args['contain'] = false;
-      
-      $current = $this->find('first', $args);
-    }
-    
-    $coName = $this->Co->field('Co.name', array('id' => $this->data['ApiUser']['co_id']));
-    $prefix = $coName . ".";
-    
-    if(empty($current['ApiUser']['username'])
-       || $current['ApiUser']['username'] != $this->data['ApiUser']['username']) {
-      // The username must begin with "coname.".
-      
-      if(strncmp($this->data['ApiUser']['username'], $prefix, strlen($prefix))) {
-        throw new InvalidArgumentException(_txt('er.api.username.prefix', array($prefix)));
-      }
-
-      // Check that there's something after the dot
-      if(strlen($this->data['ApiUser']['username']) == strlen($prefix)) {
-        throw new InvalidArgumentException(_txt('er.api.username.prefix', array($prefix)));
-      }
-      
-      // The username must not already exist (unless we're editing that record).
-      // Note we do not need to check against cm_identifiers since web auth and API auth
-      // use different mechanisms. (CO-104)
-      
-      $args = array();
-      $args['conditions']['ApiUser.username'] = $this->data['ApiUser']['username'];
-      $args['contain'] = false;
-      
-      $inUse = $this->find('count', $args);
-      
-      if($inUse > 0) {
-        throw new InvalidArgumentException(_txt('er.ia.exists',
-                                                array(filter_var($this->data['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS))));
-      }
-    }
-    
     // Possibly convert the requested timestamps to UTC from browser time.
     // Do this before the strtotime/time calls below, both of which use UTC.
 
