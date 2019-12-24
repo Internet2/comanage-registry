@@ -1056,9 +1056,45 @@ class ProvisionerBehavior extends ModelBehavior {
             if(!empty($aStatus['AuthenticatorStatus'][0])) {
               $pd['AuthenticatorStatus'] = $aStatus['AuthenticatorStatus'][0];
             }
-          
+            
             $coPersonData[$authmodel][] = $pd;
           }
+        }
+      }
+    }
+    
+    // Pulling Cluster information works similarly, but not identically, to Authenticators
+    
+    $clusterplugins = preg_grep('/.*Cluster$/', CakePlugin::loaded());
+    
+    foreach($clusterplugins as $clusterplugin) {
+      // We use $cmPluginHasMany to determine which models to provision.
+      $clustermodel = $clusterplugin;
+      
+      $Cluster = ClassRegistry::init($clusterplugin.'.'.$clustermodel);
+      
+      if(!empty($Cluster->cmPluginHasMany['CoPerson'])) {
+        foreach($Cluster->cmPluginHasMany['CoPerson'] as $clustersubmodel) {
+          $coPersonModel->bindModel(array('hasMany' => array($clusterplugin.'.'.$clustersubmodel => array('dependent' => true))));
+          
+          $args = array();
+          $args['conditions'][$clustersubmodel.'.co_person_id'] = $coPersonId;
+          $args['conditions'][$clustersubmodel.'.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+          $args['conditions']['AND'][] = array(
+            'OR' => array(
+              $clustersubmodel.'.valid_from IS NULL',
+              $clustersubmodel.'.valid_from < ' => date('Y-m-d H:i:s', time())
+            )
+          );
+          $args['conditions']['AND'][] = array(
+            'OR' => array(
+              $clustersubmodel.'.valid_through IS NULL',
+              $clustersubmodel.'.valid_through > ' => date('Y-m-d H:i:s', time())
+            )
+          );
+          $args['contain'] = array($clustermodel => array('Cluster'));
+          
+          $coPersonData[$clustersubmodel] = $coPersonModel->$clustersubmodel->find('all', $args);
         }
       }
     }

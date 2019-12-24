@@ -297,6 +297,34 @@
             print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
 
             print '<div id="oc_' . $oc . '_div" class="nested">';
+            
+            if($oc == 'posixAccount') {
+              // Special case for handling UnixClusters
+              
+              if(empty($vv_clusters)) {
+                // No (Unix) Clusters defined, print a warning and close the div
+                print _txt('er.ldapprovisioner.unix.none') . '</div>';
+                continue;
+              }
+              
+              $attrs = array();
+              $attrs['value'] = (isset($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['cluster_id'])
+                                 ? $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['cluster_id']
+                                 : null);
+              $attrs['empty'] = false;
+              
+              print _txt('ct.clusters.1');
+              
+              print $this->Form->select('cluster_id',
+                                        $vv_clusters,
+                                        $attrs);
+              
+              if($this->Form->isFieldError('cluster_id')) {
+                print $this->Form->error('cluster_id');
+              }
+              
+              print "<br />";
+            }
 
             foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
               // Make sure the attributes map to the indexing created by Cake
