@@ -56,6 +56,15 @@ class CoLdapProvisionerTargetsController extends SPTController {
     $this->set('identifier_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
     $this->set('telephone_number_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
     $this->set('url_types', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->CoPerson->Url->types($this->cur_co['Co']['id'], 'type'));
+    
+    // Determine the set of available UnixClusters (the only type of Cluster currently supported)
+    $args = array();
+    $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['Cluster.plugin'] = 'UnixCluster';
+    $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
+    $args['fields'] = array('id', 'description');
+    
+    $this->set('vv_clusters', $this->CoLdapProvisionerTarget->CoProvisioningTarget->Co->Cluster->find('list', $args));
   }
   
   /**

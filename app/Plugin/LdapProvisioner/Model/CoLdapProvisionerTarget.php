@@ -156,6 +156,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     ),
     'oc_voperson' => array(
       'rule' => 'boolean'
+    ),
+    'oc_voposixaccount' => array(
+      'rule' => 'boolean'
     )
   );
   
@@ -270,6 +273,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         continue;
       }
       
+      // Skip voPosixAccount if attribute options are not enabled
+      if($oc == 'voPosixAccount' && !$attropts) {
+        continue;
+      }
+      
       if($group && empty($groupMembers) && in_array($oc, array('groupOfNames','eduMember'))) {
         // As an interim solution to CO-1348 we'll pull all group members here (since we no longer get them)
         
@@ -329,6 +337,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             
             // Labeled attribute, used to construct attribute options
             $lattr = $attr;
+            $lsattr = null;
             
             switch($attr) {
               // Name attributes
@@ -871,27 +880,87 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               // posixAccount attributes
+              // As of Registry v3.4.0 we pull these attributes from the configured
+              // UnixCluster, or if Attribute Options are enabled potentially from
+              // all UnixClusters (if so configured).
               case 'gecos':
-                // Construct using same name as cn
-                $attributes[$attr] = generateCn($provisioningData['PrimaryName']) . ",,,";
-                break;
               case 'gidNumber':
               case 'homeDirectory':
+              case 'loginShell':
               case 'uidNumber':
-                // We pull these attributes from Identifiers with types of the same name
-                // as an experimental implementation for CO-863.
-                foreach($provisioningData['Identifier'] as $m) {
-                  if(isset($m['type'])
-                     && $m['type'] == $attr
-                     && $m['status'] == StatusEnum::Active) {
-                    $attributes[$attr] = $m['identifier'];
-                    break;
+              case 'voPosixAccountGecos':
+              case 'voPosixAccountGidNumber':
+              case 'voPosixAccountHomeDirectory':
+              case 'voPosixAccountLoginShell':
+              case 'voPosixAccountUidNumber':
+                // For voPosixAccount, attribute options must be enabled, and
+                // all clusters will be written. For posixAccount, only the
+                // requested cluster is written, and attribute options are not used.
+                
+                // For wacky Cake data model reasons (see construction in ProvisionerBehavior), this is correct
+                // $provisioningData['UnixClusterAccount'][0]['UnixClusterAccount']['foo']
+                foreach($provisioningData['UnixClusterAccount'] as $ua) {
+                  $lsattr = $lattr;
+                  
+                  if($oc == 'voPosixAccount'
+                     || ($coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'] 
+                         == $ua['UnixCluster']['cluster_id'])) {
+                    if($attropts) {
+                      // Map cluster to short label via CO Service.
+                      $label = $this->CoProvisioningTarget
+                                    ->Co
+                                    ->CoService
+                                    ->mapClusterToLabel($provisioningData['Co']['id'],
+                                                        $ua['UnixCluster']['cluster_id']);
+                      
+                      if($label) {
+                        $lsattr = $lattr . ";scope-" . $label;
+                      }
+                    }
+                    
+                    // A switch within a switch...
+                    switch($attr) {
+                      case 'gecos':
+                      case 'voPosixAccountGecos':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['gecos'];
+                        break;
+                      case 'gidNumber':
+                      case 'voPosixAccountGidNumber':
+                        // Find the Identifier of primary_co_group_id
+                        $gidIdentifer = Hash::extract($provisioningData['CoGroupMember'], '{n}.CoGroup[id='.$ua['UnixClusterAccount']['primary_co_group_id'].'].Identifier.{n}[type='.$ua['UnixCluster']['gid_type'].']');
+                        $attributes[$lsattr] = $gidIdentifer[0]['identifier'];
+                        break;
+                      case 'homeDirectory':
+                      case 'voPosixAccountHomeDirectory':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['home_directory'];
+                        break;
+                      case 'uidNumber':
+                      case 'voPosixAccountUidNumber':
+                        foreach($provisioningData['Identifier'] as $m) {
+                          if(isset($m['type'])
+                             && $m['type'] == $ua['UnixCluster']['uid_type']
+                             && $m['status'] == StatusEnum::Active) {
+                            $attributes[$lsattr] = $m['identifier'];
+                            break;
+                          }
+                        }
+                        if(empty($attributes[$lsattr])) {
+                          // XXX Throwing an exception causes a 500, maybe syslog?
+                          // throw new RuntimeException("No value for uidNumber found");
+                        }
+                        break;
+                      case 'loginShell':
+                      case 'voPosixAccountLoginShell':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['login_shell'];
+                        break;
+                    }
+                    
+                    // If attribute options are not enabled, do not emit more than
+                    // one record to avoid interleaving different accounts.
+                    if(!$attropts)
+                      break;
                   }
                 }
-                break;
-              case 'loginShell':
-                // XXX hard coded for now (CO-863)
-                $attributes[$attr] = "/bin/tcsh";
                 break;
               // Internal attributes
               case 'pwdAccountLockedTime':
@@ -924,7 +993,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           }
           
           // Check if we emitted anything
-          if(!empty($attributes[$attr])) {
+          if(!empty($attributes[$attr])
+             || !empty($attributes[$lattr])
+             || ($lsattr && !empty($attributes[$lsattr]))) {
             $attrEmitted = true;
           }
         }
@@ -1918,6 +1989,33 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'defaulttype' => IdentifierEnum::SORID
           ),
           'voPersonStatus' => array(
+            'required'   => false,
+            'multiple'   => true
+          )
+        )
+      ),
+      'voPosixAccount' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'voPosixAccountUidNumber' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountGidNumber' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountHomeDirectory' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountLoginShell' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPosixAccountGecos' => array(
             'required'   => false,
             'multiple'   => true
           )
