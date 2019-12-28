@@ -111,14 +111,15 @@
   $newattri = count($co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute']);
   $newgri = count($co_ldap_provisioner_targets[0]['CoLdapProvisionerAttrGrouping']);
   
-  // Rekey the attributes array on attribute name
+  // Rekey the attributes array on object class and attribute name
   $currentAttributes = array();
   
   for($i = 0;$i < $newattri;$i++) {
     if(!empty($co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute'][$i]['attribute'])) {
       $attr = $co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute'][$i]['attribute'];
-      $currentAttributes[$attr] = $co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute'][$i];
-      $currentAttributes[$attr]['_index'] = $i;
+      $oc = $co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute'][$i]['objectclass'];
+      $currentAttributes[$oc][$attr] = $co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute'][$i];
+      $currentAttributes[$oc][$attr]['_index'] = $i;
     }
   }
   
@@ -330,8 +331,8 @@
               // Make sure the attributes map to the indexing created by Cake
               $xindex = -1;
 
-              if(isset($currentAttributes[$attr]['_index'])) {
-                $xindex = $currentAttributes[$attr]['_index'];
+              if(isset($currentAttributes[$oc][$attr]['_index'])) {
+                $xindex = $currentAttributes[$oc][$attr]['_index'];
               } else {
                 // New attribute, get the next index number
                 $xindex = $newattri;
@@ -407,8 +408,8 @@
 
               // If we're editing an existing attribute, emit the cross reference
 
-              if(!empty($currentAttributes[$attr]['id'])) {
-                print $this->Form->hidden($xprefix . '.id' /*,array('default' => $currentAttributes[$attr]['id'])*/) . "\n";
+              if(!empty($currentAttributes[$oc][$attr]['id'])) {
+                print $this->Form->hidden($xprefix . '.id' /*,array('default' => $currentAttributes[$oc][$attr]['id'])*/) . "\n";
               }
 
               // Emit the attribute name
@@ -426,8 +427,8 @@
               // Prior to v2.0.0, default was to check for new entries, but that
               // probably isn't desirable for stable deployments (and is also
               // unintuitive from the UI), so new default is unchecked.
-              $xchecked = (isset($currentAttributes[$attr]['export'])
-                           && $currentAttributes[$attr]['export']);
+              $xchecked = (isset($currentAttributes[$oc][$attr]['export'])
+                           && $currentAttributes[$oc][$attr]['export']);
               $xdisabled = false;
 
               if(!empty($supportedAttributes[$oc]['attributes'][$attr]['description'])) {
@@ -471,8 +472,8 @@
                   $xempty = $supportedAttributes[$oc]['attributes'][$attr]['multiple']
                             ? _txt('pl.ldapprovisioner.types.all') : false;
 
-                  if(isset($currentAttributes[$attr]['type'])) {
-                    $xval = $currentAttributes[$attr]['type'];
+                  if(isset($currentAttributes[$oc][$attr]['type'])) {
+                    $xval = $currentAttributes[$oc][$attr]['type'];
                   } elseif(isset($supportedAttributes[$oc]['attributes'][$attr]['defaulttype'])) {
                     $xval = $supportedAttributes[$oc]['attributes'][$attr]['defaulttype'];
                   }
@@ -493,8 +494,8 @@
 
                 $xname = 'CoLdapProvisionerAttribute.' . $xindex . '.use_org_value';
                 // Default to unchecked if this is a new entry, or if previously set
-                $xchecked = isset($currentAttributes[$attr]['use_org_value'])
-                            && $currentAttributes[$attr]['use_org_value'];
+                $xchecked = isset($currentAttributes[$oc][$attr]['use_org_value'])
+                            && $currentAttributes[$oc][$attr]['use_org_value'];
 
                 print "&nbsp;&nbsp;&nbsp;&nbsp;"
                       . $this->Form->input($xname,
