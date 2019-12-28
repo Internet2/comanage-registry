@@ -935,23 +935,46 @@ class ProvisionerBehavior extends ModelBehavior {
     
     $args = array();
     $args['conditions']['CoGroup.id'] = $coGroupId;
-    $args['contain'] = array(
-      'Identifier'
-    );
+    $args['contain'] = array('Identifier');
     
     $group = $coGroupModel->find('first', $args);
     
-    if(!empty($group['CoGroup']['id']) && $coPersonId) {
-      $args = array();
-      $args['conditions']['CoPerson.id'] = $coPersonId;
-      $args['contain'] = array('CoGroupMember' => array('conditions' => array('co_group_id ' => $coGroupId)));
+    if(!empty($group['CoGroup']['id'])) {
+      if($coPersonId) {
+        $args = array();
+        $args['conditions']['CoPerson.id'] = $coPersonId;
+        $args['contain'] = array('CoGroupMember' => array('conditions' => array('co_group_id ' => $coGroupId)));
+        
+        $person = $coGroupModel->Co->CoPerson->find('first', $args);
+        
+        if(!empty($person)) {
+          // XXX Do we need to remove CoGroupMembers with invalid dates here?
+          // Need a test case...
+          $group['CoGroup'] = array_merge($group['CoGroup'], $person);
+        }
+      }
+
+      // Pulling Cluster information works similarly, but not identically, to marshallCoPersonData (below)
       
-      $person = $coGroupModel->Co->CoPerson->find('first', $args);
+      $clusterplugins = preg_grep('/.*Cluster$/', CakePlugin::loaded());
       
-      if(!empty($person)) {
-        // XXX Do we need to remove CoGroupMembers with invalid dates here?
-        // Need a test case...
-        $group['CoGroup'] = array_merge($group['CoGroup'], $person);
+      foreach($clusterplugins as $clusterplugin) {
+        // We use $cmPluginHasMany to determine which models to provision.
+        $clustermodel = $clusterplugin;
+        
+        $Cluster = ClassRegistry::init($clusterplugin.'.'.$clustermodel);
+        
+        if(!empty($Cluster->cmPluginHasMany['CoGroup'])) {
+          foreach($Cluster->cmPluginHasMany['CoGroup'] as $clustersubmodel) {
+            $coGroupModel->bindModel(array('hasMany' => array($clusterplugin.'.'.$clustersubmodel => array('dependent' => true))));
+            
+            $args = array();
+            $args['conditions'][$clustersubmodel.'.co_group_id'] = $coGroupId;
+            $args['contain'] = array($clustermodel => array('Cluster'));
+            
+            $group[$clustersubmodel] = $coGroupModel->$clustersubmodel->find('all', $args);
+          }
+        }
       }
     }
     
