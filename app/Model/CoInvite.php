@@ -155,7 +155,7 @@ class CoInvite extends AppModel {
             // Try to find the org identity associated with this invite
             
             $args = array();
-            $args['conditions']['CoOrgIdentityLink.co_person_id'] = $invite['CoPerson']['co_person_id'];
+            $args['conditions']['CoOrgIdentityLink.co_person_id'] = $invite['CoPerson']['id'];
             $args['conditions']['EmailAddress.mail'] = $invite['CoInvite']['mail'];
             $args['joins'][0]['table'] = 'cm_email_addresses';
             $args['joins'][0]['alias'] = 'EmailAddress';
