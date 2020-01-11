@@ -1460,6 +1460,8 @@ original notification at
   'fd.pi.match.type' => 'Match Field Type',
   'fd.pi.match.type.desc' => 'Required only for Identifier match strategy',
   'fd.pi.sync.add' => 'Sync on Add',
+  'fd.pi.sync.add.ef' => 'Enrollment Flow',
+  'fd.pi.sync.add.ef.desc' => 'Enrollment Flow to trigger on add action, see the <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Pipelines#RegistryPipelines-TriggeringEnrollmentFlowsFromPipelines">documentation</a> for more details',
   'fd.pi.sync.affil' => 'CO Person Role Affiliation',
   'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
   'fd.pi.sync.cou' => 'Sync to COU',

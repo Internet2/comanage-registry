@@ -910,7 +910,7 @@
     </div>
   </li>
   <?php endif; ?>
-  <?php if(!empty($vv_authenticators)): ?>
+  <?php if(!empty($vv_authenticators) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
   <li>
     <div class="field-name">
       <div class="field-title">

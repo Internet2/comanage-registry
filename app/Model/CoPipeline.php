@@ -35,6 +35,7 @@ class CoPipeline extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array(
     "Co",
+    "CoEnrollmentFlow",
     "MatchServer" => array(
       'className'  => 'Server',
       'foreignKey' => 'match_server_id'
@@ -135,8 +136,54 @@ class CoPipeline extends AppModel {
                                       StatusEnum::Suspended)),
       'required'   => false,
       'allowEmpty' => true
+    ),
+    'co_enrollment_flow_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
+  
+  /**
+   * Create a Petition using the specified Enrollment Flow.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int $enrollmentFlowId CO Enrollment Flow ID to create the Petition in
+   * @param  int $coPersonId       CO Person ID to attach as Enrollee CO Person
+   * @throws InvalidArgumentException
+   */
+  
+  public function createPetition($enrollmentFlowId, $coPersonId) {
+    // Pull the CO ID from the CO Person ID
+    $coId = $this->Co->CoPerson->field('co_id', array('CoPerson.id' => $coPersonId));
+    
+    if(!$coId) {
+      throw new InvalidArgumentException(_txt('er.notfound',
+                                              array(_txt('ct.co_people.1', $coPersonId))));
+    }
+    
+    $status = $this->Co->CoEnrollmentFlow->field('status', array('CoEnrollmentFlow.id' => $enrollmentFlowId));
+    
+    if($status != TemplateableStatusEnum::Active) {
+      throw new InvalidArgumentException(_txt('er.status.not', array(_txt('en.status.temp', null, TemplateableStatusEnum::Active))));
+    }
+    
+    // Initialize the petition
+    $coPetitionId = $this->Co->CoPetition->initialize($enrollmentFlowId,
+                                                      $coId,
+                                                      null,
+                                                      null);
+    
+    $this->Co->CoPetition->linkCoPerson($enrollmentFlowId, $coPetitionId, $coPersonId, null);
+
+    // Trigger the email confirmation
+
+    $this->Co->CoPetition->sendConfirmation($coPetitionId, null);
+
+    $this->Co->CoPetition->updateStatus($coPetitionId,
+                                        PetitionStatusEnum::PendingConfirmation,
+                                        null);
+  }
   
   /**
    * Execute a CO Pipeline. Note: This function should be called from within
@@ -189,6 +236,11 @@ class CoPipeline extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_pipelines.1'), $id)));
     }
     
+    // We shouldn't need to do this check, but just in case...
+    if($pipeline['CoPipeline']['co_id'] != $orgIdentity['OrgIdentity']['co_id']) {
+      throw new InvalidArgumentException(_txt('er.co.notmember'));
+    }
+    
     // See if we are configured for the requested action.
     
     if(($syncAction == SyncActionEnum::Add && !$pipeline['CoPipeline']['sync_on_add'])
@@ -238,6 +290,7 @@ class CoPipeline extends AppModel {
         'Url'
       );
       
+      // We did just pull OrgIdentity above, but now we need the associated models
       $orgIdentity = $this->Co->OrgIdentity->find('first', $args);
       
       if(!$orgIdentity) {
@@ -331,6 +384,10 @@ class CoPipeline extends AppModel {
         catch(Exception $e) {
           // For now ignore any failure
         }
+      }
+      
+      if($coPersonId && !empty($pipeline['CoPipeline']['co_enrollment_flow_id'])) {
+        $this->createPetition($pipeline['CoPipeline']['co_enrollment_flow_id'], $coPersonId);
       }
     }
   }
@@ -1016,12 +1073,18 @@ class CoPipeline extends AppModel {
         
         // For identifiers and email addresses, we want to skip availability checking
         // since we might be writing multiple versions of the same attribute (from
-        // different org identity sources). For email addresses, we also want to honor
-        // the verified status.
+        // different org identity sources).
+        
+        // For email addresses, we generally want to honor the verified status,
+        // *unless* we're configured to trigger an Enrollment Flow. In that
+        // case, we need an unverified email address for the confirmation to be
+        // sent.
+        
+        $trustVerified = empty($coPipeline['CoPipeline']['co_enrollment_flow_id']);
         
         if(!$model->save($nr, array("provision" => false,
                                     "skipAvailability" => true,
-                                    "trustVerified" => true))) {
+                                    "trustVerified" => $trustVerified))) {
           
           throw new RuntimeException(_txt('er.db.save-a',
                                           array($m . " (" . join(',', array_keys($model->validationErrors)). ")")));
