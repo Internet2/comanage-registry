@@ -99,7 +99,7 @@ class CoPipelinesController extends StandardController {
     $args = array();
     $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
     $args['conditions']['CoEnrollmentFlow.status'] = SuspendableStatusEnum::Active;
-    $args['conditions']['CoEnrollmentFlow.verify_email'] = true;
+    $args['conditions']['NOT']['CoEnrollmentFlow.email_verification_mode'] = VerificationModeEnum::None;
     $args['fields'] = array('id', 'name');
     $args['contain'] = false;
 

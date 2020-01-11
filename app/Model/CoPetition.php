@@ -3045,7 +3045,7 @@ class CoPetition extends AppModel {
         
         $dbc->commit();
       } else {
-        throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.org_identities.1')));
+        throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.org_identities.1'))));
       }
     }
   }
