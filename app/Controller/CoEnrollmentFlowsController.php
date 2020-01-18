@@ -103,17 +103,6 @@ class CoEnrollmentFlowsController extends StandardController {
         $this->set('vv_attributes_from_env', true);
       }
       
-      if(!$pool) {
-        // Pull the set of available pipelines. This is only possible for unpooled.
-        $args = array();
-        $args['conditions']['CoPipeline.status'] = SuspendableStatusEnum::Active;
-        $args['conditions']['CoPipeline.co_id'] = $this->cur_co['Co']['id'];
-        $args['fields'] = array('CoPipeline.id', 'CoPipeline.name');
-        $args['contain'] = false;
-        
-        $this->set('vv_co_pipelines', $this->CoEnrollmentFlow->CoPipeline->find('list', $args));
-      }
-      
       // Provide a list of org identity sources
       $args = array();
       $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];

@@ -75,7 +75,6 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'verification_template_id'
     ),
-    "CoPipeline",
     "CoTheme"
   );
   
@@ -134,11 +133,6 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'my_identity_shortcut' => array(
       'rule' => 'boolean'
-    ),
-    'co_pipeline_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
     ),
     'match_policy' => array(
       'rule' => array('inList',

@@ -312,7 +312,7 @@
       </div>
     </div>
   </li>
-  <?php if(!empty($vv_co_pipelines)): ?>
+  <?php if(false && !empty($vv_co_pipelines)): // CO-1381 this isn't implemented ?>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('default_co_pipeline_id',_txt('fd.pi.default'),array('class' => 'fieldTitle'));?></div>

@@ -51,7 +51,6 @@ class CoPipeline extends AppModel {
   );
   
   public $hasMany = array(
-    'CoEnrollmentFlow',
     'CoSetting' => array(
       'foreignKey' => 'default_co_pipeline_id'
     ),
@@ -149,11 +148,12 @@ class CoPipeline extends AppModel {
    *
    * @since  COmanage Registry v3.3.0
    * @param  int $enrollmentFlowId CO Enrollment Flow ID to create the Petition in
+   * @param  int $orgIdentityId    Org Identity ID to attach as Enrollee Org Identity
    * @param  int $coPersonId       CO Person ID to attach as Enrollee CO Person
    * @throws InvalidArgumentException
    */
   
-  public function createPetition($enrollmentFlowId, $coPersonId) {
+  public function createPetition($enrollmentFlowId, $orgIdentityId, $coPersonId) {
     // Pull the CO ID from the CO Person ID
     $coId = $this->Co->CoPerson->field('co_id', array('CoPerson.id' => $coPersonId));
     
@@ -173,6 +173,8 @@ class CoPipeline extends AppModel {
                                                       $coId,
                                                       null,
                                                       null);
+    
+    $this->Co->CoPetition->linkOrgIdentity($enrollmentFlowId, $coPetitionId, $orgIdentityId, null);
     
     $this->Co->CoPetition->linkCoPerson($enrollmentFlowId, $coPetitionId, $coPersonId, null);
 
@@ -387,7 +389,9 @@ class CoPipeline extends AppModel {
       }
       
       if($coPersonId && !empty($pipeline['CoPipeline']['co_enrollment_flow_id'])) {
-        $this->createPetition($pipeline['CoPipeline']['co_enrollment_flow_id'], $coPersonId);
+        $this->createPetition($pipeline['CoPipeline']['co_enrollment_flow_id'],
+                              $orgIdentity['OrgIdentity']['id'],
+                              $coPersonId);
       }
     }
   }

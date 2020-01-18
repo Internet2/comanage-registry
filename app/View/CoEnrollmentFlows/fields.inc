@@ -336,37 +336,6 @@
                    : ($co_enrollment_flows[0]['CoEnrollmentFlow']['my_identity_shortcut'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
     </div>
   </li>
-  <?php if(!empty($vv_co_pipelines)): ?>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
-      </div>
-      <div class="field-desc"><?php print _txt('fd.pipeline.desc.ef'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php
-        global $cm_lang, $cm_texts;
-        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'])
-                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id']
-                           : '');
-        $attrs['empty'] = true;
-
-        if($e) {
-          print $this->Form->select('co_pipeline_id',
-                                    $vv_co_pipelines,
-                                    $attrs);
-
-          if($this->Form->isFieldError('co_pipeline_id')) {
-            print $this->Form->error('co_pipeline_id');
-          }
-        } else {
-          print $vv_co_pipelines[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'] ];
-        }
-      ?>
-    </div>
-  </li>
-  <?php endif; // vv_co_pipelines ?>
   <li>
     <div class="field-name">
       <div class="field-title">
