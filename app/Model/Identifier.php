@@ -403,9 +403,15 @@ class Identifier extends AppModel {
   public function search($coId, $q) {
     $args = array();
     $args['conditions']['Identifier.identifier'] = $q;
-    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['conditions']['OR'] = array(
+      'CoPerson.co_id' => $coId,
+      'CoGroup.co_id' => $coId
+    );
     $args['order'] = array('Identifier.identifier');
-    $args['contain']['CoPerson'] = 'PrimaryName';
+    $args['contain'] = array(
+      'CoGroup',
+      'CoPerson' => 'PrimaryName'
+    );
     
     return $this->find('all', $args);
   }

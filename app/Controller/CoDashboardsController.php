@@ -308,48 +308,48 @@ class CoDashboardsController extends StandardController {
       
       $models = array(
         'Address' => array(
-          'parent' => 'CoPersonRole',
+          'parent' => array('CoPersonRole'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         'CoDepartment' => array(
-          'parent' => 'Co',
+          'parent' => array('Co'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin', 'comember')
         ),
         'CoEmailList' => array(
-          'parent' => 'Co',
+          'parent' => array('Co'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         'CoEnrollmentFlow' => array(
-          'parent' => 'Co',
+          'parent' => array('Co'),
           'roles' => array('cmadmin', 'coadmin')
         ),
         'CoGroup' => array(
-          'parent' => 'Co',
+          'parent' => array('Co'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin', 'comember')
         ),
         'CoPersonRole' => array(
-          'parent' => 'CoPreson',
+          'parent' => array('CoPreson'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         // CoService does not allow comember since portals may be constrained by cou
         'CoService' => array(
-          'parent' => 'Co',
+          'parent' => array('Co'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         'EmailAddress' => array(
-          'parent' => 'CoPerson',
+          'parent' => array('CoPerson'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         'Identifier' => array(
-          'parent' => 'CoPerson',
+          'parent' => array('CoGroup', 'CoPerson'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         'Name' => array(
-          'parent' => 'CoPerson',
+          'parent' => array('CoPerson'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
         'TelephoneNumber' => array(
-          'parent' => 'CoPersonRole',
+          'parent' => array('CoPersonRole'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         )
       );
@@ -368,7 +368,7 @@ class CoDashboardsController extends StandardController {
             $models[$pmodel] = array(
               // Hardcoding parent probably isn't right, but it covers our
               // immediate use case (filtering duplicate search results)
-              'parent' => 'Co',
+              'parent' => array('Co'),
               'roles' => $pcfg['permissions']
             );
             $pdisplay[$pmodel] = $pcfg['displayField'];
@@ -418,26 +418,29 @@ class CoDashboardsController extends StandardController {
       // For models with a parent of CO, we just need a count
       'Co' => 0,
       // Otherwise we need to track which IDs we've seen
+      'CoGroup' => array(),
       'CoPerson' => array(),
       'CoPersonRole' => array()
     );
     
     foreach(array_keys($models) as $m) {
-      $p = $models[$m]['parent'];
-      
-      if($p == 'Co') {
-        $c[$p] += count($results[$m]);
-      } elseif($p == 'CoPerson') {
-        $c['CoPerson'] = array_filter(array_unique(array_merge($c['CoPerson'], Hash::extract($results, $m.'.{n}.'.$m.'.co_person_id'))));
-      } else {
-        $c['CoPersonRole'] = array_filter(array_unique(array_merge($c['CoPersonRole'], Hash::extract($results, $m.'.{n}.'.$m.'.co_person_role_id'))));
+      foreach($models[$m]['parent'] as $p) {
+        if($p == 'Co') {
+          $c[$p] += count($results[$m]);
+        } elseif($p == 'CoGroup') {
+          $c['CoGroup'] = array_filter(array_unique(array_merge($c['CoGroup'], Hash::extract($results, $m.'.{n}.'.$m.'.co_group_id'))));
+        } elseif($p == 'CoPerson') {
+          $c['CoPerson'] = array_filter(array_unique(array_merge($c['CoPerson'], Hash::extract($results, $m.'.{n}.'.$m.'.co_person_id'))));
+        } else {
+          $c['CoPersonRole'] = array_filter(array_unique(array_merge($c['CoPersonRole'], Hash::extract($results, $m.'.{n}.'.$m.'.co_person_role_id'))));
+        }
       }
     }
     
     // It's a single match if there is a single person or person role result,
     // or if there is a single result overall, redirect to that result.
-    if(($c['Co'] == 0 && (count($c['CoPerson']) + count($c['CoPersonRole']) == 1))
-       || $c['Co'] == 1 && (count($c['CoPerson']) + count($c['CoPersonRole']) == 0)) {
+    if(($c['Co'] == 0 && (count($c['CoPerson']) + count($c['CoPersonRole']) + count($c['CoGroup'])) == 1)
+       || ($c['Co'] == 1 && (count($c['CoPerson']) + count($c['CoPersonRole']) + count($c['CoGroup'])) == 0)) {
       $matches = Hash::extract($results, '{s}.{n}');
       $match = Hash::get($matches, '0');
       
