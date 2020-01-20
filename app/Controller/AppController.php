@@ -1300,27 +1300,35 @@ class AppController extends Controller {
     if(!$coid) {
       $coid = -1;
       
-      // Only certain actions are permitted to explicitly provide a CO ID
-      // XXX Note that CoExtendedTypesController, CoDashboardsController, and others override
-      // this function to support addDefaults. It might be better just to allow controllers
-      // to specify a list.
-      if($this->action == 'index'
-         || $this->action == 'find'
-         || $this->action == 'search'
-         // Add and select operations only when attached directly to a CO (otherwise we need
-         // to pull the CO ID from the object being attached to, eg co person).
-         ||
-         (isset($model->Co)
-          && ($this->action == 'select' || $this->action == 'add'))) {
-        if(isset($this->params['named']['co'])) {
-          $coid = $this->params['named']['co'];
+      if($this->request->is('restful')) {
+        $coid = $this->Api->requestedCOID($model, $this->request);
+        
+        if(!$coid) {
+          $coid = -1;
         }
-        // CO ID can be passed via a form submission
-        elseif($this->action != 'index') {
-          if(isset($this->request->data['Co']['id'])) {
-            $coid = $this->request->data['Co']['id'];
-          } elseif(isset($this->request->data[$req]['co_id'])) {
-            $coid = $this->request->data[$req]['co_id'];
+      } else {
+        // Only certain actions are permitted to explicitly provide a CO ID
+        // XXX Note that CoExtendedTypesController, CoDashboardsController, and others override
+        // this function to support addDefaults. It might be better just to allow controllers
+        // to specify a list.
+        if($this->action == 'index'
+           || $this->action == 'find'
+           || $this->action == 'search'
+           // Add and select operations only when attached directly to a CO (otherwise we need
+           // to pull the CO ID from the object being attached to, eg co person).
+           ||
+           (isset($model->Co)
+            && ($this->action == 'select' || $this->action == 'add'))) {
+          if(isset($this->params['named']['co'])) {
+            $coid = $this->params['named']['co'];
+          }
+          // CO ID can be passed via a form submission
+          elseif($this->action != 'index') {
+            if(isset($this->request->data['Co']['id'])) {
+              $coid = $this->request->data['Co']['id'];
+            } elseif(isset($this->request->data[$req]['co_id'])) {
+              $coid = $this->request->data[$req]['co_id'];
+            }
           }
         }
       }
