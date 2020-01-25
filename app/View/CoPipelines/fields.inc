@@ -137,6 +137,12 @@
     
     // And replace with the key/value pairs for the current model
     if(curmodel !== '') {
+      if(curmodel == 'EmailAddress') {
+        // EmailAddress allows an empty value, unlike Identifier
+        $('#CoPipelineMatchType').append($("<option></option>")
+          .attr("value", "").text(""));
+      }
+      
       $.each(options[curmodel], function(key, value) {
         $('#CoPipelineMatchType').append($("<option></option>")
           .attr("value", value).text(key));

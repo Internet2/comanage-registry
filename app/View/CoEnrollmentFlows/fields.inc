@@ -172,13 +172,16 @@
       $("#CoEnrollmentFlowFinalizationTemplateId").closest("li").hide('fade');
     }
     
-    // If Establish Authenticators is enabled, show the available authenticators
+    // If Establish Authenticators is enabled, show the available authenticators.
+    // Note during add, Authenticators are not yet available for configuration.
     
+    <?php if(!empty($vv_authenticators) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
     if(document.getElementById('CoEnrollmentFlowEstablishAuthenticators').checked) {
       $("#authenticators").show('fade');
     } else {
       $("#authenticators").hide('fade');
     }
+    <?php endif; // $vv_authenticators ?>
   }
   
   function tandc_update_gadgets() {
