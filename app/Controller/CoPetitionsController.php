@@ -2234,7 +2234,10 @@ class CoPetitionsController extends StandardController {
       // Only the enrollee can (currently) set up their authenticators. This requires
       // email confirmation to be enabled so that enrollee_token gets set. (Trying to
       // allow petitioner_token as well becomes complicated.)
-      $p['establishAuthenticators'] = $isEnrollee;
+      // Note however that we also need to allow this step to run if no authenticators
+      // are defined, in order to skip it if email confirmation is not in use (CO-1834).
+      // This sort of crazy logic could probably be removed when CO-1663 is addressed.
+      $p['establishAuthenticators'] = $isEnrollee || ($steps['establishAuthenticators']['enabled'] == RequiredEnum::NotPermitted);
       // Authenticator Plugin steps for establishAuthenticators get the same permissions
       $p['establishAuthenticator'] = $p['establishAuthenticators'];
       // Approval steps could be triggered by petitioner or enrollee, according to configuration
