@@ -576,13 +576,27 @@ class OrgIdentitySource extends AppModel {
       }
     }
     
-    // Inject a SORID
-    $ret['orgidentity']['Identifier'][] = array(
-      'identifier' => $key,
-      'type'       => IdentifierEnum::SORID,
-      'status'     => StatusEnum::Active,
-      'login'      => false
-    );
+    // Inject a SORID if the backend has not already.
+    $existing = false;
+    if(!empty($ret['orgidentity']['Identifier'])) {
+      foreach($ret['orgidentity']['Identifier'] as $id) {
+        if(($id['type'] == IdentifierEnum::SORID)
+           && ($id['identifier'] == $key)
+           && ($id['status'] == StatusEnum::Active)) {
+          $existing = true;
+          break;
+        }
+      }
+    }
+    
+    if(!$existing) {
+      $ret['orgidentity']['Identifier'][] = array(
+        'identifier' => $key,
+        'type'       => IdentifierEnum::SORID,
+        'status'     => StatusEnum::Active,
+        'login'      => false
+      );
+    }
     
     return $ret;
   }
