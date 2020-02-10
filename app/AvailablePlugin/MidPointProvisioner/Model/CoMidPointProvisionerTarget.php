@@ -282,12 +282,21 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
    * @param array $provisioningData CO Person provisioning data
    *
    * @return array Array representing how a midPoint user should be provisioned
+   *
+   * @throws RuntimeException When the name of the midPoint user cannot be determined.
    */
   public function calcUser($coProvisioningTargetData, $provisioningData) {
     $user = array();
 
     // midPoint user name
     $user['user']['name'] = $this->getUserName($coProvisioningTargetData, $provisioningData);
+
+    // throw exception if unable to determine MidPoint name
+    if (empty($user['user']['name'])) {
+      $msg = "MidPointProvisioner unable to determine user name for CoPerson " . $provisioningData['CoPerson']['id'];
+      $this->log($msg);
+      throw new RuntimeException($msg);
+    }
 
     // midPoint user Lifecycle State
     // TODO status $user['user']['status'] = $provisioningData['CoPerson']['status'];
