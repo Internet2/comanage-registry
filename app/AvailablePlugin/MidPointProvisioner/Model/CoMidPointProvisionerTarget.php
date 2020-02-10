@@ -137,7 +137,14 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     // Save MidPoint identifier
-    return $this->saveIdentifier($coProvisioningTargetData, $provisioningData, $oid);
+    $id = $this->saveIdentifier($coProvisioningTargetData, $provisioningData, $oid);
+
+    // Return false if unable to save MidPoint identifier
+    if (empty($id)) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -154,7 +161,11 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     // Find MidPoint identifier
     $oid = $this->findIdentifier($coProvisioningTargetData, $provisioningData);
 
-    // TODO Handle OID not found
+    // Return false if unable to find MidPoint user
+    if (empty($oid)) {
+      // TODO unable to find user
+      return false;
+    }
 
     // Connect to MidPoint
     $api = new MidPointRestApiClient($coProvisioningTargetData['CoMidPointProvisionerTarget']['server_id']);
@@ -474,9 +485,9 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
    *
    * @param array $coProvisioningTargetData CO provisioning target data
    * @param array $provisioningData CO Person provisioning data
-   * @param $oid String MidPoint user identifier (OID)
+   * @param String $oid MidPoint user identifier (OID)
    *
-   * @return boolean true if identifier was saved successfully, false otherwise
+   * @return Integer Identifier ID of saved record
    */
   public function saveIdentifier($coProvisioningTargetData, $provisioningData, $oid) {
     $args = array(
@@ -491,6 +502,8 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     );
 
     $this->CoProvisioningTarget->Co->CoPerson->Identifier->clear();
-    return $this->CoProvisioningTarget->Co->CoPerson->Identifier->save($args, array('provision' => false));
+    $this->CoProvisioningTarget->Co->CoPerson->Identifier->save($args, array('provision' => false));
+
+    return $this->CoProvisioningTarget->Co->CoPerson->Identifier->id;
   }
 }
