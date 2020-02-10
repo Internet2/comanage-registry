@@ -111,7 +111,7 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
 
     // Archive user if user should not be provisioned but is already provisioned
     if (!$provisionable and $provisioned) {
-      // TODO return $this->deleteUser($coProvisioningTargetData, $provisioningData);
+      return $this->deleteUser($coProvisioningTargetData, $provisioningData);
     }
 
     // Nothing to do
