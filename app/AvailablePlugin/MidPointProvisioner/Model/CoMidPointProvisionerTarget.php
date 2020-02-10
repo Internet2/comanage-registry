@@ -126,7 +126,7 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     $user = $this->calcUser($coProvisioningTargetData, $provisioningData);
 
     // Connect to MidPoint
-    $api = new MidPointRestApiClient($coProvisioningTargetData);
+    $api = new MidPointRestApiClient($coProvisioningTargetData['CoMidPointProvisionerTarget']['server_id']);
 
     // Create MidPoint user
     $oid = $api->createUserFromArray($user);
@@ -157,7 +157,7 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     // TODO Handle OID not found
 
     // Connect to MidPoint
-    $api = new MidPointRestApiClient($coProvisioningTargetData);
+    $api = new MidPointRestApiClient($coProvisioningTargetData['CoMidPointProvisionerTarget']['server_id']);
 
     // Delete MidPoint user
     if ($api->deleteUser($oid)) {
@@ -190,7 +190,7 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     // Connect to MidPoint
-    $api = new MidPointRestApiClient($coProvisioningTargetData);
+    $api = new MidPointRestApiClient($coProvisioningTargetData['CoMidPointProvisionerTarget']['server_id']);
 
     // Get user from MidPoint
     $actualUser = $api->getUser($oid);
