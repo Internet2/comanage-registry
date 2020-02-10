@@ -60,8 +60,7 @@ class MidPointRestApiClient extends CakeObject {
 
     // TODO validate username and password ?
 
-    // Pull the Server config
-    $Server = new Server();
+    $Server = ClassRegistry::init('Server');
 
     $args = array();
     $args['conditions']['Server.id'] = $this->serverId;
