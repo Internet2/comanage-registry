@@ -60,11 +60,9 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
   );
 
   public function provision($coProvisioningTargetData, $op, $provisioningData) {
-    if (Configure::read('debug')) {
-      $this->log("CoMidPointProvisioningTarget provision op=$op ***************************", 'debug');
-      $this->log('CoMidPointProvisionerTarget provision $coProvisioningTargetData ' . var_export($coProvisioningTargetData, true), 'debug');
-      $this->log('CoMidPointProvisionerTarget provision $provisioningData ' . var_export($provisioningData, true), 'debug');
-    }
+    $this->log("MidPointProvisioner provisioning action $op", 'debug');
+    // TODO $this->log('CoMidPointProvisionerTarget provision $coProvisioningTargetData ' . var_export($coProvisioningTargetData, true), 'debug');
+    // TODO $this->log('CoMidPointProvisionerTarget provision $provisioningData ' . var_export($provisioningData, true), 'debug');
 
     switch ($op) {
       case ProvisioningActionEnum::CoPersonReprovisionRequested:
@@ -109,6 +107,7 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     // Nothing to do
+    $this->log("MidPointProvisioner nothing to do", 'debug');
     return true;
   }
 
@@ -225,9 +224,11 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
         StatusEnum::Active,
         StatusEnum::GracePeriod
       ))) {
+      $this->log("MidPointProvisioner user is provisionable", 'debug');
       return true;
     }
 
+    $this->log("MidPointProvisioner user is not provisionable", 'debug');
     return false;
   }
 
@@ -245,11 +246,13 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
 
     // Return true if OID was found
     if (!empty($oid)) {
+      $this->log("MidPointProvisioner user is provisioned", 'debug');
       return true;
     }
 
     // TODO Get or search MidPoint for user ?
 
+    $this->log("MidPointProvisioner user is not provisioned", 'debug');
     return false;
   }
 
@@ -415,10 +418,7 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
       $mods['delete'] = $toDelete;
     }
 
-    if (Configure::read('debug')) {
-      $msg = "CoMidPointProvisionerTarget user modifications " . var_export($mods, true);
-      $this->log($msg, 'debug');
-    }
+    $this->log("MidPointProvisioner user modifications " . var_export($mods, true), 'debug');
 
     return $mods;
   }
