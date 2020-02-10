@@ -5,11 +5,15 @@ App::uses('MidPointRestApiClient', 'MidPointProvisioner.Lib');
 class MidPointRestApiClientTest extends CakeTestCase {
 
   public $fixtures = array(
-    'app.HttpServer'
+    'app.Server',
+    'app.HttpServer',
   );
 
   /** @var HttpServer id */
-  public $serverId = '1';
+  public $serverId = '2';
+
+  /** @var MidPoint Server IP address */
+  public $serverIP = '172.18.0.5';
 
   /** @var MidPointRestApiClient $api */
   public $api;
@@ -72,6 +76,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
    */
   public function setUp() {
     parent::setUp();
+    $this->createTestServer($this->serverId, $this->serverIP);
     $this->api = new MidPointRestApiClient($this->serverId);
   }
 
@@ -84,6 +89,40 @@ class MidPointRestApiClientTest extends CakeTestCase {
       $this->deleteUser($oid);
     }
     parent::tearDown();
+  }
+
+  /**
+   * Create test server configuration.
+   *
+   * @param $serverId server ID
+   * @param $serverIP server IP address
+   */
+  public function createTestServer($serverId, $serverIP) {
+    $serverData = array(
+      'Server' => array(
+        'id' => $serverId,
+        'co_id' => '2',
+        'description' => 'Test HTTP Server',
+        'server_type' => ServerEnum::HttpServer,
+        'status' => StatusEnum::Active
+      )
+    );
+    $Server = ClassRegistry::init('Server');
+    $Server->save($serverData);
+
+    $httpServerData = array(
+      'HttpServer' => array(
+        'server_id' => $serverId,
+        'serverurl' => "https://$serverIP/midpoint",
+        'username' => 'Administrator',
+        'password' => '5ecr3t',
+        'ssl_allow_self_signed' => true,
+        'ssl_verify_peer' => false,
+        'ssl_verify_peer_name' => false,
+      )
+    );
+    $HttpServer = ClassRegistry::init('HttpServer');
+    $HttpServer->save($httpServerData);
   }
 
   public function testBuildUserXml() {
