@@ -61,8 +61,6 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
 
   public function provision($coProvisioningTargetData, $op, $provisioningData) {
     $this->log("MidPointProvisioner provisioning action $op", 'debug');
-    // TODO $this->log('CoMidPointProvisionerTarget provision $coProvisioningTargetData ' . var_export($coProvisioningTargetData, true), 'debug');
-    // TODO $this->log('CoMidPointProvisionerTarget provision $provisioningData ' . var_export($provisioningData, true), 'debug');
 
     switch ($op) {
       case ProvisioningActionEnum::CoPersonAdded:
