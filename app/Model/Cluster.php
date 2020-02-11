@@ -176,7 +176,7 @@ class Cluster extends AppModel {
     }
     
 // XXX do we need to maybe fire provisioning (as per Identifier::assign?)
-// XXX do we need $actorCoPersonId?
+// note enrollment flows will fire provisioning after this function is called
 
     return $ret;
   }
