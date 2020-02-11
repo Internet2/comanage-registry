@@ -1002,7 +1002,7 @@
     </div>
   </li>
   <?php endif; // vv_authenticators ?>
-  <?php if(!empty($vv_clusters)): ?>
+  <?php if(!empty($vv_clusters) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
   <li>
     <div class="field-name">
       <div class="field-title">

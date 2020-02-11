@@ -1393,7 +1393,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // both STRUCTURAL, which means the LDAP server will complain
     if($this->data['CoLdapProvisionerTarget']['oc_groupofnames']
        && $this->data['CoLdapProvisionerTarget']['oc_posixgroup']) {
-      throw new InvalidArgumentException(_txt('er.unixcluster.oc.conflict'));
+      throw new InvalidArgumentException(_txt('er.ldapprovisioner.oc.conflict', array('groupOfNames', 'posixGroup')));
     }
   }
   
