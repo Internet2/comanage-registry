@@ -36,8 +36,10 @@ class UpgradeVersionShell extends AppShell {
                     'CoExtendedType',
                     'CoGroup',
                     'CoIdentifierAssignment',
+                    'CoJob',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'Identifier',
+                    'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
   
   // A list of known versions, must be semantic versioning compliant. The value
@@ -436,5 +438,13 @@ class UpgradeVersionShell extends AppShell {
       ),
       true
     );
+
+    // Resize SshKey type column
+    $this->out(_txt('sh.ug.330.ssh.key'));
+    $this->SshKey->_ug330();
+
+    // Resize CoJob job_type column
+    $this->out(_txt('sh.ug.330.cojob'));
+    $this->CoJob->_ug330();
   }
 }
