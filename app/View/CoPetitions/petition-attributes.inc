@@ -123,6 +123,10 @@
     $("#dialog-review").dialog({
       autoOpen: false,
       modal: true,
+      draggable: true,
+      resizable: true,
+      width: document.documentElement.clientWidth * 0.8,
+      height: document.documentElement.clientHeight * 0.8,
       buttons: {
         "<?php print _txt('op.ok'); ?>": function() {
           $(this).dialog("close");

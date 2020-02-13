@@ -97,9 +97,6 @@
   #content {
     padding: 1em;
   }
-  #dialog-review {
-    height: 500px !important; /* mobile size */
-  }
   /* CO PEOPLE */
   #co_people .rolestatus {
     float: right !important;
@@ -176,9 +173,6 @@
   }
   .modelbox-data-label {
     width: 120px;
-  }
-  #dialog-review {
-    height: auto !important; /* desktop size */
   }
   #ui-datepicker-div {
     left: 30% !important;
