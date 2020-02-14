@@ -302,9 +302,7 @@ body.logged-in #user-menu {
 #user-panel #user-panel-flows {
   column-count: 2;
 }
-#user-panel #user-panel-flows,
-#user-panel #user-panel-invite,
-#user-panel #panel-orgid {
+#user-panel ul.user-panel-list {
   margin-top: 0;
 }
 /* NOTIFICATIONS */
@@ -433,9 +431,7 @@ form#notificationStatus {
   font-weight: bold;
 }
 .noty_icon{
-  display: inline-block !important;
-  position: relative;
-  top: 3px;
+  margin-right: 4px;
 }
 .warbg{
   background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_826262_256x240.png") !important;
@@ -466,6 +462,7 @@ form#notificationStatus {
 }
 #lastLogin p {
   margin-bottom: 0;
+  clear: both;
 }
 #content .co-info-topbox .material-icons {
   color: #53b1f4;

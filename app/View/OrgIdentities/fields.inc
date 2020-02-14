@@ -42,14 +42,16 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $args = array();
-  $args['plugin'] = null;
-  $args['controller'] = 'org_identities';
-  $args['action'] = 'index';
-  if(!$pool_org_identities) {
-    $args['co'] = $cur_co['Co']['id'];
+  if($permissions['index']) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if (!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
   }
-  $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
   $this->Html->addCrumb(_txt('ct.org_identities.1'));
 
   if($e)

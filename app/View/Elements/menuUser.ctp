@@ -198,7 +198,7 @@
             if(!empty($menuContent['flows']) && ($permissions['menu']['createpetition'] || $permissions['menu']['invite'])) {
               print '<div id="user-panel-flows-container">';
               print '<h2>' . _txt('me.flows') . '</h2>';
-              print '<ul id="user-panel-flows">';
+              print '<ul id="user-panel-flows" class="user-panel-list">';
               foreach($menuContent['flows'] as $flow) {
                 print '<li>';
                 print $this->Html->link(filter_var($flow['CoEnrollmentFlow']['name'], FILTER_SANITIZE_SPECIAL_CHARS),
@@ -229,7 +229,7 @@
           if($userPluginsExist) {
             print '<div id="user-panel-plugins-container">';
             print '<h2>' . _txt('me.plugins') . '</h2>';
-            print '<ul id="user-panel-plugins">';
+            print '<ul id="user-panel-plugins" class="user-panel-list">';
             foreach(array_keys($menuContent['plugins']) as $plugin) {
               if(isset($menuContent['plugins'][$plugin]['coperson'])) {
                 foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
@@ -265,7 +265,7 @@
         <div id="panel-orgid-container">
           <h2><?php print _txt('me.orgids'); ?></h2>
           <!-- Org Identity Data -->
-          <ul id="panel-orgid">
+          <ul id="panel-orgid" class="user-panel-list">
             <?php foreach($menuContent['orgIDs'] as $orgID): ?>
               <li class="panel-orgid-ids">
                 <?php if(!empty($orgID['orgName'])): ?>
