@@ -1297,6 +1297,10 @@ class CoPetitionsController extends StandardController {
   protected function execute_petitionerAttributes($id) {
     // When this is called, it's just a GET to render the form. POST processing is
     // handled by petitionerAttributes(), which doesn't call dispatch() on POST.
+    $conclusionText = $this->CoPetition->CoEnrollmentFlow->field('conclusion_text', array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    if(!empty($conclusionText)) {
+      $this->set('vv_conclusion_text', $conclusionText);
+    }
   }
   
   /**
