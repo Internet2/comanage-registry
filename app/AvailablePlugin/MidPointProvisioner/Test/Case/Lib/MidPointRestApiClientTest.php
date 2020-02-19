@@ -13,7 +13,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
   public $serverId = '2';
 
   /** @var MidPoint Server IP address */
-  public $serverIP = '172.18.0.5';
+  public $serverIP = '127.0.0.1';
 
   /** @var MidPointRestApiClient $api */
   public $api;
