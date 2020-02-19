@@ -17,6 +17,8 @@ class CoMidPointProvisionerTargetTest extends CakeTestCase {
     'app.CoExtendedType',
     'app.CoGroup',
     'app.CoGroupMember',
+    'app.CoGroupNesting',
+    'app.CoIdentifierAssignment',
     'app.CoIdentifierValidator',
     'app.CoNotification',
     'app.CoOrgIdentityLink',
@@ -36,9 +38,10 @@ class CoMidPointProvisionerTargetTest extends CakeTestCase {
     'app.OrgIdentity',
     'app.OrgIdentitySourceRecord',
     'app.Server',
-    'app.SshKey',
     'app.TelephoneNumber',
     'app.Url',
+    'plugin.SshKeyAuthenticator.SshKey',
+    'plugin.SshKeyAuthenticator.SshKeyAuthenticator',
   );
 
   /** @var String ID of test CO */
