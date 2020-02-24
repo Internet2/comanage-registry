@@ -154,7 +154,7 @@ class ClustersController extends StandardController {
     // data to figure out which type of Plugin we should bind).
     
     foreach(array_values($plugins) as $plugin) {
-      $this->Cluster->bindModel(array('hasOne' => array($plugin => array('dependent' => true))));
+      $this->Cluster->bindModel(array('hasOne' => array($plugin => array('dependent' => true))), false);
       
       $this->delete_contains[] = $plugin;
       $this->edit_contains[] = $plugin;

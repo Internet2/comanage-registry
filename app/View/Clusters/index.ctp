@@ -74,7 +74,7 @@
           print $this->Html->link(
             $c['Cluster']['description'],
             array(
-              'controller' => 'accounts',
+              'controller' => 'clusters',
               'action' => (($permissions['edit'])
                            ? 'edit'
                            : ($permissions['view'] ? 'view' : '')),
