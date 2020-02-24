@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Password Authenticator Enumerations
+ * COmanage Registry Password Authenticator Routes
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -20,22 +20,11 @@
  * limitations under the License.
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
- * @since         COmanage Registry v3.1.0
+ * @package       registry-plugin
+ * @since         COmanage Registry v3.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class PasswordEncodingEnum
-{
-  const Crypt    = 'CR';    // Crypt/bcrypt/etc as implemented by php's password_hash
-  const External = 'EX';    // Externally defined (ie: managed outside of Registry)
-  const Plain    = 'NO';    // Not hashed
-  const SSHA     = 'SH';    // Salted SHA 1 as intended for LDAP
-}
-
-class PasswordAuthPasswordSourceEnum
-{
-  const AutoGenerate = 'AG';
-  const External     = 'EX'; // XXX ie: set over API
-  const SelfSelect   = 'SL';
-}
+Router::mapResources(array(
+  'PasswordAuthenticator.passwords',
+));
