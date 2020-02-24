@@ -40,7 +40,63 @@
   print $this->Form->hidden('authenticator_id', array('default' => $vv_authid)) . "\n";
 
 ?>
+<script type="text/javascript">
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    var source = document.getElementById('PasswordAuthenticatorPasswordSource').value;
+    
+    if(source == "<?php print PasswordAuthPasswordSourceEnum::AutoGenerate; ?>") {
+      $("#PasswordAuthenticatorMaxLength").closest("li").show('fade');
+      $("#PasswordAuthenticatorMinLength").closest("li").hide('fade');
+      $("#crypt_checkbox").show('fade');
+      $("#crypt_text").hide('fade');
+    } else if(source == "<?php print PasswordAuthPasswordSourceEnum::External; ?>") {
+      $("#PasswordAuthenticatorMaxLength").closest("li").hide('fade');
+      $("#PasswordAuthenticatorMinLength").closest("li").hide('fade');
+      $("#crypt_checkbox").show('fade');
+      $("#crypt_text").hide('fade');
+    } else {
+      $("#PasswordAuthenticatorMaxLength").closest("li").show('fade');
+      $("#PasswordAuthenticatorMinLength").closest("li").show('fade');
+      $("#crypt_checkbox").hide('fade');
+      $("#crypt_text").show('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+</script>
 <ul id="<?php print $this->action; ?>_password_authenticator" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print $this->Form->label('password_source',_txt('pl.passwordauthenticator.password_source'),array('class' => 'fieldTitle'));?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($password_authenticators[0]['PasswordAuthenticator']['password_source'])
+                           ? $password_authenticators[0]['PasswordAuthenticator']['password_source']
+                           : PasswordAuthPasswordSourceEnum::SelfSelect);
+        $attrs['empty'] = false;
+        $attrs['onChange'] = 'fields_update_gadgets()';
+        
+        if($e) {
+          print $this->Form->select('password_source',
+                                    $cm_texts[ $cm_lang ]['en.passwordauthenticator.password_source'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('password_source')) {
+            print $this->Form->error('password_source');
+          }
+        } else {
+          print _txt('en.passwordauthenticator.password_source', null, $password_authenticators[0]['PasswordAuthenticator']['password_source']);
+        }
+      ?>
+    </div>
+  </li>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print _txt('pl.passwordauthenticator.minlen'); ?></div>
@@ -65,10 +121,15 @@
       <div class="field-desc"><?php print _txt('pl.passwordauthenticator.hash.crypt.desc'); ?></div>
     </div>
     <div class="field-info">
+      <div id="crypt_checkbox">
       <?php
-        // Crypt format is currently required since that's what we use during password change
-        if($e) print $this->Form->input('format_crypt_php', array('checked' => true, 'disabled' => true));
+        // Crypt format is required for SelfSelect since that's what we use during password change
+        if($e) print $this->Form->input('format_crypt_php');
       ?>
+      </div>
+      <div id="crypt_text">
+        <?php print _txt('fd.yes'); ?>
+      </div>
     </div>
   </li>
   <li>

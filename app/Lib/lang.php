@@ -1785,6 +1785,7 @@ original notification at
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',
   'op.first' => 'First',
+  'op.generate' => 'Generate',
   'op.go' => 'go',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.gr.reconcile' => 'Reconcile',
@@ -2129,6 +2130,7 @@ original notification at
   'sh.ug.330.api' =>      'Updating API User Permissions',
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
   'sh.ug.330.users' =>    'Dropping users View',
+  'sh.ug.340.password' => 'Updating Password Sources'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

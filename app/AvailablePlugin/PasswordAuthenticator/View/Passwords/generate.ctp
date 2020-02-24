@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Password Authenticator Enumerations
+ * COmanage Registry Passwords Generate View
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,21 +21,30 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.1.0
+ * @since         COmanage Registry v3.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+  
+  $params = array('title' => _txt('pl.passwordauthenticator.token.gen'));
+  print $this->element("pageTitle", $params);
 
-class PasswordEncodingEnum
-{
-  const Crypt    = 'CR';    // Crypt/bcrypt/etc as implemented by php's password_hash
-  const External = 'EX';    // Externally defined (ie: managed outside of Registry)
-  const Plain    = 'NO';    // Not hashed
-  const SSHA     = 'SH';    // Salted SHA 1 as intended for LDAP
-}
+  // Add breadcrumbs
+  print $this->element("coCrumb", array('authenticator' => 'Password'));
+?>
+<div class="ui-state-highlight ui-corner-all co-info-topbox">
+  <span class="ui-icon ui-icon-info co-info"></span>
+  <strong><?php print _txt('pl.passwordauthenticator.password.info'); ?></strong>
+</div>
 
-class PasswordAuthPasswordSourceEnum
-{
-  const AutoGenerate = 'AG';
-  const External     = 'EX'; // XXX ie: set over API
-  const SelfSelect   = 'SL';
-}
+<ul id="<?php print $this->action; ?>_passwords" class="fields form-list">
+  <li>
+    <div class="field-name vtop">
+      <div class="field-title">
+        <?php print _txt('pl.passwordauthenticator.password.new'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print $vv_token; ?>
+    </div>
+  </li>
+</ul>

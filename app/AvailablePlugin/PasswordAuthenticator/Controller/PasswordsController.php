@@ -31,6 +31,32 @@ class PasswordsController extends SAMController {
   // Class name, used by Cake
   public $name = "Passwords";
   
+  public function generate() {
+    $this->Password->PasswordAuthenticator->setConfig($this->viewVars['vv_authenticator']);
+    
+    try {
+      if($this->viewVars['vv_authenticator']['PasswordAuthenticator']['password_source'] != PasswordAuthPasswordSourceEnum::AutoGenerate) {
+        throw new InvalidArgumentException(_txt('er.passwordauthenticator.source', PasswordAuthPasswordSourceEnum::AutoGenerate));
+      }
+      
+      $this->set('vv_token', $this->Password->generateToken($this->viewVars['vv_authenticator']['PasswordAuthenticator']['id'],
+                                                            $this->viewVars['vv_co_person']['CoPerson']['id'],
+                                                            $this->viewVars['vv_authenticator']['PasswordAuthenticator']['max_length'],
+                                                            $this->Session->read('Auth.User.co_person_id')));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      
+      $target = array();
+      $target['plugin'] = null;
+      $target['controller'] = "authenticators";
+      $target['action'] = 'status';
+      $target['copersonid'] = $this->viewVars['vv_co_person']['CoPerson']['id'];
+      
+      $this->redirect($target);
+    }
+  }
+  
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -50,6 +76,8 @@ class PasswordsController extends SAMController {
     
     // Merge in the permissions calculated by our parent
     $p = array_merge($p, $this->calculateParentPermissions($this->Password->PasswordAuthenticator->multiple));
+    
+    $p['generate'] = isset($p['manage']) ? $p['manage'] : false;
     
     $this->set('permissions', $p);
     return($p[$this->action]);
