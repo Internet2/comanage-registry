@@ -165,7 +165,7 @@ class MidPointRestApiClient extends CakeObject {
       $this->log($msg, 'debug');
     }
 
-    $results = $http->post('/ws/rest/users/', $xml, $request);
+    $results = $http->post('/users/', $xml, $request);
 
     if ($results->code != 201) {
       $this->log($this->logPrefix() . "Unable to create user :\n" . $results, 'debug');
@@ -206,7 +206,7 @@ class MidPointRestApiClient extends CakeObject {
 
     // TODO validate oid
 
-    $url = '/ws/rest/users/' . $oid;
+    $url = '/users/' . $oid;
 
     $http = $this->buildHttpClient();
 
@@ -240,7 +240,7 @@ class MidPointRestApiClient extends CakeObject {
 
     // TODO validate oid
 
-    $url = '/ws/rest/users/' . $oid;
+    $url = '/users/' . $oid;
 
     $http = $this->buildHttpClient();
 
@@ -284,7 +284,7 @@ class MidPointRestApiClient extends CakeObject {
       )
     );
 
-    $url = '/ws/rest/users/' . $oid;
+    $url = '/users/' . $oid;
 
     $http = $this->buildHttpClient();
 

@@ -113,7 +113,7 @@ class MidPointRestApiClientTest extends CakeTestCase {
     $httpServerData = array(
       'HttpServer' => array(
         'server_id' => $serverId,
-        'serverurl' => "https://$serverIP/midpoint",
+        'serverurl' => "https://$serverIP/midpoint/ws/rest",
         'username' => 'Administrator',
         'password' => '5ecr3t',
         'ssl_allow_self_signed' => true,
