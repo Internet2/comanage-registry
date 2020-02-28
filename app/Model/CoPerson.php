@@ -734,7 +734,7 @@ class CoPerson extends AppModel {
       $criteria[$mdlField[0]][$mdlField[1]] = $value;
     }
 
-    return array($criteria, $invalidFields, $unProcessedFields);
+    return array($criteria, sizeof($invalidFields), sizeof($unProcessedFields));
   }
 
   /**

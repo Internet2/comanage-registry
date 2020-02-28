@@ -848,17 +848,19 @@ class CoPeopleController extends StandardController {
       return;
     }
     // Validate the request data
-    list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
-    if (!empty($invalidFields)  && $this->request->is('restful')) {
+    // TODO: move to the format below as soon as we upgrade to php7.1 or greater
+    // list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
+    $criteria = $this->CoPerson->validateRequestData($reqData);
+    if ($criteria[1] > 0 && $this->request->is('restful')) {
       $this->Api->restResultHeader(400, 'Invalid fields');
       return;
     }
-    if (!empty($unProcessedFields)  && $this->request->is('restful')) {
+    if ($criteria[2] > 0 && $this->request->is('restful')) {
       $this->Api->restResultHeader(422, 'Unprocessable Entity');
       return;
     }
     // Get the matches
-    $matches = $this->CoPerson->match($coId, $criteria);
+    $matches = $this->CoPerson->match($coId, $criteria[0]);
 
     // Assign the matches
     if($this->request->is('restful')) {
