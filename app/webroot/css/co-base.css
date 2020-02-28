@@ -299,9 +299,6 @@ body.logged-in #user-menu {
 #user-panel .org-ids {
   font-style: italic;
 }
-#user-panel #user-panel-flows {
-  column-count: 2;
-}
 #user-panel ul.user-panel-list {
   margin-top: 0;
 }

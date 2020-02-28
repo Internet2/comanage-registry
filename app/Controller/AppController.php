@@ -1205,9 +1205,9 @@ class AppController extends Controller {
     $menu['flows'] = $authedFlows;
 
 
-    // Gather up the appropriate OrgId identifiers for the current user.
+    // Gather up the appropriate OrgIds for the current user.
     // These will be presented on the user panel.
-    // Limit these to login identifiers that are active.
+    // Limit these to OrgIds with active login identifiers.
     $menu['orgIDs'] = array();
     if($this->Session->check('Auth.User.co_person_id')) {
       $userId = $this->Session->read('Auth.User.co_person_id');
@@ -1224,9 +1224,13 @@ class AppController extends Controller {
       $args['joins'][1]['alias'] = 'Identifier';
       $args['joins'][1]['type'] = 'INNER';
       $args['joins'][1]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+
       $args['conditions']['CoOrgIdentityLink.co_person_id'] = $userId;
       $args['conditions']['Identifier.status'] = StatusEnum::Active;
       $args['conditions']['Identifier.login'] = true;
+
+      // Specify fields so we can force the OrgIdentity ID to be distinct
+      $args['fields'] = array('DISTINCT OrgIdentity.org_identity_id','OrgIdentity.o','OrgIdentity.ou','OrgIdentity.title');
 
       $userOrgIDs = $this->CoOrgIdentityLink->OrgIdentity->find('all', $args);
 
@@ -1234,12 +1238,13 @@ class AppController extends Controller {
       $menuOrgIDs = array();
 
       foreach($userOrgIDs as $i => $uoid) {
-        $menuOrgIDs[$i]['orgName'] = $uoid['OrgIdentity']['o'];
         $menuOrgIDs[$i]['orgID_id'] = $uoid['OrgIdentity']['id'];
-        $menuOrgIDs[$i]['identifiers'] = array();
-        foreach ($uoid['Identifier'] as $j => $identifier) {
-          $menuOrgIDs[$i]['identifiers'][$j]['identifier'] = $identifier['identifier'];
-          $menuOrgIDs[$i]['identifiers'][$j]['identifier_id'] = $identifier['id'];
+        $menuOrgIDs[$i]['orgID_o'] = $uoid['OrgIdentity']['o'];
+        $menuOrgIDs[$i]['orgID_ou'] = $uoid['OrgIdentity']['ou'];
+        $menuOrgIDs[$i]['orgID_title'] = $uoid['OrgIdentity']['title'];
+        $menuOrgIDs[$i]['orgID_email'] = array();
+        foreach ($uoid['EmailAddress'] as $j => $emailAddr) {
+          $menuOrgIDs[$i]['orgID_email'][$j]['mail'] = $emailAddr['mail'];
         }
       }
 

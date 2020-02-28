@@ -107,18 +107,11 @@
 <?php endif; ?>
 
 <?php if($this->Session->check('Auth.User.username')): ?>
+  <?php $userCN = generateCn($this->Session->read('Auth.User.name')); ?>
   <div id="user">
     <a href="#" class="topMenu" id="user-panel-toggle" aria-controls="user-panel">
       <span id="user-common-name">
-        <?php
-          $userCN = "";
-          
-          if($this->Session->check('Auth.User.name')) {
-            // Print the user's name
-            $userCN = generateCn($this->Session->read('Auth.User.name'));
-            print $userCN;
-          }
-        ?>
+        <?php print $userCN; ?>
       </span>
       <em class="material-icons icon-adjust">person</em>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
@@ -267,30 +260,31 @@
           <!-- Org Identity Data -->
           <ul id="panel-orgid" class="user-panel-list">
             <?php foreach($menuContent['orgIDs'] as $orgID): ?>
+              <?php
+                // Set the link text
+                $orgIDLinkText = $userCN;
+                if (!empty($orgID['orgID_o'])) {
+                  $orgIDLinkText = $orgID['orgID_o'];
+                } elseif (!empty($orgID['orgID_email'][0]['mail'])) {
+                  $orgIDLinkText = $orgID['orgID_email'][0]['mail']; // XXX using the first one found...
+                } elseif (!empty($orgID['orgID_title'])) {
+                  $orgIDLinkText = $orgID['orgID_title'];
+                } elseif (!empty($orgID['orgID_ou'])) {
+                  $orgIDLinkText = $orgID['orgID_ou'];
+                }
+                ?>
               <li class="panel-orgid-ids">
-                <?php if(!empty($orgID['orgName'])): ?>
-                  <span class="org-name">
-                    <?php print $orgID['orgName']; ?>
-                  </span>
-                <?php endif; ?>
-                <span class="org-ids">
-                  <?php
-                    // Identifier - link to the Org ID view.
-                    foreach($orgID['identifiers'] as $id) {
-                      if(!empty($orgID['orgName'])) print "(";
-                      print $this->Html->link($id['identifier'],
-                        array(
-                          'plugin'     => null,
-                          'controller' => 'org_identities',
-                          'action' => ('view'),
-                          $orgID['orgID_id']
-                        )
-                      );
-                      if(!empty($orgID['orgName'])) print ")";
-                      print " "; // in the event of more than one id
-                    }
-                  ?>
-                </span>
+                <?php
+                  // link to the Org ID view.
+                  print $this->Html->link($orgIDLinkText,
+                    array(
+                      'plugin'     => null,
+                      'controller' => 'org_identities',
+                      'action' => ('view'),
+                      $orgID['orgID_id']
+                    )
+                  );
+                ?>
               </li>
             <?php endforeach; ?>
           </ul>
