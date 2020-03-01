@@ -1023,7 +1023,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   if($oc == 'voPosixAccount'
                      || ($coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'] 
                          == $ua['UnixCluster']['cluster_id'])) {
-                    if($attropts) {
+                    if($attropts && $oc == 'voPosixAccount') {
                       // Map cluster to short label via CO Service.
                       $label = $this->CoProvisioningTarget
                                     ->Co
