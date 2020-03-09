@@ -2144,8 +2144,10 @@ original notification at
   'sh.ug.110.is' =>       'Updating inactive identifier status',
   'sh.ug.310.url' =>      'Instantiating default URL Extended Types',
   'sh.ug.330.api' =>      'Updating API User Permissions',
+  'sh.ug.330.cojob' =>    'Migrating CO Job type',
   'sh.ug.330.ia' =>       'Adding context to Identifier Assignments',
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
+  'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
   'sh.ug.330.users' =>    'Dropping users View',
 );
 
