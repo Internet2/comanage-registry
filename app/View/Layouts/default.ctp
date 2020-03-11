@@ -144,7 +144,7 @@
       
       <div id="top-menu">
         <?php if($this->Session->check('Auth.User')): ?>
-          <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
+          <button id="desktop-hamburger" class="cm-toggle" aria-controls="navigation-drawer"><em class="material-icons">menu</em></button>
         <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
           <div id="user-defined-links-top">

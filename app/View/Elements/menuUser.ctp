@@ -39,8 +39,9 @@
         )
       );
       print $this->Form->create('CoDashboard', $options);
-      print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search') . '</span><em class="material-icons">search</em>');
-      print '<div id="global-search-box" aria-expanded="false" style="display: none;">';
+      print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search')
+        . '</span><button id="global-search-toggle" aria-expanded="false" class="cm-toggle"><em class="material-icons">search</em></button>');
+      print '<div id="global-search-box" style="display: none;">';
       $options = array(
         'label' => false,
       );
@@ -57,7 +58,7 @@
 <?php if(isset($vv_my_notifications)): ?>
 
   <div id="notifications">
-    <a href="#" class="topMenu" id="user-notifications">
+    <button href="#" class="topMenu cm-toggle" id="user-notifications">
       <span id="user-notification-count">
          <?php print $vv_my_notification_count; ?>
       </span>
@@ -67,7 +68,7 @@
         <em class="material-icons icon-adjust">notifications</em>
       <?php endif?>
       <em class="material-icons">arrow_drop_down</em>
-    </a>
+    </button>
     <ul id="notifications-menu" for="user-notifications" class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right">
 
       <?php $notificationCount = 0; ?>
@@ -109,15 +110,15 @@
 <?php if($this->Session->check('Auth.User.username')): ?>
   <?php $userCN = generateCn($this->Session->read('Auth.User.name')); ?>
   <div id="user">
-    <a href="#" class="topMenu" id="user-panel-toggle" aria-controls="user-panel">
+    <button class="topMenu cm-toggle" id="user-panel-toggle" aria-controls="user-panel" aria-expanded="false">
       <span id="user-common-name">
         <?php print $userCN; ?>
       </span>
       <em class="material-icons icon-adjust">person</em>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
-    </a>
+    </button>
     <!-- Account Dropdown -->
-    <div id="user-panel" aria-expanded="false" style="display: none;">
+    <div id="user-panel" style="display: none;">
       <div id="logout-in-panel">
         <?php
           $args = array('controller' => 'auth',

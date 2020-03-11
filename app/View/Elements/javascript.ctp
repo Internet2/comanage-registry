@@ -97,14 +97,15 @@
 
     // USER MENU BEHAVIORS
     // Toggle the global search box
-    $("#global-search label").click(function (e) {
+    $("#global-search-toggle").click(function (e) {
+      e.preventDefault();
       e.stopPropagation();
       if ($("#global-search-box").is(":visible")) {
         $("#global-search-box").hide();
-        $("#global-search-box").attr("aria-expanded","false");
+        $(this).attr("aria-expanded","false");
       } else {
         $("#global-search-box").show();
-        $("#global-search-box").attr("aria-expanded","true");
+        $(this).attr("aria-expanded","true");
       }
     });
 
@@ -113,10 +114,10 @@
       e.stopPropagation();
       if ($("#user-panel").is(":visible")) {
         $("#user-panel").hide();
-        $("#user-panel").attr("aria-expanded","false");
+        $(this).attr("aria-expanded","false");
       } else {
         $("#user-panel").show();
-        $("#user-panel").attr("aria-expanded","true");
+        $(this).attr("aria-expanded","true");
       }
     });
 
@@ -128,8 +129,16 @@
     });
 
     // Toggle the top search filter box
-    $("#top-search-toggle").click(function() {
-      $("#top-search-fields").toggle();
+    $("#top-search-toggle, #top-search-toggle button.cm-toggle").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if ($("#top-search-fields").is(":visible")) {
+        $("#top-search-fields").hide();
+        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false");
+      } else {
+        $("#top-search-fields").show();
+        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","true");
+      }
     });
 
     // Clear a specific top search filter by clicking the filter button
