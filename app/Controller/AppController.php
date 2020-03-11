@@ -1229,9 +1229,6 @@ class AppController extends Controller {
       $args['conditions']['Identifier.status'] = StatusEnum::Active;
       $args['conditions']['Identifier.login'] = true;
 
-      // Specify fields so we can force the OrgIdentity ID to be distinct
-      $args['fields'] = array('DISTINCT OrgIdentity.org_identity_id','OrgIdentity.o','OrgIdentity.ou','OrgIdentity.title');
-
       $userOrgIDs = $this->CoOrgIdentityLink->OrgIdentity->find('all', $args);
 
       // Build a simplified structure for the menu
