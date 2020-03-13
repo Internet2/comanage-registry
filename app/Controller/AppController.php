@@ -1147,7 +1147,7 @@ class AppController extends Controller {
       $args['conditions']['CoOrgIdentityLink.co_person_id'] = $userId;
       $args['conditions']['Identifier.status'] = StatusEnum::Active;
       $args['conditions']['Identifier.login'] = true;
-      $args['contain']['CoOrgIdentityLink']['OrgIdentity'][] = 'Identifier';
+      $args['contain']['CoOrgIdentityLink']['OrgIdentity'] = array('Identifier', 'EmailAddress');
 
       $userOrgIDs = $this->CoOrgIdentityLink->OrgIdentity->find('all', $args);
 
