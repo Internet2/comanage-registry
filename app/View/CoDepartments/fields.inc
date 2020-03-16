@@ -156,6 +156,38 @@
             </div>
           </li>
           <?php endif; // vv_cous ?>
+          <li>
+            <span class="field-name">
+              <?php
+              if($e) {
+                print $this->Form->label('type', _txt('fd.type'));
+              } else {
+                print _txt('fd.type');
+              }
+              ?>
+            </span>
+            <span class="field-info">
+              <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_departments) ? $co_departments[0]['CoDepartment']['type'] : "");
+              $attrs['empty'] = false;
+
+              if($e) {
+                print $this->Form->select('type',
+                  $vv_available_types,
+                  $attrs);
+
+                if($this->Form->isFieldError('type')) {
+                  print $this->Form->error('type');
+                }
+              } else {
+                // $vv_available_types will only show the permitted types, and en.url.type will
+                // not be aware of any extended types, so we just show the raw type key.
+                print filter_var($co_departments[0]['CoDepartment']['type'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+              ?>
+            </span>
+          </li>
           <li class="field-stack">
             <div class="field-name">
               <div class="field-title">

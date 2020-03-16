@@ -83,6 +83,17 @@ class CoDepartment extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'type' => array(
+      'content' => array(
+        'rule' => array('validateExtendedType',
+          array('attribute' => 'CoDepartment.type',
+            'default' => array(DepartmentEnum::VO,
+                               DepartmentEnum::ResearchInstitute,
+                               DepartmentEnum::Department))),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
     'description' => array(
       'rule' => array('validateInput'),
       'required' => false,

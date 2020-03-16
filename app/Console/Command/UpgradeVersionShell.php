@@ -402,6 +402,7 @@ class UpgradeVersionShell extends AppShell {
       $this->out('- ' . $co['Co']['name']);
       
       $this->SshKeyAuthenticator->_ug330($co['Co']['id']);
+      $this->CoExtendedType->addDefault($co['Co']['id'], 'CoDepartment.type');
     }
     
     // The users view is no longer required.
