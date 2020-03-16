@@ -181,7 +181,12 @@ class PasswordAuthenticator extends AuthenticatorBackend {
     // plugin configuration is changed. We skip callbacks so as to not trigger
     // provisioning (and they aren't required since this table is not Changelog
     // enabled).
-    $this->Password->deleteAll(array('Password.co_person_id' => $data['Password']['co_person_id']));
+    $args = array(
+      'Password.co_person_id' => $data['Password']['co_person_id'],
+      'Password.password_authenticator_id' => $data['Password']['password_authenticator_id']
+    );
+    
+    $this->Password->deleteAll($args);
 		
 		// We'll store one entry per hashing type. We always store CRYPT
 		// so we can use the native php routines (which require PHP 5.5+).
