@@ -130,18 +130,18 @@
       <a href="#content-start" id="skip-to-content">Skip to main content.</a>
     </div>
 
-    <!-- Include custom header -->
-    <?php if(!empty($vv_theme_header)): ?>
-      <header id="customHeader">
-        <div class="contentWidth">
-          <?php print $vv_theme_header; ?>
-        </div>
-      </header>
-    <?php endif; ?>
-
     <!-- Primary layout -->
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
-      
+
+      <!-- Include custom header -->
+      <?php if(!empty($vv_theme_header)): ?>
+        <header id="customHeader">
+          <div class="contentWidth">
+            <?php print $vv_theme_header; ?>
+          </div>
+        </header>
+      <?php endif; ?>
+
       <div id="top-menu">
         <?php if($this->Session->check('Auth.User')): ?>
           <button id="desktop-hamburger" class="cm-toggle" aria-controls="navigation-drawer"><em class="material-icons">menu</em></button>
@@ -258,6 +258,13 @@
         ?>
         </div>
 
+        <!-- Include custom footer -->
+        <?php if(!empty($vv_theme_footer)): ?>
+          <footer id="customFooter">
+            <?php print $vv_theme_footer; ?>
+          </footer>
+        <?php endif; ?>
+
         <?php if(Configure::read('debug') > 0): ?>
           <div id="debug" class="mdl-grid">
             <?php print $this->element('sql_dump'); ?>
@@ -268,13 +275,6 @@
       <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>
         <footer id="co-footer">
           <?php print $this->element('footer'); ?>
-        </footer>
-      <?php endif; ?>
-
-      <!-- Include custom footer -->
-      <?php if(!empty($vv_theme_footer)): ?>
-        <footer id="customFooter">
-          <?php print $vv_theme_footer; ?>
         </footer>
       <?php endif; ?>
 
