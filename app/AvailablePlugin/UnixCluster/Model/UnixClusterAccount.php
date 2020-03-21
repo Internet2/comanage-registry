@@ -35,7 +35,11 @@ class UnixClusterAccount extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array(
     "UnixCluster.UnixCluster",
-    "CoPerson"
+    "CoPerson",
+    "PrimaryCoGroup" => array(
+      'className'  => 'CoGroup',
+      'foreignKey' => 'primary_co_group_id'
+    )
   );
   
   // Default display field for cake generated views
@@ -62,6 +66,15 @@ class UnixClusterAccount extends AppModel {
       'content' => array(
         'rule' => 'numeric',
         'required' => true
+      )
+    ),
+    'sync_mode' => array(
+      'content' => array(
+        'rule' => array('inList',
+                        array(UnixClusterSyncEnum::Full,
+                              UnixClusterSyncEnum::Manual)),
+        'required' => true,
+        'allowEmpty' => false
       )
     ),
     'status' => array(

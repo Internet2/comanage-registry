@@ -268,6 +268,7 @@ original notification at
     ActionEnum::AuthenticatorEdited         => 'Authenticator Edited',
     ActionEnum::AuthenticatorStatusEdited   => 'Authenticator Status Edited',
     ActionEnum::ClusterAccountAutoCreated   => 'Cluster Account Automatically Created',
+    ActionEnum::ClusterAccountAutoEdited    => 'Cluster Account Automatically Edited',
     ActionEnum::CoEmailListAdded            => 'CO Email List Added',
     ActionEnum::CoEmailListDeleted          => 'CO Email List Deleted',
     ActionEnum::CoEmailListEdited           => 'CO Email List Edited',

@@ -62,6 +62,35 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('sync_mode', _txt('pl.unixcluster.fd.sync_mode')) : _txt('pl.unixcluster.fd.sync_mode')); ?>
+        <span class="required">*</span>
+      </div>
+      <span class="field-desc"><?php print _txt('pl.unixcluster.fd.sync_mode.desc'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($unix_clusters) ? $unix_clusters[0]['UnixCluster']['sync_mode'] : UnixClusterSyncEnum::Full);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('sync_mode',
+                                    $cm_texts[ $cm_lang ]['pl.unixcluster.en.sync'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('sync_mode')) {
+            print $this->Form->error('sync_mode');
+          }
+        } else {
+          print filter_var($unix_clusters[0]['UnixCluster']['sync_mode'],FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('username_type', _txt('pl.unixcluster.fd.username_type')) : _txt('pl.unixcluster.fd.username_type')); ?>
         <span class="required">*</span>
       </div>

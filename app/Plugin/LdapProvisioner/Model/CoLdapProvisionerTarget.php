@@ -1054,18 +1054,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                         break;
                       case 'uidNumber':
                       case 'voPosixAccountUidNumber':
-                        foreach($provisioningData['Identifier'] as $m) {
-                          if(isset($m['type'])
-                             && $m['type'] == $ua['UnixCluster']['uid_type']
-                             && $m['status'] == StatusEnum::Active) {
-                            $attributes[$lsattr] = $m['identifier'];
-                            break;
-                          }
-                        }
-                        if(empty($attributes[$lsattr])) {
-                          // XXX Throwing an exception causes a 500, maybe syslog?
-                          // throw new RuntimeException("No value for uidNumber found");
-                        }
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['uid'];
                         break;
                       case 'loginShell':
                       case 'voPosixAccountLoginShell':
