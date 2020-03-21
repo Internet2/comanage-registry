@@ -32,6 +32,7 @@
     <field name="cluster_id" type="I">
       <constraint>REFERENCES cm_clusters(id)</constraint>
     </field>
+    <field name="sync_mode" type="C" size="2" />
     <field name="username_type" type="C" size="32" />
     <field name="uid_type" type="C" size="32" />
     <field name="default_shell" type="C" size="64" />
@@ -100,6 +101,7 @@
       <notnull />
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
+    <field name="sync_mode" type="C" size="2" />
     <field name="status" type="C" size="2" />
     <field name="username" type="C" size="256" />
     <field name="uid" type="I" />

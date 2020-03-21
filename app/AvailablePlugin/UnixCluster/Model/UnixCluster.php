@@ -64,6 +64,15 @@ class UnixCluster extends ClusterInterface {
       'required' => true,
 			'allowEmpty' => false
 		),
+    'sync_mode' => array(
+      'content' => array(
+        'rule' => array('inList',
+                        array(UnixClusterSyncEnum::Full,
+                              UnixClusterSyncEnum::Manual)),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
     'username_type' => array(
       'content' => array(
         'rule' => array('validateExtendedType',
@@ -175,6 +184,8 @@ class UnixCluster extends ClusterInterface {
 	 */
 	
   public function assign($cluster, $coPersonId) {
+    // There is related - but not identical - logic in UnixClusterListener::updateUnixClusterAccount.
+    
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
@@ -238,31 +249,20 @@ class UnixCluster extends ClusterInterface {
       'co_person_id'    => $coPersonId,
       'login_shell'     => $unixCluster['UnixCluster']['default_shell'],
       'status'          => StatusEnum::Active,
+      'sync_mode'       => $unixCluster['UnixCluster']['sync_mode'],
       'valid_from'      => null,
       'valid_through'   => null
     );
     
-    // We only use Primary Name for gecos, though we could probably leverage
-    // Address and TelephoneNumber somehow...
-    $acct['gecos'] = generateCn($coPerson['PrimaryName']) . ",,,";
+    $acct['gecos'] = $this->calculateGecos($coPerson['PrimaryName']);
     $acct['username'] = $username[0]['identifier'];
     $acct['uid'] = $uid[0]['identifier'];
     
     // Construct the home directory
-    $homedirAffix = $username[0]['identifier'];
-    
-    if(!empty($unixCluster['UnixCluster']['homedir_subdivisions'])
-       && $unixCluster['UnixCluster']['homedir_subdivisions'] > 0) {
-      $infix = "";
-      
-      for($i = 0;$i < $unixCluster['UnixCluster']['homedir_subdivisions'];$i++) {
-        $infix .= $username[0]['identifier'][$i] . "/";
-      }
-      
-      $homedirAffix = $infix . $homedirAffix;
-    }
-    
-    $acct['home_directory'] = $unixCluster['UnixCluster']['homedir_prefix'] . "/" . $homedirAffix; 
+    $acct['home_directory'] = $this->calculateHomeDirectory(
+      $unixCluster['UnixCluster'],
+      $username[0]['identifier']
+    );
     
     // Figure out a default group
     if(!empty($unixCluster['UnixCluster']['default_co_group_id'])) {
@@ -396,9 +396,60 @@ class UnixCluster extends ClusterInterface {
       throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign UnixClusterAccount')));
     }
     
+    // Note history record is created by Cluster::assign(), which is generally
+    // how we are called.
+    
     $dbc->commit();
     
     return true;
+  }
+  
+  /**
+   * Calculate the GECOS field value for a Unix Cluster Account.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  array  $name       Array of Name
+   * @return string             GECOS string
+   * @throws RuntimeException
+	 */
+  
+  public function calculateGecos($name) {
+    // We only use Primary Name for gecos, though we could probably leverage
+    // Address and TelephoneNumber somehow... Also, we don't append trailing
+    // commas for the moment (and there isn't a spec that says we should) but
+    // we might add them later.
+
+    if(!empty($name)) {
+      return generateCn($name);
+    }
+    
+    throw new RuntimeException(_txt('er.unixcluster.gecos.pname'));
+  }
+  
+  /**
+   * Calculate the home directory for a Unix Cluster Account.
+   *
+   * @since  COmanage Registry v3.4.0
+   * @param  array  $unixCluster Array of Unix Cluster configurtion
+   * @param  string $identifier  Identifier to use as basis for home directory
+   * @return string              Home Directory
+	 */
+  
+  public function calculateHomeDirectory($unixCluster, $identifier) {
+    $homedirAffix = $identifier;
+    
+    if(!empty($unixCluster['homedir_subdivisions'])
+       && $unixCluster['homedir_subdivisions'] > 0) {
+      $infix = "";
+      
+      for($i = 0;$i < $unixCluster['homedir_subdivisions'];$i++) {
+        $infix .= $identifier[$i] . "/";
+      }
+      
+      $homedirAffix = $infix . $homedirAffix;
+    }
+    
+    return $unixCluster['homedir_prefix'] . "/" . $homedirAffix;
   }
   
 	/**

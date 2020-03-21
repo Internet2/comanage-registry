@@ -94,6 +94,37 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('sync_mode', _txt('pl.unixcluster.fd.sync_mode')) : _txt('pl.unixcluster.fd.sync_mode')); ?>
+        <span class="required">*</span>
+      </div>
+      <span class="field-desc"><?php print _txt('pl.unixcluster.fd.sync_mode.acct.desc'); ?></span>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        // If the value isn't already set, we're creating a new account manually,
+        // so default to manual attribute syncing for this account
+        $attrs['value'] = (isset($unix_cluster_accounts) ? $unix_cluster_accounts[0]['UnixClusterAccount']['sync_mode'] : UnixClusterSyncEnum::Manual);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('sync_mode',
+                                    $cm_texts[ $cm_lang ]['pl.unixcluster.en.sync'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('sync_mode')) {
+            print $this->Form->error('sync_mode');
+          }
+        } else {
+          print filter_var($unix_cluster_accounts[0]['UnixClusterAccount']['sync_mode'],FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
         <span class="required">*</span>
       </div>

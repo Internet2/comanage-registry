@@ -41,9 +41,14 @@ $cm_unix_cluster_texts['en_US'] = array(
   'ct.unix_clusters.pl' => 'Unix Clusters',
   
   // Enumeration language texts
+  'pl.unixcluster.en.sync' => array(
+    UnixClusterSyncEnum::Full   => 'Track CO Person Attributes',
+    UnixClusterSyncEnum::Manual => 'Manual'
+  ),
   
   // Error messages
   'er.unixcluster.group.already' => 'The specified group is already attached to this Unix Cluster',
+  'er.unixcluster.gecos.pname' => 'Primary Name not found for GECOS field',
   'er.unixcluster.ud.already' => 'The %1$s "%2$s" is already in use in this Unix Cluster',
   
   // Plugin texts
@@ -68,6 +73,9 @@ $cm_unix_cluster_texts['en_US'] = array(
   'pl.unixcluster.fd.homedir_subdivisions.desc' => 'When automatically generating Home Directories, subdivide the directory tree by this many levels (eg: at level 2, generate "/home/a/b/abc123")',
   'pl.unixcluster.fd.login_shell' => 'Login Shell',
   'pl.unixcluster.fd.primary_co_group_id' => 'Primary Group',
+  'pl.unixcluster.fd.sync_mode' => 'Sync Mode',
+  'pl.unixcluster.fd.sync_mode.desc' => 'Default method for how to handle updates to CO Person attributes used to generate Unix Cluster attributes',
+  'pl.unixcluster.fd.sync_mode.acct.desc' => 'Method for how to handle updates to CO Person attributes used to generate Unix Cluster attributes',
   'pl.unixcluster.fd.uid' => 'User ID (UID) Number',
   'pl.unixcluster.fd.uid_type' => 'UID Type',
   'pl.unixcluster.fd.uid_type.desc' => 'CO Person Identifier type used to autopopulate (numeric) UID',
