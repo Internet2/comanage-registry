@@ -85,9 +85,10 @@ class CoAnnouncementsController extends StandardController {
       $args['conditions']['CoAnnouncementChannel.co_id'] = $this->cur_co['Co']['id'];
       $args['conditions']['CoAnnouncementChannel.status'] = SuspendableStatusEnum::Active;
       $args['order'] = array('CoAnnouncementChannel.name ASC');
-      
+
       if(!$this->Role->isCoOrCouAdmin($this->Session->read('Auth.User.co_person_id'),
-                                      $this->cur_co['Co']['id'])) {
+                                      $this->cur_co['Co']['id'])
+         && !$this->Role->calculateCMRoles()['cmadmin']) {
         // Pull the user's group memberships from the session
         $cos = $this->Session->read('Auth.User.cos');
         $coGroupIds = Hash::extract($cos, '{s}[co_id='.$this->cur_co['Co']['id'].'].co_person.CoGroupMember.{n}.co_group_id');
