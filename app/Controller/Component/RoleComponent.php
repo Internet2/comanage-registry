@@ -1307,11 +1307,16 @@ class RoleComponent extends Component {
       return false;
     }
     
-    // A person is a group manager if (1) they are an owner of the group or (2) they
-    // are a CO admin for the CO of the group. Currently, we do not treat COU admins as
-    // superusers for groups.
+    // Check if the CoGroup is related to a cou or not
+    $CoGroup = ClassRegistry::init('CoGroup');
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    $group = $CoGroup->find('first', $args);
     
-    if($this->cachedGroupCheck($coPersonId, "", "", $coGroupId, true)) {
+    $isCou = $CoGroup->isCouAdminOrMembersGroup($group);
+    
+    if($this->cachedGroupCheck($coPersonId, "", "", $coGroupId, true, null, $isCou)) {
       return true;
     }
     
