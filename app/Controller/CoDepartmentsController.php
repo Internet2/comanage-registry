@@ -83,6 +83,9 @@ class CoDepartmentsController extends StandardController {
       $args['order'] = array('Cou.name ASC');
 
       $this->set('vv_cous', $this->CoDepartment->Cou->find("list", $args));
+
+      $types = $this->CoDepartment->types($this->cur_co['Co']['id'], 'type');
+      $this->set('vv_available_types', $types);
       
       // Mappings for extended types
       $this->set('vv_addresses_types', $this->CoDepartment->Address->types($this->cur_co['Co']['id'], 'type'));

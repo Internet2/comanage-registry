@@ -43,6 +43,7 @@ class CoExtendedTypesController extends StandardController {
                        'CoEnrollmentAttribute',
                        'CoExpirationPolicy',
                        'CoIdentifierAssignment',
+                       'CoDepartment',
                        'CoSelfServicePermission');
   
   // Establish pagination parameters for HTML views

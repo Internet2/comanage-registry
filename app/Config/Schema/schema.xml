@@ -596,6 +596,7 @@
     <field name="cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
+    <field name="type" type="C" size="32" />
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
     <field name="introduction" type="X" size="4000" />

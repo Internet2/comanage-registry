@@ -717,6 +717,12 @@ class UrlEnum {
   const Personal      = 'personal';
 }
 
+class DepartmentEnum {
+  const VO                  = 'vo';
+  const ResearchInstitute   = 'researchinstitute';
+  const Department          = 'department';
+}
+
 class VerificationModeEnum
 {
   const Automatic = 'A';
