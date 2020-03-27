@@ -1,6 +1,6 @@
 COmanage Registry
 
-Copyright (C) 2010-2018
+Copyright (C) 2010-2019
 University Corporation for Advanced Internet Development, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,10 @@ limitations under the License.
 
 This material is based upon work supported by the National Science
 Foundation under Grant No. OCI-0721896, OCI-0330626, OCI-1032468,
-and ACI-1547268. Any opinions, findings and conclusions or recommendations
-expressed in this material are those of the author(s) and do not
-necessarily reflect the views of the National Science Foundation (NSF).
+ACI-1547268, ACI-1738962, and PHY-1836702. Any opinions, findings
+and conclusions or recommendations expressed in this material are
+those of the author(s) and do not necessarily reflect the views of
+the National Science Foundation (NSF).
 
 ---------------------------------------------------------------------------
 
@@ -37,6 +38,9 @@ the Contributer License Agreement by,
  
  SURFnet BV
  https://www.surf.nl
+ 
+ Syracuse University
+ https://syracuse.edu
 
 This project uses the following third party utilities, see the appropriate
 files and utilities for further information:
@@ -89,4 +93,12 @@ files and utilities for further information:
  MIT License
  https://superfish.joelbirch.co
 
+ Guzzle 6 HTTP Adapter (php-http/guzzle6-adapter)
+ MIT License
+ https://github.com/php-http/guzzle6-adapter
+ 
+ Filesystem PSR-6 Cache pool (php-cache/filesystem-adapter)
+ MIT License
+ https://github.com/php-cache/filesystem-adapter
+ 
 ---------------------------------------------------------------------------
