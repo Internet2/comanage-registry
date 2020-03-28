@@ -400,13 +400,13 @@ class CoGroupsController extends StandardController {
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Select from a list of potential Groups to join?
-    $p['select'] = ($roles['cmadmin']
-                    || ($managedp && ($roles['coadmin'] || $roles['couadmin']))
+    $p['select'] = ($roles['cmadmin'] || $roles['coadmin']
+                    || ($managedp && $roles['couadmin'])
                     || $self);
     
     // Select from any Group (not just open or owned)?
-    $p['selectany'] = ($roles['cmadmin']
-                       || ($managedp && ($roles['coadmin'] || $roles['couadmin'])));
+    $p['selectany'] = ($roles['cmadmin'] || $roles['coadmin']
+                       || ($managedp && $roles['couadmin']));
     
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
