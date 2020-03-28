@@ -2122,12 +2122,12 @@ class CoPetition extends AppModel {
           $cc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['cc'];
           $bcc = $pt['CoEnrollmentFlow']['CoEnrollmentFlowApprovalMessageTemplate']['bcc'];
         } else {
-          if(!empty($ef['CoEnrollmentFlow']['approval_subject'])) {
-            $subject = $ef['CoEnrollmentFlow']['approval_subject'];
+          if(!empty($pt['CoEnrollmentFlow']['approval_subject'])) {
+            $subject = $pt['CoEnrollmentFlow']['approval_subject'];
           }
           
-          if(!empty($ef['CoEnrollmentFlow']['approval_body'])) {
-            $body = $ef['CoEnrollmentFlow']['approval_body'];
+          if(!empty($pt['CoEnrollmentFlow']['approval_body'])) {
+            $body = $pt['CoEnrollmentFlow']['approval_body'];
           }
         }
         
