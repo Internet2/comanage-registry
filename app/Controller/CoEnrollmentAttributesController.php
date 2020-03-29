@@ -51,9 +51,11 @@ class CoEnrollmentAttributesController extends StandardController {
   public $requires_co = true;
   
   public $edit_contains = array(
+    'CoEnrollmentAttributeDefault'
   );
   
   public $view_contains = array(
+    'CoEnrollmentAttributeDefault'
   );
   
   /**
