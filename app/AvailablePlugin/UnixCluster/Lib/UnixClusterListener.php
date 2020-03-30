@@ -233,6 +233,7 @@ class UnixClusterListener implements CakeEventListener {
             }
             
             if(!empty($mods)) {
+              $UnixClusterAccount->clear();
               $UnixClusterAccount->save($acct['UnixClusterAccount']);
               
               // Create a history record
