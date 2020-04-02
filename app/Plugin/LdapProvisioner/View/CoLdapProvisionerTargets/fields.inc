@@ -468,11 +468,11 @@
                 $xchecked = isset($currentAttributes[$attr]['use_org_value'])
                             && $currentAttributes[$attr]['use_org_value'];
 
-                print "&nbsp;&nbsp;&nbsp;&nbsp;"
+                print '<div class="nested">'
                       . $this->Form->input($xname,
                                            array('label' => _txt('pl.ldapprovisioner.fd.useorgval'),
                                                  'checked' => $xchecked))
-                      . "<br />\n";
+                      . "</div>\n";
               }
             }
             

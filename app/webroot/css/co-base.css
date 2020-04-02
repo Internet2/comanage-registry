@@ -1866,6 +1866,9 @@ ul.form-list li.field-stack textarea {
 .nested {
   padding: 0 0 1em 2em;
 }
+.nested .nested {
+  padding-bottom: 0;
+}
 .checkbox {
   margin-bottom: 0.5em;
 }
