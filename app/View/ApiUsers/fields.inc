@@ -67,7 +67,7 @@
       </div>
       <div class="field-desc"><?php print _txt('fd.api.username.desc'); ?></div>
     </div>
-    <div class="field-info">
+    <div class="field-info field-info-flex">
       <?php
         $prefix = 'co_' . $cur_co['Co']['id'] . '.';
         print '<span class="api-username-prefix">' . $prefix . '</span>';
@@ -91,8 +91,10 @@
     <?php endif; // add ?>
     </div>
     <div class="field-info">
+      <span class="field-info-prefix">
+        <?php print (!empty($api_users[0]['ApiUser']['password']) ? _txt('fd.set') : _txt('fd.set.not')); ?>
+      </span>
       <?php
-        print (!empty($api_users[0]['ApiUser']['password']) ? _txt('fd.set') : _txt('fd.set.not'));
         
         if($permissions['generate'] && !empty($api_users[0]['ApiUser']['id'])) {
           print '<button type="button" class="provisionbutton" title="' . _txt('op.api.key.generate')

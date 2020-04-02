@@ -1795,6 +1795,9 @@ ul.form-list .field-title {
 ul.form-list .field-info {
   position: relative;
 }
+ul.form-list .field-info-prefix {
+  margin-right: 0.5em;
+}
 ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
@@ -1859,6 +1862,9 @@ ul.form-list li.field-stack textarea {
   margin: 0;
   width: 100%;
   resize: vertical;
+}
+.nested {
+  padding: 0 0 1em 2em;
 }
 .checkbox {
   margin-bottom: 0.5em;

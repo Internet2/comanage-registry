@@ -296,7 +296,7 @@
 
             print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
 
-            print '<div id="oc_' . $oc . '_div">';
+            print '<div id="oc_' . $oc . '_div" class="nested">';
 
             foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
               // Make sure the attributes map to the indexing created by Cake
