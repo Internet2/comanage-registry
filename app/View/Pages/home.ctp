@@ -154,7 +154,7 @@
       // Please login
       print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
       // Print the login button
-      $buttonClasses = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored";
+      $buttonClasses = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored focusFirst";
       $args = array('controller' => 'auth',
         'action'     => 'login',
         'plugin'     => false

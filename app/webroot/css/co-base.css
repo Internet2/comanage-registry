@@ -2118,7 +2118,7 @@ td.indented {
 }
 .mdl-button.mdl-button--colored,
 .mdl-button--raised.mdl-button--colored {
-  background-color: #53B1F4 !important; /* important required to override MDL's active state */
+  background-color: #0C75C0 !important; /* important required to override MDL's active state */
   color: white;
 }
 .mdl-button--raised.mdl-button--colored:hover {
