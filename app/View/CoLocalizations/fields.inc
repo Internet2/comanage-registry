@@ -71,14 +71,15 @@
   }
 </script>
 <ul id="<?php print $this->action; ?>_co_localizations" class="fields form-list">
-  <li>
+  <!--  Use field-flex for all <li> elements in order to get rid of the whitespace introduced between them -->
+  <li class="field-flex">
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('lkey', _txt('fd.key')) : _txt('fd.key')); ?>
         <span class="required">*</span>
       </div>
     </div>
-    <div class="field-info">
+    <div class="field-info field-info-flex">
       <?php
         global $cm_lang, $cm_texts;
         $attrs['value'] = (isset($co_localizations[0]['CoLocalization']['lkey'])
@@ -104,44 +105,44 @@
       ?>
     </div>
   </li>
-  <li>
+  <li class="field-flex">
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('language', _txt('fd.language')) : _txt('fd.language')); ?>
         <span class="required">*</span>
       </div>
     </div>
-    <div class="field-info">
+    <div class="field-info field-info-flex">
       <?php print ($e
                    ? $this->Form->input('language', array('default' => 'en_US'))
                    : filter_var($co_localizations[0]['CoLocalization']['language'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <li>
+  <li class="field-flex">
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('text', _txt('fd.text')) : _txt('fd.text')); ?>
         <span class="required">*</span>
       </div>
     </div>
-    <div class="field-info">
+    <div class="field-info field-info-flex">
       <?php print ($e
-                   ? $this->Form->input('text', array('size' => '80','class' => 'focusFirst'))
+                   ? $this->Form->input('text', array('size' => '512','class' => 'focusFirst', 'type' => 'textarea', 'maxlength'=>'512'))
                    : filter_var($co_localizations[0]['CoLocalization']['text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <li>
+  <li class="field-flex">
     <div class="field-name">
       <div class="field-title">
         <?php print _txt('fd.text.original'); ?>
       </div>
     </div>
-    <div class="field-info">
+    <div class="field-info field-info-flex">
       <div id="original"></div>
     </div>
   </li>
   <?php if($e): ?>
-    <li class="fields-submit">
+    <li class="fields-submit field-flex">
       <div class="field-name">
         <span class="required"><?php print _txt('fd.req'); ?></span>
       </div>

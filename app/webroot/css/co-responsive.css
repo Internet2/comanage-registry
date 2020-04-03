@@ -115,6 +115,10 @@
   #co_people .person-admin button {
     display: inline;
   }
+  ul.form-list li.field-flex {
+    display: flex;
+    align-items: center;
+  }
   ul.form-list .field-name {
     display: inline-block;
     min-width: 80px;
@@ -144,7 +148,8 @@
   }
   ul.form-list .field-info-flex input[type="text"],
   ul.form-list .field-info-flex input[type="number"],
-  ul.form-list .field-info-flex input[type="password"] {
+  ul.form-list .field-info-flex input[type="password"],
+  ul.form-list .field-info-flex textarea {
     width: auto;
     flex-grow: 1;
   }
