@@ -1222,10 +1222,13 @@ class RoleComponent extends Component {
             return true;
           }
         }
+        
+        // If we get here we've run out of things to check
+        return false;
+      } else {
+        // Just check the COU that we have
+        return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, $couId);
       }
-      
-      // If we get here we've run out of things to check
-      return false;
     } else {
       // We don't need to walk the tree since we only care if a person is a COU Admin
       // for *any* group, not which groups (which would require getting the child COUs).
