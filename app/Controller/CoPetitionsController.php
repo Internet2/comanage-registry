@@ -279,10 +279,13 @@ class CoPetitionsController extends StandardController {
               // Once we have an authenticated identifier we no longer accept tokens.
               // We don't explicitly throw an error because we'll ultimately want to
               // support petition editing (CO-431).
-              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $this->parseCoPetitionId()));
-              
-              if(!$authId) {
-                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+
+              $petitionId = $this->parseCoPetitionId();
+              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $petitionId));
+              $petitionerCoPersonId = $this->CoPetition->field('petitioner_co_person_id', array('CoPetition.id' => $petitionId));
+
+              if(!$authId && !$petitionerCoPersonId) {
+                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $petitionId));
                 $passedToken = $this->parseToken();
                 
                 if($token && $token != '' && $passedToken
