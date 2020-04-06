@@ -1218,18 +1218,18 @@ class AppModel extends Model {
    */
   
   public function typeInUse($attribute, $attributeType, $coId) {
+    // TODO: Implement a more generic approach in the construction of the queries
     $args = array();
-    $args['conditions']['CoPerson.co_id'] = $coId;
     $args['conditions'][$attribute] = $attributeType;
     $args['contain'] = false;
     
-    // Is this model attached to CO Person or CO Person Role?
-    if(!empty($this->validate['co_person_id'])) {
+    if(array_key_exists('co_person_id', $this->getColumnTypes())) {             // This model attached to CO Person
       $args['joins'][0]['table'] = 'co_people';
       $args['joins'][0]['alias'] = 'CoPerson';
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoPerson.id=' . $this->alias . '.co_person_id';
-    } elseif(!empty($this->validate['co_person_role_id'])) {
+      $args['conditions']['CoPerson.co_id'] = $coId;
+    } elseif(array_key_exists('co_person_role_id', $this->getColumnTypes())) {  // This model attached to CO Person Role
       $args['joins'][0]['table'] = 'co_person_roles';
       $args['joins'][0]['alias'] = 'CoPersonRole';
       $args['joins'][0]['type'] = 'INNER';
@@ -1238,6 +1238,9 @@ class AppModel extends Model {
       $args['joins'][1]['alias'] = 'CoPerson';
       $args['joins'][1]['type'] = 'INNER';
       $args['joins'][1]['conditions'][0] = 'CoPersonRole.co_person_id=CoPerson.id';
+      $args['conditions']['CoPerson.co_id'] = $coId;
+    } elseif ($this->alias === 'CoDepartment'){                                 // This attribute is attached to a CO Department
+      $args['conditions'][$this->alias . '.co_id'] = $coId;
     } else {
       throw new RuntimeException(_txt('er.notimpl'));
     }

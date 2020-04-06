@@ -63,13 +63,6 @@ class MVPAController extends StandardController {
     $this->set('pool_org_identities', $pool);
     
     parent::beforeFilter();
-    
-    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
-    
-    $vrule = $model->validate['type']['content']['rule'];
-    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
-    
-    $model->validator()->getField('type')->getRule('content')->rule = $vrule;
   }
   
   /**
