@@ -213,6 +213,25 @@ class StandardController extends AppController {
     
     parent::beforeRender();
   }
+
+    /**
+   * Callback before other controller methods are invoked or views are rendered.
+   *
+   * @since  COmanage Registry v3.3
+   */
+
+  function beforeFilter() {
+    parent::beforeFilter();
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    // Apply the rule only when the validateExtendedType function is used as a custom rule
+    $model = $this->modelClass;
+    if(!empty($this->$model->validate['type']['content']['rule'])
+       && array_search('validateExtendedType', $this->$model->validate['type']['content']['rule'], true) !== null) {
+      $vrule = $this->$model->validate['type']['content']['rule'];
+      $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+      $this->$model->validator()->getField('type')->getRule('content')->rule = $vrule;
+    }
+  }
   
   /**
    * Perform any dependency checks required prior to a delete operation.

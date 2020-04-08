@@ -401,7 +401,8 @@ class CoExtendedTypesController extends StandardController {
     if($this->$model->typeInUse($attribute,
                                 $typeName,
                                 $this->cur_co['Co']['id'])) {
-      throw new OverflowException(_txt('er.et.inuse', array($typeName)));
+      $supportedAttributes = $this->CoExtendedType->supportedAttrs();
+      throw new OverflowException(_txt('er.et.inuse-a', array($typeName, $supportedAttributes[$attribute])));
     }
     
     // Next make sure the attribute isn't in use in an Enrollment Attribute
