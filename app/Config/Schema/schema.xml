@@ -2383,7 +2383,7 @@
     <!-- mysql doesn't want a column called "key" -->
     <field name="lkey" type="C" size="40" />
     <field name="language" type="C" size="16" />
-    <field name="text" type="C" size="256" />
+    <field name="text" type="C" size="512" />
     
     <index name="co_localizations_i1">
       <col>co_id</col>

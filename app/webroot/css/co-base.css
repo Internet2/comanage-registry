@@ -1807,7 +1807,8 @@ ul.form-list .fields-header {
 }
 ul.form-list input[type="text"],
 ul.form-list input[type="number"],
-ul.form-list input[type="password"] {
+ul.form-list input[type="password"],
+ul.form-list textarea {
   width: 95%;
   font-size: 1em;
   -webkit-border-radius: 0;
