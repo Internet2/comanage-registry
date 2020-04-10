@@ -1413,10 +1413,12 @@ a.ui-button:visited,
   vertical-align: middle;
 }
 .top-search legend button.cm-toggle {
-  float: right;
-  position: relative;
-  left: -5px;
-  top: -1px;
+  position: absolute;
+  right: 0.5em;
+}
+#content .top-search legend button.cm-toggle .material-icons {
+  font-size: 34px;
+  line-height: 17px;
 }
 .top-search fieldset {
   clear: both;
