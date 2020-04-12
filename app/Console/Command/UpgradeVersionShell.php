@@ -418,7 +418,7 @@ class UpgradeVersionShell extends AppShell {
     
     // API Users is now more configurable. Set existing api users to be
     // active and fully privileged.
-    $this->out(_txt('sh.ug.330.ssh'));
+    $this->out(_txt('sh.ug.330.api'));
     $this->ApiUser->updateAll(
       array(
         'ApiUser.co_id' => 1,
