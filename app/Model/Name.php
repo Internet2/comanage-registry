@@ -171,7 +171,11 @@ class Name extends AppModel {
    * @since  COmanage Registry v0.9.2
    */
   
-  public function beforeSave($options = array()) {    
+  public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Make sure exactly one Primary Name is set
     
     // We don't do transaction management here because we can't guarantee a rollback

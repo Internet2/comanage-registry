@@ -184,6 +184,10 @@ class EmailAddress extends AppModel {
    */
   
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Make sure verified is set appropriately. As of v2.0.0, Org Identity Sources
     // can assert verified status (CO-1331), so we can't just always reset verified
     // to false.

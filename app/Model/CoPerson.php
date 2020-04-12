@@ -200,6 +200,10 @@ class CoPerson extends AppModel {
    */
   
   public function afterSave($created, $options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Manage CO person membership in the CO members group.
     // This is similar to CoPersonRole::reconcileCouMembersGroupMemberships.
     

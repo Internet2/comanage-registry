@@ -49,6 +49,7 @@ class ActionEnum
   const CoGroupMemberEditedPipeline     = 'ECGL';
   const CoGroupMemberValidityTriggered  = 'VCGM';
   const CoGroupProvisioned              = 'PCGA';
+  const CoPersonAddedBulk               = 'ACPB';
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
   const CoPersonAddedPipeline           = 'ACPL';
@@ -99,6 +100,7 @@ class ActionEnum
   const NotificationDelivered           = 'NOTD';
   const NotificationParticipantExpunged = 'NOTE';
   const NotificationResolved            = 'NOTR';
+  const OrgIdAddedBulk                  = 'AOIB';
   const OrgIdAddedManual                = 'AOIM';
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdAddedSource                = 'AOIS';

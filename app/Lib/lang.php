@@ -285,6 +285,7 @@ original notification at
     ActionEnum::CoGroupMemberDeletedPipeline => 'CO Group Member Deleted (Pipeline)',
     ActionEnum::CoGroupMemberValidityTriggered => 'CO Group Member Validity Triggered',
     ActionEnum::CoGroupProvisioned          => 'CO Group Provisioned',
+    ActionEnum::CoPersonAddedBulk           => 'CO Person Created (Bulk)',
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonAddedPipeline       => 'CO Person Created (Pipeline)',
@@ -328,6 +329,7 @@ original notification at
     ActionEnum::NotificationDelivered       => 'Notification Delivered',
     ActionEnum::NotificationParticipantExpunged => 'Notification Participant Expunged',
     ActionEnum::NotificationResolved        => 'Notification Resolved',
+    ActionEnum::OrgIdAddedBulk              => 'Org Identity Created (Bulk)',
     ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
     ActionEnum::OrgIdAddedSource            => 'Org Identity Created (Source)',
@@ -1034,6 +1036,9 @@ original notification at
   'er.server.oauth2.token.none' => 'Access token not found',
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
+  'er.sh.bl.error' => 'Error processing record at line %1$s: %2$s',
+  'er.sh.bl.meta' =>  'Could not parse file metadata',
+  'er.sh.bl.json' =>  'Failed to parse JSON record at %1$s line %2$s',
   'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
   'er.soap.wsdl' =>   'Unable to retrieve WSDL: %1$s',
   'er.status.already' => 'Status is already %1$s',
@@ -2108,6 +2113,11 @@ original notification at
   
   // Shell
   
+  'sh.bl.groups.auto' =>  'Recalculating automatic group memberships, this may take some time...',
+  'sh.bl.indexes.off' =>  'Dropping table indexes...',
+  'sh.bl.indexes.on' =>   'Recreating table indexes, this may take some time...',
+  'sh.bl.file.in' =>      'Reading records from file %1$s',
+  'sh.bl.record.id' =>    'Record at line %1$s assigned %2$s %3$s',
   'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for',
   'sh.job.arg.epilog' =>  'If no task specified, all run. Available tasks: expirations, groupvalidity, syncorgsources, forcesyncorgsources',
   'sh.job.arg.runqueue' => 'Process queued jobs',

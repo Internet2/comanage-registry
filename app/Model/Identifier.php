@@ -291,6 +291,10 @@ class Identifier extends AppModel {
    */
 
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // We don't allow duplicate identifiers for either CoPerson or CoGroup,
     // but we (currently) don't enforce duplicate checking for CoDepartment
     // or OrgIdentity.
