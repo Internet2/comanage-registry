@@ -1416,6 +1416,9 @@ a.ui-button:visited,
   position: absolute;
   right: 0.5em;
 }
+#content .top-search legend .material-icons {
+  font-size: 20px;
+}
 #content .top-search legend button.cm-toggle .material-icons {
   font-size: 34px;
   line-height: 17px;
@@ -1475,9 +1478,13 @@ a.ui-button:visited,
   height: 28px;
   margin: 0.5em;
 }
+.top-search .top-search-checkboxes {
+  margin-top: 0.5em;
+}
 .top-search .filter-clear-all-button {
   font-size: 0.9em;
   width: auto;
+  height: auto;
   line-height: unset;
 }
 .top-search .filter-clear-all-button:hover {
@@ -1499,6 +1506,9 @@ a.ui-button:visited,
 }
 .top-search-active-filter-title::after {
   content: ": ";
+}
+.top-search-active-filter-title.no-value::after {
+  content: none;
 }
 .top-search-active-filters-remove button {
   margin-left: 2em;

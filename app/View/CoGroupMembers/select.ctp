@@ -29,7 +29,7 @@
 <script type="text/javascript">
   $(document).ready(function () {
     // Display warning for changes to co people who are not active (CO683)
-    $("input[type='checkbox']").change(function() {
+    $("#co_people input[type='checkbox']").change(function() {
       if(this.parentElement.previousElementSibling.className != 'Active')
         generateFlash("<?php print _txt('in.groupmember.select') ?>",
                       "information");
@@ -65,6 +65,20 @@
 
   print $this->element("pageTitleAndButtons", $params);
 
+?>
+
+<?php // Load the top search bar
+  if(isset($permissions['search']) && $permissions['search'] ) { // Should be true if we're in this view, but we'll check just in case
+    if(!empty($this->plugin)) {
+      $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroupMembers/search.inc";
+      if(file_exists($fileLocation))
+        include($fileLocation);
+    } else {
+      $fileLocation = APP . "View/CoGroupMembers/search.inc";
+      if(file_exists($fileLocation))
+        include($fileLocation);
+    }
+  }
 ?>
 
 <div class="table-container">
