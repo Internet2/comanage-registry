@@ -55,6 +55,13 @@
       print $this->Form->hidden('id', array('default' => $co_person_roles[0]['CoPersonRole']['id']));
   }
 
+  // CO-1891: Label language strings should render the COU name if available, otherwise the CO name
+  $cur_cou = $cur_co['Co']['name'];
+  if(!empty($menuContent["cous"])
+      && !empty($co_person_roles[0]['CoPersonRole']['cou_id'])) {
+    $cur_cou = $menuContent["cous"][$co_person_roles[0]['CoPersonRole']['cou_id']];
+  }
+
   // Line number, for rendering
   $l = 1;
 
@@ -90,6 +97,12 @@
         } else {
           $(this).find(".material-icons").text("indeterminate_check_box");
         }
+      });
+
+      $('#CoPersonRoleCouId').on('change', '', function () {
+        var selectedCOU = $(this).children("option:selected").html();
+        $("label[for='CoPersonRoleAffiliation']").text(selectedCOU + ' Affiliation');
+        $("label[for='CoPersonRoleTitle']").text(selectedCOU + ' Title');
       });
     });
   </script>
@@ -163,7 +176,7 @@
             <li>
               <div class="field-name">
                 <?php
-                  $label = _txt('fd.affil-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+                  $label = _txt('fd.affil-a', array(filter_var($cur_cou,FILTER_SANITIZE_SPECIAL_CHARS)));
 
                   if($e && !$es) {
                     print $this->Form->label('affiliation', $label);
@@ -265,7 +278,7 @@
             <li>
               <div class="field-name">
                 <?php
-                  $label = _txt('fd.title-a', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS)));
+                  $label = _txt('fd.title-a', array(filter_var($cur_cou,FILTER_SANITIZE_SPECIAL_CHARS)));
 
                   if($e && !$es) {
                     print $this->Form->label('title', $label);
