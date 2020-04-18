@@ -54,16 +54,20 @@ class UnixClusterListener implements CakeEventListener {
   
   public function updateUnixClusterAccount(CakeEvent $event) {
     $subject = $event->subject();
+    // We need to cache data from the event, since the above is apparently a
+    // 
+    $subjectData = $subject->data;
+    $subjectName = $subject->Name;
     
     // First see if this is a model we're interested in
     
-    if($subject->name == 'Identifier'
+    if($subjectName == 'Identifier'
        // We only care about the Primary Name
-       || ($subject->name == 'Name'
-           && isset($subject->data[ $subject->name ]['primary_name'])
-           && $subject->data[ $subject->name ]['primary_name'])) {
+       || ($subjectName == 'Name'
+           && isset($subjectData[ $subjectName ]['primary_name'])
+           && $subjectData[ $subjectName ]['primary_name'])) {
       // Next look for a CO Person ID in the event data
-      if(!empty($subject->data[ $subject->name ]['co_person_id'])) {
+      if(!empty($subjectData[ $subjectName ]['co_person_id'])) {
         // Now look for UnixClusterAccounts associated with this CO Person
         
         $UnixCluster = ClassRegistry::init('UnixCluster.UnixCluster');
@@ -71,7 +75,7 @@ class UnixClusterListener implements CakeEventListener {
         $HistoryRecord = ClassRegistry::init('HistoryRecord');
         
         $args = array();
-        $args['conditions']['UnixClusterAccount.co_person_id'] = $subject->data[ $subject->name ]['co_person_id'];
+        $args['conditions']['UnixClusterAccount.co_person_id'] = $subjectData[ $subjectName ]['co_person_id'];
         $args['conditions']['UnixClusterAccount.sync_mode'] = UnixClusterSyncEnum::Full;
         // For now, we don't look at UnixClusterAccount.status - we'll update attributes even if the account is suspended
         $args['contain'] = array(
@@ -95,17 +99,17 @@ class UnixClusterListener implements CakeEventListener {
             $mods = array();
             $gmods = array();
             
-            if($subject->name == 'Identifier') {
+            if($subjectName == 'Identifier') {
               // Update username and uid from the appropriate identifier type
               
-              if($subject->data[ $subject->name ]['type'] == $acct['UnixCluster']['uid_type']
-                 && $subject->data[ $subject->name ]['identifier'] != $acct['UnixClusterAccount']['uid']) {
+              if($subjectData[ $subjectName ]['type'] == $acct['UnixCluster']['uid_type']
+                 && $subjectData[ $subjectName ]['identifier'] != $acct['UnixClusterAccount']['uid']) {
                 $mods['uid'] = array(
                   'old' => $acct['UnixClusterAccount']['uid'],
-                  'new' => $subject->data[ $subject->name ]['identifier']
+                  'new' => $subjectData[ $subjectName ]['identifier']
                 );
                 
-                $acct['UnixClusterAccount']['uid'] = $subject->data[ $subject->name ]['identifier'];
+                $acct['UnixClusterAccount']['uid'] = $subjectData[ $subjectName ]['identifier'];
                 
                 // If there is an existing Identifier of gid_type that matches the old uid
                 // then we'll also update the Identifier.
@@ -129,14 +133,14 @@ class UnixClusterListener implements CakeEventListener {
                 }
               }
               
-              if($subject->data[ $subject->name ]['type'] == $acct['UnixCluster']['username_type']
-                 && $subject->data[ $subject->name ]['identifier'] != $acct['UnixClusterAccount']['username']) {
+              if($subjectData[ $subjectName ]['type'] == $acct['UnixCluster']['username_type']
+                 && $subjectData[ $subjectName ]['identifier'] != $acct['UnixClusterAccount']['username']) {
                 $mods['username'] = array(
                   'old' => $acct['UnixClusterAccount']['username'],
-                  'new' => $subject->data[ $subject->name ]['identifier']
+                  'new' => $subjectData[ $subjectName ]['identifier']
                 );
                 
-                $acct['UnixClusterAccount']['username'] = $subject->data[ $subject->name ]['identifier'];
+                $acct['UnixClusterAccount']['username'] = $subjectData[ $subjectName ]['identifier'];
                 
                 // Also reconstruct the home directory.
                 
@@ -217,10 +221,10 @@ class UnixClusterListener implements CakeEventListener {
                                        _txt('rs.edited-a4', array($acct['UnixCluster']['Cluster']['description'], $cstr)),
                                        $acct['PrimaryCoGroup']['id']);
               }
-            } elseif($subject->name == 'Name') {
+            } elseif($subjectName == 'Name') {
               // Update gecos from primary name
               
-              $gecos = $UnixCluster->calculateGecos($subject->data[ $subject->name ]);
+              $gecos = $UnixCluster->calculateGecos($subjectData[ $subjectName ]);
               
               if($gecos != $acct['UnixClusterAccount']['gecos']) {
                 $mods['gecos'] = array(
@@ -243,7 +247,7 @@ class UnixClusterListener implements CakeEventListener {
                 $cstr .= ($cstr == "" ? "" : ";") . $field . ": " . $vs['old'] . " > " . $vs['new'];
               }
               
-              $HistoryRecord->record($subject->data[ $subject->name ]['co_person_id'],
+              $HistoryRecord->record($subjectData[ $subjectName ]['co_person_id'],
                                      null,
                                      null,
                                      // Grabbing the $actorCoPersonId is a bit tricky in a listener,
