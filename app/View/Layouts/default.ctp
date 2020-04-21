@@ -200,7 +200,6 @@
 
       </header>
 
-      <!-- CO-1886 - this is where in the default layout we decide to display the menu -->
       <?php if($this->Session->check('Auth.User.name')): ?>
         <div id="navigation-drawer" class="mdl-layout__drawer">
           <nav id="navigation" aria-label="main menu" class="mdl-navigation">
@@ -213,7 +212,7 @@
           </nav>
         </div>
       <?php endif ?>
-      
+
       <main id="main" class="mdl-layout__content">
 
         <div id="content" class="mdl-grid">
