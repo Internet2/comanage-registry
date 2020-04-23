@@ -166,6 +166,13 @@ class Address extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'source_address_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

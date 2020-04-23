@@ -136,6 +136,27 @@ class Identifier extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'co_group_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'source_identifier_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'co_provisioning_target_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

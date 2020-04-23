@@ -59,6 +59,12 @@ class CoGroupMember extends AppModel {
 
   // Validation rules for table elements
   public $validate = array(
+    'co_group_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true
+      )
+    ),
     'co_person_id' => array(
       'content' => array(
         'rule' => 'numeric',
@@ -96,7 +102,7 @@ class CoGroupMember extends AppModel {
         'allowEmpty' => true
       )
     ),
-    'co_nested_group_id' => array(
+    'co_group_nesting_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,

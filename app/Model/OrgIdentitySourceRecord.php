@@ -72,6 +72,13 @@ class OrgIdentitySourceRecord extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'reference_identifier' => array(
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
 }

@@ -143,6 +143,13 @@ class TelephoneNumber extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'source_telephone_number_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   
