@@ -169,7 +169,7 @@
                                                           $this->getFields('CoPerson'));
           
           // Process CO Person models
-          foreach(array('Name', 'Identifier', 'EmailAddress', 'CoGroupMember') as $m) {
+          foreach(array('Name', 'Identifier', 'EmailAddress', 'CoGroupMember', 'HistoryRecord') as $m) {
             $table = Inflector::tableize($m);
             
             if(!empty($inrecord[$m])) {
@@ -257,6 +257,7 @@
                 
                 foreach(array('Address',
                               'EmailAddress',
+                              'HistoryRecord',
                               'Identifier',
                               'Name',
                               'TelephoneNumber') as $m) {
@@ -350,6 +351,7 @@
               
               foreach(array('Address',
                             'EmailAddress',
+                            'HistoryRecord',
                             'Identifier',
                             'Name',
                             'TelephoneNumber',
@@ -549,8 +551,8 @@
           'required' => true
         )
       )->addArgument(
-        // Cake doesn't support ... notation, so we hack it in...
-        'infile> <...',
+        // Cake doesn't support ... notation
+        'infiles',
         array(
           'help'     => 'One or more input data files in specified json format',
           'required' => true

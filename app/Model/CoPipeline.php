@@ -687,9 +687,7 @@ class CoPipeline extends AppModel {
    * @return Integer                   CO Person ID on success
    */
   
-  // This function should really be treated as protected, but BulkLoadShell needs
-  // to call it
-  public function syncOrgIdentityToCoPerson($coPipeline, 
+  protected function syncOrgIdentityToCoPerson($coPipeline, 
                                             $orgIdentity, 
                                             $targetCoPersonId=null, 
                                             $actorCoPersonId=null,
