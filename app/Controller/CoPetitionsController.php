@@ -281,10 +281,13 @@ class CoPetitionsController extends StandardController {
               // Once we have an authenticated identifier we no longer accept tokens.
               // We don't explicitly throw an error because we'll ultimately want to
               // support petition editing (CO-431).
-              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $this->parseCoPetitionId()));
-              
-              if(!$authId) {
-                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+
+              $petitionId = $this->parseCoPetitionId();
+              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $petitionId));
+              $petitionerCoPersonId = $this->CoPetition->field('petitioner_co_person_id', array('CoPetition.id' => $petitionId));
+
+              if(!$authId && !$petitionerCoPersonId) {
+                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $petitionId));
                 $passedToken = $this->parseToken();
                 
                 if($token && $token != '' && $passedToken
@@ -1411,6 +1414,10 @@ class CoPetitionsController extends StandardController {
   protected function execute_petitionerAttributes($id) {
     // When this is called, it's just a GET to render the form. POST processing is
     // handled by petitionerAttributes(), which doesn't call dispatch() on POST.
+    $conclusionText = $this->CoPetition->CoEnrollmentFlow->field('conclusion_text', array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    if(!empty($conclusionText)) {
+      $this->set('vv_conclusion_text', $conclusionText);
+    }
   }
   
   /**

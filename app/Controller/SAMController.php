@@ -358,15 +358,15 @@ class SAMController extends StandardController {
     switch($action) {
       case 'add':
         $cstr = _txt('rs.added-a2', array($authcfg['Authenticator']['description'],
-                                          $newdata['Certificate']['description']));
+                                          $newdata[$req][$model->displayField]));
         break;
       case 'delete':
         $cstr = _txt('rs.deleted-a2', array($authcfg['Authenticator']['description'],
-                                            $olddata['Certificate']['description']));
+                                            $olddata[$req][$model->displayField]));
         break;
       case 'edit':
         $cstr = _txt('rs.edited-a2', array($authcfg['Authenticator']['description'],
-                                           $newdata['Certificate']['description']));
+                                           $newdata[$req][$model->displayField]));
         break;
     }
     

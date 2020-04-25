@@ -1228,6 +1228,7 @@ class AppController extends Controller {
       $args['conditions']['CoOrgIdentityLink.co_person_id'] = $userId;
       $args['conditions']['Identifier.status'] = StatusEnum::Active;
       $args['conditions']['Identifier.login'] = true;
+      $args['contain']['CoOrgIdentityLink']['OrgIdentity'] = array('Identifier', 'EmailAddress');
 
       // Specify fields so we can force the OrgIdentity ID to be distinct
       $args['fields'] = array('DISTINCT OrgIdentity.org_identity_id','OrgIdentity.o','OrgIdentity.ou','OrgIdentity.title');

@@ -640,7 +640,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'voPersonStatus':
-                $attributes[$attr] = StatusENum::$to_api[ $provisioningData['CoPerson']['status'] ];
+                $attributes[$attr] = StatusEnum::$to_api[ $provisioningData['CoPerson']['status'] ];
                 
                 if($attropts) {
                   // If attribute options are enabled, emit person role status as well
@@ -648,7 +648,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   foreach($provisioningData['CoPersonRole'] as $r) {
                     $lrattr = $lattr . ";role-" . $r['id'];
                     
-                    $attributes[$lrattr] = StatusENum::$to_api[ $r['status'] ];
+                    $attributes[$lrattr] = StatusEnum::$to_api[ $r['status'] ];
                   }
                 }
                 break;
@@ -927,8 +927,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             }
           }
           
-          // Check if we emitted anything
-          if(!empty($attributes[$attr])) {
+          // Check if we emitted anything by comparing the keys for marshalled attributes
+          // to the attribute just considered, knowing that we may have added
+          // an attribute with a name appended with an option like ';prior'.
+          if(array_filter($attributes, function ($k) use ($attr) {return strpos($k, $attr) === 0;}, ARRAY_FILTER_USE_KEY)) {
             $attrEmitted = true;
           }
         }
