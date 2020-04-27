@@ -1,6 +1,14 @@
 <?php
 /**
+<<<<<<< HEAD
  * COmanage Registry Password Authenticator Routes
+=======
+<<<<<<< HEAD:app/AvailablePlugin/MailmanProvisioner/Lib/enum.php
+ * COmanage Registry Mailman Provisioner Enumerations
+=======
+ * COmanage Registry Password Authenticator Routes
+>>>>>>> b0af78b549453868236fac4cfaeb039e41c1f8b9:app/AvailablePlugin/PasswordAuthenticator/Config/routes.php
+>>>>>>> b0af78b549453868236fac4cfaeb039e41c1f8b9
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -20,6 +28,7 @@
  * limitations under the License.
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
+<<<<<<< HEAD
  * @package       registry-plugin
  * @since         COmanage Registry v3.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
@@ -28,3 +37,27 @@
 Router::mapResources(array(
   'PasswordAuthenticator.passwords',
 ));
+=======
+<<<<<<< HEAD:app/AvailablePlugin/MailmanProvisioner/Lib/enum.php
+ * @package       registry
+ * @since         COmanage Registry v3.2.3
+=======
+ * @package       registry-plugin
+ * @since         COmanage Registry v3.4.0
+>>>>>>> b0af78b549453868236fac4cfaeb039e41c1f8b9:app/AvailablePlugin/PasswordAuthenticator/Config/routes.php
+ * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @version       $Id$
+ */
+
+<<<<<<< HEAD:app/AvailablePlugin/MailmanProvisioner/Lib/enum.php
+class MailmanProvUnmanEmailEnum
+{
+  const Ignore = 'I';
+  const Remove = 'R';
+}
+=======
+Router::mapResources(array(
+  'PasswordAuthenticator.passwords',
+));
+>>>>>>> b0af78b549453868236fac4cfaeb039e41c1f8b9:app/AvailablePlugin/PasswordAuthenticator/Config/routes.php
+>>>>>>> b0af78b549453868236fac4cfaeb039e41c1f8b9

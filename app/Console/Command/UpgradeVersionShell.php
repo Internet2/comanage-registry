@@ -472,4 +472,26 @@ class UpgradeVersionShell extends AppShell {
       );
     }
   }
+  
+  public function post340() {
+    // 3.4.0 adds multiple types of Password Sources, however the PasswordAuthenticator
+    // plugin might not be enabled.
+    
+    if(CakePlugin::loaded('PasswordAuthenticator')) {
+      // We can't add models to $uses since they may not exist
+      $this->loadModel('PasswordAuthenticator.PasswordAuthenticator');
+      
+      // All existing Password Authenticators have a password_source of Self Select
+      $this->out(_txt('sh.ug.340.password'));
+      
+      $this->PasswordAuthenticator->updateAll(
+        array(
+          'PasswordAuthenticator.password_source' => "'SL'"  // Wacky updateAll syntax
+        ),
+        array(
+          'PasswordAuthenticator.password_source' => null
+        )
+      );
+    }
+  }
 }
