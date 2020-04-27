@@ -36,13 +36,15 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  
-  $args = array();
-  $args['plugin'] = null;
-  $args['controller'] = 'co_groups';
-  $args['action'] = 'index';
-  $args['co'] = $cur_co['Co']['id'];
-  $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+
+  if($permissions['index']) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_groups';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  }
   
   $args = array();
   $args['plugin'] = null;

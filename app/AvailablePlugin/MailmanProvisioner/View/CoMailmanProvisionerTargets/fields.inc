@@ -125,6 +125,35 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.mailmanprovisioner.uem'); ?><span class="required">*</span></div>
+      <div class="field-desc"><?php print _txt('pl.mailmanprovisioner.uem.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($co_mailman_provisioner_targets[0]['CoMailmanProvisionerTarget']['unmanaged_email_mode'])
+          ? $co_mailman_provisioner_targets[0]['CoMailmanProvisionerTarget']['unmanaged_email_mode']
+          : MailmanProvUnmanEmailEnum::Remove);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('unmanaged_email_mode',
+            $cm_texts[ $cm_lang ]['en.mailmanprovisioner.unmanagedemail'],
+            $attrs);
+
+          if($this->Form->isFieldError('unmanaged_email_mode')) {
+            print $this->Form->error('unmanaged_email_mode');
+          }
+        } else {
+          print _txt('en.mailmanprovisioner.unmanagedemail', null, $co_mailman_provisioner_targets[0]['CoMailmanProvisionerTarget']['unmanaged_email_mode']);
+        }
+      ?>
+    </div>
+  </li>
   <?php if($e): ?>
     <li>
       <div class="field-name">

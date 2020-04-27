@@ -97,9 +97,6 @@
   #content {
     padding: 1em;
   }
-  #dialog-review {
-    height: 500px !important; /* mobile size */
-  }
   /* CO PEOPLE */
   #co_people .rolestatus {
     float: right !important;
@@ -118,6 +115,10 @@
   #co_people .person-admin button {
     display: inline;
   }
+  ul.form-list li.field-flex {
+    display: flex;
+    align-items: center;
+  }
   ul.form-list .field-name {
     display: inline-block;
     min-width: 80px;
@@ -128,6 +129,10 @@
   ul.form-list .field-info {
     display: inline-block;
     width: 65%;
+  }
+  ul.form-list .field-info-flex {
+    display: inline-flex;
+    align-items: center;
   }
   ul.form-list-admin .field-name {
     width: 50%;
@@ -140,6 +145,13 @@
   ul.form-list input[type="number"],
   ul.form-list input[type="password"] {
     width: 97%;
+  }
+  ul.form-list .field-info-flex input[type="text"],
+  ul.form-list .field-info-flex input[type="number"],
+  ul.form-list .field-info-flex input[type="password"],
+  ul.form-list .field-info-flex textarea {
+    width: auto;
+    flex-grow: 1;
   }
   ul.form-list li.field-stack textarea {
     margin: 0.5em 0 0.5em 0.5em;
@@ -176,9 +188,6 @@
   }
   .modelbox-data-label {
     width: 120px;
-  }
-  #dialog-review {
-    height: auto !important; /* desktop size */
   }
   #ui-datepicker-div {
     left: 30% !important;
@@ -373,6 +382,8 @@
   /* Listing sorter */
   #sorter {
     float: right;
+    margin-top: -1.5em;
+    padding-bottom: 0.5em;
   }
   /* Listing controls */
   .listControl li {

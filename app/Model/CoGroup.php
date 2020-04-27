@@ -435,6 +435,26 @@ class CoGroup extends AppModel {
   }
   
   /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  boolean $created True if a new record was created (rather than update)
+   * @param  array   $options As passed into Model::save()
+   */
+
+  public function afterSave($created, $options = array()) {
+    // Maybe assign identifiers, but only for new Groups
+    if($created 
+       && !empty($this->data['CoGroup']['id'])
+       && isset($this->data['CoGroup']['auto'])   // CO-1829
+       && !$this->data['CoGroup']['auto']) {
+      $this->Identifier->assign('CoGroup', $this->data['CoGroup']['id'], null);
+    }
+
+    return true;
+  }
+  
+  /**
    * Actions to take before a save operation is executed.
    *
    * @since  COmanage Registry v2.0.0
@@ -661,11 +681,12 @@ class CoGroup extends AppModel {
    * 
    * @since COmanage Registry 3.3.0
    * @param Integer CoGroup Id
+   * @param String  Whether to disable safeties (only supported for automatic groups)
    * @return true on success
    * @throws InvalidArgumentException
    */
   
-  public function reconcile($id) {
+  public function reconcile($id, $safeties="on") {
     // First find the group
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
@@ -679,7 +700,7 @@ class CoGroup extends AppModel {
     
     // If this is an automatic group, hand off to reconcileAutomaticGroup()
     if($group['CoGroup']['auto']) {
-      return $this->reconcileAutomaticGroup($group);
+      return $this->reconcileAutomaticGroup($group, $safeties);
     }
     
     // XXX we run into a similar problem here as in CoPipeline, which is that
@@ -759,12 +780,13 @@ class CoGroup extends AppModel {
    * Reconcile CO Person memberships in an automatic group.
    * 
    * @since COmanage Registry 0.9.3
-   * @param  Array Array of CO Group info to reconcile
+   * @param  Array  Array of CO Group info to reconcile
+   * @param  String Whether to disable safety checks
    * @return true on success
    * @throws InvalidArgumentException
    */
   
-  protected function reconcileAutomaticGroup($group) {
+  protected function reconcileAutomaticGroup($group, $safeties="on") {
     // Determine the set of people who should be in the target group.
     // Currently we only support ActiveMembers and AllMembers.
     
@@ -792,15 +814,18 @@ class CoGroup extends AppModel {
     $args['contain'] = false;
     
     $coPeople = $this->Co->CoPerson->find('all', $args);
+    $members = array();
     
-    // Determine the set of people currently in the target group
-    $args = array();
-    $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
-    $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
-    $args['fields'] = array('CoGroupMember.co_person_id', 'CoGroupMember.id' );
-    $args['contain'] = false;
-    
-    $members = $this->Co->CoGroup->CoGroupMember->find('list', $args);
+    if($safeties != 'off') {
+      // Determine the set of people currently in the target group
+      $args = array();
+      $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
+      $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
+      $args['fields'] = array('CoGroupMember.co_person_id', 'CoGroupMember.id' );
+      $args['contain'] = false;
+      
+      $members = $this->Co->CoGroup->CoGroupMember->find('list', $args);
+    }
     
     // Make diff'able arrays
     $currentMembers = array_keys($members);

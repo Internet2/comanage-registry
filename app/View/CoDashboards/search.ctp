@@ -79,7 +79,7 @@
       print _txt('rs.search.noquery');
     }
     
-    // Models associated with CoPerson
+    // Models associated with CoPerson or CoGroup
     
     foreach(array('Name' => 'generateCn',
                   'EmailAddress' => 'mail',
@@ -92,12 +92,21 @@
         print "<ul>";
         
         foreach($vv_results[$m] as $r) {
-          $args = array(
-            'plugin'     => null,
-            'controller' => 'co_people',
-            'action'     => 'canvas',
-            $r[$m]['co_person_id']
-          );
+          if(!empty($r[$m]['co_person_id'])) {
+            $args = array(
+              'plugin'     => null,
+              'controller' => 'co_people',
+              'action'     => 'canvas',
+              $r[$m]['co_person_id']
+            );
+          } elseif(!empty($r[$m]['co_group_id'])) {
+            $args = array(
+              'plugin'     => null,
+              'controller' => 'co_groups',
+              'action'     => 'edit',
+              $r[$m]['co_group_id']
+            );
+          }
           
           $linkLabel = $r[$m]['id'];
           
@@ -108,6 +117,8 @@
             if(!empty($r['CoPerson']['CoPersonRole'][0]['title'])) {
               $linkLabel .= " (" . $r['CoPerson']['CoPersonRole'][0]['title'] . ")";
             }
+          } elseif(!empty($r['CoGroup']['name'])) {
+            $linkLabel = $r['CoGroup']['name'];
           } elseif(!empty($r[$m][$k])) {
             $linkLabel = $r[$m][$k];
             

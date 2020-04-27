@@ -99,6 +99,10 @@ class CoIdentifierAssignmentsController extends StandardController {
     
     $this->set('identifier_types', $this->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
     
+    // ... and also EmailAddress types
+    
+    $this->set('email_address_types', $this->Co->CoPerson->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+    
     // Dynamically adjust validation rules to include the current CO ID for dynamic types.
     
     $vrule = $this->CoIdentifierAssignment->validate['identifier_type']['content']['rule'];

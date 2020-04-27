@@ -285,6 +285,7 @@ original notification at
     ActionEnum::CoGroupMemberDeletedPipeline => 'CO Group Member Deleted (Pipeline)',
     ActionEnum::CoGroupMemberValidityTriggered => 'CO Group Member Validity Triggered',
     ActionEnum::CoGroupProvisioned          => 'CO Group Provisioned',
+    ActionEnum::CoPersonAddedBulk           => 'CO Person Created (Bulk)',
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonAddedPipeline       => 'CO Person Created (Pipeline)',
@@ -328,6 +329,7 @@ original notification at
     ActionEnum::NotificationDelivered       => 'Notification Delivered',
     ActionEnum::NotificationParticipantExpunged => 'Notification Participant Expunged',
     ActionEnum::NotificationResolved        => 'Notification Resolved',
+    ActionEnum::OrgIdAddedBulk              => 'Org Identity Created (Bulk)',
     ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
     ActionEnum::OrgIdAddedSource            => 'Org Identity Created (Source)',
@@ -390,17 +392,17 @@ original notification at
   ),
 
   'en.chars.permitted.re' => array(
-    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z]',
-    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z\.\-_]',
-    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z\.\-_\']',
+    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z0-9]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z0-9\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => '.*'
   ),
   
   // The inverse of the above (NOT permitted)
   'en.chars.permitted.re.not' => array(
-    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z]',
-    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z\.\-_]',
-    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z\.\-_\']',
+    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z0-9]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z0-9\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => ''
   ),
   
@@ -521,6 +523,12 @@ original notification at
   
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
+  
+  'en.ia.context' => array(
+    IdentifierAssignmentContextEnum::CoDepartment => 'CO Department',
+    IdentifierAssignmentContextEnum::CoGroup      => 'CO Group',
+    IdentifierAssignmentContextEnum::CoPerson     => 'CO Person'
+  ),
 
   // Extended type, key must be en.model.attribute
   'en.identifier.type' =>  array(IdentifierEnum::Badge => 'Badge',
@@ -835,6 +843,13 @@ original notification at
     UrlEnum::Personal => 'Personal',
   ),
   
+  // Extended type, key must be en.model.attribute
+  'en.co_department.type' => array(
+    DepartmentEnum::VO                => 'VO',
+    DepartmentEnum::ResearchInstitute => 'Research Institute',
+    DepartmentEnum::Department        => 'Department',
+  ),
+
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
@@ -942,8 +957,9 @@ original notification at
   'er.ia.already' =>  'Identifier already assigned',
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
+  'er.ia.gr.auto' =>  'Cannot assign identifiers for automatic groups',
   'er.ia.none' =>     'No identifier assignments configured',
-  'er.ia.id.type' =>  'No identifier of type "%$1s" found',
+  'er.ia.id.type' =>  'No identifier of type "%1$s" found',
   'er.ia.id.type.none' =>  'No identifier type specified',
   'er.id.exists-a' => 'The identifier "%1$s" is already in use (%2$s)',
   'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
@@ -1020,6 +1036,9 @@ original notification at
   'er.server.oauth2.token.none' => 'Access token not found',
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
+  'er.sh.bl.error' => 'Error processing record at line %1$s: %2$s',
+  'er.sh.bl.meta' =>  'Could not parse file metadata',
+  'er.sh.bl.json' =>  'Failed to parse JSON record at %1$s line %2$s',
   'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
   'er.soap.wsdl' =>   'Unable to retrieve WSDL: %1$s',
   'er.status.already' => 'Status is already %1$s',
@@ -1311,6 +1330,8 @@ original notification at
   // Identifier Assignment
   'fd.ia.algorithm' => 'Algorithm',
   'fd.ia.algorithm.desc' => 'The algorithm to use when generating identifiers',
+  'fd.ia.context' => 'Context',
+  'fd.ia.context.desc' => 'This Identifier Assignment will be applied to Identifiers attached to the specified context',
   'fd.ia.exclusions' => 'Exclusions',
   'fd.ia.exclusions.desc' => '(Not yet implemented)',
   'fd.ia.format' =>   'Format',
@@ -1451,6 +1472,8 @@ original notification at
   'fd.pi.match.type' => 'Match Field Type',
   'fd.pi.match.type.desc' => 'Required only for Identifier match strategy',
   'fd.pi.sync.add' => 'Sync on Add',
+  'fd.pi.sync.add.ef' => 'Enrollment Flow',
+  'fd.pi.sync.add.ef.desc' => 'Enrollment Flow to trigger on add action, see the <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Pipelines#RegistryPipelines-TriggeringEnrollmentFlowsFromPipelines">documentation</a> for more details',
   'fd.pi.sync.affil' => 'CO Person Role Affiliation',
   'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
   'fd.pi.sync.cou' => 'Sync to COU',
@@ -1510,6 +1533,12 @@ original notification at
   'fd.server.oauth2.redirect' => 'Redirect URI',
   'fd.server.oauth2.scope' => 'Scope',
   'fd.server.sql.database' => 'Database',
+  'fd.server.http.ssl_allow_self_signed'      => 'Allow self-signed certificates',
+  'fd.server.http.ssl_allow_self_signed.desc' => 'Allow self-signed certificates to be accepted. Requires certificate verification.',
+  'fd.server.http.ssl_verify_peer'            => 'Require certificate verification',
+  'fd.server.http.ssl_verify_peer.desc'       => 'Verify the certificate.',
+  'fd.server.http.ssl_verify_peer_name'       => 'Require name verification',
+  'fd.server.http.ssl_verify_peer_name.desc'  => 'Verify the name presented in the certificate.',
   'fd.set' =>         'Set',
   'fd.set.not' =>     'Not Set',
   'fd.sorid' =>       'Source Key',
@@ -1806,7 +1835,7 @@ original notification at
   'op.home.no.collabs' => 'No collaborations are currently available.',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.all' => 'Autogenerate Identifiers For All',
-  'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People?',
+  'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People, CO Groups, and CO Departments?',
   'op.id.auto.confirm' => 'Are you sure you wish to autogenerate identifiers?',
   'op.id.auto.wait' => 'Generating identifiers, please wait...',
   'op.inv' =>         'Invite',
@@ -2084,7 +2113,12 @@ original notification at
   
   // Shell
   
-  'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for (all COs if not specified)',
+  'sh.bl.groups.auto' =>  'Recalculating automatic group memberships, this may take some time...',
+  'sh.bl.indexes.off' =>  'Dropping table indexes...',
+  'sh.bl.indexes.on' =>   'Recreating table indexes, this may take some time...',
+  'sh.bl.file.in' =>      'Reading records from file %1$s',
+  'sh.bl.record.id' =>    'Record at line %1$s assigned %2$s %3$s',
+  'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for',
   'sh.job.arg.epilog' =>  'If no task specified, all run. Available tasks: expirations, groupvalidity, syncorgsources, forcesyncorgsources',
   'sh.job.arg.runqueue' => 'Process queued jobs',
   'sh.job.arg.synchronous' => 'Run synchronously',
@@ -2127,7 +2161,10 @@ original notification at
   'sh.ug.110.is' =>       'Updating inactive identifier status',
   'sh.ug.310.url' =>      'Instantiating default URL Extended Types',
   'sh.ug.330.api' =>      'Updating API User Permissions',
+  'sh.ug.330.cojob' =>    'Migrating CO Job type',
+  'sh.ug.330.ia' =>       'Adding context to Identifier Assignments',
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
+  'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
   'sh.ug.330.users' =>    'Dropping users View',
 );
 

@@ -49,7 +49,15 @@ class CoEnrollmentAttributesController extends StandardController {
   
   // We don't directly require a CO, but indirectly we do.
   public $requires_co = true;
-
+  
+  public $edit_contains = array(
+    'CoEnrollmentAttributeDefault'
+  );
+  
+  public $view_contains = array(
+    'CoEnrollmentAttributeDefault'
+  );
+  
   /**
    * Add an Enrollment Attribute.
    * - precondition: Model specific attributes in $this->request->data (optional)
@@ -70,6 +78,7 @@ class CoEnrollmentAttributesController extends StandardController {
         $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = filter_var($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'],
           FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
         $args['order'][] = "m";
+        $args['contain'] = false;
         
         $o = $this->CoEnrollmentAttribute->find('first', $args);
         $n = 1;
@@ -104,89 +113,6 @@ class CoEnrollmentAttributesController extends StandardController {
     // fields need to be unlocked.
     // Reorder was also unlocked so that the AJAX calls could get through for drag/drop reordering.
     $this->Security->unlockedActions = array('add', 'edit', 'reorder');
-    
-    // Strictly speaking, this controller doesn't require a CO except to redirect/render views.
-    // Figure out the CO ID associated with the current enrollment flow. We'll specifically
-    // not set $this->cur_co since it will break things like pagination setup.
-    
-    $coefid = null;
-    
-    if($this->action == 'add' || $this->action == 'index' || $this->action == 'order') {
-      // Accept coefid from the url or the form
-      
-      if(!empty($this->request->params['named']['coef'])) {
-        $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
-      } elseif(!empty($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'])) {
-        $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
-      }
-    } elseif(!empty($this->request->params['pass'][0])) {
-      // Map the enrollment flow from the requested object
-      
-      $coefid = $this->CoEnrollmentAttribute->field('co_enrollment_flow_id',
-                                                    array('id' => $this->request->params['pass'][0]));
-    }
-    
-    if($coefid) {
-      // XXX much of this could probably be moved to beforeRender()
-      $this->CoEnrollmentAttribute->CoEnrollmentFlow->id = $coefid;
-      
-      $this->set('vv_coefid', filter_var($coefid,FILTER_SANITIZE_SPECIAL_CHARS));
-      
-      $coid = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id');
-      
-      if(!empty($coid)) {
-        $this->set('vv_coid', $coid);
-        
-        // Assemble the set of available attributes for the view to render
-        
-        $this->set('vv_available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
-        
-        // By specifying actions here we limit the number of queries for /index
-        if($this->action == 'add' || $this->action == 'edit') {
-          // And pull details of extended attributes so views can determine types
-          
-          $args = array();
-          $args['conditions']['co_id'] = $coid;
-          $args['fields'] = array('CoExtendedAttribute.name', 'CoExtendedAttribute.type');
-          $args['contain'] = false;
-          
-          $this->set('vv_ext_attr_types',
-                     $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoExtendedAttribute->find('list', $args));
-          
-          // Assemble the list of available COUs
-          
-          $this->set('vv_cous', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->Cou->allCous($coid));
-          
-          // Assemble the list of available affiliations
-          
-          $this->set('vv_affiliations', $this->CoPersonRole->types($coid, 'affiliation'));
-          
-          // Assemble the list of available Sponsors
-          
-          $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
-          
-          // Assemble the list of available groups. Note we currently allow any group to be
-          // specified (ie: whether or not it's open). The idea is that an Enrollment Flow
-          // is defined by an admin, who can correctly select a group. However, it's plausible
-          // that we should offer options to filter to open groups, or to a subset of groups
-          // as selected by the administrator (especially for scenarios where the value is
-          // modifiable).
-          
-          $args = array();
-          $args['conditions']['co_id'] = $coid;
-          $args['fields'] = array('CoGroup.id', 'CoGroup.name');
-          $args['order'] = array('CoGroup.name asc');
-          $args['contain'] = false;
-          
-          $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));
-          
-          if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
-             && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
-            $this->set('vv_attributes_from_env', true);
-          }
-        }
-      }
-    }
   }
 
   /**
@@ -199,47 +125,129 @@ class CoEnrollmentAttributesController extends StandardController {
     parent::beforeRender();
     
     if(!$this->request->is('restful')) {
-      // Override page title
+      // Strictly speaking, this controller doesn't require a CO except to redirect/render views.
+      // Figure out the CO ID associated with the current enrollment flow. We'll specifically
+      // not set $this->cur_co since it will break things like pagination setup.
       
-      // ->id was set in beforeFilter();
-      $efname = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('name');
+      $coefid = null;
       
-      $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
-      $this->set('vv_ef_name', $efname);
-      $this->set('vv_ef_id', $this->CoEnrollmentAttribute->CoEnrollmentFlow->id);
-      
-      // Determine attribute enumerations
-      $enums = $this->AttributeEnumeration->active($this->viewVars['vv_coid'],
-                                                   null,
-                                                   'list',
-                                                   $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
-      
-      // We need to rekey $enums from general format (eg) "OrgIdentity.o" to
-      // Enrollment Attribute format (eg) "o:o"
-      
-      if(!empty($enums)) {
-        foreach($enums as $attr => $enum) {
-          $a = explode('.', $attr, 2);
-          $code = "";
-          
-          switch($a[0]) {
-            case 'CoPersonRole':
-              $code = 'r';
-              break;
-            case 'OrgIdentity':
-              $code = 'o';
-              break;
-            default:
-              throw new LogicException(_txt('er.notimpl'));
-              break;
-          }
-          
-          $enums[ $code.":".$a[1] ] = $enum;
-          unset($enums[$attr]);
+      if($this->action == 'add' || $this->action == 'index' || $this->action == 'order') {
+        // Accept coefid from the url or the form
+        
+        if(!empty($this->request->params['named']['coef'])) {
+          $coefid = filter_var($this->request->params['named']['coef'],FILTER_SANITIZE_SPECIAL_CHARS);
+        } elseif(!empty($this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'])) {
+          $coefid = $this->request->data['CoEnrollmentAttribute']['co_enrollment_flow_id'];
         }
+      } elseif(!empty($this->request->params['pass'][0])) {
+        // Map the enrollment flow from the requested object
+        
+        $coefid = $this->CoEnrollmentAttribute->field('co_enrollment_flow_id',
+                                                      array('id' => $this->request->params['pass'][0]));
       }
       
-      $this->set('vv_enums', $enums);
+      if($coefid) {
+        $this->CoEnrollmentAttribute->CoEnrollmentFlow->id = $coefid;
+        
+        $this->set('vv_coefid', filter_var($coefid,FILTER_SANITIZE_SPECIAL_CHARS));
+        
+        $coid = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('co_id');
+        
+        if(!empty($coid)) {
+          $this->set('vv_coid', $coid);
+          
+          // Override page title
+          
+          // ->id was set in beforeFilter();
+          $efname = $this->CoEnrollmentAttribute->CoEnrollmentFlow->field('name');
+          
+          $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
+          $this->set('vv_ef_name', $efname);
+          $this->set('vv_ef_id', $this->CoEnrollmentAttribute->CoEnrollmentFlow->id);
+          
+          // Determine attribute enumerations
+          $enums = $this->AttributeEnumeration->active($this->viewVars['vv_coid'],
+                                                       null,
+                                                       'list',
+                                                       $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
+          
+          // We need to rekey $enums from general format (eg) "OrgIdentity.o" to
+          // Enrollment Attribute format (eg) "o:o"
+          
+          if(!empty($enums)) {
+            foreach($enums as $attr => $enum) {
+              $a = explode('.', $attr, 2);
+              $code = "";
+              
+              switch($a[0]) {
+                case 'CoPersonRole':
+                  $code = 'r';
+                  break;
+                case 'OrgIdentity':
+                  $code = 'o';
+                  break;
+                default:
+                  throw new LogicException(_txt('er.notimpl'));
+                  break;
+              }
+              
+              $enums[ $code.":".$a[1] ] = $enum;
+              unset($enums[$attr]);
+            }
+          }
+          
+          $this->set('vv_enums', $enums);
+          
+          // Assemble the set of available attributes for the view to render
+          
+          $this->set('vv_available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
+          
+          // By specifying actions here we limit the number of queries for /index
+          if($this->action == 'add' || $this->action == 'edit') {
+            // And pull details of extended attributes so views can determine types
+            
+            $args = array();
+            $args['conditions']['co_id'] = $coid;
+            $args['fields'] = array('CoExtendedAttribute.name', 'CoExtendedAttribute.type');
+            $args['contain'] = false;
+            
+            $this->set('vv_ext_attr_types',
+                       $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoExtendedAttribute->find('list', $args));
+            
+            // Assemble the list of available COUs
+            
+            $this->set('vv_cous', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->Cou->allCous($coid));
+            
+            // Assemble the list of available affiliations
+            
+            $this->set('vv_affiliations', $this->CoPersonRole->types($coid, 'affiliation'));
+            
+            // Assemble the list of available Sponsors
+            
+            $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
+            
+            // Assemble the list of available groups. Note we currently allow any group to be
+            // specified (ie: whether or not it's open). The idea is that an Enrollment Flow
+            // is defined by an admin, who can correctly select a group. However, it's plausible
+            // that we should offer options to filter to open groups, or to a subset of groups
+            // as selected by the administrator (especially for scenarios where the value is
+            // modifiable).
+            
+            $args = array();
+            $args['conditions']['co_id'] = $coid;
+            $args['fields'] = array('CoGroup.id', 'CoGroup.name');
+            $args['order'] = array('CoGroup.name asc');
+            $args['contain'] = false;
+            
+            $this->set('vv_groups', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoGroup->find('list', $args));
+            
+            if($this->CmpEnrollmentConfiguration->orgIdentitiesFromCOEF()
+               && $this->CmpEnrollmentConfiguration->enrollmentAttributesFromEnv()) {
+              $this->set('vv_attributes_from_env', true);
+            }
+          }
+        }
+      }
     }
   }
   

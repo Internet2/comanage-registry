@@ -369,6 +369,60 @@ class ApiComponent extends Component {
   }
   
   /**
+   * Determine the requested COID based on the requested URL, and specifically
+   * its query parameters.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  $model   Cake Model
+   * @param  $request Cake Rquest
+   * @return int      CO ID, or null if not found
+   */
+  
+  public function requestedCOID($model, $request) {
+    $coid = null;
+    
+    // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
+    // for REST operations that meet the following requirements:
+    // (1) The request is a GET
+    // (2) The request does not include a specific ID (eg view by CO, not view by ID)
+    // (3) The requested model directly belongsTo the parent link
+    // (Note Registry v5 implements this as a per-model check instead, but
+    // we don't have the infrastructure for that.)
+    
+    if($request->method() == 'GET'
+       && empty($request->params['pass'])) {
+      // For historical reasons, the query string keys aren't standard
+      $permittedKeys = array(
+        'codeptid' => 'CoDepartment',
+        'cogroupid' => 'CoGroup',
+        'coid' => 'Co',
+        'copersonid' => 'CoPerson',
+        'couid' => 'Cou',
+        'orgidentityid' => 'OrgIdentity'
+      );
+      
+      foreach($permittedKeys as $k => $m) {
+        if(!empty($request->query[$k])
+           && !empty($model->belongsTo[$m])) {
+          if($k == 'coid') {
+            $coid = $request->query['coid'];
+          } else {
+            // For any other key, we need to map it to a CO
+            
+            $ParentModel = ClassRegistry::init($m);
+            
+            $coid = $ParentModel->findCoForRecord($request->query[$k]);
+          }
+          
+          break;
+        }
+      }
+    }
+    
+    return $coid;
+  }
+  
+  /**
    * Prepare a REST result HTTP header.
    * - precondition: HTTP headers must not yet have been sent
    * - postcondition: CakeResponse configured with header

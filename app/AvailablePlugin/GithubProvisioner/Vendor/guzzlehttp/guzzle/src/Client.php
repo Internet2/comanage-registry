@@ -1,397 +1,422 @@
 <?php
-
 namespace GuzzleHttp;
 
-use GuzzleHttp\Adapter\Curl\MultiAdapter;
-use GuzzleHttp\Event\HasEmitterTrait;
-use GuzzleHttp\Adapter\FakeParallelAdapter;
-use GuzzleHttp\Adapter\ParallelAdapterInterface;
-use GuzzleHttp\Adapter\AdapterInterface;
-use GuzzleHttp\Adapter\StreamAdapter;
-use GuzzleHttp\Adapter\StreamingProxyAdapter;
-use GuzzleHttp\Adapter\Curl\CurlAdapter;
-use GuzzleHttp\Adapter\Transaction;
-use GuzzleHttp\Adapter\TransactionIterator;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Message\MessageFactory;
-use GuzzleHttp\Message\MessageFactoryInterface;
-use GuzzleHttp\Message\RequestInterface;
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Psr7;
+use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
- * HTTP client
+ * @method ResponseInterface get(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface head(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface put(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface post(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface patch(string|UriInterface $uri, array $options = [])
+ * @method ResponseInterface delete(string|UriInterface $uri, array $options = [])
+ * @method Promise\PromiseInterface getAsync(string|UriInterface $uri, array $options = [])
+ * @method Promise\PromiseInterface headAsync(string|UriInterface $uri, array $options = [])
+ * @method Promise\PromiseInterface putAsync(string|UriInterface $uri, array $options = [])
+ * @method Promise\PromiseInterface postAsync(string|UriInterface $uri, array $options = [])
+ * @method Promise\PromiseInterface patchAsync(string|UriInterface $uri, array $options = [])
+ * @method Promise\PromiseInterface deleteAsync(string|UriInterface $uri, array $options = [])
  */
 class Client implements ClientInterface
 {
-    use HasEmitterTrait;
-
-    const DEFAULT_CONCURRENCY = 25;
-
-    /** @var MessageFactoryInterface Request factory used by the client */
-    private $messageFactory;
-
-    /** @var AdapterInterface */
-    private $adapter;
-
-    /** @var ParallelAdapterInterface */
-    private $parallelAdapter;
-
-    /** @var Url Base URL of the client */
-    private $baseUrl;
-
     /** @var array Default request options */
-    private $defaults;
+    private $config;
 
     /**
      * Clients accept an array of constructor parameters.
      *
-     * Here's an example of creating a client using an URI template for the
-     * client's base_url and an array of default request options to apply
-     * to each request:
+     * Here's an example of creating a client using a base_uri and an array of
+     * default request options to apply to each request:
      *
      *     $client = new Client([
-     *         'base_url' => [
-     *              'http://www.foo.com/{version}/',
-     *              ['version' => '123']
-     *          ],
-     *         'defaults' => [
-     *             'timeout'         => 10,
-     *             'allow_redirects' => false,
-     *             'proxy'           => '192.168.16.1:10'
-     *         ]
+     *         'base_uri'        => 'http://www.foo.com/1.0/',
+     *         'timeout'         => 0,
+     *         'allow_redirects' => false,
+     *         'proxy'           => '192.168.16.1:10'
      *     ]);
      *
-     * @param array $config Client configuration settings
-     *     - base_url: Base URL of the client that is merged into relative URLs.
-     *       Can be a string or an array that contains a URI template followed
-     *       by an associative array of expansion variables to inject into the
-     *       URI template.
-     *     - adapter: Adapter used to transfer requests
-     *     - parallel_adapter: Adapter used to transfer requests in parallel
-     *     - message_factory: Factory used to create request and response object
-     *     - defaults: Default request options to apply to each request
-     *     - emitter: Event emitter used for request events
+     * Client configuration settings include the following options:
+     *
+     * - handler: (callable) Function that transfers HTTP requests over the
+     *   wire. The function is called with a Psr7\Http\Message\RequestInterface
+     *   and array of transfer options, and must return a
+     *   GuzzleHttp\Promise\PromiseInterface that is fulfilled with a
+     *   Psr7\Http\Message\ResponseInterface on success. "handler" is a
+     *   constructor only option that cannot be overridden in per/request
+     *   options. If no handler is provided, a default handler will be created
+     *   that enables all of the request options below by attaching all of the
+     *   default middleware to the handler.
+     * - base_uri: (string|UriInterface) Base URI of the client that is merged
+     *   into relative URIs. Can be a string or instance of UriInterface.
+     * - **: any request option
+     *
+     * @param array $config Client configuration settings.
+     *
+     * @see \GuzzleHttp\RequestOptions for a list of available request options.
      */
     public function __construct(array $config = [])
     {
-        $this->configureBaseUrl($config);
+        if (!isset($config['handler'])) {
+            $config['handler'] = HandlerStack::create();
+        } elseif (!is_callable($config['handler'])) {
+            throw new \InvalidArgumentException('handler must be a callable');
+        }
+
+        // Convert the base_uri to a UriInterface
+        if (isset($config['base_uri'])) {
+            $config['base_uri'] = Psr7\uri_for($config['base_uri']);
+        }
+
         $this->configureDefaults($config);
-        $this->configureAdapter($config);
-        if (isset($config['emitter'])) {
-            $this->emitter = $config['emitter'];
+    }
+
+    public function __call($method, $args)
+    {
+        if (count($args) < 1) {
+            throw new \InvalidArgumentException('Magic request methods require a URI and optional options array');
+        }
+
+        $uri = $args[0];
+        $opts = isset($args[1]) ? $args[1] : [];
+
+        return substr($method, -5) === 'Async'
+            ? $this->requestAsync(substr($method, 0, -5), $uri, $opts)
+            : $this->request($method, $uri, $opts);
+    }
+
+    public function sendAsync(RequestInterface $request, array $options = [])
+    {
+        // Merge the base URI into the request URI if needed.
+        $options = $this->prepareDefaults($options);
+
+        return $this->transfer(
+            $request->withUri($this->buildUri($request->getUri(), $options), $request->hasHeader('Host')),
+            $options
+        );
+    }
+
+    public function send(RequestInterface $request, array $options = [])
+    {
+        $options[RequestOptions::SYNCHRONOUS] = true;
+        return $this->sendAsync($request, $options)->wait();
+    }
+
+    public function requestAsync($method, $uri = '', array $options = [])
+    {
+        $options = $this->prepareDefaults($options);
+        // Remove request modifying parameter because it can be done up-front.
+        $headers = isset($options['headers']) ? $options['headers'] : [];
+        $body = isset($options['body']) ? $options['body'] : null;
+        $version = isset($options['version']) ? $options['version'] : '1.1';
+        // Merge the URI into the base URI.
+        $uri = $this->buildUri($uri, $options);
+        if (is_array($body)) {
+            $this->invalidBody();
+        }
+        $request = new Psr7\Request($method, $uri, $headers, $body, $version);
+        // Remove the option so that they are not doubly-applied.
+        unset($options['headers'], $options['body'], $options['version']);
+
+        return $this->transfer($request, $options);
+    }
+
+    public function request($method, $uri = '', array $options = [])
+    {
+        $options[RequestOptions::SYNCHRONOUS] = true;
+        return $this->requestAsync($method, $uri, $options)->wait();
+    }
+
+    public function getConfig($option = null)
+    {
+        return $option === null
+            ? $this->config
+            : (isset($this->config[$option]) ? $this->config[$option] : null);
+    }
+
+    private function buildUri($uri, array $config)
+    {
+        // for BC we accept null which would otherwise fail in uri_for
+        $uri = Psr7\uri_for($uri === null ? '' : $uri);
+
+        if (isset($config['base_uri'])) {
+            $uri = Psr7\UriResolver::resolve(Psr7\uri_for($config['base_uri']), $uri);
+        }
+
+        return $uri->getScheme() === '' && $uri->getHost() !== '' ? $uri->withScheme('http') : $uri;
+    }
+
+    /**
+     * Configures the default options for a client.
+     *
+     * @param array $config
+     */
+    private function configureDefaults(array $config)
+    {
+        $defaults = [
+            'allow_redirects' => RedirectMiddleware::$defaultSettings,
+            'http_errors'     => true,
+            'decode_content'  => true,
+            'verify'          => true,
+            'cookies'         => false
+        ];
+
+        // Use the standard Linux HTTP_PROXY and HTTPS_PROXY if set.
+
+        // We can only trust the HTTP_PROXY environment variable in a CLI
+        // process due to the fact that PHP has no reliable mechanism to
+        // get environment variables that start with "HTTP_".
+        if (php_sapi_name() == 'cli' && getenv('HTTP_PROXY')) {
+            $defaults['proxy']['http'] = getenv('HTTP_PROXY');
+        }
+
+        if ($proxy = getenv('HTTPS_PROXY')) {
+            $defaults['proxy']['https'] = $proxy;
+        }
+
+        if ($noProxy = getenv('NO_PROXY')) {
+            $cleanedNoProxy = str_replace(' ', '', $noProxy);
+            $defaults['proxy']['no'] = explode(',', $cleanedNoProxy);
+        }
+
+        $this->config = $config + $defaults;
+
+        if (!empty($config['cookies']) && $config['cookies'] === true) {
+            $this->config['cookies'] = new CookieJar();
+        }
+
+        // Add the default user-agent header.
+        if (!isset($this->config['headers'])) {
+            $this->config['headers'] = ['User-Agent' => default_user_agent()];
+        } else {
+            // Add the User-Agent header if one was not already set.
+            foreach (array_keys($this->config['headers']) as $name) {
+                if (strtolower($name) === 'user-agent') {
+                    return;
+                }
+            }
+            $this->config['headers']['User-Agent'] = default_user_agent();
         }
     }
 
     /**
-     * Get the default User-Agent string to use with Guzzle
+     * Merges default options into the array.
      *
-     * @return string
+     * @param array $options Options to modify by reference
+     *
+     * @return array
      */
-    public static function getDefaultUserAgent()
+    private function prepareDefaults(array $options)
     {
-        static $defaultAgent = '';
-        if (!$defaultAgent) {
-            $defaultAgent = 'Guzzle/' . self::VERSION;
-            if (extension_loaded('curl')) {
-                $defaultAgent .= ' curl/' . curl_version()['version'];
-            }
-            $defaultAgent .= ' PHP/' . PHP_VERSION;
+        $defaults = $this->config;
+
+        if (!empty($defaults['headers'])) {
+            // Default headers are only added if they are not present.
+            $defaults['_conditional'] = $defaults['headers'];
+            unset($defaults['headers']);
         }
 
-        return $defaultAgent;
+        // Special handling for headers is required as they are added as
+        // conditional headers and as headers passed to a request ctor.
+        if (array_key_exists('headers', $options)) {
+            // Allows default headers to be unset.
+            if ($options['headers'] === null) {
+                $defaults['_conditional'] = null;
+                unset($options['headers']);
+            } elseif (!is_array($options['headers'])) {
+                throw new \InvalidArgumentException('headers must be an array');
+            }
+        }
+
+        // Shallow merge defaults underneath options.
+        $result = $options + $defaults;
+
+        // Remove null values.
+        foreach ($result as $k => $v) {
+            if ($v === null) {
+                unset($result[$k]);
+            }
+        }
+
+        return $result;
     }
 
-    public function __call($name, $arguments)
+    /**
+     * Transfers the given request and applies request options.
+     *
+     * The URI of the request is not modified and the request options are used
+     * as-is without merging in default options.
+     *
+     * @param RequestInterface $request
+     * @param array            $options
+     *
+     * @return Promise\PromiseInterface
+     */
+    private function transfer(RequestInterface $request, array $options)
     {
-        return \GuzzleHttp\deprecation_proxy(
-            $this,
-            $name,
-            $arguments,
-            ['getEventDispatcher' => 'getEmitter']
-        );
+        // save_to -> sink
+        if (isset($options['save_to'])) {
+            $options['sink'] = $options['save_to'];
+            unset($options['save_to']);
+        }
+
+        // exceptions -> http_errors
+        if (isset($options['exceptions'])) {
+            $options['http_errors'] = $options['exceptions'];
+            unset($options['exceptions']);
+        }
+
+        $request = $this->applyOptions($request, $options);
+        $handler = $options['handler'];
+
+        try {
+            return Promise\promise_for($handler($request, $options));
+        } catch (\Exception $e) {
+            return Promise\rejection_for($e);
+        }
     }
 
-    public function getDefaultOption($keyOrPath = null)
+    /**
+     * Applies the array of request options to a request.
+     *
+     * @param RequestInterface $request
+     * @param array            $options
+     *
+     * @return RequestInterface
+     */
+    private function applyOptions(RequestInterface $request, array &$options)
     {
-        return $keyOrPath === null
-            ? $this->defaults
-            : \GuzzleHttp\get_path($this->defaults, $keyOrPath);
-    }
+        $modify = [
+            'set_headers' => [],
+        ];
 
-    public function setDefaultOption($keyOrPath, $value)
-    {
-        \GuzzleHttp\set_path($this->defaults, $keyOrPath, $value);
-    }
+        if (isset($options['headers'])) {
+            $modify['set_headers'] = $options['headers'];
+            unset($options['headers']);
+        }
 
-    public function getBaseUrl()
-    {
-        return (string) $this->baseUrl;
-    }
+        if (isset($options['form_params'])) {
+            if (isset($options['multipart'])) {
+                throw new \InvalidArgumentException('You cannot use '
+                    . 'form_params and multipart at the same time. Use the '
+                    . 'form_params option if you want to send application/'
+                    . 'x-www-form-urlencoded requests, and the multipart '
+                    . 'option to send multipart/form-data requests.');
+            }
+            $options['body'] = http_build_query($options['form_params'], '', '&');
+            unset($options['form_params']);
+            // Ensure that we don't have the header in different case and set the new value.
+            $options['_conditional'] = Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
+            $options['_conditional']['Content-Type'] = 'application/x-www-form-urlencoded';
+        }
 
-    public function createRequest($method, $url = null, array $options = [])
-    {
-        $headers = $this->mergeDefaults($options);
-        // Use a clone of the client's emitter
-        $options['config']['emitter'] = clone $this->getEmitter();
+        if (isset($options['multipart'])) {
+            $options['body'] = new Psr7\MultipartStream($options['multipart']);
+            unset($options['multipart']);
+        }
 
-        $request = $this->messageFactory->createRequest(
-            $method,
-            $url ? (string) $this->buildUrl($url) : (string) $this->baseUrl,
-            $options
-        );
+        if (isset($options['json'])) {
+            $options['body'] = \GuzzleHttp\json_encode($options['json']);
+            unset($options['json']);
+            // Ensure that we don't have the header in different case and set the new value.
+            $options['_conditional'] = Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
+            $options['_conditional']['Content-Type'] = 'application/json';
+        }
 
-        // Merge in default headers
-        if ($headers) {
-            foreach ($headers as $key => $value) {
-                if (!$request->hasHeader($key)) {
-                    $request->setHeader($key, $value);
+        if (!empty($options['decode_content'])
+            && $options['decode_content'] !== true
+        ) {
+            // Ensure that we don't have the header in different case and set the new value.
+            $options['_conditional'] = Psr7\_caseless_remove(['Accept-Encoding'], $options['_conditional']);
+            $modify['set_headers']['Accept-Encoding'] = $options['decode_content'];
+        }
+
+        if (isset($options['body'])) {
+            if (is_array($options['body'])) {
+                $this->invalidBody();
+            }
+            $modify['body'] = Psr7\stream_for($options['body']);
+            unset($options['body']);
+        }
+
+        if (!empty($options['auth']) && is_array($options['auth'])) {
+            $value = $options['auth'];
+            $type = isset($value[2]) ? strtolower($value[2]) : 'basic';
+            switch ($type) {
+                case 'basic':
+                    // Ensure that we don't have the header in different case and set the new value.
+                    $modify['set_headers'] = Psr7\_caseless_remove(['Authorization'], $modify['set_headers']);
+                    $modify['set_headers']['Authorization'] = 'Basic '
+                        . base64_encode("$value[0]:$value[1]");
+                    break;
+                case 'digest':
+                    // @todo: Do not rely on curl
+                    $options['curl'][CURLOPT_HTTPAUTH] = CURLAUTH_DIGEST;
+                    $options['curl'][CURLOPT_USERPWD] = "$value[0]:$value[1]";
+                    break;
+                case 'ntlm':
+                    $options['curl'][CURLOPT_HTTPAUTH] = CURLAUTH_NTLM;
+                    $options['curl'][CURLOPT_USERPWD] = "$value[0]:$value[1]";
+                    break;
+            }
+        }
+
+        if (isset($options['query'])) {
+            $value = $options['query'];
+            if (is_array($value)) {
+                $value = http_build_query($value, null, '&', PHP_QUERY_RFC3986);
+            }
+            if (!is_string($value)) {
+                throw new \InvalidArgumentException('query must be a string or array');
+            }
+            $modify['query'] = $value;
+            unset($options['query']);
+        }
+
+        // Ensure that sink is not an invalid value.
+        if (isset($options['sink'])) {
+            // TODO: Add more sink validation?
+            if (is_bool($options['sink'])) {
+                throw new \InvalidArgumentException('sink must not be a boolean');
+            }
+        }
+
+        $request = Psr7\modify_request($request, $modify);
+        if ($request->getBody() instanceof Psr7\MultipartStream) {
+            // Use a multipart/form-data POST if a Content-Type is not set.
+            // Ensure that we don't have the header in different case and set the new value.
+            $options['_conditional'] = Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
+            $options['_conditional']['Content-Type'] = 'multipart/form-data; boundary='
+                . $request->getBody()->getBoundary();
+        }
+
+        // Merge in conditional headers if they are not present.
+        if (isset($options['_conditional'])) {
+            // Build up the changes so it's in a single clone of the message.
+            $modify = [];
+            foreach ($options['_conditional'] as $k => $v) {
+                if (!$request->hasHeader($k)) {
+                    $modify['set_headers'][$k] = $v;
                 }
             }
+            $request = Psr7\modify_request($request, $modify);
+            // Don't pass this internal value along to middleware/handlers.
+            unset($options['_conditional']);
         }
 
         return $request;
     }
 
-    public function get($url = null, $options = [])
+    private function invalidBody()
     {
-        return $this->send($this->createRequest('GET', $url, $options));
-    }
-
-    public function head($url = null, array $options = [])
-    {
-        return $this->send($this->createRequest('HEAD', $url, $options));
-    }
-
-    public function delete($url = null, array $options = [])
-    {
-        return $this->send($this->createRequest('DELETE', $url, $options));
-    }
-
-    public function put($url = null, array $options = [])
-    {
-        return $this->send($this->createRequest('PUT', $url, $options));
-    }
-
-    public function patch($url = null, array $options = [])
-    {
-        return $this->send($this->createRequest('PATCH', $url, $options));
-    }
-
-    public function post($url = null, array $options = [])
-    {
-        return $this->send($this->createRequest('POST', $url, $options));
-    }
-
-    public function options($url = null, array $options = [])
-    {
-        return $this->send($this->createRequest('OPTIONS', $url, $options));
-    }
-
-    public function send(RequestInterface $request)
-    {
-        $transaction = new Transaction($this, $request);
-        try {
-            if ($response = $this->adapter->send($transaction)) {
-                return $response;
-            }
-            throw new \LogicException('No response was associated with the transaction');
-        } catch (RequestException $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            // Wrap exceptions in a RequestException to adhere to the interface
-            throw new RequestException($e->getMessage(), $request, null, $e);
-        }
-    }
-
-    public function sendAll($requests, array $options = [])
-    {
-        if (!($requests instanceof TransactionIterator)) {
-            $requests = new TransactionIterator($requests, $this, $options);
-        }
-
-        $this->parallelAdapter->sendAll(
-            $requests,
-            isset($options['parallel'])
-                ? $options['parallel']
-                : self::DEFAULT_CONCURRENCY
-        );
-    }
-
-    /**
-     * Get an array of default options to apply to the client
-     *
-     * @return array
-     */
-    protected function getDefaultOptions()
-    {
-        $settings = [
-            'allow_redirects' => true,
-            'exceptions'      => true,
-            'decode_content'  => true,
-            'verify'          => __DIR__ . '/cacert.pem'
-        ];
-
-        // Use the bundled cacert if it is a regular file, or set to true if
-        // using a phar file (because curL and the stream wrapper can't read
-        // cacerts from the phar stream wrapper). Favor the ini setting over
-        // the system's cacert.
-        if (substr(__FILE__, 0, 7) == 'phar://') {
-            $settings['verify'] = ini_get('openssl.cafile') ?: true;
-        }
-
-        // Use the standard Linux HTTP_PROXY and HTTPS_PROXY if set
-        if (isset($_SERVER['HTTP_PROXY'])) {
-            $settings['proxy']['http'] = $_SERVER['HTTP_PROXY'];
-        }
-
-        if (isset($_SERVER['HTTPS_PROXY'])) {
-            $settings['proxy']['https'] = $_SERVER['HTTPS_PROXY'];
-        }
-
-        return $settings;
-    }
-
-    /**
-     * Expand a URI template and inherit from the base URL if it's relative
-     *
-     * @param string|array $url URL or URI template to expand
-     *
-     * @return string
-     */
-    private function buildUrl($url)
-    {
-        if (!is_array($url)) {
-            if (strpos($url, '://')) {
-                return (string) $url;
-            }
-            return (string) $this->baseUrl->combine($url);
-        } elseif (strpos($url[0], '://')) {
-            return \GuzzleHttp\uri_template($url[0], $url[1]);
-        }
-
-        return (string) $this->baseUrl->combine(
-            \GuzzleHttp\uri_template($url[0], $url[1])
-        );
-    }
-
-    /**
-     * Get a default parallel adapter to use based on the environment
-     *
-     * @return ParallelAdapterInterface
-     */
-    private function getDefaultParallelAdapter()
-    {
-        return extension_loaded('curl')
-            ? new MultiAdapter($this->messageFactory)
-            : new FakeParallelAdapter($this->adapter);
-    }
-
-    /**
-     * Create a default adapter to use based on the environment
-     * @throws \RuntimeException
-     */
-    private function getDefaultAdapter()
-    {
-        if (extension_loaded('curl')) {
-            $this->parallelAdapter = new MultiAdapter($this->messageFactory);
-            $this->adapter = function_exists('curl_reset')
-                ? new CurlAdapter($this->messageFactory)
-                : $this->parallelAdapter;
-            if (ini_get('allow_url_fopen')) {
-                $this->adapter = new StreamingProxyAdapter(
-                    $this->adapter,
-                    new StreamAdapter($this->messageFactory)
-                );
-            }
-        } elseif (ini_get('allow_url_fopen')) {
-            $this->adapter = new StreamAdapter($this->messageFactory);
-        } else {
-            throw new \RuntimeException('Guzzle requires cURL, the '
-                . 'allow_url_fopen ini setting, or a custom HTTP adapter.');
-        }
-    }
-
-    private function configureBaseUrl(&$config)
-    {
-        if (!isset($config['base_url'])) {
-            $this->baseUrl = new Url('', '');
-        } elseif (is_array($config['base_url'])) {
-            $this->baseUrl = Url::fromString(
-                \GuzzleHttp\uri_template(
-                    $config['base_url'][0],
-                    $config['base_url'][1]
-                )
-            );
-            $config['base_url'] = (string) $this->baseUrl;
-        } else {
-            $this->baseUrl = Url::fromString($config['base_url']);
-        }
-    }
-
-    private function configureDefaults($config)
-    {
-        if (!isset($config['defaults'])) {
-            $this->defaults = $this->getDefaultOptions();
-        } else {
-            $this->defaults = array_replace(
-                $this->getDefaultOptions(),
-                $config['defaults']
-            );
-        }
-
-        // Add the default user-agent header
-        if (!isset($this->defaults['headers'])) {
-            $this->defaults['headers'] = [
-                'User-Agent' => static::getDefaultUserAgent()
-            ];
-        } elseif (!isset(array_change_key_case($this->defaults['headers'])['user-agent'])) {
-            // Add the User-Agent header if one was not already set
-            $this->defaults['headers']['User-Agent'] = static::getDefaultUserAgent();
-        }
-    }
-
-    private function configureAdapter(&$config)
-    {
-        if (isset($config['message_factory'])) {
-            $this->messageFactory = $config['message_factory'];
-        } else {
-            $this->messageFactory = new MessageFactory();
-        }
-        if (isset($config['adapter'])) {
-            $this->adapter = $config['adapter'];
-        } else {
-            $this->getDefaultAdapter();
-        }
-        // If no parallel adapter was explicitly provided and one was not
-        // defaulted when creating the default adapter, then create one now.
-        if (isset($config['parallel_adapter'])) {
-            $this->parallelAdapter = $config['parallel_adapter'];
-        } elseif (!$this->parallelAdapter) {
-            $this->parallelAdapter = $this->getDefaultParallelAdapter();
-        }
-    }
-
-    /**
-     * Merges default options into the array passed by reference and returns
-     * an array of headers that need to be merged in after the request is
-     * created.
-     *
-     * @param array $options Options to modify by reference
-     *
-     * @return array|null
-     */
-    private function mergeDefaults(&$options)
-    {
-        // Merging optimization for when no headers are present
-        if (!isset($options['headers'])
-            || !isset($this->defaults['headers'])) {
-            $options = array_replace_recursive($this->defaults, $options);
-            return null;
-        }
-
-        $defaults = $this->defaults;
-        unset($defaults['headers']);
-        $options = array_replace_recursive($defaults, $options);
-
-        return $this->defaults['headers'];
+        throw new \InvalidArgumentException('Passing in the "body" request '
+            . 'option as an array to send a POST request has been deprecated. '
+            . 'Please use the "form_params" request option to send a '
+            . 'application/x-www-form-urlencoded request, or the "multipart" '
+            . 'request option to send a multipart/form-data request.');
     }
 }

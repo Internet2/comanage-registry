@@ -57,6 +57,7 @@ class CoExtendedType extends AppModel {
                                       'Identifier.type',
                                       'Name.type',
                                       'TelephoneNumber.type',
+                                      'CoDepartment.type',
                                       'Url.type')),
       'required' => true,
       'message' => 'A supported attribute type must be provided'
@@ -280,6 +281,7 @@ class CoExtendedType extends AppModel {
     $ret['Name.type'] = _txt('ct.names.1') . " (" . _txt('ct.co_people.1') . ")";
     $ret['TelephoneNumber.type'] = _txt('ct.telephone_numbers.1') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['Url.type'] = _txt('ct.urls.1') . " (" . _txt('ct.co_people.1') . ")";
+    $ret['CoDepartment.type'] = _txt('ct.co_departments.1');
     
     return $ret;
   }

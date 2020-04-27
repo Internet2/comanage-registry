@@ -296,7 +296,7 @@
 
             print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
 
-            print '<div id="oc_' . $oc . '_div">';
+            print '<div id="oc_' . $oc . '_div" class="nested">';
 
             foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
               // Make sure the attributes map to the indexing created by Cake
@@ -468,11 +468,11 @@
                 $xchecked = isset($currentAttributes[$attr]['use_org_value'])
                             && $currentAttributes[$attr]['use_org_value'];
 
-                print "&nbsp;&nbsp;&nbsp;&nbsp;"
+                print '<div class="nested">'
                       . $this->Form->input($xname,
                                            array('label' => _txt('pl.ldapprovisioner.fd.useorgval'),
                                                  'checked' => $xchecked))
-                      . "<br />\n";
+                      . "</div>\n";
               }
             }
             

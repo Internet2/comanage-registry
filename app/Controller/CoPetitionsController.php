@@ -228,7 +228,7 @@ class CoPetitionsController extends StandardController {
                                      PetitionStatusEnum::Denied,
                                      PetitionStatusEnum::Duplicate,
                                      PetitionStatusEnum::Finalized))) {
-          $this->Flash->set(_txt('er.pt.readonly'), array($status));
+          $this->Flash->set(_txt('er.pt.readonly', array(_txt('en.status.pt',null,$status))), array('key' => 'error'));
           $this->redirect("/");
         }
       }
@@ -281,10 +281,13 @@ class CoPetitionsController extends StandardController {
               // Once we have an authenticated identifier we no longer accept tokens.
               // We don't explicitly throw an error because we'll ultimately want to
               // support petition editing (CO-431).
-              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $this->parseCoPetitionId()));
-              
-              if(!$authId) {
-                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $this->parseCoPetitionId()));
+
+              $petitionId = $this->parseCoPetitionId();
+              $authId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $petitionId));
+              $petitionerCoPersonId = $this->CoPetition->field('petitioner_co_person_id', array('CoPetition.id' => $petitionId));
+
+              if(!$authId && !$petitionerCoPersonId) {
+                $token = $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $petitionId));
                 $passedToken = $this->parseToken();
                 
                 if($token && $token != '' && $passedToken
@@ -988,13 +991,22 @@ class CoPetitionsController extends StandardController {
         // Actor since we're in an Enrollee driven phase of enrollment.
        
         $enrolleeCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
-        
+
+        $args = array();
+        $args['conditions']['EnrolleeCoPerson.id'] = $enrolleeCoPersonId;
+        $args['contain'] = false;
+        $coPerson = $this->CoPetition->EnrolleeCoPerson->find('first', $args);
+
+        $selfActive = ($coPerson 
+                       && ($coPerson['EnrolleeCoPerson']['status'] == StatusEnum::Active)
+                       && ($enrolleeCoPersonId == $this->Session->read('Auth.User.co_person_id')));
+
         // Construct a redirect URL
         $onFinish = $this->generateDoneRedirect('establishAuthenticators', $id, null, $authenticators[$current]['CoEnrollmentAuthenticator']['id']);
         
         $token = $this->CoPetition->field('enrollee_token', array('CoPetition.id' => $id));
         
-        if(!$token) {
+        if(!$token && !$selfActive) {
           throw new InvalidArgumentException(_txt('er.token'));
         }
 
@@ -1012,6 +1024,10 @@ class CoPetitionsController extends StandardController {
           'token'        => $token,
           'onFinish'     => urlencode(Router::url(array_merge($onFinish, array('base' => false))))
         );
+
+        if($selfActive) {
+          $redirect['copersonid'] = $enrolleeCoPersonId;
+        }
         
         $this->redirect($redirect);
       }
@@ -1398,6 +1414,10 @@ class CoPetitionsController extends StandardController {
   protected function execute_petitionerAttributes($id) {
     // When this is called, it's just a GET to render the form. POST processing is
     // handled by petitionerAttributes(), which doesn't call dispatch() on POST.
+    $conclusionText = $this->CoPetition->CoEnrollmentFlow->field('conclusion_text', array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
+    if(!empty($conclusionText)) {
+      $this->set('vv_conclusion_text', $conclusionText);
+    }
   }
   
   /**
@@ -2221,7 +2241,10 @@ class CoPetitionsController extends StandardController {
       // Only the enrollee can (currently) set up their authenticators. This requires
       // email confirmation to be enabled so that enrollee_token gets set. (Trying to
       // allow petitioner_token as well becomes complicated.)
-      $p['establishAuthenticators'] = $isEnrollee;
+      // Note however that we also need to allow this step to run if no authenticators
+      // are defined, in order to skip it if email confirmation is not in use (CO-1834).
+      // This sort of crazy logic could probably be removed when CO-1663 is addressed.
+      $p['establishAuthenticators'] = $isEnrollee || ($steps['establishAuthenticators']['enabled'] == RequiredEnum::NotPermitted);
       // Authenticator Plugin steps for establishAuthenticators get the same permissions
       $p['establishAuthenticator'] = $p['establishAuthenticators'];
       // Approval steps could be triggered by petitioner or enrollee, according to configuration

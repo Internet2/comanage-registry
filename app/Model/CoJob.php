@@ -311,7 +311,7 @@ class CoJob extends AppModel {
   public function setPercentComplete($id, $percent) {
     $this->clear();
     $this->id = $id;
-    // Cake validation will allow floats in a range, we we cast to integer
+    // Cake validation will allow floats in a range, so we cast to integer
     $this->saveField('percent_complete', (integer)$percent);
   }
 
@@ -403,5 +403,35 @@ class CoJob extends AppModel {
     if(!$this->save($coJob, array('fieldList' => $fieldList))) {
       throw new RuntimeException(_txt('er.db.save-a', array('CoJob::update')));
     }
+  }
+
+  /**
+   * Perform SshKey model upgrade steps for version 3.3.0.
+   * Resizes the job_type column.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+  public function _ug330() {
+    $dbc = $this->getDataSource();
+
+    $db_driver = explode("/", $dbc->config['datasource'], 2);
+
+    if ($db_driver[0] !== 'Database') {
+      throw new RuntimeException("Unsupported db_method: " . $db_driver[0]);
+    }
+
+    $db_driverName = $db_driver[1];
+
+    // Nothing to do if not Postgres
+    if ($db_driverName !== 'Postgres') {
+      return;
+    }
+
+    $dbprefix = $dbc->config['prefix'];
+
+    $sql = "ALTER TABLE " . $dbprefix . "co_jobs ALTER COLUMN job_type TYPE varchar(32)";
+
+    $this->query($sql);
   }
 }

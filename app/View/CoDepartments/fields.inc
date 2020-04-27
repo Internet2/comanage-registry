@@ -53,6 +53,50 @@
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
 
+<script type="text/javascript">
+  <!-- /* JS specific to these fields */ -->
+  
+  function js_confirm_autogenerate() {
+    // Open the dialog to confirm autogeneration of identifiers
+    var $tabs = $( "#tabs" ).tabs();
+    $('#autogenerate-dialog').dialog('open');
+  }
+
+  $(function() {
+    // Autogenerate dialog
+    $("#autogenerate-dialog").dialog({
+      autoOpen: false,
+      <?php if($this->action == 'edit'): ?>
+      buttons: [
+        {
+          text : "<?php print _txt('op.cancel'); ?>",
+          click : function() {
+            $(this).dialog("close");
+          }
+        },
+        {
+          text : "<?php print _txt('op.id.auto'); ?>",
+          click: function () {
+            $(this).dialog("close");
+            displaySpinner();
+            window.location.href = "<?php print $this->Html->url(array('controller' => 'identifiers',
+            'action' => 'assign',
+            'codeptid' => $co_departments[0]['CoDepartment']['id'])); ?>";
+          }
+        }
+      ],
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+      <?php endif; // edit ?>
+    });
+  });
+</script>
+
 <div id="<?php print $this->action; ?>_department" class="explorerContainer">
   <div id="coOrgIdExplorer" class="personExplorer">
     <ul>
@@ -112,6 +156,38 @@
             </div>
           </li>
           <?php endif; // vv_cous ?>
+          <li>
+            <span class="field-name">
+              <?php
+              if($e) {
+                print $this->Form->label('type', _txt('fd.type'));
+              } else {
+                print _txt('fd.type');
+              }
+              ?>
+            </span>
+            <span class="field-info">
+              <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_departments) ? $co_departments[0]['CoDepartment']['type'] : "");
+              $attrs['empty'] = false;
+
+              if($e) {
+                print $this->Form->select('type',
+                  $vv_available_types,
+                  $attrs);
+
+                if($this->Form->isFieldError('type')) {
+                  print $this->Form->error('type');
+                }
+              } else {
+                // $vv_available_types will only show the permitted types, and en.url.type will
+                // not be aware of any extended types, so we just show the raw type key.
+                print filter_var($co_departments[0]['CoDepartment']['type'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+              ?>
+            </span>
+          </li>
           <li class="field-stack">
             <div class="field-name">
               <div class="field-title">
@@ -271,3 +347,6 @@
   </div> <!-- personExplorer -->
   <?php print $this->element("changelog"); ?>
 </div> <!-- explorerContainer -->
+<div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
+  <?php print _txt('op.id.auto.confirm'); ?>
+</div>

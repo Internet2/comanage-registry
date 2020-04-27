@@ -68,6 +68,10 @@ class CoOrgIdentityLink extends AppModel {
    */
 
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Make sure we don't already have a link for the specified targets.
     
     if(empty($this->data['CoOrgIdentityLink']['id'])) {

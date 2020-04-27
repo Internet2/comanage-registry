@@ -55,250 +55,315 @@
   function fields_update_gadgets() {
     // Enable or disable gadgets according to current state
     
-    document.getElementById('CoIdentifierAssignmentMaximum').disabled =
-      (document.getElementById('CoIdentifierAssignmentAlgorithm').value != 'R');
+    var context = document.getElementById('CoIdentifierAssignmentContext').value;
+    var idtype = document.getElementById('CoIdentifierAssignmentIdentifierType').value;
+    var algorithm = document.getElementById('CoIdentifierAssignmentAlgorithm').value;
     
-    if(document.getElementById('CoIdentifierAssignmentIdentifierType').value != 'mail') {
-      document.getElementById('CoIdentifierAssignmentEmailType').value = "";
-      document.getElementById('CoIdentifierAssignmentEmailType').disabled = true;
+    // CO People and CO Departments can have Email Addresses
+    
+    if(context == '<?php print IdentifierAssignmentContextEnum::CoGroup; ?>'
+       || idtype != 'mail') {
+      $('#CoIdentifierAssignmentEmailType').closest("li").hide('fade');
     } else {
-      document.getElementById('CoIdentifierAssignmentEmailType').disabled = false;
+      $('#CoIdentifierAssignmentEmailType').closest("li").show('fade');
+    }
+    
+    // But only CO People can have Login identifiers (but not for email addresses)
+    
+    if(context == '<?php print IdentifierAssignmentContextEnum::CoPerson; ?>'
+       && idtype != 'mail') {
+      $('#CoIdentifierAssignmentLogin').closest("li").show('fade');
+    } else {
+      $('#CoIdentifierAssignmentLogin').closest("li").hide('fade');
+    }
+    
+    if(algorithm == '<?php print IdentifierAssignmentEnum::Random; ?>') {
+      $('#CoIdentifierAssignmentMaximum').closest("li").show('fade');
+    } else {
+      $('#CoIdentifierAssignmentMaximum').closest("li").hide('fade');
     }
   }
   
   function js_local_onload() {
     fields_update_gadgets();
   }
-  
-  function on_submit()
-  {
-    // There appears to be an issue with Cake blackholing the request if text
-    // fields are disabled (but not, strangely, if checkboxes or selects are
-    // disabled). Renable these fields (in case they were disabled) to allow
-    // the form to submit. See CO-350.
-    
-    document.getElementById('CoIdentifierAssignmentMaximum').disabled = false;
-    document.getElementById('CoIdentifierAssignmentMinimum').disabled = false;
-    document.getElementById('CoIdentifierAssignmentEmailType').disabled = false;
-  }
 </script>
 
 <ul id="<?php print $this->action; ?>_co_identifier_assignment" class="fields form-list form-list-admin">
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
-        </div>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
       </div>
-      <div class="field-info">
-        <?php print ($e
-                     ? $this->Form->input('description', array('class' => 'focusFirst'))
-                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('identifier_type', _txt('fd.type')) :  _txt('fd.type')); ?>
-        </div>
-      </div>
-      <div class="field-info">
-        <?php
-          $attrs = array();
-          $attrs['value'] = (isset($co_identifier_assignments) ? $co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'] : "");
-          $attrs['empty'] = false;
-          $attrs['onChange'] = 'fields_update_gadgets()';
-          
-          if($e) {
-            print $this->Form->select('identifier_type',
-                                      $identifier_types,
-                                      $attrs);
-            
-            if($this->Form->isFieldError('identifier_type')) {
-              print $this->Form->error('identifier_type');
-            }
-          } else {
-            print filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS);
-          }
-        ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('fd.order', _txt('fd.order')) :  _txt('fd.order')); ?>
-        </div>
-      </div>
-      <div class="field-info">
-        <?php print ($e
-                     ? $this->Form->input('ordr')
-                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('email_type', _txt('fd.ia.type.email')) : _txt('fd.ia.type.email')); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.type.email.desc'); ?></div>
-      </div>
-      <div class="field-info">
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_identifier_assignments)
-                             ? $co_identifier_assignments[0]['CoIdentifierAssignment']['email_type']
-                             : "");
-          $attrs['empty'] = true;
-          
-          if($e) {
-            // XXX There is some inconsistency here and in EmailAddress model/view as to which email types are actually permitted.
-            // Probably the best solution is to just rewrite emailaddress to support extended types. See also CO-106.
-            print $this->Form->select('email_type',
-                                      $cm_texts[ $cm_lang ]['en.contact'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('email_type')) {
-              print $this->Form->error('email_type');
-            }
-          } else {
-            print _txt('en.cpntact', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['email_type']);
-          }
-        ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print _txt('fd.identifier.login'); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.identifier.login.desc'); ?></div>
-      </div>
-      <div class="field-info checkbox">
-        <?php print ($e
-                     ? $this->Form->input('login') . ' ' . $this->Form->label('login', _txt('fd.identifier.login'))
-                     : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('algorithm', _txt('fd.ia.algorithm')) : _txt('fd.ia.algorithm')); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.algorithm.desc'); ?></div>
-      </div>
-      <div class="field-info">
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_identifier_assignments)
-                              ? $co_identifier_assignments[0]['CoIdentifierAssignment']['algorithm']
-                              : IdentifierAssignmentEnum::Sequential);
-          $attrs['empty'] = false;
-          $attrs['onChange'] = 'fields_update_gadgets()';
-          
-          if($e) {
-            print $this->Form->select('algorithm',
-                                      $cm_texts[ $cm_lang ]['en.ia.algorithm'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('algorithm')) {
-              print $this->Form->error('algorithm');
-            }
-          } else {
-            print _txt('en.ia.algorithm', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['algorithm']);
-          }
-        ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name vtop">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('format', _txt('fd.ia.format')) : _txt('fd.ia.format')); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.format.desc'); ?></div>
-      </div>
-      <div class="field-info">
-        <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        <?php if($e): ?>
-          <label for="CoIdentifierAssignmentPrefabricatedFormats"><?php print  _txt('fd.ia.format.pattern') . ': '; ?></label>
-          <select
-            id="CoIdentifierAssignmentPrefabricatedFormats"
-            onchange="javascript:document.getElementById('CoIdentifierAssignmentFormat').value=this.value">
-            <option value=""><?php print _txt('fd.ia.format.prefab'); ?></option>
-            <option value=""><?php print _txt('fd.ia.format.p0'); ?></option>
-            <option value="(g).(f)[1:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p1'); ?></option>
-            <option value="(g)[1:.(m:1)].(f)[2:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p2'); ?></option>
-            <option value="(g:1)(m:1)(f:1)(#)@myvo.org"><?php print _txt('fd.ia.format.p3'); ?></option>
-          </select>
-        <?php endif; ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('permitted', _txt('fd.ia.permitted')) : _txt('fd.ia.permitted')); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.permitted.desc'); ?></div>
-      </div>
-      <div class="field-info">
-        <?php
-          global $cm_lang, $cm_texts;
-          $attrs['value'] = (isset($co_identifier_assignments)
-                              ? $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']
-                              : PermittedCharacterEnum::AlphaNumeric);
-          $attrs['empty'] = false;
-          
-          if($e) {
-            print $this->Form->select('permitted',
-                                      $cm_texts[ $cm_lang ]['en.chars.permitted'],
-                                      $attrs);
-            
-            if($this->Form->isFieldError('permitted')) {
-              print $this->Form->error('permitted');
-            }
-          } else {
-            print _txt('en.chars.permitted', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']);
-          }
-        ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('minimum', _txt('fd.ia.minimum')) : _txt('fd.ia.minimum')); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.minimum.desc'); ?></div>
-      </div>
-      <div class="field-info">
-        <?php print ($e ? $this->Form->input('minimum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print ($e ? $this->Form->label('maximum', _txt('fd.ia.maximum')) : _txt('fd.ia.maximum')); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.maximum.desc'); ?></div>
-      </div>
-      <div class="field-info">
-        <?php print ($e ? $this->Form->input('maximum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-      </div>
-    </li>
-    <li>
-      <div class="field-name">
-        <div class="field-title">
-          <?php print _txt('fd.ia.exclusions'); ?>
-        </div>
-        <div class="field-desc"><?php print _txt('fd.ia.exclusions.desc'); ?></div>
-      </div>
-    </li>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('description', array('class' => 'focusFirst'))
+                   : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_assignments) ? $co_identifier_assignments[0]['CoIdentifierAssignment']['status'] : SuspendableStatusEnum::Active);
+        $attrs['empty'] = false;
 
-    <?php if($e): ?>
-      <li class="fields-submit">
-        <div class="field-name"></div>
+        if($e) {
+          print $this->Form->select('status',
+                                    $cm_texts[ $cm_lang ]['en.status.susp'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('status')) {
+            print $this->Form->error('status');
+          }
+        } else {
+          print _txt('en.status', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('context', _txt('fd.ia.context')) :  _txt('fd.ia.context')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.context.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_assignments)
+                            ? $co_identifier_assignments[0]['CoIdentifierAssignment']['context']
+                            : IdentifierAssignmentContextEnum::CoPerson);
+        $attrs['empty'] = false;
+        $attrs['onChange'] = 'fields_update_gadgets()';
+        
+        if($e) {
+          print $this->Form->select('context',
+                                    $cm_texts[ $cm_lang ]['en.ia.context'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('context')) {
+            print $this->Form->error('context');
+          }
+        } else {
+          print _txt('en.ia.context', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['context']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('identifier_type', _txt('fd.type')) :  _txt('fd.type')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_assignments) ? $co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'] : "");
+        $attrs['empty'] = false;
+        $attrs['onChange'] = 'fields_update_gadgets()';
+        
+        if($e) {
+          print $this->Form->select('identifier_type',
+                                    $identifier_types,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('identifier_type')) {
+            print $this->Form->error('identifier_type');
+          }
+        } else {
+          print $identifier_types[ filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS) ];
+        }
+      ?>
+    </div>
+    <ul class="field-children">
+      <li>
+        <div class="field-name">
+          <div class="field-title">
+            <?php print ($e ? $this->Form->label('email_type', _txt('fd.ia.type.email')) : _txt('fd.ia.type.email')); ?>
+          </div>
+          <div class="field-desc"><?php print _txt('fd.ia.type.email.desc'); ?></div>
+        </div>
         <div class="field-info">
-          <?php print $this->Form->submit($submit_label, array('onClick' => 'on_submit()')); ?>
+          <?php
+            $attrs = array();
+            $attrs['value'] = (isset($co_identifier_assignments)
+                               ? $co_identifier_assignments[0]['CoIdentifierAssignment']['email_type']
+                               : "");
+            $attrs['empty'] = true;
+            
+            if($e) {
+              print $this->Form->select('email_type',
+                                        $email_address_types,
+                                        $attrs);
+              
+              if($this->Form->isFieldError('email_type')) {
+                print $this->Form->error('email_type');
+              }
+            } else {
+              print $email_address_types[ filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['email_type'],FILTER_SANITIZE_SPECIAL_CHARS) ];
+            }
+          ?>
         </div>
       </li>
-    <?php endif; ?>
+      <li>
+        <div class="field-name">
+          <div class="field-title">
+            <?php print _txt('fd.identifier.login'); ?>
+          </div>
+          <div class="field-desc"><?php print _txt('fd.identifier.login.desc'); ?></div>
+        </div>
+        <div class="field-info checkbox">
+          <?php print ($e
+                       ? $this->Form->input('login') . ' ' . $this->Form->label('login', _txt('fd.identifier.login'))
+                       : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['login'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </div>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('fd.order', _txt('fd.order')) :  _txt('fd.order')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('ordr')
+                   : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('algorithm', _txt('fd.ia.algorithm')) : _txt('fd.ia.algorithm')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.algorithm.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_assignments)
+                            ? $co_identifier_assignments[0]['CoIdentifierAssignment']['algorithm']
+                            : IdentifierAssignmentEnum::Sequential);
+        $attrs['empty'] = false;
+        $attrs['onChange'] = 'fields_update_gadgets()';
+        
+        if($e) {
+          print $this->Form->select('algorithm',
+                                    $cm_texts[ $cm_lang ]['en.ia.algorithm'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('algorithm')) {
+            print $this->Form->error('algorithm');
+          }
+        } else {
+          print _txt('en.ia.algorithm', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['algorithm']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name vtop">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('format', _txt('fd.ia.format')) : _txt('fd.ia.format')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.format.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php if($e): ?>
+        <label for="CoIdentifierAssignmentPrefabricatedFormats"><?php print  _txt('fd.ia.format.pattern') . ': '; ?></label>
+        <select
+          id="CoIdentifierAssignmentPrefabricatedFormats"
+          onchange="javascript:document.getElementById('CoIdentifierAssignmentFormat').value=this.value">
+          <option value=""><?php print _txt('fd.ia.format.prefab'); ?></option>
+          <option value=""><?php print _txt('fd.ia.format.p0'); ?></option>
+          <option value="(g).(f)[1:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p1'); ?></option>
+          <option value="(g)[1:.(m:1)].(f)[2:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p2'); ?></option>
+          <option value="(g:1)(m:1)(f:1)(#)@myvo.org"><?php print _txt('fd.ia.format.p3'); ?></option>
+        </select>
+      <?php endif; ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('permitted', _txt('fd.ia.permitted')) : _txt('fd.ia.permitted')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.permitted.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_identifier_assignments)
+                            ? $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']
+                            : PermittedCharacterEnum::AlphaNumeric);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('permitted',
+                                    $cm_texts[ $cm_lang ]['en.chars.permitted'],
+                                    $attrs);
+          
+          if($this->Form->isFieldError('permitted')) {
+            print $this->Form->error('permitted');
+          }
+        } else {
+          print _txt('en.chars.permitted', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['permitted']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('minimum', _txt('fd.ia.minimum')) : _txt('fd.ia.minimum')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.minimum.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('minimum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('maximum', _txt('fd.ia.maximum')) : _txt('fd.ia.maximum')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.maximum.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('maximum') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['maximum'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+<!-- CO-347
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.ia.exclusions'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.exclusions.desc'); ?></div>
+    </div>
+  </li> -->
 
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name"></div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); //, array('onClick' => 'on_submit()')); ?>
+      </div>
+    </li>
+  <?php endif; ?>
 </ul>

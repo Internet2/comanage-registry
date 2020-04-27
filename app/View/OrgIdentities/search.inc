@@ -114,7 +114,7 @@ $tabIndex = 1;
           </button>
         </span>
       <?php endif; ?>
-      <em class="material-icons drop-arrow">arrow_drop_down</em>
+      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
     </legend>
 
     <div id="top-search-fields">

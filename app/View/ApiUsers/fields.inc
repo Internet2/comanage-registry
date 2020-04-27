@@ -43,6 +43,14 @@
 
   // Inject the CO ID
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id']));
+  // Alter the request data username field. We want to remove the co prefix so that we can present it properly. The correct format will be restructured on the beforeSave event
+  if (!empty($this->request->data["ApiUser"]["username"])) {
+    $usernameSplit = explode('.', $this->request->data["ApiUser"]["username"], 2);
+    if (!empty($usernameSplit[1])) {
+      $this->request->data["ApiUser"]["username"] = $usernameSplit[1];
+    }
+  }
+
 ?>
 <?php if($cur_co['Co']['id'] == 1): ?>
 <div class="co-info-topbox">
@@ -52,17 +60,24 @@
 <?php endif; // co_id == 1 ?>
 <ul id="<?php print $this->action; ?>_api_users" class="fields form-list">
   <li>
-    <div class="field-name vtop">
+    <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('username', _txt('fd.api.username')) : _txt('fd.api.username')); ?>
         <span class="required">*</span>
       </div>
       <div class="field-desc"><?php print _txt('fd.api.username.desc'); ?></div>
     </div>
-    <div class="field-info">
-      <?php print ($e
-        ? $this->Form->input('username', array('class' => 'focusFirst', 'default' => $cur_co['Co']['name'].'.'))
-        : filter_var($api_users[0]['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    <div class="field-info field-info-flex">
+      <?php
+        $prefix = 'co_' . $cur_co['Co']['id'] . '.';
+        print '<span class="api-username-prefix">' . $prefix . '</span>';
+        print ($e ? $this->Form->input('username', array(
+                                                    'class'     => 'focusFirst',
+                                                    'maxlength' => 50 - strlen($prefix),
+                                                  )
+                                      )
+                  : explode('.' , filter_var($api_users[0]['ApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS), 2)[1]);
+      ?>
     </div>
   </li>
   <li>
@@ -76,8 +91,10 @@
     <?php endif; // add ?>
     </div>
     <div class="field-info">
+      <span class="field-info-prefix">
+        <?php print (!empty($api_users[0]['ApiUser']['password']) ? _txt('fd.set') : _txt('fd.set.not')); ?>
+      </span>
       <?php
-        print (!empty($api_users[0]['ApiUser']['password']) ? _txt('fd.set') : _txt('fd.set.not'));
         
         if($permissions['generate'] && !empty($api_users[0]['ApiUser']['id'])) {
           print '<button type="button" class="provisionbutton" title="' . _txt('op.api.key.generate')

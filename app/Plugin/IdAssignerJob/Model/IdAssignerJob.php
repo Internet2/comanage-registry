@@ -60,17 +60,19 @@ class IdAssignerJob extends CoJobBackend {
    *
    * @since  COmanage Registry v3.3.0
    * @param  CoJob   $CoJob      CoJob object
-   * @param  integer $coId       CO ID
-   * @param  integer $coPersonId CO Person ID
+   * @param  String  $objType    Object Type ("CoDepartment", "CoGroup", "CoPerson")
+   * @param  Integer $objId      Object ID
    */
   
-  protected function assign($CoJob, $coId, $coPersonId) {
+  protected function assign($CoJob, $objType, $objId) {
     $Identifier = ClassRegistry::init('Identifier');
     
-    $res = $Identifier->assign($coId, $coPersonId, null);
+    $res = $Identifier->assign($objType, $objId, null);
+    
+    $coPersonId = ($objType == 'CoPerson' ? $objId : null);
     
     foreach($res as $t => $r) {
-      $rkey = $coPersonId . ":" . $t;
+      $rkey = $objType . "/" . $objId . ":" . $t;
       
       if($r === 1) {
         $CoJob->CoJobHistoryRecord->record($CoJob->id,
@@ -113,36 +115,73 @@ class IdAssignerJob extends CoJobBackend {
                    _txt('pl.idassignerjob.start'));
     
     $count = 0;
+    $total = 0;
     
-    // Iterate over the list of CO People. We stick with the current pattern of
-    // only assigning identifiers for active people (as with enrollment).
+    $models = array('CoDepartment', 'CoGroup', 'CoPerson');
+    $Iterators = array();
     
-    $CoPerson = ClassRegistry::init('CoPerson');
-    
-    if(!empty($params['co_person_id'])) {
-      $this->assign($CoJob, $coId, $params['co_person_id']);
+    if(empty($params['object_id'])) {
+      // In order to get a useful total count for setPercentComplete, we need to
+      // loop through each model twice, here to do the total count and then below
+      // to do the actual work. We'll cache the iterators.
       
-      $count++;
-    } else {
-      $iterator = new PaginatedSqlIterator(
-        $CoPerson,
-        array(
-          'CoPerson.co_id' => $coId,
-          'CoPerson.status' => StatusEnum::Active
-        ),
-        array('CoPerson.id', 'CoPerson.status')
-      );
-      
-      $total = $iterator->count();
-      
-      foreach($iterator as $k => $v) {
-        if($CoJob->canceled($CoJob->id)) { return false; }
+      foreach($models as $m) {
+        if(!empty($params['object_type']) && $m != $params['object_type']) {
+          continue;
+        }
         
-        $this->assign($CoJob, $coId, $v['CoPerson']['id']);
+        $conditions = array(
+          $m.'.co_id' => $coId
+        );
+        
+        if($m != 'CoDepartment') {
+          $conditions[$m.'.status'] = StatusEnum::Active;
+        }
+        
+        if($m == 'CoGroup') {
+          // Automatic groups do not currently support identifiers (CO-1829)
+          $conditions['CoGroup.auto'] = false;
+        }
+        
+        $Iterators[$m] = new PaginatedSqlIterator(
+          ClassRegistry::init($m),
+          $conditions
+        );
+        
+        $total += $Iterators[$m]->count();
+      }
+    }
+    
+    foreach($models as $m) {
+      if(!empty($params['object_type']) && $m != $params['object_type']) {
+        continue;
+      }
+      
+      if(!empty($params['object_id'])) {
+        $this->assign($CoJob, $m, $params['object_id']);
         
         $count++;
+      } else {
+        // We already have the iterator from before, so now we can query it
         
-        $CoJob->setPercentComplete($CoJob->id, ($count * 100)/$total); 
+        $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                           null,
+                                           _txt('pl.idassignerjob.count', array($Iterators[$m]->count(), $m)),
+                                           null,
+                                           null,
+                                           JobStatusEnum::Notice);
+        
+        foreach($Iterators[$m] as $k => $v) {
+          if($CoJob->canceled($CoJob->id)) { return false; }
+          
+          $this->assign($CoJob, $m, $v[$m]['id']);
+          
+          $count++;
+          
+          if($count % 10 == 0) {
+            $CoJob->setPercentComplete($CoJob->id, ($count * 100)/$total); 
+          }
+        }
       }
     }
     
@@ -158,8 +197,14 @@ class IdAssignerJob extends CoJobBackend {
   
   public function parameterFormat() {
     $params = array(
-      'co_person_id' => array(
-        'help'     => _txt('pl.idassignerjob.arg.co_person_id'),
+      'object_type' => array(
+        'help'     => _txt('pl.idassignerjob.arg.object_type'),
+        'type'     => 'select',
+        'choices'  => array('CoDepartment', 'CoGroup', 'CoPerson'),
+        'required' => false
+      ),
+      'object_id' => array(
+        'help'     => _txt('pl.idassignerjob.arg.object_id'),
         'type'     => 'int',
         'required' => false
       )

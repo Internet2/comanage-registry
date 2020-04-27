@@ -76,6 +76,7 @@
       <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_provisioning_targets.1'))); ?></div>
     </div>
     <div class="field-info">
+      <span class="field-info-prefix">
       <?php
         switch($this->action) {
           case 'add':
@@ -90,6 +91,10 @@
             print filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
             break;
         }
+      ?>
+      </span>
+
+      <?php
         
         if($this->action == 'edit') {
           // And render a link to the plugin target

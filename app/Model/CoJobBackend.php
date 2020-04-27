@@ -42,10 +42,11 @@ abstract class CoJobBackend extends AppModel {
     $parser->addOption(
       'coid',
       array(
-        'short'   => 'c',
-        'help'    => _txt('sh.job.arg.coid'),
-        'boolean' => false,
-        'default' => false
+        'short'    => 'c',
+        'help'     => _txt('sh.job.arg.coid'),
+        'boolean'  => false,
+        'default'  => false,
+        'required' => true
       )
     )->addOption(
       'synchronous',

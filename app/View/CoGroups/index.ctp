@@ -28,12 +28,6 @@
   if($this->action == 'select') {
     // Add breadcrumbs
     print $this->element("coCrumb");
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'co_people';
-    $args['action'] = 'index';
-    $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(_txt('me.population'), $args);
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',

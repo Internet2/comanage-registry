@@ -75,7 +75,6 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'verification_template_id'
     ),
-    "CoPipeline",
     "CoTheme"
   );
   
@@ -85,7 +84,8 @@ class CoEnrollmentFlow extends AppModel {
     "CoEnrollmentAuthenticator" => array('dependent' => true),
     "CoEnrollmentSource" => array('dependent' => true),
     // A CO Enrollment Flow may have zero or more CO Petitions
-    "CoPetition" => array('dependent' => true)
+    "CoPetition" => array('dependent' => true),
+    "CoPipeline"
   );
   
   // Associated models that should be relinked to the archived attribute during Changelog archiving
@@ -133,11 +133,6 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'my_identity_shortcut' => array(
       'rule' => 'boolean'
-    ),
-    'co_pipeline_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
     ),
     'match_policy' => array(
       'rule' => array('inList',

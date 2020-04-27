@@ -59,6 +59,12 @@ class CoGroupMember extends AppModel {
 
   // Validation rules for table elements
   public $validate = array(
+    'co_group_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true
+      )
+    ),
     'co_person_id' => array(
       'content' => array(
         'rule' => 'numeric',
@@ -96,7 +102,7 @@ class CoGroupMember extends AppModel {
         'allowEmpty' => true
       )
     ),
-    'co_nested_group_id' => array(
+    'co_group_nesting_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,
@@ -214,6 +220,10 @@ class CoGroupMember extends AppModel {
    */
 
   public function afterSave($created, $options = Array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // On save, we pull any nestings for this group and sync memberships for the
     // parent group(s). (We don't need to recurse since that should trigger a
     // CO Group Member update for that group, which will then call afterSave
@@ -832,7 +842,7 @@ class CoGroupMember extends AppModel {
       $curRoles = $this->findCoPersonGroupRoles($coPersonId);
       
       // And also the roles of $requesterCoPersonId, in case we need to check ownership
-      $requesterRoles = $this->findCoPersonGroupRoles($requesterRoles);
+      $requesterRoles = $this->findCoPersonGroupRoles($requesterCoPersonId);
       
       foreach($memberships as $m) {
         // Reset model state between transactions

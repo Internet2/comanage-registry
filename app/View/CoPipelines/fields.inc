@@ -93,6 +93,14 @@
     } else {
       $("#CoPipelineSyncStatusOnDelete").closest('li').hide('fade');
     }
+    
+    <?php if(!empty($vv_linkable_enrollment_flows)): ?>
+    if(document.getElementById('CoPipelineSyncOnAdd').checked) {
+      $("#CoPipelineCoEnrollmentFlowId").closest("li").show('fade');
+    } else {
+      $("#CoPipelineCoEnrollmentFlowId").closest("li").hide('fade');
+    }
+    <?php endif; // vv_linkable_enrollment_flows ?>
   }
   
   function update_type_select() {
@@ -129,6 +137,12 @@
     
     // And replace with the key/value pairs for the current model
     if(curmodel !== '') {
+      if(curmodel == 'EmailAddress') {
+        // EmailAddress allows an empty value, unlike Identifier
+        $('#CoPipelineMatchType').append($("<option></option>")
+          .attr("value", "").text(""));
+      }
+      
       $.each(options[curmodel], function(key, value) {
         $('#CoPipelineMatchType').append($("<option></option>")
           .attr("value", value).text(key));
@@ -335,6 +349,36 @@
                              $this->Form->label('sync_on_add', _txt('fd.pi.sync.add'))
                            : (isset($co_pipelines[0]['CoPipeline']['sync_on_add']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
             </div>
+            <ul class="field-children">
+              <li style="display:none">
+                <div class="field-name">
+                  <div class="field-title"><?php print _txt('fd.pi.sync.add.ef'); ?></div>
+                  <div class="field-desc"><?php print _txt('fd.pi.sync.add.ef.desc'); ?></div>
+                </div>
+                <div class="field-info">
+                  <?php
+                    global $cm_lang, $cm_texts;
+                    $attrs = array();
+                    $attrs['value'] = (!empty($co_pipelines[0]['CoPipeline']['co_enrollment_flow_id'])
+                      ? $co_pipelines[0]['CoPipeline']['co_enrollment_flow_id']
+                      : null);
+                    $attrs['empty'] = true;
+
+                    if($e) {
+                      print $this->Form->select('co_enrollment_flow_id',
+                        $vv_linkable_enrollment_flows,
+                        $attrs);
+
+                      if($this->Form->isFieldError('co_enrollment_flow_id')) {
+                        print $this->Form->error('co_enrollment_flow_id');
+                      }
+                    } elseif(!empty($co_pipelines[0]['CoPipeline']['co_enrollment_flow_id'])) {
+                      print filter_var($vv_linkable_enrollment_flows[ $co_pipelines[0]['CoPipeline']['co_enrollment_flow_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+                    }
+                  ?>
+                </div>
+              </li>
+            </ul>
           </li>
           <li>
             <div class="field-name">

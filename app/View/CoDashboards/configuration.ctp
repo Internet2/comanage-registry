@@ -179,7 +179,9 @@
     foreach($pluginLinks as $label => $pcfg) {
       // $pcfg['url']['co'] is set, but will be overridden below
       $configMenuItems[$label] = $pcfg['url'];
-      $configMenuItems[$label]['icon'] = $pcfg['icon'];
+      if(!empty($pcfg['icon'])) {
+        $configMenuItems[$label]['icon'] = $pcfg['icon'];
+      }
     }
   }
   
@@ -218,7 +220,9 @@
            (!empty($cfg['plugin']))) {
           
           print '<li>';
-          print '<em class="material-icons" aria-hidden="true">' . $cfg['icon'] . '</em> ';
+          if(!empty($cfg['icon'])) {
+            print '<em class="material-icons" aria-hidden="true">' . $cfg['icon'] . '</em> ';
+          }
           $args = array();
           $args['plugin'] = (!empty($cfg['plugin']) ? $cfg['plugin'] : null);
           $args['controller'] = $cfg['controller'];

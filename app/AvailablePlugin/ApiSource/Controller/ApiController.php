@@ -38,7 +38,7 @@ class ApiController extends Controller {
                              'RequestHandler');  // For REST
   
   public $uses = array(
-// Uncommenting this throws an error about ApiSource
+// Uncommenting this throws an error about ApiSource, so we use loadModel() below
 //    ApiUser
   );
   
@@ -106,7 +106,6 @@ class ApiController extends Controller {
       
       if(!empty($this->cur_api_src['ApiUser']['username'])) {
         if(strcmp($_SERVER['PHP_AUTH_USER'], $this->cur_api_src['ApiUser']['username'])==0) {
-
           // This is similar to the configuration in AppController for general API Auth
           $this->Auth->authenticate = array(
             'Basic' => array(
@@ -267,6 +266,18 @@ class ApiController extends Controller {
 
       $json = json_decode($doc, true);
       
+      // We accept a "returnUrl" option for use when sync on add triggers an
+      // enrollment flow, however we do not want it to become part of the
+      // source_record, since it won't be provided on future updates.
+      
+      $returnUrl = (!empty($json['returnUrl']) ? $json['returnUrl'] : null);
+      
+      if($returnUrl) {
+        // We have to remove it from $json and re-encode doc
+        
+        unset($json['returnUrl']);
+      }
+      
       // We shouldn't get here if params['sorid'] is null
       $args = array();
       $args['conditions']['ApiSourceRecord.api_source_id'] = $this->cur_api_src['ApiSource']['id'];
@@ -278,7 +289,11 @@ class ApiController extends Controller {
       $rec = array(
         'api_source_id' => $this->cur_api_src['ApiSource']['id'],
         'sorid' => $this->request->params['sorid'],
-        'source_record' => $doc
+        // Since we may have mucked with $json for returnUrl above, we don't know
+        // if the original document was "pretty" or not. For consistency, we'll
+        // always make the source_record pretty (which should also make it slightly)
+        // easier for an admin to look at it.
+        'source_record' => json_encode($json, JSON_PRETTY_PRINT)
       );
       
       $this->ApiSourceRecord->clear();
@@ -324,6 +339,21 @@ class ApiController extends Controller {
                                                              $this->request->params['sorid'],
                                                              null,
                                                              $this->cur_api_src['OrgIdentitySource']['co_id']);
+        
+        if($returnUrl) {
+          $this->loadModel('CoPetition');
+          
+          // Try to find the CO Petition ID associated with this Org Identity.
+          // If found, insert the return URL.
+          $coPetitionId = $this->CoPetition->field('id', array('CoPetition.enrollee_org_identity_id' => $orgId));
+          
+          if($coPetitionId) {
+            $this->CoPetition->clear();
+            $this->CoPetition->id = $coPetitionId;
+            $this->CoPetition->saveField('return_url', $returnUrl);
+          }
+          // XXX else?
+        }
         
         // Note we return 201 based on whether or not an org identity was created,
         // not based on whether or not we saved the SOR attributes. While a bit of

@@ -35,8 +35,11 @@ class UpgradeVersionShell extends AppShell {
                     'CoEnrollmentFlow',
                     'CoExtendedType',
                     'CoGroup',
+                    'CoIdentifierAssignment',
+                    'CoJob',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'Identifier',
+                    'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
   
   // A list of known versions, must be semantic versioning compliant. The value
@@ -80,7 +83,9 @@ class UpgradeVersionShell extends AppShell {
     "3.2.0" => array('block' => false),
     "3.2.1" => array('block' => false),
     "3.2.2" => array('block' => false),
-    "3.3.0" => array('block' => false, 'post' => 'post310')
+    "3.2.3" => array('block' => false),
+    "3.2.4" => array('block' => false),
+    "3.3.0" => array('block' => false, 'post' => 'post330')
   );
   
   public function getOptionParser() {
@@ -387,7 +392,7 @@ class UpgradeVersionShell extends AppShell {
   public function post330() {
     // 3.3.0 moves SSH key management into an authenticator plugin.
     $this->out(_txt('sh.ug.330.ssh'));
-
+    
     $args = array();
     $args['contain'] = false;
     
@@ -398,6 +403,7 @@ class UpgradeVersionShell extends AppShell {
       $this->out('- ' . $co['Co']['name']);
       
       $this->SshKeyAuthenticator->_ug330($co['Co']['id']);
+      $this->CoExtendedType->addDefault($co['Co']['id'], 'CoDepartment.type');
     }
     
     // The users view is no longer required.
@@ -413,7 +419,7 @@ class UpgradeVersionShell extends AppShell {
     
     // API Users is now more configurable. Set existing api users to be
     // active and fully privileged.
-    $this->out(_txt('sh.ug.330.ssh'));
+    $this->out(_txt('sh.ug.330.api'));
     $this->ApiUser->updateAll(
       array(
         'ApiUser.co_id' => 1,
@@ -422,5 +428,25 @@ class UpgradeVersionShell extends AppShell {
       ),
       true
     );
+    
+    // Identifier Assignments now have a context, all existing Identifier
+    // Assignments applied to CoPeople, and while we're here give all 
+    // everything Active status
+    $this->out(_txt('sh.ug.330.ia'));
+    $this->CoIdentifierAssignment->updateAll(
+      array(
+        'CoIdentifierAssignment.context' => "'CP'",  // Wacky updateAll syntax
+        'CoIdentifierAssignment.status' => "'A'"
+      ),
+      true
+    );
+
+    // Resize SshKey type column
+    $this->out(_txt('sh.ug.330.ssh.key'));
+    $this->SshKey->_ug330();
+
+    // Resize CoJob job_type column
+    $this->out(_txt('sh.ug.330.cojob'));
+    $this->CoJob->_ug330();
   }
 }

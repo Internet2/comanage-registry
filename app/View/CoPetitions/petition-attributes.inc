@@ -123,6 +123,10 @@
     $("#dialog-review").dialog({
       autoOpen: false,
       modal: true,
+      draggable: true,
+      resizable: true,
+      width: document.documentElement.clientWidth * 0.8,
+      height: document.documentElement.clientHeight * 0.8,
       buttons: {
         "<?php print _txt('op.ok'); ?>": function() {
           $(this).dialog("close");
@@ -211,7 +215,8 @@
 
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
-          if($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view') {
+          if(($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view')
+              || (!$mvpa && $coe_attributes[0]['CoEnrollmentAttribute']['required'])) {
             print "<span class=\"required\">*</span>\n";
           }
           

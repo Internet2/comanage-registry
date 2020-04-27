@@ -106,14 +106,6 @@
   </ul>
 </div>
 
-<div id="peopleToggle" class="listControl">
-  <?php print _txt('fd.toggle.all'); ?>:
-  <ul>
-    <li><?php print $this->html->link(_txt('fd.open'),'javascript:togglePeople(\'open\');'); ?></li>
-    <li><?php print $this->html->link(_txt('fd.closed'),'javascript:togglePeople(\'closed\');'); ?></li>
-  </ul>
-</div>
-
 <?php // Load the top search bar
 if(isset($permissions['search']) && $permissions['search'] ) {
   if(!empty($this->plugin)) {
@@ -188,7 +180,7 @@ if(isset($permissions['search']) && $permissions['search'] ) {
     </thead>
     <?php foreach ($co_people as $p): ?>
       <tr>
-        <td class="person-name <?php print $nameWithoutEmailClass; ?>">
+        <td class="person-name">
           <?php
             print $this->Html->link(generateCn($p['PrimaryName']),
               array(

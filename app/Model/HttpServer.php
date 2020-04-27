@@ -65,7 +65,22 @@ class HttpServer extends AppModel {
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
+    'ssl_allow_self_signed' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'ssl_verify_peer' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'ssl_verify_peer_name' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**

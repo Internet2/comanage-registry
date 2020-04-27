@@ -132,6 +132,22 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 #desktop-hamburger {
   display: none; /* hide our custom drawer toggle on mobile where we will expose the MDL drawer toggle */
 }
+button.cm-toggle {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+button.cm-toggle:focus {
+  border: 1px dotted #222;
+}
+#top-menu button.cm-toggle {
+  color: white;
+}
+#top-menu button.cm-toggle:focus {
+  border: 1px dotted #fff;
+}
 /* USER DEFINED LINKS (top) */
 #user-defined-links-top  {
   display: none;
@@ -148,6 +164,10 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 #logo img {
   height: 38px;
 }
+#logo a:focus {
+  border: 1px dotted #222;
+  display: block;
+}
 /* USER MENU */
 #user-menu {
   z-index: 4;
@@ -157,7 +177,7 @@ body.logged-out #user-menu {
 }
 body.logged-in #user-menu {
   float: right;
-  margin: 0 0 1em;
+  margin: 0 1em 1em;
   margin-top: 1px;
 }
 #user-menu #user,
@@ -214,9 +234,6 @@ body.logged-in #user-menu {
 }
 #user-common-name {
   display: none;
-}
-#user-menu a.topMenu {
-  color: #fff;
 }
 #user-menu .material-icons {
   vertical-align: bottom;
@@ -299,12 +316,7 @@ body.logged-in #user-menu {
 #user-panel .org-ids {
   font-style: italic;
 }
-#user-panel #user-panel-flows {
-  column-count: 2;
-}
-#user-panel #user-panel-flows,
-#user-panel #user-panel-invite,
-#user-panel #panel-orgid {
+#user-panel ul.user-panel-list {
   margin-top: 0;
 }
 /* NOTIFICATIONS */
@@ -339,9 +351,6 @@ body.logged-in #user-menu {
 }
 #notifications .notification:hover {
   background-color: rgb(238,238,238);
-}
-#notifications .notification-created {
-  font-size: 0.9em;
 }
 #notifications .notification-created a {
   color: #444;
@@ -433,9 +442,7 @@ form#notificationStatus {
   font-weight: bold;
 }
 .noty_icon{
-  display: inline-block !important;
-  position: relative;
-  top: 3px;
+  margin-right: 4px;
 }
 .warbg{
   background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_826262_256x240.png") !important;
@@ -466,6 +473,7 @@ form#notificationStatus {
 }
 #lastLogin p {
   margin-bottom: 0;
+  clear: both;
 }
 #content .co-info-topbox .material-icons {
   color: #53b1f4;
@@ -567,7 +575,6 @@ form#notificationStatus {
   padding: 0;
 }
 .custom-links li {
-  font-size: 0.9em;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -588,9 +595,6 @@ form#notificationStatus {
 }
 #collaborationTitle a {
   color: #222;
-}
-#breadcrumbs {
-  font-size: 0.9em;
 }
 body.co_petitions.view .titleNavContainer,
 body.co_person_roles .titleNavContainer,
@@ -963,7 +967,7 @@ body.view .modelbox-data {
 }
 iframe#tandc_content {
   width: 100%;
-  height: 300px;
+  height: 100%;
 }
 /* INVITATIONS */
 .invitation {
@@ -1079,13 +1083,7 @@ body.co_petitions .deny-button:hover {
   white-space: nowrap;
 }
 body.co_petitions .ui-dialog {
-  left: 15% !important;
-  top: 10% !important;
-  width: 70% !important;
   padding: 0;
-}
-#dialog-review {
-  height: 270px !important; /* mobile size */
 }
 /* Pagination */
 #pagination {
@@ -1414,11 +1412,13 @@ a.ui-button:visited,
 .top-search legend .material-icons {
   vertical-align: middle;
 }
-.top-search legend .material-icons.drop-arrow {
-  float: right;
-  position: relative;
-  left: -5px;
-  top: -1px;
+.top-search legend button.cm-toggle {
+  position: absolute;
+  right: 0.5em;
+}
+#content .top-search legend button.cm-toggle .material-icons {
+  font-size: 34px;
+  line-height: 17px;
 }
 .top-search fieldset {
   clear: both;
@@ -1797,6 +1797,9 @@ ul.form-list .field-title {
 ul.form-list .field-info {
   position: relative;
 }
+ul.form-list .field-info-prefix {
+  margin-right: 0.5em;
+}
 ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
@@ -1806,7 +1809,8 @@ ul.form-list .fields-header {
 }
 ul.form-list input[type="text"],
 ul.form-list input[type="number"],
-ul.form-list input[type="password"] {
+ul.form-list input[type="password"],
+ul.form-list textarea {
   width: 95%;
   font-size: 1em;
   -webkit-border-radius: 0;
@@ -1861,6 +1865,12 @@ ul.form-list li.field-stack textarea {
   margin: 0;
   width: 100%;
   resize: vertical;
+}
+.nested {
+  padding: 0 0 1em 2em;
+}
+.nested .nested {
+  padding-bottom: 0;
 }
 .checkbox {
   margin-bottom: 0.5em;
@@ -2111,7 +2121,7 @@ td.indented {
 }
 .mdl-button.mdl-button--colored,
 .mdl-button--raised.mdl-button--colored {
-  background-color: #53B1F4 !important; /* important required to override MDL's active state */
+  background-color: #0C75C0 !important; /* important required to override MDL's active state */
   color: white;
 }
 .mdl-button--raised.mdl-button--colored:hover {

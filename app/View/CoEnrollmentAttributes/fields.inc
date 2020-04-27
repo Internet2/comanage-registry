@@ -336,6 +336,7 @@
         </td>
         <td>
           <?php
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_attributes)
             ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
             : null);

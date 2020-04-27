@@ -172,13 +172,16 @@
       $("#CoEnrollmentFlowFinalizationTemplateId").closest("li").hide('fade');
     }
     
-    // If Establish Authenticators is enabled, show the available authenticators
+    // If Establish Authenticators is enabled, show the available authenticators.
+    // Note during add, Authenticators are not yet available for configuration.
     
+    <?php if(!empty($vv_authenticators) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
     if(document.getElementById('CoEnrollmentFlowEstablishAuthenticators').checked) {
       $("#authenticators").show('fade');
     } else {
       $("#authenticators").hide('fade');
     }
+    <?php endif; // $vv_authenticators ?>
   }
   
   function tandc_update_gadgets() {
@@ -336,37 +339,6 @@
                    : ($co_enrollment_flows[0]['CoEnrollmentFlow']['my_identity_shortcut'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
     </div>
   </li>
-  <?php if(!empty($vv_co_pipelines)): ?>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print ($e ? $this->Form->label('co_pipeline_id',_txt('fd.pipeline')) : _txt('fd.pipeline')); ?>
-      </div>
-      <div class="field-desc"><?php print _txt('fd.pipeline.desc.ef'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php
-        global $cm_lang, $cm_texts;
-        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'])
-                           ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id']
-                           : '');
-        $attrs['empty'] = true;
-
-        if($e) {
-          print $this->Form->select('co_pipeline_id',
-                                    $vv_co_pipelines,
-                                    $attrs);
-
-          if($this->Form->isFieldError('co_pipeline_id')) {
-            print $this->Form->error('co_pipeline_id');
-          }
-        } else {
-          print $vv_co_pipelines[ $co_enrollment_flows[0]['CoEnrollmentFlow']['co_pipeline_id'] ];
-        }
-      ?>
-    </div>
-  </li>
-  <?php endif; // vv_co_pipelines ?>
   <li>
     <div class="field-name">
       <div class="field-title">
@@ -910,7 +882,7 @@
     </div>
   </li>
   <?php endif; ?>
-  <?php if(!empty($vv_authenticators)): ?>
+  <?php if(!empty($vv_authenticators) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
   <li>
     <div class="field-name">
       <div class="field-title">

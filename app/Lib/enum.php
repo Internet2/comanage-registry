@@ -49,6 +49,7 @@ class ActionEnum
   const CoGroupMemberEditedPipeline     = 'ECGL';
   const CoGroupMemberValidityTriggered  = 'VCGM';
   const CoGroupProvisioned              = 'PCGA';
+  const CoPersonAddedBulk               = 'ACPB';
   const CoPersonAddedManual             = 'ACPM';
   const CoPersonAddedPetition           = 'ACPP';
   const CoPersonAddedPipeline           = 'ACPL';
@@ -99,6 +100,7 @@ class ActionEnum
   const NotificationDelivered           = 'NOTD';
   const NotificationParticipantExpunged = 'NOTE';
   const NotificationResolved            = 'NOTR';
+  const OrgIdAddedBulk                  = 'AOIB';
   const OrgIdAddedManual                = 'AOIM';
   const OrgIdAddedPetition              = 'AOIP';
   const OrgIdAddedSource                = 'AOIS';
@@ -266,19 +268,6 @@ class ExtendedAttributeEnum {
   const Varchar32 = 'VARCHAR(32)';
 }
 
-class IdentifierAssignmentEnum
-{
-  const Random     = 'R';
-  const Sequential = 'S';
-}
-
-class IdentifierAssignmentExclusionEnum
-{
-  const Confusing     = 'C';
-  const Offensive     = 'O';
-  const Superstitious = 'S';
-}
-
 // Note CO or COU is determined by co_groups:cou_id
 class GroupEnum
 {
@@ -289,6 +278,26 @@ class GroupEnum
   // XXX CO-1100, not yet supported
   const NestedAdmins  = "AN";
   const NestedMembers = "MN";
+}
+
+class IdentifierAssignmentEnum
+{
+  const Random     = 'R';
+  const Sequential = 'S';
+}
+
+class IdentifierAssignmentContextEnum
+{
+  const CoDepartment = 'CD';
+  const CoGroup      = 'CG';
+  const CoPerson     = 'CP';
+}
+
+class IdentifierAssignmentExclusionEnum
+{
+  const Confusing     = 'C';
+  const Offensive     = 'O';
+  const Superstitious = 'S';
 }
 
 class IdentifierEnum
@@ -708,6 +717,12 @@ class TrueFalseEnum {
 class UrlEnum {
   const Official      = 'official';
   const Personal      = 'personal';
+}
+
+class DepartmentEnum {
+  const VO                  = 'vo';
+  const ResearchInstitute   = 'researchinstitute';
+  const Department          = 'department';
 }
 
 class VerificationModeEnum

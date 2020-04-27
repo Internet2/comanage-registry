@@ -170,6 +170,10 @@ class CoService extends AppModel {
       // XXX Does this need a special database index?
       $args['conditions']['LOWER(CoService.short_label)'] = strtolower($this->data['CoService']['short_label']);
       $args['conditions']['CoService.co_id'] = $this->data['CoService']['co_id'];
+      if(!empty($this->data['CoService']['id'])) {
+        // Skip our own ID if we're updating
+        $args['conditions']['NOT']['CoService.id'] = $this->data['CoService']['id'];
+      }
       
       $svcs = $this->findForUpdate($args['conditions'], array('id'));
       

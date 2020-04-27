@@ -52,6 +52,31 @@ class CoIdentifierAssignment extends AppModel {
       'required' => true,
       'message' => 'A CO ID must be provided'
     ),
+    'description' => array(
+      'rule' => array('validateInput'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'status' => array(
+      'content' => array(
+        'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                        SuspendableStatusEnum::Suspended)),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
+    'context' => array(
+      'rule' => array(
+        'inList',
+        array(
+          IdentifierAssignmentContextEnum::CoDepartment,
+          IdentifierAssignmentContextEnum::CoGroup,
+          IdentifierAssignmentContextEnum::CoPerson
+        )
+      ),
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'identifier_type' => array(
       'content' => array(
         'rule' => array('validateExtendedType',
@@ -76,11 +101,6 @@ class CoIdentifierAssignment extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
-    ),
-    'description' => array(
-      'rule' => array('validateInput'),
-      'required' => false,
-      'allowEmpty' => true
     ),
     'login' => array(
       'rule' => array('boolean'),
@@ -141,13 +161,14 @@ class CoIdentifierAssignment extends AppModel {
   );
   
   /**
-   * Auto-assign an identifier to a CO Person if one does not already exist.
+   * Auto-assign an identifier to a CO Person or CO Group if one does not already exist.
    * Note: This method is atomic. Multiple concurrent runs will not result in multiple assignments.
    * Note: This method will not trigger provisioning. Manually trigger provisioning if required.
    *
    * @since  COmanage Registry v0.6
    * @param  Array CoIdentifierAssignment data, as returned by find
-   * @param  Integer CO Person ID
+   * @param  String  Object Type ("CoDepartment", "CoGroup", "CoPerson")
+   * @param  Integer Object ID
    * @param  Integer Actor CO Person ID
    * @return Integer ID of newly created Identifier
    * @return Boolean Whether or not to run provisioners on save
@@ -156,14 +177,16 @@ class CoIdentifierAssignment extends AppModel {
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $coPersonID, $actorCoPersonID, $provision=true) {
+  public function assign($coIdentifierAssignment, $objType, $objId, $actorCoPersonID, $provision=true) {
     $ret = null;
-    
+
     // Determine if we are actually assigning an email address instead of an identifier.
     $assignEmail = false;
     
     if($coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'] == 'mail'
-       && !empty($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])) {
+       && !empty($coIdentifierAssignment['CoIdentifierAssignment']['email_type'])
+       // CoGroups do not currently have email addresses
+       && $objType != 'CoGroup') {
       $assignEmail = true;
     }
 
@@ -173,33 +196,45 @@ class CoIdentifierAssignment extends AppModel {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
-    // Find the CO Person.
+    // Find the requested object
     
     $args = array();
-    $args['conditions']['CoPerson.id'] = $coPersonID;
-    $args['contain'][] = 'PrimaryName';
+    $args['conditions'][$objType.'.id'] = $objId;
     $args['contain'][] = 'Identifier';
+    if($objType == 'CoPerson') {
+      $args['contain'][] = 'PrimaryName';
+    }
     
-    $coPerson = $this->Co->CoPerson->find('first', $args);
+    $obj = $this->Co->$objType->find('first', $args);
     
-    if(empty($coPerson)) {
+    if(empty($obj)) {
       $dbc->rollback();
       throw new InvalidArgumentException(_txt('er.notfound',
-                                         array(_txt('ct.co_people.1'),
-                                               $coPersonID)));
+                                         array(_txt('ct.'.Inflector::tableize($objType).'.1'),
+                                               $objId)));
+    }
+    
+    // For now, we throw an error if the CoGroup is an automatic group, since
+    // Identifiers are not currently supported there. (CO-1829)
+    
+    if($objType == 'CoGroup' && $obj['CoGroup']['auto']) {
+      $dbc->rollback();
+      throw new InvalidArgumentException(_txt('er.ia.gr.auto'));
     }
     
     // Check for the Identifier. If the person already has one of this sort,
     // don't generate a new one.
     
     if($assignEmail) {
-      if($this->Co->CoPerson->EmailAddress->assigned($coPersonID,
+      if($this->Co->CoPerson->EmailAddress->assigned($objType,
+                                                     $objId,
                                                      $coIdentifierAssignment['CoIdentifierAssignment']['email_type'])) {
         $dbc->commit();
         throw new OverflowException(_txt('er.ia.already'));
       }
     } else {
-      if($this->Co->CoPerson->Identifier->assigned($coPersonID,
+      if($this->Co->CoPerson->Identifier->assigned($objType,
+                                                   $objId,
                                                    $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'])) {
         $dbc->commit();
         throw new OverflowException(_txt('er.ia.already'));
@@ -218,8 +253,8 @@ class CoIdentifierAssignment extends AppModel {
     }
     
     $base = $this->substituteParameters($iaFormat,
-                                        $coPerson['PrimaryName'],
-                                        $coPerson['Identifier'],
+                                        (!empty($obj['PrimaryName']) ? $obj['PrimaryName'] : $obj[$objType]['name']),
+                                        $obj['Identifier'],
                                         $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
     
     // Now that we've got our base, loop until we get a unique identifier.
@@ -254,12 +289,15 @@ class CoIdentifierAssignment extends AppModel {
               && $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
                                                                       $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
                                                                       $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
-                                                                      true))
+                                                                      true,
+                                                                      $objType))
              ||
              (!$assignEmail
               && $this->Co->CoPerson->Identifier->checkAvailability($candidate,
                                                                     $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
-                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id']))) {
+                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
+                                                                    false,
+                                                                    $objType))) {
             $ok = true;
           }
         }
@@ -277,12 +315,13 @@ class CoIdentifierAssignment extends AppModel {
           // the CO ID. We'll pick it out of the CO Identifier Assignment data.
           
           $coId = $coIdentifierAssignment['CoIdentifierAssignment']['co_id'];
+          $fk = Inflector::underscore($objType) . "_id";
           
           if($assignEmail) {
             $emailAddressData = array();
             $emailAddressData['EmailAddress']['mail'] = $candidate;
             $emailAddressData['EmailAddress']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['email_type'];
-            $emailAddressData['EmailAddress']['co_person_id'] = $coPerson['CoPerson']['id'];
+            $emailAddressData['EmailAddress'][$fk] = $obj[$objType]['id'];
             
             // We need to update the Email Address validation rule
             $this->Co->CoPerson->EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
@@ -299,7 +338,7 @@ class CoIdentifierAssignment extends AppModel {
             $identifierData['Identifier']['identifier'] = $candidate;
             $identifierData['Identifier']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'];
             $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
-            $identifierData['Identifier']['co_person_id'] = $coPerson['CoPerson']['id'];
+            $identifierData['Identifier'][$fk] = $obj[$objType]['id'];
             $identifierData['Identifier']['status'] = StatusEnum::Active;
             
             // We need to update the Identifier validation rule
@@ -320,21 +359,29 @@ class CoIdentifierAssignment extends AppModel {
           }
           
           if($ret) {
-            // Create a history record
-            try {
-              $this->Co->CoPerson->HistoryRecord->record($coPerson['CoPerson']['id'],
-                                                         null,
-                                                         null,
-                                                         $actorCoPersonID,
-                                                         ActionEnum::IdentifierAutoAssigned,
-                                                         _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
-                                                         . $candidate . ' (' . $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type']
-                                                         . ($assignEmail ? ':'.$coIdentifierAssignment['CoIdentifierAssignment']['email_type'] : '')
-                                                         . ')');
-            }
-            catch(Exception $e) {
-              $dbc->rollback();
-              throw new RuntimeException(_txt('er.db.save'));
+            // Create a history record, for CoPerson and CoGroup
+            if($objType == 'CoGroup' || $objType == 'CoPerson') {
+              $coGroupId = !empty($obj['CoGroup']['id']) ? $obj['CoGroup']['id'] : null;
+              $coPersonId = !empty($obj['CoPerson']['id']) ? $obj['CoPerson']['id'] : null;
+              
+              $txt =  _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
+               . $candidate . ' (' . $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type']
+               . ($assignEmail ? ':'.$coIdentifierAssignment['CoIdentifierAssignment']['email_type'] : '')
+               . ')';
+              
+              try {
+                $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                           null,
+                                                           null,
+                                                           $actorCoPersonID,
+                                                           ActionEnum::IdentifierAutoAssigned,
+                                                           $txt,
+                                                           $coGroupId);
+              }
+              catch(Exception $e) {
+                $dbc->rollback();
+                throw new RuntimeException(_txt('er.db.save'));
+              }
             }
           } else {
             $dbc->rollback();
@@ -482,7 +529,7 @@ class CoIdentifierAssignment extends AppModel {
    *
    * @since  COmanage Registry v0.6
    * @param  String CoIdentifierAssignment format
-   * @param  Array  Name array
+   * @param  Mixed  Name array (for CO Person) or string (for CO Group / CO Department)
    * @param  Array  Identifiers array
    * @param  Enum   Acceptable characters for substituted parameters (PermittedCharacterEnum)
    * @return String Identifier with paramaters substituted
@@ -584,6 +631,14 @@ class CoIdentifierAssignment extends AppModel {
               case 'M':
                 $base .= sprintf("%.".$width."s",
                                  preg_replace($charregex, '', $name['middle']));
+                break;
+              case 'n':
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', strtolower($name)));
+                break;
+              case 'N':
+                $base .= sprintf("%.".$width."s",
+                                 preg_replace($charregex, '', $name));
                 break;
               case '#':
                 // Convert the collision number parameter to a sprintf style specification,

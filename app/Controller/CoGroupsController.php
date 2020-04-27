@@ -56,6 +56,12 @@ class CoGroupsController extends StandardController {
   );
   
   public $view_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
+    'EmailListAdmin',
+    'EmailListMember',
+    'EmailListModerator',
+    'Identifier'
   );
   
   /**
@@ -89,6 +95,16 @@ class CoGroupsController extends StandardController {
     $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
 
     $this->set('vv_types', array('Identifier'   => $idTypes));
+    
+    // Determine if there are any identifier assignments for this CO.
+    
+    $args = array();
+    $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoGroup;
+    $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
 
     parent::beforeRender();
   }
@@ -352,54 +368,13 @@ class CoGroupsController extends StandardController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     
-    $own = array();
-    $member = array();
     $managed = false;
     $managedp = false;
     $readonly = false;
     $self = false;
     
     if(!empty($roles['copersonid'])) {
-      // XXX Shouldn't this just use CoGroupMember->findCoPersonGroupRoles?
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
-      $args['conditions']['CoGroupMember.owner'] = true;
-      // Only pull currently valid group memberships
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_from IS NULL',
-          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_through IS NULL',
-          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['contain'] = false;
-      
-      $own = $this->CoGroup->CoGroupMember->find('all', $args);
-      
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
-      $args['conditions']['CoGroupMember.member'] = true;
-      // Only pull currently valid group memberships
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_from IS NULL',
-          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_through IS NULL',
-          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['contain'] = false;
-      
-      $member = $this->CoGroup->CoGroupMember->find('all', $args);
+      $curlRoles = $this->CoGroup->CoGroupMember->findCoPersonGroupRoles($roles['copersonid']);
       
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
@@ -431,6 +406,14 @@ class CoGroupsController extends StandardController {
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
+    // Note we allow couadmin here beceause IdentifiersController allows it,
+    // which allows it for CoPerson identifier assignment. It's not clear if that's
+    // exactly the right permission here, but we probably don't want to allow
+    // $managed either, so maybe this is an OK compromise.
+    $p['assign'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
     // Delete an existing Group?
     $p['delete'] = (!$readonly && ($roles['cmadmin'] || $managed));
     
@@ -461,36 +444,20 @@ class CoGroupsController extends StandardController {
       $p['view'] = true;
     }
     
-    if(isset($own)) {
-      // Set array of groups where person is owner
-      
-      $p['owner'] = array();
-      
-      foreach($own as $g) {
-        $p['owner'][] = $g['CoGroupMember']['co_group_id'];
-      }
-    }
-    
-    if(isset($member)) {
-      // Set array of groups where person is member
-      $p['member'] = array();
-      
-      foreach($member as $g) {
-        $p['member'][] = $g['CoGroupMember']['co_group_id'];
-      }
-    }
+    $p['member'] = !empty($curlRoles['member']) ? $curlRoles['member'] : array();
+    $p['owner'] = !empty($curlRoles['owner']) ? $curlRoles['owner'] : array();
     
     // (Re)provision an existing CO Group?
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
 
     // Select from a list of potential Groups to join?
-    $p['select'] = ($roles['cmadmin']
-                    || ($managedp && ($roles['coadmin'] || $roles['couadmin']))
+    $p['select'] = ($roles['cmadmin'] || $roles['coadmin']
+                    || ($managedp && $roles['couadmin'])
                     || $self);
     
     // Select from any Group (not just open or owned)?
-    $p['selectany'] = ($roles['cmadmin']
-                       || ($managedp && ($roles['coadmin'] || $roles['couadmin'])));
+    $p['selectany'] = ($roles['cmadmin'] || $roles['coadmin']
+                       || ($managedp && $roles['couadmin']));
     
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
