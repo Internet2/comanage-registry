@@ -165,14 +165,19 @@
             if(!empty($mvpa_format) && function_exists($mvpa_format)) {
               $displaystr = $mvpa_format($m);
             }
-            
-            // Render the text link
+
             print '<li class="field-data-container">';
             print '<div class="field-data">';
-            print $this->Html->link($displaystr,
-                                    array('controller' => $lmvpapl,
-                                          'action' => $laction,
-                                          $m['id']));
+            if (($mvpa_model == 'Identifier') && !$permissions['identifiers'] ) {
+              print $displaystr;
+            } else {
+              // Render the text link
+              print $this->Html->link($displaystr,
+                                      array('controller' => $lmvpapl,
+                                            'action' => $laction,
+                                            $m['id']));
+            }
+            
             print "&nbsp;(" . $typestr . ")\n";
             print '</div>';
             print '<div class="field-actions">';
@@ -189,13 +194,16 @@
               }
             }
             
-            // This renders the View or Edit button, as appropriate
-            print $this->Html->link(_txt('op.'.$laction),
-                                    array(
-                                      'controller' => $lmvpapl,
-                                      'action' => $laction,
-                                      $m['id']),
-                                    array('class' => $laction.'button')) . "\n";
+            if (($mvpa_model != 'Identifier') || 
+               (($mvpa_model == 'Identifier') && $permissions['identifiers'])) {
+              // This renders the View or Edit button, as appropriate
+              print $this->Html->link(_txt('op.'.$laction),
+                                      array(
+                                        'controller' => $lmvpapl,
+                                        'action' => $laction,
+                                        $m['id']),
+                                      array('class' => $laction.'button')) . "\n";
+            }
             
             // Possibly render a delete button
             if($laction == 'edit' && $editable) {

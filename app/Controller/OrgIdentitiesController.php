@@ -551,6 +551,11 @@ class OrgIdentitiesController extends StandardController {
       // Find an Org Identity to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       
+      // View identifiers? This correlates with IdentifiersController
+      $p['identifiers'] = ($roles['cmadmin']
+                           || $roles['coadmin']
+                           || ($managed && $roles['couadmin']));
+      
       // View history? This correlates with HistoryRecordsController
       $p['history'] = ($roles['cmadmin']
                        || ($managed && ($roles['coadmin'] || $roles['couadmin'])));

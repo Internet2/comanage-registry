@@ -669,6 +669,11 @@ class CoPeopleController extends StandardController {
     // If we're an admin, we act as an admin, not self.
     $p['editself'] = $self && !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
     
+    // View identifiers? This correlates with IdentifiersController
+    $p['identifiers'] = ($roles['cmadmin']
+                         || $roles['coadmin']
+                         || ($managed && $roles['couadmin']));
+    
     // View history? This correlates with HistoryRecordsController
     $p['history'] = ($roles['cmadmin']
                      || $roles['coadmin']
