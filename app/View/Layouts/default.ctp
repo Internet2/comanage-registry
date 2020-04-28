@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -50,7 +50,7 @@
     ?> -->
 
     <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')) . "\n"; ?>
-    
+
     <!-- Allow pages to request periodic refresh -->
     <?php
     if(!empty($vv_refresh_interval)) {
@@ -69,7 +69,7 @@
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
-      
+
       // Until used more broadly, limit loading of Magnific Popup
       if ($this->controller = 'history_records') {
         print $this->Html->css('jquery/magnificpopup/magnific-popup');
@@ -88,7 +88,7 @@
       print $this->fetch('css');
       print $this->fetch('script');
     ?>
-    
+
     <!-- Include custom CSS -->
     <?php if(!empty($vv_theme_css)): ?>
       <style type="text/css">
@@ -102,7 +102,7 @@
     $controller_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->controller);
     $action_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->action);
     $bodyClasses = $controller_stripped . ' ' .$action_stripped;
-    
+
     // add further body classes as needed
     if($this->Session->check('Auth.User') != NULL) {
       $bodyClasses .= ' logged-in';
@@ -143,7 +143,7 @@
       <?php endif; ?>
 
       <div id="top-menu">
-        <?php if($this->Session->check('Auth.User')): ?>
+        <?php if($this->Session->check('Auth.User.name')): ?>
           <button id="desktop-hamburger" class="cm-toggle" aria-controls="navigation-drawer"><em class="material-icons">menu</em></button>
         <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
@@ -200,7 +200,7 @@
 
       </header>
 
-      <?php if($this->Session->check('Auth.User')): ?>
+      <?php if($this->Session->check('Auth.User.name')): ?>
         <div id="navigation-drawer" class="mdl-layout__drawer">
           <nav id="navigation" aria-label="main menu" class="mdl-navigation">
             <?php print $this->element('menuMain'); ?>
