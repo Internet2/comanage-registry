@@ -264,6 +264,9 @@ function clearTopSearch(formObj) {
     if(t == "text" || t == "select-one") {
       formObj.elements[i].value = "";
     }
+    if(t == "checkbox") {
+      formObj.elements[i].checked = false;
+    }
   }
   formObj.submit();
 }

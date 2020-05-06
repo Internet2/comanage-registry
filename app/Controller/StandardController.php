@@ -188,7 +188,7 @@ class StandardController extends AppController {
   public function beforeRender() {
     $mName = $this->modelClass;
     
-    if($mName == 'CoPerson' || $mName == 'OrgIdentity') {
+    if($mName == 'CoPerson' || $mName == 'OrgIdentity' || $mName == 'CoGroupMember') {
       // Populate list of statuses for people searches
       
       global $cm_lang, $cm_texts;
