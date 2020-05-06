@@ -24,14 +24,14 @@
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-
+  
 class CoGroup extends AppModel {
   // Define class name for cake
   public $name = "CoGroup";
-
+  
   // Current schema version for API
   public $version = "1.0";
-
+  
   // Association rules from this model to other models
   public $hasMany = array(
     // A CoGroup has zero or more members
@@ -41,7 +41,6 @@ class CoGroup extends AppModel {
       'foreignKey' => 'target_co_group_id'
     ),
     "SourceCoGroupNesting" => array(
-      'dependent' => true,
       'className' => 'CoGroupNesting',
       'foreignKey' => 'co_group_id'
     ),
@@ -115,14 +114,14 @@ class CoGroup extends AppModel {
     "Co",
     "Cou"
   );
-
+   
   // Default display field for cake generated views
   public $displayField = "name";
-
+  
   // Default ordering for find operations
 // XXX CO-296 Toss default order?
 //  public $order = array("CoGroup.name");
-
+  
   public $actsAs = array('Containable',
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
@@ -172,13 +171,13 @@ class CoGroup extends AppModel {
       'allowEmpty' => true
     )
   );
-
+  
   // Enum type hints
-
+  
   public $cm_enum_types = array(
     'status' => 'SuspendableStatusEnum'
   );
-
+  
   /**
    * Perform CoGroup model upgrade steps for version 2.0.0.
    * This function should only be called by UpgradeVersionShell.
@@ -196,26 +195,26 @@ class CoGroup extends AppModel {
     // There is a bit of duplication here and in addDefaults, but since this
     // function is not needed in the long term (and so doesn't need updating) that's OK.
     // v2.0.0 was previously v1.1.0.
-
+    
     // We'll check for the existence of each group before creating it, just in case
-
+    
     $ckArgs = array();
     $ckArgs['conditions']['CoGroup.co_id'] = $coId;
     $ckArgs['conditions']['CoGroup.cou_id'] = $couId;
     $ckArgs['contain'] = false;
-
+    
     // First find and rename the admin group and add the new metadata.
-
+    
     $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
-
+    
     if(!$this->find('count', $ckArgs)) {
       $args = array();
       $args['conditions']['CoGroup.name'] = 'admin' . ($couName ? ":" . $couName : "");
       $args['conditions']['CoGroup.co_id'] = $coId;
       $args['contain'] = false;
-
+      
       $group = $this->find('first', $args);
-
+      
       if($group) {
         $data = array(
           'CoGroup' => array(
@@ -230,29 +229,29 @@ class CoGroup extends AppModel {
             'cou_id'      => ($couId ?: null)
           )
         );
-
+        
         $this->clear();
-
+        
         if(!$this->save($data)) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
         }
-
+        
         // Admin groups are not automatically managed, so do not reconcile
       }
     }
-
+    
     // Next, convert the "members" group to All Members (matching pre-2.0.0 behavior).
-
+    
     $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::AllMembers;
-
+    
     if(!$this->find('count', $ckArgs)) {
       $args = array();
       $args['conditions']['CoGroup.name'] = 'members' . ($couName ? ":" . $couName : "");
       $args['conditions']['CoGroup.co_id'] = $coId;
       $args['contain'] = false;
-
+      
       $group = $this->find('first', $args);
-
+      
       if($group) {
         $data = array(
           'CoGroup' => array(
@@ -267,21 +266,21 @@ class CoGroup extends AppModel {
             'cou_id'      => ($couId ?: null)
           )
         );
-
+        
         $this->clear();
-
+        
         if(!$this->save($data)) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
         }
-
+        
         $this->reconcileAutomaticGroup($this->id);
       }
     }
-
+    
     // Finally, create a new Active Members group.
-
+    
     $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::ActiveMembers;
-
+    
     if(!$this->find('count', $ckArgs)) {
       $data = array(
         'CoGroup' => array(
@@ -295,17 +294,17 @@ class CoGroup extends AppModel {
           'cou_id'      => ($couId ?: null)
         )
       );
-
+        
       $this->clear();
-
+      
       if(!$this->save($data)) {
         throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
       }
-
+        
       $this->reconcileAutomaticGroup($this->id);
     }
   }
-
+  
   /**
    * Add all default groups for the specified CO.
    *
@@ -320,26 +319,26 @@ class CoGroup extends AppModel {
 
   public function addDefaults($coId, $couId=null, $rename=false) {
     // Pull the name of the CO/COU
-
+    
     $coName = $this->Co->field('name', array('Co.id' => $coId));
-
+    
     if(!$coName) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.cos.1'), $coId)));
     }
-
+    
     $couName = null;
-
+    
     if($couId) {
       // We rely on COU name validation not permitting a COU Name with a colon.
       $couName = $this->Cou->field('name', array('Cou.id' => $couId));
-
+      
       if(!$couName) {
         throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.cous.1'), $couId)));
       }
     }
-
+    
     // The names get prefixed "CO" or "CO:COU:<couname>", as appropriate
-
+    
     $defaultGroups = array(
       ':admins' => array(
         'group_type'  => GroupEnum::Admins,
@@ -366,38 +365,38 @@ class CoGroup extends AppModel {
         'cou_id'      => ($couId ?: null)
       ),
     );
-
+    
     foreach($defaultGroups as $suffix => $attrs) {
       // Construct the full group name
       $gname = "CO" . ($couName ? ":COU:".$couName : "") . $suffix;
-
+      
       // See if there is already a group with this type for this CO
       $args = array();
       $args['conditions']['CoGroup.co_id'] = $coId;
       $args['conditions']['CoGroup.group_type'] = $attrs['group_type'];
       $args['conditions']['CoGroup.cou_id'] = $couId ?: null;
-
+      
       $grp = $this->find('first', $args);
-
+      
       if(!$grp || $rename) {
         // Proceed with the save
-
+        
         $this->clear();
-
+        
         $data = array();
         $data['CoGroup'] = $attrs;
         $data['CoGroup']['co_id'] = $coId;
         $data['CoGroup']['name'] = $gname;
-
+        
         if(!empty($grp['CoGroup']['id'])) {
           // Insert the key of the existing record.
           // All we really need to update is the name and description,
           // but then we have to deal with required fields and save vs update.
           // So for now we reset the metadata if it happened to have been changed.
-
+          
           $data['CoGroup']['id'] = $grp['CoGroup']['id'];
         }
-
+        
         if(!$this->save($data)) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::addDefaults')));
         }
@@ -406,7 +405,7 @@ class CoGroup extends AppModel {
 
     return true;
   }
-
+  
   /**
    * Obtain the ID of the CO or COU admin group.
    *
@@ -416,7 +415,7 @@ class CoGroup extends AppModel {
    * @return Integer CO Group ID
    * @throws InvalidArgumentException
    */
-
+  
   public function adminCoGroupId($coId, $couId=null) {
     $args = array();
     $args['conditions']['CoGroup.co_id'] = $coId;
@@ -425,16 +424,16 @@ class CoGroup extends AppModel {
     $args['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
     $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
     $args['contain'] = false;
-
+    
     $coAdminGroup = $this->Co->CoGroup->find('first', $args);
 
     if(!empty($coAdminGroup['CoGroup']['id'])) {
       return $coAdminGroup['CoGroup']['id'];
     }
-
+    
     throw new InvalidArgumentException(_txt('er.gr.nf', array('admins')));
   }
-
+  
   /**
    * Actions to take after a save operation is executed.
    *
@@ -445,7 +444,7 @@ class CoGroup extends AppModel {
 
   public function afterSave($created, $options = array()) {
     // Maybe assign identifiers, but only for new Groups
-    if($created
+    if($created 
        && !empty($this->data['CoGroup']['id'])
        && isset($this->data['CoGroup']['auto'])   // CO-1829
        && !$this->data['CoGroup']['auto']) {
@@ -454,7 +453,7 @@ class CoGroup extends AppModel {
 
     return true;
   }
-
+  
   /**
    * Actions to take before a save operation is executed.
    *
@@ -464,26 +463,26 @@ class CoGroup extends AppModel {
   public function beforeSave($options = array()) {
     if(!empty($this->data['CoGroup']['id'])) {
       // On edit, we don't want to allow certain metadata to be changed.
-
+      
       $args = array();
       $args['conditions']['CoGroup.id'] = $this->data['CoGroup']['id'];
       $args['contain'] = false;
-
+  
       $curdata = $this->find('first', $args);
-
+      
       if(!empty($curdata)) {
         // We don't allow group_type or auto to be changed
-
+        
         if(!empty($curdata['CoGroup']['auto'])) {
           $this->data['CoGroup']['auto'] = $curdata['CoGroup']['auto'];
         }
-
+        
         if(!empty($curdata['CoGroup']['group_type'])) {
           $this->data['CoGroup']['group_type'] = $curdata['CoGroup']['group_type'];
         }
       }
     }
-
+    
     return true;
   }
 
@@ -499,7 +498,7 @@ class CoGroup extends AppModel {
    * @return Array Group information, as returned by find
    * @todo   Rewrite to a custom find type
    */
-
+  
   function findForCoPerson($coPersonId, $limit=null, $offset=null, $order=null, $owner=true) {
     $args = array();
     $args['joins'][0]['table'] = 'co_group_members';
@@ -528,22 +527,22 @@ class CoGroup extends AppModel {
       )
     );
     $args['contain'] = false;
-
+    
     if($limit) {
       $args['limit'] = $limit;
     }
-
+    
     if($offset) {
       $args['offset'] = $offset;
     }
-
+    
     if($order) {
       $args['order'] = $order;
     }
-
+    
     return $this->find('all', $args);
   }
-
+  
   /**
    * Obtain the set of members of a group, sorted by owner status and member name.
    *
@@ -551,7 +550,7 @@ class CoGroup extends AppModel {
    * @param  Integer CO Group ID
    * @return Array Group member information, as returned by find
    */
-
+  
   public function findSortedMembers($id) {
     $args = array();
     $args['conditions'] = array();
@@ -572,17 +571,17 @@ class CoGroup extends AppModel {
     $args['contain'] = array(
       'CoPerson' => array('PrimaryName')
     );
-
+    
     // Because we're using containable behavior, we can't easily sort by PrimaryName
     // as part of the find. So instead we'll pull the records and sort using Hash.
     $results = $this->CoGroupMember->find('all', $args);
-
+    
     // Before we sort we'll manually split out the members and owners for rendering.
     // We could order by (eg) owner in the find, but we'll still need to walk the results
     // to find the divide.
     $members = array();
     $owners = array();
-
+    
     foreach($results as $r) {
       if(isset($r['CoGroupMember']['owner']) && $r['CoGroupMember']['owner']) {
         $owners[] = $r;
@@ -590,73 +589,73 @@ class CoGroup extends AppModel {
         $members[] = $r;
       }
     }
-
+    
     // Now sort each set of results by family name.
-
+    
     $sortedMembers = Hash::sort($members, '{n}.CoPerson.PrimaryName.family', 'asc');
     $sortedOwners = Hash::sort($owners, '{n}.CoPerson.PrimaryName.family', 'asc');
-
+    
     // Finally, combine the two arrays back and return
-
+    
     return array_merge($sortedOwners, $sortedMembers);
   }
-
+  
   /**
    * Determine if the group is an admin group for COU.
-   *
+   * 
    * @since COmanage Registry v0.9.3
    * @param Array representing CoGroup
    * @return Boolean true if admin group
    */
-
+  
   public function isCouAdminGroup($group) {
     return ($group['CoGroup']['group_type'] == GroupEnum::Admins
             && !empty($group['CoGroup']['cou_id']));
   }
-
+  
   /**
    * Determine if the group is an admin or members group for a COU.
-   *
+   * 
    * @since COmanage Registry v0.9.3
    * @param Array representing CoGroup
    * @return Boolean true if admin or members group
    */
-
+  
   public function isCouAdminOrMembersGroup($group) {
     $ret = $this->isCouAdminGroup($group)
            || $this->isCouMembersGroup($group);
-
+    
     return $ret;
   }
 
   /**
    * Determine if the group is a members group (all or active) for a CO.
-   *
+   * 
    * @since COmanage Registry v0.9.4
    * @param Array representing CoGroup
    * @return Boolean true if members group
    */
-
+  
   public function isCoMembersGroup($group) {
     return (($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers
              || $group['CoGroup']['group_type'] == GroupEnum::AllMembers)
             && empty($group['CoGroup']['cou_id']));
   }
-
+  
   /**
    * Determine if the group is a members group (all or active) for a COU.
-   *
+   * 
    * @since COmanage Registry v0.9.3
    * @param Array representing CoGroup
    * @return Boolean true if members group
    */
-
+  
   public function isCouMembersGroup($group) {
     return (($group['CoGroup']['group_type'] == GroupEnum::ActiveMembers
              || $group['CoGroup']['group_type'] == GroupEnum::AllMembers)
             && !empty($group['CoGroup']['cou_id']));
   }
-
+  
  /**
    * Determine if a CO Group is read only.
    *
@@ -673,37 +672,37 @@ class CoGroup extends AppModel {
     // editable even though the members can't be.
 
     $auto = $this->field('auto', array('CoGroup.id' => $id));
-
+    
     return (bool)$auto;
   }
-
+  
   /**
    * Reconcile CO Person memberships in a regular group.
-   *
+   * 
    * @since COmanage Registry 3.3.0
    * @param Integer CoGroup Id
    * @param String  Whether to disable safeties (only supported for automatic groups)
    * @return true on success
    * @throws InvalidArgumentException
    */
-
+  
   public function reconcile($id, $safeties="on") {
     // First find the group
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
     $args['contain'][] = 'CoGroupNesting';
-
+    
     $group = $this->find('first', $args);
-
+    
     if(empty($group['CoGroup'])) {
       throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
     }
-
+    
     // If this is an automatic group, hand off to reconcileAutomaticGroup()
     if($group['CoGroup']['auto']) {
       return $this->reconcileAutomaticGroup($group, $safeties);
     }
-
+    
     // XXX we run into a similar problem here as in CoPipeline, which is that
     // we can't have more than one CoGroupMember per CoPerson+GoGroup. While we
     // can work around that here, it does mean that it's going to be hard to tell
@@ -711,43 +710,43 @@ class CoGroup extends AppModel {
     // should have. This will need to get fixed in v5.0.0. (CO-1585)
     // Until this is fixed, this could cause problems with some edge cases
     // unlikely to occur in most deployments.
-
+    
     $args = array();
     $args['conditions']['CoGroupMember.co_group_id'] = $id;
     // Since we're not checking validity dates here, an expired group membership
     // will prevent a nested membership from manifesting. Is that a bug or a feature?
     // Will it change in v5?
     $args['contain'] = false;
-
+    
     $tMembers = $this->CoGroupMember->find('all', $args);
 
     $nMembers = array();
-
+    
     foreach($group['CoGroupNesting'] as $n) {
       // Pull the list of members of each nested group. This approach won't scale
       // well to very large groups, but we can't use subselects because Cake doesn't
       // support them natively, and buildStatement isn't directly supported by
       // ChangelogBehavior. Joins aren't much more elegant.
-
+      
       $args = array();
       $args['conditions']['CoGroupMember.co_group_id'] = $n['co_group_id'];
       $args['fields'] = array('co_person_id', 'id');
-
+      
       $nMembers[ $n['id'] ] = $this->CoGroupMember->find('list', $args);
     }
-
+    
     // We start by deleting any no-longer-valid memberships, in case another group
     // will re-grant eligibility. While we're here, build a hash of co person
     // to group nestings.
-
+    
     $tMembersByPerson = array();
-
+    
     foreach($tMembers as $t) {
       if(!$t['CoGroupMember']['co_group_nesting_id']) {
         // This record is not from a nesting, so skip it
         continue;
       }
-
+      
       if(!isset($nMembers[ $t['CoGroupMember']['co_group_nesting_id'] ][ $t['CoGroupMember']['co_person_id'] ])) {
         // Remove the CoGroupMember record
         $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $t['CoGroupMember']['co_group_nesting_id'], $t['CoGroupMember']['co_person_id'], false);
@@ -755,42 +754,42 @@ class CoGroup extends AppModel {
         $tMembersByPerson[ $t['CoGroupMember']['co_person_id'] ] = $t['CoGroupMember']['id'];
       }
     }
-
+    
     // Pull the list of members of the nested group ($n) that are not already in
     // the target group ($id) and add them.
-
+    
     foreach($group['CoGroupNesting'] as $n) {
       foreach($nMembers[ $n['id'] ] as $ncopid => $gmid) {
         if(!isset($tMembersByPerson[$ncopid])) {
           // For each person in $nMembers but not $tMembers, add them.
           $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $n['id'], $ncopid, true);
-
+          
           // Also update $tMembers so we don't add them again from another group.
           $tMembersByPerson[$ncopid] = $gmid;
         }
       }
     }
-
+    
     // For now, at least, we don't trigger reconciliation of the parent group,
     // leaving that in the hands of the admin.
-
+    
     return true;
   }
-
+  
   /**
    * Reconcile CO Person memberships in an automatic group.
-   *
+   * 
    * @since COmanage Registry 0.9.3
    * @param  Array  Array of CO Group info to reconcile
    * @param  String Whether to disable safety checks
    * @return true on success
    * @throws InvalidArgumentException
    */
-
+  
   protected function reconcileAutomaticGroup($group, $safeties="on") {
     // Determine the set of people who should be in the target group.
     // Currently we only support ActiveMembers and AllMembers.
-
+    
     $args = array();
     // This logic is similar to CoPersonRole::reconcileCouMembersGroupMemberships()
     // and CoPerson::afterSave().
@@ -813,10 +812,10 @@ class CoGroup extends AppModel {
       }
     }
     $args['contain'] = false;
-
+    
     $coPeople = $this->Co->CoPerson->find('all', $args);
     $members = array();
-
+    
     if($safeties != 'off') {
       // Determine the set of people currently in the target group
       $args = array();
@@ -824,40 +823,40 @@ class CoGroup extends AppModel {
       $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
       $args['fields'] = array('CoGroupMember.co_person_id', 'CoGroupMember.id' );
       $args['contain'] = false;
-
+      
       $members = $this->Co->CoGroup->CoGroupMember->find('list', $args);
     }
-
+    
     // Make diff'able arrays
     $currentMembers = array_keys($members);
     $targetMembers = Hash::extract($coPeople, '{n}.CoPerson.id');
-
+    
     // For any person in $currentMembers but not in $targetMembers, remove them from the group
-
+    
     $toRemove = array_diff($currentMembers, $targetMembers);
-
+    
     foreach($toRemove as $coPersonId) {
       $this->Co->CoPerson->CoGroupMember->delete($members[$coPersonId]);
     }
-
+    
     // For any person in $targetMembers but not in $currentMembers, add them to the group
-
+    
     $toAdd = array_diff($targetMembers, $currentMembers);
-
+    
     foreach($toAdd as $coPersonId) {
       $data = array();
       $data['CoGroupMember']['co_group_id'] = $group['CoGroup']['id'];
       $data['CoGroupMember']['co_person_id'] = $coPersonId;
       $data['CoGroupMember']['member'] = true;
       $data['CoGroupMember']['owner'] = false;
-
+      
       $this->Co->CoPerson->CoGroupMember->clear();
-      $this->Co->CoPerson->CoGroupMember->save($data);
+      $this->Co->CoPerson->CoGroupMember->save($data); 
     }
-
-    return true;
+    
+    return true;  
   }
-
+  
   /**
    * Perform a keyword search.
    *
@@ -866,11 +865,11 @@ class CoGroup extends AppModel {
    * @param  String  $q    String to search for
    * @return Array Array of search results, as from find('all)
    */
-
+  
   public function search($coId, $q) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
-
+    
     $args = array();
     foreach($tokens as $t) {
       $args['conditions']['AND'][] = array(
@@ -882,7 +881,7 @@ class CoGroup extends AppModel {
     $args['conditions']['CoGroup.co_id'] = $coId;
     $args['order'] = array('CoGroup.name');
     $args['contain'] = false;
-
+    
     return $this->find('all', $args);
   }
 }
