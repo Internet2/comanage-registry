@@ -307,7 +307,7 @@ class CoPerson extends AppModel {
 				));
         
         if (!empty($records)) {
-					foreach ($records as $record) {
+          foreach ($records as $record) {
             $currentRecord = $Model->find('first', array(
               'conditions' => array('id' => $record[$Model->alias][$Model->primaryKey])
             ));
