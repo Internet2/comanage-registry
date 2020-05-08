@@ -145,9 +145,6 @@
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
 
       <div id="top-menu">
-        <?php if($this->Session->check('Auth.User')): ?>
-          <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
-        <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
           <div id="user-defined-links-top">
             <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
@@ -207,10 +204,7 @@
         <div id="content" class="mdl-grid">
           <div id="content-inner" class="mdl-cell mdl-cell--12-col">
             <div id="redirect-box">
-              <div id="redirect-box-content">
-                <?php print $this->fetch('content'); ?>
-              </div>
-              <div id="redirect-spinner"></div>
+              <?php print $this->fetch('content'); ?>
             </div>
           </div>
         </div>

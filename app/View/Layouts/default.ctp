@@ -143,7 +143,7 @@
       <?php endif; ?>
 
       <div id="top-menu">
-        <?php if($this->Session->check('Auth.User.name')): ?>
+        <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
           <button id="desktop-hamburger" class="cm-toggle" aria-controls="navigation-drawer"><em class="material-icons">menu</em></button>
         <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
@@ -200,7 +200,7 @@
 
       </header>
 
-      <?php if($this->Session->check('Auth.User.name')): ?>
+      <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
         <div id="navigation-drawer" class="mdl-layout__drawer">
           <nav id="navigation" aria-label="main menu" class="mdl-navigation">
             <?php print $this->element('menuMain'); ?>
@@ -225,11 +225,10 @@
             print '<div id="content-inner" class="mdl-cell mdl-cell--12-col">';
           }
 
-          // insert breadcrumbs on all but the homepage if logged in
-          if($this->Session->check('Auth.User')) {
-            if ($this->request->here != $this->request->webroot) {
-              print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
-            }
+          // insert breadcrumbs on all but the homepage
+          if( $vv_ui_mode === EnrollmentFlowUIMode::Full
+              && $this->request->here !== $this->request->webroot) {
+            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
           }
 
           // insert the anchor that is the target of accessible "skip to content" link
