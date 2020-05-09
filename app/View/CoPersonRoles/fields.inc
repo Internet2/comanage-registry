@@ -104,7 +104,26 @@
         $("label[for='CoPersonRoleAffiliation']").text(selectedCOU + ' Affiliation');
         $("label[for='CoPersonRoleTitle']").text(selectedCOU + ' Title');
       });
+      
+      <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
+      $("#sponsors").autocomplete({
+        source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
+        minLength: 3,
+        select: function(event, ui) {
+          $("#sponsors").val(ui.item.label);
+          $("#sponsor_co_person_id").val(ui.item.value);
+          return false;
+        }
+      });
+      <?php endif; // vv_sponsor_mode ?>
     });
+    
+    <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
+    function reset_sponsor() {
+      $("#sponsors").val("");
+      $("#sponsor_co_person_id").val(null);
+    }
+    <?php endif; // vv_sponsor_mode ?>
   </script>
 
   <div id="<?php print $this->action; ?>_role_attributes" class="explorerContainer">
@@ -417,28 +436,20 @@
                 ?>
               </div>
             </li>
+            <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None): ?>
             <li>
               <div class="field-name">
                 <?php
                   if($e && !$es) {
-                    print $this->Form->label('sponsor_co_person_id', _txt('fd.sponsor') . " " . _txt('fd.sponsor.desc'));
+                    print $this->Form->label('sponsor_co_person_id', _txt('fd.sponsor'));
                   } else {
-                    print _txt('fd.sponsor') . " " . _txt('fd.sponsor.desc');
+                    print _txt('fd.sponsor');
                   }
-                ?>
+                ?><br />
               </div>
               <div class="field-info">
                 <?php
-                if(!empty($vv_sponsors)) {
-                  if(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])
-                    && !isset($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ])) {
-                    if(!empty($co_person_roles[0]['SponsorCoPerson']['PrimaryName'])) {
-                      print $this->Html->link(generateCn($co_person_roles[0]['SponsorCoPerson']['PrimaryName']),
-                        array('controller' => 'co_people',
-                          'action' => 'canvas',
-                          $co_person_roles[0]['SponsorCoPerson']['id']));
-                    }
-
+                  if(isset($vv_sponsor_valid) && !$vv_sponsor_valid) {
                     print '<div class="field-desc">
                               <span class="ui-icon ui-icon-info co-info"></span>
                               <em>' . _txt('fd.sponsor.inel') . '</em>
@@ -446,14 +457,44 @@
                   }
 
                   if($e && !$es) {
-                    print $this->Form->select('sponsor_co_person_id', $vv_sponsors);
-                  } elseif(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) {
-                    print filter_var($vv_sponsors[ $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+                    if(!empty($vv_sponsors)) {
+                      // Use a simple drop down
+                      print $this->Form->select('sponsor_co_person_id', $vv_sponsors);
+                    } else {
+                      // Use a people picker
+                      if(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])
+                         && !empty($co_person_roles[0]['SponsorCoPerson']['PrimaryName'])) {
+                        print $this->Html->link(
+                          generateCn($co_person_roles[0]['SponsorCoPerson']['PrimaryName']),
+                          array(
+                            'controller' => 'co_people',
+                            'action' => 'canvas',
+                            $co_person_roles[0]['SponsorCoPerson']['id']
+                          )
+                        );
+                      }
+                      
+                      print '<div class="ui-widget">
+                              <input id="sponsors" />'
+                            . $this->Form->hidden('sponsor_co_person_id',
+                                                  array(
+                                                    'id'      => 'sponsor_co_person_id',
+                                                    'default' => (!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) ? $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] : null
+                                                  ))
+                            . '</div>
+                            <div class="field-desc">
+                              <span class="ui-icon ui-icon-info co-info"></span>
+                              <em>' . _txt('fd.sponsor.desc') . '</em>
+                            </div>';
+                      
+                      // We need to unlock the field for autocomplete manipulation
+                      $this->Form->unlockField('CoPersonRole.sponsor_co_person_id');
+                    }
                   }
-                }
                 ?>
               </div>
             </li>
+            <?php endif; // vv_sponsor_mode ?>
             <li class="modelbox-data">
               <div class="field-name">
                 <?php

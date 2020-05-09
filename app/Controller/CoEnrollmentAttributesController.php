@@ -222,10 +222,35 @@ class CoEnrollmentAttributesController extends StandardController {
             
             $this->set('vv_affiliations', $this->CoPersonRole->types($coid, 'affiliation'));
             
-            // Assemble the list of available Sponsors
+            $mode = $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoSetting->getSponsorEligibility($this->cur_co['Co']['id']);
             
-            $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($coid));
+            $this->set('vv_sponsor_mode', $mode);
             
+            if($mode != SponsorEligibilityEnum::None) {
+              // Generate list of sponsors if it's small enough, otherwise we need to use
+              // the people picker
+              try {
+                $this->set('vv_sponsors', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->sponsorList($this->cur_co['Co']['id']));
+              }
+              catch(OverflowException $e) {
+                // Switch to people picker, which will happen due to absence of vv_sponsors
+              }
+              
+              // We do need to manually lookup the current Sponsor, since the people picker
+              // won't render it by default (and if the sponsor is no longer eligible,
+              // the dropdown won't either).
+              if(!empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'])
+                 && $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'] == 'r:sponsor_co_person_id'
+                 && !empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
+                // The default value is a CO Person ID
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'];
+                $args['contain'] = array('PrimaryName');
+                
+                $this->set('vv_sponsor', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->find('first', $args));
+              }
+            }
+
             // Assemble the list of available groups. Note we currently allow any group to be
             // specified (ie: whether or not it's open). The idea is that an Enrollment Flow
             // is defined by an admin, who can correctly select a group. However, it's plausible

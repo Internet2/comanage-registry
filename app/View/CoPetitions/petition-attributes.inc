@@ -133,6 +133,16 @@
         }
       }
     })
+    
+    $("#sponsors").autocomplete({
+      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
+      minLength: 3,
+      select: function(event, ui) {
+        $("#sponsors").val(ui.item.label);
+        $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(ui.item.value);
+        return false;
+      }
+    });
   });
 </script>
 
@@ -161,7 +171,10 @@
     // attributes with default values
     if($ea['hidden']
        && ($this->action != 'view'
-           || !isset($ea['default']) || !$ea['default'])) {
+              // We have to special case sponsor since the controller might
+              // inject a default
+           || ($ea['attribute'] != 'r:sponsor_co_person_id'
+               && (!isset($ea['default']) || !$ea['default'])))) {
       $hidden_attr[] = $ea;
     } else {
       if(isset($ea['group'])) {  // Sort by group
@@ -180,8 +193,10 @@
     if($ea['hidden']) {
       $fieldName = $ea['model'] . '.' . $ea['field'];
     }
-
-    print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    
+    if(!empty($ea['default'])) {
+      print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    }
   }
 
   // Print the ones not hidden
@@ -426,11 +441,41 @@
                   $requiredSymbol = ' <span class="required">*</span>';
                 }
               }
-
-              // Render the form field, label, and error (if any)
-              // error is output by default with class "error-message"
-              print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
-              print $this->Form->input($fieldName, $args);
+              
+              if($fieldName == 'EnrolleeCoPersonRole.sponsor_co_person_id') {
+                // This only applies when sponsorList() has thrown an OverflowException
+                // and we use the people picker, otherwise the sponsor field will
+                // be a dropdown via inList
+                
+                if(!empty($vv_default_sponsor)) {
+                  print generateCn($vv_default_sponsor['PrimaryName']);
+                }
+                
+                if($ea['modifiable']) {
+                  // Use a people picker
+                  print '<div class="ui-widget">
+                          <input id="sponsors" />'
+                        . $this->Form->hidden($fieldName,
+                                              array(
+                                                // We don't support two sponsors, but if we did this id would break
+                                                'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
+                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                              ))
+                        . '</div>
+                        <div class="field-desc">
+                          <span class="ui-icon ui-icon-info co-info"></span>
+                          <em>' . _txt('fd.sponsor.desc') . '</em>
+                        </div>';
+                  
+                  // We need to unlock the field for autocomplete manipulation
+                  $this->Form->unlockField('EnrolleeCoPersonRole.sponsor_co_person_id');
+                }
+              } else {
+                // Render the form field, label, and error (if any)
+                // error is output by default with class "error-message"
+                print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+                print $this->Form->input($fieldName, $args);
+              }
 
               print "</div>\n";
 

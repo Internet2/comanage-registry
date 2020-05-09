@@ -427,6 +427,10 @@ class CoEnrollmentAttribute extends AppModel {
           }
           
           $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
+        } elseif($efAttr['CoEnrollmentAttribute']['attribute'] == 'r:sponsor_co_person_id') {
+          // Special case for sponsor, we want to make sure the modifiable field passes
+          // through even if there is no default value
+          $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         }
         
         // Attach the validation rules so the form knows how to render the field.
@@ -466,12 +470,19 @@ class CoEnrollmentAttribute extends AppModel {
           } elseif($attrName == 'sponsor_co_person_id') {
             // Like COU ID, we need to set up a select
             
-            $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Co->CoPerson->sponsorList($efAttr['CoEnrollmentFlow']['co_id']);
-            $attr['validate']['content']['rule'][0] = 'inList';
-            $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
-            // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
-            // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
-            $attr['validate']['content']['rule'][2] = false;
+            try {
+              $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Co->CoPerson->sponsorList($efAttr['CoEnrollmentFlow']['co_id']);
+              $attr['validate']['content']['rule'][0] = 'inList';
+              $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
+              // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
+              // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
+              $attr['validate']['content']['rule'][2] = false;
+            }
+            catch(OverflowException $e) {
+              // Use the people picker instead
+              
+              // We don't need to inject a validation rule
+            }
           } else {
             // Default behavior for all other attributes
             
@@ -560,8 +571,10 @@ class CoEnrollmentAttribute extends AppModel {
         foreach(array_keys($attrModel->validate) as $k) {
           // Skip fields that are autopopulated
           if($k != 'co_department_id'
+             && $k != 'co_group_id'
              && $k != 'co_person_id'
              && $k != 'co_person_role_id'
+             && $k != 'co_provisioning_target_id'
              && $k != 'org_identity_id'
              && $k != 'source_' . $attrName . '_id'
              // For now, we skip description (introduced to MVPAs in 3.1.0)

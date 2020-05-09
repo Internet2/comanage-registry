@@ -251,8 +251,37 @@ class CoPersonRolesController extends StandardController {
       $this->set('vv_copr_affiliation_types', $this->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
       $this->set('vv_telephone_numbers_types', $this->CoPersonRole->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
       
-      // Generate list of sponsors
-      $this->set('vv_sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+      $mode = $this->Co->CoSetting->getSponsorEligibility($this->cur_co['Co']['id']);
+      
+      $this->set('vv_sponsor_mode', $mode);
+      
+      if($mode != SponsorEligibilityEnum::None) {
+        // Generate list of sponsors if it's small enough, otherwise we need to use
+        // the people picker
+        try {
+          $this->set('vv_sponsors', $this->CoPersonRole->CoPerson->sponsorList($this->cur_co['Co']['id']));
+        }
+        catch(OverflowException $e) {
+          // Switch to people picker, which will happen due to absence of vv_sponsors
+        }
+        
+        // Is the current sponsor valid?
+        if(!empty($this->viewVars['co_person_roles'][0]['CoPersonRole']['sponsor_co_person_id'])) {
+          if(!empty($this->viewVars['vv_sponsors'])) {
+            // We can just look in the array
+            
+            $this->set('vv_sponsor_valid', isset($this->viewVars['vv_sponsors'][ $this->viewVars['co_person_roles'][0]['CoPersonRole']['sponsor_co_person_id'] ]));
+          } else {
+            // We have to look up the sponsor
+            
+            $s = $this->CoPersonRole->CoPerson->filterPicker($this->cur_co['Co']['id'], 
+                                                             array($this->viewVars['co_person_roles'][0]['CoPersonRole']['sponsor_co_person_id']),
+                                                             PeoplePickerModeEnum::Sponsor);
+            
+            $this->set('vv_sponsor_valid', !empty($s));
+          }
+        }
+      }
       
       // Extended attributes
       $this->set('vv_extended_attributes', $this->extended_attributes);

@@ -431,6 +431,85 @@ class CoPeopleController extends StandardController {
   }
   
   /**
+   * Perform a "keyword" search for CO People, sort of like the CO Dashboard
+   * cross controller search, but intended specifically for "people finder"
+   * search while you type API calls.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+
+  public function find() {
+    $coPersonIds = array();
+    
+    // What search mode should we use?
+    if(empty($this->request->params['named']['mode'])) {
+      $this->Api->restResultHeader(400, "Mode Not Specified");
+      return;
+    }
+    
+    $mode = $this->request->params['named']['mode'];
+    
+    // jquery Autocomplete sends the search as url?term=foo
+    if(!empty($this->request->query['term'])) {
+      // Leverage model specific keyword search
+      
+      // Note EmailAddress and Identifier don't support substring search
+      foreach(array('Name', 'EmailAddress', 'Identifier') as $m) {
+        $hits = $this->CoPerson->$m->search($this->cur_co['Co']['id'], $this->request->query['term']);
+        
+        $coPersonIds = array_merge($coPersonIds, Hash::extract($hits, '{n}.CoPerson.id'));
+      }
+    }
+    
+    $coPersonIds = array_unique($coPersonIds);
+    
+    // Look up additional information to provide hints as to which person is which.
+    // We only do this when there are relatively small numbers of results to
+    // avoid making a bunch of database queries early in the search.
+  
+    $matches = array();
+    
+    if(count($coPersonIds) > 100) {
+      // We don't return large sets to avoid slow performance
+      
+      $matches[] = array(
+        'value' => -1,
+        'label' => _txt('er.picker.toomany')
+      );
+    } else {
+      $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
+      
+      foreach($people as $p) {
+        $label = generateCn($p['PrimaryName']);
+        
+        $id = Hash::extract($p['Identifier'], '{n}[type=uid]');
+        
+        if(!empty($id[0]['identifier'])) {
+          $label .= " (" . $id[0]['identifier'] . ")";
+        }
+        
+        // Make sure we don't already have an entry for this CO Person ID
+        if(!Hash::check($matches, '{n}[value='.$p['CoPerson']['id'].']')) {
+          $matches[] = array(
+            'value' => $p['CoPerson']['id'],
+            'label' => $label
+          );
+        }
+      }
+    }
+    
+    // We're really semi-RESTful here from the framework perspective, since
+    // the query URL does not end in .json. We manually adjust some settings
+    // to generate a JSON result, but some other results (errors, specifically)
+    // will generate redirects rathen than proper HTTP result codes.
+    
+    $this->set('vv_co_people', $matches);
+    $this->layout = 'ajax';
+    $this->response->type('json');
+    $this->render('/CoPeople/json/find');
+  }
+  
+  /**
    * Generate a display key to be used in messages such as "Item Added".
    *
    * @since  COmanage Registry v0.1
@@ -668,6 +747,11 @@ class CoPeopleController extends StandardController {
     // Are we allowed to edit our own record?
     // If we're an admin, we act as an admin, not self.
     $p['editself'] = $self && !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
+    
+    // "Find" a CO Person (for use in People Finder API calls)
+    // XXX we'll need more flexible permissions for regular CO Person searches
+    // (ie: for group member picking, but maybe that's an RFE as part of CCWG-9?)
+    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     
     // View identifiers? This correlates with IdentifiersController
     $p['identifiers'] = ($roles['cmadmin']

@@ -448,6 +448,42 @@ class CoPerson extends AppModel {
   }
   
   /**
+   * Filter the results from a People Picker find, based on the search mode.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $coId        CO ID
+   * @param  integer $coPersonIds Array of CO Person IDs to filter
+   * @param  string  $mode        Search mode to apply filters fore
+   * @return array                Array of filtered CO Person records
+   */
+  
+  public function filterPicker($coId, $coPersonIds, $mode) {
+    $ret = array();
+    
+    if(!empty($coPersonIds)) {
+      $args = array();
+      if($mode == PeoplePickerModeEnum::Sponsor) {
+        // Build Sponsor conditions first and then add to them
+        try {
+          // sponsorFilter will filter Active records
+          $args = $this->sponsorFilter($coId);
+        }
+        catch(InvalidArgumentException $e) {
+          // Sponsors are disabled, so return no results
+          return $ret;
+        }
+      }
+      $args['conditions']['CoPerson.id'] = $coPersonIds;
+      $args['contain'] = array('PrimaryName', 'Identifier', 'EmailAddress');
+      $args['order'] = array('PrimaryName.family ASC', 'PrimaryName.given ASC');
+      
+      $ret = $this->find('all', $args);
+    }
+    
+    return $ret;
+  }
+  
+  /**
    * Perform a find for a CO Person, but pull exactly the associated data needed
    * for an expunge operation.
    *
@@ -872,10 +908,97 @@ class CoPerson extends AppModel {
   }
   
   /**
-   * Retrieve list of sponsors for display in dropdown.
+   * Construct a set of find() args to filter People Picker records for
+   * Sponsor eligibility ("Sponsor Mode").
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $coId CO ID
+   * @return array         Array of find conditions
+   * @throws InvalidArgumentException
+   */
+  
+  protected function sponsorFilter($coId) {
+    $ret = array();
+    
+    // For eligibility by group(s), the group IDs to check
+    $groupIds = array();
+    
+    // First we need the current setting(s).
+    $mode = $this->Co->CoSetting->getSponsorEligibility($coId);
+    
+    // Similar logic below in sponsorList()
+    switch($mode) {
+      case SponsorEligibilityEnum::CoOrCouAdmin:
+        // First pull the list of COUs
+        // XXX we could probably optimize this for large number of COUs by adding a call
+        //     to pull where group_type=GroupEnum::Admins and cou_id is NOT NULL
+        $cous = $this->Co->Cou->allcous($coId, "ids");
+        
+        foreach($cous as $couId) {
+          // Find the admin group ID
+          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $couId);
+        }
+        // Fall through, we want the CO Admin group as well
+      case SponsorEligibilityEnum::CoAdmin:
+        // Find the admin group ID
+        $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId);
+        break; 
+      case SponsorEligibilityEnum::CoGroupMember:
+        // Find the configured group
+        $groupId = $this->Co->CoSetting->getSponsorEligibilityCoGroup($coId);
+        
+        if($groupId) {
+          $groupIds[] = $groupId;
+        }
+        break;
+      case SponsorEligibilityEnum::CoPerson:
+        // This setting only includes Active CO People
+        $ret['conditions']['CoPerson.status'] = StatusEnum::Active;
+        break;
+      case SponsorEligibilityEnum::None:
+        throw new InvalidArgumentException('No sponsors');
+        break;
+    }
+    
+    if(!empty($groupIds)) {
+      // Build query conditions to restrict the sponsor search to the identified
+      // CO Group IDs
+      
+      $ret['joins'][0]['table'] = 'co_group_members';
+      $ret['joins'][0]['alias'] = 'CoGroupMember';
+      $ret['joins'][0]['type'] = 'INNER';
+      $ret['joins'][0]['conditions'][0] = 'CoPerson.id=CoGroupMember.co_person_id';
+      $ret['conditions'][] = 'CoGroupMember.co_group_member_id IS NULL';
+      $ret['conditions'][] = 'CoGroupMember.deleted IS NOT true';
+      $ret['conditions']['CoGroupMember.co_group_id'] = $groupIds;
+      
+      // Only pull currently valid group memberships
+      $ret['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_from IS NULL',
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $ret['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_through IS NULL',
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      );
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Retrieve list of sponsors for display in dropdown. This function will throw
+   * an OverflowException when there are too many potential sponsors to populate
+   * a select list, and so the People Picker should be used instead.
    *
    * @since  COmanage Registry v0.3
-   * @return Array Array with co_person id as keys and full name as values; array will be empty if sponsoring is disabled
+   * @param  integer CO ID
+   * @return Array   Array with co_person id as keys and full name as values; array will be empty if sponsoring is disabled
+   * @throws OverflowException
    */
   
   public function sponsorList($coId) {
@@ -914,6 +1037,13 @@ class CoPerson extends AppModel {
         $args = array();
         $args['conditions']['CoPerson.co_id'] = $coId;
         $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+        
+        // If we have more than 50 records, disable enumeration and require
+        // use of the people picker
+        if($this->find('count', $args) > 50) {
+          throw new OverflowException("Use People Picker");
+        }
+        
         $args['contain'][] = 'PrimaryName';
         $args['order'] = array('PrimaryName.family ASC');
         
@@ -950,6 +1080,11 @@ class CoPerson extends AppModel {
           'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
         )
       );
+      
+      if($this->CoGroupMember->find('count', $args) > 50) {
+        throw new OverflowException("Use People Picker");
+      }
+      
       $args['contain']['CoPerson'] = 'PrimaryName';
       
       $members = $this->CoGroupMember->find('all', $args);

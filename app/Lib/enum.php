@@ -432,6 +432,11 @@ class OrgIdentityStatusEnum
   const Synced           = 'SY';
 }
 
+class PeoplePickerModeEnum
+{
+  const Sponsor   = 'S';
+}
+
 class PermissionEnum
 {
   const None      = 'N';

@@ -250,6 +250,22 @@
       document.getElementById('CoEnrollmentAttributeCopyToCoperson').checked=false;
     }
   }
+  
+  <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
+  $(function() {
+    // Sponsor Auto-complete
+    $("#sponsors").autocomplete({
+      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
+      minLength: 3,
+      select: function(event, ui) {
+        $("#sponsors").val(ui.item.label);
+        document.getElementById('CoEnrollmentAttributeDefault0Value').value = ui.item.value;
+        //$("#sponsor_co_person_id").val(ui.item.value);
+        return false;
+      }
+    });
+  });
+  <?php endif; //vv_sponsor_mode ?>
 </script>
 <?php
   // Determine if fields are editable
@@ -607,17 +623,41 @@
             <?php endif; ?>
           </div>
           <div id="attr_def_val_sponsor_div">
-            <?php if($e): ?>
-              <select name="def_sponsor_val"
-                      id="def_sponsor_val"
-                      onchange="set_attr_def_value('def_sponsor_val')">
-                <option value=""></option>
-                <?php foreach(array_keys($vv_sponsors) as $k): ?>
-                  <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                    <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                  </option>
-                <?php endforeach; ?>
-              </select>
+            <?php if($e && $vv_sponsor_mode != SponsorEligibilityEnum::None): ?>
+              <?php
+                if(!empty($vv_sponsor)) {
+                  print $this->Html->link(
+                    generateCn($vv_sponsor['PrimaryName']),
+                    array(
+                      'controller' => 'co_people',
+                      'action' => 'canvas',
+                      $vv_sponsor['CoPerson']['id']
+                    )
+                  );
+                }
+              ?>
+              <?php if(isset($vv_sponsors)): ?>
+                <select name="def_sponsor_val"
+                        id="def_sponsor_val"
+                        onchange="set_attr_def_value('def_sponsor_val')">
+                  <option value=""></option>
+                  <?php foreach(array_keys($vv_sponsors) as $k): ?>
+                    <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                      <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              <?php else: // vv_sponsors ?>
+                <!-- Use a people picker -->
+                <div class="ui-widget">
+                  <input id="sponsors" />
+                  <input type="hidden" name-"def_sponsor_val" id="def_sponsor_val" />
+                </div>
+                <div class="field-desc">
+                  <span class="ui-icon ui-icon-info co-info"></span>
+                  <em><?php print _txt('fd.sponsor.desc'); ?></em>
+                </div>
+              <?php endif; // vv_sponsors ?>
             <?php endif; ?>
           </div>
         </td>

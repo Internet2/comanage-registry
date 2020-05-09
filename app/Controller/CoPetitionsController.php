@@ -479,6 +479,55 @@ class CoPetitionsController extends StandardController {
                                        ->CoEnrollmentFlow
                                        ->CoEnrollmentAttribute
                                        ->mapEnvAttributes($enrollmentAttributes, array());
+        
+          // As a special case, we need to figure out who the default sponsor is,
+          // if any, and lookup their information for rendering (when People Pickers
+          // are in use, at least). We start by looking for an enrollment attribute
+          // for sponsor_co_person_id with a default value.
+          
+          for($i = 0;$i < count($enrollmentAttributes);$i++) {
+            if($enrollmentAttributes[$i]['attribute'] == "r:sponsor_co_person_id") {
+              $defaultCoPersonId = null;
+              
+              if(!empty($enrollmentAttributes[$i]['default'])) {
+                // Now lookup the Sponsor CO Person
+                $defaultCoPersonId = $enrollmentAttributes[$i]['default'];
+              } else {
+                // If there is no default sponsor _and_ the attribute is required
+                // _and_ the current user is eligible to be a sponsor, then the
+                // current user will be defaulted to be the sponsor.
+                
+                if($enrollmentAttributes[$i]['required'] == RequiredEnum::Required) {
+                  $s = $this->CoPetition->Co->CoPerson->filterPicker($this->cur_co['Co']['id'], 
+                                                                     array($this->Session->read('Auth.User.co_person_id')),
+                                                                     PeoplePickerModeEnum::Sponsor);
+                  
+                  if(!empty($s)) {
+                    $defaultCoPersonId = $this->Session->read('Auth.User.co_person_id');
+                    
+                    $enrollmentAttributes[$i]['default'] = $defaultCoPersonId;
+                    
+                    if(!isset($enrollmentAttributes[$i]['modifiable'])) {
+                      $enrollmentAttributes[$i]['modifiable'] = true;
+                    }
+                  }
+                }
+              }
+              
+              if($defaultCoPersonId) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $defaultCoPersonId;
+                $args['contain'] = array('PrimaryName');
+                
+                $this->set('vv_default_sponsor', $this->CoPetition->Co->CoPerson->find('first', $args));
+              }
+              
+              // In theory there could be more than one sponsor attribute found, but
+              // we don't currently support multiple sponsors so we just work with the
+              // first one we find.
+              break;
+            }
+          }
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
