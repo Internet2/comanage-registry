@@ -305,10 +305,15 @@ class CoPerson extends AppModel {
 				$records = $Model->find('all', array(
 					'conditions' => $conditions, 'fields' => $Model->primaryKey
 				));
-
-				if (!empty($records)) {
-					foreach ($records as $record) {
-						$Model->delete($record[$Model->alias][$Model->primaryKey]);
+        
+        if (!empty($records)) {
+          foreach ($records as $record) {
+            $currentRecord = $Model->find('first', array(
+              'conditions' => array('id' => $record[$Model->alias][$Model->primaryKey])
+            ));
+            if (!current($currentRecord)['deleted']) {
+              $Model->delete($record[$Model->alias][$Model->primaryKey]);
+            }
 					}
 				}
 			}
