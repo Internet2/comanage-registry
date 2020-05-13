@@ -84,6 +84,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'enable_empty_cou' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'invitation_validity' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -155,7 +160,8 @@ class CoSetting extends AppModel {
     'required_fields_name'       => RequiredNameFieldsEnum::Given,
     'sponsor_co_group_id'        => null,
     'sponsor_eligibility'        => SponsorEligibilityEnum::CoOrCouAdmin,
-    't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced
+    't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced,
+    'enable_empty_cou'           => false,
   );
   
   /**
@@ -392,10 +398,22 @@ class CoSetting extends AppModel {
    * @param  integer $coId CO ID
    * @return boolean True if enabled, false otherwise
    */
-  
+
   public function oisSyncEnabled($coId) {
     // Note we flip the value. The data model specifies "disabled" so that
     // the default (ie: no value present in the table) is enabled.
     return !$this->lookupValue($coId, 'disable_ois_sync');
+  }
+
+  /**
+   * Determine if Empty COUs are enabled for the specified CO.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+
+  public function emptyCouEnabled($coId) {
+    return (boolean)$this->lookupValue($coId, 'enable_empty_cou');
   }
 }

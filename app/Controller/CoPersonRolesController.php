@@ -244,7 +244,11 @@ class CoPersonRolesController extends StandardController {
 
   public function beforeRender() {
     parent::beforeRender();
-    
+
+    $emptyCousPermit = $this->CoPersonRole
+                            ->CoPerson
+                            ->Co
+                            ->CoSetting->emptyCouEnabled($this->cur_co['Co']['id']);
     if(!$this->request->is('restful')){
       // Mappings for extended types
       $this->set('vv_addresses_types', $this->CoPersonRole->Address->types($this->cur_co['Co']['id'], 'type'));
@@ -285,6 +289,8 @@ class CoPersonRolesController extends StandardController {
       
       // Extended attributes
       $this->set('vv_extended_attributes', $this->extended_attributes);
+      // (Dis)allow Empty COUs
+      $this->set('vv_allow_empty_cou', $emptyCousPermit);
     }
   }
   

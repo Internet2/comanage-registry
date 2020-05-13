@@ -1155,6 +1155,7 @@ original notification at
   'fd.de.race'    =>  'Race',
   'fd.de.disab'   =>  'Disability',
   'fd.de.enable'  =>  'Enable NSF Demographics',
+  'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.default'    =>  'Default',
   'fd.date_of_birth' => 'Date of Birth',
   'fd.dp.group.admin' => 'Administrative Group',
