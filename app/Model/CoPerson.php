@@ -311,7 +311,7 @@ class CoPerson extends AppModel {
             $currentRecord = $Model->find('first', array(
               'conditions' => array('id' => $record[$Model->alias][$Model->primaryKey])
             ));
-            if (!current($currentRecord)['deleted']) {
+            if (!isset(current($currentRecord)['deleted'])) {
               $Model->delete($record[$Model->alias][$Model->primaryKey]);
             }
 					}
