@@ -932,7 +932,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           // Check if we emitted anything by comparing the keys for marshalled attributes
           // to the attribute just considered, knowing that we may have added
           // an attribute with a name appended with an option like ';prior'.
-          if(array_filter($attributes, function ($k) use ($attr) {return strpos($k, $attr) === 0;}, ARRAY_FILTER_USE_KEY)) {
+          if(array_filter($attributes, function ($k) use ($attr) {return strpos($k, $attr) === 0;}, ARRAY_FILTER_USE_KEY)
+             // CO-1914 On modify of multivalued attribute, this could be an empty array
+             // indicating no value to emit
+             && !empty($attributes[$attr])) {
             $attrEmitted = true;
           }
         }
