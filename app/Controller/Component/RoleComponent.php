@@ -278,6 +278,7 @@ class RoleComponent extends Component {
 
     // The join bypasses ChangelogBehavior, so manually exclude those records.
     $args['conditions'][] = 'CoGroupMember.deleted IS NOT TRUE';
+    $args['conditions'][] = 'CoGroupMember.co_group_member_id IS NULL';
 
     if($condValue != null) {
       $args['conditions'][$condKey] = $condValue;
