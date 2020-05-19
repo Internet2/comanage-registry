@@ -143,7 +143,21 @@
         return false;
       }
     });
+
+    // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
+    $("#cm-ief-button-remove-EnrolleeCoPersonRoleSponsorCoPersonId").click(function() {
+      reset_sponsor();
+      $(this).closest(".cm-ief-val").hide();
+      $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+      $("#sponsors").focus();
+    });
+
   });
+
+  function reset_sponsor() {
+    $("#sponsors").val("");
+    $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(null);
+  }
 </script>
 
 <div class="fields">
@@ -451,15 +465,36 @@
                 // This only applies when sponsorList() has thrown an OverflowException
                 // and we use the people picker, otherwise the sponsor field will
                 // be a dropdown via inList
-                
-                if(!empty($vv_default_sponsor)) {
-                  print generateCn($vv_default_sponsor['PrimaryName']);
-                }
-                
+
                 if($ea['modifiable']) {
                   // Use a people picker
-                  print '<div class="ui-widget">
-                          <input id="sponsors" />'
+                  print '<div class="cm-inline-editable-field">';
+                  $inlineEditableFields['sponsor-val']['set'] = false;
+
+                  if(!empty($vv_default_sponsor)) {
+                    $inlineEditableFields['sponsor-val']['set'] = true;
+
+                    print '<div class="cm-ief-val">';
+                    print generateCn($vv_default_sponsor['PrimaryName']);
+                    print $this->element('inlineEditControls', array(
+                      'fieldName' => 'EnrolleeCoPersonRoleSponsorCoPersonId',
+                      'actions' => array('remove'),
+                      'visible' => true
+                    ));
+                    print '</div>';
+                  }
+
+                  $iefClasses = "cm-ief-widget";
+                  if ($inlineEditableFields['sponsor-val']['set']) {
+                    $iefClasses .= " hidden";
+                  }
+
+                  print '<div class="' . $iefClasses . '">';
+                  print ' <label for="sponsors" class="mdl-textfield__label">'
+                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
+                        . '</label>
+                           <div class="ui-widget">
+                             <input id="sponsors" type="text" class="mdl-textfield__input"/>'
                         . $this->Form->hidden($fieldName,
                                               array(
                                                 // We don't support two sponsors, but if we did this id would break
@@ -467,13 +502,17 @@
                                                 'default' => (isset($ea['default']) ? $ea['default'] : null)
                                               ))
                         . '</div>
-                        <div class="field-desc">
-                          <span class="ui-icon ui-icon-info co-info"></span>
-                          <em>' . _txt('fd.sponsor.desc') . '</em>
-                        </div>';
-                  
+                           <div class="field-desc">
+                             <span class="ui-icon ui-icon-info co-info"></span>
+                             <em>' . _txt('fd.sponsor.desc') . '</em>
+                           </div>';
+                  print '</div>'; // cm-ief-widget
+                  print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
                   $this->Form->unlockField('EnrolleeCoPersonRole.sponsor_co_person_id');
+                } elseif(!empty($vv_default_sponsor)) {
+                  // Just print out the name
+                  print generateCn($vv_default_sponsor['PrimaryName']);
                 }
               } else {
                 // Render the form field, label, and error (if any)
@@ -540,7 +579,14 @@
                 print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
                 break;
               default:
-                print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                if ($ea['field'] == 'sponsor_co_person_id') {
+                  // Special case the sponsor
+                  // XXX need to look up the name from the sponsor_co_person_id (this is a stub)
+                  print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                } else {
+                  // Otherwise just print out the field value
+                  print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                }
                 break;
               }
             }

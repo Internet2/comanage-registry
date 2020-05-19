@@ -260,11 +260,25 @@
       select: function(event, ui) {
         $("#sponsors").val(ui.item.label);
         document.getElementById('CoEnrollmentAttributeDefault0Value').value = ui.item.value;
-        //$("#sponsor_co_person_id").val(ui.item.value);
+        //$("#def_sponsor_val").val(ui.item.value);
         return false;
       }
     });
+
+    // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
+    $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
+      reset_sponsor();
+      $(this).closest(".cm-ief-val").hide();
+      $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+      $("#sponsors").focus();
+    });
   });
+
+  function reset_sponsor() {
+    $("#sponsors").val("");
+    //$("#def_sponsor_val").val(null);
+    document.getElementById('CoEnrollmentAttributeDefault0Value').value = null;
+  }
   <?php endif; //vv_sponsor_mode ?>
 </script>
 <?php
@@ -626,19 +640,8 @@
           </div>
           <div id="attr_def_val_sponsor_div">
             <?php if($e && $vv_sponsor_mode != SponsorEligibilityEnum::None): ?>
-              <?php
-                if(!empty($vv_sponsor)) {
-                  print $this->Html->link(
-                    generateCn($vv_sponsor['PrimaryName']),
-                    array(
-                      'controller' => 'co_people',
-                      'action' => 'canvas',
-                      $vv_sponsor['CoPerson']['id']
-                    )
-                  );
-                }
-              ?>
               <?php if(isset($vv_sponsors)): ?>
+                <!-- Use a simple dropdown -->
                 <select name="def_sponsor_val"
                         id="def_sponsor_val"
                         onchange="set_attr_def_value('def_sponsor_val')">
@@ -651,16 +654,48 @@
                 </select>
               <?php else: // vv_sponsors ?>
                 <!-- Use a people picker -->
-                <div class="ui-widget">
-                  <input id="sponsors" />
-                  <input type="hidden" name-"def_sponsor_val" id="def_sponsor_val" />
+                <div class="cm-inline-editable-field">
+                  <?php
+                    $inlineEditableFields['sponsor-val']['set'] = false;
+
+                    if(!empty($vv_sponsor)) {
+                      $inlineEditableFields['sponsor-val']['set'] = true;
+                      print '<div class="cm-ief-val">';
+
+                      print $this->Html->link(
+                        generateCn($vv_sponsor['PrimaryName']),
+                        array(
+                          'controller' => 'co_people',
+                          'action' => 'canvas',
+                          $vv_sponsor['CoPerson']['id']
+                        )
+                      );
+
+                      print $this->element('inlineEditControls', array(
+                        'fieldName' => 'sponsor_co_person_id',
+                        'actions' => array('remove')
+                      ));
+                      print '</div>';
+                    }
+
+                    $iefClasses = "cm-ief-widget";
+                    if ($inlineEditableFields['sponsor-val']['set']) {
+                      $iefClasses .= " hidden";
+                    }
+                  ?>
+                  <div class="<?php print $iefClasses; ?>">
+                      <div class="ui-widget">
+                        <input id="sponsors" type="text" />
+                        <input type="hidden" name="def_sponsor_val" id="def_sponsor_val" />
+                      </div>
+                      <div class="field-desc">
+                        <span class="ui-icon ui-icon-info co-info"></span>
+                        <em><?php print _txt('fd.sponsor.desc'); ?></em>
+                      </div>
+                    <?php endif; // vv_sponsors ?>
                 </div>
-                <div class="field-desc">
-                  <span class="ui-icon ui-icon-info co-info"></span>
-                  <em><?php print _txt('fd.sponsor.desc'); ?></em>
-                </div>
-              <?php endif; // vv_sponsors ?>
-            <?php endif; ?>
+              <?php endif; ?>
+            </div>
           </div>
         </td>
       </tr>

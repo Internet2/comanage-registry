@@ -121,10 +121,13 @@
       }
     });
 
-    // Hide custom user menu items on click outside
+    // Hide interface items on click outside
     $(document).on('click', function (e) {
       if ($(e.target).closest("#user-panel, #global-search-box").length === 0) {
         $("#user-panel, #global-search-box").hide();
+      }
+      if ($(e.target).closest(".cm-inline-editable-field").length === 0) {
+        $(".cm-inline-editable-field").removeClass('active');
       }
     });
 
@@ -160,6 +163,19 @@
       $(this).hide();
       $("#top-search-toggle .top-search-active-filter").hide();
       $("#top-search-clear").click();
+    });
+
+    // Inline Edit Controls: disable default button behavior
+    // Individual behaviors are defined within each page
+    $(".cm-ief-controls button").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // Reveal inline edit controls when keyboard focuses the data
+    // Note that there is currently no related blur (though a click outside will hide these elements)
+    $(".cm-inline-editable-field a").focus(function() {
+      $(this).closest('.cm-inline-editable-field').addClass('active');
     });
 
     // Accordion

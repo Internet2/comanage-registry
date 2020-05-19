@@ -39,8 +39,10 @@
   if($this->action == "edit" && $permissions['editself'])
     $es = true;
 
-  // We shouldn't get here if we don't have at least read permission, but check just in case
+  // Array to hold inline editable field properties
+  $inlineEditableFields = [];
 
+  // We shouldn't get here if we don't have at least read permission, but check just in case
   if(!$e && !$permissions['view'])
     return(false);
 
@@ -119,14 +121,26 @@
         }
       });
       <?php endif; // vv_sponsor_mode ?>
+
+      <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
+        reset_sponsor();
+      <?php endif; // vv_sponsor_mode ?>
+
+      // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
+      $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
+        reset_sponsor();
+        $(this).closest(".cm-ief-val").hide();
+        $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+        $("#sponsors").focus();
+      });
+
     });
     
-    <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
     function reset_sponsor() {
       $("#sponsors").val("");
       $("#sponsor_co_person_id").val(null);
     }
-    <?php endif; // vv_sponsor_mode ?>
+
   </script>
 
   <div id="<?php print $this->action; ?>_role_attributes" class="explorerContainer">
@@ -444,29 +458,37 @@
               <div class="field-name">
                 <?php
                   if($e && !$es) {
-                    print $this->Form->label('sponsor_co_person_id', _txt('fd.sponsor'));
+                    // The sponsors field is a manual placeholder, so we generate the label manually too
+                    print '<label for="sponsors">' . _txt('fd.sponsor') . "</label>";
                   } else {
                     print _txt('fd.sponsor');
                   }
                 ?><br />
               </div>
               <div class="field-info">
-                <?php
-                  if(isset($vv_sponsor_valid) && !$vv_sponsor_valid) {
-                    print '<div class="field-desc">
-                              <span class="ui-icon ui-icon-info co-info"></span>
-                              <em>' . _txt('fd.sponsor.inel') . '</em>
-                            </div>';
-                  }
+                <?php if(isset($vv_sponsor_valid) && !$vv_sponsor_valid): ?>
+                  <div class="field-desc">
+                    <span class="ui-icon ui-icon-info co-info"></span>
+                    <em><?php print _txt('fd.sponsor.inel'); ?></em>
+                  </div>
+                <?php endif; ?>
 
+                <?php
                   if($e && !$es) {
                     if(!empty($vv_sponsors)) {
                       // Use a simple drop down
                       print $this->Form->select('sponsor_co_person_id', $vv_sponsors);
                     } else {
                       // Use a people picker
+                      print '<div class="cm-inline-editable-field">';
+                      $inlineEditableFields['sponsor-val']['set'] = false;
+
                       if(!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])
                          && !empty($co_person_roles[0]['SponsorCoPerson']['PrimaryName'])) {
+
+                        $inlineEditableFields['sponsor-val']['set'] = true;
+
+                        print '<div class="cm-ief-val">';
                         print $this->Html->link(
                           generateCn($co_person_roles[0]['SponsorCoPerson']['PrimaryName']),
                           array(
@@ -475,21 +497,34 @@
                             $co_person_roles[0]['SponsorCoPerson']['id']
                           )
                         );
+
+                        print $this->element('inlineEditControls', array(
+                          'fieldName' => 'sponsor_co_person_id',
+                          'actions' => array('remove')
+                        ));
+                        
+                        print '</div>';
                       }
-                      
-                      print '<div class="ui-widget">
-                              <input id="sponsors" />'
-                            . $this->Form->hidden('sponsor_co_person_id',
-                                                  array(
-                                                    'id'      => 'sponsor_co_person_id',
-                                                    'default' => (!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) ? $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] : null
-                                                  ))
+
+                      $iefClasses = "cm-ief-widget";
+                      if ($inlineEditableFields['sponsor-val']['set']) {
+                        $iefClasses .= " hidden";
+                      }
+
+                      print '<div class="' . $iefClasses . '">
+                               <div class="ui-widget">                      
+                                 <input id="sponsors" type="text" />'
+                                 . $this->Form->hidden('sponsor_co_person_id',
+                                 array(
+                                   'id'      => 'sponsor_co_person_id',
+                                   'default' => (!empty($co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'])) ? $co_person_roles[0]['CoPersonRole']['sponsor_co_person_id'] : null
+                                 ))
                             . '</div>
-                            <div class="field-desc">
-                              <span class="ui-icon ui-icon-info co-info"></span>
-                              <em>' . _txt('fd.sponsor.desc') . '</em>
-                            </div>';
-                      
+                               <div class="field-desc">
+                                 <span class="ui-icon ui-icon-info co-info"></span>
+                                 <em>' . _txt('fd.sponsor.desc') . '</em>
+                               </div>';
+                      print '</div>';
                       // We need to unlock the field for autocomplete manipulation
                       $this->Form->unlockField('CoPersonRole.sponsor_co_person_id');
                     }

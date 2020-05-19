@@ -58,7 +58,7 @@
 <?php if(isset($vv_my_notifications)): ?>
 
   <div id="notifications">
-    <button href="#" class="topMenu cm-toggle" id="user-notifications">
+    <button class="topMenu cm-toggle" id="user-notifications">
       <span id="user-notification-count">
          <?php print $vv_my_notification_count; ?>
       </span>

@@ -1927,6 +1927,47 @@ ul.form-list li.field-stack textarea {
 .ui-datepicker select.ui-datepicker-year {
   width: 49%;
 }
+/* Inline edit buttons */
+
+.cm-inline-editable-field .cm-ief-val {
+  display: inline-block;
+  border: 1px dotted transparent;
+  padding: 0 0 0 6px;
+}
+.cm-inline-editable-field:hover .cm-ief-val {
+  border: 1px dotted black;
+}
+.cm-ief-controls {
+  display: inline-block;
+  visibility: hidden;
+  margin-left: 0.5em;
+}
+.cm-ief-controls-visible {
+  visibility: visible;
+}
+.cm-inline-editable-field.active .cm-ief-controls,
+.cm-inline-editable-field:hover .cm-ief-controls {
+  visibility: visible;
+}
+.cm-ief-button {
+  border: 1px solid #ddd;
+  cursor: pointer;
+  padding: 1px 2px;
+  background-color: white;
+}
+.cm-ief-button:focus,
+.cm-ief-button:active,
+.cm-ief-button:hover {
+  border: 1px dotted black;
+}
+.cm-ief-button-remove {
+  color: #a00;
+}
+#content .cm-ief-button .material-icons {
+  font-size: 16px;
+  margin: 0;
+}
+
 /* XXX determine which among the following five rules are still in use */
 .required-info {
   float: left;
