@@ -531,6 +531,11 @@ class CoPetitionsController extends StandardController {
         }
         
         $this->set('co_enrollment_attributes', $enrollmentAttributes);
+        // (Dis)allow empty COUs
+        $this->set('vv_allow_empty_cou', $this->CoPetition
+                                              ->CoEnrollmentFlow
+                                              ->Co
+                                              ->CoSetting->emptyCouEnabled($this->cur_co['Co']['id']));
       }
       
       if(in_array($this->action, array('petitionerAttributes', 'view'))) {

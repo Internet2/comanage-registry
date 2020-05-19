@@ -314,6 +314,11 @@
                 $args['value'] = $ea['default'];
                 $args['disabled'] = !$ea['modifiable'];
               }
+
+              // Calculate what we should do for the COU field
+              if(strpos($fieldName, 'cou_id') !== false){
+                $ea['required'] = !($ea['allow_empty'] && $vv_allow_empty_cou);
+              }
               $args['empty'] = !$ea['required'];
               $args['class'] = 'co-selectfield';
               $args['aria-label'] = $m;

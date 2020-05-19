@@ -213,17 +213,20 @@ class CoEnrollmentAttributesController extends StandardController {
             
             $this->set('vv_ext_attr_types',
                        $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoExtendedAttribute->find('list', $args));
-            
-            // Assemble the list of available COUs
-            
-            $this->set('vv_cous', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->Cou->allCous($coid));
-            
+
             // Assemble the list of available affiliations
             
             $this->set('vv_affiliations', $this->CoPersonRole->types($coid, 'affiliation'));
-            
+
+            // (Dis)allow empty COUs
+
+            $this->set('vv_allow_empty_cou', $this->CoEnrollmentAttribute
+                                                  ->CoEnrollmentFlow
+                                                  ->Co
+                                                  ->CoSetting->emptyCouEnabled($this->cur_co['Co']['id']));
+
             $mode = $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoSetting->getSponsorEligibility($this->cur_co['Co']['id']);
-            
+
             $this->set('vv_sponsor_mode', $mode);
             
             if($mode != SponsorEligibilityEnum::None) {
@@ -428,6 +431,17 @@ class CoEnrollmentAttributesController extends StandardController {
     
     // Edit an existing CO Enrollment Attribute?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+
+    // Determine which COUs a person can manage.
+    if($roles['cmadmin'] || $roles['coadmin']) {
+      // Note that here we get id => name while in CoPeopleController we just
+      // get a list of names. This is to generate the pop-up on the edit form.
+      $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
+    } elseif(!empty($roles['admincous'])) {
+      $p['cous'] = $roles['admincous'];
+    } else {
+      $p['cous'] = array();
+    }
 
     // Edit an existing CO Enrollment Attribute's order?
     $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);

@@ -101,6 +101,9 @@
 
       $('#CoPersonRoleCouId').on('change', '', function () {
         var selectedCOU = $(this).children("option:selected").html();
+        if(selectedCOU.trim() === "") {
+          selectedCOU = '<?php print $cur_cou;?>';
+        }
         $("label[for='CoPersonRoleAffiliation']").text(selectedCOU + ' Affiliation');
         $("label[for='CoPersonRoleTitle']").text(selectedCOU + ' Title');
       });
@@ -175,7 +178,7 @@
                     $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
-                    $attrs['empty'] = false;
+                    $attrs['empty'] = $vv_allow_empty_cou;
 
                     if($e && !$es) {
                       print $this->Form->select('cou_id',
