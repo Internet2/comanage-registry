@@ -74,89 +74,110 @@ class ProvisionerJob extends CoJobBackend {
     
     // We're replicating some logic from CoProvisioningTargetsController::provision...
     
-    $sModel = $params['record_type'];
+    // What models are we working with?
+    $modelsTodo = array($params['record_type']);
     
-    // We need to manually assemble the model dependencies that ProvisionerBehavior
-    // expects, since in Shell they aren't loaded automatically for some reason.
-    $Model = ClassRegistry::init($sModel);
-    $Model->Co = ClassRegistry::init('Co');
-    $Model->Co->CoProvisioningTarget = ClassRegistry::init('CoProvisioningTarget');
-    
-    // Attach ProvisionerBehavior
-    $Model->Behaviors->load('Provisioner');
-    
-    // Pull the list of object IDs to reprovision.
-    $recordIds = array();
-    
-    // What provisioning action are we requesting?
-    $sAction = null;
-    
-    switch($sModel) {
-      case 'CoEmailList':
-        $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
-        break;
-      case 'CoGroup':
-        $sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
-        break;
-      case 'CoPerson':
-        $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
-        break;
-// XXX this will need to get updated if CoService provisioning gets implemented
-      default:
-        throw new LogicException('NOT IMPLEMENTED');
-        break;
+    if($params['record_type'] == 'All') {
+      $modelsTodo = array('CoEmailList', 'CoGroup', 'CoPerson');
     }
     
     // Track number of results
     $success = 0;
     $failed = 0;
+    $modelCount = 0; // How many models we've worked with so far
     
-    if(!empty($params['record_id'])) {
-      if($this->provision($CoJob, 
-                          $Model,
-                          $sAction,
-                          $params['co_provisioning_target_id'],
-                          $params['record_id'])) {
-        $success++;
-      } else {
-        $failed++;
+    foreach($modelsTodo as $sModel) {
+      // We need to manually assemble the model dependencies that ProvisionerBehavior
+      // expects, since in Shell they aren't loaded automatically for some reason.
+      $Model = ClassRegistry::init($sModel);
+      $Model->Co = ClassRegistry::init('Co');
+      $Model->Co->CoProvisioningTarget = ClassRegistry::init('CoProvisioningTarget');
+      
+      // Attach ProvisionerBehavior
+      $Model->Behaviors->load('Provisioner');
+      
+      // Pull the list of object IDs to reprovision.
+      $recordIds = array();
+      
+      // What provisioning action are we requesting?
+      $sAction = null;
+      
+      switch($sModel) {
+        case 'CoEmailList':
+          $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
+          break;
+        case 'CoGroup':
+          $sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
+          break;
+        case 'CoPerson':
+          $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
+          break;
+        default:
+          throw new LogicException('NOT IMPLEMENTED');
+          break;
       }
-
-      $recordIds[] = $params['record_id'];
-    } else {
-      // Pull IDs of all objects of the requested type
       
-      $iterator = new PaginatedSqlIterator(
-        $Model,
-        array($sModel.'.co_id' => $coId),
-        array($sModel.'.id', $sModel.'.status'),
-        false
-      );
-      
-      $total = $iterator->count();
-      
-      $CoJob->CoJobHistoryRecord->record($CoJob->id,
-                                         null,
-                                         _txt('pl.provisionerjob.count', array($total)),
-                                         null,
-                                         null,
-                                         JobStatusEnum::Notice);
-      
-      foreach($iterator as $k => $v) {
-        if($CoJob->canceled($CoJob->id)) { return false; }
-        
+      if(!empty($params['record_id'])) {
         if($this->provision($CoJob, 
                             $Model,
                             $sAction,
                             $params['co_provisioning_target_id'],
-                            $v[$sModel]['id'])) {
+                            $params['record_id'])) {
           $success++;
         } else {
           $failed++;
         }
 
-        $CoJob->setPercentComplete($CoJob->id, (($success + $failed) * 100)/$total); 
+        $recordIds[] = $params['record_id'];
+      } else {
+        // Pull IDs of all objects of the requested type
+        
+        $iterator = new PaginatedSqlIterator(
+          $Model,
+          array($sModel.'.co_id' => $coId),
+          array($sModel.'.id', $sModel.'.status'),
+          false
+        );
+        
+        $total = $iterator->count();
+        
+        $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                           null,
+                                           _txt('pl.provisionerjob.count', array($total, $sModel)),
+                                           null,
+                                           null,
+                                           JobStatusEnum::Notice);
+        
+        // For calculating totals, what percent of models have we processed?
+        $modelsDone = $modelCount/count($modelsTodo);
+        $modelFraction = 1/count($modelsTodo);
+        
+        foreach($iterator as $k => $v) {
+          if($CoJob->canceled($CoJob->id)) { return false; }
+          
+          if($this->provision($CoJob, 
+                              $Model,
+                              $sAction,
+                              $params['co_provisioning_target_id'],
+                              $v[$sModel]['id'])) {
+            $success++;
+          } else {
+            $failed++;
+          }
+          
+          // If we're working with multiple models, this calculation is a bit off
+          // since we don't pull all records at once, just the models that we're
+          // currently working with.
+          
+          $pctDone = ($modelsDone * 100)
+                     +
+                     ($modelFraction * ((($success + $failed) * 100)/$total));
+          
+          $CoJob->setPercentComplete($CoJob->id, $pctDone); 
+        }
       }
+      
+      $modelCount++;
     }
     
     $CoJob->finish($CoJob->id, _txt('pl.provisionerjob.finish', array(($success + $failed), $success, $failed)));
@@ -218,7 +239,7 @@ class ProvisionerJob extends CoJobBackend {
       $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                          $rid,
                                          _txt('rs.prov.ok'),
-                                         $rid);
+                                         ($Model->name == 'CoPerson' ? $rid : null));
       
       return true;
     }
@@ -226,7 +247,7 @@ class ProvisionerJob extends CoJobBackend {
       $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                          $rid,
                                          $e->getMessage(),
-                                         $rid,
+                                         ($Model->name == 'CoPerson' ? $rid : null),
                                          null,
                                          JobStatusEnum::Failed);
       
