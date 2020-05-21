@@ -208,6 +208,8 @@ class CoPipeline extends AppModel {
     
     if(!in_array($syncAction, array(SyncActionEnum::Add,
                                     SyncActionEnum::Delete,
+                                    SyncActionEnum::Relink,
+                                    SyncActionEnum::Unlink,
                                     SyncActionEnum::Update))) {
       throw new InvalidArgumentException(_txt('er.unknown',
                                               array(filter_var($syncAction,
@@ -243,7 +245,8 @@ class CoPipeline extends AppModel {
       throw new InvalidArgumentException(_txt('er.co.notmember'));
     }
     
-    // See if we are configured for the requested action.
+    // See if we are configured for the requested action. Note that Unlink/Relink
+    // are always processed when requested since they are corrective actions.
     
     if(($syncAction == SyncActionEnum::Add && !$pipeline['CoPipeline']['sync_on_add'])
        ||
@@ -264,14 +267,17 @@ class CoPipeline extends AppModel {
       
       if($syncAction != SyncActionEnum::Add) {
         // If we don't have a CO Person record on an update or delete, there's
-        // nothing to do.
+        // nothing to do. For relink, we expect the new target to already exist.
+        // (Relink to a "new" person should be submitted as an Add, since if
+        // "sync on add" is disabled we shouldn't create a new CO Person.)
         return true;
       }
     }
     
-    if($syncAction == SyncActionEnum::Delete
-       && !empty($pipeline['CoPipeline']['sync_status_on_delete'])) {
-      $this->processDelete($pipeline, $orgIdentityId, $actorCoPersonId, $provision);
+    if(($syncAction == SyncActionEnum::Delete
+        && !empty($pipeline['CoPipeline']['sync_status_on_delete']))
+       || $syncAction == SyncActionEnum::Unlink) {
+      $this->processDelete($pipeline, $orgIdentityId, $actorCoPersonId, $provision, $syncAction);
     } else {
       // Pull the full set of attributes needed for syncOrgIdentityToCoPerson.
       // We need to do this after findTargetCoPersonId sice that function might
@@ -373,7 +379,7 @@ class CoPipeline extends AppModel {
       }
     }
     
-    if($syncAction == SyncActionEnum::Add) {
+    if($syncAction == SyncActionEnum::Add || $syncAction == SyncActionEnum::Relink) {
       if(!empty($pipeline['CoPipeline']['sync_replace_cou_id'])) {
         // See if there is already a role in the specified COU for this CO Person,
         // and if so expire it. (This will typically only be useful with a Match Strategy.)
@@ -595,10 +601,11 @@ class CoPipeline extends AppModel {
    * @param  Integer $orgIdentityId Org Identity ID
    * @param  Integer $actorCoPersonId CO Person ID of actor
    * @param  Boolean $provision Whether to trigger provisioning
+   * @param  SyncActionEnum $syncAction Action triggering delete
    * @return Boolean true on success
    */
   
-  protected function processDelete($coPipeline, $orgIdentityId, $actorCoPersonId=null, $provision=true) {
+  protected function processDelete($coPipeline, $orgIdentityId, $actorCoPersonId=null, $provision=true, $syncAction=SyncActionEnum::Delete) {
     // First, find the role associated with this Org Identity and update the status
     
     $args = array();
@@ -666,6 +673,48 @@ class CoPipeline extends AppModel {
                                                                               $coPipeline['CoPipeline']['name'],
                                                                               $coPipeline['CoPipeline']['id'])),
                                                    $gm['CoGroupMember']['co_group_id']);
+      }
+    }
+    
+    // On a Sync Delete (OIS source drops record) we keep the various attributes
+    // on the CO Person record in order to maintain the integrity of the record.
+    // (ie: Though the OIS source deleted its record, we simply flag the record
+    // as deleted or expired - we don't actually delete it.) For unlinking,
+    // however, we need to purge these attributes since they'd confuse the
+    // original record.
+    
+    if($syncAction == SyncActionEnum::Unlink) {
+      $models = array(
+        'EmailAddress',
+        'Identifier',
+        'Name',
+        'Url'
+      );
+      
+      // For each model, remove values that trace back to their source attributes
+      // in $orgIdentityId.
+      
+      foreach($models as $m) {
+        $mkey = 'source_' . Inflector::underscore($m) . '_id';
+        
+        $args = array();
+        $args['conditions'][$m.'.org_identity_id'] = $orgIdentityId;
+        $args['contain'] = false;
+        
+        $objs = $this->Co->CoPerson->$m->find('all', $args);
+        
+        if(!empty($objs)) {
+          foreach($objs as $o) {
+            // deleteAll on a single object with callbacks=true basically saves
+            // us the trouble of having to separately find and delete.
+            
+            $conditions = array(
+              $m.'.'.$mkey => $o[$m]['id']
+            );
+            
+            $this->Co->CoPerson->$m->deleteAll($conditions, false, true);
+          }
+        }
       }
     }
     

@@ -802,6 +802,8 @@ original notification at
   'en.sync.action' => array(
     SyncActionEnum::Add                     => 'Add',
     SyncActionEnum::Delete                  => 'Delete',
+    SyncActionEnum::Relink                  => 'Relink',
+    SyncActionEnum::Unlink                  => 'Unlink',
     SyncActionEnum::Update                  => 'Update'
   ),
   

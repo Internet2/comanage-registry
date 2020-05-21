@@ -669,6 +669,10 @@ class SyncActionEnum
 {
   const Add    = 'A';
   const Delete = 'D';
+  // Relink is basically add, but will execute regardless of sync_on_add setting
+  const Relink = 'R';
+  // Unlink is basically delete, but will execute regardless of sync_on_delete setting
+  const Unlink = 'X';
   const Update = 'U';
 }
 

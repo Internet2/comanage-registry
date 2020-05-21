@@ -64,7 +64,7 @@ class CoPeopleController extends StandardController {
     'Identifier' => array('CoProvisioningTarget',
                           'SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
-    'PrimaryName',
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
     'Url' => array('SourceUrl' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
@@ -1179,13 +1179,37 @@ class CoPeopleController extends StandardController {
       
       // But we also need to pass a bit extra data (and also for the confirmation page)
       
+      // XXX maybe move this to Lib/util?
+      function getPrimaryName($names) {
+        $pn = Hash::extract($names, '{n}[primary_name=true]');
+        
+        // Hash returns an array
+        if(!empty($pn)) {
+          return $pn[0];
+        }
+        
+        return null;
+      }
+      
       if(!empty($this->request->params['named']['linkid'])) {
         $args = array();
         $args['conditions']['CoOrgIdentityLink.id'] = $this->request->params['named']['linkid'];
-        $args['contain']['CoPerson'] = 'PrimaryName';
-        $args['contain']['OrgIdentity'] = array('CoPetition', 'PrimaryName');
+        // Containable isn't pulling the PrimaryName, just the first one,
+        // so we pull all names and then fix up the result manually.
+        //$args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['CoPerson'] = 'Name';
+        $args['contain']['OrgIdentity'] = array('CoPetition', 'Name');
         
-        $this->set('vv_co_org_identity_link', $this->CoPerson->CoOrgIdentityLink->find('first', $args));
+        $r = $this->CoPerson->CoOrgIdentityLink->find('first', $args);
+        
+        foreach(array('CoPerson', 'OrgIdentity') as $m) {
+          if(!empty($r[$m]['Name'])) {
+            $r[$m]['PrimaryName'] = getPrimaryName($r[$m]['Name']);
+            unset($r[$m]['Name']);
+          }
+        }
+        
+        $this->set('vv_co_org_identity_link', $r);
       }
       
       if(!empty($this->request->params['named']['copersonroleid'])) {
