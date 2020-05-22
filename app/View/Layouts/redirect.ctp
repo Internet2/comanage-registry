@@ -54,7 +54,7 @@
 
     <!-- Load JavaScript -->
     <?php /* only JQuery here - other scripts at bottom */
-      print $this->Html->script('jquery/jquery-3.2.1.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     ?>
 
