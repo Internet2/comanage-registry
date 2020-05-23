@@ -60,6 +60,7 @@ class OrgIdentity extends AppModel {
     "Address" => array('dependent' => true),
     // An Org Identity can be attached to one or more CO Person
     // The current design requires all links to be dropped manually
+    "AdHocAttribute" => array('dependent' => true),
     "CoOrgIdentityLink" => array('dependent' => false), 
     // A person can have various roles for a petition
     "CoPetition" => array(

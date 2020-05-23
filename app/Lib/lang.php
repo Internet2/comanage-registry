@@ -61,6 +61,8 @@ $cm_texts['en_US'] = array(
   'co.select' =>      'Select the CO you wish to work with.',
   
   // Titles, per-controller
+  'ct.ad_hoc_attributes.1' =>   'Ad Hoc Attribute',
+  'ct.ad_hoc_attributes.pl' =>  'Ad Hoc Attributes',
   'ct.addresses.1' =>           'Address',
   'ct.addresses.pl' =>          'Addresses',
   'ct.api_users.1' =>           'API User',
@@ -1067,6 +1069,8 @@ original notification at
   'fd.actor' =>       'Actor',
   'fd.actor.self' =>  'Self Signup',
   'fd.actor.shell' => 'Shell user "%1$s"',
+  'fd.ad_hoc_attribute.tag' => 'Tag',
+  'fd.ad_hoc_attribute.value' => 'Value',
   'fd.address' =>     'Address',
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',

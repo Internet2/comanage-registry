@@ -115,6 +115,12 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       'name'   => 'SpTelephoneNumber',
       'source' => 'TelephoneNumber',
       'parent' => 'CoPersonRole'
+    ),
+    array(
+      'table'  => 'sp_ad_hoc_attributes',
+      'name'   => 'SpAdHocAttribute',
+      'source' => 'AdHocAttribute',
+      'parent' => 'CoPersonRole'
     )
   );
   
@@ -445,7 +451,10 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       // Remove any deleted records (those remaining in the reference table
       // that were not in $records)
       
-      $Model->deleteAll(array('NOT' => array('id' => Hash::extract($records, '{n}.'.$this->parentModels['CoGroup']['source'].'.id'))), false);
+      $Model->deleteAll(array(
+        'NOT' => array('id' => Hash::extract($records, '{n}.'.$this->parentModels['CoGroup']['source'].'.id'))
+      ), 
+      false);
     }
   }
   

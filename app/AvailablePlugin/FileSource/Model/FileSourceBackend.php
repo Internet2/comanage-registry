@@ -346,8 +346,22 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
       );
     }
     
-    if(!empty($result[24]))
+    if(!empty($result[24])) {
       $orgdata['OrgIdentity']['date_of_birth'] = $result[24];
+    }
+    
+    if(!empty($result[25])) {
+      $ahas = json_decode($result[25], true);
+      
+      $orgdata['AdHocAttribute'] = array();
+      
+      foreach($ahas as $tag => $value) {
+        $orgdata['AdHocAttribute'][] = array(
+          'tag' => $tag,
+          'value' => $value
+        );
+      }
+    }
     
     return $orgdata;
   }

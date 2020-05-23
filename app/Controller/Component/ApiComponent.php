@@ -397,6 +397,7 @@ class ApiComponent extends Component {
         'cogroupid' => 'CoGroup',
         'coid' => 'Co',
         'copersonid' => 'CoPerson',
+        'copersonroleid' => 'CoPersonRole',
         'couid' => 'Cou',
         'orgidentityid' => 'OrgIdentity'
       );

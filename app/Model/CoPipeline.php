@@ -289,6 +289,7 @@ class CoPipeline extends AppModel {
         'Name',
         'PrimaryName',
         'Address',
+        'AdHocAttribute',
         'EmailAddress',
         'Identifier',
         'TelephoneNumber',
@@ -944,6 +945,7 @@ class CoPipeline extends AppModel {
     // Supported associated models and their parent relation
     $models = array(
       'Address'         => 'co_person_role_id',
+      'AdHocAttribute'  => 'co_person_role_id',
       'EmailAddress'    => 'co_person_id',
       'Identifier'      => 'co_person_id',
       'Name'            => 'co_person_id',

@@ -86,7 +86,7 @@
             $editable = ($action == 'edit');
             $removetxt = _txt('js.remove');
             $displaystr = (!empty($mvpa_field) ? $m[$mvpa_field] : "");
-            $typestr = $m['type'];
+            $typestr = !empty($m['type']) ? $m['type'] : null;
             $laction = $action;
             
             if(!empty($m[$smodel]['id'])) {
@@ -117,7 +117,7 @@
             }
             
             // Lookup the extended type friendly name, if set
-            if(isset(${$vv_dictionary}[ $m['type'] ])) {
+            if(!empty($m['type']) && isset(${$vv_dictionary}[ $m['type'] ])) {
               $typestr = ${$vv_dictionary}[ $m['type'] ];
             }
             
@@ -147,18 +147,19 @@
             
             // Prepend the attribute source to the type string, if there is one
             if(!empty($m[$smodel]['id'])) {
-              $typestr = filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
-                       . ", " . $typestr;
+              $typestr = maybeAppend(filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                     ", ",
+                                     $typestr);
             }
             
             // Add a suspended flag to the type string, if appropriate
             if(isset($m['status']) && $m['status'] == SuspendableStatusEnum::Suspended) {
-              $typestr .= ", " . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended);
+              $typestr = maybeAppend($typestr, ", ", _txt('en.status.susp', null, SuspendableStatusEnum::Suspended));
             }
             
             // If this is an Email Address and is verified, add that to the type string
             if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
-              $typestr .= ", " . ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified'));
+              $typestr = maybeAppend($typestr, ", ", ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')));
             }
             
             // If $mvpa_format is a defined function, use that to render the display string
@@ -178,7 +179,9 @@
                                             $m['id']));
             }
             
-            print "&nbsp;(" . $typestr . ")\n";
+            if(!empty($typestr)) {
+              print "&nbsp;(" . $typestr . ")\n";
+            }
             print '</div>';
             print '<div class="field-actions">';
             

@@ -360,6 +360,20 @@
           </td>
         </tr>
         <?php endif; // mapped groups ?>
+        <?php if(!empty($vv_org_source_record['AdHocAttribute'])): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('ct.ad_hoc_attributes.pl'); ?>
+          </td>
+          <td>
+            <ul>
+              <?php foreach($vv_org_source_record['AdHocAttribute'] as $aha): ?>
+              <li><?php print filter_var($aha['tag'],FILTER_SANITIZE_SPECIAL_CHARS) . ": " . filter_var($aha['value'],FILTER_SANITIZE_SPECIAL_CHARS); ?></li>
+              <?php endforeach; ?>
+            </ul>
+          </td>
+        </tr>
+        <?php endif; // AdHocAttribute ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
             <?php print _txt('fd.ois.record'); ?><br />

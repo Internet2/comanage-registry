@@ -47,6 +47,7 @@ class CoDepartmentsController extends StandardController {
 
   public $edit_contains = array(
     'Address',
+    'AdHocAttribute',
     'EmailAddress',
     'Identifier',
     'TelephoneNumber',
@@ -55,6 +56,7 @@ class CoDepartmentsController extends StandardController {
   
   public $view_contains = array(
     'Address',
+    'AdHocAttribute',
     'EmailAddress',
     'Identifier',
     'TelephoneNumber',

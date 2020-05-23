@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Telephone Numbers Controller
+ * COmanage Registry Ad Hoc Attributes Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,21 +21,21 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.1
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
 App::uses("MVPAController", "Controller");
 
-class TelephoneNumbersController extends MVPAController {
+class AdHocAttributesController extends MVPAController {
   // Class name, used by Cake
-  public $name = "TelephoneNumbers";
+  public $name = "AdHocAttributes";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
     'order' => array(
-      'number' => 'asc'
+      'tag' => 'asc'
     )
   );
 
@@ -50,30 +50,15 @@ class TelephoneNumbersController extends MVPAController {
     'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
     'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
                            'PrimaryName'),
-    'SourceTelephoneNumber'
+    'SourceAdHocAttribute'
   );
   
-  /**
-   * Callback to set relevant tab to open when redirecting to another page
-   * - precondition:
-   * - postcondition: Auth component is configured
-   * - postcondition:
-   *
-   * @since  COmanage Registry v0.8
-   */
-
-  function beforeFilter() {
-    $this->redirectTab = 'phone';
-    
-    parent::beforeFilter();
-  }
-
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v0.1
+   * @since  COmanage Registry v3.3.0
    * @return Array Permissions
    */
   
@@ -88,15 +73,15 @@ class TelephoneNumbersController extends MVPAController {
     $readOnly = false;
     
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
-      $sourceAttributeId = (bool)$this->AdHocAttribute->field('source_telephone_number_id', array('id' => $this->request->params['pass'][0]));
-
+      $sourceAttributeId = (bool)$this->AdHocAttribute->field('source_ad_hoc_attribute_id', array('id' => $this->request->params['pass'][0]));
+      
       if($sourceAttributeId) {
         $readOnly = true;
       } else {
-        $orgIdentityId = $this->TelephoneNumber->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
+        $orgIdentityId = $this->AdHocAttribute->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
         
         if($orgIdentityId) {
-          $readOnly = $this->TelephoneNumber->OrgIdentity->readOnly($orgIdentityId);
+          $readOnly = $this->AdHocAttribute->OrgIdentity->readOnly($orgIdentityId);
         }
       }
     }
@@ -105,7 +90,7 @@ class TelephoneNumbersController extends MVPAController {
       // Proactively redirect to view. This will also prevent (eg) the REST API
       // from editing a read only record.
       $args = array(
-        'controller' => 'telephone_numbers',
+        'controller' => 'ad_hoc_attributes',
         'action'     => 'view',
         filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
       );
@@ -129,7 +114,7 @@ class TelephoneNumbersController extends MVPAController {
                                                                 $pids['copersonroleid']);
           
           // Map the requested CO Person Role ID to its CO Person ID
-          $reqCoPersonId = $this->TelephoneNumber->CoPersonRole->field('co_person_id', array('id' => $pids['copersonroleid']));
+          $reqCoPersonId = $this->AdHocAttribute->CoPersonRole->field('co_person_id', array('id' => $pids['copersonroleid']));
           
           if($reqCoPersonId == $roles['copersonid']) {
             $self = true;
@@ -146,21 +131,21 @@ class TelephoneNumbersController extends MVPAController {
           // look up $this->request->params['pass'][0] and find the appropriate co person role id or org identity id
           // then pass that to $this->Role->isXXX
           $args = array();
-          $args['conditions']['TelephoneNumber.id'] = $this->request->params['pass'][0];
+          $args['conditions']['AdHocAttribute.id'] = $this->request->params['pass'][0];
           $args['contain'][] = 'CoPersonRole';
           
-          $number = $this->TelephoneNumber->find('first', $args);
+          $aha = $this->AdHocAttribute->find('first', $args);
           
-          if(!empty($number['TelephoneNumber']['co_person_role_id'])) {
+          if(!empty($aha['AdHocAttribute']['co_person_role_id'])) {
             $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
-                                                                  $number['TelephoneNumber']['co_person_role_id']);
+                                                                  $aha['AdHocAttribute']['co_person_role_id']);
             
-            if($number['CoPersonRole']['co_person_id'] == $roles['copersonid']) {
+            if($aha['CoPersonRole']['co_person_id'] == $roles['copersonid']) {
               $self = true;
             }
-          } elseif(!empty($number['TelephoneNumber']['org_identity_id'])) {
+          } elseif(!empty($aha['AdHocAttribute']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
-                                                                 $number['TelephoneNumber']['org_identity_id']);
+                                                                 $aha['AdHocAttribute']['org_identity_id']);
           }
         }
         break;
@@ -170,6 +155,7 @@ class TelephoneNumbersController extends MVPAController {
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
+    /* XXX No self service for ad hoc attributes, maybe later?
     // Self service is a bit complicated because permission can vary by type.
     // Self service only applies to CO Person-attached attributes.
     
@@ -182,46 +168,42 @@ class TelephoneNumbersController extends MVPAController {
     
     if($self) {
       foreach(array_keys($selfperms) as $a) {
-        $selfperms[$a] = $this->TelephoneNumber
+        $selfperms[$a] = $this->AdHocAttribute
                               ->CoPersonRole
                               ->CoPerson
                               ->Co
                               ->CoSelfServicePermission
                               ->calculatePermission($this->cur_co['Co']['id'],
-                                                    'TelephoneNumber',
+                                                    'AdHocAttribute',
                                                     $a,
-                                                    ($a != 'add' && !empty($number['TelephoneNumber']['type']))
-                                                     ? $number['TelephoneNumber']['type'] : null);
+                                                    ($a != 'add' && !empty($aha['AdHocAttribute']['type']))
+                                                     ? $aha['AdHocAttribute']['type'] : null);
       }
       
       $p['selfsvc'] = $this->Co->CoSelfServicePermission->findPermissions($this->cur_co['Co']['id']);
     } else {
       $p['selfsvc'] = null;
-    }
+    }*/
     
-    // Add a new Telephone Number?
+    // Add a new Ad Hoc Attribute?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                 || $selfperms['add']);
+                 || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    // Delete an existing Telephone Number?
+    // Delete an existing Ad Hoc Attribute?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                    || $selfperms['delete']);
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    // Edit an existing Telephone Number?
+    // Edit an existing Ad Hoc Attribute?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $selfperms['edit']);
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
-    // View all existing Telephone Numbers?
+    // View all existing Ad Hoc Attributes?
     // Currently only supported via REST since there's no use case for viewing all
     $p['index'] = $this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']);
     
-    // View an existing TelephoneNumber?
+    // View an existing Ad Hoc Attribute?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || $selfperms['view']);
+                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
     
     $this->set('permissions', $p);
     return $p[$this->action];

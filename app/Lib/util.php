@@ -111,6 +111,32 @@ function formatAddress($addr) {
 }
 
 /**
+ * Format an Ad Hoc attribute for rendering.
+ *
+ * @since  COmanage Registry v3.3.0
+ * @param  array  $aha Ad Hoc Attribute
+ * @return string      Formatted string
+ */
+
+function formatAdHoc($aha) {
+  $a = "";
+  
+  if(!empty($aha['tag'])) {
+    $a = $aha['tag'];
+  }
+  
+  $a .= ": ";
+  
+  if(!empty($aha['value'])) {
+    $a .= $aha['value'];
+  } else {
+    $a .= "<i>" . _txt('fd.null') . "</i>";
+  }
+  
+  return $a;
+}
+
+/**
  * Render a telephone number in E.123 format
  *
  * @since  COmanage Registry v0.9.4
@@ -277,6 +303,21 @@ function getPreferredLanguage() {
   // We don't recognize this language
   
   return "";
+}
+
+/**
+ * Maybe append a string, if not null.
+ * 
+ * @param  string $left      Left hand side of string
+ * @param  string $connector Connecting string
+ * @param  string $right     Right hand side of string
+ * @return string            Concatenated string
+ */
+
+function maybeAppend($left, $connector, $right) {
+  return (!empty($left) ? $left : "")
+         . (!empty($left) && !empty($right) ? $connector : "")
+         . (!empty($right) ? $right : "");
 }
 
 /**

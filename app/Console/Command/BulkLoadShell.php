@@ -35,6 +35,7 @@
   class BulkLoadShell extends AppShell {
     var $uses = array(
       'Address',
+      'AdHocAttribute',
       'CoGroup',
       'CoGroupMember',
       'CoOrgIdentityLink',
@@ -59,6 +60,7 @@
       'co_people',
       'co_person_roles',
       'co_org_identity_links',
+      'ad_hoc_attributes',
       'addresses',
       'co_group_members',
       'email_addresses',
@@ -194,7 +196,7 @@
                                                                           'co_person_id' => $coPersonId),
                                                                     $this->getFields('CoPersonRole'));
               
-              foreach(array('Address', 'TelephoneNumber') as $m) {
+              foreach(array('Address', 'AdHocAttribute', 'TelephoneNumber') as $m) {
                 $table = Inflector::tableize($m);
                 
                 if(!empty($role[$m])) {
@@ -256,6 +258,7 @@
                                                                             $this->getFields('CoOrgIdentityLink'));
                 
                 foreach(array('Address',
+                              'AdHocAttribute',
                               'EmailAddress',
                               'HistoryRecord',
                               'Identifier',
@@ -350,6 +353,7 @@
               }
               
               foreach(array('Address',
+                            'AdHocAttribute',
                             'EmailAddress',
                             'HistoryRecord',
                             'Identifier',
@@ -376,7 +380,7 @@
                       $sourcefk => $id
                     );
                     
-                    if($m == 'Address' || $m == 'TelephoneNumber') {
+                    if($m == 'Address' || $m == 'AdHocAttribute' || $m == 'TelephoneNumber') {
                       $fks['co_person_role_id'] = $coPersonRoleId;
                     } else {
                       $fks['co_person_id'] = $coPersonId;

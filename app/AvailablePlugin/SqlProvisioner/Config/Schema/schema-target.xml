@@ -191,6 +191,23 @@
     </index>
   </table>
   
+  <table name="sp_ad_hoc_attributes">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="tag" type="C" size="128" />
+    <field name="value" type="C" size="256" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="sp_ad_hoc_attributes_i1">
+      <col>co_person_role_id</col>
+    </index>
+  </table>
+  
   <table name="sp_addresses">
     <field name="id" type="I">
       <key />

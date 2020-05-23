@@ -1206,6 +1206,49 @@
     </index>
   </table>
   
+  <table name="ad_hoc_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <!-- we don't use key because it is reserved by mysql -->
+    <field name="tag" type="C" size="128" />
+    <field name="value" type="C" size="256" />
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="co_department_id" type="I">
+      <constraint>REFERENCES cm_co_departments(id)</constraint>
+    </field>
+    <field name="source_ad_hoc_attribute_id" type="I">
+      <constraint>REFERENCES cm_ad_hoc_attributes(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="ad_hoc_attribute_id" type="I">
+      <constraint>REFERENCES cm_ad_hoc_attributes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="ad_hoc_attributes_i1">
+      <col>co_person_role_id</col>
+    </index>
+    <index name="ad_hoc_attributes_i2">
+      <col>org_identity_id</col>
+    </index>
+    <index name="ad_hoc_attributes_i3">
+      <col>tag</col>
+    </index>
+    <index name="ad_hoc_attributes_i4">
+      <col>ad_hoc_attribute_id</col>
+    </index>
+  </table>
+  
   <table name="api_users">
     <field name="id" type="I">
       <key />

@@ -61,6 +61,7 @@ Router::connect(
  */
 
 Router::mapResources(array(
+	'ad_hoc_attributes',
   'addresses',
   'attribute_enumerations',
 	'co_departments',

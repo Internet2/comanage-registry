@@ -50,6 +50,7 @@ class CoPersonRolesController extends StandardController {
 
   public $edit_contains = array(
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
+    'AdHocAttribute' => array('SourceAdHocAttribute' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'CoPerson', // Used to check status recalculation on save
     'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
@@ -58,6 +59,7 @@ class CoPersonRolesController extends StandardController {
   // We need various related models for index and search
   public $view_contains = array(
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
+    'AdHocAttribute' => array('SourceAdHocAttribute' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Cou',
     'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))

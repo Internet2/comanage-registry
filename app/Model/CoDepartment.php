@@ -57,6 +57,7 @@ class CoDepartment extends AppModel {
   
   public $hasMany = array(
     "Address" => array('dependent' => true),
+    "AdHocAttribute" => array('dependent' => true),
     "EmailAddress" => array('dependent' => true),
     "Identifier" => array('dependent' => true),
     "TelephoneNumber" => array('dependent' => true),
