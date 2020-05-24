@@ -751,7 +751,7 @@ class CoPeopleController extends StandardController {
     // "Find" a CO Person (for use in People Finder API calls)
     // XXX we'll need more flexible permissions for regular CO Person searches
     // (ie: for group member picking, but maybe that's an RFE as part of CCWG-9?)
-    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'];
     
     // View identifiers? This correlates with IdentifiersController
     $p['identifiers'] = ($roles['cmadmin']
