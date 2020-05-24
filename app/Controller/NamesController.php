@@ -234,7 +234,7 @@ class NamesController extends MVPAController {
     // CMP admins can edit such a record.
     
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
-      $sourceAttributeId = $this->AdHocAttribute->field('source_name_id', array('id' => $this->request->params['pass'][0]));
+      $sourceAttributeId = $this->Name->field('source_name_id', array('id' => $this->request->params['pass'][0]));
 
       if($sourceAttributeId) {
         $readOnly = true;

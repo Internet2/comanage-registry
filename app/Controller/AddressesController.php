@@ -110,7 +110,7 @@ class AddressesController extends MVPAController {
     $readOnly = false;
     
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
-      $sourceAttributeId = (bool)$this->AdHocAttribute->field('source_address_id', array('id' => $this->request->params['pass'][0]));
+      $sourceAttributeId = (bool)$this->Address->field('source_address_id', array('id' => $this->request->params['pass'][0]));
 
       if($sourceAttributeId) {
         $readOnly = true;

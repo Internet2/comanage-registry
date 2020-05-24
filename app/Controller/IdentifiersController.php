@@ -259,7 +259,7 @@ class IdentifiersController extends MVPAController {
     $readOnly = false;
     
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
-      $sourceAttributeId = (bool)$this->AdHocAttribute->field('source_identifier_id', array('id' => $this->request->params['pass'][0]));
+      $sourceAttributeId = (bool)$this->Identifier->field('source_identifier_id', array('id' => $this->request->params['pass'][0]));
 
       if($sourceAttributeId) {
         $readOnly = true;
