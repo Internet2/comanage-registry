@@ -538,6 +538,13 @@ class CoIdentifierAssignment extends AppModel {
   private function substituteParameters($format, $name, $identifiers, $permitted) {
     $base = "";
     
+    // For random letter generation ('h', 'r', 'R')
+    $randomCharSet = array(
+      'h' => "0123456789abcdef",
+      'l' => "abcdefghijkmnopqrstuvwxyz",  // Note no "l"
+      'L' => "ABCDEFGHIJKLMNPQPSTUVWXYZ"   // Note no "O"
+    );
+    
     // Loop through the format string
     for($i = 0;$i < strlen($format);$i++) {
       switch($format[$i]) {
@@ -592,6 +599,8 @@ class CoIdentifierAssignment extends AppModel {
                 $base .= sprintf("%.".$width."s",
                                  preg_replace($charregex, '', $name['given']));
                 break;
+              // Note 'h' is defined with 'l', below
+              // case 'h':
               case 'I':
                 // We skip the next character (a slash) and then continue reading
                 // until we get to a close parenthesis
@@ -623,6 +632,13 @@ class CoIdentifierAssignment extends AppModel {
                 
                 $base .= sprintf("%.".$width."s",
                                  preg_replace($charregex, '', $id[0]['identifier']));
+                break;
+              case 'h':
+              case 'l':
+              case 'L':
+                for($j = 0;$j < ($width != "" ? $width : 1);$j++) {
+                  $base .= $randomCharSet[ $format[$i] ][ mt_rand(0, strlen($randomCharSet[ $format[$i] ])-1) ];
+                }
                 break;
               case 'm':
                 $base .= sprintf("%.".$width."s",
