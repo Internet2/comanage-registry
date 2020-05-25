@@ -372,11 +372,32 @@ class CoIdentifierAssignment extends AppModel {
     // a specific width (ie: padded and/or truncated). This also makes sense in that
     // identifiers are really strings, not numbers.
     
-    if(preg_match('/\%[0-9.]*s/', $sequenced)) {
+    $matches = array();
+    
+    if(preg_match('/\%[0-9.]*s/', $sequenced, $matches)) {
       switch($algorithm) {
         case IdentifierAssignmentEnum::Random:
           // Simply pick a number between $min and $max.
-          return sprintf($sequenced, mt_rand($min, ($max ? $max : mt_getrandmax())));
+
+          $lmax = $max;
+          
+          if(!$max) {
+            // We have to be a bit careful with min and max vs mt_rand(). substituteParameters()
+            // will generate something like (%05.5s). If no explicit $max is configured by the
+            // admin, we used mt_getrandmax. However, that could generate a string like 172500398.
+            // We take the first (eg) 5 digits, which are "17250". If $min is 20000, we'll
+            // incorrectly assign a collision number outside the permitted range (CO-1933).
+            
+            // Pull the width out of the string
+            $width = (int)rtrim(ltrim(strstr($matches[0], '.'), "."), "s");
+            
+            // And calculate a new max
+            $lmax = (10 ** $width) - 1;
+          }
+
+          // XXX should switch to random_bytes() with PE
+          $n = mt_rand($min, $lmax);
+          return sprintf($sequenced, $n);
           break;
         case IdentifierAssignmentEnum::Sequential:
           return sprintf($sequenced, $this->CoSequentialIdentifierAssignment->next($coIdentifierAssignmentID, $sequenced, $min));
