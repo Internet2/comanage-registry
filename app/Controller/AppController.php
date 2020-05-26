@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
@@ -858,7 +858,8 @@ class AppController extends Controller {
     
     if(!empty($this->cur_co['Co']['id'])) {
       // First see if we're in an enrollment flow
-      if($this->name == 'CoPetitions') {
+      if($this->name === 'CoPetitions'
+         || $this->name === 'CoInvites') {
         $efId = $this->enrollmentFlowID();
         
         if($efId > -1) {
@@ -1512,10 +1513,13 @@ class AppController extends Controller {
     }
     
     // Specifically whitelist the actions we ignore
-    if(!$this->action != 'index'
-       && $this->action != 'add'
-       && !($this->modelClass == 'CoInvite'
-            && ($this->action == 'authconfirm' || $this->action == 'confirm' || $this->action == 'decline'))) {
+    if(!$this->action !== 'index'
+       && $this->action !== 'add'
+       && !($this->modelClass === 'CoInvite'
+            && ($this->action === 'authconfirm'
+                || $this->action === 'confirm'
+                || $this->action === 'reply'
+                || $this->action === 'decline'))) {
       // Only act if a record ID parameter was passed
       if(!empty($this->request->params['pass'][0])) {
         $modelName = $this->modelClass;
