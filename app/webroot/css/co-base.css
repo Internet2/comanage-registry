@@ -445,16 +445,16 @@ form#notificationStatus {
   margin-right: 4px;
 }
 .warbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_826262_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_826262_256x240.png") !important;
 }
 .sucbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_006400_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_006400_256x240.png") !important;
 }
 .errbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
 }
 .notbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_444444_256x240.png") !important;
 }
 /* General icon and box styling */
 .co-info { /* info icon */
@@ -1054,7 +1054,7 @@ body.petitionerAttributes td {
 }
 body.co_petitions .approve-button .ui-icon,
 body.co_petitions .deny-button .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png");
 }
 body.co_petitions .approve-button,
 body.co_petitions .deny-button {
