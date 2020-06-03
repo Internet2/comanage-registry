@@ -121,10 +121,10 @@ class CoInvitesController extends AppController {
     if($this->action == "add" && !empty($data['co_person_id'])) {
       // For historical reasons, CO ID is also passed in, but we need to ignore
       // it and lookup via the CO Person ID.
-      
+
       $coId = $this->CoInvite->CoPerson->field('co_id',
                                                array('id' => $data['co_person_id']));
-      
+
       if($coId) {
         return $coId;
       } else {
@@ -133,8 +133,10 @@ class CoInvitesController extends AppController {
                                                       filter_var($data['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
-    
-    if($this->action == "confirm" || $this->action == "authconfirm") {
+
+    if($this->action == "confirm"
+       || $this->action == "authconfirm"
+       || $this->action == "reply") {
       // Identifier assignment requires the CO ID to be set, but since CO ID isn't
       // provided as an explicit parameter, beforeFilter can't find it.
       
@@ -858,5 +860,25 @@ class CoInvitesController extends AppController {
     } else {
       $this->Flash->set(_txt('er.notprov.id', array(_txt('ct.email_addresses.1'))), array('key' => 'error'));
     }
+  }
+
+  /**
+   * Determine the requested Enrollment Flow ID.
+   *
+   * @since  COmanage Registry v3.3
+   * @return Integer CO Enrollment Flow ID if found, or -1 otherwise
+   */
+
+  function enrollmentFlowID() {
+    // Get the inviteId
+    $inviteId = !empty($this->request->params["pass"][0]) ? $this->request->params["pass"][0] : '';
+    // Grab the invite info in case we need it later (we're about to delete it)
+    $args = array();
+    $args['conditions']['CoInvite.invitation'] = $inviteId;
+    $args['contain'] = array('CoPetition');
+
+    $invite = $this->CoInvite->find('first', $args);
+    $efId = !empty($invite["CoPetition"]["co_enrollment_flow_id"]) ? $invite["CoPetition"]["co_enrollment_flow_id"] : -1;
+    return $efId;
   }
 }
