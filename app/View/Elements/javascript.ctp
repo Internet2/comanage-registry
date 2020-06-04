@@ -98,13 +98,13 @@
     // USER MENU BEHAVIORS
     // Toggle the global search box
     $("#global-search-toggle").click(function (e) {
-      e.preventDefault();
       e.stopPropagation();
       if ($("#global-search-box").is(":visible")) {
         $("#global-search-box").hide();
         $(this).attr("aria-expanded","false");
       } else {
         $("#global-search-box").show();
+        $("#global-search-box .input input[type='text']").focus();
         $(this).attr("aria-expanded","true");
       }
     });

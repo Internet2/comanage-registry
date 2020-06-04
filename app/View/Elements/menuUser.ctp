@@ -40,7 +40,7 @@
       );
       print $this->Form->create('CoDashboard', $options);
       print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search')
-        . '</span><button id="global-search-toggle" aria-expanded="false" class="cm-toggle"><em class="material-icons">search</em></button>');
+        . '</span><button type="button" id="global-search-toggle" aria-expanded="false" class="cm-toggle"><em class="material-icons">search</em></button>');
       print '<div id="global-search-box" style="display: none;">';
       $options = array(
         'label' => false,
