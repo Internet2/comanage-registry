@@ -26,4 +26,8 @@
  */
 
  // Target URL is in $vv_meta_redirect_target if we ever want to render it
- print _txt('op.petition.nextstep', array($vv_next_step)); 
+ ?>
+<div id="redirect-box-content">
+  <?php print _txt('op.petition.nextstep', array($vv_next_step));  ?>
+</div>
+<div id="redirect-spinner"></div>

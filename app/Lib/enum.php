@@ -262,6 +262,12 @@ class EnrollmentRole
   const Petitioner = 'P';
 }
 
+class EnrollmentFlowUIMode
+{
+  const Basic = 'B';
+  const Full  = 'F';
+}
+
 class ExtendedAttributeEnum {
   const Integer   = 'INTEGER';
   const Timestamp = 'TIMESTAMP';
