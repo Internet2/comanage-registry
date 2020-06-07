@@ -32,6 +32,7 @@
     <field name="authenticator_id" type="I">
       <constraint>REFERENCES cm_authenticators(id)</constraint>
     </field>
+    <field name="password_source" type="C" size="2" />
     <field name="min_length" type="I" />
     <field name="max_length" type="I" />
     <field name="format_crypt_php" type="L" />

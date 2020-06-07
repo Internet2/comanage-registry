@@ -29,6 +29,9 @@ class Password extends AppModel {
 	// Define class name for cake
   public $name = "Password";
 	
+  // Current schema version for API
+  public $version = "1.0";
+  
 	// Add behaviors
   public $actsAs = array('Containable');
 	
@@ -62,6 +65,7 @@ class Password extends AppModel {
       'rule' => array('inList', 
                       array(
                         PasswordEncodingEnum::Crypt,
+                        PasswordEncodingEnum::External,
                         PasswordEncodingEnum::Plain,
                         PasswordEncodingEnum::SSHA
                       )),
@@ -69,4 +73,31 @@ class Password extends AppModel {
       'allowEmpty' => false
     )
   );
+  
+  /**
+   * Generate a Service Token (ie: an automatically generated Password).
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int    $passwordAuthenticatorId Password Authenticator ID
+   * @param  int    $coPersonId              CO Person ID
+   * @param  int    $maxLength               Maximum length of password to generate
+   * @param  int    $actorCoPersonId         Actor CO Person ID
+   * @return string                          Service Token
+   */
+
+  public function generateToken($passwordAuthenticatorId, $coPersonId, $maxLength, $actorCoPersonId) {
+    $token = generateRandomToken($maxLength);
+    
+    $data = array(
+      'Password' => array(
+        'password_authenticator_id' => $passwordAuthenticatorId,
+        'co_person_id'              => $coPersonId,
+        'password'                  => $token
+      )
+    );
+    
+    $this->PasswordAuthenticator->manage($data, $actorCoPersonId);
+    
+    return $token;
+  }
 }

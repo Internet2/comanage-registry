@@ -27,7 +27,15 @@
 
 class PasswordEncodingEnum
 {
-  const Crypt = 'CR';    // Crypt/bcrypt/etc as implemented by php's password_hash
-  const Plain = 'NO';    // Not hashed
-  const SSHA  = 'SH';    // Salted SHA 1 as intended for LDAP
+  const Crypt    = 'CR';    // Crypt/bcrypt/etc as implemented by php's password_hash
+  const External = 'EX';    // Externally defined (ie: managed outside of Registry)
+  const Plain    = 'NO';    // Not hashed
+  const SSHA     = 'SH';    // Salted SHA 1 as intended for LDAP
+}
+
+class PasswordAuthPasswordSourceEnum
+{
+  const AutoGenerate = 'AG';
+  const External     = 'EX'; // ie: set over API
+  const SelfSelect   = 'SL';
 }

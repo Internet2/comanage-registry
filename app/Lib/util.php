@@ -237,23 +237,31 @@ function generateCn($name, $showHonorific = false) {
  * Generate a random token, suitable for use as (eg) an API Key.
  *
  * @since  COmanage Registry v3.3.0
+ * @param  int    Requested token length, not counting dashes inserted for readability every four characters
  * @return string Token
  */
 
-function generateRandomToken() {
+function generateRandomToken($len=16) {
   // Note we use Security::randomBytes() rather than php random_bytes, which was not added until 7.0
   // XXX as part of Registry v5, switch to random_bytes()
   // skip l to avoid confusion with 1
   $token = substr(preg_replace("/[^a-km-z0-9]+/", "", base64_encode(Security::randomBytes(60))),
                   0,
-                  16);
+                  $len);
   
   // Insert some dashes to improve readability
-  $token = substr_replace($token, '-', 4, 0);
-  $token = substr_replace($token, '-', 9, 0);
-  $token = substr_replace($token, '-', 14, 0);
+  $dtoken = "";
   
-  return $token;
+  for($i = 0;$i < strlen($token);$i++) {
+    $dtoken .= $token[$i];
+    
+    if((($i + 1) % 4 == 0)
+       && ($i + 1 < strlen($token))) {
+      $dtoken .= '-';
+    }
+  }
+  
+  return $dtoken;
 }
 
 /**

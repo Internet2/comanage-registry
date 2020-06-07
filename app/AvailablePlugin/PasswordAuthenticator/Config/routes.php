@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry LDAP Service Token Provisioner Model
+ * COmanage Registry Password Authenticator Routes
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,25 +21,10 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v2.0.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @version       $Id$
  */
 
-class LdapServiceTokenProvisioner extends AppModel {
-  // Required by COmanage Plugins
-  public $cmPluginType = "provisioner";
-
-  // Document foreign keys
-  public $cmPluginHasMany = array();
-  
-  /**
-   * Expose menu items.
-   * 
-   * @ since COmanage Registry v2.0.0
-   * @ return Array with menu location type as key and array of labels, controllers, actions as values.
-   */
-  public function cmPluginMenus() {
-  	return array();
-  }
-}
+Router::mapResources(array(
+  'PasswordAuthenticator.passwords',
+));

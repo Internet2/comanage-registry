@@ -38,6 +38,7 @@ class CoService extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
+    "Authenticator",
     "Co",
     "CoGroup",
     "Cou"
@@ -121,6 +122,11 @@ class CoService extends AppModel {
     ),
     'identifier_type' => array(
       'rule' => array('validateInput'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'authenticator_id' => array(
+      'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -267,6 +273,61 @@ class CoService extends AppModel {
     }
     
     return $services;
+  }
+  
+  /**
+   * Map Authenticators to a Service and Authenticator plugin configuration,
+   * suitable for use in Provisioners.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int $coId CO ID
+   * @return array     Array of Service and Authenticator configurations
+   */
+  
+  public function mapAuthenticators($coId) {
+    // Pull all CO Services in $coId where authenticator_id is not null
+    // then map those to PLUGIN_authenticator_id
+    // then return (label, plugin, PLUGIN_authenticator_id)
+    
+    $ret = array();
+    
+    $args = array();
+    $args['conditions']['CoService.co_id'] = $coId;
+    $args['conditions']['CoService.status'] = SuspendableStatusEnum::Active;
+    $args['conditions'][] = 'CoService.authenticator_id IS NOT NULL';
+    $args['contain'] = array('Authenticator');
+    
+    $services = $this->find('all', $args);
+    
+    if(!empty($services)) {
+      // Instantiate the plugin and pull its configuration
+      
+      foreach($services as $svc) {
+        if(!empty($svc['Authenticator']['plugin'])) {
+          // This could really be a call in Model/Authenticator() ...
+          $pluginName = $svc['Authenticator']['plugin'];
+          $pluginModel = $svc['Authenticator']['plugin'] . '.' . $svc['Authenticator']['plugin'];
+          
+          $Plugin = ClassRegistry::init($pluginModel);
+          
+          $args = array();
+          $args['conditions'][$pluginName.'.authenticator_id'] = $svc['Authenticator']['id'];
+          $args['contain'] = false;
+          
+          $pluginCfg = $Plugin->find('first', $args);
+          
+          if(!empty($pluginCfg[$pluginName])) {
+            $ret[ $svc['CoService']['id'] ] = array(
+              'serviceCfg' => $svc['CoService'],
+              'pluginType' => $pluginName,
+              'cfg'        => $pluginCfg
+            );
+          }
+        }
+      }
+    }
+    
+    return $ret;
   }
   
   /**

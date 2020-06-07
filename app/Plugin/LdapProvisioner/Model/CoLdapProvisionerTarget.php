@@ -694,6 +694,70 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
+              case 'voPersonApplicationPassword':
+                if($attropts && !empty($provisioningData['Password'])) {
+                  // We only support application specific passwords when
+                  // attribute options are enabled, since it's not clear what
+                  // an application specific password means when not tied to
+                  // an application.
+                  
+                  // XXX it'd be better to pass this with the provisioning data
+                  // rather than call it once per identifer, or at least to pull
+                  // a map once
+                  $mappings = $this->CoProvisioningTarget
+                                   ->Co
+                                   ->CoGroup
+                                   ->CoService
+                                   ->mapAuthenticators($provisioningData['Co']['id']);
+                  
+                  if($modify) {
+                    // Start with an empty list in case no active passwords
+                    $attributes[$attr] = array();
+                  }
+                  
+                  if(!empty($mappings)) {
+                    // What groups is this CO Person a member of?
+                    $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
+
+                    foreach($provisioningData['Password'] as $up) {
+                      // Skip locked passwords
+                      if(!isset($up['AuthenticatorStatus']['locked']) || !$up['AuthenticatorStatus']['locked']) {
+                        // Walk through the mappings and look for any that match
+                        // our current password_authenticator_id. Note that we
+                        // might have more than one service for each password.
+                        
+                        foreach($mappings as $authenticatorId => $m) {
+                          // Do we have a short label?
+                          if(!empty($m['serviceCfg']['short_label']) 
+                             // Is this a PasswordAuthenticator?
+                             && $m['pluginType'] == 'PasswordAuthenticator'
+                             // Does this PasswordAuthenticator match the one associated with this Password?
+                             && $m['cfg']['PasswordAuthenticator']['id'] == $up['password_authenticator_id']
+                             // Is there a Group associated with this service?
+                             && (!$m['serviceCfg']['co_group_id']
+                                 // Is the user in the service group, if there is one?
+                                 || in_array($m['serviceCfg']['co_group_id'], $entGroupIds))) {
+                            $lrattr = $lattr . ';app-' . $m['serviceCfg']['short_label'];
+                          
+                          switch($up['password_type']) {
+                              // XXX we can't use PasswordAuthenticator's enums in case the plugin isn't installed
+                              case 'CR':
+                                $attributes[$lrattr][] = '(CRYPT)' . $up['password'];
+                                break;
+                              case 'SH':
+                                $attributes[$lrattr][] = '{SSHA}' . $up['password'];
+                                break;
+                              default:
+                                $attributes[$lrattr][] = $up['password'];
+                                break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                break;   
               case 'voPersonPolicyAgreement':
                 if(!$attropts) {
                   $attributes[$attr] = array();
@@ -2175,6 +2239,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         ),
         'attributes' => array(
           'voPersonAffiliation' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPersonApplicationPassword' => array(
             'required'   => false,
             'multiple'   => true
           ),
