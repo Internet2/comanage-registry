@@ -61,6 +61,13 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       'required' => true,
 			'allowEmpty' => false
 		),
+    'password_source' => array(
+      'rule' => array('inList', array(PasswordAuthPasswordSourceEnum::AutoGenerate,
+                                      PasswordAuthPasswordSourceEnum::External,
+                                      PasswordAuthPasswordSourceEnum::SelfSelect)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
 		'min_length' => array(
       'rule' => 'numeric',
 			'required' => false,
@@ -105,7 +112,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   /**
    * Actions to take before a save operation is executed.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
 
   public function beforeSave($options = array()) {

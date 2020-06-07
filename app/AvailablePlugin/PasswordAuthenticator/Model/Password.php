@@ -77,7 +77,7 @@ class Password extends AppModel {
   /**
    * Generate a Service Token (ie: an automatically generated Password).
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  int    $passwordAuthenticatorId Password Authenticator ID
    * @param  int    $coPersonId              CO Person ID
    * @param  int    $maxLength               Maximum length of password to generate

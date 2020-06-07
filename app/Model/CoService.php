@@ -269,7 +269,7 @@ class CoService extends AppModel {
    * Map Authenticators to a Service and Authenticator plugin configuration,
    * suitable for use in Provisioners.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  int $coId CO ID
    * @return array     Array of Service and Authenticator configurations
    */

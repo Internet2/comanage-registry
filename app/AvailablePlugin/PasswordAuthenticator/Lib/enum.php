@@ -36,6 +36,6 @@ class PasswordEncodingEnum
 class PasswordAuthPasswordSourceEnum
 {
   const AutoGenerate = 'AG';
-  const External     = 'EX'; // XXX ie: set over API
+  const External     = 'EX'; // ie: set over API
   const SelfSelect   = 'SL';
 }
