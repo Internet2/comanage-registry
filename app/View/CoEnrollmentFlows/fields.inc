@@ -181,6 +181,14 @@
     } else {
       $("#authenticators").hide('fade');
     }
+    
+    // If Establish Clusters is enabled, show the available clusters
+    
+    if(document.getElementById('CoEnrollmentFlowEstablishClusterAccounts').checked) {
+      $("#clusters").show('fade');
+    } else {
+      $("#clusters").hide('fade');
+    }
     <?php endif; // $vv_authenticators ?>
   }
   
@@ -886,7 +894,7 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('establish_authenticators', _txt('fd.ef.authenticators')) : _txt('fd.ea.authenticators')); ?>
+        <?php print ($e ? $this->Form->label('establish_authenticators', _txt('fd.ef.authenticators')) : _txt('fd.ef.authenticators')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.ef.authenticators.desc'); ?></div>
     </div>
@@ -966,6 +974,78 @@
     </div>
   </li>
   <?php endif; // vv_authenticators ?>
+  <?php if(!empty($vv_clusters) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('establish_cluster_accounts', _txt('fd.ef.clusters')) : _txt('fd.ef.clusters')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.clusters.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        print ($e
+               ? $this->Form->input('establish_cluster_accounts',
+                                    array('onChange' => 'fields_update_gadgets();',
+                                          'default' => false))
+               : ($co_enrollment_flows[0]['CoEnrollmentFlow']['establish_cluster_accounts']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
+    </div>
+    <div id="clusters" style="display:none">
+    <ul class="field-children">
+      <?php 
+        // We need to make sure fields match to Cake's index number, unless we
+        // have a new cluster. This is similar logic to authenticators, above.
+        
+        $newid = count($vv_clusters);
+        
+        foreach($vv_clusters as $clusterid => $clustername): 
+      ?>
+      <li>
+        <div class="field-name">
+          <div class="field-title"><?php print filter_var($clustername,FILTER_SANITIZE_SPECIAL_CHARS); ?></div>
+        </div>
+        <div class="field-info">
+          <?php
+            if($e) {
+              // Do we have a current record for this cluster?
+              $cur = Hash::extract($co_enrollment_flows[0]['CoEnrollmentCluster'],
+                                   '{n}[cluster_id='.$clusterid.']');
+              $checked = false;
+              
+              $xindex = -1;
+              
+              if(!empty($cur[0]['id'])) {
+                $xindex = $cur[0]['id'];
+              } else {
+                $xindex = $newid;
+                $newid++;
+              }
+              
+              $xprefix = 'CoEnrollmentCluster.' . $xindex;
+              
+              if(!empty($cur)) {
+                print $this->Form->hidden($xprefix . '.id', array('default' => $cur[0]['id']));
+              }
+              
+              print $this->Form->hidden($xprefix . '.co_enrollment_flow_id', 
+                                        array('default' => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']));
+              
+              print $this->Form->hidden($xprefix . '.cluster_id', 
+                                        array('default' => $clusterid));
+              
+              print $this->Form->checkbox($xprefix . '.enabled',
+                                          array('default' => isset($cur[0]['enabled']) ? $cur[0]['enabled'] : false));
+            }
+          ?>
+        </div>
+      </li>
+    <?php endforeach; // vv_clusters ?>
+    </ul>
+    </div>
+  </li>
+  <?php endif; // vv_clusters ?>
   <li>
     <div class="field-name">
       <?php print $this->Form->label('co_theme_id', _txt('fd.theme'), array('class' => 'fieldTitle'));?>

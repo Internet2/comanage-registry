@@ -64,6 +64,7 @@ Router::mapResources(array(
 	'ad_hoc_attributes',
   'addresses',
   'attribute_enumerations',
+	'clusters',
 	'co_departments',
 	'co_email_lists',
   'co_extended_attributes',

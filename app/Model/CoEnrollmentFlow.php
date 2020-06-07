@@ -82,6 +82,7 @@ class CoEnrollmentFlow extends AppModel {
     // A CO Enrollment Flow has many CO Enrollment Attributes
     "CoEnrollmentAttribute" => array('dependent' => true),
     "CoEnrollmentAuthenticator" => array('dependent' => true),
+    "CoEnrollmentCluster" => array('dependent' => true),
     "CoEnrollmentSource" => array('dependent' => true),
     // A CO Enrollment Flow may have zero or more CO Petitions
     "CoPetition" => array('dependent' => true),

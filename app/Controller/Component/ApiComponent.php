@@ -393,6 +393,7 @@ class ApiComponent extends Component {
        && empty($request->params['pass'])) {
       // For historical reasons, the query string keys aren't standard
       $permittedKeys = array(
+        'clusterid' => 'Cluster',
         'codeptid' => 'CoDepartment',
         'cogroupid' => 'CoGroup',
         'coid' => 'Co',
@@ -402,9 +403,24 @@ class ApiComponent extends Component {
         'orgidentityid' => 'OrgIdentity'
       );
       
+      if(!empty($model->permittedApiFilters)) {
+        // Merge in the plugin's additional permitted key
+        $permittedKeys = array_merge($permittedKeys, $model->permittedApiFilters);
+      }
+      
       foreach($permittedKeys as $k => $m) {
+        // For plugins, $m is of the form Plugin.Model, but belongsTo[]
+        // will be keyed only on Model
+        $b = strstr($m, '.');
+        
+        if($b) {
+          $b = ltrim($b, '.');
+        } else {
+          $b = $m;
+        }
+        
         if(!empty($request->query[$k])
-           && !empty($model->belongsTo[$m])) {
+           && !empty($model->belongsTo[$b])) {
           if($k == 'coid') {
             $coid = $request->query['coid'];
           } else {
