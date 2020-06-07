@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -84,7 +84,7 @@ class Cluster extends AppModel {
   /**
    * Actions to take after a save operation is executed.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  boolean $created True if a new record was created (rather than update)
    * @param  array   $options As passed into Model::save()
    */
@@ -114,7 +114,7 @@ class Cluster extends AppModel {
   /**
    * Autogenerate Cluster Accounts for the specified CO Person.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Integer $coPersonId      CO Person ID
    * @param  Integer $actorCoPersonId Actor CO Person ID
    * @param  Array   $clusterIds      Cluster IDs to assign for, or null to assign accounts on all Clusters
@@ -199,7 +199,7 @@ class Cluster extends AppModel {
   /**
    * Obtain Cluster status for a CO Person.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  integer $id				      Cluster ID
    * @param  integer $coPersonId      CO Person ID
 	 * @return Array Array with values

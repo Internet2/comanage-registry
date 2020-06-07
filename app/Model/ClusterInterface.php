@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -36,7 +36,7 @@ abstract class ClusterInterface extends AppModel {
   /**
    * Assign accounts for the specified CO Person.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Array   $cluster    Array of Cluster configuration
    * @param  Integer $coPersonId CO Person ID
    * @return Boolean             True if an account was created, false if an account already existed
@@ -48,7 +48,7 @@ abstract class ClusterInterface extends AppModel {
   /**
    * Obtain the configuration for this backend. This will correspond to FooCluster.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array Array of configuration information, as returned by find()
    */
   
@@ -59,7 +59,7 @@ abstract class ClusterInterface extends AppModel {
   /**
    * Obtain the CO ID for a record, overriding AppModel behavior.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException
@@ -87,7 +87,7 @@ abstract class ClusterInterface extends AppModel {
   /**
    * Set the plugin configuration for this backend. This will correspond to FooCluster.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Array $cfg Array of configuration information, as returned by find()
    */
   
@@ -98,7 +98,7 @@ abstract class ClusterInterface extends AppModel {
   /**
 	 * Obtain the current Cluster status for a CO Person.
 	 *
-	 * @since  COmanage Registry v3.4.0
+	 * @since  COmanage Registry v3.3.0
 	 * @param  integer $coPersonId			CO Person ID
 	 * @return Array Array with values
 	 * 							 status: AuthenticatorStatusEnum

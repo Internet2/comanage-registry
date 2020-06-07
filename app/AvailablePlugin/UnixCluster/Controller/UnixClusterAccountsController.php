@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -41,6 +41,8 @@ class UnixClusterAccountsController extends StandardController {
   
   // This controller needs a CO to be set
   public $requires_co = true;
+  
+  public $requires_person = true;
 
   // Edit and view need Name for rendering view
   public $edit_contains = array(
@@ -59,7 +61,7 @@ class UnixClusterAccountsController extends StandardController {
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $plugins set
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @throws InvalidArgumentException
    */
   
@@ -119,7 +121,7 @@ class UnixClusterAccountsController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
 
   function beforeRender() {
@@ -138,22 +140,8 @@ class UnixClusterAccountsController extends StandardController {
       }
       
       if(!empty($this->ucid)) {
-        // Pull the list of available Cluster group
-        
-        $args = array();
-        $args['conditions']['UnixClusterGroup.unix_cluster_id'] = $this->ucid;
-        $args['contain'] = array('CoGroup' => array('conditions' => array('CoGroup.status' => SuspendableStatusEnum::Active)));
-        
-        $clusterGroups = $this->UnixClusterAccount->UnixCluster->UnixClusterGroup->find('all', $args);
-        $groups = array();
-        
-        foreach($clusterGroups as $cg) {
-          if(!empty($cg['CoGroup']['id'])) {
-            $groups[ $cg['CoGroup']['id'] ] = $cg['CoGroup']['name'];
-          }
-        }
-        
-        $this->set('vv_available_groups', $groups);
+        // Pull the list of available Cluster groups
+        $this->set('vv_available_groups', $this->UnixClusterAccount->UnixCluster->UnixClusterGroup->availableUnixGroups($this->ucid));
       }
       
       if($this->action == 'index') {
@@ -166,7 +154,7 @@ class UnixClusterAccountsController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -221,11 +209,64 @@ class UnixClusterAccountsController extends StandardController {
   }
   
   /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    switch($action) {
+      case 'add':
+        $this->UnixClusterAccount->CoPerson->HistoryRecord->record($newdata['UnixClusterAccount']['co_person_id'],
+                                                                   null,
+                                                                   null,
+                                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                                   ActionEnum::ClusterAccountAdded,
+                                                                   _txt('pl.unixcluster.rs.added', array($newdata['UnixClusterAccount']['unix_cluster_id'],
+                                                                                                         $newdata['UnixClusterAccount']['username'],
+                                                                                                         $newdata['UnixClusterAccount']['uid'])));
+        break;
+      case 'delete':
+        $this->UnixClusterAccount->CoPerson->HistoryRecord->record($olddata['UnixClusterAccount']['co_person_id'],
+                                                                   null,
+                                                                   null,
+                                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                                   ActionEnum::ClusterAccountDeleted,
+                                                                   _txt('pl.unixcluster.rs.deleted', array($olddata['UnixClusterAccount']['unix_cluster_id'],
+                                                                                                           $olddata['UnixClusterAccount']['username'],
+                                                                                                           $olddata['UnixClusterAccount']['uid'])));
+        break;
+      case 'edit':
+        $this->UnixClusterAccount->CoPerson->HistoryRecord->record($olddata['UnixClusterAccount']['co_person_id'],
+                                                                   null,
+                                                                   null,
+                                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                                   ActionEnum::ClusterAccountEdited,
+                                                                   _txt('pl.unixcluster.rs.edited', array($olddata['UnixClusterAccount']['unix_cluster_id'],
+                                                                                                          $olddata['UnixClusterAccount']['username'],
+                                                                                                          $olddata['UnixClusterAccount']['uid'],
+                                                                                                          $newdata['UnixClusterAccount']['unix_cluster_id'],
+                                                                                                          $newdata['UnixClusterAccount']['username'],
+                                                                                                          $newdata['UnixClusterAccount']['uid'])));
+        break;
+    }
+    
+    return true;
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array Permissions
    */
   
@@ -260,7 +301,7 @@ class UnixClusterAccountsController extends StandardController {
   /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array An array suitable for use in $this->paginate
    */
 
@@ -284,7 +325,7 @@ class UnixClusterAccountsController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
   
   function performRedirect() {

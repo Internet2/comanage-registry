@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -57,7 +57,7 @@ class ClustersController extends StandardController {
   /**
    * Assign Cluster Accounts for a CO Person.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
   
   public function assign() {
@@ -138,7 +138,7 @@ class ClustersController extends StandardController {
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $plugins set
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @throws InvalidArgumentException
    */
   
@@ -169,7 +169,7 @@ class ClustersController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array Permissions
    */
   
@@ -240,7 +240,7 @@ class ClustersController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
   
   function performRedirect() {
@@ -274,7 +274,7 @@ class ClustersController extends StandardController {
   /**
    * Obtain the status of a Cluster for a CO Person.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  integer $id Cluster ID
    */
   

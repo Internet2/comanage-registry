@@ -163,29 +163,34 @@ class CoService extends AppModel {
    */
 
   public function beforeSave($options = array()) {
-    // Check that short_label is not already in use.
+    // Start a transaction -- we'll commit in afterSave
+    $this->_begin();
+    
+    // Check that short_label and cluster_id are not already in use.
     // XXX This should be replaced with a validator (CO-1559).
     
-    if(!empty($this->data['CoService']['short_label'])) {
-      // Start a transaction -- we'll commit in afterSave
-
-      $this->_begin();
-      
-      $args = array();
-      // XXX Does this need a special database index?
-      $args['conditions']['LOWER(CoService.short_label)'] = strtolower($this->data['CoService']['short_label']);
-      $args['conditions']['CoService.co_id'] = $this->data['CoService']['co_id'];
-      if(!empty($this->data['CoService']['id'])) {
-        // Skip our own ID if we're updating
-        $args['conditions']['NOT']['CoService.id'] = $this->data['CoService']['id'];
-      }
-      
-      $svcs = $this->findForUpdate($args['conditions'], array('id'));
-      
-      if(!empty($svcs)) {
-        $this->_rollback();
+    foreach(array('cluster_id', 'short_label') as $field) {
+      if(!empty($this->data['CoService'][$field])) {
+        $args = array();
+        if($field == 'cluster_id') {
+          $args['conditions']['CoService.'.$field] = $this->data['CoService'][$field];
+        } else {
+          // XXX Does this need a special database index (for LOWER())?
+          $args['conditions']['LOWER(CoService.'.$field.')'] = strtolower($this->data['CoService'][$field]);
+        }
+        $args['conditions']['CoService.co_id'] = $this->data['CoService']['co_id'];
+        if(!empty($this->data['CoService']['id'])) {
+          // Skip our own ID if we're updating
+          $args['conditions']['NOT']['CoService.id'] = $this->data['CoService']['id'];
+        }
         
-        throw new InvalidArgumentException(_txt('er.svc.label.exists', array(filter_var($this->data['CoService']['short_label'], FILTER_SANITIZE_SPECIAL_CHARS))));
+        $svcs = $this->findForUpdate($args['conditions'], array('id'));
+        
+        if(!empty($svcs)) {
+          $this->_rollback();
+          
+          throw new InvalidArgumentException(_txt('er.svc.'.$field.'.exists', array(filter_var($this->data['CoService'][$field], FILTER_SANITIZE_SPECIAL_CHARS))));
+        }
       }
     }
     
@@ -267,7 +272,7 @@ class CoService extends AppModel {
   /**
    * Map a Cluster to a CO Service short label.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Integer $coId      CO ID
    * @param  Integer $clusterId Cluster ID
    * @return String             The short label, if found

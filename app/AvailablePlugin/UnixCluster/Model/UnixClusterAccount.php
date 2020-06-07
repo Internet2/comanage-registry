@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -31,6 +31,10 @@ class UnixClusterAccount extends AppModel {
   
   // Current schema version for API
   public $version = "1.0";
+  
+  public $permittedApiFilters = array(
+    'unix_cluster_id' => 'UnixCluster.UnixCluster'
+  );
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -50,8 +54,7 @@ class UnixClusterAccount extends AppModel {
 //  public $order = array("co_person_id");
   
   public $actsAs = array('Containable',
-// XXX should we enable Provisioner?
-//                         'Provisioner',
+                         'Provisioner',
                          'Changelog' => array('priority' => 5));
 
   // Validation rules for table elements
@@ -162,7 +165,7 @@ class UnixClusterAccount extends AppModel {
   /**
    * Actions to take before a save operation is executed.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @throws InvalidArgumentException
    */
 
@@ -199,7 +202,7 @@ class UnixClusterAccount extends AppModel {
   /**
    * Obtain the CO ID for a record.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException
@@ -221,5 +224,48 @@ class UnixClusterAccount extends AppModel {
     }
 
     return parent::findCoForRecord($id);
+  }
+  
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @param  String  $q    String to search for
+   * @return Array Array of search results, as from find('all)
+   */
+   
+  public function search($coId, $q) {
+    // Tokenize $q on spaces
+    $tokens = explode(" ", $q);
+    
+    // We get to the CO ID via the CO Person ID since it's more direct
+    $args = array();
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'UnixClusterAccount.co_person_id=CoPerson.id';    
+    
+    foreach($tokens as $t) {
+      // We can only search uid if $t looks like an integer
+      $or = array(
+        'LOWER(UnixClusterAccount.gecos) LIKE' => '%' . strtolower($t) . '%',
+        'LOWER(UnixClusterAccount.username) LIKE' => '%' . strtolower($t) . '%'
+      );
+      
+      if(is_numeric($t)) {
+        $or['UnixClusterAccount.uid'] = (int)$t;
+      }
+      
+      $args['conditions']['AND'][] = array(
+        'OR' => $or
+      );
+    }
+   
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['order'] = array('UnixClusterAccount.username');
+    $args['contain'] = false;
+   
+    return $this->find('all', $args);
   }
 }

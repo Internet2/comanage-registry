@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -34,7 +34,7 @@ class SCController extends StandardController {
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: requires_co possibly set
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
 
   function beforeFilter() {
@@ -64,7 +64,7 @@ class SCController extends StandardController {
   /**
    * Callback before views are rendered.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
   
   public function beforeRender() {
@@ -90,7 +90,7 @@ class SCController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
   
   public function performRedirect() {

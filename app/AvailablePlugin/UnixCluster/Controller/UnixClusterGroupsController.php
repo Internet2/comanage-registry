@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -58,7 +58,7 @@ class UnixClusterGroupsController extends StandardController {
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $plugins set
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @throws InvalidArgumentException
    */
   
@@ -105,7 +105,7 @@ class UnixClusterGroupsController extends StandardController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
 
   function beforeRender() {
@@ -127,7 +127,7 @@ class UnixClusterGroupsController extends StandardController {
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Integer CO ID, or null if not implemented or not applicable.
    * @throws InvalidArgumentException
    */
@@ -171,7 +171,7 @@ class UnixClusterGroupsController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array Permissions
    */
   
@@ -205,7 +205,7 @@ class UnixClusterGroupsController extends StandardController {
   /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array An array suitable for use in $this->paginate
    */
 
@@ -223,7 +223,7 @@ class UnixClusterGroupsController extends StandardController {
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
   
   function performRedirect() {

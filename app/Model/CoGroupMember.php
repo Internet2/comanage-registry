@@ -427,7 +427,7 @@ class CoGroupMember extends AppModel {
    * Determine if the specified CO Person is an active, valid member of the
    * specified CO Group.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Integer $coGroupId  CO Group ID
    * @param  Integer $coPersonId CO Person ID
    * @return boolean             True if CO Person is a member of CO Group, false otherwse

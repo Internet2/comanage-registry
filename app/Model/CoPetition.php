@@ -222,7 +222,7 @@ class CoPetition extends AppModel {
   /**
    * Possibly assign cluster accounts for a petition.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Integer $id CO Petition ID
    * @param  Integer $actorCoPersonId CO Person ID for actor
    */

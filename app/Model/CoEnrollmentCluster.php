@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -68,7 +68,7 @@ class CoEnrollmentCluster extends AppModel {
    * Obtain a list of Enrollment Clusters, where the underlying Clusters
    * are active.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Integer $efId Enrollment Flow ID
    * @return Array List of Enrollment Authenticators
    */

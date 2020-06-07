@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -31,7 +31,7 @@ class UnixClusterListener implements CakeEventListener {
   /**
    * Define our listener(s)
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array Array of events and associated function names
    */
 
@@ -47,7 +47,7 @@ class UnixClusterListener implements CakeEventListener {
   /**
    * Update Unix Cluster Accounts based on updated attributes, if appropriate.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  CakeEvent $event Cake Event
    * @return boolean          True to continue the event flow
    */
@@ -55,9 +55,9 @@ class UnixClusterListener implements CakeEventListener {
   public function updateUnixClusterAccount(CakeEvent $event) {
     $subject = $event->subject();
     // We need to cache data from the event, since the above is apparently a
-    // 
+    // pointer or something, and doesn't necessarily persist as long as we need it
     $subjectData = $subject->data;
-    $subjectName = $subject->Name;
+    $subjectName = $subject->name;
     
     // First see if this is a model we're interested in
     

@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -31,6 +31,10 @@ class UnixClusterGroup extends AppModel {
   
   // Current schema version for API
   public $version = "1.0";
+  
+  public $permittedApiFilters = array(
+    'unix_cluster_id' => 'UnixCluster.UnixCluster'
+  );
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -65,9 +69,34 @@ class UnixClusterGroup extends AppModel {
   );
   
   /**
+   * Pull the list of available Cluster groups.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int   $unixClusterId Unix Cluster ID
+   * @return array                Array of CoGroup IDs and Names
+   */
+  
+  public function availableUnixGroups($unixClusterId) {
+    $args = array();
+    $args['conditions']['UnixClusterGroup.unix_cluster_id'] = $unixClusterId;
+    $args['contain'] = array('CoGroup' => array('conditions' => array('CoGroup.status' => SuspendableStatusEnum::Active)));
+    
+    $clusterGroups = $this->UnixCluster->UnixClusterGroup->find('all', $args);
+    $groups = array();
+    
+    foreach($clusterGroups as $cg) {
+      if(!empty($cg['CoGroup']['id'])) {
+        $groups[ $cg['CoGroup']['id'] ] = $cg['CoGroup']['name'];
+      }
+    }
+    
+    return $groups;
+  }
+  
+  /**
    * Actions to take before a save operation is executed.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @throws InvalidArgumentException
    */
 
@@ -92,7 +121,7 @@ class UnixClusterGroup extends AppModel {
   /**
    * Obtain the CO ID for a record.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException

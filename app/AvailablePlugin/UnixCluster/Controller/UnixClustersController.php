@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -34,7 +34,7 @@ class UnixClustersController extends SCController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    */
 
   function beforeRender() {
@@ -43,14 +43,14 @@ class UnixClustersController extends SCController {
     if(!$this->request->is('restful')) {
       $this->set('vv_identifier_types', $this->UnixCluster->Cluster->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
       
-// XXX This should be constrained to the set of Unix Cluster Groups
-      $args = array();
-      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
-      $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
-      $args['order'] = array('CoGroup.name ASC');
-      $args['contain'] = false;
-
-      $this->set('vv_available_groups', $this->Co->CoGroup->find("list", $args));
+      if($this->action != 'add' && !empty($this->request->params['pass'][0])) {
+        // Pull the list of available Cluster groups
+        $this->set('vv_available_groups', $this->UnixCluster->UnixClusterGroup->availableUnixGroups($this->request->params['pass'][0]));
+      } else {
+        // On add, we won't have any available groups yet since it wouldn't have
+        // been possible to define any yet
+        $this->set('vv_available_groups', array());
+      }
     }
   }
   
@@ -59,7 +59,7 @@ class UnixClustersController extends SCController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @return Array Permissions
    */
   
@@ -77,6 +77,9 @@ class UnixClustersController extends SCController {
     // Edit an existing Unix Cluster?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
 
+    // View all existing Unix Clusters?
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // View an existing Unix Cluster?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     

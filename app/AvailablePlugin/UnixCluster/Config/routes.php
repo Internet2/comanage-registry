@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Unix Cluster Enumerations
+ * COmanage Registry Unix Cluster Routes
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -20,24 +20,13 @@
  * limitations under the License.
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
+ * @package       registry-plugin
  * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-
-class UnixClusterSyncEnum
-{
-  const Full   = "F";
-  const Manual = "M";
-}
-
-class UnixShellEnum
-{
-  const Bash = "/bin/bash";
-  const Csh  = "/bin/csh";
-  const Dash = "/bin/dash";
-  const Ksh  = "/bin/ksh";
-  const Sh   = "/bin/sh";
-  const Tcsh = "/bin/tcsh";
-  const Zsh  = "/bin/zsh";
-}
+ 
+Router::mapResources(array(
+  'unix_cluster_accounts',
+  'unix_cluster_groups',
+  'unix_clusters'
+));

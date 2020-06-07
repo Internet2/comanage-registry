@@ -185,7 +185,7 @@
           $args = array(
             'plugin'     => null,
             'controller' => $mpl,
-            'action'     => 'view',
+            'action'     => 'edit',
             $r[$m]['id']
           );
           
@@ -212,9 +212,9 @@
           $field = $vv_plugin_display_fields[$m];
           
           $args = array(
-            'plugin'     => $plugin,
+            'plugin'     => Inflector::underscore($plugin),
             'controller' => $mpl,
-            'action'     => 'view',
+            'action'     => 'edit',
             $r[$pmodel]['id']
           );
           

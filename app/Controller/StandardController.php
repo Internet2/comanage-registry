@@ -764,6 +764,20 @@ class StandardController extends AppController {
         }
         
         $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $args)));
+      } elseif(!empty($model->permittedApiFilters)
+               && !empty(array_intersect_key($model->permittedApiFilters, $this->params['url']))) {
+        // We are filtering on a plugin specific key
+        $keys = array_intersect_key($model->permittedApiFilters, $this->params['url']);
+        
+        $args = array();
+        foreach(array_keys($keys) as $k) {
+          if(!empty($this->params['url'][$k])) {
+            $args['conditions'][$model->name.'.'.$k] = $this->params['url'][$k];
+          }
+        }
+        $args['contain'] = false;
+        
+        $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $args)));
       } elseif($this->requires_person
                // XXX This is a bit of a hack, we should really refactor this
                || $req == 'CoOrgIdentityLink'

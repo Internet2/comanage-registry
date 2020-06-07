@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -176,7 +176,7 @@ class UnixCluster extends ClusterInterface {
   /**
    * Assign accounts for the specified CO Person.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  Array   $cluster    Array of Cluster configuration
    * @param  Integer $coPersonId CO Person ID
    * @return Boolean             True if an account was created, false if an account already existed
@@ -407,7 +407,7 @@ class UnixCluster extends ClusterInterface {
   /**
    * Calculate the GECOS field value for a Unix Cluster Account.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  array  $name       Array of Name
    * @return string             GECOS string
    * @throws RuntimeException
@@ -429,7 +429,7 @@ class UnixCluster extends ClusterInterface {
   /**
    * Calculate the home directory for a Unix Cluster Account.
    *
-   * @since  COmanage Registry v3.4.0
+   * @since  COmanage Registry v3.3.0
    * @param  array  $unixCluster Array of Unix Cluster configurtion
    * @param  string $identifier  Identifier to use as basis for home directory
    * @return string              Home Directory
@@ -452,10 +452,26 @@ class UnixCluster extends ClusterInterface {
     return $unixCluster['homedir_prefix'] . "/" . $homedirAffix;
   }
   
+  /**
+   * Declare searchable models.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @return Array Array of searchable models
+   */
+
+  public function cmPluginSearchModels() {
+    return array(
+      'UnixCluster.UnixClusterAccount' => array(
+        'displayField' => 'username',
+        'permissions' => array('cmadmin', 'coadmin')
+      )
+    );
+  }
+  
 	/**
 	 * Obtain the current Cluster status for a CO Person.
 	 *
-	 * @since  COmanage Registry v3.4.0
+	 * @since  COmanage Registry v3.3.0
 	 * @param  integer $coPersonId			CO Person ID
 	 * @return Array Array with values
 	 * 							 comment: Human readable string, visible to the CO Person

@@ -32,8 +32,11 @@ class ActionEnum
   const AuthenticatorDeleted            = 'DAUT';
   const AuthenticatorEdited             = 'EAUT';
   const AuthenticatorStatusEdited       = 'EATS';
+  const ClusterAccountAdded             = 'ACAM';
   const ClusterAccountAutoCreated       = 'ACAA';
   const ClusterAccountAutoEdited        = 'ECAA';
+  const ClusterAccountDeleted           = 'DCAM';
+  const ClusterAccountEdited            = 'ECAM';
   const CoEmailListAdded                = 'ACEL';
   const CoEmailListDeleted              = 'DCEL';
   const CoEmailListEdited               = 'ECEL';

@@ -953,7 +953,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               // posixAccount and posixGroup attributes
-              // As of Registry v3.4.0 we pull these attributes from the configured
+              // As of Registry v3.3.0 we pull these attributes from the configured
               // UnixCluster, or if Attribute Options are enabled potentially from
               // all UnixClusters (if so configured).
               case 'gidNumber':

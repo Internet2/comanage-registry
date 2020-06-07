@@ -40,6 +40,8 @@
     <field name="homedir_subdivisions" type="I" />
     <field name="groupname_type" type="C" size="32" />
     <field name="gid_type" type="C" size="32" />
+    <!-- This should probably be default_unix_cluster_group_id instead,
+         but we try to avoid mutually dependent foreign keys -->
     <field name="default_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>

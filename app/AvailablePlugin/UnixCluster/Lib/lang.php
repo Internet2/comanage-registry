@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.4.0
+ * @since         COmanage Registry v3.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -58,8 +58,7 @@ $cm_unix_cluster_texts['en_US'] = array(
   'pl.unixcluster.fd.co_group_id.new.name' => '%1$s UnixCluster Group',
   'pl.unixcluster.fd.co_group_id.new.desc' => 'Group created for %1$s automatically by UnixCluster',
   'pl.unixcluster.fd.default_co_group_id.create' => 'Create a New Group For Each Account',
-// XXX link to wiki once available
-  'pl.unixcluster.fd.default_co_group_id.desc' => 'Unless overridden, Unix Accounts will be given this default group. See the documentation for more information.',
+  'pl.unixcluster.fd.default_co_group_id.desc' => 'Unless overridden, Unix Accounts will be given this default group. See the <a href="https://spaces.at.internet2.edu/display/COmanage/Unix+Cluster+Plugin#UnixClusterPlugin-SettingaDefaultGroupForEachUnixAccount">documentation</a> for more information.',
   'pl.unixcluster.fd.default_shell' => 'Default Login Shell',
   'pl.unixcluster.fd.gecos' => 'GECOS',
   'pl.unixcluster.fd.gid_type' => 'GID Type',
@@ -82,4 +81,7 @@ $cm_unix_cluster_texts['en_US'] = array(
   'pl.unixcluster.fd.username' => 'Username',
   'pl.unixcluster.fd.username_type' => 'Username Type',
   'pl.unixcluster.fd.username_type.desc' => 'CO Person Identifier type used to autopopulate Unix Username',
+  'pl.unixcluster.rs.added' => 'Added Unix Cluster Account (unix cluster id %1$s, username %2$s, uid %3$s)',
+  'pl.unixcluster.rs.deleted' => 'Deleted Unix Cluster Account (unix cluster id %1$s, username %2$s, uid %3$s)',
+  'pl.unixcluster.rs.edited' => 'Edited Unix Cluster Account (from unix cluster id %1$s, username %2$s, uid %3$s to unix cluster id %4$s, username %5$s, uid %6$s)'
 );
