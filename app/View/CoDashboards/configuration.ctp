@@ -55,6 +55,12 @@
       'controller'    => 'authenticators',
       'action'        => 'index'
     ),
+    _txt('ct.clusters.pl') => array(
+      'icon'          => 'account_box',
+      'permissionKey' => 'clusters',
+      'controller'    => 'clusters',
+      'action'        => 'index'
+    ),
     _txt('ct.cous.pl') => array(
       'icon'          => 'people_outline',
       'permissionKey' => 'cous',

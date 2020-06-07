@@ -199,6 +199,39 @@
       ?>
     </div>
   </li>
+  <?php if(!empty($vv_clusters)): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('cluster_id', _txt('fd.svc.cluster')) : _txt('fd.svc.cluster')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.svc.cluster.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (isset($co_services[0]['CoService']['cluster_id'])
+                           ? $co_services[0]['CoService']['cluster_id']
+                           : 0);
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('cluster_id',
+                                    $vv_clusters,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('cluster_id')) {
+            print $this->Form->error('cluster_id');
+          }
+        } else {
+          if(!empty( $co_services[0]['CoService']['cluster_id'])) {
+            print filter_var($vv_clusters[  $co_services[0]['CoService']['cluster_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+        }
+      ?>
+    </div>
+  </li>
+<?php endif; // vv_clusters ?>
   <li>
     <div class="field-name">
       <div class="field-title">

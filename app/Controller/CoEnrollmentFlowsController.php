@@ -46,6 +46,7 @@ class CoEnrollmentFlowsController extends StandardController {
   
   public $edit_contains = array(
     'CoEnrollmentAuthenticator',
+    'CoEnrollmentCluster',
     'CoEnrollmentFlowAuthzCoGroup',
     'CoEnrollmentFlowAuthzCou',
     'CoEnrollmentSource'
@@ -143,6 +144,14 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_authenticators', $this->CoEnrollmentFlow->Co->Authenticator->find('list', $args));
+      
+      // Pull the set of available clusters
+      $args = array();
+      $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('vv_clusters', $this->CoEnrollmentFlow->Co->Cluster->find('list', $args));
     }
     
     parent::beforeRender();

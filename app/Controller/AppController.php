@@ -990,6 +990,9 @@ class AppController extends Controller {
     // Manage Authenticators?
     $p['menu']['authenticator'] = $roles['cmadmin'] || $roles['coadmin'];
     
+    // Manage Clusters?
+    $p['menu']['clusters'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage CO level attribute enumerations?
     $p['menu']['coattrenums'] = $roles['cmadmin'] || $roles['coadmin'];
     

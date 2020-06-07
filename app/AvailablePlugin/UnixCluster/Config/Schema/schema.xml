@@ -1,0 +1,146 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Unix Cluster Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="unix_clusters">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="cluster_id" type="I">
+      <constraint>REFERENCES cm_clusters(id)</constraint>
+    </field>
+    <field name="sync_mode" type="C" size="2" />
+    <field name="username_type" type="C" size="32" />
+    <field name="uid_type" type="C" size="32" />
+    <field name="default_shell" type="C" size="64" />
+    <field name="homedir_prefix" type="C" size="64" />
+    <field name="homedir_subdivisions" type="I" />
+    <field name="groupname_type" type="C" size="32" />
+    <field name="gid_type" type="C" size="32" />
+    <!-- This should probably be default_unix_cluster_group_id instead,
+         but we try to avoid mutually dependent foreign keys -->
+    <field name="default_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="unix_cluster_id" type="I">
+      <constraint>REFERENCES cm_unix_clusters(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
+    <index name="unix_clusters_i1">
+      <col>cluster_id</col>
+    </index>
+    
+    <index name="unix_clusters_i2">
+      <col>unix_cluster_id</col>
+    </index>
+  </table>
+  
+  <table name="unix_cluster_groups">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="unix_cluster_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_unix_clusters(id)</constraint>
+    </field>
+    <field name="co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="unix_cluster_group_id" type="I">
+      <constraint>REFERENCES cm_unix_cluster_groups(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="unix_cluster_groups_i1">
+      <col>unix_cluster_id</col>
+    </index>
+  </table>
+  
+  <table name="unix_cluster_accounts">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="unix_cluster_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_unix_clusters(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="sync_mode" type="C" size="2" />
+    <field name="status" type="C" size="2" />
+    <field name="username" type="C" size="256" />
+    <field name="uid" type="I" />
+    <field name="gecos" type="C" size="80" />
+    <field name="login_shell" type="C" size="64" />
+    <field name="home_directory" type="C" size="64" />
+    <field name="primary_co_group_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="unix_cluster_account_id" type="I">
+      <constraint>REFERENCES cm_unix_cluster_accounts(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="unix_cluster_accounts_i1">
+      <col>unix_cluster_id</col>
+    </index>
+    
+    <index name="unix_cluster_accounts_i2">
+      <col>co_person_id</col>
+    </index>
+    
+    <index name="unix_cluster_accounts_i3">
+      <col>unix_cluster_id</col>
+      <col>username</col>
+    </index>
+    
+    <index name="unix_cluster_accounts_i4">
+      <col>unix_cluster_id</col>
+      <col>uid</col>
+    </index>
+  </table>
+</schema>

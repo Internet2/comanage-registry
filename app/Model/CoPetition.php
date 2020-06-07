@@ -220,6 +220,62 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Possibly assign cluster accounts for a petition.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Integer $id CO Petition ID
+   * @param  Integer $actorCoPersonId CO Person ID for actor
+   */
+  
+  public function assignClusterAccounts($id, $actorCoPersonId) {
+    $coPersonID = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    //$coID = $this->field('co_id', array('CoPetition.id' => $id));
+    
+    if($coPersonID) {
+      $clusters = $this->CoEnrollmentFlow
+                       ->CoEnrollmentCluster
+                       ->active($this->cachedEnrollmentFlowID);
+      
+      $clusterIds = array();
+      
+      // XXX Could use Hash?
+      foreach($clusters as $c) {
+        $clusterIds[] = $c['Cluster']['id'];
+      }
+      
+      $res = $this->CoEnrollmentFlow
+                  ->CoEnrollmentCluster
+                  ->Cluster
+                  ->assign($coPersonID, $actorCoPersonId, $clusterIds);
+      
+      if(!empty($res)) {
+        // Create Petition History Records for any results of interest
+        
+        foreach($res as $desc => $result) {
+          $str = false;
+          
+          if($result === true) {
+            $str = _txt('rs.cluster.acct.ok', array($desc));
+          } else {
+            $str = $result;
+          }
+          
+          if($str !== false) {
+            try {
+              $this->CoPetitionHistoryRecord->record($id,
+                                                     $actorCoPersonId,
+                                                     PetitionActionEnum::ClusterAccountAutoCreated,
+                                                     $str);
+            }
+            catch(Exception $e) {
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * Possibly assign identifiers for a petition.
    *
    * @since  COmanage Registry v0.9.4

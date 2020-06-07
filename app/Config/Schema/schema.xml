@@ -661,38 +661,6 @@
     </index>
   </table>
   
-  <table name="co_themes">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="name" type="C" size="80" />
-    <field name="hide_title" type="L" />
-    <field name="hide_footer_logo" type="L" />
-    <field name="css" type="XL" />
-    <field name="header" type="XL" />
-    <field name="footer" type="XL" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="co_theme_id" type="I">
-      <constraint>REFERENCES cm_co_themes(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="co_themes_i1">
-      <col>co_id</col>
-    </index>
-    <index name="co_themes_i2">
-      <col>co_theme_id</col>
-    </index>
-  </table>
-  
   <table name="co_enrollment_flows">
     <field name="id" type="I">
       <key />
@@ -759,6 +727,7 @@
       <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
     <field name="establish_authenticators" type="L" />
+    <field name="establish_cluster_accounts" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_enrollment_flow_id" type="I">
@@ -1624,6 +1593,38 @@
     </index>
   </table>
   
+  <table name="co_themes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="80" />
+    <field name="hide_title" type="L" />
+    <field name="hide_footer_logo" type="L" />
+    <field name="css" type="XL" />
+    <field name="header" type="XL" />
+    <field name="footer" type="XL" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_themes_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_themes_i2">
+      <col>co_theme_id</col>
+    </index>
+  </table>
+  
   <table name="co_enrollment_attributes">
     <field name="id" type="I">
       <key />
@@ -2314,6 +2315,66 @@
     </index>
   </table>
   
+  <table name="clusters">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="cluster_id" type="I">
+      <constraint>REFERENCES cm_clusters(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="clusters_i1">
+      <col>co_id</col>
+    </index>
+    <index name="clusters_i2">
+      <col>cluster_id</col>
+    </index>
+  </table>
+  
+  <table name="co_enrollment_clusters">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="cluster_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_clusters(id)</constraint>
+    </field>
+    <field name="enabled" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_enrollment_cluster_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_clusters(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_enrollment_clusters_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+    <index name="co_enrollment_clusters_i2">
+      <col>cluster_id</col>
+    </index>
+  </table>
+  
   <table name="co_navigation_links">
     <field name="id" type="I">
       <key />
@@ -2480,6 +2541,9 @@
     <field name="short_label" type="C" size="32" />
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="cluster_id" type="I">
+      <constraint>REFERENCES cm_clusters(id)</constraint>
     </field>
     <field name="service_url" type="C" size="256" />
     <field name="service_label" type="C" size="1024" />
