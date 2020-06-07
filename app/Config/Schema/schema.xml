@@ -2552,6 +2552,9 @@
     <field name="entitlement_uri" type="C" size="256" />
     <field name="visibility" type="C" size="2" />
     <field name="identifier_type" type="C" size="32" />
+    <field name="authenticator_id" type="I">
+      <constraint>REFERENCES cm_authenticators(id)</constraint>
+    </field>
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

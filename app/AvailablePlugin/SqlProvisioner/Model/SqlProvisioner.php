@@ -35,7 +35,7 @@ class SqlProvisioner extends AppModel {
   /**
    * Expose menu items.
    * 
-   * @ since COmanage Registry v3.4.0
+   * @ since COmanage Registry v3.3.0
    * @ return Array with menu location type as key and array of labels, controllers, actions as values.
    */
   

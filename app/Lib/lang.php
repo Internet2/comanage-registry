@@ -1583,6 +1583,8 @@ original notification at
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petition',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
+  'fd.svc.authenticator' => 'Authenticator',
+  'fd.svc.authenticator.desc' => 'The Authenticator used by this Service to authenticate users',
   'fd.svc.cluster' =>   'Cluster',
   'fd.svc.cluster.desc' => 'Cluster this Service is attached to, primarily for <a href="https://spaces.at.internet2.edu/display/COmanage/LDAP+Provisioning+Plugin#LDAPProvisioningPlugin-LDAPAttributeOptions">LDAP provisioning with attribute options</a>',
   'fd.svc.cou.desc' => 'COU this Service is attached to, for Service Portal rendering',
@@ -1844,6 +1846,7 @@ original notification at
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',
   'op.first' => 'First',
+  'op.generate' => 'Generate',
   'op.go' => 'go',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.gr.reconcile' => 'Reconcile',
@@ -2197,6 +2200,7 @@ original notification at
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
   'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
   'sh.ug.330.users' =>    'Dropping users View',
+  'sh.ug.340.password' => 'Updating Password Sources'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
