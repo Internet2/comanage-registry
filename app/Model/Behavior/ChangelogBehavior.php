@@ -634,19 +634,8 @@ class ChangelogBehavior extends ModelBehavior {
               
               $ret[$k]['order'] = $v2;
             } elseif(is_array($v2)) {
-              //This recursive modifyContain will successfully add those conditions to a nested contain
-              $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
               
-              if(is_string($k2) && !is_integer($k2)) {
-                $cparentfk = Inflector::underscore($model->$k->$k2->name) . "_id";
-                
-                // This will then overwrite any existing conditions, and these conditions were already added in line
-                // 638 by the recursive modifyContain
-                // $ret[$k][$k2]['conditions'] = array(
-                //   $k2.'.'.$cparentfk => null,
-                //   $k2.'.deleted IS NOT true'
-                // );
-              }
+              $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
             } elseif(isset($model->$k->$k2)) {
               // Fifth example
               $m = $this->modifyContain($model->$k, array($k2 => $v2));
