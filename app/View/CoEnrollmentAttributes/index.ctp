@@ -105,7 +105,12 @@
                                           $c['CoEnrollmentAttribute']['id']));
           ?>
         </td>
-        <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
+        <td>
+          <?php
+            $attrProps = $vv_attributes_properties[ $c['CoEnrollmentAttribute']['attribute'] ];
+            print $attrProps['attrName'] . ' (' . implode(', ', array_slice(array_filter($attrProps), '1')) . ')';
+          ?>
+        </td>
         <td><?php print filter_var($c['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var(_txt('en.required', null, $c['CoEnrollmentAttribute']['required']),FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
