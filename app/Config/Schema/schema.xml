@@ -661,6 +661,38 @@
     </index>
   </table>
   
+  <table name="co_themes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="80" />
+    <field name="hide_title" type="L" />
+    <field name="hide_footer_logo" type="L" />
+    <field name="css" type="XL" />
+    <field name="header" type="XL" />
+    <field name="footer" type="XL" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_theme_id" type="I">
+      <constraint>REFERENCES cm_co_themes(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_themes_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_themes_i2">
+      <col>co_theme_id</col>
+    </index>
+  </table>
+  
   <table name="co_enrollment_flows">
     <field name="id" type="I">
       <key />
@@ -1590,38 +1622,6 @@
     </index>
     <index name="co_group_ois_mappings_i2">
       <col>org_identity_source_id</col>
-    </index>
-  </table>
-  
-  <table name="co_themes">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="name" type="C" size="80" />
-    <field name="hide_title" type="L" />
-    <field name="hide_footer_logo" type="L" />
-    <field name="css" type="XL" />
-    <field name="header" type="XL" />
-    <field name="footer" type="XL" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="co_theme_id" type="I">
-      <constraint>REFERENCES cm_co_themes(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="co_themes_i1">
-      <col>co_id</col>
-    </index>
-    <index name="co_themes_i2">
-      <col>co_theme_id</col>
     </index>
   </table>
   
@@ -2574,11 +2574,11 @@
     <index name="co_services_i3">
       <col>co_group_id</col>
     </index>
-    <index name="co_service_i4">
+    <index name="co_services_i4">
       <col>co_id</col>
       <col>identifier_type</col>
     </index>
-    <index name="co_service_i5">
+    <index name="co_services_i5">
       <col>co_id</col>
       <col>short_label</col>
     </index>

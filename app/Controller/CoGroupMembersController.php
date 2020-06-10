@@ -309,13 +309,13 @@ class CoGroupMembersController extends StandardController {
   public function generateHistory($action, $newdata, $olddata) {
     switch($action) {
       case 'add':
-        $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
+        $this->CoGroupMember->CoPerson->HistoryRecord->record($newdata['CoGroupMember']['co_person_id'],
                                                               null,
                                                               null,
                                                               $this->Session->read('Auth.User.co_person_id'),
                                                               ActionEnum::CoGroupMemberAdded,
-                                                              _txt('rs.grm.added', array($olddata['CoGroup']['name'],
-                                                                                         $olddata['CoGroup']['id'],
+                                                              _txt('rs.grm.added', array($newdata['CoGroup']['name'],
+                                                                                         $newdata['CoGroup']['id'],
                                                                                          _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
                                                                                          _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
                                                               $olddata['CoGroup']['id']);
