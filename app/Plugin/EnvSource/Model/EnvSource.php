@@ -206,7 +206,8 @@ class EnvSource extends AppModel {
         'label'    => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SORID) . ")",
         'default'  => 'ENV_OIS_SORID',
         'required' => true,
-        'desc'     => _txt('pl.envsource.sorid.desc')
+        'desc'     => _txt('pl.envsource.sorid.desc'),
+        'canLogin' => false
       ),
       'env_name_honorific' => array(
         'label'   => _txt('fd.name.honorific') . " (" . _txt('en.name.type', null, NameEnum::Official) . ")"
@@ -227,23 +228,28 @@ class EnvSource extends AppModel {
       ),
       'env_identifier_eppn' => array(
         'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ePPN) . ")",
-        'default' => 'ENV_OIS_EPPN'
+        'default' => 'ENV_OIS_EPPN',
+        'canLogin'=> true
       ),
       'env_identifier_eptid' => array(
         'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ePTID) . ")",
-        'default' => 'ENV_OIS_EPTID'
+        'default' => 'ENV_OIS_EPTID',
+        'canLogin'=> true
       ),
       'env_identifier_epuid' => array(
         'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ePUID) . ")",
-        'default' => 'ENV_OIS_EPUID'
+        'default' => 'ENV_OIS_EPUID',
+        'canLogin'=> true
       ),
       'env_identifier_orcid' => array(
         'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ORCID) . ")",
-        'default' => 'ENV_OIS_ORCID'
+        'default' => 'ENV_OIS_ORCID',
+        'canLogin'=> true
       ),
       'env_identifier_network' => array(
         'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::Network) . ")",
-        'default' => 'ENV_OIS_NETWORK'
+        'default' => 'ENV_OIS_NETWORK',
+        'canLogin'=> true
       ),
       'env_mail' => array(
         'label'   => _txt('fd.email_address.mail') . " (" . _txt('en.email_address.type', null, EmailAddressEnum::Official) . ")",
