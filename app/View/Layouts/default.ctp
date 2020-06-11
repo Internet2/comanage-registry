@@ -220,7 +220,15 @@
         </div>
       <?php endif ?>
 
-      <main id="main" class="mdl-layout__content">
+      <?php
+        $mainCssClasses = 'cm-main-full mdl-layout__content';
+        if(!empty($vv_ui_mode)) {
+          if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
+            $mainCssClasses = 'cm-main-basic';
+          }
+        }
+      ?>
+      <main id="main" class="<?php print $mainCssClasses; ?>">
 
         <div id="content" class="mdl-grid">
         <?php
