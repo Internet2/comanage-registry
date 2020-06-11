@@ -111,6 +111,13 @@
     } else {
       $bodyClasses .= ' logged-out';
     }
+    if(!empty($vv_ui_mode)) {
+      if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
+        $bodyClasses .= ' ui-mode-basic';
+      } else {
+        $bodyClasses .= ' ui-mode-full';
+      }
+    }
     if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)) {
       $bodyClasses .=  ' with-user-defined-links';
     }
