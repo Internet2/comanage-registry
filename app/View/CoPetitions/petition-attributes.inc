@@ -515,6 +515,10 @@
                   print generateCn($vv_default_sponsor['PrimaryName']);
                 }
               } else {
+                if($fieldName == 'EnrolleeCoPersonRole.sponsor_co_person_id-disabled') {
+                  $args['value'] = generateCn($vv_default_sponsor['PrimaryName']);
+                }
+                
                 // Render the form field, label, and error (if any)
                 // error is output by default with class "error-message"
                 print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
@@ -579,10 +583,10 @@
                 print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
                 break;
               default:
-                if ($ea['field'] == 'sponsor_co_person_id') {
+                if($ea['field'] == 'sponsor_co_person_id'
+                   && !empty($co_petition_attribute_values[ $ea['id'] ]['sponsorPrimaryName'])) {
                   // Special case the sponsor
-                  // XXX need to look up the name from the sponsor_co_person_id (this is a stub)
-                  print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                  print $co_petition_attribute_values[ $ea['id'] ]['sponsorPrimaryName'];
                 } else {
                   // Otherwise just print out the field value
                   print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];

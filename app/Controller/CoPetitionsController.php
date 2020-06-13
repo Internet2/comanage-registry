@@ -427,6 +427,21 @@ class CoPetitionsController extends StandardController {
           );
           $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
           
+          // As a special case, we need to convert sponsor_co_person_id to a name
+          foreach($vAttrs as $id => $a) {
+            if(!empty($a['sponsor_co_person_id'])) {
+              $args = array();
+              $args['conditions']['CoPerson.id'] = $a['sponsor_co_person_id'];
+              $args['contain'] = array('PrimaryName');
+              
+              $pName = $this->CoPetition->Co->CoPerson->find('first', $args);
+              
+              if(!empty($pName)) {
+                $vAttrs[$id]['sponsorPrimaryName'] = generateCn($pName['PrimaryName']) . " (" . $a['sponsor_co_person_id'] . ")";
+              }
+            }
+          }
+          
           $this->set('co_petition_attribute_values', $vAttrs);
           
           // For viewing a petition, we want the attributes defined at the time the
