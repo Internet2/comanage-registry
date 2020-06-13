@@ -601,17 +601,17 @@
                   ?>
                 </div>
               </li>
-            <?php endforeach; ?>
-            <?php foreach($co_pipelines[0]['CoEnrollmentFlow'] as $ef): ?>
+            <?php endforeach; // OrgIdentitySource ?>
+            <?php if(!empty($co_pipelines[0]['CoEnrollmentFlow']['id'])): ?>
               <li>
                 <div class="field-name">
                   <div class="field-title">
                     <?php
-                      print $this->Html->link($ef['name'],
+                      print $this->Html->link($co_pipelines[0]['CoEnrollmentFlow']['name'],
                         array(
                           'controller' => 'co_enrollment_flows',
                           'action'     => 'edit',
-                          $ef['id']
+                          $co_pipelines[0]['CoEnrollmentFlow']['id']
                         ));
 
                       print " (" . _txt('ct.co_enrollment_flows.1') . ")";
@@ -624,13 +624,13 @@
                       array(
                         'controller' => 'co_enrollment_flows',
                         'action'     => 'edit',
-                        $ef['id']
+                        $co_pipelines[0]['CoEnrollmentFlow']['id']
                       ),
                       array('class' => 'editbutton'));
                   ?>
                 </div>
               </li>
-            <?php endforeach; ?>
+            <?php endif; // CoEnrollmentFlow ?>
           </ul><!-- tabs-cxn -->
         </li><!-- fields-cxn -->
       <?php endif; // add ?>
