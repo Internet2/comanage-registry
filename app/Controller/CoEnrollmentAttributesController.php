@@ -200,7 +200,40 @@ class CoEnrollmentAttributesController extends StandardController {
           
           // Assemble the set of available attributes for the view to render
           
-          $this->set('vv_available_attributes', $this->CoEnrollmentAttribute->availableAttributes($coid));
+          $availableAttributes = $this->CoEnrollmentAttribute->availableAttributes($coid);
+          $availableAttributesNested = array();
+          foreach($availableAttributes as $mdl_name => &$attr_mdl) {
+            foreach($attr_mdl as $attribute_map => $attribute_fn) {
+              if(substr_count($attribute_map, ':') > 1) {
+                $attribute_fn = substr($attribute_fn, 0, -1);
+                $attribute_fn = array_map('trim', explode('(', $attribute_fn));
+                $availableAttributesNested[$mdl_name][$attribute_fn[0]][$attribute_map] = $attribute_fn[1];
+              } else {
+                $availableAttributesNested[$mdl_name][$attribute_map] = $attribute_fn;
+              }
+            }
+          }
+          $this->set('vv_available_attributes_nested', $availableAttributesNested);
+
+          // Flatten available attributes array
+
+          $flattenedArray = Hash::flatten($availableAttributes,'.');
+          $attributeArray = array();
+          foreach($flattenedArray as $key => $value) {
+            list($attrMdl, $code) = explode('.', $key);
+            if(strpos($value, ')') !== false) {
+              list($attribute, $attrType) = explode('(', $value);
+              $attrType = substr($attrType, 0, -1);
+            } else {
+              $attrType = '';
+              $attribute = $value;
+            }
+            $attributeArray[$code]['attrName'] = trim($attribute);
+            $attributeArray[$code]['attrType'] = trim($attrType);
+            $attributeArray[$code]['attrMdl'] = trim($attrMdl);
+          }
+          unset($flattenedArray);
+          $this->set('vv_attributes_properties', $attributeArray);
           
           // By specifying actions here we limit the number of queries for /index
           if($this->action == 'add' || $this->action == 'edit') {

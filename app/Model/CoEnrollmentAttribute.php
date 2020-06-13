@@ -149,15 +149,15 @@ class CoEnrollmentAttribute extends AppModel {
     // COU ID is only available if at least one COU is defined
     $cous = $this->CoEnrollmentFlow->Co->Cou->allCous($coid);
     if(!empty($cous)) {
-      $ret['r:cou_id'] = _txt('fd.cou') . " (" . _txt('ct.co_person_roles.1') . ")";
+      $ret[_txt('ct.co_person_roles.1')]['r:cou_id'] = _txt('fd.cou');
     }
-    $ret['r:affiliation'] = _txt('fd.affiliation') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:sponsor_co_person_id'] = _txt('fd.sponsor') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:title'] = _txt('fd.title') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:o'] = _txt('fd.o') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:ou'] = _txt('fd.ou') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:valid_from'] = _txt('fd.valid_from') . " (" . _txt('ct.co_person_roles.1') . ")";
-    $ret['r:valid_through'] = _txt('fd.valid_through') . " (" . _txt('ct.co_person_roles.1') . ")";
+    $ret[_txt('ct.co_person_roles.1')]['r:affiliation'] = _txt('fd.affiliation');
+    $ret[_txt('ct.co_person_roles.1')]['r:sponsor_co_person_id'] = _txt('fd.sponsor');
+    $ret[_txt('ct.co_person_roles.1')]['r:title'] = _txt('fd.title');
+    $ret[_txt('ct.co_person_roles.1')]['r:o'] = _txt('fd.o');
+    $ret[_txt('ct.co_person_roles.1')]['r:ou'] = _txt('fd.ou');
+    $ret[_txt('ct.co_person_roles.1')]['r:valid_from'] = _txt('fd.valid_from');
+    $ret[_txt('ct.co_person_roles.1')]['r:valid_through'] = _txt('fd.valid_through');
     
     // (2) Multi valued CO Person attributes (code=p)
     
@@ -166,31 +166,31 @@ class CoEnrollmentAttribute extends AppModel {
     $nameTypes = $Name->types($coid, 'type');
     
     foreach(array_keys($nameTypes) as $k)
-      $ret['p:name:'.$k] = _txt('fd.name') . " (" . $nameTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
+      $ret[_txt('ct.co_people.1')]['p:name:'.$k] = _txt('fd.name') . " (" . $nameTypes[$k] . ")";
     
     $Identifier = ClassRegistry::init('Identifier');
     $identifierTypes = $Identifier->types($coid, 'type');
     
     foreach(array_keys($identifierTypes) as $k)
-      $ret['p:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
+      $ret[_txt('ct.co_people.1')]['p:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ")";
     
     $EmailAddress = ClassRegistry::init('EmailAddress');
     $emailAddressTypes = $EmailAddress->types($coid, 'type');
     
     foreach(array_keys($emailAddressTypes) as $k)
-      $ret['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $emailAddressTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
+      $ret[_txt('ct.co_people.1')]['p:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $emailAddressTypes[$k] . ")";
     
     $Url = ClassRegistry::init('Url');
     $urlTypes = $Url->types($coid, 'type');
     
     foreach(array_keys($urlTypes) as $k)
-      $ret['p:url:'.$k] = _txt('fd.url.url') . " (" . $urlTypes[$k] . ", " . _txt('ct.co_people.1') . ")";
+      $ret[_txt('ct.co_people.1')]['p:url:'.$k] = _txt('fd.url.url') . " (" . $urlTypes[$k] . ")";
     
     // (2a) Group Memberships are Multi valued CO Person attributes, but have all sorts
     // of special logic around them so they get their own code (code=g)
     
-    $ret['g:co_group_member'] = _txt('fd.group.grmem') . " (" . _txt('ct.co_people.1') . ")";
-    $ret['g:co_group_member_owner'] = _txt('fd.group.grmemown') . " (" . _txt('ct.co_people.1') . ")";
+    $ret[_txt('ct.co_people.1')]['g:co_group_member'] = _txt('fd.group.grmem');
+    $ret[_txt('ct.co_people.1')]['g:co_group_member_owner'] = _txt('fd.group.grmemown');
     
     // (3) Multi valued CO Person Role attributes (code=m)
     
@@ -198,55 +198,55 @@ class CoEnrollmentAttribute extends AppModel {
     $telephoneNumberTypes = $TelephoneNumber->types($coid, 'type');
     
     foreach(array_keys($telephoneNumberTypes) as $k)
-      $ret['m:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $telephoneNumberTypes[$k] . ", " . _txt('ct.co_person_roles.1') . ")";
+      $ret[_txt('ct.co_person_roles.1')]['m:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $telephoneNumberTypes[$k] . ")";
     
     $Address = ClassRegistry::init('Address');
     $addressTypes = $Address->types($coid, 'type');
     
     foreach(array_keys($addressTypes) as $k)
-      $ret['m:address:'.$k] = _txt('fd.address') . " (" . $addressTypes[$k] . ", " . _txt('ct.co_person_roles.1') . ")";
+      $ret[_txt('ct.co_person_roles.1')]['m:address:'.$k] = _txt('fd.address') . " (" . $addressTypes[$k] . ")";
     
     // (4) CO Person Role Extended attributes (code=x)
     
     $extAttrs = $this->CoEnrollmentFlow->Co->CoExtendedAttribute->findAllByCoId($coid);
     
     foreach($extAttrs as $e)
-      $ret['x:' . $e['CoExtendedAttribute']['name']] = $e['CoExtendedAttribute']['display_name'] . " (" . _txt('ct.co_person_roles.1') . ")";
+      $ret[_txt('ct.co_person_roles.1')]['x:' . $e['CoExtendedAttribute']['name']] = $e['CoExtendedAttribute']['display_name'];
     
     $cmpEnrollmentConfiguration = ClassRegistry::init('CmpEnrollmentConfiguration');
     
     if($cmpEnrollmentConfiguration->orgIdentitiesFromCOEF()) {
       // (5) Single valued Org Identity attributes, if enabled (code=o)
       
-      $ret['o:affiliation'] = _txt('fd.affiliation') . " (" . _txt('ct.org_identities.1') . ")";
-      $ret['o:title'] = _txt('fd.title') . " (" . _txt('ct.org_identities.1') . ")";
-      $ret['o:o'] = _txt('fd.o') . " (" . _txt('ct.org_identities.1') . ")";
-      $ret['o:ou'] = _txt('fd.ou') . " (" . _txt('ct.org_identities.1') . ")";
+      $ret[_txt('ct.org_identities.1')]['o:affiliation'] = _txt('fd.affiliation');
+      $ret[_txt('ct.org_identities.1')]['o:title'] = _txt('fd.title');
+      $ret[_txt('ct.org_identities.1')]['o:o'] = _txt('fd.o');
+      $ret[_txt('ct.org_identities.1')]['o:ou'] = _txt('fd.ou');
       
       // (6) Multi valued Org Identity attributes, if enabled (code=i)
       // Note that since org identities don't support extended types, we use default values here.
       
       foreach(array_keys($cm_texts[ $cm_lang ]['en.name.type']) as $k)
-        $ret['i:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        $ret[_txt('ct.org_identities.1')]['i:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name.type'][$k] . ")";
       
       foreach(array_keys($cm_texts[ $cm_lang ]['en.identifier.type']) as $k)
-        $ret['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $cm_texts[ $cm_lang ]['en.identifier.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        $ret[_txt('ct.org_identities.1')]['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $cm_texts[ $cm_lang ]['en.identifier.type'][$k] . ")";
       
       foreach(array_keys($cm_texts[ $cm_lang ]['en.address.type']) as $k)
-        $ret['i:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.address.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        $ret[_txt('ct.org_identities.1')]['i:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.address.type'][$k] . ")";
       
       foreach(array_keys($cm_texts[ $cm_lang ]['en.email_address.type']) as $k)
-        $ret['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.email_address.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        $ret[_txt('ct.org_identities.1')]['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.email_address.type'][$k] . ")";
         
       foreach(array_keys($cm_texts[ $cm_lang ]['en.telephone_number.type']) as $k)
-        $ret['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        $ret[_txt('ct.org_identities.1')]['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ")";
         
       foreach(array_keys($cm_texts[ $cm_lang ]['en.url.type']) as $k)
-        $ret['i:url:'.$k] = _txt('fd.url.url') . " (" . $cm_texts[ $cm_lang ]['en.url.type'][$k] . ", " . _txt('ct.org_identities.1') . ")";
+        $ret[_txt('ct.org_identities.1')]['i:url:'.$k] = _txt('fd.url.url') . " (" . $cm_texts[ $cm_lang ]['en.url.type'][$k] . ")";
     }
     
     // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
-    $ret['e:textfield'] = _txt('fd.pt.textfield');
+    $ret[_txt('ct.petitions.1')]['e:textfield'] = _txt('fd.pt.textfield');
     
     return($ret);
   }
