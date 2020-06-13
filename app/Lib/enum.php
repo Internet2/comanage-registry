@@ -550,6 +550,10 @@ class ProvisioningActionEnum
   const CoPersonReprovisionRequested    = 'PR';
   const CoPersonUnexpired               = 'PY';
   const CoPersonUpdated                 = 'PU';
+  const CoServiceAdded                  = 'SA';
+  const CoServiceDeleted                = 'SD';
+  const CoServiceReprovisionRequested   = 'SR';
+  const CoServiceUpdated                = 'SU';
 }
 
 // The status of a provisioned target

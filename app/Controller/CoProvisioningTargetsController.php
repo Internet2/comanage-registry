@@ -180,7 +180,7 @@ class CoProvisioningTargetsController extends StandardController {
     }
     
     return true;
-  }
+  }  
   
   /**
    * Authorization for this Controller, called by Auth component
@@ -315,6 +315,10 @@ class CoProvisioningTargetsController extends StandardController {
         $sId = $this->request->params['named']['coemaillistid'];
         $sModel = 'CoEmailList';
         $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
+      } elseif(!empty($this->request->params['named']['coserviceid'])) {
+        $sId = $this->request->params['named']['coserviceid'];
+        $sModel = 'CoService';
+        $sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
       } else {
         $this->Api->restResultHeader(500, "Bad Request");
       }
@@ -344,7 +348,10 @@ class CoProvisioningTargetsController extends StandardController {
                                                                   ($sModel == 'CoPerson' ? $sId : null),
                                                                   ($sModel == 'CoGroup' ? $sId : null),
                                                                   $sAction,
-                                                                  ($sModel == 'CoEmailList' ? $sId : null));
+                                                                  ($sModel == 'CoEmailList' ? $sId : null),
+                                                                  null, // CoGroupMemberId
+                                                                  null, // ActorCoPersonId
+                                                                  ($sModel == 'CoService' ? $sId : null));
       }
       catch(InvalidArgumentException $e) {
         switch($e->getMessage()) {

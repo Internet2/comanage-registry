@@ -78,7 +78,7 @@ class ProvisionerJob extends CoJobBackend {
     $modelsTodo = array($params['record_type']);
     
     if($params['record_type'] == 'All') {
-      $modelsTodo = array('CoEmailList', 'CoGroup', 'CoPerson');
+      $modelsTodo = array('CoEmailList', 'CoGroup', 'CoPerson', 'CoService');
     }
     
     // Track number of results
@@ -111,6 +111,9 @@ class ProvisionerJob extends CoJobBackend {
           break;
         case 'CoPerson':
           $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
+          break;
+        case 'CoService':
+          $sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
           break;
         default:
           throw new LogicException('NOT IMPLEMENTED');
@@ -234,7 +237,10 @@ class ProvisionerJob extends CoJobBackend {
                               ($Model->name == 'CoPerson' ? $rid : null),
                               ($Model->name == 'CoGroup' ? $rid : null),
                               $action,
-                              ($Model->name == 'CoEmailList' ? $rid : null));
+                              ($Model->name == 'CoEmailList' ? $rid : null),
+                              null, // CoGroupMemberId
+                              null, // ActorCoPersonId
+                              ($Model->name == 'CoService' ? $rid : null));
                               
       $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                          $rid,

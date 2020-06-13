@@ -34,7 +34,8 @@ abstract class CoProvisionerPluginTarget extends AppModel {
    *
    * @since  COmanage Registry v0.8
    * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
-   * @param  Model   $Model                  Model being queried for status (eg: CoPerson, CoGroup, CoEmailList)
+   * @param  Model   $Model                  Model being queried for status (eg: CoPerson, CoGroup,
+   *                                          CoEmailList, COService)
    * @param  Integer $id                     $Model ID to check status for
    * @return Array ProvisioningStatusEnum, Timestamp of last update in epoch seconds, Comment
    * @throws InvalidArgumentException If $coPersonId not found

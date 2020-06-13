@@ -83,6 +83,12 @@ class ProvisionerBehavior extends ModelBehavior {
 
         return $this->determineProvisioning($model, false, ProvisioningActionEnum::CoEmailListDeleted, $actorCoPersonId);
       }
+      if($model->name == 'CoService') {
+        // We also want an explicit Delete operation for CoService
+        $model->data = $model->cacheData;
+
+        return $this->determineProvisioning($model, false, ProvisioningActionEnum::CoServiceDeleted);
+      }
       
       if($model->name == 'CoGroupMember') {
         // For CoGroupMember, we need to restore the model data to have access to
@@ -214,6 +220,7 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if(($model->name == 'CoGroup'
         || $model->name == 'CoPerson'
+        || $model->name == 'CoService'
         || $model->name == 'Identifier')
        // This will only be set on edit, not add
        && !empty($model->data[ $model->alias ]['id'])) {
@@ -246,6 +253,7 @@ class ProvisionerBehavior extends ModelBehavior {
 
     // For our initial implementation, one of the following must be true for $model:
     //  - The model is CoEmailAddress
+    //  - the model is CoService
     //  - The model is CoGroup
     //  - The model is CoPerson
     //  - The model belongs to CoPerson, and co_person_id is set
@@ -274,6 +282,15 @@ class ProvisionerBehavior extends ModelBehavior {
       // back into logic below (which handle eg saveField)
       $this->provisionEmailLists($model, array($model->id), $created, $provisioningAction, $actorCoPersonId);
       
+      return true;
+    }
+    if($model->name == 'CoService') {
+      // We can short-circuit the bulk of logic here
+
+      // XXX note we only need to look at $id right now. if we need other attributes, merge
+      // back into logic below (which handle eg saveField)
+      $this->provisionServices($model, array($model->id), $created, $provisioningAction);
+
       return true;
     }
     
@@ -623,18 +640,21 @@ class ProvisionerBehavior extends ModelBehavior {
           // will interfere with the delete).
           
           if($pAction != ProvisioningActionEnum::CoEmailListDeleted
+             && $pAction != ProvisioningActionEnum::CoServiceDeleted
              && $pAction != ProvisioningActionEnum::CoGroupDeleted
              && $pAction != ProvisioningActionEnum::CoPersonDeleted) {
             $pluginModel->CoProvisioningTarget->CoProvisioningExport->record(
               $coProvisioningTarget['CoProvisioningTarget']['id'],
               !empty($provisioningData['CoPerson']['id']) ? $provisioningData['CoPerson']['id'] : null,
               !empty($provisioningData['CoGroup']['id']) ? $provisioningData['CoGroup']['id'] : null,
-              !empty($provisioningData['CoEmailList']['id']) ? $provisioningData['CoEmailList']['id'] : null
+              !empty($provisioningData['CoEmailList']['id']) ? $provisioningData['CoEmailList']['id'] : null,
+              !empty($provisioningData['CoService']['id']) ? $provisioningData['CoService']['id'] : null
             );
           }
           
           // Cut a history record if we're provisioning a record (and not deleting it).
-          
+          // CoService does not have history records, so we can skip that
+
           if(!empty($provisioningData['CoEmailList']['id'])
              && $pAction != ProvisioningActionEnum::CoEmailListDeleted) {
             // It's a bit of a walk to get to HistoryRecord
@@ -687,6 +707,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                               ? $provisioningData['CoGroup']['id'] : null),
                                              (!empty($provisioningData['CoEmailList']['id'])
                                               ? $provisioningData['CoEmailList']['id'] : null),
+                                             (!empty($provisioningData['CoService']['id'])
+                                              ? $provisioningData['CoService']['id'] : null),
                                              $e->getMessage(),
                                              $actorCoPersonId);
           
@@ -700,6 +722,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                               ? $provisioningData['CoGroup']['id'] : null),
                                              (!empty($provisioningData['CoEmailList']['id'])
                                               ? $provisioningData['CoEmailList']['id'] : null),
+                                             (!empty($provisioningData['CoService']['id'])
+                                              ? $provisioningData['CoService']['id'] : null),
                                              $e->getMessage(),
                                              $actorCoPersonId);
           
@@ -823,7 +847,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                   $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
                                   $coEmailListId=null,
                                   $coGroupMemberId=null,
-                                  $actorCoPersonId=null) {
+                                  $actorCoPersonId=null,
+                                  $coServiceId=null) {
     // First marshall the provisioning data
     $provisioningData = array();
     
@@ -841,6 +866,9 @@ class ProvisionerBehavior extends ModelBehavior {
       } elseif($coEmailListId) {
         // $model = CoEmailList
         $provisioningData = $this->marshallCoEmailListData($model, $coEmailListId);
+      } elseif($coServiceId) {
+        // $model = CoService
+        $provisioningData = $this->marshallCoServiceData($model, $coServiceId);
       }
       // XXX We don't currently support manual provisioning of 
       // CoGroupMember+coProvisioningTargetId because we don't have a use case
@@ -891,6 +919,8 @@ class ProvisionerBehavior extends ModelBehavior {
         $model->id = $coGroupMemberId;
       } elseif($model->name == 'CoEmailList' && $coEmailListId) {
         $model->id = $coEmailListId;
+      } elseif($model->name == 'CoService' && $coServiceId) {
+        $model->id = $coServiceId;
       }
       
       return $this->determineProvisioning($model, false, $provisioningAction, $actorCoPersonId);
@@ -899,6 +929,24 @@ class ProvisionerBehavior extends ModelBehavior {
     return true;
   }
   
+  /**
+   * Assemble CO Service Data to pass to provisioning plugin(s).
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Model $coServiceModel CO Service Model instance
+   * @param  integer $coServiceId CO Service to (re)provision
+   * @return Array Array of CO Service Data, as returned by find
+   * @throws InvalidArgumentException
+   */
+
+  private function marshallCoServiceData($coServiceModel, $coServiceId) {
+    $args = array();
+    $args['conditions']['CoService.id'] = $coServiceId;
+    $args['contain'] = false;
+
+    return $coServiceModel->find('first', $args);
+  }
+
   /**
    * Assemble CO Email List Data to pass to provisioning plugin(s).
    *
@@ -1228,6 +1276,55 @@ class ProvisionerBehavior extends ModelBehavior {
   }
   
   /**
+   * Provision services.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Object                 $model              Invoking model
+   * @param  Array                  $coServiceIds       Array of Service IDs to provision
+   * @param  Boolean                $created            As passed to afterSave()
+   * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+
+  protected function provisionServices($model, $coServiceIds, $created, $provisioningAction) {
+    foreach($coServiceIds as $coServiceId) {
+      $coService = $this->marshallCoServiceData($model, $coServiceId);
+
+      if(empty($coService)) {
+        // XXX here and below (People/Groups), do we really want to abort if only one entry is not found?
+        throw new InvalidArgumentException($e->getMessage());
+      }
+
+      $paction = $provisioningAction ? $provisioningAction : ProvisioningActionEnum::CoServiceUpdated;
+
+      if($created) {
+        $paction = ProvisioningActionEnum::CoServiceAdded;
+      }
+
+      // Invoke all provisioning plugins
+
+      try {
+        $this->invokePlugins($model,
+                             $coService,
+                             $paction);
+      }
+      // What we really want to do here is catch the result (success or exception)
+      // and set the appropriate session flash message, but we don't have access to
+      // the current session, and anyway that doesn't cover RESTful interactions.
+      // So instead we syslog (which is better than nothing).
+      catch(InvalidArgumentException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new InvalidArgumentException($e->getMessage());
+      }
+      catch(RuntimeException $e) {
+        syslog(LOG_ERR, $e->getMessage());
+        //throw new RuntimeException($e->getMessage());
+      }
+    }
+  }
+
+  /**
    * Provision email lists.
    *
    * @since  COmanage Registry v3.1.0
@@ -1447,13 +1544,14 @@ class ProvisionerBehavior extends ModelBehavior {
                                                  $targetCoPersonId,
                                                  $targetCoGroupId,
                                                  $targetCoEmailListId,
+                                                 $targetCoServiceId,
                                                  $msg,
                                                  $actorCoPersonId) {
     $Co = ClassRegistry::init('Co');
     
-    if(!$targetCoEmailListId) {
-      // Notifications don't currently have CO Email Lists has subjects,
-      // so we only register notifications for people and groups.
+    if(!$targetCoEmailListId && !$targetCoServiceId) {
+      // Notifications don't currently have CO Email Lists or CoServices
+      // as subjects, so we only register notifications for people and groups.
       
       // We need to pull the admin group to notify
       $args = array();
@@ -1502,7 +1600,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                            ActionEnum::ProvisionerFailed,
                                            _txt('er.prov.plugin', array($coProvisionerTarget['description'], $msg)),
                                            $targetCoGroupId,
-                                           $targetCoEmailListId);
+                                           $targetCoEmailListId,
+                                           $targetCoServiceId);
     }
     catch(Exception $e) {
       // Unclear what we should be do here

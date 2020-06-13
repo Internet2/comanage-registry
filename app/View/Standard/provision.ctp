@@ -69,6 +69,17 @@
     $this->Html->addCrumb($co_email_list['CoEmailList']['name'], $args);
     
     $requestType = 'CoEmailListProvisioning';
+  } elseif(!empty($co_service)) {
+    $this->Html->addCrumb(_txt('ct.co_services.pl'), $args);
+
+    $args = array(
+      'controller' => 'co_services',
+      'action' => 'edit',
+      $co_service['CoService']['id']
+    );
+    $this->Html->addCrumb($co_service['CoService']['name'], $args);
+
+    $requestType = 'CoServiceProvisioning';
   }
   $this->Html->addCrumb(_txt('op.prov.view'));
 ?>
@@ -265,6 +276,8 @@
               $url['cogroupid'] = $co_group['CoGroup']['id'] . ".json";
             } elseif(!empty($co_email_list)) {
               $url['coemaillistid'] = $co_email_list['CoEmailList']['id'] . ".json";
+            } elseif(!empty($co_service)) {
+              $url['coserviceid'] = $co_service['CoService']['id'] . ".json";
             }
 
             print '<a class="provisionbutton"

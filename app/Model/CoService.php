@@ -34,6 +34,7 @@ class CoService extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
+                         'Provisioner',
                          'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models

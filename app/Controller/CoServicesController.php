@@ -196,6 +196,9 @@ class CoServicesController extends StandardController {
     // View all existing CO Service?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Provision a CO Service?
+    $p['provision'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     // Join the group associated with a CO Service?
     $p['join'] = $roles['comember'];
     
@@ -328,5 +331,31 @@ class CoServicesController extends StandardController {
   
   public function portal() {
     $this->set('title_for_layout', _txt('ct.co_services.pl'));
+  }
+
+  /**
+   * Obtain provisioning status for a Service
+   *
+   * @param  integer CO Group ID
+   * @since  COmanage Registry v3.3.0
+   */
+
+  function provision($id) {
+    if(!$this->request->is('restful')) {
+      // Pull some data for the view to be able to render
+      $this->set('co_provisioning_status', $this->CoService->provisioningStatus($id));
+
+      $args = array();
+      $args['conditions']['CoService.id'] = $id;
+      $args['contain'] = false;
+
+      $elist = $this->CoService->find('first', $args);
+
+      $this->set('co_service', $elist);
+
+      if(!empty($elist['CoService']['name'])) {
+        $this->set('title_for_layout', _txt('fd.prov.status.for', array($elist['CoService']['name'])));
+      }
+    }
   }
 }

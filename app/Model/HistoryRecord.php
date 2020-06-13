@@ -187,13 +187,15 @@ class HistoryRecord extends AppModel {
                          $action,
                          $comment=null,
                          $coGroupID=null,
-                         $coEmailListId = null) {
+                         $coEmailListId = null,
+                         $coServiceId = null) {
     $historyData = array();
     $historyData['HistoryRecord']['co_person_id'] = $coPersonID;
     $historyData['HistoryRecord']['co_person_role_id'] = $coPersonRoleID;
     $historyData['HistoryRecord']['org_identity_id'] = $orgIdentityId;
     $historyData['HistoryRecord']['co_group_id'] = $coGroupID;
     $historyData['HistoryRecord']['co_email_list_id'] = $coEmailListId;
+    $historyData['HistoryRecord']['co_service_id'] = $coServiceId;
     $historyData['HistoryRecord']['actor_co_person_id'] = $actorCoPersonID;
     $historyData['HistoryRecord']['action'] = $action;
     
