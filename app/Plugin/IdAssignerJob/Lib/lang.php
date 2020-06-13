@@ -40,7 +40,9 @@ $cm_id_assigner_job_texts['en_US'] = array(
 //  'er.identifierenroller.read' => 'Cannot open source file "%1$s" for reading',
   
   // Plugin texts
-  'pl.idassignerjob.arg.co_person_id' => 'CO Person ID to assign identifiers for',
-  'pl.idassignerjob.finish' => 'Processed %1$s record(s)',
+  'pl.idassignerjob.arg.object_type' => 'Object Type to assign identifiers for',
+  'pl.idassignerjob.arg.object_id' => 'CO Person ID to assign identifiers for',
+  'pl.idassignerjob.count' => 'Assigning Identifiers for %1$s %2$s record(s)',
+  'pl.idassignerjob.finish' => 'Processed %1$s total record(s)',
   'pl.idassignerjob.start'  => 'Assigning identifiers'
 );

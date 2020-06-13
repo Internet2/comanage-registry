@@ -139,8 +139,6 @@
     </tr>
     <tr>
       <td colspan="4"></td>
-      <td>
-      </td>
     </tr>
   </tfoot>
 </table>

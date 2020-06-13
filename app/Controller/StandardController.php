@@ -188,7 +188,7 @@ class StandardController extends AppController {
   public function beforeRender() {
     $mName = $this->modelClass;
     
-    if($mName == 'CoPerson' || $mName == 'OrgIdentity') {
+    if($mName == 'CoPerson' || $mName == 'OrgIdentity' || $mName == 'CoGroupMember') {
       // Populate list of statuses for people searches
       
       global $cm_lang, $cm_texts;
@@ -212,6 +212,25 @@ class StandardController extends AppController {
     }
     
     parent::beforeRender();
+  }
+
+    /**
+   * Callback before other controller methods are invoked or views are rendered.
+   *
+   * @since  COmanage Registry v3.3
+   */
+
+  function beforeFilter() {
+    parent::beforeFilter();
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+    // Apply the rule only when the validateExtendedType function is used as a custom rule
+    $model = $this->modelClass;
+    if(!empty($this->$model->validate['type']['content']['rule'])
+       && array_search('validateExtendedType', $this->$model->validate['type']['content']['rule'], true) !== null) {
+      $vrule = $this->$model->validate['type']['content']['rule'];
+      $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+      $this->$model->validator()->getField('type')->getRule('content')->rule = $vrule;
+    }
   }
   
   /**
@@ -745,6 +764,20 @@ class StandardController extends AppController {
         }
         
         $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $args)));
+      } elseif(!empty($model->permittedApiFilters)
+               && !empty(array_intersect_key($model->permittedApiFilters, $this->params['url']))) {
+        // We are filtering on a plugin specific key
+        $keys = array_intersect_key($model->permittedApiFilters, $this->params['url']);
+        
+        $args = array();
+        foreach(array_keys($keys) as $k) {
+          if(!empty($this->params['url'][$k])) {
+            $args['conditions'][$model->name.'.'.$k] = $this->params['url'][$k];
+          }
+        }
+        $args['contain'] = false;
+        
+        $this->set($modelpl, $this->Api->convertRestResponse($model->find('all', $args)));
       } elseif($this->requires_person
                // XXX This is a bit of a hack, we should really refactor this
                || $req == 'CoOrgIdentityLink'
@@ -771,6 +804,31 @@ class StandardController extends AppController {
               $this->Api->restResultHeader(404, "CO Department Unknown");
             } else {
               $this->Api->restResultHeader(204, "CO Department Has No " . $req);
+            }
+            
+            return;
+          }
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } elseif(!empty($this->params['url']['cogroupid'])) {
+          $args = array();
+          $args['conditions'][$model->name . '.co_group_id'] = $this->params['url']['cogroupid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
+          
+          if(empty($t)) {
+            // We need to determine if cogroupid is unknown or just
+            // has no objects attached to it
+            
+            $args = array();
+            $args['conditions']['CoGroup.id'] = $this->params['url']['cogroupid'];
+            $args['contain'] = false;
+            
+            if(!$model->CoGroup->find('count', $args)) {
+              $this->Api->restResultHeader(404, "CO Group Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "CO Group Has No " . $req);
             }
             
             return;

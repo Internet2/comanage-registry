@@ -64,7 +64,7 @@ class CoPeopleController extends StandardController {
     'Identifier' => array('CoProvisioningTarget',
                           'SourceIdentifier' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Name' => array('SourceName' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
-    'PrimaryName',
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
     'Url' => array('SourceUrl' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
   );
   
@@ -122,6 +122,8 @@ class CoPeopleController extends StandardController {
       
       $args = array();
       $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoPerson;
+      $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
       $args['contain'] = false;
       
       $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
@@ -154,6 +156,14 @@ class CoPeopleController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_authenticator_count', $this->Co->Authenticator->find('count', $args));
+      
+      // Are any clusters defined for this CO?
+      
+      $args = array();
+      $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'] = false;
+      
+      $this->set('vv_cluster_count', $this->Co->Cluster->find('count', $args));
     }
     
     parent::beforeRender();
@@ -429,6 +439,85 @@ class CoPeopleController extends StandardController {
   }
   
   /**
+   * Perform a "keyword" search for CO People, sort of like the CO Dashboard
+   * cross controller search, but intended specifically for "people finder"
+   * search while you type API calls.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+
+  public function find() {
+    $coPersonIds = array();
+    
+    // What search mode should we use?
+    if(empty($this->request->params['named']['mode'])) {
+      $this->Api->restResultHeader(400, "Mode Not Specified");
+      return;
+    }
+    
+    $mode = $this->request->params['named']['mode'];
+    
+    // jquery Autocomplete sends the search as url?term=foo
+    if(!empty($this->request->query['term'])) {
+      // Leverage model specific keyword search
+      
+      // Note EmailAddress and Identifier don't support substring search
+      foreach(array('Name', 'EmailAddress', 'Identifier') as $m) {
+        $hits = $this->CoPerson->$m->search($this->cur_co['Co']['id'], $this->request->query['term']);
+        
+        $coPersonIds = array_merge($coPersonIds, Hash::extract($hits, '{n}.CoPerson.id'));
+      }
+    }
+    
+    $coPersonIds = array_unique($coPersonIds);
+    
+    // Look up additional information to provide hints as to which person is which.
+    // We only do this when there are relatively small numbers of results to
+    // avoid making a bunch of database queries early in the search.
+  
+    $matches = array();
+    
+    if(count($coPersonIds) > 100) {
+      // We don't return large sets to avoid slow performance
+      
+      $matches[] = array(
+        'value' => -1,
+        'label' => _txt('er.picker.toomany')
+      );
+    } else {
+      $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
+      
+      foreach($people as $p) {
+        $label = generateCn($p['PrimaryName']);
+        
+        $id = Hash::extract($p['Identifier'], '{n}[type=uid]');
+        
+        if(!empty($id[0]['identifier'])) {
+          $label .= " (" . $id[0]['identifier'] . ")";
+        }
+        
+        // Make sure we don't already have an entry for this CO Person ID
+        if(!Hash::check($matches, '{n}[value='.$p['CoPerson']['id'].']')) {
+          $matches[] = array(
+            'value' => $p['CoPerson']['id'],
+            'label' => $label
+          );
+        }
+      }
+    }
+    
+    // We're really semi-RESTful here from the framework perspective, since
+    // the query URL does not end in .json. We manually adjust some settings
+    // to generate a JSON result, but some other results (errors, specifically)
+    // will generate redirects rathen than proper HTTP result codes.
+    
+    $this->set('vv_co_people', $matches);
+    $this->layout = 'ajax';
+    $this->response->type('json');
+    $this->render('/CoPeople/json/find');
+  }
+  
+  /**
    * Generate a display key to be used in messages such as "Item Added".
    *
    * @since  COmanage Registry v0.1
@@ -526,12 +615,17 @@ class CoPeopleController extends StandardController {
    */
 
   public function index() {
+    if(!empty($this->request->query)) {
+      $requestKeys = array_keys($this->request->query);
+      $coidKey = array_search('coid', $requestKeys);
+      if($coidKey !== null) {
+        unset($requestKeys[$coidKey]);
+      }
+    }
     // We need to check if we're being asked to do a match via the REST API, and
     // if so dispatch it. Otherwise, just invoke the standard behavior.
-    
     if($this->request->is('restful')
-       && (isset($this->request->query['given'])
-           || isset($this->request->query['family']))) {
+       && sizeof($requestKeys)>0) {
       $this->match();
     } else {
       parent::index();
@@ -661,6 +755,16 @@ class CoPeopleController extends StandardController {
     // Are we allowed to edit our own record?
     // If we're an admin, we act as an admin, not self.
     $p['editself'] = $self && !$roles['cmadmin'] && !$roles['coadmin'] && !$roles['couadmin'];
+    
+    // "Find" a CO Person (for use in People Finder API calls)
+    // XXX we'll need more flexible permissions for regular CO Person searches
+    // (ie: for group member picking, but maybe that's an RFE as part of CCWG-9?)
+    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'];
+    
+    // View identifiers? This correlates with IdentifiersController
+    $p['identifiers'] = ($roles['cmadmin']
+                         || $roles['coadmin']
+                         || ($managed && $roles['couadmin']));
     
     // View history? This correlates with HistoryRecordsController
     $p['history'] = ($roles['cmadmin']
@@ -821,40 +925,45 @@ class CoPeopleController extends StandardController {
       }
     }
   }
-  
+
   /**
    * Perform a match against existing records.
    *
    * @since  COmanage Registry v0.5
    */
-  
+
   public function match() {
-    $criteria['Name.given'] = "";
-    $criteria['Name.family'] = "";
-    
+    // XXX We didn't validate CO ID exists here. (This is normally done by
+    // StandardController.)
+    $reqData = ($this->request->is('restful')) ? $this->request->query : $this->request->params['named'];
+    // Extract the coId
+    $coId = !empty($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : $this->reqData['coid'];
+    // This will be triggered only for the case of Platform API User. For CO API Users if no coId is available
+    // an HTTP 401 authentication will be returned
+    if (!isset($coId) && $this->request->is('restful')) {
+      $this->Api->restResultHeader(404, 'CO Unknown');
+      return;
+    }
+    // Validate the request data
+    // TODO: move to the format below as soon as we upgrade to php7.1 or greater
+    // list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
+    $criteria = $this->CoPerson->validateRequestData($reqData);
+    if ($criteria[1] > 0 && $this->request->is('restful')) {
+      $this->Api->restResultHeader(400, 'Invalid fields');
+      return;
+    }
+    if ($criteria[2] > 0 && $this->request->is('restful')) {
+      $this->Api->restResultHeader(422, 'Unprocessable Entity');
+      return;
+    }
+    // Get the matches
+    $matches = $this->CoPerson->match($coId, $criteria[0]);
+
+    // Assign the matches
     if($this->request->is('restful')) {
-      if(isset($this->request->query['given'])) {
-        $criteria['Name.given'] = $this->request->query['given'];
-      }
-      if(isset($this->request->query['family'])) {
-        $criteria['Name.family'] = $this->request->query['family'];
-      }
-      
-      // XXX We didn't validate CO ID exists here. (This is normally done by
-      // StandardController.)
-      
-      $this->set('co_people',
-                 $this->Api->convertRestResponse($this->CoPerson->match($this->request->query['coid'],
-                                                                        $criteria)));
+      $this->set('co_people',$this->Api->convertRestResponse($matches));
     } else {
-      if(isset($this->params['named']['given'])) {
-        $criteria['Name.given'] = $this->params['named']['given'];
-      }
-      if(isset($this->params['named']['family'])) {
-        $criteria['Name.family'] = $this->params['named']['family'];
-      }
-      
-      $this->set('matches', $this->CoPerson->match($this->cur_co['Co']['id'], $criteria));
+      $this->set('matches', $matches);
     }
   }
 
@@ -1078,13 +1187,37 @@ class CoPeopleController extends StandardController {
       
       // But we also need to pass a bit extra data (and also for the confirmation page)
       
+      // XXX maybe move this to Lib/util?
+      function getPrimaryName($names) {
+        $pn = Hash::extract($names, '{n}[primary_name=true]');
+        
+        // Hash returns an array
+        if(!empty($pn)) {
+          return $pn[0];
+        }
+        
+        return null;
+      }
+      
       if(!empty($this->request->params['named']['linkid'])) {
         $args = array();
         $args['conditions']['CoOrgIdentityLink.id'] = $this->request->params['named']['linkid'];
-        $args['contain']['CoPerson'] = 'PrimaryName';
-        $args['contain']['OrgIdentity'] = array('CoPetition', 'PrimaryName');
+        // Containable isn't pulling the PrimaryName, just the first one,
+        // so we pull all names and then fix up the result manually.
+        //$args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['CoPerson'] = 'Name';
+        $args['contain']['OrgIdentity'] = array('CoPetition', 'Name');
         
-        $this->set('vv_co_org_identity_link', $this->CoPerson->CoOrgIdentityLink->find('first', $args));
+        $r = $this->CoPerson->CoOrgIdentityLink->find('first', $args);
+        
+        foreach(array('CoPerson', 'OrgIdentity') as $m) {
+          if(!empty($r[$m]['Name'])) {
+            $r[$m]['PrimaryName'] = getPrimaryName($r[$m]['Name']);
+            unset($r[$m]['Name']);
+          }
+        }
+        
+        $this->set('vv_co_org_identity_link', $r);
       }
       
       if(!empty($this->request->params['named']['copersonroleid'])) {
@@ -1108,24 +1241,42 @@ class CoPeopleController extends StandardController {
   }
   
   /**
-   * Insert search parameters into URL for index.
+   * Insert search parameters into URL for index, select, or relink views.
    * - postcondition: Redirect generated
    *
    * @since  COmanage Registry v0.8
    */
   
   public function search() {
-    // If a petition ID is provided, we're in select mode
+    // Construct the URL based on the action mode we're in (select, relink, index)
     if(!empty($this->data['CoPetition']['id'])) {
+      
+      // If a petition ID is provided, we're in select mode
+      // XXX: search now passes the action name explicitly as data['CoPerson']['currentAction'] - could use that to test
       $url['action'] = 'select';
       $url['copetitionid'] = filter_var($this->data['CoPetition']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+      
+    } elseif($this->data['CoPerson']['currentAction'] == 'relink') {
+      
+      // relink mode
+      $url['action'] = 'relink';
+      array_push($url, filter_var($this->data['Relink']['id'], FILTER_SANITIZE_SPECIAL_CHARS));
+      
+      // the following two parameters are mutually exclusive for the two types of relinking (orgid and role)
+      if(!empty($this->data['Relink']['orgidlinkid'])) {
+        $url['linkid'] = filter_var($this->data['Relink']['orgidlinkid'], FILTER_SANITIZE_SPECIAL_CHARS);
+      } elseif(!empty($this->data['Relink']['roleid'])) {
+        $url['copersonroleid'] = filter_var($this->data['Relink']['roleid'], FILTER_SANITIZE_SPECIAL_CHARS);
+      }
+      
     } else {
       // Back to the index
       $url['action'] = 'index';
+      // Add CO to the URL. Note this also prevents truncation of email address searches (CO-1271).
+      $url['co'] = $this->cur_co['Co']['id'];
     }
     
-    // build a URL will all the search elements in it
-    // the resulting URL will be 
+    // Append the URL with all the search elements; the resulting URL will be similar to
     // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
     foreach($this->data['Search'] as $field=>$value){
       if(!empty($value)) {
@@ -1133,11 +1284,6 @@ class CoPeopleController extends StandardController {
       }
     }
     
-    if($url['action'] == 'index') {
-      // Insert CO into URL. Note this also prevents truncation of email address searches (CO-1271).
-      $url['co'] = $this->cur_co['Co']['id'];
-    }
-
     // redirect the user to the url
     $this->redirect($url, null, true);
   }

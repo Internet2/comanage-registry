@@ -69,7 +69,7 @@
           $action = _txt('op.svc.leave');
           $args['action'] = 'leave';
           $attribs = array(
-            'class' => 'deletebutton ui-button ui-corner-all ui-widget',
+            'class' => 'co-card-link deletebutton ui-button ui-corner-all ui-widget',
           );
         } else {
           $action = _txt('op.svc.member');
@@ -81,7 +81,7 @@
           $action = _txt('op.svc.join');
           $args['action'] = 'join';
           $attribs = array(
-            'class' => 'addbutton ui-button ui-corner-all ui-widget',
+            'class' => 'co-card-link addbutton ui-button ui-corner-all ui-widget',
           );
         } else {
           // XXX CO-1057
@@ -90,32 +90,38 @@
         }
       }
     }
+
+    if(!empty($c['CoService']['service_url'])) {
+      $containerClass .= " co-card-linked";
+    }
     ?>
 
   <div class="co-card<?php print $containerClass ?>">
     <?php
        $filteredServiceName = filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
     ?>
-    <h2><?php print $filteredServiceName; ?></h2>
+    <h2>
+      <?php
+        // wrap the title with the URL if available; JavaScript will be used to make entire div clickable
+        if(!empty($c['CoService']['service_url'])) {
+          print $this->Html->link(
+            $c['CoService']['name'], // note that the link function does the filtering for us.
+            $c['CoService']['service_url'],
+            array(
+              'class' => 'co-card-link co-card-service-url',
+              'escape' => false,
+              'title' => $c['CoService']['service_url']
+            ));
+        } else {
+          // otherwise just print the name
+          print $filteredServiceName;
+        }
+      ?>
+    </h2>
     <div class="co-card-content">
       <?php if(!empty($c['CoService']['logo_url'])): ?>
         <div class="co-card-image">
-          <?php
-            // wrap the image with the URL if available
-            if(!empty($c['CoService']['service_url'])) {
-              print $this->Html->link(
-                $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo')),
-                $c['CoService']['service_url'],
-                array(
-                  'class' => 'co-card-link',
-                  'escape' => false,
-                  'title' => $c['CoService']['service_url']
-                ));
-            } else {
-              // otherwise just render the image
-              print $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo'));
-            }
-          ?>
+          <?php print $this->Html->image($c['CoService']['logo_url'], array('alt' => $filteredServiceName . ' Logo')); ?>
         </div>
       <?php endif; ?>
       <div class="co-card-description">
@@ -124,22 +130,13 @@
       <div class="co-card-icons">
         <?php
 
-          if(!empty($c['CoService']['service_url'])) {
-            print $this->Html->link('<em class="material-icons" aria-hidden="true">public</em>',
-              $c['CoService']['service_url'],
-              array(
-                'class' => 'co-card-link',
-                'escape' => false,
-                'title' => $c['CoService']['service_url']
-              ));
-          }
           if(!empty($c['CoService']['contact_email'])) {
             print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
               'mailto:'.$c['CoService']['contact_email'],
               array(
                 'class' => 'co-card-link',
                 'escape' => false,
-                'title' => 'mailto:'.$c['CoService']['contact_email']
+                'title' => _txt('fd.svc.mail.prefix', array($c['CoService']['contact_email']))
               ));
           }
 
@@ -169,3 +166,21 @@
   <?php endforeach; ?>
 
 </div>
+
+
+<script>
+  $(function() {
+    // make entire service card clickable
+    $(".co-card-linked").click(function () {
+      cardServiceUrl = $(this).find("a.co-card-service-url").attr("href");
+      if (cardServiceUrl != undefined && cardServiceUrl != "") {
+        window.location.href = cardServiceUrl;
+      }
+    });
+
+    // don't bubble the event if we've clicked on a child anchor
+    $(".co-card-linked a.co-card-link").click(function (e) {
+      e.stopPropagation();
+    });
+  });
+</script>

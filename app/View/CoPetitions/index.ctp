@@ -68,7 +68,7 @@
   print $this->element("pageTitleAndButtons", $params);
 ?>
 
-<fieldset id="statusFilters">
+<fieldset id="statusFilters" class="filters-box">
   <legend><?php print _txt('fd.status.filters'); ?></legend>
   <?php
   print $this->Form->create('CoPetition', array('url' => array('action'=>'search')));

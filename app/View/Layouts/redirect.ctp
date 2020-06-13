@@ -54,7 +54,7 @@
 
     <!-- Load JavaScript -->
     <?php /* only JQuery here - other scripts at bottom */
-      print $this->Html->script('jquery/jquery-3.2.1.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     ?>
 
@@ -111,6 +111,13 @@
     } else {
       $bodyClasses .= ' logged-out';
     }
+    if(!empty($vv_ui_mode)) {
+      if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
+        $bodyClasses .= ' ui-mode-basic';
+      } else {
+        $bodyClasses .= ' ui-mode-full';
+      }
+    }
     if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)) {
       $bodyClasses .=  ' with-user-defined-links';
     }
@@ -145,9 +152,6 @@
     <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
 
       <div id="top-menu">
-        <?php if($this->Session->check('Auth.User')): ?>
-          <div id="desktop-hamburger"><em class="material-icons">menu</em></div>
-        <?php endif; ?>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
           <div id="user-defined-links-top">
             <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
@@ -202,15 +206,20 @@
 
       </header>
 
-      <main id="main" class="mdl-layout__content">
+      <?php
+        $mainCssClasses = 'cm-main-full mdl-layout__content';
+        if(!empty($vv_ui_mode)) {
+          if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
+            $mainCssClasses = 'cm-main-basic';
+          }
+        }
+      ?>
+      <main id="main" class="<?php print $mainCssClasses; ?>">
 
         <div id="content" class="mdl-grid">
           <div id="content-inner" class="mdl-cell mdl-cell--12-col">
             <div id="redirect-box">
-              <div id="redirect-box-content">
-                <?php print $this->fetch('content'); ?>
-              </div>
-              <div id="redirect-spinner"></div>
+              <?php print $this->fetch('content'); ?>
             </div>
           </div>
         </div>

@@ -65,36 +65,59 @@ class IdentifiersController extends MVPAController {
    */  
   
   function assign() {
+    $objType = null; // "CoDepartment", "CoGroup", or "CoPerson"
+    $objId = null;   // $objType::id
+    
     if($this->request->is('restful')) {
       $this->Api->parseRestRequestDocument();
       
       $reqdata = $this->Api->getData();
       
       if(!empty($reqdata['co_person_id'])) {
-        $copersonid = $reqdata['co_person_id'];
+        $objType = 'CoPerson';
+        $objId = $reqdata['co_person_id'];
+      } elseif(!empty($reqdata['co_group_id'])) {
+        $objType = 'CoGroup';
+        $objId = $reqdata['co_group_id'];
+      } elseif(!empty($reqdata['co_department_id'])) {
+        $objType = 'CoDepartment';
+        $objId = $reqdata['co_department_id'];
       } else {
         $this->Api->restResultHeader(403, "No Person Specified");
         return;
       }
       
-      // Determine the CO ID from the CO Person ID
-      
-      $coid = $this->Identifier->CoPerson->field('co_id', array('CoPerson.id' => $copersonid));
+      $coid = $this->cur_co['Co']['id'];
     } else {
       // While the controller doesn't require_co, this method does.
       
+      // parseCOID (via calculateImpliedCoId) will use copersonid, cogroupid, or deptid to map the coid
       $coid = $this->parseCOID($this->request->data);
-      $copersonid = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
+      if(!empty($this->request->params['named']['copersonid'])) {
+        $objType = 'CoPerson';
+        $objId = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
+      } elseif(!empty($this->request->params['named']['cogroupid'])) {
+        $objType = 'CoGroup';
+        $objId = filter_var($this->request->params['named']['cogroupid'],FILTER_SANITIZE_SPECIAL_CHARS);
+      } elseif(!empty($this->request->params['named']['codeptid'])) {
+        $objType = 'CoDepartment';
+        $objId = filter_var($this->request->params['named']['codeptid'],FILTER_SANITIZE_SPECIAL_CHARS);
+      }
     }
-    
+
     if($coid != -1) {
       // Assign the identifiers, then walk through the result array and generate a flash message
-      $res = $this->Identifier->assign($coid, $copersonid, $this->Session->read('Auth.User.co_person_id'));
+      $res = $this->Identifier->assign($objType,
+                                       $objId,
+                                       $this->Session->read('Auth.User.co_person_id'),
+                                       // CoDepartment is not currently provisioned
+                                       ($objType != 'CoDepartment'));
       
       if(!empty($res)) {
         // Loop through the results and build result messages
         
         $errs = "";             // Unexpected errors
+        $errArray = array();    // ... and as an array for the API
         $assigned = array();    // Identifiers that were assigned
         $existed = array();     // Identifiers that already existed
         
@@ -105,12 +128,14 @@ class IdentifiersController extends MVPAController {
             $assigned[] = $type;
           } else {
             $errs .= $type . ": " . $res[$type] . "<br />\n";
+            $errArray[$type] = $res[$type];
           }
         }
         
         if($this->request->is('restful')) {
           if($errs != "") {
-            $this->Api->restResultHeader(500, $errs);
+            $this->set('vv_errors', $errArray);
+            $this->Api->restResultHeader(400, "Bad Request");
           } else {
             $this->Api->restResultHeader(200, "OK");
           }
@@ -145,10 +170,26 @@ class IdentifiersController extends MVPAController {
     }
     
     if(!$this->request->is('restful')) {
-      // Redirect to CO Person view
-      $rargs['controller'] = 'co_people';
-      $rargs['action'] = 'canvas';
-      $rargs[] = $copersonid;
+      // Redirect to CO Person or CO Group view
+      $rargs = array();
+      
+      switch($objType) {
+        case 'CoDepartment':
+          $rargs['controller'] = 'co_departments';
+          $rargs['action'] = 'edit';
+          $rargs[] = $objId;
+          break;
+        case 'CoGroup':
+          $rargs['controller'] = 'co_groups';
+          $rargs['action'] = 'edit';
+          $rargs[] = $objId;
+          break;
+        default:
+          $rargs['controller'] = 'co_people';
+          $rargs['action'] = 'canvas';
+          $rargs[] = $objId;
+          break;
+      }
       
       $this->redirect($rargs);
     }
@@ -195,7 +236,7 @@ class IdentifiersController extends MVPAController {
       }
     }
     
-    return parent::calculateImpliedCoId();
+    return parent::calculateImpliedCoId($data);
   }
   
   /**
@@ -215,28 +256,32 @@ class IdentifiersController extends MVPAController {
     // an OrgIdentity Source Record, or if it has a source identity.
     // As of the initial implementation, not even CMP admins can edit such a record.
     
+    $readOnly = false;
+    
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
-      $readOnly = false;
-      
-      $orgIdentityId = $this->Identifier->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
-      
-      if($orgIdentityId) {
-        $readOnly = $this->Identifier->OrgIdentity->readOnly($orgIdentityId);
+      $sourceAttributeId = (bool)$this->Identifier->field('source_identifier_id', array('id' => $this->request->params['pass'][0]));
+
+      if($sourceAttributeId) {
+        $readOnly = true;
       } else {
-        $readOnly = (bool)$this->Identifier->field('source_identifier_id', array('id' => $this->request->params['pass'][0]));
-      }
-      
-      if($readOnly) {
-        // Proactively redirect to view. This will also prevent (eg) the REST API
-        // from editing a read only record.
-        $args = array(
-          'controller' => 'identifiers',
-          'action'     => 'view',
-          filter_var($this->request->params['pass'][0])
-        );
+        $orgIdentityId = $this->Identifier->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
         
-        $this->redirect($args);
+        if($orgIdentityId) {
+          $readOnly = $this->Identifier->OrgIdentity->readOnly($orgIdentityId);
+        }
       }
+    }
+    
+    if($readOnly) {
+      // Proactively redirect to view. This will also prevent (eg) the REST API
+      // from editing a read only record.
+      $args = array(
+        'controller' => 'identifiers',
+        'action'     => 'view',
+        filter_var($this->request->params['pass'][0])
+      );
+      
+      $this->redirect($args);
     }
     
     // In order to manipulate an identifier, the authenticated user must have permission
@@ -288,7 +333,7 @@ class IdentifiersController extends MVPAController {
                  || $roles['coadmin'] 
                  || ($managed && $roles['couadmin']));
     
-    // Assign (autogenerate) Identifiers? (Same logic is in CoPeopleController)
+    // Assign (autogenerate) Identifiers? (Same logic is in CoPeopleController and CoGroupsController)
     $p['assign'] = ($roles['cmadmin']
                     || $roles['coadmin'] 
                     || ($managed && $roles['couadmin']));

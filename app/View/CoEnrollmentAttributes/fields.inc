@@ -250,6 +250,36 @@
       document.getElementById('CoEnrollmentAttributeCopyToCoperson').checked=false;
     }
   }
+  
+  <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
+  $(function() {
+    // Sponsor Auto-complete
+    $("#sponsors").autocomplete({
+      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
+      minLength: 3,
+      select: function(event, ui) {
+        $("#sponsors").val(ui.item.label);
+        document.getElementById('CoEnrollmentAttributeDefault0Value').value = ui.item.value;
+        //$("#def_sponsor_val").val(ui.item.value);
+        return false;
+      }
+    });
+
+    // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
+    $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
+      reset_sponsor();
+      $(this).closest(".cm-ief-val").hide();
+      $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+      $("#sponsors").focus();
+    });
+  });
+
+  function reset_sponsor() {
+    $("#sponsors").val("");
+    //$("#def_sponsor_val").val(null);
+    document.getElementById('CoEnrollmentAttributeDefault0Value').value = null;
+  }
+  <?php endif; //vv_sponsor_mode ?>
 </script>
 <?php
   // Determine if fields are editable
@@ -336,6 +366,7 @@
         </td>
         <td>
           <?php
+          $attrs = array();
           $attrs['value'] = (isset($co_enrollment_attributes)
             ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute']
             : null);
@@ -524,10 +555,12 @@
               <select name="def_cou_val"
                       id="def_cou_val"
                       onchange="set_attr_def_value('def_cou_val')">
-                <option value=""></option>
-                <?php foreach(array_keys($vv_cous) as $k): ?>
+                <?php if($vv_allow_empty_cou): ?>
+                  <option value=""></option>
+                <?php endif;?>
+                <?php foreach($permissions['cous'] as $k => $value): ?>
                   <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                    <?php print filter_var($vv_cous[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                    <?php print filter_var($value,FILTER_SANITIZE_SPECIAL_CHARS); ?>
                   </option>
                 <?php endforeach; ?>
               </select>
@@ -606,18 +639,63 @@
             <?php endif; ?>
           </div>
           <div id="attr_def_val_sponsor_div">
-            <?php if($e): ?>
-              <select name="def_sponsor_val"
-                      id="def_sponsor_val"
-                      onchange="set_attr_def_value('def_sponsor_val')">
-                <option value=""></option>
-                <?php foreach(array_keys($vv_sponsors) as $k): ?>
-                  <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
-                    <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
-                  </option>
-                <?php endforeach; ?>
-              </select>
-            <?php endif; ?>
+            <?php if($e && $vv_sponsor_mode != SponsorEligibilityEnum::None): ?>
+              <?php if(isset($vv_sponsors)): ?>
+                <!-- Use a simple dropdown -->
+                <select name="def_sponsor_val"
+                        id="def_sponsor_val"
+                        onchange="set_attr_def_value('def_sponsor_val')">
+                  <option value=""></option>
+                  <?php foreach(array_keys($vv_sponsors) as $k): ?>
+                    <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
+                      <?php print filter_var($vv_sponsors[$k],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              <?php else: // vv_sponsors ?>
+                <!-- Use a people picker -->
+                <div class="cm-inline-editable-field">
+                  <?php
+                    $inlineEditableFields['sponsor-val']['set'] = false;
+
+                    if(!empty($vv_sponsor)) {
+                      $inlineEditableFields['sponsor-val']['set'] = true;
+                      print '<div class="cm-ief-val">';
+
+                      print $this->Html->link(
+                        generateCn($vv_sponsor['PrimaryName']),
+                        array(
+                          'controller' => 'co_people',
+                          'action' => 'canvas',
+                          $vv_sponsor['CoPerson']['id']
+                        )
+                      );
+
+                      print $this->element('inlineEditControls', array(
+                        'fieldName' => 'sponsor_co_person_id',
+                        'actions' => array('remove')
+                      ));
+                      print '</div>';
+                    }
+
+                    $iefClasses = "cm-ief-widget";
+                    if ($inlineEditableFields['sponsor-val']['set']) {
+                      $iefClasses .= " hidden";
+                    }
+                  ?>
+                  <div class="<?php print $iefClasses; ?>">
+                      <div class="ui-widget">
+                        <input id="sponsors" type="text" />
+                        <input type="hidden" name="def_sponsor_val" id="def_sponsor_val" />
+                      </div>
+                      <div class="field-desc">
+                        <span class="ui-icon ui-icon-info co-info"></span>
+                        <em><?php print _txt('fd.sponsor.desc'); ?></em>
+                      </div>
+                    <?php endif; // vv_sponsors ?>
+                </div>
+              <?php endif; ?>
+            </div>
           </div>
         </td>
       </tr>

@@ -32,8 +32,10 @@ class ApiUser extends AppModel {
   public $name = "ApiUser";
   
   // Association rules from this model to other models
-  //public $hasOne = array("User");      // An API user has an associated User
-  
+  public $belongsTo = array(
+    "Co"
+  );
+    
   // Default display field for cake generated views
   public $displayField = "username";
   
@@ -44,20 +46,118 @@ class ApiUser extends AppModel {
   
   // Validation rules for table elements
   public $validate = array(
-    'username' => array(
-      'rule' => array('validateInput'),
+    'co_id' => array(
+      'rule' => 'numeric',
       'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A username must be provided'
+      'allowEmpty' => false
     ),
+    'username' => array(
+      'content' => array(
+        'rule' => array('maxLength', 50),
+        'required' => true,
+        'allowEmpty' => false,
+        'message' => array('Username must not exceed 50 characters.'),
+        'last' => 'true',
+      ),
+      'filter' => array(
+        'rule' => array('validateInput'),
+        'message' => array('Username contains invalid characters.'),
+        'last' => 'true',
+      ),
+      'unique' => array(
+        'rule' => array('isUnique', true),
+        'message' => array('API username already in use.'),
+        'last' => 'true',
+      ),
+    ),
+    // This column will be renamed api_key in v5
     'password' => array(
       'rule' => 'notBlank',
-      'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A password must be provided'
-    )
+      // API Key is set after initial save
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'status' => array(
+      'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                      SuspendableStatusEnum::Suspended)),
+      'required' => true
+    ),
+    'privileged' => array(
+      'rule' => array('boolean')
+    ),
+    'valid_from' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'valid_through' => array(
+      'content' => array(
+        'rule' => array('validateTimestamp'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'remote_ip' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
+  /**
+   * Obtain a list of available API Users.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int   $coId CO ID
+   * @return array       Array of valid API users, as returned by find()
+   */
+  
+  public function availableApiUsers($coId) {
+    $args = array();
+    $args['conditions']['ApiUser.co_id'] = $coId;
+    // Don't return suspended users
+    $args['conditions']['ApiUser.status'] = SuspendableStatusEnum::Active;
+    // Or those with invalid dates
+    $args['conditions']['AND'] = array(
+      0 => array(
+        'OR' => array(
+          'ApiUser.valid_from IS NULL',
+          'ApiUser.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      ),
+      1 => array(
+        'OR' => array(
+          'ApiUser.valid_through IS NULL',
+          'ApiUser.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      )
+    );
+    $args['order'] = 'ApiUser.username ASC';
+    $args['fields'] = array('id', 'username');
+    
+    return $this->find('list', $args);
+  }
+
+    /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+
+  public function beforeValidate($options = array())
+  {
+    if(!empty($this->data['ApiUser'])) {
+      // The username must begin with "co_<co_id>.".
+      $prefix = "co_" . $this->data['ApiUser']['co_id'] . ".";
+      // Prepend the prefix to the username i got from post
+      $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
+    }
+
+    return true;
+  }
+
   /**
    * Actions to take before a save operation is executed.
    *
@@ -65,13 +165,50 @@ class ApiUser extends AppModel {
    */
   
   public function beforeSave($options = array()) {
-    // Hash the password, per http://book.cakephp.org/2.0/en/core-libraries/components/authentication.html
-    
-    if(isset($this->data[$this->alias]['password'])) {
-      $passwordHasher = new SimplePasswordHasher();
-      $this->data[$this->alias]['password'] = $passwordHasher->hash($this->data[$this->alias]['password']);
+    // Possibly convert the requested timestamps to UTC from browser time.
+    // Do this before the strtotime/time calls below, both of which use UTC.
+
+    if($this->tz) {
+      $localTZ = new DateTimeZone($this->tz);
+
+      if(!empty($this->data['ApiUser']['valid_from'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['ApiUser']['valid_from'], $localTZ);
+
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['ApiUser']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
+
+      if(!empty($this->data['ApiUser']['valid_through'])) {
+        // This returns a DateTime object adjusting for localTZ
+        $offsetDT = new DateTime($this->data['ApiUser']['valid_through'], $localTZ);
+
+        // strftime converts a timestamp according to server localtime (which should be UTC)
+        $this->data['ApiUser']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+      }
     }
     
     return true;
+  }
+  
+  /**
+   * Generate an API Key.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  int    $id API User ID
+   * @return string     API Key
+   */
+  
+  public function generateKey($id) {
+    $token = generateRandomToken();
+    
+    $passwordHasher = new SimplePasswordHasher();
+    
+    $this->id = $id;
+    // Hash the password, per http://book.cakephp.org/2.0/en/core-libraries/components/authentication.html
+    // We don't want to trigger beforeSave
+    $this->saveField('password', $passwordHasher->hash($token), array('callbacks' => false));
+    
+    return $token;
   }
 }

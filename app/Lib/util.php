@@ -111,6 +111,32 @@ function formatAddress($addr) {
 }
 
 /**
+ * Format an Ad Hoc attribute for rendering.
+ *
+ * @since  COmanage Registry v3.3.0
+ * @param  array  $aha Ad Hoc Attribute
+ * @return string      Formatted string
+ */
+
+function formatAdHoc($aha) {
+  $a = "";
+  
+  if(!empty($aha['tag'])) {
+    $a = $aha['tag'];
+  }
+  
+  $a .= ": ";
+  
+  if(!empty($aha['value'])) {
+    $a .= $aha['value'];
+  } else {
+    $a .= "<i>" . _txt('fd.null') . "</i>";
+  }
+  
+  return $a;
+}
+
+/**
  * Render a telephone number in E.123 format
  *
  * @since  COmanage Registry v0.9.4
@@ -208,6 +234,37 @@ function generateCn($name, $showHonorific = false) {
 }
 
 /**
+ * Generate a random token, suitable for use as (eg) an API Key.
+ *
+ * @since  COmanage Registry v3.3.0
+ * @param  int    Requested token length, not counting dashes inserted for readability every four characters
+ * @return string Token
+ */
+
+function generateRandomToken($len=16) {
+  // Note we use Security::randomBytes() rather than php random_bytes, which was not added until 7.0
+  // XXX as part of Registry v5, switch to random_bytes()
+  // skip l to avoid confusion with 1
+  $token = substr(preg_replace("/[^a-km-z0-9]+/", "", base64_encode(Security::randomBytes(60))),
+                  0,
+                  $len);
+  
+  // Insert some dashes to improve readability
+  $dtoken = "";
+  
+  for($i = 0;$i < strlen($token);$i++) {
+    $dtoken .= $token[$i];
+    
+    if((($i + 1) % 4 == 0)
+       && ($i + 1 < strlen($token))) {
+      $dtoken .= '-';
+    }
+  }
+  
+  return $dtoken;
+}
+
+/**
  * Obtain the preferred language requested by the browser, if supported.
  *
  * @since  COmanage Registry v0.8.2
@@ -254,6 +311,21 @@ function getPreferredLanguage() {
   // We don't recognize this language
   
   return "";
+}
+
+/**
+ * Maybe append a string, if not null.
+ * 
+ * @param  string $left      Left hand side of string
+ * @param  string $connector Connecting string
+ * @param  string $right     Right hand side of string
+ * @return string            Concatenated string
+ */
+
+function maybeAppend($left, $connector, $right) {
+  return (!empty($left) ? $left : "")
+         . (!empty($left) && !empty($right) ? $connector : "")
+         . (!empty($right) ? $right : "");
 }
 
 /**

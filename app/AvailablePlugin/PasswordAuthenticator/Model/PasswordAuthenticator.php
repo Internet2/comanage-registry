@@ -61,6 +61,13 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       'required' => true,
 			'allowEmpty' => false
 		),
+    'password_source' => array(
+      'rule' => array('inList', array(PasswordAuthPasswordSourceEnum::AutoGenerate,
+                                      PasswordAuthPasswordSourceEnum::External,
+                                      PasswordAuthPasswordSourceEnum::SelfSelect)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
 		'min_length' => array(
       'rule' => 'numeric',
 			'required' => false,
@@ -88,7 +95,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
     )
 	);
 	
-	// Does we support multiple authenticators per instantiation?
+	// Do we support multiple authenticators per instantiation?
 	public $multiple = false;
   
   /**
@@ -102,6 +109,23 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   	return array();
   }
 	
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.3.0
+   */
+
+  public function beforeSave($options = array()) {
+    if(!empty($this->data['PasswordAuthenticator']['password_source'])
+       && $this->data['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
+      // Make sure crypt() is enabled (which it should be, unless someone tampered with the forms somehow...)
+      
+      $this->data['PasswordAuthenticator']['format_crypt_php'] = true;
+    }
+    
+    return true;
+  }
+  
 	/**
    * Obtain current data suitable for passing to manage().
    *
@@ -137,20 +161,23 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 		$minlen = $this->pluginCfg['PasswordAuthenticator']['min_length'] ?: 8;
 		$maxlen = $this->pluginCfg['PasswordAuthenticator']['max_length'] ?: 64;
 		
-		// Check minimum length
-		if(strlen($data['Password']['password']) < $minlen) {
-			throw new InvalidArgumentException(_txt('er.passwordauthenticator.len.min', array($minlen)));
-		}
-		
-		// Check maximum length
-		if(strlen($data['Password']['password']) > $maxlen) {
-			throw new InvalidArgumentException(_txt('er.passwordauthenticator.len.max', array($maxlen)));
-		}
-		
-		// Check that passwords match
-		if($data['Password']['password'] != $data['Password']['password2']) {
-			throw new InvalidArgumentException(_txt('er.passwordauthenticator.match'));
-		}
+    // Perform sanity checks on Self Selected passwords only
+    if($this->pluginCfg['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
+  		// Check minimum length
+  		if(strlen($data['Password']['password']) < $minlen) {
+  			throw new InvalidArgumentException(_txt('er.passwordauthenticator.len.min', array($minlen)));
+  		}
+  		
+  		// Check maximum length
+  		if(strlen($data['Password']['password']) > $maxlen) {
+  			throw new InvalidArgumentException(_txt('er.passwordauthenticator.len.max', array($maxlen)));
+  		}
+  		
+  		// Check that passwords match
+  		if($data['Password']['password'] != $data['Password']['password2']) {
+  			throw new InvalidArgumentException(_txt('er.passwordauthenticator.match'));
+  		}
+    }
     
     // Make sure we have a CO Person ID to operate over
     if(empty($data['Password']['co_person_id'])) {
@@ -160,28 +187,35 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 		// First see if there are any existing records
 		$this->_begin();
 		
-		$args = array();
-		$args['conditions']['Password.password_authenticator_id'] = $data['Password']['password_authenticator_id'];
-		$args['conditions']['Password.co_person_id'] = $data['Password']['co_person_id'];
-		$args['conditions']['Password.password_type'] = PasswordEncodingEnum::Crypt;
-		$args['contain'] = false;
-		
-		$currec = $this->Password->find('first', $args);
-		
-		if(!empty($currec)
-			 && $data['Password']['co_person_id'] == $actorCoPersonId) {
-			// The current password is required
-			
-			if(!password_verify($data['Password']['passwordc'], $currec['Password']['password'])) {
-				throw new InvalidArgumentException(_txt('er.passwordauthenticator.current'));
-			}
-		}
+    if($this->pluginCfg['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
+  		$args = array();
+  		$args['conditions']['Password.password_authenticator_id'] = $data['Password']['password_authenticator_id'];
+  		$args['conditions']['Password.co_person_id'] = $data['Password']['co_person_id'];
+  		$args['conditions']['Password.password_type'] = PasswordEncodingEnum::Crypt;
+  		$args['contain'] = false;
+  		
+  		$currec = $this->Password->find('first', $args);
+  		
+  		if(!empty($currec)
+  			 && $data['Password']['co_person_id'] == $actorCoPersonId) {
+  			// The current password is required for self selected passwords
+  			
+  			if(!password_verify($data['Password']['passwordc'], $currec['Password']['password'])) {
+  				throw new InvalidArgumentException(_txt('er.passwordauthenticator.current'));
+  			}
+  		}
+    }
     
     // Delete any existing password for the user. We do it this way in case the
     // plugin configuration is changed. We skip callbacks so as to not trigger
     // provisioning (and they aren't required since this table is not Changelog
     // enabled).
-    $this->Password->deleteAll(array('Password.co_person_id' => $data['Password']['co_person_id']));
+    $args = array(
+      'Password.co_person_id' => $data['Password']['co_person_id'],
+      'Password.password_authenticator_id' => $data['Password']['password_authenticator_id']
+    );
+    
+    $this->Password->deleteAll($args);
 		
 		// We'll store one entry per hashing type. We always store CRYPT
 		// so we can use the native php routines (which require PHP 5.5+).
@@ -309,17 +343,18 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 		$args = array();
 		$args['conditions']['Password.password_authenticator_id'] = $this->pluginCfg['PasswordAuthenticator']['id'];
 		$args['conditions']['Password.co_person_id'] = $coPersonId;
-    // We constrain to type CRYPT since we require that type
-		$args['conditions']['Password.password_type'] = PasswordEncodingEnum::Crypt;
 		$args['contain'] = false;
+    
+    // We don't know which password_type we have, but they should all have the
+    // same mod time
 		
-		$modtime = $this->Password->field('modified', $args['conditions']);
-		
-		if($modtime) {
+    $pwd = $this->Password->find('first', $args);
+    
+		if(!empty($pwd['Password']['modified'])) {
 			return array(
 				'status' => AuthenticatorStatusEnum::Active,
 				// Note we don't currently have access to local timezone setting (see OrgIdentity for example)
-				'comment' => _txt('pl.passwordauthenticator.mod', array($modtime))
+				'comment' => _txt('pl.passwordauthenticator.mod', array($pwd['Password']['modified']))
 			);
 		}
 		

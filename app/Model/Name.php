@@ -171,32 +171,36 @@ class Name extends AppModel {
    * @since  COmanage Registry v0.9.2
    */
   
-  public function beforeSave($options = array()) {    
+  public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Make sure exactly one Primary Name is set
     
     // We don't do transaction management here because we can't guarantee a rollback
     // on error. (afterSave is not called if the save itself fails.) So it's up to
     // the controller (or other calling code) to begin/commit/rollback.
-    
-    if(isset($this->data['Name']['primary_name'])
-       // If we're saving via an enrollment flow trust whatever we were given in
-       // terms of primary name flags
-       && !isset($this->data['Name']['co_enrollment_attribute_id'])) {
-      // Is there an existing primary name? If not make sure this Name is primary.
-      // In order to answer this, we need either an Org Identity ID or a CO Person ID.
+    // If we're handling a saveField() on any field other than primary_name,
+    // skip the primary name check
+    if(isset($this->data[$this->alias]['primary_name'])) {
+      // Are we in an Enrollment Flow? If so, we'll do some things differently...
+      $inEF = isset($this->data[$this->alias]['co_enrollment_attribute_id']);
+      
+      // In order to check if another Name might already be flagged primary,
+      // For this, we need either an Org Identity ID or a CO Person ID.
       // However, if we were called via saveField these might not be in $this->data.
-      // But we can't just call read() because that will clobber the data we're supposed
-      // to save.
+      // But we can't just call read() because that will clobber the data we're
+      // supposed to save.
       
       $orgIdentityId = null;
       $coPersonId = null;
       
       // First check to see if an identity was provided in the data
-      
-      if(!empty($this->data['Name']['org_identity_id'])) {
-        $orgIdentityId = $this->data['Name']['org_identity_id'];
-      } elseif(!empty($this->data['Name']['co_person_id'])) {
-        $coPersonId = $this->data['Name']['co_person_id'];
+      if(!empty($this->data[$this->alias]['org_identity_id'])) {
+        $orgIdentityId = $this->data[$this->alias]['org_identity_id'];
+      } elseif(!empty($this->data[$this->alias]['co_person_id'])) {
+        $coPersonId = $this->data[$this->alias]['co_person_id'];
       } else {
         // No identity, so pull the record and see if we can find one. But we'll do
         // this by field so as not to disrupt $this->data
@@ -216,35 +220,39 @@ class Name extends AppModel {
       
       // At this point, we must have either an Org ID or a CO Person ID
       
-      if(!$this->data['Name']['primary_name']) {
+      // If the current record to save is not a primary name, check to see if
+      // there is already an existing primary name. If not, make this one primary
+      // *unless* we're in an Enrollment Flow, in which case we trust what we're
+      // given.
+      if(!$inEF && !$this->data[$this->alias]['primary_name']) {
         $args = array();
-        $args['conditions']['Name.primary_name'] = true;
+        $args['conditions'][$this->alias.'.primary_name'] = true;
         if($orgIdentityId) {
-          $args['conditions']['Name.org_identity_id'] = $orgIdentityId;
+          $args['conditions'][$this->alias.'.org_identity_id'] = $orgIdentityId;
         } elseif($coPersonId) {
-          $args['conditions']['Name.co_person_id'] = $coPersonId;
+          $args['conditions'][$this->alias.'.co_person_id'] = $coPersonId;
         }
         
         if($this->find('count', $args) == 0) {
           // No other names, this one must be primary
-          $this->data['Name']['primary_name'] = true;
+          $this->data[$this->alias]['primary_name'] = true;
         }
       }
       
       // Unset any existing primary name -- but only if this Name has primary name as true.
       
-      if($this->data['Name']['primary_name']) {
+      if($this->data[$this->alias]['primary_name']) {
         // We can't use updateAll since no callbacks (ie: changelogbehavior) are fired.
         // So instead, pull all relevant names and set them to primary_name = false if
         // not already set.
         
         $args = array();
         if($orgIdentityId) {
-          $args['conditions']['Name.org_identity_id'] = $orgIdentityId;
+          $args['conditions'][$this->alias.'.org_identity_id'] = $orgIdentityId;
         } elseif($coPersonId) {
-          $args['conditions']['Name.co_person_id'] = $coPersonId;
+          $args['conditions'][$this->alias.'.co_person_id'] = $coPersonId;
         }
-        $args['conditions']['Name.primary_name'] = true;
+        $args['conditions'][$this->alias.'.primary_name'] = true;
         $args['contain'] = false;
         
         // Generally there should only be one result...
@@ -256,7 +264,7 @@ class Name extends AppModel {
           $curData = $this->data;
           
           foreach($names as $n) {
-            $this->id = $n['Name']['id'];
+            $this->id = $n[$this->alias]['id'];
             $this->saveField('primary_name', false);
           }
           
@@ -279,11 +287,11 @@ class Name extends AppModel {
     // Update validation rules according to CO Settings, but only for records attached
     // to a CO Person
     
-    if(!empty($this->data['Name']['co_person_id'])) {
+    if(!empty($this->data[$this->alias]['co_person_id'])) {
       // Map to the CO ID
       
       $args = array();
-      $args['conditions']['CoPerson.id'] = $this->data['Name']['co_person_id'];
+      $args['conditions']['CoPerson.id'] = $this->data[$this->alias]['co_person_id'];
       $args['contain'] = false;
       
       $cop = $this->CoPerson->find('first', $args);

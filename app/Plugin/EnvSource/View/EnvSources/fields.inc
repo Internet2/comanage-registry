@@ -80,7 +80,7 @@
             }
             
             if(!empty($attr['desc'])) {
-              print "<span class=\"descr\">" . $attr['desc'] . "</span>";
+              print "<br /><span class=\"descr\">" . $attr['desc'] . "</span>";
             }
           ?>
         </td>
@@ -99,7 +99,7 @@
             
             print $this->Form->input($field, $args);
             
-            if(strncmp($field, "env_identifier_", 15)==0) {
+            if(isset($attr['canLogin']) && $attr['canLogin']) {
               $args = array();
               $args['label'] = _txt('fd.identifier.login');
               

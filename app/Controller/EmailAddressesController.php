@@ -85,24 +85,32 @@ class EmailAddressesController extends MVPAController {
     // an OrgIdentity Source Record. As of the initial implementation, not even
     // CMP admins can edit such a record.
     
+    $readOnly = false;
+    
     if($this->action == 'edit' && !empty($this->request->params['pass'][0])) {
-      $orgIdentityId = $this->EmailAddress->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
-      
-      if($orgIdentityId) {
-        $readOnly = $this->EmailAddress->OrgIdentity->readOnly($orgIdentityId);
+      $sourceAttributeId = (bool)$this->EmailAddress->field('source_email_address_id', array('id' => $this->request->params['pass'][0]));
+
+      if($sourceAttributeId) {
+        $readOnly = true;
+      } else {
+        $orgIdentityId = $this->EmailAddress->field('org_identity_id', array('id' => $this->request->params['pass'][0]));
         
-        if($readOnly) {
-          // Proactively redirect to view. This will also prevent (eg) the REST API
-          // from editing a read only record.
-          $args = array(
-            'controller' => 'email_addresses',
-            'action'     => 'view',
-            filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
-          );
-          
-          $this->redirect($args);
+        if($orgIdentityId) {
+          $readOnly = $this->EmailAddress->OrgIdentity->readOnly($orgIdentityId);
         }
       }
+    }
+    
+    if($readOnly) {
+      // Proactively redirect to view. This will also prevent (eg) the REST API
+      // from editing a read only record.
+      $args = array(
+        'controller' => 'email_addresses',
+        'action'     => 'view',
+        filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
+      );
+      
+      $this->redirect($args);
     }
     
     // In order to manipulate an email address, the authenticated user must have permission

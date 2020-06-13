@@ -86,7 +86,7 @@
             $editable = ($action == 'edit');
             $removetxt = _txt('js.remove');
             $displaystr = (!empty($mvpa_field) ? $m[$mvpa_field] : "");
-            $typestr = $m['type'];
+            $typestr = !empty($m['type']) ? $m['type'] : null;
             $laction = $action;
             
             if(!empty($m[$smodel]['id'])) {
@@ -117,7 +117,7 @@
             }
             
             // Lookup the extended type friendly name, if set
-            if(isset(${$vv_dictionary}[ $m['type'] ])) {
+            if(!empty($m['type']) && isset(${$vv_dictionary}[ $m['type'] ])) {
               $typestr = ${$vv_dictionary}[ $m['type'] ];
             }
             
@@ -147,33 +147,41 @@
             
             // Prepend the attribute source to the type string, if there is one
             if(!empty($m[$smodel]['id'])) {
-              $typestr = filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS)
-                       . ", " . $typestr;
+              $typestr = maybeAppend(filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+                                     ", ",
+                                     $typestr);
             }
             
             // Add a suspended flag to the type string, if appropriate
             if(isset($m['status']) && $m['status'] == SuspendableStatusEnum::Suspended) {
-              $typestr .= ", " . _txt('en.status.susp', null, SuspendableStatusEnum::Suspended);
+              $typestr = maybeAppend($typestr, ", ", _txt('en.status.susp', null, SuspendableStatusEnum::Suspended));
             }
             
             // If this is an Email Address and is verified, add that to the type string
             if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
-              $typestr .= ", " . ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified'));
+              $typestr = maybeAppend($typestr, ", ", ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')));
             }
             
             // If $mvpa_format is a defined function, use that to render the display string
             if(!empty($mvpa_format) && function_exists($mvpa_format)) {
               $displaystr = $mvpa_format($m);
             }
-            
-            // Render the text link
+
             print '<li class="field-data-container">';
             print '<div class="field-data">';
-            print $this->Html->link($displaystr,
-                                    array('controller' => $lmvpapl,
-                                          'action' => $laction,
-                                          $m['id']));
-            print "&nbsp;(" . $typestr . ")\n";
+            if (($mvpa_model == 'Identifier') && !$permissions['identifiers'] ) {
+              print $displaystr;
+            } else {
+              // Render the text link
+              print $this->Html->link($displaystr,
+                                      array('controller' => $lmvpapl,
+                                            'action' => $laction,
+                                            $m['id']));
+            }
+            
+            if(!empty($typestr)) {
+              print "&nbsp;(" . $typestr . ")\n";
+            }
             print '</div>';
             print '<div class="field-actions">';
             
@@ -189,13 +197,16 @@
               }
             }
             
-            // This renders the View or Edit button, as appropriate
-            print $this->Html->link(_txt('op.'.$laction),
-                                    array(
-                                      'controller' => $lmvpapl,
-                                      'action' => $laction,
-                                      $m['id']),
-                                    array('class' => $laction.'button')) . "\n";
+            if (($mvpa_model != 'Identifier') || 
+               (($mvpa_model == 'Identifier') && $permissions['identifiers'])) {
+              // This renders the View or Edit button, as appropriate
+              print $this->Html->link(_txt('op.'.$laction),
+                                      array(
+                                        'controller' => $lmvpapl,
+                                        'action' => $laction,
+                                        $m['id']),
+                                      array('class' => $laction.'button')) . "\n";
+            }
             
             // Possibly render a delete button
             if($laction == 'edit' && $editable) {

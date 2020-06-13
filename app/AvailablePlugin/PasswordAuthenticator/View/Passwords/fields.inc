@@ -49,17 +49,59 @@
 <div class="co-info-topbox">
   <i class="material-icons">info</i>
   <?php
-    $maxlen = isset($vv_authenticator['PasswordAuthenticator']['max_length'])
-              ? $vv_authenticator['PasswordAuthenticator']['max_length']
-              : 64;
-    $minlen = isset($vv_authenticator['PasswordAuthenticator']['min_length'])
-              ? $vv_authenticator['PasswordAuthenticator']['min_length']
-              : 8;
-  
-    print _txt('pl.passwordauthenticator.info', array($minlen, $maxlen));
+    if($vv_authenticator['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
+      $maxlen = isset($vv_authenticator['PasswordAuthenticator']['max_length'])
+                ? $vv_authenticator['PasswordAuthenticator']['max_length']
+                : 64;
+      $minlen = isset($vv_authenticator['PasswordAuthenticator']['min_length'])
+                ? $vv_authenticator['PasswordAuthenticator']['min_length']
+                : 8;
+    
+      print _txt('pl.passwordauthenticator.info', array($minlen, $maxlen));
+    } else  if($vv_authenticator['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::AutoGenerate) {
+      print _txt('pl.passwordauthenticator.generate');
+    } else {
+      print _txt('pl.passwordauthenticator.noedit');
+    }
   ?>
 </div>
 
+<?php if($vv_authenticator['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::AutoGenerate): ?>
+<ul id="<?php print $this->action; ?>_password" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print (!empty($vv_current[0]['Password']['password']) ? _txt('fd.set') : _txt('fd.set.not')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        if($permissions['generate']) {
+          print '<button type="button" class="provisionbutton" title="' . _txt('pl.passwordauthenticator.token.gen')
+            . '" onclick="javascript:js_confirm_generic(\''
+            . _txt('pl.passwordauthenticator.token.confirm') . '\',\''    // dialog body text
+            . $this->Html->url(              // dialog confirm URL
+                array(
+                  'plugin'          => 'password_authenticator',
+                  'controller'      => 'passwords',
+                  'action'          => 'generate',
+                  'authenticatorid' => $vv_authenticator['PasswordAuthenticator']['authenticator_id'],
+                  'copersonid'      => $vv_co_person['CoPerson']['id']
+                )
+              ) . '\',\''
+            . _txt('pl.passwordauthenticator.token.gen') . '\',\''    // dialog confirm button
+            . _txt('op.cancel') . '\',\''    // dialog cancel button
+            . _txt('pl.passwordauthenticator.token.gen') . '\',[\''   // dialog title
+            . ''  // dialog body text replacement strings
+            . '\']);">'
+            . _txt('pl.passwordauthenticator.token.gen')
+            . '</button>';
+        }
+      ?>
+    </div>
+  </li>
+</ul>
+<?php elseif($vv_authenticator['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect): ?>
 <ul id="<?php print $this->action; ?>_password" class="fields form-list form-list-admin">
   <!-- If we are editing our own password and one already exists, we must provide it
        (otherwise we're probably an admin -->
@@ -110,3 +152,4 @@
     </li>
   <?php endif; ?>
 </ul>
+<?php endif; // SelfSelect ?>

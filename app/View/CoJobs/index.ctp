@@ -38,6 +38,7 @@
   <table id="co_jobs">
     <thead>
       <tr>
+        <th><?php print $this->Paginator->sort('id', "#"); ?></th>
         <th><?php print $this->Paginator->sort('job_type', _txt('fd.job.type')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print _txt('fd.job.register_summary'); ?></th>
@@ -49,6 +50,11 @@
       <?php $i = 0; ?>
       <?php foreach ($co_jobs as $c): ?>
       <tr class="line<?php print ($i % 2)+1; ?>">
+        <td>
+          <?php
+            print $c['CoJob']['id'];
+          ?>
+        </td>
         <td>
           <?php 
             // XXX CO-1310 simplify

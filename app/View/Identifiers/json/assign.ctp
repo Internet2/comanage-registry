@@ -24,3 +24,8 @@
  * @since         COmanage Registry v0.6
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+if(!empty($vv_errors)) {
+  print json_encode(array("ResponseType" => "ErrorResponse",
+                          "Version" => "1.0",
+                          "Errors" => $vv_errors)) . "\n";
+}

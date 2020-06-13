@@ -48,6 +48,12 @@
     <field name="oc_edumember" type="L" />
     <field name="oc_groupofnames" type="L" />
     <field name="oc_posixaccount" type="L" />
+    <field name="oc_posixgroup" type="L" />
+    <field name="oc_voposixaccount" type="L" />
+    <field name="oc_voposixgroup" type="L" />
+    <field name="cluster_id" type="I">
+      <constraint>REFERENCES cm_clusters(id)</constraint>
+    </field>
     <field name="oc_ldappublickey" type="L" />
     <field name="oc_voperson" type="L" />
     <field name="created" type="T" />

@@ -1358,7 +1358,7 @@ class Model extends CakeObject implements CakeEventListener {
 					}
 				}
 
-				if (!isset($data[$val]) || isset($data[$val]) && (empty($data[$val]) || $data[$val][0] === '-')) {
+				if (!isset($data[$val]) || isset($data[$val]) && (empty($data[$val]) || substr($data[$val], 0, 1) === '-')) {
 					return null;
 				}
 
@@ -1824,7 +1824,7 @@ class Model extends CakeObject implements CakeEventListener {
 			}
 		}
 
-		$exists = $this->exists();
+		$exists = $this->exists($this->getID());
 		$dateFields = array('modified', 'updated');
 
 		if (!$exists) {
@@ -1991,7 +1991,7 @@ class Model extends CakeObject implements CakeEventListener {
  */
 	protected function _isUUIDField($field) {
 		$field = $this->schema($field);
-		return $field['length'] == 36 && in_array($field['type'], array('string', 'binary', 'uuid'));
+		return $field !== null && $field['length'] == 36 && in_array($field['type'], array('string', 'binary', 'uuid'));
 	}
 
 /**
@@ -2696,7 +2696,7 @@ class Model extends CakeObject implements CakeEventListener {
 			return false;
 		}
 
-		if (!$this->exists()) {
+		if (!$this->exists($this->getID())) {
 			return false;
 		}
 
@@ -2801,7 +2801,7 @@ class Model extends CakeObject implements CakeEventListener {
 			list(, $joinModel) = pluginSplit($data['with']);
 			$Model = $this->{$joinModel};
 			$records = $Model->find('all', array(
-				'conditions' => array($Model->escapeField($data['foreignKey']) => $id),
+				'conditions' => $this->_getConditionsForDeletingLinks($Model, $id, $data),
 				'fields' => $Model->primaryKey,
 				'recursive' => -1,
 				'callbacks' => false
@@ -2813,6 +2813,19 @@ class Model extends CakeObject implements CakeEventListener {
 				}
 			}
 		}
+	}
+
+/**
+ * Returns the conditions to be applied to Model::find() when determining which HABTM records should be deleted via
+ * Model::_deleteLinks()
+ *
+ * @param Model $Model HABTM join model instance
+ * @param mixed $id The ID of the primary model which is being deleted
+ * @param array $relationshipConfig The relationship config defined on the primary model
+ * @return array
+ */
+	protected function _getConditionsForDeletingLinks(Model $Model, $id, array $relationshipConfig) {
+		return array($Model->escapeField($relationshipConfig['foreignKey']) => $id);
 	}
 
 /**
@@ -2997,7 +3010,7 @@ class Model extends CakeObject implements CakeEventListener {
  *
  * @param string $type Type of find operation (all / first / count / neighbors / list / threaded)
  * @param array $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
- * @return array|null Array of records, or Null on failure.
+ * @return array|int|null Array of records, int if the type is count, or Null on failure.
  * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html
  */
 	public function find($type = 'first', $query = array()) {

@@ -51,10 +51,17 @@ class CoGroupsController extends StandardController {
     'SourceCoGroupNesting' => array('TargetCoGroup'),
     'EmailListAdmin',
     'EmailListMember',
-    'EmailListModerator'
+    'EmailListModerator',
+    'Identifier'
   );
   
   public $view_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
+    'EmailListAdmin',
+    'EmailListMember',
+    'EmailListModerator',
+    'Identifier'
   );
   
   /**
@@ -72,6 +79,36 @@ class CoGroupsController extends StandardController {
     parent::beforeFilter();
   }
 
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v0.9.4
+   */
+
+  public function beforeRender() {
+    global $cm_lang, $cm_texts;
+    $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
+    $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
+    $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
+    $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
+    
+    $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
+
+    $this->set('vv_types', array('Identifier'   => $idTypes));
+    
+    // Determine if there are any identifier assignments for this CO.
+    
+    $args = array();
+    $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoGroup;
+    $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
+
+    parent::beforeRender();
+  }
+  
   /**
    * Perform any dependency checks required prior to a delete operation.
    * This method is intended to be overridden by model-specific controllers.
@@ -331,54 +368,13 @@ class CoGroupsController extends StandardController {
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
     
-    $own = array();
-    $member = array();
     $managed = false;
     $managedp = false;
     $readonly = false;
     $self = false;
     
     if(!empty($roles['copersonid'])) {
-      // XXX Shouldn't this just use CoGroupMember->findCoPersonGroupRoles?
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
-      $args['conditions']['CoGroupMember.owner'] = true;
-      // Only pull currently valid group memberships
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_from IS NULL',
-          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_through IS NULL',
-          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['contain'] = false;
-      
-      $own = $this->CoGroup->CoGroupMember->find('all', $args);
-      
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $roles['copersonid'];
-      $args['conditions']['CoGroupMember.member'] = true;
-      // Only pull currently valid group memberships
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_from IS NULL',
-          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'CoGroupMember.valid_through IS NULL',
-          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-        )
-      );
-      $args['contain'] = false;
-      
-      $member = $this->CoGroup->CoGroupMember->find('all', $args);
+      $curlRoles = $this->CoGroup->CoGroupMember->findCoPersonGroupRoles($roles['copersonid']);
       
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
@@ -410,6 +406,14 @@ class CoGroupsController extends StandardController {
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
     
+    // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
+    // Note we allow couadmin here beceause IdentifiersController allows it,
+    // which allows it for CoPerson identifier assignment. It's not clear if that's
+    // exactly the right permission here, but we probably don't want to allow
+    // $managed either, so maybe this is an OK compromise.
+    $p['assign'] = ($roles['cmadmin']
+                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+    
     // Delete an existing Group?
     $p['delete'] = (!$readonly && ($roles['cmadmin'] || $managed));
     
@@ -421,6 +425,7 @@ class CoGroupsController extends StandardController {
     
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    $p['search'] = $p['index'];
     
     // Nest a Group within another Group?
     // This aligns with CoGroupNestingsController::isAuthorized
@@ -439,36 +444,20 @@ class CoGroupsController extends StandardController {
       $p['view'] = true;
     }
     
-    if(isset($own)) {
-      // Set array of groups where person is owner
-      
-      $p['owner'] = array();
-      
-      foreach($own as $g) {
-        $p['owner'][] = $g['CoGroupMember']['co_group_id'];
-      }
-    }
-    
-    if(isset($member)) {
-      // Set array of groups where person is member
-      $p['member'] = array();
-      
-      foreach($member as $g) {
-        $p['member'][] = $g['CoGroupMember']['co_group_id'];
-      }
-    }
+    $p['member'] = !empty($curlRoles['member']) ? $curlRoles['member'] : array();
+    $p['owner'] = !empty($curlRoles['owner']) ? $curlRoles['owner'] : array();
     
     // (Re)provision an existing CO Group?
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-    
+
     // Select from a list of potential Groups to join?
-    $p['select'] = ($roles['cmadmin']
-                    || ($managedp && ($roles['coadmin'] || $roles['couadmin']))
+    $p['select'] = ($roles['cmadmin'] || $roles['coadmin']
+                    || ($managedp && $roles['couadmin'])
                     || $self);
     
     // Select from any Group (not just open or owned)?
-    $p['selectany'] = ($roles['cmadmin']
-                       || ($managedp && ($roles['coadmin'] || $roles['couadmin'])));
+    $p['selectany'] = ($roles['cmadmin'] || $roles['coadmin']
+                       || ($managedp && $roles['couadmin']));
     
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
@@ -605,7 +594,94 @@ class CoGroupsController extends StandardController {
       return;
     }
   }
-  
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v3.3
+   */
+
+  public function search() {
+    // If a person ID is provided, we're in select mode
+    if(!empty($this->data['CoGroups']['select'])) {
+      $url['action'] = 'select';
+      $url['copersonid'] = filter_var($this->data['CoPerson']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
+    } else {
+      // Back to the index
+      $url['action'] = 'index';
+    }
+
+    $url['co'] = $this->cur_co['Co']['id'];
+
+    // build a URL will all the search elements in it
+    // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
+    foreach($this->data['search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['search.'.$field] = $value;
+      }
+    }
+
+    // redirect the user to the url
+    $this->redirect($url, null, true);
+  }
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v3.3
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $pagcond = array();
+
+    // Use server side pagination
+
+    if($this->requires_co) {
+      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Filter by group name
+    if(!empty($this->params['named']['search.groupName'])) {
+      $searchterm = strtolower($this->params['named']['search.groupName']);
+      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by group description
+    if(!empty($this->params['named']['search.groupDesc'])) {
+      $searchterm = strtolower($this->params['named']['search.groupDesc']);
+      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by status
+    if(!empty($this->params['named']['search.status'])) {
+      $searchterm = $this->params['named']['search.status'];
+      $pagcond['conditions']['CoGroup.status'] = $searchterm;
+    }
+
+    // Filter by openness
+    if(!empty($this->params['named']['search.open'])) {
+      $searchterm = $this->params['named']['search.open'];
+      $pagcond['conditions']['CoGroup.open'] = $searchterm;
+    }
+
+    // Filter by management type (automatic / manual)
+    if(!empty($this->params['named']['search.auto'])) {
+      $searchterm = $this->params['named']['search.auto'];
+      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+    }
+
+    // Filter by group type
+    if(!empty($this->params['named']['search.group_type'])) {
+      $searchterm = $this->params['named']['search.group_type'];
+      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+    }
+
+    return $pagcond;
+  }
+
+
   /**
    * Obtain groups available for a CO Person to join.
    * - precondition: $this->request->params holds copersonid XXX we don't do anything with this yet
@@ -644,16 +720,18 @@ class CoGroupsController extends StandardController {
     // $params['conditions'] = array($req.'.co_id' => $this->params['named']['co']); or ['url']['coid'] for REST
     // $this->set('co_groups', $model->find('all', $params));
 
-    // Use server side pagination
-    $this->paginate['conditions'] = array(
-      'CoGroup.co_id' => $this->cur_co['Co']['id']
-    );
+    // Pagination conditions must be pulled in explicitly because select() is not part of StandardController
+    $pagcond = CoGroupsController::paginationConditions();
+    $this->paginate['conditions'] = $pagcond['conditions'];
     
-    $this->paginate['contain'] = array(
+    /*$this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
         'CoPerson' => array('PrimaryName')
       )
+    );*/
+    $this->paginate['contain'] = array(
+      'CoGroupMember' => array('conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']), 'CoPerson' => array('PrimaryName'))
     );
 
     $this->Paginator->settings = $this->paginate;

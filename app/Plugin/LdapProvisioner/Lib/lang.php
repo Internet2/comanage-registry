@@ -50,7 +50,9 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'er.ldapprovisioner.dn.config'      => 'DN configuration invalid',
   'er.ldapprovisioner.dn.noattr'      => 'DN attributes not found for CO Person %1$s',
   'er.ldapprovisioner.dn.none'        => 'DN not found for %1$s %2$s (%3$s)',
+  'er.ldapprovisioner.oc.conflict'    => '%1$s and %2$s object classes cannot both be enabled, since both are STRUCTURAL',
   'er.ldapprovisioner.scope'          => 'Attribute %1$s requires scope and is enabled, but Attribute Scope is blank',
+  'er.ldapprovisioner.unix.none'      => 'There are no Unix Clusters available, so the <code>posixAccount</code> object class will not be provisioned',
   
   // Plugin texts
   'pl.ldapprovisioner.attr.hasmember.desc'  => 'Applies to Group',

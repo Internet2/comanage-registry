@@ -61,6 +61,7 @@ class CoPersonRole extends AppModel {
   public $hasMany = array(
     // A person can have one or more address
     "Address" => array('dependent' => true),
+    "AdHocAttribute" => array('dependent' => true),
     "CoExpirationCount" => array('dependent' => true),
     "CoPetition" => array(
       'dependent' => true,
@@ -240,6 +241,10 @@ class CoPersonRole extends AppModel {
    */
   
   public function afterSave($created, $options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Manage CO person membership in the COU members group.
     
     // Pass through provision setting in case we're being run via an enrollment flow
@@ -294,6 +299,10 @@ class CoPersonRole extends AppModel {
    */
   
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     // Cache the current record
     $this->cachedData = null;
     

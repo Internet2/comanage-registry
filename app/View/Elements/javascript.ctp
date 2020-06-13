@@ -53,7 +53,6 @@
       // Preserve the state of the most recently selected menu item if it is expandable (a "menuTop" item)
       // (we only use this behavior when the the drawer is fully-open)
       var mainMenuSelectedParentId = Cookies.get("main-menu-selected-parent-id");
-      console.log(mainMenuSelectedParentId);
       if(mainMenuSelectedParentId != undefined && mainMenuSelectedParentId != "") {
         $("#" + mainMenuSelectedParentId).addClass("active");
         $("#" + mainMenuSelectedParentId + " > a.menuTop").attr("aria-expanded","true");
@@ -98,14 +97,15 @@
 
     // USER MENU BEHAVIORS
     // Toggle the global search box
-    $("#global-search label").click(function (e) {
+    $("#global-search-toggle").click(function (e) {
       e.stopPropagation();
       if ($("#global-search-box").is(":visible")) {
         $("#global-search-box").hide();
-        $("#global-search-box").attr("aria-expanded","false");
+        $(this).attr("aria-expanded","false");
       } else {
         $("#global-search-box").show();
-        $("#global-search-box").attr("aria-expanded","true");
+        $("#global-search-box .input input[type='text']").focus();
+        $(this).attr("aria-expanded","true");
       }
     });
 
@@ -114,18 +114,68 @@
       e.stopPropagation();
       if ($("#user-panel").is(":visible")) {
         $("#user-panel").hide();
-        $("#user-panel").attr("aria-expanded","false");
+        $(this).attr("aria-expanded","false");
       } else {
         $("#user-panel").show();
-        $("#user-panel").attr("aria-expanded","true");
+        $(this).attr("aria-expanded","true");
       }
     });
 
-    // Hide custom user menu items on click outside
+    // Hide interface items on click outside
     $(document).on('click', function (e) {
       if ($(e.target).closest("#user-panel, #global-search-box").length === 0) {
         $("#user-panel, #global-search-box").hide();
       }
+      if ($(e.target).closest(".cm-inline-editable-field").length === 0) {
+        $(".cm-inline-editable-field").removeClass('active');
+      }
+    });
+
+    // Toggle the top search filter box
+    $("#top-search-toggle, #top-search-toggle button.cm-toggle").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if ($("#top-search-fields").is(":visible")) {
+        $("#top-search-fields").hide();
+        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false");
+        $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_down");
+      } else {
+        $("#top-search-fields").show();
+        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","true");
+        $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_up");
+      }
+    });
+
+    // Clear a specific top search filter by clicking the filter button
+    $("#top-search-toggle .top-search-active-filter").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).hide();
+      filterId = '#' + $(this).attr("aria-controls");
+      $(filterId).val("");
+      $(this).closest('form').submit();
+    });
+
+    // Clear all top filters from the filter bar
+    $("#top-search-clear-all-button").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).hide();
+      $("#top-search-toggle .top-search-active-filter").hide();
+      $("#top-search-clear").click();
+    });
+
+    // Inline Edit Controls: disable default button behavior
+    // Individual behaviors are defined within each page
+    $(".cm-ief-controls button").click(function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    // Reveal inline edit controls when keyboard focuses the data
+    // Note that there is currently no related blur (though a click outside will hide these elements)
+    $(".cm-inline-editable-field a").focus(function() {
+      $(this).closest('.cm-inline-editable-field').addClass('active');
     });
 
     // Accordion
@@ -377,6 +427,7 @@
     $(".datepicker").datepicker({
       changeMonth: true,
       changeYear: true,
+      yearRange: "c-90:+10",
       dateFormat: "yy-mm-dd",
       numberOfMonths: 1,
       showButtonPanel: false,
@@ -392,6 +443,7 @@
     $(".datepicker-f").datepicker({
       changeMonth: true,
       changeYear: true,
+      yearRange: "c-90:+10",
       dateFormat: "yy-mm-dd 00:00:00",
       numberOfMonths: 1,
       showButtonPanel: false,

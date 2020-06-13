@@ -37,6 +37,12 @@
   
   // For everything except CO Settings, we want to order by the localized text string.
   $configMenuItems = array(
+    _txt('ct.api_users.pl') => array(
+      'icon'          => 'vpn_key',
+      'permissionKey' => 'api_users',
+      'controller'    => 'api_users',
+      'action'        => 'index'
+    ),
     _txt('ct.attribute_enumerations.pl') => array(
       'icon'          => 'format_list_numbered',
       'permissionKey' => 'coattrenums',
@@ -49,6 +55,12 @@
       'controller'    => 'authenticators',
       'action'        => 'index'
     ),
+    _txt('ct.clusters.pl') => array(
+      'icon'          => 'account_box',
+      'permissionKey' => 'clusters',
+      'controller'    => 'clusters',
+      'action'        => 'index'
+    ),
     _txt('ct.cous.pl') => array(
       'icon'          => 'people_outline',
       'permissionKey' => 'cous',
@@ -59,6 +71,12 @@
       'icon'          => 'dashboard',
       'permissionKey' => 'dashboards',
       'controller'    => 'co_dashboards',
+      'action'        => 'index'
+    ),
+    _txt('ct.data_filters.pl') => array(
+      'icon'          => 'filter_list',
+      'permissionKey' => 'datafilters',
+      'controller'    => 'data_filters',
       'action'        => 'index'
     ),
     _txt('ct.co_enrollment_flows.pl') => array(
@@ -167,7 +185,9 @@
     foreach($pluginLinks as $label => $pcfg) {
       // $pcfg['url']['co'] is set, but will be overridden below
       $configMenuItems[$label] = $pcfg['url'];
-      $configMenuItems[$label]['icon'] = $pcfg['icon'];
+      if(!empty($pcfg['icon'])) {
+        $configMenuItems[$label]['icon'] = $pcfg['icon'];
+      }
     }
   }
   
@@ -206,7 +226,9 @@
            (!empty($cfg['plugin']))) {
           
           print '<li>';
-          print '<em class="material-icons" aria-hidden="true">' . $cfg['icon'] . '</em> ';
+          if(!empty($cfg['icon'])) {
+            print '<em class="material-icons" aria-hidden="true">' . $cfg['icon'] . '</em> ';
+          }
           $args = array();
           $args['plugin'] = (!empty($cfg['plugin']) ? $cfg['plugin'] : null);
           $args['controller'] = $cfg['controller'];

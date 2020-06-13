@@ -273,6 +273,7 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     }
     
     // Collect some identifiers
+    /* As of Registry v3.3.0, we no longer need to explicitly do this
     if(!empty($result[0])) {
       $orgdata['Identifier'][] = array(
         'identifier' => $result[0],
@@ -280,7 +281,7 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
         'status'     => StatusEnum::Active,
         'type'       => IdentifierEnum::SORID
       );
-    }
+    }*/
     
     if(!empty($result[15])) {
       $orgdata['Identifier'][] = array(
@@ -343,6 +344,23 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
         'url'        => $result[21],
         'type'       => UrlEnum::Personal
       );
+    }
+    
+    if(!empty($result[24])) {
+      $orgdata['OrgIdentity']['date_of_birth'] = $result[24];
+    }
+    
+    if(!empty($result[25])) {
+      $ahas = json_decode($result[25], true);
+      
+      $orgdata['AdHocAttribute'] = array();
+      
+      foreach($ahas as $tag => $value) {
+        $orgdata['AdHocAttribute'][] = array(
+          'tag' => $tag,
+          'value' => $value
+        );
+      }
     }
     
     return $orgdata;

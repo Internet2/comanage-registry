@@ -28,12 +28,6 @@
   if($this->action == 'select') {
     // Add breadcrumbs
     print $this->element("coCrumb");
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'co_people';
-    $args['action'] = 'index';
-    $args['co'] = $cur_co['Co']['id'];
-    $this->Html->addCrumb(_txt('me.population'), $args);
     $args = array(
       'controller' => 'co_people',
       'action' => 'canvas',
@@ -108,18 +102,6 @@
 
   print $this->element("pageTitleAndButtons", $params);
   
-  if($permissions['select'] && $this->action == 'select') {
-    // We're using slightly the wrong permission here... edit group instead of add group member
-    // (though they work out the same)
-    print $this->Form->create('CoGroupMember',
-                              array('url' => array('action' => 'update'),
-                                    'inputDefaults' => array('label' => false,
-                                                             'div' => false))) . "\n";
-    // beforeFilter needs CO ID
-    print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
-    // Group ID must be global for isAuthorized
-    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $vv_co_person_id)) . "\n";
-  }
 ?>
 <script type="text/javascript">
   // This is based in large part on CoProvisioningTargets/index.ctp
@@ -309,6 +291,30 @@
     });
   });
 </script>
+
+<?php
+  // Load the top search form
+  if(isset($permissions['search']) && $permissions['search'] ) {
+    $fileLocation = APP . "View/CoGroups/search.inc";
+    if(file_exists($fileLocation)) {
+      include($fileLocation);
+    }
+  }
+
+  // Begin the select form (if in select mode)
+  if($permissions['select'] && $this->action == 'select') {
+    // We're using slightly the wrong permission here... edit group instead of add group member
+    // (though they work out the same)
+    print $this->Form->create('CoGroupMember',
+        array('url' => array('action' => 'update'),
+          'inputDefaults' => array('label' => false,
+            'div' => false))) . "\n";
+    // beforeFilter needs CO ID
+    print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+    // Group ID must be global for isAuthorized
+    print $this->Form->hidden('CoGroupMember.co_person_id', array('default' => $vv_co_person_id)) . "\n";
+  }
+?>
 
 <div class="table-container">
   <table id="co_groups">

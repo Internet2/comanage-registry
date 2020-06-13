@@ -75,7 +75,6 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'verification_template_id'
     ),
-    "CoPipeline",
     "CoTheme"
   );
   
@@ -83,9 +82,11 @@ class CoEnrollmentFlow extends AppModel {
     // A CO Enrollment Flow has many CO Enrollment Attributes
     "CoEnrollmentAttribute" => array('dependent' => true),
     "CoEnrollmentAuthenticator" => array('dependent' => true),
+    "CoEnrollmentCluster" => array('dependent' => true),
     "CoEnrollmentSource" => array('dependent' => true),
     // A CO Enrollment Flow may have zero or more CO Petitions
-    "CoPetition" => array('dependent' => true)
+    "CoPetition" => array('dependent' => true),
+    "CoPipeline"
   );
   
   // Associated models that should be relinked to the archived attribute during Changelog archiving
@@ -133,11 +134,6 @@ class CoEnrollmentFlow extends AppModel {
     ),
     'my_identity_shortcut' => array(
       'rule' => 'boolean'
-    ),
-    'co_pipeline_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
     ),
     'match_policy' => array(
       'rule' => array('inList',
@@ -600,18 +596,20 @@ class CoEnrollmentFlow extends AppModel {
     $ret['collectIdentifier']['role'] = EnrollmentRole::Enrollee;
     
     if($ret['sendConfirmation']['enabled'] == RequiredEnum::Required) {
+      $ret['establishAuthenticators']['role'] = EnrollmentRole::Enrollee;
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Enrollee;
       $ret['waitForApproval']['role'] = EnrollmentRole::Enrollee;
     } else {
+      $ret['establishAuthenticators']['role'] = EnrollmentRole::Petitioner;
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Petitioner;
       $ret['waitForApproval']['role'] = EnrollmentRole::Petitioner;
     }
     
-    // Maybe collect identifiers
+    // Maybe collect authenticators
+    
     if(isset($ef['CoEnrollmentFlow']['establish_authenticators'])
        && $ef['CoEnrollmentFlow']['establish_authenticators']) {
       $ret['establishAuthenticators']['enabled'] = RequiredEnum::Required;
-      $ret['establishAuthenticators']['role'] = EnrollmentRole::Enrollee;
     } else {
       $ret['establishAuthenticators']['enabled'] = RequiredEnum::NotPermitted;
     }

@@ -1,6 +1,6 @@
 COmanage Registry
 
-Copyright (C) 2010-2018
+Copyright (C) 2010-2020
 University Corporation for Advanced Internet Development, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,15 +19,19 @@ limitations under the License.
 
 This material is based upon work supported by the National Science
 Foundation under Grant No. OCI-0721896, OCI-0330626, OCI-1032468,
-and ACI-1547268. Any opinions, findings and conclusions or recommendations
-expressed in this material are those of the author(s) and do not
-necessarily reflect the views of the National Science Foundation (NSF).
+ACI-1547268, ACI-1738962, and PHY-1836702. Any opinions, findings
+and conclusions or recommendations expressed in this material are
+those of the author(s) and do not necessarily reflect the views of
+the National Science Foundation (NSF).
 
 ---------------------------------------------------------------------------
 
 Contributions with original copyright held by, and copyright license granted
 to the University Corporation for Advanced Internet Development, Inc. as per
-the Contributer License Agreement by,
+the Contributor License Agreement by,
+
+ GRNET SA
+ https://grnet.gr
 
  Modern Language Association
  https://www.mla.org
@@ -37,6 +41,9 @@ the Contributer License Agreement by,
  
  SURFnet BV
  https://www.surf.nl
+ 
+ Syracuse University
+ https://syracuse.edu
 
 This project uses the following third party utilities, see the appropriate
 files and utilities for further information:
@@ -69,6 +76,10 @@ files and utilities for further information:
  MIT License
  http://dimsemenov.com/plugins/magnific-popup
  
+ Material Design Light (app/webroot/js/mdl)
+ Apache 2.0
+ https://getmdl.io
+ 
  noty (app/webroot/js/jquery/noty)
  MIT License
  http://ned.im/noty
@@ -77,16 +88,24 @@ files and utilities for further information:
  MIT License
  https://github.com/KnpLabs/php-github-api
  
- spin.js (app/webroot/js/jquery/spin*)
- MIT License
- http://spin.js.org
- 
  Shibboleth Embedded Discovery Service (app/webroot/js/eds)
  Apache 2.0
  https://shibboleth.net/products/embedded-discovery-service.html
+ 
+ spin.js (app/webroot/js/jquery/spin*)
+ MIT License
+ http://spin.js.org
  
  Superfish (app/webroot/js/superfish)
  MIT License
  https://superfish.joelbirch.co
 
+ Guzzle 6 HTTP Adapter (php-http/guzzle6-adapter)
+ MIT License
+ https://github.com/php-http/guzzle6-adapter
+ 
+ Filesystem PSR-6 Cache pool (php-cache/filesystem-adapter)
+ MIT License
+ https://github.com/php-cache/filesystem-adapter
+ 
 ---------------------------------------------------------------------------

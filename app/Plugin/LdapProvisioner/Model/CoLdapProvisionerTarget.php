@@ -151,16 +151,33 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     'oc_posixaccount' => array(
       'rule' => 'boolean'
     ),
+    'oc_posixgroup' => array(
+      'rule' => 'boolean'
+    ),
     'oc_ldappublickey' => array(
       'rule' => 'boolean'
     ),
     'oc_voperson' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_voposixaccount' => array(
+      'rule' => 'boolean'
+    ),
+    'oc_voposixgroup' => array(
       'rule' => 'boolean'
     )
   );
   
   // Cache of schema plugins, populated by supportedAttributes
   protected $plugins = array();
+  
+  // List of schemas used for groups
+  private $groupSchemas = array(
+    'eduMember',
+    'groupOfNames',
+    'posixGroup',
+    'voPosixGroup'
+  );
   
   /**
    * Assemble attributes for an LDAP record.
@@ -188,7 +205,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $group = isset($provisioningData['CoGroup']['id']);
     
     // Make it easier to see if attribute options are enabled
-    $attropts = ($person && $coProvisioningTargetData['CoLdapProvisionerTarget']['attr_opts']);
+    $attropts = $coProvisioningTargetData['CoLdapProvisionerTarget']['attr_opts'];
     
     // Pull the attribute configuration
     $args = array();
@@ -265,12 +282,18 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       // Skip objectclasses that aren't relevant for the sort of data we're working with
-      if(($person && $oc == 'groupOfNames')
-         || ($group && !in_array($oc, array('groupOfNames','eduMember')))) {
+      // We special case eduMember since it applies to both people and groups
+      if(($person && $oc != 'eduMember' && in_array($oc, $this->groupSchemas))
+         || ($group && !in_array($oc, $this->groupSchemas))) {
         continue;
       }
       
-      if($group && empty($groupMembers) && in_array($oc, array('groupOfNames','eduMember'))) {
+      // Skip voPosixAccount and voPosixGroup if attribute options are not enabled
+      if(in_array($oc, array('voPosixAccount', 'voPosixGroup')) && !$attropts) {
+        continue;
+      }
+      
+      if($group && empty($groupMembers) && in_array($oc, $this->groupSchemas)) {
         // As an interim solution to CO-1348 we'll pull all group members here (since we no longer get them)
         
         $args = array();
@@ -329,12 +352,67 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             
             // Labeled attribute, used to construct attribute options
             $lattr = $attr;
+            $lsattr = null;
             
             switch($attr) {
               // Name attributes
               case 'cn':
                 if($group) {
-                  $attributes[$lattr] = $provisioningData['CoGroup']['name'];
+                  // We don't use a switch here for improved readability
+                  if($oc == 'groupOfNames') {
+                    // Simply use the CO Group name as the cn. Note that because
+                    // the DN for the group is always constructed using the
+                    // CO Group Name, this value for cn will always be present.
+                    $attributes[$lattr] = $provisioningData['CoGroup']['name'];
+                  } elseif($oc == 'posixGroup') {
+                    // Create a single cn using the Cluster configured for posixAccount,
+                    // similar to gidNumber below
+                    if($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_posixaccount']
+                       && $coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id']) {
+                      // For posixGroup, we require posixAccount to be enabled and a Cluster to be set
+                      // (We only really require posixAccount because in the UI that's where Cluster is set)
+                      
+                      // Find the configured cluster so we know what identifier type to pull
+                      $cluster = Hash::extract($provisioningData['UnixClusterGroup'],
+                                               '{n}.UnixCluster[cluster_id='.$coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'].']');
+                      
+                      if(!empty($cluster[0]['groupname_type'])) {
+                        // Now map the groupname type to an identifier
+                        
+                        $nameIdentifier = Hash::extract($provisioningData['Identifier'], '{n}[type='.$cluster[0]['groupname_type'].']');
+                        
+                        if($nameIdentifier) {
+                          $attributes[$lattr] = $nameIdentifier[0]['identifier'];
+                        }
+                      }
+                    }
+                  } elseif($oc == 'voPosixGroup') {
+                    // We've already checked that attribute options are enabled, above,
+                    // so for each cluster this group is attached to emit a cn record
+                    // corresponding to groupname_type
+                    foreach($provisioningData['UnixClusterGroup'] as $ug) {
+                      $lsattr = $lattr;
+                      
+                      // Map cluster to short label via CO Service.
+                      $label = $this->CoProvisioningTarget
+                                    ->Co
+                                    ->CoService
+                                    ->mapClusterToLabel($provisioningData['CoGroup']['co_id'],
+                                                        $ug['UnixCluster']['cluster_id']);
+                      
+                      if($label) {
+                        $lsattr = $lattr . ";scope-" . $label;
+                        
+                        // Find the appropriate identifier to use as the group name
+                        $nameIdentifier = Hash::extract($provisioningData['Identifier'], '{n}[type='.$ug['UnixCluster']['groupname_type'].']');
+                        
+                        if($nameIdentifier) {
+                          $attributes[$lsattr] = $nameIdentifier[0]['identifier'];
+                        }
+                      }
+                      // XXX else?
+                    }
+                  }
                   break;
                 }
                 // else $person, fall through
@@ -508,7 +586,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     $scope = '@' . $coProvisioningTargetData['CoLdapProvisionerTarget']['scope_suffix'];
                   } else {
                     // Don't add this attribute since we don't have a scope
-                    continue;
+                    break;
                   }
                 }
                 
@@ -616,6 +694,70 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $attributes[$attr] = array();
                 }
                 break;
+              case 'voPersonApplicationPassword':
+                if($attropts && !empty($provisioningData['Password'])) {
+                  // We only support application specific passwords when
+                  // attribute options are enabled, since it's not clear what
+                  // an application specific password means when not tied to
+                  // an application.
+                  
+                  // XXX it'd be better to pass this with the provisioning data
+                  // rather than call it once per identifer, or at least to pull
+                  // a map once
+                  $mappings = $this->CoProvisioningTarget
+                                   ->Co
+                                   ->CoGroup
+                                   ->CoService
+                                   ->mapAuthenticators($provisioningData['Co']['id']);
+                  
+                  if($modify) {
+                    // Start with an empty list in case no active passwords
+                    $attributes[$attr] = array();
+                  }
+                  
+                  if(!empty($mappings)) {
+                    // What groups is this CO Person a member of?
+                    $entGroupIds = Hash::extract($provisioningData['CoGroupMember'], '{n}.co_group_id');
+
+                    foreach($provisioningData['Password'] as $up) {
+                      // Skip locked passwords
+                      if(!isset($up['AuthenticatorStatus']['locked']) || !$up['AuthenticatorStatus']['locked']) {
+                        // Walk through the mappings and look for any that match
+                        // our current password_authenticator_id. Note that we
+                        // might have more than one service for each password.
+                        
+                        foreach($mappings as $authenticatorId => $m) {
+                          // Do we have a short label?
+                          if(!empty($m['serviceCfg']['short_label']) 
+                             // Is this a PasswordAuthenticator?
+                             && $m['pluginType'] == 'PasswordAuthenticator'
+                             // Does this PasswordAuthenticator match the one associated with this Password?
+                             && $m['cfg']['PasswordAuthenticator']['id'] == $up['password_authenticator_id']
+                             // Is there a Group associated with this service?
+                             && (!$m['serviceCfg']['co_group_id']
+                                 // Is the user in the service group, if there is one?
+                                 || in_array($m['serviceCfg']['co_group_id'], $entGroupIds))) {
+                            $lrattr = $lattr . ';app-' . $m['serviceCfg']['short_label'];
+                          
+                          switch($up['password_type']) {
+                              // XXX we can't use PasswordAuthenticator's enums in case the plugin isn't installed
+                              case 'CR':
+                                $attributes[$lrattr][] = '(CRYPT)' . $up['password'];
+                                break;
+                              case 'SH':
+                                $attributes[$lrattr][] = '{SSHA}' . $up['password'];
+                                break;
+                              default:
+                                $attributes[$lrattr][] = $up['password'];
+                                break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                break;   
               case 'voPersonPolicyAgreement':
                 if(!$attropts) {
                   $attributes[$attr] = array();
@@ -640,7 +782,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'voPersonStatus':
-                $attributes[$attr] = StatusENum::$to_api[ $provisioningData['CoPerson']['status'] ];
+                $attributes[$attr] = StatusEnum::$to_api[ $provisioningData['CoPerson']['status'] ];
                 
                 if($attropts) {
                   // If attribute options are enabled, emit person role status as well
@@ -648,12 +790,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   foreach($provisioningData['CoPersonRole'] as $r) {
                     $lrattr = $lattr . ";role-" . $r['id'];
                     
-                    $attributes[$lrattr] = StatusENum::$to_api[ $r['status'] ];
+                    $attributes[$lrattr] = StatusEnum::$to_api[ $r['status'] ];
                   }
                 }
                 break;
               // Authenticators
               case 'sshPublicKey':
+                if($modify) {
+                  // Start with an empty list in case no active keys
+                  $attributes[$attr] = array();
+                }
                 foreach($provisioningData['SshKey'] as $sk) {
                   $attributes[$attr][] = $sk['type'] . " " . $sk['skey'] . " " . $sk['comment'];
                 }
@@ -870,28 +1016,197 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   unset($attributes[$attr]);
                 }
                 break;
-              // posixAccount attributes
-              case 'gecos':
-                // Construct using same name as cn
-                $attributes[$attr] = generateCn($provisioningData['PrimaryName']) . ",,,";
-                break;
+              // posixAccount and posixGroup attributes
+              // As of Registry v3.3.0 we pull these attributes from the configured
+              // UnixCluster, or if Attribute Options are enabled potentially from
+              // all UnixClusters (if so configured).
               case 'gidNumber':
+              case 'voPosixAccountGidNumber':
+                if($group) {
+                  // This is sort of similar logic to cn for $group.
+                  
+                  if($oc == 'voPosixGroup') {
+                    // We won't get here if !$attropts, so just jump into the loop.
+                    foreach($provisioningData['UnixClusterGroup'] as $ug) {
+                      $lsattr = $lattr;
+                      
+                      // Map cluster to short label via CO Service.
+                      $label = $this->CoProvisioningTarget
+                                    ->Co
+                                    ->CoService
+                                    ->mapClusterToLabel($provisioningData['CoGroup']['co_id'],
+                                                        $ug['UnixCluster']['cluster_id']);
+                      
+                      if($label) {
+                        $lsattr = $lattr . ";scope-" . $label;
+                        
+                        // Find the appropriate identifier to use as the group id
+                        $gidIdentifier = Hash::extract($provisioningData['Identifier'], '{n}[type='.$ug['UnixCluster']['gid_type'].']');
+                        
+                        if($gidIdentifier) {
+                          $attributes[$lsattr] = $gidIdentifier[0]['identifier'];
+                        }
+                      }
+                      // XXX else?
+                    }
+                  } elseif($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_posixaccount']
+                           && $coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id']) {
+                    // For posixGroup, we require posixAccount to be enabled and a Cluster to be set
+                    // (We only really require posixAccount because in the UI that's where Cluster is set)
+                    
+                    // Find the configured cluster so we know what identifier type to pull
+                    $cluster = Hash::extract($provisioningData['UnixClusterGroup'],
+                                             '{n}.UnixCluster[cluster_id='.$coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'].']');
+                    
+                    if(!empty($cluster[0]['gid_type'])) {
+                      // Now map the gid type to an identifier
+                      
+                      $gidIdentifier = Hash::extract($provisioningData['Identifier'], '{n}[type='.$cluster[0]['gid_type'].']');
+                      
+                      if($gidIdentifier) {
+                        $attributes[$lattr] = $gidIdentifier[0]['identifier'];
+                      }
+                    }
+                  }
+                  break;
+                }
+                // else fall through
+              case 'gecos':
               case 'homeDirectory':
+              case 'loginShell':
               case 'uidNumber':
-                // We pull these attributes from Identifiers with types of the same name
-                // as an experimental implementation for CO-863.
-                foreach($provisioningData['Identifier'] as $m) {
-                  if(isset($m['type'])
-                     && $m['type'] == $attr
-                     && $m['status'] == StatusEnum::Active) {
-                    $attributes[$attr] = $m['identifier'];
-                    break;
+              case 'voPosixAccountGecos':
+              case 'voPosixAccountHomeDirectory':
+              case 'voPosixAccountLoginShell':
+              case 'voPosixAccountUidNumber':
+                // For voPosixAccount, attribute options must be enabled, and
+                // all clusters will be written. For posixAccount, only the
+                // requested cluster is written, and attribute options are not used.
+                
+                // For wacky Cake data model reasons (see construction in ProvisionerBehavior), this is correct
+                // $provisioningData['UnixClusterAccount'][0]['UnixClusterAccount']['foo']
+                foreach($provisioningData['UnixClusterAccount'] as $ua) {
+                  $lsattr = $lattr;
+                  
+                  if($oc == 'voPosixAccount'
+                     || ($coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'] 
+                         == $ua['UnixCluster']['cluster_id'])) {
+                    if($attropts && $oc == 'voPosixAccount') {
+                      // Map cluster to short label via CO Service.
+                      $label = $this->CoProvisioningTarget
+                                    ->Co
+                                    ->CoService
+                                    ->mapClusterToLabel($provisioningData['Co']['id'],
+                                                        $ua['UnixCluster']['cluster_id']);
+                      
+                      if($label) {
+                        $lsattr = $lattr . ";scope-" . $label;
+                      }
+                    }
+                    
+                    // A switch within a switch...
+                    switch($attr) {
+                      case 'gecos':
+                      case 'voPosixAccountGecos':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['gecos'];
+                        break;
+                      case 'gidNumber':
+                      case 'voPosixAccountGidNumber':
+                        // Find the Identifier of primary_co_group_id
+                        $gidIdentifier = Hash::extract($provisioningData['CoGroupMember'], '{n}.CoGroup[id='.$ua['UnixClusterAccount']['primary_co_group_id'].'].Identifier.{n}[type='.$ua['UnixCluster']['gid_type'].']');
+                        $attributes[$lsattr] = $gidIdentifier[0]['identifier'];
+                        break;
+                      case 'homeDirectory':
+                      case 'voPosixAccountHomeDirectory':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['home_directory'];
+                        break;
+                      case 'uidNumber':
+                      case 'voPosixAccountUidNumber':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['uid'];
+                        break;
+                      case 'loginShell':
+                      case 'voPosixAccountLoginShell':
+                        $attributes[$lsattr] = $ua['UnixClusterAccount']['login_shell'];
+                        break;
+                    }
+                    
+                    // If attribute options are not enabled, do not emit more than
+                    // one record to avoid interleaving different accounts.
+                    if(!$attropts)
+                      break;
                   }
                 }
                 break;
-              case 'loginShell':
-                // XXX hard coded for now (CO-863)
-                $attributes[$attr] = "/bin/tcsh";
+              // posixGroup attributes
+              case 'memberUid':
+                if($oc == 'posixGroup') {
+                  // As above for cn and posixAccount, we use the uid_type associated
+                  // with the configured Cluster
+                  if($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_posixaccount']
+                     && $coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id']) {
+                    // For posixGroup, we require posixAccount to be enabled and a Cluster to be set
+                    // (We only really require posixAccount because in the UI that's where Cluster is set)
+                    
+                    // Find the configured cluster so we know what identifier type to pull
+                    $cluster = Hash::extract($provisioningData['UnixClusterGroup'],
+                                             '{n}.UnixCluster[cluster_id='.$coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'].']');
+                    
+                    if(!empty($cluster[0]['uid_type'])) {
+                      // Now pull the set of identifiers for this UID type
+                      $members = $this->CoLdapProvisionerDn
+                                      ->CoGroup
+                                      ->CoGroupMember
+                                      ->mapCoGroupMembersToIdentifiers($groupMembers, $cluster[0]['uid_type']);
+                      
+                      if(!empty($members)) {
+                        // Unlike member, memberUid is not required. However, like owner, we can't have
+                        // an empty list.
+                        
+                        $attributes[$attr] = $members;
+                      } elseif($modify) {
+                        // Unless we're modifying an entry, in which case an empty list
+                        // says to remove any previous entry
+                        $attributes[$attr] = array();
+                      }
+                    }
+                  }                  
+                } elseif($oc == 'voPosixGroup') {
+                  // We've already checked that attribute options are enabled, above,
+                  // so for each cluster this group is attached to emit memberUid records
+                  // corresponding to uid_type
+                  foreach($provisioningData['UnixClusterGroup'] as $ug) {
+                    $lsattr = $lattr;
+                    
+                    // Map cluster to short label via CO Service.
+                    $label = $this->CoProvisioningTarget
+                                  ->Co
+                                  ->CoService
+                                  ->mapClusterToLabel($provisioningData['CoGroup']['co_id'],
+                                                      $ug['UnixCluster']['cluster_id']);
+                    
+                    if($label) {
+                      $lsattr = $lattr . ";scope-" . $label;
+                      
+                      // Now pull the set of identifiers for this UID type
+                      $members = $this->CoLdapProvisionerDn
+                                      ->CoGroup
+                                      ->CoGroupMember
+                                      ->mapCoGroupMembersToIdentifiers($groupMembers, $ug['UnixCluster']['uid_type']);
+                      
+                      if(!empty($members)) {
+                        // Unlike member, memberUid is not required. However, like owner, we can't have
+                        // an empty list.
+                        
+                        $attributes[$lsattr] = $members;
+                      } elseif($modify) {
+                        // Unless we're modifying an entry, in which case an empty list
+                        // says to remove any previous entry
+                        $attributes[$lsattr] = array();
+                      }
+                    }
+                    // XXX else?
+                  }
+                }
                 break;
               // Internal attributes
               case 'pwdAccountLockedTime':
@@ -923,8 +1238,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             }
           }
           
-          // Check if we emitted anything
-          if(!empty($attributes[$attr])) {
+          // Check if we emitted anything by comparing the keys for marshalled attributes
+          // to the attribute just considered, knowing that we may have added
+          // an attribute with a name appended with an option like ';prior'.
+          
+          if(array_filter($attributes, function ($k) use ($attr, $attributes, $modify) {
+             // CO-1914 On modify of multivalued attribute, this could be an empty array
+             // indicating no value to emit
+                            return (strpos($k, $attr) === 0  && (!$modify || !empty($attributes[$k])));
+                          }, ARRAY_FILTER_USE_KEY)) {
             $attrEmitted = true;
           }
         }
@@ -1128,6 +1450,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         }
       }
     }
+    
+    // Don't permit groupOfNames and posixGroup to both be enabled, since they're
+    // both STRUCTURAL, which means the LDAP server will complain
+    if($this->data['CoLdapProvisionerTarget']['oc_groupofnames']
+       && $this->data['CoLdapProvisionerTarget']['oc_posixgroup']) {
+      throw new InvalidArgumentException(_txt('er.ldapprovisioner.oc.conflict', array('groupOfNames', 'posixGroup')));
+    }
   }
   
   /**
@@ -1194,22 +1523,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoPersonEnteredGracePeriod:
       case ProvisioningActionEnum::CoPersonUnexpired:
       case ProvisioningActionEnum::CoPersonUpdated:
-        if(!in_array($provisioningData['CoPerson']['status'],
-                     array(StatusEnum::Active,
-                           StatusEnum::Expired,
-                           StatusEnum::GracePeriod,
-                           StatusEnum::Suspended))) {
-          // Convert this to a delete operation. Basically we (may) have a record in LDAP,
-          // but the person is no longer active. Don't delete the DN though, since
-          // the underlying person was not deleted.
-          
-          $delete = true;
-        } else {
-          // An update may cause an existing person to be written to LDAP for the first time
-          // or for an unexpectedly removed entry to be replaced
-          $assigndn = true;  
-          $modify = true;
-        }
+        // An update may cause an existing person to be written to LDAP for the first time
+        // or for an unexpectedly removed entry to be replaced
+        $assigndn = true;  
+        $modify = true;
         break;
       case ProvisioningActionEnum::CoGroupAdded:
         $assigndn = true;
@@ -1236,14 +1553,45 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         break;
     }
     
+    if($person) {
+      if(!empty($provisioningData['CoPerson']['status'])
+         && !in_array($provisioningData['CoPerson']['status'],
+                      array(StatusEnum::Active,
+                            StatusEnum::Expired,
+                            StatusEnum::GracePeriod,
+                            StatusEnum::Suspended))) {
+        // Convert this to a delete operation. Basically we (may) have a record in LDAP,
+        // but the person is no longer active. Don't delete the DN though, since
+        // the underlying person was not deleted.
+        
+        $delete = true;
+        $add = false;
+        $assigndn = false;
+        $modify = false;
+      }
+    }
+    
     if($group) {
-      // If this is a group action and no Group Base DN is defined, or oc_groupofnames is false,
-      // then don't try to do anything.
+      // If this is a group action and no Group Base DN is defined, or no appropriate
+      // schema is enabled, then don't try to do anything.
       
       if(!isset($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
-         || empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])
-         || !$coProvisioningTargetData['CoLdapProvisionerTarget']['oc_groupofnames']) {
+         || empty($coProvisioningTargetData['CoLdapProvisionerTarget']['group_basedn'])) {
         return true;
+      }
+      
+      $found = false;
+      
+      foreach($this->groupSchemas as $s) {
+        if($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_'.strtolower($s)]) {
+          // We have at least one schema enabled
+          $found = true;
+          break;
+        }
+      }
+      
+      if(!$found) {
+        return false;
       }
     }
     
@@ -1396,7 +1744,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
+
       if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because
@@ -1855,6 +2203,25 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           )
         )
       ),
+      'posixGroup' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'cn' => array(
+            'required'   => true,
+            'multiple'   => false
+          ),
+          'gidNumber' => array(
+            'required'   => true,
+            'multiple'   => false
+          ),
+          'memberUid' => array(
+            'required'   => false,
+            'multiple'   => true
+          )
+        )
+      ),
       'ldapPublicKey' => array(
         'objectclass' => array(
           'required'     => false
@@ -1872,6 +2239,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         ),
         'attributes' => array(
           'voPersonAffiliation' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPersonApplicationPassword' => array(
             'required'   => false,
             'multiple'   => true
           ),
@@ -1918,6 +2289,52 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
             'defaulttype' => IdentifierEnum::SORID
           ),
           'voPersonStatus' => array(
+            'required'   => false,
+            'multiple'   => true
+          )
+        )
+      ),
+      'voPosixAccount' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'voPosixAccountUidNumber' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountGidNumber' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountHomeDirectory' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountLoginShell' => array(
+            'required'   => false,
+            'multiple'   => true
+          ),
+          'voPosixAccountGecos' => array(
+            'required'   => false,
+            'multiple'   => true
+          )
+        )
+      ),
+      'voPosixGroup' => array(
+        'objectclass' => array(
+          'required'    => false
+        ),
+        'attributes' => array(
+          'cn' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'voPosixAccountGidNumber' => array(
+            'required'   => true,
+            'multiple'   => true
+          ),
+          'memberUid' => array(
             'required'   => false,
             'multiple'   => true
           )

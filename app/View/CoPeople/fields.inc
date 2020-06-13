@@ -46,12 +46,14 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $args = array();
-  $args['plugin'] = null;
-  $args['controller'] = 'co_people';
-  $args['action'] = 'index';
-  $args['co'] = $cur_co['Co']['id'];
-  $this->Html->addCrumb(_txt('me.population'), $args);
+  if($permissions['index']) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_people';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('me.population'), $args);
+  }
   if($this->action == "canvas") {
     $this->Html->addCrumb(filter_var(generateCn($co_people[0]['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS));
   } elseif($this->action == "invite") {
@@ -162,6 +164,20 @@
           'title'   => _txt('ct.authenticators.pl'),
           'url'     => array(
             'controller' => 'authenticators',
+            'action' => 'status',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
+      if(isset($vv_cluster_count) && $vv_cluster_count > 0) {
+        // Link to clusters for this person
+        
+        $sidebarButtons[] = array(
+          'icon'    => 'person',
+          'title'   => _txt('ct.clusters.pl'),
+          'url'     => array(
+            'controller' => 'clusters',
             'action' => 'status',
             'copersonid' => $co_people[0]['CoPerson']['id']
           )
@@ -352,8 +368,7 @@
             displaySpinner();
             window.location.href = "<?php print $this->Html->url(array('controller' => 'identifiers',
             'action' => 'assign',
-            'copersonid' => $co_people[0]['CoPerson']['id'],
-            'co' => $cur_co['Co']['id'])); ?>";
+            'copersonid' => $co_people[0]['CoPerson']['id'])); ?>";
           }
         }
       ],
@@ -784,6 +799,30 @@
                     <?php print _txt('fd.status.change'); ?>
                   </div>
                 <?php endif; ?>
+              </div>
+            </li>
+            <li class="modelbox-data">
+              <div class="field-name">
+                <?php print $this->Form->label('CoPerson.date_of_birth', _txt('fd.date_of_birth')); ?>
+              </div>
+              <div class="field-info">
+                <?php
+                  if($e && !$es) {
+                    $args = array(
+                      'class' => 'datepicker'
+                    );
+
+                    if(!empty($co_people[0]['CoPerson']['date_of_birth'])) {
+                      $args['value'] = $co_people[0]['CoPerson']['date_of_birth'];
+                    }
+
+                    print $this->Form->text('date_of_birth', $args);
+                  } else {
+                    if(!empty($co_people[0]['CoPerson']['date_of_birth'])) {
+                      print $this->Time->format($co_people[0]['CoPerson']['date_of_birth'], "%F");
+                    }
+                  }
+                ?>
               </div>
             </li>
             <li>

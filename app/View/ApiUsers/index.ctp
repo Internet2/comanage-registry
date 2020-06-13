@@ -26,8 +26,9 @@
  */
 
   // Add breadcrumbs
-  $this->Html->addCrumb(_txt('ct.api_users.pl'), array('controller' => 'api_users', 'action' => 'index'));
-
+  print $this->element("coCrumb");
+  $this->Html->addCrumb(_txt('ct.api_users.pl'));
+  
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
@@ -38,21 +39,32 @@
   if($permissions['add']) {
     $params['topLinks'][] = $this->Html->link(
       _txt('op.add-a', array(_txt('ct.api_users.1'))),
-      array('controller' => 'api_users', 'action' => 'add'),
+      array(
+        'controller' => 'api_users',
+        'action' => 'add',
+        'co' => $cur_co['Co']['id']
+      ),
       array('class' => 'addbutton')
     );
   }
 
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
+<?php if($cur_co['Co']['id'] == 1): ?>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <?php print _txt('in.api.cmp'); ?>
+</div>
+<?php endif; // co_id == 1 ?>
 
 <div class="table-container">
   <table id="api_users">
     <thead>
       <tr>
-        <th><?php print $this->Paginator->sort('username', _txt('fd.username.api')); ?></th>
-        <th><?php print _txt('fd.password'); ?></th>
+        <th><?php print $this->Paginator->sort('username', _txt('fd.api.username')); ?></th>
+        <th><?php print _txt('fd.status'); ?></th>
+        <th><?php print _txt('fd.api.key'); ?></th>
+        <th><?php print _txt('fd.valid_through'); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
@@ -69,7 +81,9 @@
                                           $a['ApiUser']['id']));
           ?>
         </td>
-        <td><?php print (isset($a['ApiUser']['password']) ? "*****" : ""); ?></td>
+        <td><?php print _txt('en.status.susp', null, $a['ApiUser']['status']); ?></td>
+        <td><?php print (!empty($a['ApiUser']['password']) ? _txt('fd.set') : _txt('fd.set.not')); ?></td>
+        <td><?php if(!empty($a['ApiUser']['valid_through'])) { print $this->Time->format($a['ApiUser']['valid_through'], "%F", false, $vv_tz); } ?></td>
         <td>
           <?php
             if($permissions['edit']) {

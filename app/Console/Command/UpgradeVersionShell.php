@@ -28,14 +28,18 @@
 class UpgradeVersionShell extends AppShell {
   var $uses = array('Meta',
                     'Address',
+                    'ApiUser',
                     'CmpEnrollmentConfiguration',
                     'Co',
                     'CoEnrollmentAttributeDefault',
                     'CoEnrollmentFlow',
                     'CoExtendedType',
                     'CoGroup',
+                    'CoIdentifierAssignment',
+                    'CoJob',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'Identifier',
+                    'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
   
   // A list of known versions, must be semantic versioning compliant. The value
@@ -78,7 +82,11 @@ class UpgradeVersionShell extends AppShell {
     "3.1.1" => array('block' => false),
     "3.2.0" => array('block' => false),
     "3.2.1" => array('block' => false),
-    "3.3.0" => array('block' => false, 'post' => 'post330'),
+    "3.2.2" => array('block' => false),
+    "3.2.3" => array('block' => false),
+    "3.2.4" => array('block' => false),
+    "3.2.5" => array('block' => false),
+    "3.3.0" => array('block' => false, 'post' => 'post330')
   );
   
   public function getOptionParser() {
@@ -385,7 +393,7 @@ class UpgradeVersionShell extends AppShell {
   public function post330() {
     // 3.3.0 moves SSH key management into an authenticator plugin.
     $this->out(_txt('sh.ug.330.ssh'));
-
+    
     $args = array();
     $args['contain'] = false;
     
@@ -396,6 +404,70 @@ class UpgradeVersionShell extends AppShell {
       $this->out('- ' . $co['Co']['name']);
       
       $this->SshKeyAuthenticator->_ug330($co['Co']['id']);
+      $this->CoExtendedType->addDefault($co['Co']['id'], 'CoDepartment.type');
+    }
+    
+    // The users view is no longer required.
+    $prefix = "";
+    $db = ConnectionManager::getDataSource('default');
+
+    if(isset($db->config['prefix'])) {
+      $prefix = $db->config['prefix'];
+    }
+    
+    $this->out(_txt('sh.ug.330.users'));
+    $this->Co->query("DROP VIEW " . $prefix . "users");
+    
+    // API Users is now more configurable. Set existing api users to be
+    // active and fully privileged.
+    $this->out(_txt('sh.ug.330.api'));
+    $this->ApiUser->updateAll(
+      array(
+        'ApiUser.co_id' => 1,
+        'ApiUser.privileged' => true,
+        'ApiUser.status' => "'A'"  // Wacky updateAll syntax
+      ),
+      true
+    );
+    
+    // Identifier Assignments now have a context, all existing Identifier
+    // Assignments applied to CoPeople, and while we're here give all 
+    // everything Active status
+    $this->out(_txt('sh.ug.330.ia'));
+    $this->CoIdentifierAssignment->updateAll(
+      array(
+        'CoIdentifierAssignment.context' => "'CP'",  // Wacky updateAll syntax
+        'CoIdentifierAssignment.status' => "'A'"
+      ),
+      true
+    );
+
+    // Resize SshKey type column
+    $this->out(_txt('sh.ug.330.ssh.key'));
+    $this->SshKey->_ug330();
+
+    // Resize CoJob job_type column
+    $this->out(_txt('sh.ug.330.cojob'));
+    $this->CoJob->_ug330();
+    
+    // 3.3.0 adds multiple types of Password Sources, however the PasswordAuthenticator
+    // plugin might not be enabled.
+    
+    if(CakePlugin::loaded('PasswordAuthenticator')) {
+      // We can't add models to $uses since they may not exist
+      $this->loadModel('PasswordAuthenticator.PasswordAuthenticator');
+      
+      // All existing Password Authenticators have a password_source of Self Select
+      $this->out(_txt('sh.ug.340.password'));
+      
+      $this->PasswordAuthenticator->updateAll(
+        array(
+          'PasswordAuthenticator.password_source' => "'SL'"  // Wacky updateAll syntax
+        ),
+        array(
+          'PasswordAuthenticator.password_source' => null
+        )
+      );
     }
   }
 }

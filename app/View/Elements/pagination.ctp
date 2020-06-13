@@ -105,11 +105,13 @@
     var recordCount = '<?php print $this->Paginator->params()['count']; ?>';
     var currentPage = '<?php print $this->Paginator->params()['page']; ?>';
     var currentLimit = '<?php print $this->Paginator->params()['limit']; ?>';
+    var currentPath = '<?php print filter_var($this->request->here,FILTER_SANITIZE_SPECIAL_CHARS); ?>';
+    var currentAction = '<?php print filter_var($this->request->action,FILTER_SANITIZE_SPECIAL_CHARS); ?>';
   </script>
   <form id="limit-page"
         class="pagination-form"
         method="get"
-        onsubmit="limitPage(this.pageLimit.value,recordCount,currentPage); return false;">
+        onsubmit="limitPage(this.pageLimit.value,recordCount,currentPage,currentPath,currentAction); return false;">
     <label for="pageLimit"><?php print _txt('fd.page.limit.display'); ?></label>
     <select name="pageLimit" id="pageLimit">
       <option value="25">25</option>
@@ -129,4 +131,3 @@
     </script>
   </form>
 </div>
-

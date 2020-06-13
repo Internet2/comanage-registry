@@ -87,8 +87,13 @@ class ApiComponent extends Component {
         $coId = $this->reqModel->CoPerson->field('co_id',
                                                  array('CoPerson.id' => $this->reqConvData['co_person_id']));
       } elseif(!empty($this->reqConvData['co_person_role_id'])) {
-        $coId = $this->reqModel->CoPersonRole->field('co_id',
-                                                     array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
+        $coPersonId = $this->reqModel->CoPersonRole->field('co_person_id',
+                                                           array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
+
+        if($coPersonId) {
+          $coId = $this->reqModel->CoPersonRole->CoPerson->field('co_id',
+                                                                 array('CoPerson.id' => $coPersonId));
+        }
       }
       
       if($coId) {
@@ -148,6 +153,9 @@ class ApiComponent extends Component {
             break;
           case 'Dept':
             $this->reqConvData['co_department_id'] = $this->reqData[$attr]['Id'];
+            break;
+          case 'Group':
+            $this->reqConvData['co_group_id'] = $this->reqData[$attr]['Id'];
             break;
           case 'Org':
             $this->reqConvData['org_identity_id'] = $this->reqData[$attr]['Id'];
@@ -361,6 +369,77 @@ class ApiComponent extends Component {
   }
   
   /**
+   * Determine the requested COID based on the requested URL, and specifically
+   * its query parameters.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  $model   Cake Model
+   * @param  $request Cake Rquest
+   * @return int      CO ID, or null if not found
+   */
+  
+  public function requestedCOID($model, $request) {
+    $coid = null;
+    
+    // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
+    // for REST operations that meet the following requirements:
+    // (1) The request is a GET
+    // (2) The request does not include a specific ID (eg view by CO, not view by ID)
+    // (3) The requested model directly belongsTo the parent link
+    // (Note Registry v5 implements this as a per-model check instead, but
+    // we don't have the infrastructure for that.)
+    
+    if($request->method() == 'GET'
+       && empty($request->params['pass'])) {
+      // For historical reasons, the query string keys aren't standard
+      $permittedKeys = array(
+        'clusterid' => 'Cluster',
+        'codeptid' => 'CoDepartment',
+        'cogroupid' => 'CoGroup',
+        'coid' => 'Co',
+        'copersonid' => 'CoPerson',
+        'copersonroleid' => 'CoPersonRole',
+        'couid' => 'Cou',
+        'orgidentityid' => 'OrgIdentity'
+      );
+      
+      if(!empty($model->permittedApiFilters)) {
+        // Merge in the plugin's additional permitted key
+        $permittedKeys = array_merge($permittedKeys, $model->permittedApiFilters);
+      }
+      
+      foreach($permittedKeys as $k => $m) {
+        // For plugins, $m is of the form Plugin.Model, but belongsTo[]
+        // will be keyed only on Model
+        $b = strstr($m, '.');
+        
+        if($b) {
+          $b = ltrim($b, '.');
+        } else {
+          $b = $m;
+        }
+        
+        if(!empty($request->query[$k])
+           && !empty($model->belongsTo[$b])) {
+          if($k == 'coid') {
+            $coid = $request->query['coid'];
+          } else {
+            // For any other key, we need to map it to a CO
+            
+            $ParentModel = ClassRegistry::init($m);
+            
+            $coid = $ParentModel->findCoForRecord($request->query[$k]);
+          }
+          
+          break;
+        }
+      }
+    }
+    
+    return $coid;
+  }
+  
+  /**
    * Prepare a REST result HTTP header.
    * - precondition: HTTP headers must not yet have been sent
    * - postcondition: CakeResponse configured with header
@@ -370,7 +449,7 @@ class ApiComponent extends Component {
    * @param  string HTTP result comment
    */
   
-  public function restResultHeader($status, $txt) {
+  public function restResultHeader($status, $txt=null) {
     if(isset($txt)) {
       // We need to update the text associated with $status
       

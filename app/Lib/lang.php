@@ -49,10 +49,6 @@ $cm_texts['en_US'] = array(
   // What an Org is called
   'org' =>            'Organization',
   
-  // API User texts
-  'ap.note.privs' =>  'API Users are currently given full privileges to all Registry data. This is subject to change in a future release (<a href="https://bugs.internet2.edu/jira/browse/CO-91">CO-91</a>).',
-  'ap.note.username' => 'The API username selected here cannot conflict with any identifier used by anyone to login to the platform',
-  
   // Authnz
   'au.not' =>         'Not Logged In',
   
@@ -65,6 +61,8 @@ $cm_texts['en_US'] = array(
   'co.select' =>      'Select the CO you wish to work with.',
   
   // Titles, per-controller
+  'ct.ad_hoc_attributes.1' =>   'Ad Hoc Attribute',
+  'ct.ad_hoc_attributes.pl' =>  'Ad Hoc Attributes',
   'ct.addresses.1' =>           'Address',
   'ct.addresses.pl' =>          'Addresses',
   'ct.api_users.1' =>           'API User',
@@ -75,6 +73,8 @@ $cm_texts['en_US'] = array(
   'ct.authentication_events.pl' => 'Authentication Events',
   'ct.authenticators.1'  =>     'Authenticator',
   'ct.authenticators.pl' =>     'Authenticators',
+  'ct.clusters.1' =>            'Cluster',
+  'ct.clusters.pl' =>           'Clusters',
   'ct.cmp_enrollment_configurations.1'  => 'CMP Enrollment Configuration',
   'ct.cmp_enrollment_configurations.pl' => 'CMP Enrollment Configurations',
   'ct.co_dashboard_widgets.1' => 'Dashboard Widget',
@@ -138,6 +138,8 @@ $cm_texts['en_US'] = array(
   'ct.co_petitions.pl' =>       'CO Petitions',
   'ct.co_pipelines.1' =>        'Pipeline',
   'ct.co_pipelines.pl' =>       'Pipelines',
+  'ct.co_provisioning_target_filters.1'  => 'Provisioning Target Filter',
+  'ct.co_provisioning_target_filters.pl' => 'Provisioning Target Filters',
   'ct.co_provisioning_targets.1'  => 'Provisioning Target',
   'ct.co_provisioning_targets.pl' => 'Provisioning Targets',
   'ct.co_self_service_permissions.1'  => 'Self Service Permission',
@@ -156,6 +158,8 @@ $cm_texts['en_US'] = array(
   'ct.cos.pl' =>                'COs',
   'ct.cous.1' =>                'COU',
   'ct.cous.pl' =>               'COUs',
+  'ct.data_filters.1' =>        'Data Filter',
+  'ct.data_filters.pl' =>       'Data Filters',
   'ct.email_addresses.1' =>     'Email Address',
   'ct.email_addresses.pl' =>    'Email Addresses',
   'ct.enrollment_flows.1'  =>   'Enrollment Flow',
@@ -168,6 +172,8 @@ $cm_texts['en_US'] = array(
   'ct.identifiers.pl' =>        'Identifiers',
   'ct.ldap_servers.1' =>        'LDAP Server',
   'ct.ldap_servers.pl' =>       'LDAP Servers',
+  'ct.match_servers.1' =>       'Match Server',
+  'ct.match_servers.pl' =>      'Match Servers',
   'ct.names.1' =>               'Name',
   'ct.names.pl' =>              'Names',
   'ct.navigation_links.1' =>    'Navigation Link',
@@ -267,6 +273,11 @@ original notification at
     ActionEnum::AuthenticatorDeleted        => 'Authenticator Deleted',
     ActionEnum::AuthenticatorEdited         => 'Authenticator Edited',
     ActionEnum::AuthenticatorStatusEdited   => 'Authenticator Status Edited',
+    ActionEnum::ClusterAccountAdded         => 'Cluster Account Added',
+    ActionEnum::ClusterAccountAutoCreated   => 'Cluster Account Automatically Created',
+    ActionEnum::ClusterAccountAutoEdited    => 'Cluster Account Automatically Edited',
+    ActionEnum::ClusterAccountDeleted       => 'Cluster Account Deleted',
+    ActionEnum::ClusterAccountEdited        => 'Cluster Account Edited',
     ActionEnum::CoEmailListAdded            => 'CO Email List Added',
     ActionEnum::CoEmailListDeleted          => 'CO Email List Deleted',
     ActionEnum::CoEmailListEdited           => 'CO Email List Edited',
@@ -283,6 +294,7 @@ original notification at
     ActionEnum::CoGroupMemberDeletedPipeline => 'CO Group Member Deleted (Pipeline)',
     ActionEnum::CoGroupMemberValidityTriggered => 'CO Group Member Validity Triggered',
     ActionEnum::CoGroupProvisioned          => 'CO Group Provisioned',
+    ActionEnum::CoPersonAddedBulk           => 'CO Person Created (Bulk)',
     ActionEnum::CoPersonAddedManual         => 'CO Person Created (Manual)',
     ActionEnum::CoPersonAddedPetition       => 'CO Person Created (Petition)',
     ActionEnum::CoPersonAddedPipeline       => 'CO Person Created (Pipeline)',
@@ -320,11 +332,13 @@ original notification at
     ActionEnum::InvitationExpired           => 'Invitation Expired',
     ActionEnum::InvitationSent              => 'Invitation Sent',
     ActionEnum::InvitationViewed            => 'Invitation Viewed',
+    ActionEnum::MatchAttributesUpdated      => 'Update Match Attributes Request Sent',
     ActionEnum::NotificationAcknowledged    => 'Notification Acknowledged',
     ActionEnum::NotificationCanceled        => 'Notification Canceled',
     ActionEnum::NotificationDelivered       => 'Notification Delivered',
     ActionEnum::NotificationParticipantExpunged => 'Notification Participant Expunged',
     ActionEnum::NotificationResolved        => 'Notification Resolved',
+    ActionEnum::OrgIdAddedBulk              => 'Org Identity Created (Bulk)',
     ActionEnum::OrgIdAddedManual            => 'Org Identity Created (Manual)',
     ActionEnum::OrgIdAddedPetition          => 'Org Identity Created (Petition)',
     ActionEnum::OrgIdAddedSource            => 'Org Identity Created (Source)',
@@ -337,10 +351,12 @@ original notification at
     ActionEnum::OrgIdRemovedSource          => 'Org Identity Removed From Source',
     ActionEnum::ProvisionerAction           => 'Provisioner Action',
     ActionEnum::ProvisionerFailed           => 'Provisioner Failed',
+    ActionEnum::ReferenceIdentifierObtained => 'Reference Identifier Obtained From Match Server',
   ),
   
   'en.action.petition' => array(
     PetitionActionEnum::Approved            => 'Petition Approved',
+    PetitionActionEnum::ClusterAccountAutoCreated => 'Cluster Accounts Automatically Created',
     PetitionActionEnum::CommentAdded        => 'Comment Added',
     PetitionActionEnum::Created             => 'Petition Created',
     PetitionActionEnum::Declined            => 'Petition Declined',
@@ -386,17 +402,17 @@ original notification at
   ),
 
   'en.chars.permitted.re' => array(
-    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z]',
-    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z\.\-_]',
-    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z\.\-_\']',
+    PermittedCharacterEnum::AlphaNumeric      => '[A-Za-z0-9]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[A-Za-z0-9\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => '.*'
   ),
   
   // The inverse of the above (NOT permitted)
   'en.chars.permitted.re.not' => array(
-    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z]',
-    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z\.\-_]',
-    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z\.\-_\']',
+    PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z0-9]',
+    PermittedCharacterEnum::AlphaNumDotDashUS => '[^A-Za-z0-9\.\-_]',
+    PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => ''
   ),
   
@@ -517,6 +533,12 @@ original notification at
   
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
+  
+  'en.ia.context' => array(
+    IdentifierAssignmentContextEnum::CoDepartment => 'CO Department',
+    IdentifierAssignmentContextEnum::CoGroup      => 'CO Group',
+    IdentifierAssignmentContextEnum::CoPerson     => 'CO Person'
+  ),
 
   // Extended type, key must be en.model.attribute
   'en.identifier.type' =>  array(IdentifierEnum::Badge => 'Badge',
@@ -524,6 +546,7 @@ original notification at
                                  IdentifierEnum::ePPN => 'ePPN',
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::ePUID => 'ePUID',
+                                 IdentifierEnum::GID => 'GID',
                                  IdentifierEnum::Mail => 'Mail',
                                  IdentifierEnum::National => 'National',
                                  IdentifierEnum::Network => 'Network',
@@ -590,8 +613,7 @@ original notification at
   
   'en.match.strategy' => array(
     MatchStrategyEnum::EmailAddress => 'EmailAddress',
-    // Not yet implemented (CO-298)
-//    MatchStrategyEnum::External   => 'External',
+    MatchStrategyEnum::External   => 'External',
     MatchStrategyEnum::Identifier   => 'Identifier',
     MatchStrategyEnum::NoMatching   => 'Do Not Match'
   ),
@@ -671,6 +693,7 @@ original notification at
   'en.server' => array(
     ServerEnum::HttpServer   => 'HTTP',
     ServerEnum::LdapServer   => 'LDAP',
+    ServerEnum::MatchServer  => 'Match',
     ServerEnum::Oauth2Server => 'OAuth2',
     ServerEnum::SqlServer    => 'SQL'
   ),
@@ -731,7 +754,17 @@ original notification at
     NotificationStatusEnum::PendingResolution     => 'Pending Resolution',
     NotificationStatusEnum::Resolved              => 'Resolved'
   ),
-  
+
+  'en.status.bool' => array(
+    TrueFalseEnum::True   => 'True',
+    TrueFalseEnum::False  => 'False'
+  ),
+
+  'en.status.open' => array(
+    TrueFalseEnum::True   => 'Open',
+    TrueFalseEnum::False  => 'Closed'
+  ),
+
   'en.status.org' => array(
     OrgIdentityStatusEnum::Removed => 'Removed',
     OrgIdentityStatusEnum::Synced  => 'Synced' 
@@ -780,6 +813,8 @@ original notification at
   'en.sync.action' => array(
     SyncActionEnum::Add                     => 'Add',
     SyncActionEnum::Delete                  => 'Delete',
+    SyncActionEnum::Relink                  => 'Relink',
+    SyncActionEnum::Unlink                  => 'Unlink',
     SyncActionEnum::Update                  => 'Update'
   ),
   
@@ -821,6 +856,13 @@ original notification at
     UrlEnum::Personal => 'Personal',
   ),
   
+  // Extended type, key must be en.model.attribute
+  'en.co_department.type' => array(
+    DepartmentEnum::VO                => 'VO',
+    DepartmentEnum::ResearchInstitute => 'Research Institute',
+    DepartmentEnum::Department        => 'Department',
+  ),
+
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
@@ -831,6 +873,7 @@ original notification at
   // Errors
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.archived' =>    'This record is already archived and cannot be edited',
+  'er.api.username.prefix' => 'API username must begin with "%1$s"',
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
@@ -839,6 +882,10 @@ original notification at
   // authr = Authenticator (model), vs Authentication (login)
   'er.authr.unlocked' => 'Authenticator is already unlocked',
   'er.changelog.model.load' => 'Failed to load model "%1$s"',
+  'er.cluster.acct.already' => 'Cluster Account already assigned (%1$s)',
+  'er.cluster.acct.grmem' => 'CO Person is not a member of the Default CO Group',
+  'er.cluster.acct.ids' => 'Cannot find required identifiers to create Cluster Account',
+  'er.cluster.acct.none' => 'No Clusters configured',
   'er.co.cm.edit' =>  'Cannot edit COmanage CO',
   'er.co.cm.rm' =>    'Cannot remove COmanage CO',
   'er.co.exists' =>   'A CO named "%1$s" already exists',
@@ -898,6 +945,7 @@ original notification at
   'er.et.inuse.ef' => 'The extended type "%1$s" is in use by at least one Enrollment Flow (as an attribute or default value) within this CO and cannot be removed.',
   'er.field.req' =>   'This field is required',
   'er.fields' =>      'Please recheck the highlighted fields',
+  'er.fields.api' =>  'Invalid fields: %1$s',
   'er.file.none' =>   'No file specified',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
   'er.file.write' =>  'Unable to open "%1$s" for writing',
@@ -926,7 +974,10 @@ original notification at
   'er.ia.already' =>  'Identifier already assigned',
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
+  'er.ia.gr.auto' =>  'Cannot assign identifiers for automatic groups',
   'er.ia.none' =>     'No identifier assignments configured',
+  'er.ia.id.type' =>  'No identifier of type "%1$s" found',
+  'er.ia.id.type.none' =>  'No identifier type specified',
   'er.id.exists-a' => 'The identifier "%1$s" is already in use (%2$s)',
   'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
   'er.id.unk' =>      'Unknown Identifier',
@@ -942,6 +993,8 @@ original notification at
   'er.linked' =>      'The requested CO Person and Org Identity are already linked',
   'er.loc.exists' =>  'A localization already exists for the key "%1$s" and language "%2$s"',
   'er.lock' =>        'Error obtaining lock: %1$s',
+  'er.lock.exists' => 'Lock #%1$s already held by pid %2$s since %3$s',
+  'er.match.response' => 'Match Server responded: %1$s',
   'er.multiple' =>    'Unexpectedly found multiple results',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
   'er.nm.official.et' => 'The Name type "official" cannot be deleted or renamed',
@@ -976,6 +1029,7 @@ original notification at
   'er.person.noex' => 'Person does not exist',
   'er.person.none' => 'No CO Person, CO Person Role, Org Identity, or CO Department specified',
   'er.pi.match.multi' => 'Canonical %1$s match type found more than one matching record',
+  'er.picker.toomany' => 'Too many results, continue typing to narrow your search',
   'er.plugin.fail' => 'Failed to load plugin "%1$s"',
   'er.plugin.none' => 'There are no suitable plugins available. No %1$s can be added.',
   'er.pooling' =>     'Org Identity Pooling not supported in this context',
@@ -1000,12 +1054,16 @@ original notification at
   'er.server.oauth2.token.none' => 'Access token not found',
   'er.setting' =>     'Invalid Setting',
   'er.setting.gr' =>  'Invalid Setting: No group specified',
+  'er.sh.bl.error' => 'Error processing record at line %1$s: %2$s',
+  'er.sh.bl.meta' =>  'Could not parse file metadata',
+  'er.sh.bl.json' =>  'Failed to parse JSON record at %1$s line %2$s',
   'er.sh.cache' =>    'WARNING: Cache directory %1$s NOT empty, you may need to manually clear it',
   'er.soap.wsdl' =>   'Unable to retrieve WSDL: %1$s',
   'er.status.already' => 'Status is already %1$s',
   'er.status.not' =>  'Status is not %1$s',
   'er.svc.group.none' => 'No group is attached to this service',
-  'er.svc.label.exists' => 'The label "%1$s" is already in use',
+  'er.svc.cluster_id.exists' => 'The specified Cluster is already attached to a Service',
+  'er.svc.short_label.exists' => 'The label "%1$s" is already in use',
   'er.timeout' =>     'Your session has expired. Please login again.',
   'er.token' =>       'Invalid token',
   'er.ug.blocked' =>  'Cannot automatically upgrade past version %1$s. Please upgrade to that version first.',
@@ -1025,6 +1083,8 @@ original notification at
   'fd.actor' =>       'Actor',
   'fd.actor.self' =>  'Self Signup',
   'fd.actor.shell' => 'Shell user "%1$s"',
+  'fd.ad_hoc_attribute.tag' => 'Tag',
+  'fd.ad_hoc_attribute.value' => 'Value',
   'fd.address' =>     'Address',
   // The next set must be named fd.model.validation-field
   'fd.address.country' => 'Country',
@@ -1044,6 +1104,13 @@ original notification at
   'fd.affiliation.ep.map.desc' => 'Map the extended affiliation to this eduPersonAffiliation, see <a href="https://spaces.at.internet2.edu/display/COmanage/Extending+the+Registry+Data+Model#ExtendingtheRegistryDataModel-%7B%7BeduPersonAffiliation%7D%7DandExtendedAffiliations">eduPersonAffiliation and Extended Affiliations</a>',
   'fd.all' =>         'All',
   'fd.an.desc' =>     'Alphanumeric characters only',
+  'fd.api.key' =>     'API Key',
+  'fd.api.key.desc' => 'The API Key can be generated after creating the API User',
+  'fd.api.ip.desc' => 'If specified, a <a href="https://www.php.net/manual/en/reference.pcre.pattern.syntax.php">regular expression</a> describing the IP address(es) from which this API User may connect. Be sure to escape dots (eg: "/10\.0\.1\.150/").',
+  'fd.api.priv' =>    'Privileged',
+  'fd.api.priv.desc' => 'A privileged API user has full access to the CO. Unprivileged API users may be granted specific permissions where supported.',
+  'fd.api.username' => 'API User Name',
+  'fd.api.username.desc' => 'The API User Name must be prefixed with the name of the CO followed by a dot',
   'fd.approver' =>    'Approver',
   'fd.archived' =>    'Archived',
   'fd.attribute' =>   'Attribute',
@@ -1053,7 +1120,9 @@ original notification at
   'fd.attrs.cop' =>   'Person Attributes',
   'fd.attrs.copr' =>  'Role Attributes',
   'fd.attrs.org' =>   'Organizational Attributes',
+  'fd.attrs.match' => 'Match Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.automatic' =>   'Automatic',
   'fd.bcc' =>         'BCC',
   'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
   'fd.cc' =>          'CC',
@@ -1106,7 +1175,9 @@ original notification at
   'fd.de.race'    =>  'Race',
   'fd.de.disab'   =>  'Disability',
   'fd.de.enable'  =>  'Enable NSF Demographics',
+  'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.default'    =>  'Default',
+  'fd.date_of_birth' => 'Date of Birth',
   'fd.dp.group.admin' => 'Administrative Group',
   'fd.dp.group.admin.desc' => 'Group containing the Department administrators',
   'fd.dp.group.leader' => 'Leadership Group',
@@ -1164,6 +1235,8 @@ original notification at
   'fd.ef.authz.cou' => 'COU',
   'fd.ef.ce' =>       'Email Confirmation Mode',
   'fd.ef.ce.desc' =>  'See <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-EmailVerification">Email Verification</a> for mode definitions',
+  'fd.ef.clusters' => 'Establish Cluster Accounts',
+  'fd.ef.clusters.desc' => 'If enabled, establish cluster accounts as part of the Enrollment',
   'fd.ef.coef' =>     'Enable Organizational Attributes Via CO Enrollment Flow',
   'fd.ef.coef.desc' => 'If enabled, allow organizational identity attributes to be collected via forms during CO enrollment flows (these attributes will be less authoritative than those obtained via LDAP or SAML, however those options are not currently supported)',
   'fd.ef.concl' =>    'Conclusion',
@@ -1281,6 +1354,8 @@ original notification at
   // Identifier Assignment
   'fd.ia.algorithm' => 'Algorithm',
   'fd.ia.algorithm.desc' => 'The algorithm to use when generating identifiers',
+  'fd.ia.context' => 'Context',
+  'fd.ia.context.desc' => 'This Identifier Assignment will be applied to Identifiers attached to the specified context',
   'fd.ia.exclusions' => 'Exclusions',
   'fd.ia.exclusions.desc' => '(Not yet implemented)',
   'fd.ia.format' =>   'Format',
@@ -1333,6 +1408,7 @@ original notification at
   'fd.link.url' =>    'Link URL',
   'fd.load.last' =>   'Last Loaded',
   'fd.members' =>     'Members',
+  'fd.membership' =>  'Membership',
   'fd.model' =>       'Model',
   'fd.modified' =>    'Modified',
   'fd.modified.tz' => 'Modified (%1$s)',
@@ -1397,10 +1473,12 @@ original notification at
   // We need fd.ordr as well fd.order for automatic key lookup in ChangesToString
   'fd.ordr' =>        'Order',
   'fd.order' =>       'Order',
+  'fd.order.filter.desc' => 'The order in which this Data Filter will be processed',
   'fd.order.es.desc' => 'The order in which this source will be queried, among all sources configured for this enrollment flow with this mode',
   'fd.order.prov.desc' => 'The order in which this provisioner will be run when automatic provisioning occurs (leave blank to run after all current provisioners)',
   'fd.organization_id' => 'Organization ID',
   'fd.ou' =>          'Department',
+  'fd.owners' =>      'Owners',
   'fd.page.goto' =>   'Go to page',
   'fd.page.limit.display' =>   'Display',
   'fd.page.limit.records' =>   'records',
@@ -1420,6 +1498,8 @@ original notification at
   'fd.pi.match.type' => 'Match Field Type',
   'fd.pi.match.type.desc' => 'Required only for Identifier match strategy',
   'fd.pi.sync.add' => 'Sync on Add',
+  'fd.pi.sync.add.ef' => 'Enrollment Flow',
+  'fd.pi.sync.add.ef.desc' => 'Enrollment Flow to trigger on add action, see the <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Pipelines#RegistryPipelines-TriggeringEnrollmentFlowsFromPipelines">documentation</a> for more details',
   'fd.pi.sync.affil' => 'CO Person Role Affiliation',
   'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
   'fd.pi.sync.cou' => 'Sync to COU',
@@ -1464,6 +1544,10 @@ original notification at
   'fd.searchbase' =>  'Search Base',
   'fd.server' =>      'Server',
   'fd.server.hostname' => 'Hostname',
+  'fd.server.match.is_comanage_match' => 'COmanage Match',
+  'fd.server.match.is_comanage_match.desc' => 'If the match server is COmanage Match, checking this box will enable extra functionality',
+  'fd.server.match.sor_label' => 'SOR Label',
+  'fd.server.match.sor_label.desc' => 'SOR Label as configured on the match server',
   'fd.server.url'=>   'Server URL',
   'fd.server.username' => 'Username',
   'fd.server.warn' => 'Once a new server has been created, the type cannot be changed',
@@ -1475,13 +1559,19 @@ original notification at
   'fd.server.oauth2.redirect' => 'Redirect URI',
   'fd.server.oauth2.scope' => 'Scope',
   'fd.server.sql.database' => 'Database',
+  'fd.server.http.ssl_allow_self_signed'      => 'Allow self-signed certificates',
+  'fd.server.http.ssl_allow_self_signed.desc' => 'Allow self-signed certificates to be accepted. Requires certificate verification.',
+  'fd.server.http.ssl_verify_peer'            => 'Require certificate verification',
+  'fd.server.http.ssl_verify_peer.desc'       => 'Verify the certificate.',
+  'fd.server.http.ssl_verify_peer_name'       => 'Require name verification',
+  'fd.server.http.ssl_verify_peer_name.desc'  => 'Verify the name presented in the certificate.',
   'fd.set' =>         'Set',
   'fd.set.not' =>     'Not Set',
   'fd.sorid' =>       'Source Key',
   'fd.sort.by' =>     'Sort By',
   'fd.source' =>      'Source',
   'fd.sponsor' =>     'Sponsor',
-  'fd.sponsor.desc' =>'(for continued membership)',
+  'fd.sponsor.desc' => 'Use the search box to pick a new sponsor (use a name, email address, or identifier)',
   'fd.sponsor.inel' => 'The current sponsor is no longer eligible to act as a sponsor',
   'fd.sponsor.mode' => 'Sponsor Eligibility Mode',
   'fd.sponsor.mode.desc' => 'Which CO People are eligible to sponsor CO Person Roles',
@@ -1493,6 +1583,10 @@ original notification at
   'fd.status.change' => 'Manually changing the status of a CO Person when there is a Petition in progress will not change the status of the Petition',
   'fd.status.et.desc' => 'An Extended Type that is in use cannot be made inactive',
   'fd.subject' =>     'Subject',
+  'fd.svc.authenticator' => 'Authenticator',
+  'fd.svc.authenticator.desc' => 'The Authenticator used by this Service to authenticate users',
+  'fd.svc.cluster' =>   'Cluster',
+  'fd.svc.cluster.desc' => 'Cluster this Service is attached to, primarily for <a href="https://spaces.at.internet2.edu/display/COmanage/LDAP+Provisioning+Plugin#LDAPProvisioningPlugin-LDAPAttributeOptions">LDAP provisioning with attribute options</a>',
   'fd.svc.cou.desc' => 'COU this Service is attached to, for Service Portal rendering',
   'fd.svc.euri' =>    'Entitlement URI',
   'fd.svc.euri.desc' => 'Entitlement URI, as specified by <a href="http://software.internet2.edu/eduperson/internet2-mace-dir-eduperson-201602.html">eduPerson</a>',
@@ -1506,6 +1600,7 @@ original notification at
   'fd.svc.label.short.desc' => 'Short label or identifier for this service, intended for use with LDAP attribute options. Alphanumeric characters only.',
   'fd.svc.mail' =>    'Service Contact Email',
   'fd.svc.mail.desc' => 'Email contact address for assistance with this Service',
+  'fd.svc.mail.prefix' => 'Service contact: %1$s',
   'fd.svc.portal' =>  'Service Portal',
   'fd.svc.url' =>     'Service URL',
   'fd.svc.url.desc' => 'URL at which this Service is available',
@@ -1564,7 +1659,6 @@ original notification at
   'fd.url.url' =>     'URL',
   'fd.url.url.desc' => 'URL, including protocol (ie: http://myvo.org, not just myvo.org)',
   'fd.url' =>         'URL',
-  'fd.username.api' => 'API User Name',
   'fd.valid_from' =>  'Valid From',
   'fd.valid_from.desc' => 'Leave blank for immediate validity',
   'fd.valid_from.tz' => 'Valid From (%1$s)',
@@ -1612,6 +1706,8 @@ original notification at
   'fd.yes' =>         'Yes',
 
   // Informational messages
+  'in.api.cmp'         => 'API Users created in the COmanage CO are given full privileges to all Registry data.',
+  'in.api.key'         => 'This newly generated API Key cannot be recovered. If it is lost a new key must be generated.',
   'in.groupmember.select' => 'This change will not take effect until the person becomes active.',
   'in.id.prov'         => 'This identifier was created by the %1$s Provisioning Target. Editing it may cause operational inconsistencies if the change is not coordinated with the target.',
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
@@ -1692,13 +1788,20 @@ original notification at
   'op.add' =>         'Add',
   'op.add-a' =>       'Add %1$s',
   'op.add.new' =>     'Add a New %1$s',
+  'op.api.key.generate' => 'Generate API Key',
+  'op.api.key.confirm' => 'Are you sure you wish to generate a new API Key?',
   'op.approve' =>     'Approve',
+  'op.attach' =>      'Attach %1$s',
   'op.back' =>        'Back',
   'op.begin' =>       'Begin',
   'op.cancel' =>      'Cancel',
-  'op.clear.all' =>   'Clear',
-  'op.clear.filters' =>  'Clear Filters',
+  'op.clear' =>       'Clear',
+  'op.clear.all' =>   'Clear All',
+  'op.clear.filters.1' =>  'clear filter',
+  'op.clear.filters.pl' =>  'Clear Filters',
   'op.clear.search' =>   'Clear search',
+  'op.cluster.acct.auto' => 'Autogenerate Cluster Accounts',
+  'op.cluster.acct.auto.confirm' => 'Are you sure you wish to autogenerate cluster accounts?',
   'op.compare' =>     'Compare',
   'op.config' =>      'Configure',
   'op.config-a' =>    'Configure %1$s',
@@ -1743,6 +1846,7 @@ original notification at
   'op.find.inv' =>    'Find a Person to Invite to %1$s',
   'op.find.link' =>   'Find an Organizational Identity to Link to %1$s',
   'op.first' => 'First',
+  'op.generate' => 'Generate',
   'op.go' => 'go',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.gr.reconcile' => 'Reconcile',
@@ -1764,7 +1868,7 @@ original notification at
   'op.home.no.collabs' => 'No collaborations are currently available.',
   'op.id.auto' =>     'Autogenerate Identifiers',
   'op.id.auto.all' => 'Autogenerate Identifiers For All',
-  'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People?',
+  'op.id.auto.all.confirm' => 'Are you sure you wish to autogenerate identifiers for all active CO People, CO Groups, and CO Departments?',
   'op.id.auto.confirm' => 'Are you sure you wish to autogenerate identifiers?',
   'op.id.auto.wait' => 'Generating identifiers, please wait...',
   'op.inv' =>         'Invite',
@@ -1850,6 +1954,7 @@ original notification at
   'op.see.notification.num' =>  'notification #%1$s',
   'op.select' =>      'Select',
   'op.select-a' =>    'Select %1$s',
+  'op.select.all' =>    'All',
   'op.select.select' => 'Please select the CO Person you would like to attach to this Petition by clicking the associated select button.',
   'op.select.empty' => '(select...)',
   'op.select.empty-a' => '%1$s (select...)',
@@ -1888,6 +1993,7 @@ original notification at
   'rs.authr.reset' => 'Authenticator "%1$s" reset',
   'rs.authr.status' => 'Authenticator "%1$s" status changed from %2$s to %3$s',
   'rs.authr.unlocked' => 'Authenticator "%1$s" unlocked',
+  'rs.cluster.acct.ok' => 'Cluster Accounts Assigned (%1$s)',
   'rs.cop.recalc' =>  'CO Person status recalculated to %1$s',
   'rs.copr.mod' =>    'CO Person Role status changed from %1$s to %2$s',
   'rs.copy-a1' =>     '%1$s Copied',
@@ -1927,7 +2033,10 @@ original notification at
   'rs.jb.started' =>  'Started via JobShell by %1$s (uid %2$s)',
   'rs.jb.started.web' => 'Started via JobShell by %1$s (CoPerson ID %2$s)',
   'rs.mail.verified' => 'Email Address "%1$s" verified',
+  'rs.match' =>       'Reference Identifier %1$s obtained from match server',
+  'rs.match.accepted' => 'Match request requires administrator intervention, Match Request ID: %1$s',
   'rs.match.possible' => 'Possible Matches',
+  'rs.match.request' => 'Potential Match',
   'rs.moved.copr' =>  'CO Person Role "%1$s" (%2$s) moved from %3$s (%4$s) to %5$s (%6$s)',
   'rs.nm.primary' =>  'Primary name updated',
   'rs.nm.primary-a' => 'Primary name updated to "%1$s"',
@@ -2038,7 +2147,12 @@ original notification at
   
   // Shell
   
-  'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for (all COs if not specified)',
+  'sh.bl.groups.auto' =>  'Recalculating automatic group memberships, this may take some time...',
+  'sh.bl.indexes.off' =>  'Dropping table indexes...',
+  'sh.bl.indexes.on' =>   'Recreating table indexes, this may take some time...',
+  'sh.bl.file.in' =>      'Reading records from file %1$s',
+  'sh.bl.record.id' =>    'Record at line %1$s assigned %2$s %3$s',
+  'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for',
   'sh.job.arg.epilog' =>  'If no task specified, all run. Available tasks: expirations, groupvalidity, syncorgsources, forcesyncorgsources',
   'sh.job.arg.runqueue' => 'Process queued jobs',
   'sh.job.arg.synchronous' => 'Run synchronously',
@@ -2080,7 +2194,13 @@ original notification at
   'sh.ug.110.gr' =>       'Renaming and reconciling automatic groups (please wait, this may take some time)',
   'sh.ug.110.is' =>       'Updating inactive identifier status',
   'sh.ug.310.url' =>      'Instantiating default URL Extended Types',
+  'sh.ug.330.api' =>      'Updating API User Permissions',
+  'sh.ug.330.cojob' =>    'Migrating CO Job type',
+  'sh.ug.330.ia' =>       'Adding context to Identifier Assignments',
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
+  'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
+  'sh.ug.330.users' =>    'Dropping users View',
+  'sh.ug.340.password' => 'Updating Password Sources'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

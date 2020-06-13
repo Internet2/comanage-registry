@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry API Organizational Identity Source Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ 
+  @link          http://www.internet2.edu/comanage COmanage Project
+  @package       registry
+  @since         COmanage Registry v3.3.0
+  @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="api_sources">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="sor_label" type="C" size="32" />
+    <field name="api_user_id" type="I">
+      <constraint>REFERENCES cm_api_users(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="api_sources_i1">
+      <col>org_identity_source_id</col>
+      <unique />
+    </index>
+    
+    <index name="api_sources_i2">
+      <col>sor_label</col>
+    </index>
+  </table>
+  
+  <!--
+    We need this table primarily for push mode, since we need to trigger
+    OrgIdentitySource to call us, and this basically becomes a cache so we
+    can respond appropriately.
+  -->
+  <table name="api_source_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="api_source_id" type="I">
+      <constraint>REFERENCES cm_api_sources(id)</constraint>
+    </field>
+    <field name="sorid" type="C" size="1024" />
+    <field name="source_record" type="XL" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="api_source_records_i1">
+      <col>api_source_id</col>
+    </index>
+  </table>
+</schema>

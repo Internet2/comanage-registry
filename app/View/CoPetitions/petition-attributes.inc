@@ -123,13 +123,41 @@
     $("#dialog-review").dialog({
       autoOpen: false,
       modal: true,
+      draggable: true,
+      resizable: true,
+      width: document.documentElement.clientWidth * 0.8,
+      height: document.documentElement.clientHeight * 0.8,
       buttons: {
         "<?php print _txt('op.ok'); ?>": function() {
           $(this).dialog("close");
         }
       }
     })
+    
+    $("#sponsors").autocomplete({
+      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
+      minLength: 3,
+      select: function(event, ui) {
+        $("#sponsors").val(ui.item.label);
+        $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(ui.item.value);
+        return false;
+      }
+    });
+
+    // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
+    $("#cm-ief-button-remove-EnrolleeCoPersonRoleSponsorCoPersonId").click(function() {
+      reset_sponsor();
+      $(this).closest(".cm-ief-val").hide();
+      $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+      $("#sponsors").focus();
+    });
+
   });
+
+  function reset_sponsor() {
+    $("#sponsors").val("");
+    $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(null);
+  }
 </script>
 
 <div class="fields">
@@ -157,7 +185,10 @@
     // attributes with default values
     if($ea['hidden']
        && ($this->action != 'view'
-           || !isset($ea['default']) || !$ea['default'])) {
+              // We have to special case sponsor since the controller might
+              // inject a default
+           || ($ea['attribute'] != 'r:sponsor_co_person_id'
+               && (!isset($ea['default']) || !$ea['default'])))) {
       $hidden_attr[] = $ea;
     } else {
       if(isset($ea['group'])) {  // Sort by group
@@ -176,8 +207,10 @@
     if($ea['hidden']) {
       $fieldName = $ea['model'] . '.' . $ea['field'];
     }
-
-    print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    
+    if(!empty($ea['default'])) {
+      print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+    }
   }
 
   // Print the ones not hidden
@@ -211,7 +244,8 @@
 
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
-          if($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view') {
+          if(($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view')
+              || (!$mvpa && $coe_attributes[0]['CoEnrollmentAttribute']['required'])) {
             print "<span class=\"required\">*</span>\n";
           }
           
@@ -293,6 +327,11 @@
               if(isset($ea['default'])) {
                 $args['value'] = $ea['default'];
                 $args['disabled'] = !$ea['modifiable'];
+              }
+
+              // Calculate what we should do for the COU field
+              if(strpos($fieldName, 'cou_id') !== false){
+                $ea['required'] = !($ea['allow_empty'] && $vv_allow_empty_cou);
               }
               $args['empty'] = !$ea['required'];
               $args['class'] = 'co-selectfield';
@@ -421,11 +460,70 @@
                   $requiredSymbol = ' <span class="required">*</span>';
                 }
               }
+              
+              if($fieldName == 'EnrolleeCoPersonRole.sponsor_co_person_id') {
+                // This only applies when sponsorList() has thrown an OverflowException
+                // and we use the people picker, otherwise the sponsor field will
+                // be a dropdown via inList
 
-              // Render the form field, label, and error (if any)
-              // error is output by default with class "error-message"
-              print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
-              print $this->Form->input($fieldName, $args);
+                if($ea['modifiable']) {
+                  // Use a people picker
+                  print '<div class="cm-inline-editable-field">';
+                  $inlineEditableFields['sponsor-val']['set'] = false;
+
+                  if(!empty($vv_default_sponsor)) {
+                    $inlineEditableFields['sponsor-val']['set'] = true;
+
+                    print '<div class="cm-ief-val">';
+                    print generateCn($vv_default_sponsor['PrimaryName']);
+                    print $this->element('inlineEditControls', array(
+                      'fieldName' => 'EnrolleeCoPersonRoleSponsorCoPersonId',
+                      'actions' => array('remove'),
+                      'visible' => true
+                    ));
+                    print '</div>';
+                  }
+
+                  $iefClasses = "cm-ief-widget";
+                  if ($inlineEditableFields['sponsor-val']['set']) {
+                    $iefClasses .= " hidden";
+                  }
+
+                  print '<div class="' . $iefClasses . '">';
+                  print ' <label for="sponsors" class="mdl-textfield__label">'
+                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
+                        . '</label>
+                           <div class="ui-widget">
+                             <input id="sponsors" type="text" class="mdl-textfield__input"/>'
+                        . $this->Form->hidden($fieldName,
+                                              array(
+                                                // We don't support two sponsors, but if we did this id would break
+                                                'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
+                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                              ))
+                        . '</div>
+                           <div class="field-desc">
+                             <span class="ui-icon ui-icon-info co-info"></span>
+                             <em>' . _txt('fd.sponsor.desc') . '</em>
+                           </div>';
+                  print '</div>'; // cm-ief-widget
+                  print '</div>'; // cm-inline-editable-field
+                  // We need to unlock the field for autocomplete manipulation
+                  $this->Form->unlockField('EnrolleeCoPersonRole.sponsor_co_person_id');
+                } elseif(!empty($vv_default_sponsor)) {
+                  // Just print out the name
+                  print generateCn($vv_default_sponsor['PrimaryName']);
+                }
+              } else {
+                if($fieldName == 'EnrolleeCoPersonRole.sponsor_co_person_id-disabled') {
+                  $args['value'] = generateCn($vv_default_sponsor['PrimaryName']);
+                }
+                
+                // Render the form field, label, and error (if any)
+                // error is output by default with class "error-message"
+                print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+                print $this->Form->input($fieldName, $args);
+              }
 
               print "</div>\n";
 
@@ -485,7 +583,14 @@
                 print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
                 break;
               default:
-                print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                if($ea['field'] == 'sponsor_co_person_id'
+                   && !empty($co_petition_attribute_values[ $ea['id'] ]['sponsorPrimaryName'])) {
+                  // Special case the sponsor
+                  print $co_petition_attribute_values[ $ea['id'] ]['sponsorPrimaryName'];
+                } else {
+                  // Otherwise just print out the field value
+                  print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                }
                 break;
               }
             }

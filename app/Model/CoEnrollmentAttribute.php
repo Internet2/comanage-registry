@@ -117,6 +117,14 @@ class CoEnrollmentAttribute extends AppModel {
   
   /**
    * Determine the attributes available to be requested as part of an Enrollment Flow.
+   * (1)  (code=r) Single valued CO Person Role attributes
+   * (2)  (code=p) Multi valued CO Person attributes
+   * (2a) (code=g) Group Memberships are Multi valued CO Person attributes, but have all sorts of special logic around them so they get their own code
+   * (3)  (code=m) Multi valued CO Person Role attributes
+   * (4)  (code=x) CO Person Role Extended attributes
+   * (5)  (code=o) Single valued Org Identity attributes, if enabled
+   * (6)  (code=i) Multi valued Org Identity attributes, if enabled.Note that since org identities don't support extended types, we use default values here.
+   * (7)  (code=e) Enrollment Flow specific attributes -- these don't get copied out of the petition
    *
    * @since  COmanage Registry v0.3
    * @param  integer Identifier of the CO to assemble attributes for
@@ -261,8 +269,9 @@ class CoEnrollmentAttribute extends AppModel {
     // the flow changes after the petition is created), but Enrollment Attributes stay
     // with the current flow definition. So we need to check if there is a parent id.
     $actualEfId = $this->CoEnrollmentFlow->field('co_enrollment_flow_id', array('CoEnrollmentFlow.id' => $coef));
-    
-    if(!$actualEfId) {
+
+    // if there is no parent id then the co_enrollment_flow_id field will always be null
+    if(is_null($actualEfId)) {
       $actualEfId = $coef;
     }
     
@@ -339,17 +348,21 @@ class CoEnrollmentAttribute extends AppModel {
         // type 'o' or 'r' and is required by the data model.
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
         $attr['mvpa_required'] = false; // does not apply
-        
-        if(($attrCode == 'o' || $attrCode == 'r')
-           && $attrModel->validate[$attrName]['content']['required'])
-          $attr['required'] = true;
+
+        // We check if the attribute is requested by the Model's validation rules
+        // If this is true then it does not matter if we choose required or not
+        // Also it does not matter if we want it empty or not
+        if( $attrCode == 'o' || $attrCode == 'r') {
+          $attr['required'] = (bool)$attrModel->validate[$attrName]['content']['required'];
+          $attr['allow_empty'] = (bool)$attrModel->validate[$attrName]['content']['allowEmpty'];
+        }
         
         // Label
         $attr['label'] = $efAttr['CoEnrollmentAttribute']['label'];
         
         // Description
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
-        
+
         // Single value attributes are never hidden, unless there is a non-modifable
         // default value
         $attr['hidden'] =
@@ -425,10 +438,13 @@ class CoEnrollmentAttribute extends AppModel {
           } else {
             $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
           }
-          
+          $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
+        } elseif($efAttr['CoEnrollmentAttribute']['attribute'] == 'r:sponsor_co_person_id') {
+          // Special case for sponsor, we want to make sure the modifiable field passes
+          // through even if there is no default value
           $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         }
-        
+
         // Attach the validation rules so the form knows how to render the field.
         if($attrCode == 'o') {
           $attr['validate'] = $attrModel->validate[$attrName];
@@ -456,22 +472,39 @@ class CoEnrollmentAttribute extends AppModel {
             $args['joins'][0]['type'] = 'INNER';
             $args['joins'][0]['conditions'][0] = 'Cou.co_id=CoEnrollmentFlow.co_id';
             $args['order'] = 'Cou.name ASC';
-            
+
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Cou->find('list', $args);
             $attr['validate']['content']['rule'][0] = 'inList';
             $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
             // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
             // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
             $attr['validate']['content']['rule'][2] = false;
+            if(isset($efAttr['CoEnrollmentAttributeDefault'][0]['value'])
+               && !is_null($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+              $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+              // If there's a default value, then the attribute can be hidden
+              $attr['hidden'] = (isset($efAttr['CoEnrollmentAttribute']['hidden'])
+                && $efAttr['CoEnrollmentAttribute']['hidden']);
+            }
+            $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
+                                    ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
+                                    : false);
           } elseif($attrName == 'sponsor_co_person_id') {
             // Like COU ID, we need to set up a select
             
-            $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Co->CoPerson->sponsorList($efAttr['CoEnrollmentFlow']['co_id']);
-            $attr['validate']['content']['rule'][0] = 'inList';
-            $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
-            // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
-            // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
-            $attr['validate']['content']['rule'][2] = false;
+            try {
+              $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Co->CoPerson->sponsorList($efAttr['CoEnrollmentFlow']['co_id']);
+              $attr['validate']['content']['rule'][0] = 'inList';
+              $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
+              // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
+              // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
+              $attr['validate']['content']['rule'][2] = false;
+            }
+            catch(OverflowException $e) {
+              // Use the people picker instead
+              
+              // We don't need to inject a validation rule
+            }
           } else {
             // Default behavior for all other attributes
             
@@ -560,8 +593,10 @@ class CoEnrollmentAttribute extends AppModel {
         foreach(array_keys($attrModel->validate) as $k) {
           // Skip fields that are autopopulated
           if($k != 'co_department_id'
+             && $k != 'co_group_id'
              && $k != 'co_person_id'
              && $k != 'co_person_role_id'
+             && $k != 'co_provisioning_target_id'
              && $k != 'org_identity_id'
              && $k != 'source_' . $attrName . '_id'
              // For now, we skip description (introduced to MVPAs in 3.1.0)
@@ -883,7 +918,7 @@ class CoEnrollmentAttribute extends AppModel {
     if(!empty($envValues)) {
       $eaMap = array();
       
-      for($i = 0;$i < count($enrollmentAttributes);$i++) {
+      for($i = 0, $iMax = count($enrollmentAttributes); $i < $iMax; $i++) {
         $model = explode('.', $enrollmentAttributes[$i]['model'], 2);
         
         // Only track org identity attributes
@@ -942,8 +977,8 @@ class CoEnrollmentAttribute extends AppModel {
     }
     
     // Check for default values from env variables.
-    
-    for($i = 0;$i < count($enrollmentAttributes);$i++) {
+
+    for($i = 0, $iMax = count($enrollmentAttributes); $i < $iMax; $i++) {
       // Skip anything that's hidden. This will prevent us from setting a
       // default value for metadata attributes, and will also prevent using
       // default values in hidden attributes (which is probably a feature, not

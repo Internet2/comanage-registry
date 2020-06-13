@@ -58,12 +58,14 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $args = array();
-  $args['plugin'] = null;
-  $args['controller'] = 'co_groups';
-  $args['action'] = 'index';
-  $args['co'] = $cur_co['Co']['id'];
-  $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  if($permissions['index']) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'co_groups';
+    $args['action'] = 'index';
+    $args['co'] = $cur_co['Co']['id'];
+    $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
+  }
   $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_groups.1')));
   $this->Html->addCrumb($crumbTxt);
 
@@ -78,6 +80,51 @@
   
   $l = 1;
 ?>
+
+<script type="text/javascript">
+  <!-- /* JS specific to these fields */ -->
+  
+  function js_confirm_autogenerate() {
+    // Open the dialog to confirm autogeneration of identifiers
+    var $tabs = $( "#tabs" ).tabs();
+    $('#autogenerate-dialog').dialog('open');
+  }
+
+  $(function() {
+    // Autogenerate dialog
+    $("#autogenerate-dialog").dialog({
+      autoOpen: false,
+      <?php if($this->action == 'edit'): ?>
+      buttons: [
+        {
+          text : "<?php print _txt('op.cancel'); ?>",
+          click : function() {
+            $(this).dialog("close");
+          }
+        },
+        {
+          text : "<?php print _txt('op.id.auto'); ?>",
+          click: function () {
+            $(this).dialog("close");
+            displaySpinner();
+            window.location.href = "<?php print $this->Html->url(array('controller' => 'identifiers',
+            'action' => 'assign',
+            'cogroupid' => $co_groups[0]['CoGroup']['id'])); ?>";
+          }
+        }
+      ],
+      modal: true,
+      show: {
+        effect: "fade"
+      },
+      hide: {
+        effect: "fade"
+      }
+      <?php endif; // edit ?>
+    });
+  });
+</script>
+
 <ul id="<?php print $this->action; ?>_co_group" class="fields form-list">
   <?php if(!empty($co_groups[0]['CoGroup']['group_type'])
     && $co_groups[0]['CoGroup']['group_type'] != GroupEnum::Standard): ?>
@@ -158,6 +205,115 @@
 </ul>
 
 <?php if($this->action != 'add'): ?>
+<h2><?php print _txt('ct.identifiers.pl'); ?></h2>  
+<?php if(!empty($co_groups[0]['CoGroup']['id'])
+      // XXX It's not clear why we don't permit related models (eg: identifiers,
+      // nested groups, email lists) to be added to automatic groups...
+      && !$co_groups[0]['CoGroup']['auto']
+      && $permissions['edit']): ?>
+  <ul class="widget-actions">
+    <li>
+      <?php
+      if($e) {
+        // Autogenerate Identifiers button
+        if($permissions['assign'] && !empty($co_identifier_assignments)) {
+          print $this->Html->link(
+            _txt('op.id.auto'),
+            'javascript:js_confirm_autogenerate();',
+            array('class' => 'contactbutton')
+          );
+        }
+        
+        // Add an identifier
+        print $this->Html->link(
+          _txt('op.add-a', array(_txt('ct.identifiers.1'))),
+          array(
+            'controller' => 'identifiers',
+            'action'     => 'add',
+            'cogroup'    => $co_groups[0]['CoGroup']['id']
+          ),
+          array('class' => 'addbutton')
+        );
+      }
+      ?>
+    </li>
+  </ul>
+<?php endif; ?>
+<div class="table-container">
+  <table id="identifiers" class="common-table">
+    <thead>
+      <tr>
+        <th><?php print _txt('fd.name'); ?></th>
+        <th><?php print _txt('fd.type'); ?></th>
+        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        if(!empty($co_groups[0]['Identifier'])) {
+          foreach($co_groups[0]['Identifier'] as $id) {
+            print "<tr>";
+            
+            // Identifier
+            print "<td>" . $this->Html->link($id['identifier'],
+                                             array('controller' => 'identifiers',
+                                                   'action' => $this->action,
+                                                   $id['id'])) . "</td>";
+            
+            // Identifier Type
+            print "<td>" . $vv_types['Identifier'][ $id['type'] ] . "</td>";
+            
+            print '<td class="actions">';
+            
+            if($e) {
+              if($permissions['edit']) {
+                print $this->Html->link(_txt('op.edit'),
+                                        array('controller' => 'identifiers',
+                                              'action' => 'edit',
+                                              $id['id']),
+                                        array('class' => 'editbutton'));
+              }
+              
+              if($permissions['delete']) {
+                print '<a class="deletebutton" title="' . _txt('op.delete')
+                  . '" onclick="javascript:js_confirm_generic(\''
+                  . _txt('js.remove') . '\',\''    // dialog body text
+                  . $this->Html->url(              // dialog confirm URL
+                    array(
+                      'controller' => 'identifiers',
+                      'action' => 'delete',
+                      $id['id'],
+                      'return' => 'group'
+                    )
+                  ) . '\',\''
+                  . _txt('op.remove') . '\',\''    // dialog confirm button
+                  . _txt('op.cancel') . '\',\''    // dialog cancel button
+                  . _txt('op.remove') . '\',[\''   // dialog title
+                  . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                  . '\']);">'
+                  . _txt('op.delete')
+                  . '</a>';
+              }
+            } else {
+              if($permissions['view']) {
+                print $this->Html->link(_txt('op.view'),
+                                        array('controller' => 'identifiers',
+                                              'action' => 'view',
+                                              $id['id']),
+                                        array('class' => 'viewbutton'));
+              }
+            }
+            
+            print "</td>";
+            
+            print "</tr>";
+          }
+        }
+      ?>
+    </tbody>
+  </table>
+</div>
+
 <h2><?php print _txt('ct.co_group_nestings.pl'); ?></h2>
 <?php if(!empty($co_groups[0]['CoGroup']['id'])
       && !$co_groups[0]['CoGroup']['auto']
@@ -165,16 +321,18 @@
   <ul class="widget-actions">
     <li>
       <?php
-      // Add a nested group
-      print $this->Html->link(
-        _txt('op.add-a', array(_txt('ct.co_group_nestings.1'))),
-        array(
-          'controller' => 'co_group_nestings',
-          'action'     => 'add',
-          'cogroup'    => $co_groups[0]['CoGroup']['id']
-        ),
-        array('class' => 'addbutton')
-      );
+      if($e) {
+        // Add a nested group
+        print $this->Html->link(
+          _txt('op.add-a', array(_txt('ct.co_group_nestings.1'))),
+          array(
+            'controller' => 'co_group_nestings',
+            'action'     => 'add',
+            'cogroup'    => $co_groups[0]['CoGroup']['id']
+          ),
+          array('class' => 'addbutton')
+        );
+      }
       ?>
     </li>
   </ul>
@@ -203,11 +361,11 @@
 
             print $this->Html->link($n[$gnm]['name'],
                                     array('controller' => 'co_groups',
-                                          'action' => 'edit',
+                                          'action' => $this->action,
                                           $n[$gnm]['id']));
           ?></td>
           <td class="actions"><?php
-            if($permissions['nest']) {
+            if($e && $permissions['nest']) {
               print '<a class="deletebutton" title="' . _txt('op.remove')
                 . '" onclick="javascript:js_confirm_generic(\''
                 . _txt('js.remove.nesting') . '\',\''    // dialog body text
@@ -261,7 +419,7 @@
               // List name
               print "<td>" . $this->Html->link($el['name'],
                                                array('controller' => 'co_email_lists',
-                                                     'action' => 'edit',
+                                                     'action' => $this->action,
                                                      $el['id'])) . "</td>";
               
               // List's status
@@ -274,13 +432,15 @@
               // List's usage
               print "<td>" . _txt('fd.el.gr.'.Inflector::tableize($listType)) . "</td>";
               
-              print '<td class="actions">'
-                    . $this->Html->link(_txt('op.edit'),
-                                        array('controller' => 'co_email_lists',
-                                              'action' => 'edit',
-                                              $el['id']),
-                                        array('class' => 'viewbutton'))
-                    . "</td>";
+              if($e) {
+                print '<td class="actions">'
+                      . $this->Html->link(_txt('op.edit'),
+                                          array('controller' => 'co_email_lists',
+                                                'action' => 'edit',
+                                                $el['id']),
+                                          array('class' => 'viewbutton'))
+                      . "</td>";
+              }
               
               print "</tr>\n";
             }
@@ -437,6 +597,9 @@
       ?>
     </tbody>
   </table>
+</div>
+<div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
+  <?php print _txt('op.id.auto.confirm'); ?>
 </div>
 <?php endif; // add ?>
 <?php

@@ -30,37 +30,24 @@ global $cm_lang, $cm_texts;
 
 ?>
 
-<script type="text/javascript">
-  function clearSearch(formObj) {
-    for (var i=0; i<formObj.elements.length; i++) {
-      t = formObj.elements[i].type;
-      if(t == "text" || t == "select-one") {
-        formObj.elements[i].value = "";
+<div id="coPeopleSearch" class="top-search top-search-hide-labels">
+  <?php
+    print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
+    print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
+    if(!empty($this->request->params['named']['copetitionid'])) {
+      print $this->Form->hidden('CoPetition.id', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
+    }
+    print $this->Form->hidden('currentAction', array('default' => filter_var($this->request->action,FILTER_SANITIZE_SPECIAL_CHARS)));
+    if ($this->request->action == 'relink') {
+      // pass the relink parameters through the search
+      if(!empty($vv_co_org_identity_link['CoOrgIdentityLink'])) {
+        print $this->Form->hidden('Relink.id', array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id']));
+        print $this->Form->hidden('Relink.orgidlinkid', array('default' => $vv_co_org_identity_link['CoOrgIdentityLink']['id']));
+      } elseif(!empty($vv_co_person_role['CoPersonRole'])) {
+        print $this->Form->hidden('Relink.id', array('default' => $vv_co_person_role['CoPersonRole']['co_person_id']));
+        print $this->Form->hidden('Relink.roleid', array('default' => $vv_co_person_role['CoPersonRole']['id']));
       }
     }
-    formObj.submit();
-  }
-
-  $(function() {
-    $( "#top-search-toggle").click(function() {
-      $("#top-search-fields").toggle();
-      var searchFieldsAreOpen = $("#top-search-fields").is(':visible');
-      if (searchFieldsAreOpen) {
-        $("#coPeopleSearch").addClass('open');
-      } else {
-        $("#coPeopleSearch").removeClass('open');
-      }
-    });
-  });
-</script>
-
-<div id="coPeopleSearch" class="top-search">
-  <?php
-  print $this->Form->create('CoPerson',array('url' => array('action'=>'search')));
-  print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-  if(!empty($this->request->params['named']['copetitionid'])) {
-    print $this->Form->hidden('CoPetition.id', array('default' => filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
-  }
   ?>
   <fieldset>
     <legend id="top-search-toggle">
@@ -76,44 +63,47 @@ global $cm_lang, $cm_texts;
 
         <span id="top-search-active-filters">
           <?php if (!empty($this->request->params['named']['Search.givenName'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchGivenName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.given'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.givenName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.familyName'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchFamilyName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.family'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.familyName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.mail'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchMail" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.email_address.mail'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchIdentifier" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.identifier.identifier'); ?></span>
-              <span class="top-search-active-filter-value"><?php print $this->request->params['named']['Search.identifier']; ?></span>
-            </span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.status'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchStatus" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['Search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['Search.couid'])): ?>
-            <span class="top-search-active-filter">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchCouid" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.cou'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_cous[$this->request->params['named']['Search.couid']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
-            </span>
+            </button>
           <?php endif; ?>
+          <button id="top-search-clear-all-button" class="filter-clear-all-button spin mdl-button" aria-controls="top-search-clear">
+            <?php print _txt('op.clear.filters.pl');?>
+          </button>
         </span>
       <?php endif; ?>
-      <em class="material-icons drop-arrow">arrow_drop_down</em>
+      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
     </legend>
 
     <div id="top-search-fields">
@@ -176,7 +166,7 @@ global $cm_lang, $cm_texts;
       ?>
       </div>
 
-      <div class="topSearchSubmit">
+      <div class="top-search-submit">
         <?php
         $args = array();
         // search button (submit)
@@ -185,10 +175,11 @@ global $cm_lang, $cm_texts;
         print $this->Form->submit(_txt('op.filter'),$args);
 
         // clear button
+        $args['id'] = 'top-search-clear';
         $args['class'] = 'clear-button spin mdl-button';
-        $args['aria-label'] = _txt('op.clear.all');
-        $args['onclick'] = 'clearSearch(this.form)';
-        print $this->Form->button(_txt('op.clear.all'),$args);
+        $args['aria-label'] = _txt('op.clear');
+        $args['onclick'] = 'clearTopSearch(this.form)';
+        print $this->Form->button(_txt('op.clear'),$args);
         ?>
       </div>
     </div>

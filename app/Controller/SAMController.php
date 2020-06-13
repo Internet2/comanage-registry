@@ -237,54 +237,69 @@ class SAMController extends StandardController {
     
     $p = array();
     
-    // View a given CO Person's Authenticator?
-    // Corresponds to AuthenticatorsController
-    $p['info'] = ($roles['cmadmin']
-                  || $roles['coadmin']
-                  || $managed
-                  || ($self && !$locked));
-    
-    // Manage a given CO Person's Authenticators?
-    // Corresponds to AuthenticatorsController
-    $p['manage'] = ($roles['cmadmin']
-                    || $roles['coadmin']
-                    || $managed
-                    || ($self && !$locked));
-    
-    // Reset a given CO Person's Authenticators?
-    // Corresponds to AuthenticatorsController
-    // Unclear if this should be self service, so for now it isn't
-    $p['reset'] = ($roles['cmadmin']
-                   || $roles['coadmin']
-                   || $managed);
-    
-    if($multiple) {
-      // Adjust permissions to required views
+    if($this->request->is('restful')) {
+      // If the plugin supports RESTful calls, we need to calculate a different
+      // set of permissions.
       
-      $p['add'] = ($roles['cmadmin']
-                   || $roles['coadmin']
-                   || $managed
-                   || ($self && !$locked));
+      $p['add'] = (!$locked && ($roles['cmadmin'] || $roles['coadmin']));
       
-      $p['edit'] = ($roles['cmadmin']
+      $p['edit'] = (!$locked && ($roles['cmadmin'] || $roles['coadmin']));
+      
+      $p['delete'] = (!$locked && ($roles['cmadmin'] || $roles['coadmin']));
+      
+      $p['index'] = (!$locked && ($roles['cmadmin'] || $roles['coadmin']));
+      
+      $p['view'] = (!$locked && ($roles['cmadmin'] || $roles['coadmin']));
+    } else {
+      // View a given CO Person's Authenticator?
+      // Corresponds to AuthenticatorsController
+      $p['info'] = ($roles['cmadmin']
                     || $roles['coadmin']
                     || $managed
                     || ($self && !$locked));
       
-      $p['delete'] = ($roles['cmadmin']
+      // Manage a given CO Person's Authenticators?
+      // Corresponds to AuthenticatorsController
+      $p['manage'] = ($roles['cmadmin']
                       || $roles['coadmin']
                       || $managed
                       || ($self && !$locked));
       
-      $p['index'] = ($roles['cmadmin']
+      // Reset a given CO Person's Authenticators?
+      // Corresponds to AuthenticatorsController
+      // Unclear if this should be self service, so for now it isn't
+      $p['reset'] = ($roles['cmadmin']
+                     || $roles['coadmin']
+                     || $managed);
+      
+      if($multiple) {
+        // Adjust permissions to required views
+        
+        $p['add'] = ($roles['cmadmin']
                      || $roles['coadmin']
                      || $managed
                      || ($self && !$locked));
-      
-      $p['view'] = ($roles['cmadmin']
-                    || $roles['coadmin']
-                    || $managed
-                    || ($self && !$locked));
+        
+        $p['edit'] = ($roles['cmadmin']
+                      || $roles['coadmin']
+                      || $managed
+                      || ($self && !$locked));
+        
+        $p['delete'] = ($roles['cmadmin']
+                        || $roles['coadmin']
+                        || $managed
+                        || ($self && !$locked));
+        
+        $p['index'] = ($roles['cmadmin']
+                       || $roles['coadmin']
+                       || $managed
+                       || ($self && !$locked));
+        
+        $p['view'] = ($roles['cmadmin']
+                      || $roles['coadmin']
+                      || $managed
+                      || ($self && !$locked));
+      }
     }
     
     return $p;
@@ -358,15 +373,15 @@ class SAMController extends StandardController {
     switch($action) {
       case 'add':
         $cstr = _txt('rs.added-a2', array($authcfg['Authenticator']['description'],
-                                          $newdata['Certificate']['description']));
+                                          $newdata[$req][$model->displayField]));
         break;
       case 'delete':
         $cstr = _txt('rs.deleted-a2', array($authcfg['Authenticator']['description'],
-                                            $olddata['Certificate']['description']));
+                                            $olddata[$req][$model->displayField]));
         break;
       case 'edit':
         $cstr = _txt('rs.edited-a2', array($authcfg['Authenticator']['description'],
-                                           $newdata['Certificate']['description']));
+                                           $newdata[$req][$model->displayField]));
         break;
     }
     
@@ -402,9 +417,42 @@ class SAMController extends StandardController {
    */
   
   public function index() {
-    parent::index();
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+    $modelpl = Inflector::tableize($req);
+    $modelid = $this->modelKey . "_id";
+    $parentkey = $this->modelKey . "_authenticator_id";
+    $parentflag = str_replace("_", "", $this->modelKey) . "authid";
     
-    if(!$this->request->is('restful')) {
+    if($this->request->is('restful')) {
+      if(!empty($this->params['url'][$parentflag])) {
+        // Filter the request on the object authenticator ID (ie: password_authenticator_id)
+        $args = array();
+        $args['conditions'][$model->name . '.' . $parentkey] = $this->params['url'][$parentflag];
+        if(!empty($this->params['url']['copersonid'])) {
+          $args['conditions'][$model->name . '.co_person_id'] = $this->params['url']['copersonid'];
+        }
+        $args['contain'] = false;
+        
+        $t = $model->find('all', $args);
+        
+        if(empty($t)) {
+          // XXX Note the is slightly inconsistent with API v1 behavior, but probablyy not v2
+          $this->Api->restResultHeader(404, "Not Found");
+          return;
+        }
+        
+        $this->set($modelpl, $this->Api->convertRestResponse($t));
+        $this->Api->restResultHeader(200, "OK");
+        return;
+      } else {
+        // We want the default behavior
+        parent::index();
+      }
+    } else {
+      parent::index();
+      
       $this->set('title_for_layout', $this->viewVars['vv_authenticator']['Authenticator']['description']);
     }
   }

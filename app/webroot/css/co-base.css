@@ -118,10 +118,6 @@ header.mdl-layout__header {
 .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
   padding-left: 16px;
 }
-body.logged-out .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row,
-body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-  padding-left: 7px;
-}
 /* TOP MENU (BLACK BAR) */
 #top-menu {
   position: relative;
@@ -132,6 +128,22 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 #desktop-hamburger {
   display: none; /* hide our custom drawer toggle on mobile where we will expose the MDL drawer toggle */
 }
+button.cm-toggle {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+button.cm-toggle:focus {
+  border: 1px dotted #222;
+}
+#top-menu button.cm-toggle {
+  color: white;
+}
+#top-menu button.cm-toggle:focus {
+  border: 1px dotted #fff;
+}
 /* USER DEFINED LINKS (top) */
 #user-defined-links-top  {
   display: none;
@@ -139,7 +151,6 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 /* LOGO */
 #logo {
   display: block;
-  margin-top: 10px;
   position: absolute;
   right: 1em;
   overflow: hidden;
@@ -147,6 +158,10 @@ body.redirect .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__heade
 }
 #logo img {
   height: 38px;
+}
+#logo a:focus {
+  border: 1px dotted #222;
+  display: block;
 }
 /* USER MENU */
 #user-menu {
@@ -157,7 +172,7 @@ body.logged-out #user-menu {
 }
 body.logged-in #user-menu {
   float: right;
-  margin: 0 0 1em;
+  margin: 0 1em 1em;
   margin-top: 1px;
 }
 #user-menu #user,
@@ -215,9 +230,6 @@ body.logged-in #user-menu {
 #user-common-name {
   display: none;
 }
-#user-menu a.topMenu {
-  color: #fff;
-}
 #user-menu .material-icons {
   vertical-align: bottom;
   font-size: 23px;
@@ -273,10 +285,10 @@ body.logged-in #user-menu {
 #user-panel .co-info-topbox strong {
   font-weight: normal;
 }
-#user-panel #co-profile-link:hover {
+#user-panel .co-profile-button:hover {
   background-color: #eee;
 }
-#user-panel #co-profile-link .material-icons {
+#user-panel .co-profile-button .material-icons {
   vertical-align: middle;
   margin-right: 0.25em;
   font-size: 16px;
@@ -299,12 +311,7 @@ body.logged-in #user-menu {
 #user-panel .org-ids {
   font-style: italic;
 }
-#user-panel #user-panel-flows {
-  column-count: 2;
-}
-#user-panel #user-panel-flows,
-#user-panel #user-panel-invite,
-#user-panel #panel-orgid {
+#user-panel ul.user-panel-list {
   margin-top: 0;
 }
 /* NOTIFICATIONS */
@@ -339,9 +346,6 @@ body.logged-in #user-menu {
 }
 #notifications .notification:hover {
   background-color: rgb(238,238,238);
-}
-#notifications .notification-created {
-  font-size: 0.9em;
 }
 #notifications .notification-created a {
   color: #444;
@@ -433,21 +437,19 @@ form#notificationStatus {
   font-weight: bold;
 }
 .noty_icon{
-  display: inline-block !important;
-  position: relative;
-  top: 3px;
+  margin-right: 4px;
 }
 .warbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_826262_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_826262_256x240.png") !important;
 }
 .sucbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_006400_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_006400_256x240.png") !important;
 }
 .errbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
 }
 .notbg{
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_444444_256x240.png") !important;
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_444444_256x240.png") !important;
 }
 /* General icon and box styling */
 .co-info { /* info icon */
@@ -466,6 +468,7 @@ form#notificationStatus {
 }
 #lastLogin p {
   margin-bottom: 0;
+  clear: both;
 }
 #content .co-info-topbox .material-icons {
   color: #53b1f4;
@@ -567,7 +570,6 @@ form#notificationStatus {
   padding: 0;
 }
 .custom-links li {
-  font-size: 0.9em;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -588,9 +590,6 @@ form#notificationStatus {
 }
 #collaborationTitle a {
   color: #222;
-}
-#breadcrumbs {
-  font-size: 0.9em;
 }
 body.co_petitions.view .titleNavContainer,
 body.co_person_roles .titleNavContainer,
@@ -963,7 +962,7 @@ body.view .modelbox-data {
 }
 iframe#tandc_content {
   width: 100%;
-  height: 300px;
+  height: 100%;
 }
 /* INVITATIONS */
 .invitation {
@@ -1007,7 +1006,7 @@ body.petitionerAttributes td {
   width: 50%;
   margin: 0 0 0 2px;
 }
-#statusFilters {
+.filters-box {
   background-color: #f5f5f5;
   border: 1px solid #a0c6e3;
   clear: both;
@@ -1015,19 +1014,19 @@ body.petitionerAttributes td {
   min-height: 2.2em;
   padding: 0 0.5em 0.5em;
 }
-#statusFilters .checkbox {
+.filters-box .checkbox {
   display: inline-block;
   margin: 0.25em 0.5em 0 0;
   color: #222;
   white-space: nowrap;
 }
-#statusFilters input {
+.filters-box input {
   margin: 4px 4px 0;
 }
-#statusFilters label {
+.filters-box label {
   vertical-align: top;
 }
-#statusFilters .submit-button {
+.filters-box .submit-button {
   float: right;
   font-size: 0.9em;
   height: 28px;
@@ -1050,7 +1049,7 @@ body.petitionerAttributes td {
 }
 body.co_petitions .approve-button .ui-icon,
 body.co_petitions .deny-button .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.11.4.custom/images-comanage/ui-icons_ffffff_256x240.png");
+  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png");
 }
 body.co_petitions .approve-button,
 body.co_petitions .deny-button {
@@ -1079,13 +1078,7 @@ body.co_petitions .deny-button:hover {
   white-space: nowrap;
 }
 body.co_petitions .ui-dialog {
-  left: 15% !important;
-  top: 10% !important;
-  width: 70% !important;
   padding: 0;
-}
-#dialog-review {
-  height: 270px !important; /* mobile size */
 }
 /* Pagination */
 #pagination {
@@ -1102,7 +1095,6 @@ body.co_petitions .ui-dialog {
 }
 #pagination .paginationCounter {
   display: block;
-  margin: 0.4em 0.5em 0.4em 0;
 }
 #pagination .paginationFirst,
 #pagination .paginationPrev {
@@ -1134,8 +1126,9 @@ body.co_petitions .ui-dialog {
 }
 #pagination .pagination-form input[type="submit"] {
   width: auto;
-  height: 2em;
-  padding: 0 4px;
+  height: auto;
+  padding: 2px 4px;
+  top: -1px;
   min-width: 0;
   min-height: 0;
   line-height: initial;
@@ -1217,7 +1210,42 @@ body.co_petitions .ui-dialog {
   color: #333;
   text-decoration: none;
 }
-/* PEOPLE LISTING */
+/* PEOPLE LISTING - TABLE */
+#co-people-index {
+  margin-bottom: 0;
+}
+#co-people-index .person-name a {
+  font-size: 1.2em;
+}
+#co-people-index .role {
+  border-top: 1px dotted #ccc;
+  padding-top: 4px;
+  margin-top: 4px;
+}
+#co-people-index .role:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+/* Convert table for mobile */
+#co-people-index thead {
+  display: none;
+}
+#co-people-index td {
+  display: block;
+  border: none;
+  padding: 0 1em;
+}
+#co-people-index .person-name {
+  padding-top: 1em;
+}
+#co-people-index .person-role {
+  padding-top: 0.5em;
+}
+#co-people-index .actions {
+  padding: 0.5em 1em 1em;
+}
+/* PEOPLE LISTING - ACCORDIANS (legacy) */
 #co_people {
   clear: both;
 }
@@ -1233,6 +1261,9 @@ body.co_petitions .ui-dialog {
   min-height: 45px;
   position: relative;
   width: 100%;
+}
+#coPeopleNoResults {
+  margin-left: 1.5em;
 }
 #noResults {
   margin: 1.5em 0 0 0;
@@ -1376,11 +1407,16 @@ a.ui-button:visited,
 .top-search legend .material-icons {
   vertical-align: middle;
 }
-.top-search legend .material-icons.drop-arrow {
-  float: right;
-  position: relative;
-  left: -5px;
-  top: -1px;
+.top-search legend button.cm-toggle {
+  position: absolute;
+  right: 0.5em;
+}
+#content .top-search legend .material-icons {
+  font-size: 20px;
+}
+#content .top-search legend button.cm-toggle .material-icons {
+  font-size: 34px;
+  line-height: 17px;
 }
 .top-search fieldset {
   clear: both;
@@ -1437,22 +1473,37 @@ a.ui-button:visited,
   height: 28px;
   margin: 0.5em;
 }
-.top-search label,
+.top-search .top-search-checkboxes {
+  margin-top: 0.5em;
+}
+.top-search .filter-clear-all-button {
+  font-size: 0.9em;
+  width: auto;
+  height: auto;
+  line-height: unset;
+}
+.top-search .filter-clear-all-button:hover {
+  background-color: unset;
+}
+.top-search.top-search-hide-fields label,
 .side-search label {
   display: none;
 }
 #top-search-active-filters {
   margin-left: 1em;
-  font-style: italic;
   padding: 0.5em 0;
 }
 .top-search-active-filter {
-  margin: 0 1em 0 0;
+  margin: 0 0.25em 0 0;
   white-space: nowrap;
-  color: #b00;
+  /*color: #b00;*/
+  font-style: italic;
 }
 .top-search-active-filter-title::after {
   content: ": ";
+}
+.top-search-active-filter-title.no-value::after {
+  content: none;
 }
 .top-search-active-filters-remove button {
   margin-left: 2em;
@@ -1493,8 +1544,18 @@ a.ui-button:visited,
 .co-services {
   clear: both;
 }
+.co-card.co-card-linked {
+  cursor: pointer;
+}
 .co-card h2  {
   font-size: 1.2em;
+}
+#main .co-card h2 a {
+  font-weight: bold;
+  color: #555;
+}
+#main .co-card h2 a:hover {
+  text-decoration: none;
 }
 .co-card {
   position: relative;
@@ -1741,6 +1802,9 @@ ul.form-list .field-title {
 ul.form-list .field-info {
   position: relative;
 }
+ul.form-list .field-info-prefix {
+  margin-right: 0.5em;
+}
 ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
@@ -1750,7 +1814,8 @@ ul.form-list .fields-header {
 }
 ul.form-list input[type="text"],
 ul.form-list input[type="number"],
-ul.form-list input[type="password"] {
+ul.form-list input[type="password"],
+ul.form-list textarea {
   width: 95%;
   font-size: 1em;
   -webkit-border-radius: 0;
@@ -1806,6 +1871,12 @@ ul.form-list li.field-stack textarea {
   width: 100%;
   resize: vertical;
 }
+.nested {
+  padding: 0 0 1em 2em;
+}
+.nested .nested {
+  padding-bottom: 0;
+}
 .checkbox {
   margin-bottom: 0.5em;
 }
@@ -1851,6 +1922,47 @@ ul.form-list li.field-stack textarea {
 .ui-datepicker select.ui-datepicker-year {
   width: 49%;
 }
+/* Inline edit buttons */
+
+.cm-inline-editable-field .cm-ief-val {
+  display: inline-block;
+  border: 1px dotted transparent;
+  padding: 0 0 0 6px;
+}
+.cm-inline-editable-field:hover .cm-ief-val {
+  border: 1px dotted black;
+}
+.cm-ief-controls {
+  display: inline-block;
+  visibility: hidden;
+  margin-left: 0.5em;
+}
+.cm-ief-controls-visible {
+  visibility: visible;
+}
+.cm-inline-editable-field.active .cm-ief-controls,
+.cm-inline-editable-field:hover .cm-ief-controls {
+  visibility: visible;
+}
+.cm-ief-button {
+  border: 1px solid #ddd;
+  cursor: pointer;
+  padding: 1px 2px;
+  background-color: white;
+}
+.cm-ief-button:focus,
+.cm-ief-button:active,
+.cm-ief-button:hover {
+  border: 1px dotted black;
+}
+.cm-ief-button-remove {
+  color: #a00;
+}
+#content .cm-ief-button .material-icons {
+  font-size: 16px;
+  margin: 0;
+}
+
 /* XXX determine which among the following five rules are still in use */
 .required-info {
   float: left;
@@ -2055,7 +2167,7 @@ td.indented {
 }
 .mdl-button.mdl-button--colored,
 .mdl-button--raised.mdl-button--colored {
-  background-color: #53B1F4 !important; /* important required to override MDL's active state */
+  background-color: #0C75C0 !important; /* important required to override MDL's active state */
   color: white;
 }
 .mdl-button--raised.mdl-button--colored:hover {

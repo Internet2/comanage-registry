@@ -79,6 +79,11 @@ class HistoryRecord extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'co_email_list_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'actor_co_person_id' => array(
       'rule' => 'numeric',
       'required' => false,

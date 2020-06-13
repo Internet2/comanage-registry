@@ -42,21 +42,8 @@
 
   // Add top links
   $params['topLinks'] = array();
-
-  if($permissions['add']) {
-    $params['topLinks'][] = $this->Html->link(
-      _txt('op.add-a', array(_txt('ct.co_navigation_links.1'))),
-      array(
-        'controller' => 'co_navigation_links',
-        'action'     => 'add',
-        'co'         => $cur_co['Co']['id']
-      ),
-      array('class' => 'addbutton')
-    );
-  }
-
+  
   print $this->element("pageTitleAndButtons", $params);
-
 ?>
 <script type="text/javascript">
   $(function() {
@@ -146,7 +133,7 @@
   
   print $this->Html->link(_txt('op.done'),
                           $args,
-                          array('class'  => 'backbutton right'));
+                          array('class'  => 'checkbutton right'));
 ?>
 
 <div id="result-dialog" title="<?php print _txt('op.reorder'); ?>">

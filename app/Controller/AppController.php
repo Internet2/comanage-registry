@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1, CakePHP(tm) v 0.2.9
@@ -139,7 +139,35 @@ class AppController extends Controller {
       // logged in (ie: via a cookie provided via an AJAX initiated REST call)
       
       if(!$this->Session->check('Auth.User.username')) {
-        $this->Auth->authenticate = array('Basic');
+        $this->Auth->authenticate = array(
+          'Basic' => array(
+            'userModel' => 'ApiUser',
+            'scope' => array(
+              // Only look at active users
+              'ApiUser.status' => SuspendableStatusEnum::Active,
+              // That don't have validity dates or where the dates are in effect
+              'AND' => array(
+                0 => array(
+                  'OR' => array(
+                    'ApiUser.valid_from IS NULL',
+                    'ApiUser.valid_from < ' => date('Y-m-d H:i:s', time())
+                  )
+                ),
+                1 => array(
+                  'OR' => array(
+                    'ApiUser.valid_through IS NULL',
+                    'ApiUser.valid_through > ' => date('Y-m-d H:i:s', time())
+                  )
+                )
+              )
+              // We also want to check REMOTE_IP, but there's not a good SQL way
+              // to do a regular expression comparison, so we'll do that separately.
+              // XXX When migrating to PE, we should do all these checks separately
+              // so we can log what failed more clearly.
+            ),
+            'contain' => false
+          )
+        );
         
 //      debug(AuthComponent::password($_SERVER['PHP_AUTH_PW']));
         
@@ -153,11 +181,31 @@ class AppController extends Controller {
           $this->response->send();
           exit;
         }
+        
+        // Perform the IP Address check
+        $ipregex = $this->Session->read('Auth.User.remote_ip');
+        
+        if(!empty($ipregex) && !preg_match($ipregex, $_SERVER['REMOTE_ADDR'])) {
+          $this->Api->restResultHeader(401, "Unauthorized");
+          // We force an exit here to prevent any views from rendering, but also
+          // to prevent Cake from dumping the default layout
+          $this->response->send();
+          exit;
+        }
+        
+        // Record the Authentication Event
+        $this->loadModel('AuthenticationEvent');
+        
+        $this->AuthenticationEvent->record($this->Session->read('Auth.User.username'),
+                                           AuthenticationEventEnum::ApiLogin,
+                                           $_SERVER['REMOTE_ADDR']);
+        
+        $this->Session->write('Auth.User.api', true);
       }
       
-      // In order to properly check authz for REST users (not yet fully supported, CO-91)
-      // we need to know the CO ID before we can check for authorizations. We'll need to
-      // parse the REST body for most use cases to find it.
+      // In order to properly check authz for REST users we need to know the CO
+      // ID before we can check for authorizations. We'll need to parse the REST
+      // body for most use cases to find it.
       
       $this->Api->parseRestRequestDocument();
       
@@ -187,10 +235,7 @@ class AppController extends Controller {
         exit;
       }
       
-      // For now, since API users are considered CMP admins (CO-91), calling isAuthorized()
-      // is mostly unnecessary. However, there are a couple of calls made by a
-      // currently logged in user (reprovisioning, reordering enrollment attributes,
-      // etc) where we do need to do this check.
+      // Run authorization check
       
       if(!$this->Auth->isAuthorized()) {
         $this->Api->restResultHeader(401, "Unauthorized");
@@ -348,6 +393,7 @@ class AppController extends Controller {
     // Called before each render in case permissions change
     if(!$this->request->is('restful')) {
       $this->getTheme();
+      $this->getUImode();
       
       if($this->Session->check('Auth.User.org_identities')) {
         $this->menuAuth();
@@ -478,6 +524,16 @@ class AppController extends Controller {
                                                   array(_txt('ct.co_groups.1'),
                                                         filter_var($this->request->params['named']['cogroup'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
+      } elseif(!empty($p['cogroupid']) && (isset($model->CoGroup))) {
+        $coId = $model->CoGroup->field('co_id', array('id' => $p['cogroupid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.co_groups.1'),
+                                                        filter_var($p['cogroupid'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        }
       }
     }
     
@@ -541,6 +597,7 @@ class AppController extends Controller {
     $copid = $pids['copersonid'];
     $coprid = $pids['copersonroleid'];
     $codeptid = $pids['codeptid'];
+    $cogroupid = $pids['cogroupid'];
     $orgiid = $pids['orgidentityid'];
     $co = null;
     
@@ -608,6 +665,24 @@ class AppController extends Controller {
       {
         $redirect['action'] = 'edit';
         $redirect[] = $codeptid;
+        $rc = 1;
+      }
+    }
+    elseif($cogroupid != null)
+    {
+      $redirect['controller'] = 'co_groups';
+
+      $x = $model->CoGroup->findById($cogroupid);
+      
+      if(empty($x))
+      {
+        $redirect['action'] = 'index';
+        $rc = -1;
+      }
+      else
+      {
+        $redirect['action'] = 'edit';
+        $redirect[] = $cogroupid;
         $rc = 1;
       }
     }
@@ -784,7 +859,8 @@ class AppController extends Controller {
     
     if(!empty($this->cur_co['Co']['id'])) {
       // First see if we're in an enrollment flow
-      if($this->name == 'CoPetitions') {
+      if($this->name === 'CoPetitions'
+         || $this->name === 'CoInvites') {
         $efId = $this->enrollmentFlowID();
         
         if($efId > -1) {
@@ -856,6 +932,19 @@ class AppController extends Controller {
   }
   
   /**
+   * Define the UI Mode
+   * - postcondition: UI View variable set
+   * @since  COmanage Registry v3.3.0
+   */
+  protected function getUImode() {
+    $this->set('vv_ui_mode', EnrollmentFlowUIMode::Full);
+    // Auth.User.name is emtpy during the entire Enrollment Flow
+    if(!$this->Session->check('Auth.User.name')) {
+      $this->set('vv_ui_mode', EnrollmentFlowUIMode::Basic);
+    }
+  }
+
+  /**
    * Called from beforeRender to set permissions for display in menus
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: permissions for menu are set
@@ -895,8 +984,14 @@ class AppController extends Controller {
     // Which COUs?
     $p['menu']['admincous'] = $roles['admincous'];
     
+    // Manage API Users?
+    $p['menu']['api_users'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage Authenticators?
     $p['menu']['authenticator'] = $roles['cmadmin'] || $roles['coadmin'];
+    
+    // Manage Clusters?
+    $p['menu']['clusters'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage CO level attribute enumerations?
     $p['menu']['coattrenums'] = $roles['cmadmin'] || $roles['coadmin'];
@@ -918,6 +1013,9 @@ class AppController extends Controller {
       
       $p['menu']['codepartments'] = (boolean)$this->CoDepartment->find('count', $args);
     }
+    
+    // Manage Data Filters?
+    $p['menu']['datafilters'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // Manage CO dashboards?
     $p['menu']['dashboards'] = $roles['cmadmin'] || $roles['coadmin'];
@@ -1125,9 +1223,9 @@ class AppController extends Controller {
     $menu['flows'] = $authedFlows;
 
 
-    // Gather up the appropriate OrgId identifiers for the current user.
+    // Gather up the appropriate OrgIds for the current user.
     // These will be presented on the user panel.
-    // Limit these to login identifiers that are active.
+    // Limit these to OrgIds with active login identifiers.
     $menu['orgIDs'] = array();
     if($this->Session->check('Auth.User.co_person_id')) {
       $userId = $this->Session->read('Auth.User.co_person_id');
@@ -1144,9 +1242,14 @@ class AppController extends Controller {
       $args['joins'][1]['alias'] = 'Identifier';
       $args['joins'][1]['type'] = 'INNER';
       $args['joins'][1]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+
       $args['conditions']['CoOrgIdentityLink.co_person_id'] = $userId;
       $args['conditions']['Identifier.status'] = StatusEnum::Active;
       $args['conditions']['Identifier.login'] = true;
+      $args['contain']['CoOrgIdentityLink']['OrgIdentity'] = array('Identifier', 'EmailAddress');
+
+      // Specify fields so we can force the OrgIdentity ID to be distinct
+      $args['fields'] = array('DISTINCT OrgIdentity.org_identity_id','OrgIdentity.o','OrgIdentity.ou','OrgIdentity.title');
 
       $userOrgIDs = $this->CoOrgIdentityLink->OrgIdentity->find('all', $args);
 
@@ -1154,12 +1257,13 @@ class AppController extends Controller {
       $menuOrgIDs = array();
 
       foreach($userOrgIDs as $i => $uoid) {
-        $menuOrgIDs[$i]['orgName'] = $uoid['OrgIdentity']['o'];
         $menuOrgIDs[$i]['orgID_id'] = $uoid['OrgIdentity']['id'];
-        $menuOrgIDs[$i]['identifiers'] = array();
-        foreach ($uoid['Identifier'] as $j => $identifier) {
-          $menuOrgIDs[$i]['identifiers'][$j]['identifier'] = $identifier['identifier'];
-          $menuOrgIDs[$i]['identifiers'][$j]['identifier_id'] = $identifier['id'];
+        $menuOrgIDs[$i]['orgID_o'] = $uoid['OrgIdentity']['o'];
+        $menuOrgIDs[$i]['orgID_ou'] = $uoid['OrgIdentity']['ou'];
+        $menuOrgIDs[$i]['orgID_title'] = $uoid['OrgIdentity']['title'];
+        $menuOrgIDs[$i]['orgID_email'] = array();
+        foreach ($uoid['EmailAddress'] as $j => $emailAddr) {
+          $menuOrgIDs[$i]['orgID_email'][$j]['mail'] = $emailAddr['mail'];
         }
       }
 
@@ -1220,27 +1324,35 @@ class AppController extends Controller {
     if(!$coid) {
       $coid = -1;
       
-      // Only certain actions are permitted to explicitly provide a CO ID
-      // XXX Note that CoExtendedTypesController, CoDashboardsController, and others override
-      // this function to support addDefaults. It might be better just to allow controllers
-      // to specify a list.
-      if($this->action == 'index'
-         || $this->action == 'find'
-         || $this->action == 'search'
-         // Add and select operations only when attached directly to a CO (otherwise we need
-         // to pull the CO ID from the object being attached to, eg co person).
-         ||
-         (isset($model->Co)
-          && ($this->action == 'select' || $this->action == 'add'))) {
-        if(isset($this->params['named']['co'])) {
-          $coid = $this->params['named']['co'];
+      if($this->request->is('restful')) {
+        $coid = $this->Api->requestedCOID($model, $this->request);
+        
+        if(!$coid) {
+          $coid = -1;
         }
-        // CO ID can be passed via a form submission
-        elseif($this->action != 'index') {
-          if(isset($this->request->data['Co']['id'])) {
-            $coid = $this->request->data['Co']['id'];
-          } elseif(isset($this->request->data[$req]['co_id'])) {
-            $coid = $this->request->data[$req]['co_id'];
+      } else {
+        // Only certain actions are permitted to explicitly provide a CO ID
+        // XXX Note that CoExtendedTypesController, CoDashboardsController, and others override
+        // this function to support addDefaults. It might be better just to allow controllers
+        // to specify a list.
+        if($this->action == 'index'
+           || $this->action == 'find'
+           || $this->action == 'search'
+           // Add and select operations only when attached directly to a CO (otherwise we need
+           // to pull the CO ID from the object being attached to, eg co person).
+           ||
+           (isset($model->Co)
+            && ($this->action == 'select' || $this->action == 'add'))) {
+          if(isset($this->params['named']['co'])) {
+            $coid = $this->params['named']['co'];
+          }
+          // CO ID can be passed via a form submission
+          elseif($this->action != 'index') {
+            if(isset($this->request->data['Co']['id'])) {
+              $coid = $this->request->data['Co']['id'];
+            } elseif(isset($this->request->data[$req]['co_id'])) {
+              $coid = $this->request->data[$req]['co_id'];
+            }
           }
         }
       }
@@ -1258,6 +1370,7 @@ class AppController extends Controller {
    * @since  COmanage Registry v0.1
    * @param  Array Retrieved data (with an identifier set in $data[$model])
    * @return Array copersonid, copersonroleid, orgidentityid (if found)
+   * @todo   In PE this should be renamed parseEntityID
    */
   
   function parsePersonID($data = null) {
@@ -1270,6 +1383,7 @@ class AppController extends Controller {
     $copid  = null;
     $coprid  = null;
     $deptid = null;
+    $groupid = null;
     $orgiid = null;
     
     if(!empty($data['co_person_id']))
@@ -1280,6 +1394,8 @@ class AppController extends Controller {
       $orgiid = $data['org_identity_id'];
     elseif(!empty($data['co_department_id']))
       $deptid = $data['co_department_id'];
+    elseif(!empty($data['co_group_id']))
+      $groupid = $data['co_group_id'];
     elseif(!empty($data[$req]['co_person_id']))
       $copid = $data[$req]['co_person_id'];
     elseif(!empty($data[$req]['co_person_role_id']))
@@ -1288,6 +1404,8 @@ class AppController extends Controller {
       $orgiid = $data[$req]['org_identity_id'];
     elseif(!empty($data[$req]['co_department_id']))
       $deptid = $data[$req]['co_department_id'];
+    elseif(!empty($data[$req]['co_group_id']))
+      $groupid = $data[$req]['co_group_id'];
     elseif(!empty($this->request->data[$req]['co_person_id']))
       $copid = $this->request->data[$req]['co_person_id'];
     elseif(!empty($this->request->data[$req]['co_person_role_id']))
@@ -1296,6 +1414,8 @@ class AppController extends Controller {
       $orgiid = $this->request->data[$req]['org_identity_id'];
     elseif(!empty($this->request->data[$req]['codeptid']))
       $deptid = $this->request->data[$req]['codeptid'];
+    elseif(!empty($this->request->data[$req]['co_group_id']))
+      $groupid = $this->request->data[$req]['co_group_id'];
     elseif(!empty($this->request->params['named']['copersonid']))
       $copid = $this->request->params['named']['copersonid'];
     elseif(!empty($this->request->params['named']['copersonroleid']))
@@ -1304,6 +1424,11 @@ class AppController extends Controller {
       $orgiid = $this->request->params['named']['orgidentityid'];
     elseif(!empty($this->request->params['named']['codeptid']))
       $deptid = $this->request->params['named']['codeptid'];
+    elseif(!empty($this->request->params['named']['cogroup']))
+      $groupid = $this->request->params['named']['cogroup'];
+    // XXX Why don't we need to check query for other parameters?
+    elseif(!empty($this->request->query['cogroupid']))
+      $groupid = $this->request->query['cogroupid'];
     elseif(isset($this->request->data[$modelcc][0]['Person'])) {
       // API / JSON
       switch($this->request->data[$modelcc][0]['Person']['Type']) {
@@ -1315,6 +1440,9 @@ class AppController extends Controller {
           break;
         case 'Dept':
           $deptid = $this->request->data[$modelcc][0]['Person']['Id'];
+          break;
+        case 'Group':
+          $groupid = $this->request->data[$modelcc][0]['Person']['Id'];
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][0]['Person']['Id'];
@@ -1332,6 +1460,9 @@ class AppController extends Controller {
           break;
         case 'Dept':
           $deptid = $this->request->data[$modelcc][$req]['Person']['Id'];
+          break;
+        case 'Group':
+          $groupid = $this->request->data[$modelcc][$req]['Person']['Id'];
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][$req]['Person']['Id'];
@@ -1360,9 +1491,12 @@ class AppController extends Controller {
         $orgiid = $rec[$req]['org_identity_id'];
       elseif(isset($rec[$req]['co_department_id']))
         $deptid = $rec[$req]['co_department_id'];
+      elseif(isset($rec[$req]['co_group_id']))
+        $groupid = $rec[$req]['co_group_id'];
     }
     
     return(array("codeptid" => $deptid,
+                 "cogroupid" => $groupid,
                  "copersonid" => $copid,
                  "copersonroleid" => $coprid,
                  "orgidentityid" => $orgiid));
@@ -1396,10 +1530,13 @@ class AppController extends Controller {
     }
     
     // Specifically whitelist the actions we ignore
-    if(!$this->action != 'index'
-       && $this->action != 'add'
-       && !($this->modelClass == 'CoInvite'
-            && ($this->action == 'authconfirm' || $this->action == 'confirm' || $this->action == 'decline'))) {
+    if(!$this->action !== 'index'
+       && $this->action !== 'add'
+       && !($this->modelClass === 'CoInvite'
+            && ($this->action === 'authconfirm'
+                || $this->action === 'confirm'
+                || $this->action === 'reply'
+                || $this->action === 'decline'))) {
       // Only act if a record ID parameter was passed
       if(!empty($this->request->params['pass'][0])) {
         $modelName = $this->modelClass;

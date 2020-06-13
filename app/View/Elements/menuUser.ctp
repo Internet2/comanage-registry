@@ -27,7 +27,7 @@
  */
 ?>
 
-<?php if(!empty($cur_co['Co']['id']) && $this->Session->check('Auth.User.name')): ?>
+<?php if(!empty($cur_co['Co']['id']) && $vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
 
   <div id="global-search" class="topMenu">
     <?php
@@ -39,8 +39,9 @@
         )
       );
       print $this->Form->create('CoDashboard', $options);
-      print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search') . '</span><em class="material-icons">search</em>');
-      print '<div id="global-search-box" aria-expanded="false" style="display: none;">';
+      print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search')
+        . '</span><button type="button" id="global-search-toggle" aria-expanded="false" class="cm-toggle"><em class="material-icons">search</em></button>');
+      print '<div id="global-search-box" style="display: none;">';
       $options = array(
         'label' => false,
       );
@@ -57,7 +58,7 @@
 <?php if(isset($vv_my_notifications)): ?>
 
   <div id="notifications">
-    <a href="#" class="topMenu" id="user-notifications">
+    <button class="topMenu cm-toggle" id="user-notifications">
       <span id="user-notification-count">
          <?php print $vv_my_notification_count; ?>
       </span>
@@ -67,7 +68,7 @@
         <em class="material-icons icon-adjust">notifications</em>
       <?php endif?>
       <em class="material-icons">arrow_drop_down</em>
-    </a>
+    </button>
     <ul id="notifications-menu" for="user-notifications" class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right">
 
       <?php $notificationCount = 0; ?>
@@ -107,24 +108,17 @@
 <?php endif; ?>
 
 <?php if($this->Session->check('Auth.User.username')): ?>
+  <?php $userCN = generateCn($this->Session->read('Auth.User.name')); ?>
   <div id="user">
-    <a href="#" class="topMenu" id="user-panel-toggle" aria-controls="user-panel">
+    <button class="topMenu cm-toggle" id="user-panel-toggle" aria-controls="user-panel" aria-expanded="false">
       <span id="user-common-name">
-        <?php
-          $userCN = "";
-          
-          if($this->Session->check('Auth.User.name')) {
-            // Print the user's name
-            $userCN = generateCn($this->Session->read('Auth.User.name'));
-            print $userCN;
-          }
-        ?>
+        <?php print $userCN; ?>
       </span>
       <em class="material-icons icon-adjust">person</em>
       <em class="material-icons drop-arrow">arrow_drop_down</em>
-    </a>
+    </button>
     <!-- Account Dropdown -->
-    <div id="user-panel" aria-expanded="false" style="display: none;">
+    <div id="user-panel" style="display: none;">
       <div id="logout-in-panel">
         <?php
           $args = array('controller' => 'auth',
@@ -147,6 +141,9 @@
             foreach($menuContent['cos'] as $co) {
               // Only display a profile link for the current CO
               if($co['co_id'] == $cur_co['Co']['id']) {
+
+                print '<div id="co-profile-buttons">';
+
                 // The person must have an Active/GracePeriod status and at least
                 // one defined role.
                 if(isset($co['co_person']['status'])
@@ -161,8 +158,25 @@
                     $co['co_person_id']
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">account_circle</em>' . _txt('me.profile.for', array($co['co_name'])), $args,
-                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-profile-button co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
                 }
+
+                // Groups
+                // Show the groups link too, if permissions allow
+                if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']
+                   && !empty($co['co_person_id'])) {
+                  $args = array(
+                    'plugin' => '',
+                    'controller' => 'co_groups',
+                    'action' => 'select',
+                    'copersonid' => $co['co_person_id'],
+                    'co' => $co['co_id']
+                  );
+                  print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groups'), $args,
+                    array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                }
+
+                print '</div>';
               }
             }
           }
@@ -178,7 +192,7 @@
             if(!empty($menuContent['flows']) && ($permissions['menu']['createpetition'] || $permissions['menu']['invite'])) {
               print '<div id="user-panel-flows-container">';
               print '<h2>' . _txt('me.flows') . '</h2>';
-              print '<ul id="user-panel-flows">';
+              print '<ul id="user-panel-flows" class="user-panel-list">';
               foreach($menuContent['flows'] as $flow) {
                 print '<li>';
                 print $this->Html->link(filter_var($flow['CoEnrollmentFlow']['name'], FILTER_SANITIZE_SPECIAL_CHARS),
@@ -201,24 +215,24 @@
         if(!empty($menuContent['plugins'])) {
           $userPluginsExist = false;
           foreach(array_keys($menuContent['plugins']) as $plugin) {
-            if (isset($menuContent['plugins'][$plugin]['coperson'])) {
+            if(isset($menuContent['plugins'][$plugin]['coperson'])) {
               $userPluginsExist = true;
               break;
             }
           }
-          if ($userPluginsExist) {
+          if($userPluginsExist) {
             print '<div id="user-panel-plugins-container">';
             print '<h2>' . _txt('me.plugins') . '</h2>';
-            print '<ul id="user-panel-plugins">';
-            foreach (array_keys($menuContent['plugins']) as $plugin) {
-              if (isset($menuContent['plugins'][$plugin]['coperson'])) {
-                foreach (array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
+            print '<ul id="user-panel-plugins" class="user-panel-list">';
+            foreach(array_keys($menuContent['plugins']) as $plugin) {
+              if(isset($menuContent['plugins'][$plugin]['coperson'])) {
+                foreach(array_keys($menuContent['plugins'][$plugin]['coperson']) as $label) {
                   print '<li>';
                     print '<span class="user-plugin-label">' . $label . '</span>';
                     print '<ul>';
   
-                    foreach ($menuContent['cos'] as $co) {
-                      if (empty($co['co_person_id'])) {
+                    foreach($menuContent['cos'] as $co) {
+                      if(empty($co['co_person_id'])) {
                         continue;
                       }
   
@@ -245,31 +259,33 @@
         <div id="panel-orgid-container">
           <h2><?php print _txt('me.orgids'); ?></h2>
           <!-- Org Identity Data -->
-          <ul id="panel-orgid">
+          <ul id="panel-orgid" class="user-panel-list">
             <?php foreach($menuContent['orgIDs'] as $orgID): ?>
+              <?php
+                // Set the link text
+                $orgIDLinkText = $userCN;
+                if (!empty($orgID['orgID_o'])) {
+                  $orgIDLinkText = $orgID['orgID_o'];
+                } elseif (!empty($orgID['orgID_email'][0]['mail'])) {
+                  $orgIDLinkText = $orgID['orgID_email'][0]['mail']; // XXX using the first one found...
+                } elseif (!empty($orgID['orgID_title'])) {
+                  $orgIDLinkText = $orgID['orgID_title'];
+                } elseif (!empty($orgID['orgID_ou'])) {
+                  $orgIDLinkText = $orgID['orgID_ou'];
+                }
+                ?>
               <li class="panel-orgid-ids">
-                <?php if(!empty($orgID['orgName'])): ?>
-                  <span class="org-name">
-                    <?php print $orgID['orgName']; ?>
-                  </span>
-                <?php endif; ?>
-                <span class="org-ids">
-                  <?php
-                    // Identifier - link to the Org ID view.
-                    foreach($orgID['identifiers'] as $id) {
-                      if(!empty($orgID['orgName'])) print "(";
-                      print $this->Html->link($id['identifier'],
-                        array(
-                          'controller' => 'org_identities',
-                          'action' => ('view'),
-                          $orgID['orgID_id']
-                        )
-                      );
-                      if(!empty($orgID['orgName'])) print ")";
-                      print " "; // in the event of more than one id
-                    }
-                  ?>
-                </span>
+                <?php
+                  // link to the Org ID view.
+                  print $this->Html->link($orgIDLinkText,
+                    array(
+                      'plugin'     => null,
+                      'controller' => 'org_identities',
+                      'action' => ('view'),
+                      $orgID['orgID_id']
+                    )
+                  );
+                ?>
               </li>
             <?php endforeach; ?>
           </ul>

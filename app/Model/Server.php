@@ -38,8 +38,15 @@ class Server extends AppModel {
   public $hasOne = array(
     "HttpServer" => array('dependent' => true),
     "LdapServer" => array('dependent' => true),
+    "MatchServer" => array('dependent' => true),
     "Oauth2Server" => array('dependent' => true),
     "SqlServer" => array('dependent' => true)
+  );
+  
+  public $hasMany = array(
+    "CoPipeline" => array(
+      'foreignKey' => 'match_server_id'
+    )
   );
   
   // Default display field for cake generated views
@@ -63,6 +70,7 @@ class Server extends AppModel {
     'server_type' => array(
       'rule' => array('inList', array(ServerEnum::HttpServer,
                                       ServerEnum::LdapServer,
+                                      ServerEnum::MatchServer,
                                       ServerEnum::Oauth2Server,
                                       ServerEnum::SqlServer)),
       'required' => true,
@@ -80,6 +88,7 @@ class Server extends AppModel {
   public $serverTypeModels = array(
     ServerEnum::HttpServer   => 'HttpServer',
     ServerEnum::LdapServer   => 'LdapServer',
+    ServerEnum::MatchServer  => 'MatchServer',
     ServerEnum::Oauth2Server => 'Oauth2Server',
     ServerEnum::SqlServer    => 'SqlServer'
   );

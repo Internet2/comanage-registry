@@ -82,6 +82,33 @@
       <?php print ($e ? $this->Form->input('password') : filter_var($http_servers[0]['HttpServer']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.server.http.ssl_allow_self_signed'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.server.http.ssl_allow_self_signed.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if ($e) print $this->Form->input('ssl_allow_self_signed', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_allow_self_signed'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => false))), 'disabled' => false)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.server.http.ssl_verify_peer'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_peer.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if($e) print $this->Form->input('ssl_verify_peer', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_verify_peer'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => true))), 'disabled' => false)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.server.http.ssl_verify_peer_name'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_peer_name.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if($e) print $this->Form->input('ssl_verify_peer_name', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_verify_peer_name'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => true))), 'disabled' => false)); ?>
+    </div>
+  </li>
   <?php if($e): ?>
   <li class="fields-submit">
     <div class="field-name">

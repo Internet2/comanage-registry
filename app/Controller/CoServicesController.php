@@ -147,6 +147,21 @@ class CoServicesController extends StandardController {
       
       // and identifier types
       $this->set('vv_identifier_types', $this->CoService->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+      
+      // and Authenticators
+      $args = array();
+      $args['conditions']['Authenticator.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['Authenticator.status'] = SuspendableStatusEnum::Active;
+      $args['order'] = array('Authenticator.description ASC');
+      
+      $this->set('vv_authenticators', $this->Co->Authenticator->find("list", $args));
+      
+      // and Clusters
+      $args = array();
+      $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
+      $args['order'] = array('Cluster.description ASC');
+
+      $this->set('vv_clusters', $this->Co->Cluster->find("list", $args));
     }
     
     parent::beforeRender();

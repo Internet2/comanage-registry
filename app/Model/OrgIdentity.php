@@ -60,6 +60,7 @@ class OrgIdentity extends AppModel {
     "Address" => array('dependent' => true),
     // An Org Identity can be attached to one or more CO Person
     // The current design requires all links to be dropped manually
+    "AdHocAttribute" => array('dependent' => true),
     "CoOrgIdentityLink" => array('dependent' => false), 
     // A person can have various roles for a petition
     "CoPetition" => array(
@@ -108,6 +109,13 @@ class OrgIdentity extends AppModel {
       'content' => array(
         'rule' => array('inList', array(OrgIdentityStatusEnum::Removed,
                                         OrgIdentityStatusEnum::Synced)),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'date_of_birth' => array(
+      'content' => array(
+        'rule' => array('date'),
         'required' => false,
         'allowEmpty' => true
       )
@@ -223,6 +231,7 @@ class OrgIdentity extends AppModel {
    * @param  integer Identifier of Org Identity to duplicate
    * @param  integer CO to attach duplicate Org Identity to
    * @return integer New Org Identity ID if successful, -1 otherwise
+   * @todo   Remove this in v5
    */
   
   public function duplicate($orgId, $coId)

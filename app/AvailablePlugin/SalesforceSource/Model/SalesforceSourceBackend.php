@@ -373,7 +373,8 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
     }
     
     // Populate the SORID
-// XXX should this be done automatically? or be a recommended standard?
+/*
+// As of Registry v3.3.0, this is done automatically
 // Note this is just the ID, vs the unique key which is (eg) Contact-Id
     if(!empty($result->Id)) {
       $orgdata['Identifier'][] = array(
@@ -382,7 +383,7 @@ class SalesforceSourceBackend extends OrgIdentitySourceBackend {
         'status'     => StatusEnum::Active,
         'type'       => IdentifierEnum::SORID
       );
-    }
+    }*/
     
     return $orgdata;
   }

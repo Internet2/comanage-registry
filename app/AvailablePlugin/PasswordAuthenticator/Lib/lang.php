@@ -38,28 +38,42 @@ $cm_password_authenticator_texts['en_US'] = array(
   'ct.passwords.1'                => 'Password',
   'ct.passwords.pl'               => 'Passwords',
   
+  // Enumerations
+  'en.passwordauthenticator.password_source' => array(
+    PasswordAuthPasswordSourceEnum::AutoGenerate => 'Autogenerate',
+    PasswordAuthPasswordSourceEnum::External     => 'External',
+    PasswordAuthPasswordSourceEnum::SelfSelect   => 'Self Select'
+  ),
+  
   // Error messages
   'er.passwordauthenticator.current'   => 'Current password is required',
   'er.passwordauthenticator.match'     => 'New passwords do not match',
   'er.passwordauthenticator.len.max'   => 'Password cannot be more than %1$s characters',
   'er.passwordauthenticator.len.min'   => 'Password must be at least %1$s characters',
+  'er.passwordauthenticator.source'    => 'Password Authenticator is not configured for source type %1$s',
   
   // Plugin texts
   'pl.passwordauthenticator.hash.crypt'     => 'Store as Crypt',
-  'pl.passwordauthenticator.hash.crypt.desc' => 'The password will be stored in Crypt format (required by the plugin)',
+  'pl.passwordauthenticator.hash.crypt.desc' => 'The password will be stored in Crypt format (required for Self Select)',
   'pl.passwordauthenticator.hash.plain'     => 'Store as Plain Text',
   'pl.passwordauthenticator.hash.plain.desc' => 'If enabled, the password will be stored unhashed in the database',
   'pl.passwordauthenticator.hash.ssha'      => 'Store as Salted SHA 1',
   'pl.passwordauthenticator.hash.ssha.desc' => 'If enabled, the password will be stored in Salted SHA 1 format',
+  'pl.passwordauthenticator.generate'       => 'To generate a new token, click the <b>Generate</b> button below. This will replace the existing token, if one was already set.',
   'pl.passwordauthenticator.info'           => 'Your new password must be between %1$s and %2$s characters in length.',
   'pl.passwordauthenticator.maxlen'         => 'Maximum Password Length',
-  'pl.passwordauthenticator.maxlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 64',
+  'pl.passwordauthenticator.maxlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 64 for Self Select and 16 for Autogenerate',
   'pl.passwordauthenticator.minlen'         => 'Minimum Password Length',
   'pl.passwordauthenticator.minlen.desc'    => 'Must be between 8 and 64 characters (inclusive), default is 8',
   'pl.passwordauthenticator.mod'            => 'Last changed %1$s UTC',
+  'pl.passwordauthenticator.noedit'         => 'This password cannot be edited via this interface.',
   'pl.passwordauthenticator.password.again' => 'New Password Again',
   'pl.passwordauthenticator.password.current' => 'Current Password',
+  'pl.passwordauthenticator.password.info'  => 'This newly generated password cannot be recovered. If it is lost a new password must be generated. ',
   'pl.passwordauthenticator.password.new'   => 'New Password',
+  'pl.passwordauthenticator.password_source' => 'Password Source',
   'pl.passwordauthenticator.reset'          => 'Password "%1$s" Reset',
-  'pl.passwordauthenticator.saved'          => 'Password "%1$s" Set'
+  'pl.passwordauthenticator.saved'          => 'Password "%1$s" Set',
+  'pl.passwordauthenticator.token.confirm'  => 'Are you sure you wish to generate a new token?',
+  'pl.passwordauthenticator.token.gen'      => 'Generate Token'
 );

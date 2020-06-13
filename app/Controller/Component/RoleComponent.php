@@ -275,6 +275,11 @@ class RoleComponent extends Component {
     $args['joins'][0]['alias'] = 'CoGroupMember';
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+
+    // The join bypasses ChangelogBehavior, so manually exclude those records.
+    $args['conditions'][] = 'CoGroupMember.deleted IS NOT TRUE';
+    $args['conditions'][] = 'CoGroupMember.co_group_member_id IS NULL';
+
     if($condValue != null) {
       $args['conditions'][$condKey] = $condValue;
     }
@@ -385,7 +390,7 @@ class RoleComponent extends Component {
    * - admin: Valid admin in any CO
    * - subadmin: Valid admin for any COU
    * - user: Valid user in any CO (ie: to the platform)
-   * - apiuser: Valid API (REST) user (for now, API users are equivalent to cmadmins)
+   * - apiuser: Valid API (REST) user (not necessarily for the current CO)
    * - orgidentityid: Org Identity ID of current user (or false)
    * - copersonid: CO Person ID of current user in current CO (or false, including if co person is not in current CO)
    * - orgidentities: Array of Org Identities for current user
@@ -420,11 +425,30 @@ class RoleComponent extends Component {
       $username = $this->Session->read('Auth.User.username');
     }
     
+    // Pull the current CO from our invoking controller
+    $controller = $this->_Collection->getController();
+    
+    if(!empty($controller->cur_co['Co']['id'])) {
+      $coId = $controller->cur_co['Co']['id'];
+    } else {
+      $coId = $controller->parseCOID();
+    }
+    
     // API user or Org Person?
     
-    if($this->Session->check('Auth.User.api_user_id')) {
+    if($this->Session->check('Auth.User.api')) {
       $ret['apiuser'] = true;
-      $ret['cmadmin'] = true;  // API users are currently platform admins (CO-91)
+      
+      $authCoId = $this->Session->read('Auth.User.co_id');
+      $privd = $this->Session->read('Auth.User.privileged');
+      
+      if($authCoId == 1) {
+        // API users in CO 1 are given platform privileges
+        $ret['cmadmin'] = true;
+      } elseif(($coId == $authCoId) && $privd) {
+        // Privileged users in other COs are given CO privileges
+        $ret['coadmin'] = true;
+      }
       
       // Return here to avoid triggering a bunch of RoleComponent queries that
       // may fail since api users are not currently enrolled in any CO.
@@ -438,15 +462,6 @@ class RoleComponent extends Component {
     
     if($username != null) {
       $ret['cmadmin'] = $this->identifierIsCmpAdmin($username);
-    }
-    
-    // Pull the current CO from our invoking controller
-    $controller = $this->_Collection->getController();
-    
-    if(!empty($controller->cur_co['Co']['id'])) {
-      $coId = $controller->cur_co['Co']['id'];
-    } else {
-      $coId = $controller->parseCOID();
     }
     
     // Figure out the revelant CO Person ID for the current user and the current CO
@@ -1222,10 +1237,13 @@ class RoleComponent extends Component {
             return true;
           }
         }
+        
+        // If we get here we've run out of things to check
+        return false;
+      } else {
+        // Just check the COU that we have
+        return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, $couId);
       }
-      
-      // If we get here we've run out of things to check
-      return false;
     } else {
       // We don't need to walk the tree since we only care if a person is a COU Admin
       // for *any* group, not which groups (which would require getting the child COUs).
@@ -1307,11 +1325,16 @@ class RoleComponent extends Component {
       return false;
     }
     
-    // A person is a group manager if (1) they are an owner of the group or (2) they
-    // are a CO admin for the CO of the group. Currently, we do not treat COU admins as
-    // superusers for groups.
+    // Check if the CoGroup is related to a cou or not
+    $CoGroup = ClassRegistry::init('CoGroup');
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    $group = $CoGroup->find('first', $args);
     
-    if($this->cachedGroupCheck($coPersonId, "", "", $coGroupId, true)) {
+    $isCou = $CoGroup->isCouAdminOrMembersGroup($group);
+    
+    if($this->cachedGroupCheck($coPersonId, "", "", $coGroupId, true, null, $isCou)) {
       return true;
     }
     

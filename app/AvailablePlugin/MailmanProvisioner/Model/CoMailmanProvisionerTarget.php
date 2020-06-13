@@ -122,7 +122,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
   
   /**
    * Delete an Email List.
-   * 
+   *
    * @since  COmanage Registry v3.1.0
    * @param  Object  $Http            CoHttpClient
    * @param  Integer $id              CoMailmanProvisionerTarget ID
@@ -134,7 +134,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * @throws RuntimeException
    * @return boolean true
    */
-  
+ 
   protected function deleteList($Http, $id, $coEmailListId, $actorCoPersonId) {
     // Find the mailman list ID
     
@@ -149,7 +149,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     if(!empty($mailmanList)) {
       $listId = $mailmanList['CoMailmanList']['mailman_list_identifier'];
-      $results = $Http->delete('/3.1/lists/' . rawurlencode($listId));
+      $results = $Http->delete('/3.1/lists/' . rawurlencode(strtolower($listId)));
       
       if($results->code == 204) {
         // Create a history record
@@ -168,6 +168,35 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       }
       // Ignore any other results for now
     }
+ 
+    return true;
+  }
+
+  /**
+   * Delete an CO Person.
+   *
+   * @since  COmanage Registry v3.2.3
+   * @param  Object           $Http                   CoHttpClient
+   * @param  Array            $provisioningData,      Provisioning data, populated with ['CoPerson']
+   * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
+   * @throws RuntimeException
+   * @return boolean          true
+   */
+ 
+  protected function deletePerson($Http, $provisioningData, $coProvisioningTargetId) {
+
+    if(!empty($provisioningData['Identifier'])) {
+      foreach($provisioningData['Identifier'] as $identifier) {
+        if($identifier['co_provisioning_target_id'] == $coProvisioningTargetId) {
+          $mailmanId = $identifier['identifier'];
+
+          // Delete the user. Mailman will remove the user from all lists
+          // and delete the email addresses attached to the user.
+          $result = $Http->delete('/3.1/users/' . $mailmanId);
+          break;
+        }
+      }
+    }
     
     return true;
   }
@@ -180,6 +209,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  Object           $Http                   CoHttpClient
    * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
    * @param  Integer          $coPersonId             CoPerson ID
+   * @param  String           $status                 CoPerson status
    * @param  Array            $primaryName            Array of member's primary name
    * @param  ArrayObject      $prefAddress            Array describing member's preferred address
    * @param  Array            $emailAddresses         Array of member's email addresses
@@ -191,6 +221,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
   protected function getPersonMailmanId($Http,
                                         $coProvisioningTargetId,
                                         $coPersonId,
+                                        $status,
                                         $primaryName,
                                         $prefAddress,
                                         $emailAddresses,
@@ -211,11 +242,18 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       
       $mailmanId = $mid['Identifier']['identifier'];
     } else {
-      // No mailman user ID. In order to create one we need an email address.
+      // No mailman user ID. Only provision the user to Mailman and create
+      // the mailman user ID for CoPerson with Active status.
+      if($status != StatusEnum::Active) {
+        $mailmanId = null;
+        return $mailmanId;
+      }
+
+      // In order to create a mailman user ID we need an email address.
       
       $mailmanUser = array(
         'display_name'  => generateCn($primaryName),
-        'email'         => $prefAddress['mail']
+        'email'         => strtolower($prefAddress['mail'])
       );
       
       // Add the user
@@ -273,25 +311,25 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     // For each known CO Person address, add it to the mailman user if not already there
     
-    $toadd = array_diff(Hash::extract($emailAddresses, '{n}.mail'), $curAddresses);
+    $toadd = array_diff(array_map('strtolower', Hash::extract($emailAddresses, '{n}.mail')), $curAddresses);
     
     foreach($toadd as $a) {
       // Add this address to the user.
       
       $results = $Http->post('/3.1/users/' . rawurlencode($mailmanId) . '/addresses',
-                             array('email' => $a));
+                             array('email' => strtolower($a)));
       // For now we'll ignore the results
     }
     
     // For each mailman address, if it is no longer associated with the CO Person
     // delete it.
     
-    $toremove = array_diff($curAddresses, Hash::extract($emailAddresses, '{n}.mail'));
+    $toremove = array_diff($curAddresses, array_map('strtolower', Hash::extract($emailAddresses, '{n}.mail')));
     
     foreach($toremove as $a) {
       // Delete this address.
       
-      $results = $Http->delete('/3.1/addresses/' . rawurlencode($a));
+      $results = $Http->delete('/3.1/addresses/' . rawurlencode(strtolower($a)));
       // For now we'll ignore the results
     }
     
@@ -299,9 +337,9 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // (!) This relies on a custom patch, until the resolution of
     //     https://gitlab.com/mailman/mailman/issues/240
     
-    if($prefAddress['mail'] && ($curPrefAddress != $prefAddress['mail'])) {
+    if($prefAddress['mail'] && ($curPrefAddress != strtolower($prefAddress['mail']))) {
       $results = $Http->patch('/3.1/users/' . rawurlencode($mailmanId),
-                              array('preferred_address' => $prefAddress['mail']));
+                              array('preferred_address' => strtolower($prefAddress['mail'])));
       
       // We expect a 204 on success, but will accept anything in the 2xx range
       if($results->code < 200 || $results->code > 299) {
@@ -409,6 +447,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
   public function provision($coProvisioningTargetData, $op, $provisioningData) {    
     // First determine what to do
     $deleteList = false;
+    $deletePerson = false;
     $syncList = false;
     $syncListMembers = false;
     $syncPerson = false;
@@ -444,9 +483,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
         $syncPerson = true;
         break;
       case ProvisioningActionEnum::CoPersonDeleted:
-        // We don't do anything here because typically we don't have any useful
-        // information to process, and we've probably deprovisioned due to
-        // status change/group membership loss/etc.
+        $deletePerson = true;
         break;
       default:
         // Ignore all other actions. Note group membership changes
@@ -464,7 +501,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
     }
 
-    if($deleteList || $syncList || $syncListMembers || $syncPerson) {
+    if($deleteList || $deletePerson || $syncList || $syncListMembers || $syncPerson) {
       $Http = new CoHttpClient();
       
       $Http->setBaseUrl($coProvisioningTargetData['CoMailmanProvisionerTarget']['serverurl']);
@@ -478,6 +515,12 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['id'],
                         $provisioningData['CoEmailList']['id'],
                         $actorCoPersonId);
+    }
+
+    if($deletePerson) {
+      $this->deletePerson($Http,
+                          $provisioningData,
+                          $coProvisioningTargetData['CoMailmanProvisionerTarget']['co_provisioning_target_id']);
     }
     
     if($syncList) {
@@ -495,6 +538,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['id'],
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['co_provisioning_target_id'],
                              $coProvisioningTargetData['CoMailmanProvisionerTarget']['pref_email_type'],
+                             $coProvisioningTargetData['CoMailmanProvisionerTarget']['unmanaged_email_mode'],
                              $provisioningData['CoEmailList']['id'],
                              $provisioningData['CoEmailList']['status'],
                              $actorCoPersonId);  
@@ -506,6 +550,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['co_provisioning_target_id'],
                         $coProvisioningTargetData['CoMailmanProvisionerTarget']['pref_email_type'],
                         $provisioningData['CoPerson']['id'],
+                        $provisioningData['CoPerson']['status'],
                         $provisioningData['PrimaryName'],
                         $provisioningData['EmailAddress'],
                         Hash::extract($provisioningData, 'CoGroupMember.{n}.CoGroup.EmailListMember.0'),
@@ -540,7 +585,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                $listRole,
                                $actorCoPersonId) {
     $results = $Http->post('/3.1/members',
-                           array('list_id' => $mailmanListId,
+                           array('list_id' => strtolower($mailmanListId),
                                  'subscriber' => $mailmanId,
                                  'role' => $listRole,
                                  'pre_verified' => true,
@@ -607,13 +652,13 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       
       $listname = $listname . '@' . $domain;
       
-      $results = $Http->post('/3.1/lists', array('fqdn_listname' => $listname));
+      $results = $Http->post('/3.1/lists', array('fqdn_listname' => strtolower($listname)));
       
       if($results->code == 201
          || ($results->code == 400 && $results->body == 'Mailing list exists')) {
         // On 200, the listname is in the location header, but for list exists we need to query for it
         
-        $results = $Http->get('/3.1/lists/' . rawurlencode($listname));
+        $results = $Http->get('/3.1/lists/' . rawurlencode(strtolower($listname)));
         
         if($results->code != 200) {
           throw new RuntimeException($results->body);
@@ -653,7 +698,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // description when we create the list, and we'd have to make a call to get
     // the current description on update, so we may as well just issue the patch.
     
-    $results = $Http->patch('/3.1/lists/' . rawurlencode($listId) . '/config',
+    $results = $Http->patch('/3.1/lists/' . rawurlencode(strtolower($listId)) . '/config',
                             array('description' => $listDescription));
     // We sort of don't care about $results here
     
@@ -664,13 +709,14 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * Synchronize an Email List.
    * 
    * @since  COmanage Registry v3.1.0
-   * @param  Object                $Http                   CoHttpClient
-   * @param  Integer               $id                     CoMailmanProvisionerTarget ID
-   * @param  Integer               $coProvisioningTargetId CoProvisioningTarget ID
-   * @param  EmailAddressEnum      $preferredEmailType     Preferred email address type, or null
-   * @param  Integer               $coEmailListId          CoEmailList ID
-   * @param  SuspendableStatusEnum $coEmailListStatus      CoEmailList Status
-   * @param  Integer               $actorCoPersonId        CoPerson ID of Actor
+   * @param  Object                    $Http                   CoHttpClient
+   * @param  Integer                   $id                     CoMailmanProvisionerTarget ID
+   * @param  Integer                   $coProvisioningTargetId CoProvisioningTarget ID
+   * @param  EmailAddressEnum          $preferredEmailType     Preferred email address type, or null
+   * @param  MailmanProvUnmanEmailEnum $unmanagedEmailMode     Unmanaged email mode
+   * @param  Integer                   $coEmailListId          CoEmailList ID
+   * @param  SuspendableStatusEnum     $coEmailListStatus      CoEmailList Status
+   * @param  Integer                   $actorCoPersonId        CoPerson ID of Actor
    * @throws InvalidArgumentException
    * @throws RuntimeException
    * @return boolean true
@@ -680,6 +726,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                      $id,
                                      $coProvisioningTargetId,
                                      $preferredEmailType,
+                                     $unmanagedEmailMode,
                                      $coEmailListId,
                                      $coEmailListStatus,
                                      $actorCoPersonId) {
@@ -713,7 +760,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       // Pull the current subscribers of the list with the specified role
-      $results = $Http->get('/3.1/lists/' . rawurlencode($listId) . '/roster/' . rawurlencode($listRole));
+      $results = $Http->get('/3.1/lists/' . rawurlencode(strtolower($listId)) . '/roster/' . rawurlencode($listRole));
       
       if($results->code != 200) {
         throw new RuntimeException($results->body);
@@ -781,6 +828,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
             $mailmanId = $this->getPersonMailmanId($Http,
                                                    $coProvisioningTargetId,
                                                    $gm['CoPerson']['id'],
+                                                   $gm['CoPerson']['status'],
                                                    $gm['CoPerson']['PrimaryName'],
                                                    $prefAddress,
                                                    $gm['CoPerson']['EmailAddress'],
@@ -827,7 +875,13 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                        array('Identifier.identifier' => $mailmanId,
                                              'Identifier.co_provisioning_target_id' => $coProvisioningTargetId,
                                              'Identifier.type' => IdentifierEnum::ProvisioningTarget));
-            
+            // If the mailmanId cannot be mapped to a CO Person ID, the
+            // mailman user and email address are not being managed by 
+            // this plugin so skip removing this membership if configured
+            // to ignore unmanaged emails.
+            if(empty($coPersonId) && ($unmanagedEmailMode == MailmanProvUnmanEmailEnum::Ignore)) {
+              continue;
+            }
             // Delete keys on the list membership ID, which is not the user ID
             $this->unsubscribe($Http,
                                $coPersonId,
@@ -856,6 +910,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
    * @param  EmailAddressEnum $preferredEmailType     Preferred email address type, or null
    * @param  Integer          $coPersonId             CoPerson ID
+   * @param  String           $status                 CoPerson status
    * @param  Array            $primaryName            Array of person's primary name
    * @param  Array            $emailAddresses         Array of person's email addresses
    * @param  Array            $memberCoEmailLists     Array of person's email lists as implied by groups
@@ -871,6 +926,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
                                 $coProvisioningTargetId,
                                 $preferredEmailType,
                                 $coPersonId,
+                                $status,
                                 $primaryName,
                                 $emailAddresses,
                                 $memberCoEmailLists,
@@ -880,14 +936,22 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     // If we can't find a preferred email address, this will throw an exception
     $prefAddress = $this->preferredEmailAddress($emailAddresses, $preferredEmailType);
     
+    // Find or create/provision the mailmanId.
     $mailmanId = $this->getPersonMailmanId($Http,
                                            $coProvisioningTargetId,
                                            $coPersonId,
+                                           $status,
                                            $primaryName,
                                            $prefAddress,
                                            $emailAddresses,
                                            $actorCoPersonId);
     
+    // If status is not Active getPersonMailmanId will not create the
+    // mailmanId and will return null.
+    if(is_null($mailmanId)) {
+      return true;
+    }
+
     // We now need the set of mailmain list IDs. We could pull them as needed, but
     // for now we can pull them all at once since we don't expect that many.
     
@@ -906,7 +970,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     $curMemberships = array();
     
-    $results = $Http->get('/3.1/addresses/' . rawurlencode($prefAddress['mail']) . '/memberships');
+    $results = $Http->get('/3.1/addresses/' . rawurlencode(strtolower($prefAddress['mail'])) . '/memberships');
     
     // Without this flag json_decode interprets the int as a float.
     // (This shouldn't be needed anymore since mailman > 3.1 no longer uses ints as IDs,

@@ -135,6 +135,19 @@
   </li>
   <li>
     <div class="field-name">
+        <div class="field-title"><?php print _txt('fd.cou_empty.enable'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+        <?php print ($e
+                     ? $this->Form->input('enable_empty_cou')
+                     : (isset($co_settings[0]['CoSetting']['enable_empty_cou'])
+                        && $co_settings[0]['CoSetting']['enable_empty_cou']
+                        ? _txt('fd.yes') : _txt('fd.no')));
+              print ' ' . $this->Form->label('enable_empty_cou',_txt('fd.cou_empty.enable'));
+        ?>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('invitation_validity',_txt('fd.ef.invval'),array('class' => 'fieldTitle'));?></div>
       <div class="field-desc"><?php print _txt('fd.ef.invval.desc'); ?></div>
     </div>
@@ -312,7 +325,7 @@
       </div>
     </div>
   </li>
-  <?php if(!empty($vv_co_pipelines)): ?>
+  <?php if(false && !empty($vv_co_pipelines)): // CO-1381 this isn't implemented ?>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('default_co_pipeline_id',_txt('fd.pi.default'),array('class' => 'fieldTitle'));?></div>

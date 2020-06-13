@@ -184,7 +184,7 @@
       </div>
     </li>
   <!-- disabled currently, see CO-944
-    <tr class="line<?php false && print ($l % 2); $l++; ?>">
+    <tr class="line<?php /* false && print ($l % 2); $l++; */ ?>">
       <div class="field-name">
         <div class="field-title"><?php false && print _txt('pl.githubprovisioner.provision_ssh_keys'); ?></div>
         <div class="field-desc"><?php false && print _txt('pl.githubprovisioner.provision_ssh_keys.desc'); ?></div>

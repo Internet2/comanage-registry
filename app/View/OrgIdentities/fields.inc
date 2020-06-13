@@ -42,14 +42,16 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $args = array();
-  $args['plugin'] = null;
-  $args['controller'] = 'org_identities';
-  $args['action'] = 'index';
-  if(!$pool_org_identities) {
-    $args['co'] = $cur_co['Co']['id'];
+  if($permissions['index']) {
+    $args = array();
+    $args['plugin'] = null;
+    $args['controller'] = 'org_identities';
+    $args['action'] = 'index';
+    if (!$pool_org_identities) {
+      $args['co'] = $cur_co['Co']['id'];
+    }
+    $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
   }
-  $this->Html->addCrumb(_txt('ct.org_identities.pl'), $args);
   $this->Html->addCrumb(_txt('ct.org_identities.1'));
 
   if($e)
@@ -308,6 +310,30 @@
                 } else {
                   if(!empty($org_identities[0]['OrgIdentity']['status'])) {
                     print $cm_texts[ $cm_lang ]['en.status.org'][ $org_identities[0]['OrgIdentity']['status'] ];
+                  }
+                }
+              ?>
+            </div>
+          </li>
+          <li class="modelbox-data">
+            <div class="field-name">
+              <?php print $this->Form->label('OrgIdentity.date_of_birth', _txt('fd.date_of_birth')); ?>
+            </div>
+            <div class="field-info">
+              <?php
+                if($e) {
+                  $args = array(
+                    'class' => 'datepicker'
+                  );
+
+                  if(!empty($org_identities[0]['OrgIdentity']['date_of_birth'])) {
+                    $args['value'] = $org_identities[0]['OrgIdentity']['date_of_birth'];
+                  }
+
+                  print $this->Form->text('date_of_birth', $args);
+                } else {
+                  if(!empty($org_identities[0]['OrgIdentity']['date_of_birth'])) {
+                    print $this->Time->format($org_identities[0]['OrgIdentity']['date_of_birth'], "%F");
                   }
                 }
               ?>
@@ -581,6 +607,12 @@
           
           $args['mvpa_model'] = 'Address';
           $args['mvpa_format'] = 'formatAddress';
+          
+          print $this->element('mvpa', $args);
+          
+          $args['mvpa_model'] = 'AdHocAttribute';
+          $args['self_service'] = false;
+          $args['mvpa_format'] = 'formatAdHoc';
           
           print $this->element('mvpa', $args);
         }

@@ -86,6 +86,25 @@ class CoPipelinesController extends StandardController {
     
     $this->set('vv_delete_statuses', $statuses);
     
+    // Provide a list of available Match Servers
+    $args = array();
+    $args['conditions']['Server.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['Server.server_type'] = ServerEnum::MatchServer;
+    $args['conditions']['Server.status'] = SuspendableStatusEnum::Active;
+    $args['fields'] = array('id', 'description');
+    $args['contain'] = false;
+    
+    $this->set('vv_match_servers', $this->CoPipeline->Co->Server->find('list', $args));
+    
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['CoEnrollmentFlow.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['NOT']['CoEnrollmentFlow.email_verification_mode'] = VerificationModeEnum::None;
+    $args['fields'] = array('id', 'name');
+    $args['contain'] = false;
+
+    $this->set('vv_linkable_enrollment_flows', $this->CoPipeline->CoEnrollmentFlow->find('list', $args));
+    
     parent::beforeRender();
   }
   

@@ -220,6 +220,62 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Possibly assign cluster accounts for a petition.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  Integer $id CO Petition ID
+   * @param  Integer $actorCoPersonId CO Person ID for actor
+   */
+  
+  public function assignClusterAccounts($id, $actorCoPersonId) {
+    $coPersonID = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    //$coID = $this->field('co_id', array('CoPetition.id' => $id));
+    
+    if($coPersonID) {
+      $clusters = $this->CoEnrollmentFlow
+                       ->CoEnrollmentCluster
+                       ->active($this->cachedEnrollmentFlowID);
+      
+      $clusterIds = array();
+      
+      // XXX Could use Hash?
+      foreach($clusters as $c) {
+        $clusterIds[] = $c['Cluster']['id'];
+      }
+      
+      $res = $this->CoEnrollmentFlow
+                  ->CoEnrollmentCluster
+                  ->Cluster
+                  ->assign($coPersonID, $actorCoPersonId, $clusterIds);
+      
+      if(!empty($res)) {
+        // Create Petition History Records for any results of interest
+        
+        foreach($res as $desc => $result) {
+          $str = false;
+          
+          if($result === true) {
+            $str = _txt('rs.cluster.acct.ok', array($desc));
+          } else {
+            $str = $result;
+          }
+          
+          if($str !== false) {
+            try {
+              $this->CoPetitionHistoryRecord->record($id,
+                                                     $actorCoPersonId,
+                                                     PetitionActionEnum::ClusterAccountAutoCreated,
+                                                     $str);
+            }
+            catch(Exception $e) {
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * Possibly assign identifiers for a petition.
    *
    * @since  COmanage Registry v0.9.4
@@ -235,10 +291,9 @@ class CoPetition extends AppModel {
     $ret = true;
     
     $coPersonID = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
-    $coID = $this->field('co_id', array('CoPetition.id' => $id));
     
-    if($coID && $coPersonID) {
-      $res = $this->EnrolleeCoPerson->Identifier->assign($coID, $coPersonID, $actorCoPersonId, false);
+    if($coPersonID) {
+      $res = $this->EnrolleeCoPerson->Identifier->assign('CoPerson', $coPersonID, $actorCoPersonId, false);
       
       if(!empty($res)) {
         // See if any identifiers were assigned, and if so create a history record
@@ -543,7 +598,7 @@ class CoPetition extends AppModel {
                   // Note that we found something
                   if($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearch) {
                     $searchSources[ $es['id'] ] = true;
-                  } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISRequired) {
+                  } elseif($es['org_identity_mode'] == EnrollmentOrgIdentityModeEnum::OISSearchRequired) {
                     $requiredSources[ $es['id'] ] = true;
                   }
                   
@@ -1732,13 +1787,14 @@ class CoPetition extends AppModel {
     
     if(!empty($coData)) {
       if($coPersonId) {
-        // A CO Person ID might have been created by a pipeline
+        // A CO Person ID might have been created by a pipeline, or might be
+        // pre-existing from a select action
         $coData['EnrolleeCoPerson']['id'] = $coPersonId;
+      } else {
+        // Insert some initial attributes
+        $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
+        $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       }
-      
-      // Insert some additional attributes
-      $coData['EnrolleeCoPerson']['co_id'] = $petition['CoPetition']['co_id'];
-      $coData['EnrolleeCoPerson']['status'] = StatusEnum::Pending;
       
       // Save the CO Person Data
       
@@ -2517,6 +2573,12 @@ class CoPetition extends AppModel {
     $coPersonID = $this->field('enrollee_co_person_id');
     $coPersonRoleID = $this->field('enrollee_co_person_role_id');    
     
+    if($newStatus == PetitionStatusEnum::Confirmed
+       && $curStatus != StatusEnum::PendingConfirmation) {
+      // A Petition can only go to Confirmed if it was previously PendingConfirmation
+      throw new InvalidArgumentException(_txt('er.pt.status', array($curStatus, $newStatus)));
+    }
+    
     if($curStatus == StatusEnum::PendingConfirmation) {
       // A Petition can go from Pending Confirmation to Pending Approval, Approved, or Denied.
       // It can also go to Confirmed, though we'll override that.
@@ -3040,7 +3102,7 @@ class CoPetition extends AppModel {
         
         $dbc->commit();
       } else {
-        throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.org_identities.1')));
+        throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.org_identities.1'))));
       }
     }
   }

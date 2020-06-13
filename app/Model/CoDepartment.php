@@ -35,6 +35,7 @@ class CoDepartment extends AppModel {
   // Add behaviors
   public $actsAs = array('Containable',
                          'Changelog' => array('priority' => 5));
+  // If CoDepartment ever actsAs Provisioner, Identifier::assign() will need to be updated
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -56,6 +57,7 @@ class CoDepartment extends AppModel {
   
   public $hasMany = array(
     "Address" => array('dependent' => true),
+    "AdHocAttribute" => array('dependent' => true),
     "EmailAddress" => array('dependent' => true),
     "Identifier" => array('dependent' => true),
     "TelephoneNumber" => array('dependent' => true),
@@ -82,6 +84,17 @@ class CoDepartment extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'type' => array(
+      'content' => array(
+        'rule' => array('validateExtendedType',
+          array('attribute' => 'CoDepartment.type',
+            'default' => array(DepartmentEnum::VO,
+                               DepartmentEnum::ResearchInstitute,
+                               DepartmentEnum::Department))),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
     'description' => array(
       'rule' => array('validateInput'),
       'required' => false,
@@ -103,6 +116,24 @@ class CoDepartment extends AppModel {
       'allowEmpty' => true
     )
   );
+  
+  /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  boolean $created True if a new record was created (rather than update)
+   * @param  array   $options As passed into Model::save()
+   */
+
+  public function afterSave($created, $options = array()) {
+    // Maybe assign identifiers, but only for new Groups
+    if($created 
+       && !empty($this->data['CoDepartment']['id'])) {
+      $this->Identifier->assign('CoDepartment', $this->data['CoDepartment']['id'], null);
+    }
+
+    return true;
+  }
   
   /**
    * Perform a keyword search.
