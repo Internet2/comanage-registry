@@ -255,6 +255,13 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     foreach(array_keys($supportedAttributes) as $oc) {
       // First see if this objectclass is handled by a plugin
       if(!empty($supportedAttributes[$oc]['plugin'])) {
+        if(!$person) {
+          // Currently, only CO Person objects are supported for LDAP Schema Plugins.
+          // In theory we could support other objects, but so far there hasn't been
+          // a use case for this.
+          continue;
+        }
+        
         // Ask the plugin to assemble the attributes for this objectclass for us.
         // First, get a pointer to the plugin model.
         $pmodel = $this->plugins[ $supportedAttributes[$oc]['plugin'] ];
