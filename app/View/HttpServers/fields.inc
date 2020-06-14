@@ -57,10 +57,28 @@
   
   print $this->Form->hidden('server_id', array('default' => $http_servers[0]['Server']['id'])) . "\n";
 ?>
+<script type="text/javascript">
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    if(document.getElementById('HttpServerSslVerifyPeer').checked) {
+      $("#HttpServerSslVerifyHost").closest("li").show('fade');
+    } else {
+      $("#HttpServerSslVerifyHost").closest("li").hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+  <!-- JS specific to these fields -->
+</script>
 <ul id="<?php print $this->action; ?>_http_server" class="fields form-list">
   <li>
     <div class="field-name">
-      <?php print $this->Form->label('serverurl',_txt('fd.server.url')); ?><span class="required">*</span>
+      <div class="field-title">
+        <?php print $this->Form->label('serverurl',_txt('fd.server.url')); ?><span class="required">*</span>
+      </div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('serverurl', array('class' => 'focusFirst')) : filter_var($http_servers[0]['HttpServer']['serverurl'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -68,7 +86,9 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print $this->Form->label('username',_txt('fd.server.username')); ?>
+      <div class="field-title">
+        <?php print $this->Form->label('username',_txt('fd.server.username')); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('username') : filter_var($http_servers[0]['HttpServer']['username'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -76,7 +96,9 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print $this->Form->label('password',_txt('fd.password')); ?>
+      <div class="field-title">
+        <?php print $this->Form->label('password',_txt('fd.password')); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('password') : filter_var($http_servers[0]['HttpServer']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -84,29 +106,37 @@
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title"><?php print _txt('fd.server.http.ssl_allow_self_signed'); ?></div>
-      <div class="field-desc"><?php print _txt('fd.server.http.ssl_allow_self_signed.desc'); ?></div>
-    </div>
-    <div class="field-info">
-      <?php if ($e) print $this->Form->input('ssl_allow_self_signed', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_allow_self_signed'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => false))), 'disabled' => false)); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title"><?php print _txt('fd.server.http.ssl_verify_peer'); ?></div>
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ssl_verify_peer', _txt('fd.server.http.ssl_verify_peer')) : _txt('fd.server.http.ssl_verify_peer')); ?>
+      </div>
       <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_peer.desc'); ?></div>
     </div>
-    <div class="field-info">
-      <?php if($e) print $this->Form->input('ssl_verify_peer', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_verify_peer'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => true))), 'disabled' => false)); ?>
+    <div class="field-info checkbox">
+      <?php
+        print ($e
+               ? $this->Form->input('ssl_verify_peer',
+                                    array('onChange' => 'fields_update_gadgets();',
+                                          'default' => true))
+               : ($http_servers[0]['HttpServer']['ssl_verify_peer']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
     </div>
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title"><?php print _txt('fd.server.http.ssl_verify_peer_name'); ?></div>
-      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_peer_name.desc'); ?></div>
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ssl_verify_host', _txt('fd.server.http.ssl_verify_host')) : _txt('fd.server.http.ssl_verify_host')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_host.desc'); ?></div>
     </div>
-    <div class="field-info">
-      <?php if($e) print $this->Form->input('ssl_verify_peer_name', array('checked' => filter_var($http_servers[0]['HttpServer']['ssl_verify_peer_name'],FILTER_VALIDATE_BOOLEAN, array('options'=>array('default' => true))), 'disabled' => false)); ?>
+    <div class="field-info checkbox">
+      <?php
+        print ($e
+               ? $this->Form->input('ssl_verify_host',
+                                    array('default' => true))
+               : ($http_servers[0]['HttpServer']['ssl_verify_host']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
     </div>
   </li>
   <?php if($e): ?>

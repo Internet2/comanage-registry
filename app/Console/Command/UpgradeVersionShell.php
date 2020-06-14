@@ -38,6 +38,7 @@ class UpgradeVersionShell extends AppShell {
                     'CoIdentifierAssignment',
                     'CoJob',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
+                    'HttpServer',
                     'Identifier',
                     'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
@@ -469,5 +470,15 @@ class UpgradeVersionShell extends AppShell {
         )
       );
     }
+    
+    // HttpServers now have SSL configuration options, which should default to true
+    $this->out(_txt('sh.ug.330.http'));
+    $this->HttpServer->updateAll(
+      array(
+        'HttpServer.ssl_verify_host' => true,
+        'HttpServer.ssl_verify_peer' => true
+      ),
+      true
+    );
   }
 }
