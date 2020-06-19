@@ -466,7 +466,7 @@ class CoGroupsController extends StandardController {
        && isset($this->request->params['pass'][0])) {
       // Adjust permissions for members and open groups
       
-      if(isset($member) && in_array($this->request->params['pass'][0], $p['member']))
+      if(!empty($p['member']) && in_array($this->request->params['pass'][0], $p['member']))
         $p['view'] = true;
       
       $args = array();
