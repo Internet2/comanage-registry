@@ -208,7 +208,8 @@
       $fieldName = $ea['model'] . '.' . $ea['field'];
     }
     
-    if(!empty($ea['default'])) {
+    // Use isset() instead of !empty() here since some default values are 0.
+    if(isset($ea['default'])) {
       print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
     }
   }
