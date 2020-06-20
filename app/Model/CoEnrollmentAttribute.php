@@ -771,7 +771,6 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['modifiable'] = (isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])
                                ? $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable']
                                : false);
-        $attr['validate']['content']['rule'][0] = 'inList';
         
         // Pull the set of groups for the select
         $args = array();
@@ -780,7 +779,13 @@ class CoEnrollmentAttribute extends AppModel {
         $args['contain'] = false;
         
         $attr['select'] = $this->CoEnrollmentFlow->Co->CoGroup->find('list', $args);
-        
+
+        $attr['validate']['content']['rule'][0] = 'inList';
+        $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
+        // As of Cake 2.1, inList doesn't work for integers unless you set strict to false
+        // https://cakephp.lighthouseapp.com/projects/42648/tickets/2770-inlist-doesnt-work-more-in-21
+        $attr['validate']['content']['rule'][2] = false;
+
         $attrs[] = $attr;
         
         // We allow a petitioner to opt-in (ie: tick the box) for membership when
