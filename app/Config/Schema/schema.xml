@@ -2147,63 +2147,6 @@
     </index>
   </table>
   
-  <table name="history_records">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="co_person_role_id" type="I">
-      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
-    </field>
-    <field name="org_identity_id" type="I">
-      <constraint>REFERENCES cm_org_identities(id)</constraint>
-    </field>
-    <field name="co_group_id" type="I">
-      <constraint>REFERENCES cm_co_groups(id)</constraint>
-    </field>
-    <field name="co_email_list_id" type="I">
-      <constraint>REFERENCES cm_co_email_lists(id)</constraint>
-    </field>
-    <field name="co_service_id" type="I">
-      <constraint>REFERENCES cm_co_services(id)</constraint>
-    </field>
-    <field name="actor_co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="action" type="C" size="4" />
-    <field name="comment" type="C" size="256" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="history_record_id" type="I">
-      <constraint>REFERENCES cm_history_records(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="history_records_i1">
-      <col>co_person_id</col>
-    </index>
-    <index name="history_records_i2">
-      <col>co_person_role_id</col>
-    </index>
-    <index name="history_records_i3">
-      <col>org_identity_id</col>
-    </index>
-    <index name="history_records_i4">
-      <col>co_group_id</col>
-    </index>
-    <index name="history_records_i5">
-      <col>history_record_id</col>
-    </index>
-    <index name="history_records_i6">
-      <col>co_email_list_id</col>
-    </index>
-  </table>
-  
   <table name="co_provisioning_exports">
     <field name="id" type="I">
       <key />
@@ -2592,6 +2535,63 @@
     <index name="co_services_i5">
       <col>co_id</col>
       <col>short_label</col>
+    </index>
+  </table>
+  
+  <table name="history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="co_person_role_id" type="I">
+      <constraint>REFERENCES cm_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="co_email_list_id" type="I">
+      <constraint>REFERENCES cm_co_email_lists(id)</constraint>
+    </field>
+    <field name="co_service_id" type="I">
+      <constraint>REFERENCES cm_co_services(id)</constraint>
+    </field>
+    <field name="actor_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="action" type="C" size="4" />
+    <field name="comment" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="history_record_id" type="I">
+      <constraint>REFERENCES cm_history_records(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="history_records_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="history_records_i2">
+      <col>co_person_role_id</col>
+    </index>
+    <index name="history_records_i3">
+      <col>org_identity_id</col>
+    </index>
+    <index name="history_records_i4">
+      <col>co_group_id</col>
+    </index>
+    <index name="history_records_i5">
+      <col>history_record_id</col>
+    </index>
+    <index name="history_records_i6">
+      <col>co_email_list_id</col>
     </index>
   </table>
   
