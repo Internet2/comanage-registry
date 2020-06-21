@@ -87,7 +87,7 @@ class UpgradeVersionShell extends AppShell {
     "3.2.3" => array('block' => false),
     "3.2.4" => array('block' => false),
     "3.2.5" => array('block' => false),
-    "3.3.0" => array('block' => false, 'post' => 'post330')
+    "3.3.0" => array('block' => false, 'pre' => 'pre330', 'post' => 'post330')
   );
   
   public function getOptionParser() {
@@ -480,5 +480,24 @@ class UpgradeVersionShell extends AppShell {
       ),
       true
     );
+  }
+  
+  public function pre330() {
+    // 3.3.0 renames CoEnrollmentFlow::return_url_whitelist to return_url_allowlist.
+    // As a new technique, we'll manually rename the column before running the
+    // database schema in order to maintain existing values without having to
+    // copy attributes and then delete the old column. The downside of this approach
+    // is we need to directly execute SQL.
+    
+    $prefix = "";
+    $db = ConnectionManager::getDataSource('default');
+
+    if(isset($db->config['prefix'])) {
+      $prefix = $db->config['prefix'];
+    }
+    
+    $this->out(_txt('sh.ug.330.rename'));
+    // SQL: Alter table foo rename column bar to baz (should be cross plaform)
+    $this->CoEnrollmentFlow->query("ALTER TABLE " . $prefix . "co_enrollment_flows RENAME COLUMN return_url_whitelist TO return_url_allowlist");
   }
 }

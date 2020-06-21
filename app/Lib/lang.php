@@ -2199,6 +2199,7 @@ original notification at
   'sh.ug.330.cojob' =>    'Migrating CO Job type',
   'sh.ug.330.http' =>     'Updating HTTP Server configuration',
   'sh.ug.330.ia' =>       'Adding context to Identifier Assignments',
+  'sh.ug.330.rename' =>   'Renaming CoEnrollmentFlow Column',
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
   'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
   'sh.ug.330.users' =>    'Dropping users View',
