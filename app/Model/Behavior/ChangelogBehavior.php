@@ -633,7 +633,7 @@ class ChangelogBehavior extends ModelBehavior {
               // Sixth example
               
               $ret[$k]['order'] = $v2;
-            } elseif(is_array($v2)) {  
+            } elseif(is_array($v2)) {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
               
               if(is_string($k2) && !is_integer($k2)) {
