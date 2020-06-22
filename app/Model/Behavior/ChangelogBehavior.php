@@ -584,7 +584,7 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
         // eg: $query['contain'] = array('Model1' => 'Model2');
         // eg: $query['contain'] = array('conditions' => array('Model1.foo =' => 'value'));
-        // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value),
+        // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value'),
         //                                                 'Model2' => array('conditions' => array('Model2.foo' => 'value'))
         // eg: $query['contain'] = array('Model1' => array('Model2' => 'Model3'));
         // eg: $query['contain'] = array('Model1' => array('order' => 'Model1.field DESC'));
@@ -636,6 +636,15 @@ class ChangelogBehavior extends ModelBehavior {
             } elseif(is_array($v2)) {
               
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
+              
+              if(is_string($k2) && !is_integer($k2)) {
+                $cparentfk = Inflector::underscore($model->$k->$k2->name) . "_id";
+                
+                $ret[$k][$k2]['conditions'] = array(
+                  $k2.'.'.$cparentfk => null,
+                  $k2.'.deleted IS NOT true'
+                );
+              }
             } elseif(isset($model->$k->$k2)) {
               // Fifth example
               $m = $this->modifyContain($model->$k, array($k2 => $v2));
