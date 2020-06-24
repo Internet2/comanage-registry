@@ -163,11 +163,14 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
     $idTypes = array(
 // As of Registry v3.3.0, this is handled automatically
 //      'sorid'   => IdentifierEnum::SORID,
-      'eppn'    => IdentifierEnum::ePPN,
-      'eptid'   => IdentifierEnum::ePTID,
-      'epuid'   => IdentifierEnum::ePUID,
-      'orcid'   => IdentifierEnum::ORCID,
-      'network' => IdentifierEnum::Network
+      'eppn'           => IdentifierEnum::ePPN,
+      'eptid'          => IdentifierEnum::ePTID,
+      'epuid'          => IdentifierEnum::ePUID,
+      'oidcsub'        => IdentifierEnum::OidcSub,
+      'orcid'          => IdentifierEnum::ORCID,
+      'network'        => IdentifierEnum::Network,
+      'samlpairwiseid' => IdentifierEnum::SamlPairwiseId,
+      'samlsubjectid'  => IdentifierEnum::SamlSubjectId,
     );
     
     foreach($idTypes as $l => $t) {

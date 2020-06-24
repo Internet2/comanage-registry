@@ -906,7 +906,7 @@
       <key />
       <autoincrement />
     </field>
-    <field name="identifier" type="C" size="256" />
+    <field name="identifier" type="C" size="512" />
     <field name="type" type="C" size="32" />
     <field name="login" type="L" />
     <field name="status" type="C" size="2" />

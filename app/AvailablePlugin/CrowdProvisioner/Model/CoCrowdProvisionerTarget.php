@@ -62,7 +62,10 @@ class CoCrowdProvisionerTarget extends CoProvisionerPluginTarget {
                               'default' => array(IdentifierEnum::ePPN,
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::Mail,
+                                                 IdentifierEnum::OidcSub,
                                                  IdentifierEnum::OpenID,
+                                                 IdentifierEnum::SamlPairwiseId,
+                                                 IdentifierEnum::SamlSubjectId,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false
