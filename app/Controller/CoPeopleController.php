@@ -37,6 +37,9 @@ class CoPeopleController extends StandardController {
   
   public $paginate = array(
     'limit' => 25,
+    'group' => array(
+      'CoPerson.id', 'Co.id', 'PrimaryName.id'
+    ),
     'order' => array(
       'PrimaryName.family' => 'asc',
       'PrimaryName.given' => 'asc'
