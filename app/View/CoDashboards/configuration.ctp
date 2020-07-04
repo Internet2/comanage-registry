@@ -79,6 +79,12 @@
       'controller'    => 'data_filters',
       'action'        => 'index'
     ),
+    _txt('ct.dictionaries.pl') => array(
+      'icon'          => 'book',
+      'permissionKey' => 'dictionaries',
+      'controller'    => 'dictionaries',
+      'action'        => 'index'
+    ),
     _txt('ct.co_enrollment_flows.pl') => array(
       'icon'          => 'forward',
       'permissionKey' => 'coef',
