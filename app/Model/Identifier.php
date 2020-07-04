@@ -208,6 +208,9 @@ class Identifier extends AppModel {
    * @param  Integer Actor CO Person ID
    * @param  Boolean Whether or not to run provisioners on save
    * @return Array Success for each attribute, where the key is the attribute assigned and the value is 1 for success, 2 for already assigned, or an error string
+   * @throws Exception
+   * @throws InvalidArgumentException
+   * @throws OverflowException
    */  
   
   function assign($objType, $objId, $actorCoPersonId, $provision=true) {

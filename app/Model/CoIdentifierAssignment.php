@@ -252,10 +252,17 @@ class CoIdentifierAssignment extends AppModel {
       $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
     }
     
-    $base = $this->substituteParameters($iaFormat,
-                                        (!empty($obj['PrimaryName']) ? $obj['PrimaryName'] : $obj[$objType]['name']),
-                                        $obj['Identifier'],
-                                        $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
+    try {
+      $base = $this->substituteParameters($iaFormat,
+                                          (!empty($obj['PrimaryName']) ? $obj['PrimaryName'] : $obj[$objType]['name']),
+                                          $obj['Identifier'],
+                                          $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
+    }
+    catch(Exception $e) {
+      // Some sort of substitution error, such as dependent identifier not existing
+      $dbc->rollback();
+      throw new InvalidArgumentException($e->getMessage());
+    }
     
     // Now that we've got our base, loop until we get a unique identifier.
     // We try a maximum of 10 (0 through 9) times, and track identifiers we've
@@ -554,6 +561,7 @@ class CoIdentifierAssignment extends AppModel {
    * @param  Array  Identifiers array
    * @param  Enum   Acceptable characters for substituted parameters (PermittedCharacterEnum)
    * @return String Identifier with paramaters substituted
+   * @throws RuntimeException
    */
   
   private function substituteParameters($format, $name, $identifiers, $permitted) {
