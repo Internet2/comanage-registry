@@ -105,6 +105,42 @@
     </index>
   </table>
   
+  <table name="dictionaries">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="128" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="dictionaries_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+  
+  <table name="dictionary_entries">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="dictionary_id" type="I">
+      <constraint>REFERENCES cm_dictionaries(id)</constraint>
+    </field>
+    <field name="value" type="C" size="80" />
+    <field name="code" type="C" size="16" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="dictionary_entries_i1">
+      <col>dictionary_id</col>
+    </index>
+  </table>
+  
   <table name="attribute_enumerations">
     <field name="id" type="I">
       <key />

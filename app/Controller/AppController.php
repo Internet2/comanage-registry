@@ -1023,6 +1023,9 @@ class AppController extends Controller {
     // Manage CO dashboards?
     $p['menu']['dashboards'] = $roles['cmadmin'] || $roles['coadmin'];
     
+    // Manage Dictionaries?
+    $p['menu']['dictionaries'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Select from available enrollment flows?
     $p['menu']['createpetition'] = $roles['user'];
     
