@@ -1009,7 +1009,7 @@ class CoEnrollmentAttribute extends AppModel {
           : ( !empty($enrollmentAttributes[$i]['default'])
             ? $enrollmentAttributes[$i]['default'] : '');
 
-        $enrollmentAttributes[$i]['modifiable'] = (!isset($enrollmentAttributes[$i]['modifiable'])) ? false :
+        $enrollmentAttributes[$i]['modifiable'] = (!isset($enrollmentAttributes[$i]['modifiable'])) ? true :
           $enrollmentAttributes[$i]['modifiable'];
         // XXX Should we define default value for each env_var in case of complex attributes, e.g. given name
         // We use allowEmpty to check, which is more accurate than $validate->required.
