@@ -584,7 +584,7 @@ class ChangelogBehavior extends ModelBehavior {
         // eg: $query['contain'] = array('Model1' => array('Model2'));
         // eg: $query['contain'] = array('Model1' => 'Model2');
         // eg: $query['contain'] = array('conditions' => array('Model1.foo =' => 'value'));
-        // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value),
+        // eg: $query['contain'] = array('Model1' => array('conditions' => array('Model1.foo' => 'value'),
         //                                                 'Model2' => array('conditions' => array('Model2.foo' => 'value'))
         // eg: $query['contain'] = array('Model1' => array('Model2' => 'Model3'));
         // eg: $query['contain'] = array('Model1' => array('order' => 'Model1.field DESC'));
