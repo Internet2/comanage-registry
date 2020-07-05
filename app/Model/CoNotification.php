@@ -599,8 +599,9 @@ class CoNotification extends AppModel {
             )
           ),
           'CoPerson' => array(
-            // We only want active people
-            'conditions' => array('CoPerson.status' => StatusEnum::Active),
+            // We only want active people BUT this condition seems to get overwritten
+            // in ChangelogBehavior (beforeFind - modifyContain) and is therefore not applied
+            // 'conditions' => array('CoPerson.status' => StatusEnum::Active),
             'EmailAddress'
           )
         )
@@ -610,7 +611,8 @@ class CoNotification extends AppModel {
       
       if(!empty($gr['CoGroupMember'])) {
         foreach($gr['CoGroupMember'] as $gm) {
-          if(!empty($gm['CoPerson'])) {
+          if(!empty($gm['CoPerson']) 
+            && $gm['CoPerson']['status'] == StatusEnum::Active) {
             // Move EmailAddress up a level, as for 'coperson'
             $recipients[] = array(
               'RecipientCoPerson' => $gm['CoPerson'],
