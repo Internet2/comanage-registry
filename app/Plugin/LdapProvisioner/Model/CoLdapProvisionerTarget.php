@@ -322,7 +322,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $groupMembers = $this->CoLdapProvisionerDn->CoGroup->CoGroupMember->find('all', $args);
       }
       
-      // Iterate across objectclasses, looking for those that are required or enabled
+      // Iterate across objectclasses, looking for those that are required or enabled.
+      // While we're doing this, build a list of enabled attributes for crosschecking later.
+      $enabledAttributes = array();
       
       if($supportedAttributes[$oc]['objectclass']['required']
          || (isset($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])
@@ -334,9 +336,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         $attrEmitted = false;
         
         foreach(array_keys($supportedAttributes[$oc]['attributes']) as $attr) {
+          // Note we use the same test below in the final cleanup before returning $attributes
           if($supportedAttributes[$oc]['attributes'][$attr]['required']
              || (isset($configuredAttributes[$oc][$attr]['export'])
                  && $configuredAttributes[$oc][$attr]['export'])) {
+            $enabledAttributes[] = $attr;
+            
             // Does this attribute support multiple values?
             $multiple = (isset($supportedAttributes[$oc]['attributes'][$attr]['multiple'])
                          && $supportedAttributes[$oc]['attributes'][$attr]['multiple']);
@@ -1365,13 +1370,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // have one, the attribute is effectively renamed from, say, "cn" to "cn;lang-es",
     // To deal with this, we pull the current LDAP record.
     
-    // Build the list of configured attributes, regardless of schema
-    $sattributes = array();
+    // Lowercase the list of attributes configured for export
+    $sattributes = array_map('strtolower', $enabledAttributes);
     
-    foreach($supportedAttributes as $oc => $occfg) {
-      $sattributes = array_map('strtolower', array_merge($sattributes, array_keys($occfg['attributes'])));
-    }
-
     if($modify && $attropts) {
       try {
         $currec = $this->queryLdap($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'],

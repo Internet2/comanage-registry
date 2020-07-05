@@ -1129,10 +1129,17 @@ class AppModel extends Model {
                          . ".Co" . $targets[$i]['CoProvisioningTarget']['plugin'] . "Target";
         
         if(!isset($plugins[ $pluginModelName ])) {
-          $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
-          
-          if(!$plugins[ $pluginModelName ]) {
-            throw new RuntimeException(_txt('er.plugin.fail', array($pluginModelName)));
+          try {
+            $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
+          }
+          catch(Exception $e) {
+            $targets[$i]['status'] = array(
+              'status'    => ProvisioningStatusEnum::Unknown,
+              'timestamp' => null,
+              'comment'   => _txt('er.plugin.fail', array($targets[$i]['CoProvisioningTarget']['plugin']))
+            );
+            
+            continue;
           }
         }
         
