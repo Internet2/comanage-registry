@@ -166,11 +166,11 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
       'eppn'           => IdentifierEnum::ePPN,
       'eptid'          => IdentifierEnum::ePTID,
       'epuid'          => IdentifierEnum::ePUID,
-      'oidcsub'        => IdentifierEnum::OidcSub,
+      'oidcsub'        => IdentifierEnum::OIDCsub,
       'orcid'          => IdentifierEnum::ORCID,
       'network'        => IdentifierEnum::Network,
-      'samlpairwiseid' => IdentifierEnum::SamlPairwiseId,
-      'samlsubjectid'  => IdentifierEnum::SamlSubjectId,
+      'samlpairwiseid' => IdentifierEnum::SamlPairwise,
+      'samlsubjectid'  => IdentifierEnum::SamlSubject,
     );
     
     foreach($idTypes as $l => $t) {

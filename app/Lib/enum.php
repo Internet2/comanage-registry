@@ -322,14 +322,14 @@ class IdentifierEnum
   const Mail               = 'mail';
   const National           = 'national';
   const Network            = 'network';
-  const OidcSub            = 'oidcsub';
+  const OIDCsub            = 'oidcsub';
   const OpenID             = 'openid';
   const ORCID              = 'orcid';
   const ProvisioningTarget = 'provisioningtarget';
   const Reference          = 'reference';
   const SORID              = 'sorid';
-  const SamlPairwiseId     = 'pairwiseid';
-  const SamlSubjectId      = 'subjectid';
+  const SamlPairwise       = 'pairwiseid';
+  const SamlSubject        = 'subjectid';
   const UID                = 'uid';
 }
 

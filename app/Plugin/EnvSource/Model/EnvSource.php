@@ -272,7 +272,7 @@ class EnvSource extends AppModel {
         'canLogin'=> true
       ),
       'env_identifier_oidcsub' => array(
-        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::OidcSub) . ")",
+        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::OIDCsub) . ")",
         'default' => 'ENV_OIS_OIDC_SUB',
         'canLogin'=> true
       ),
@@ -282,12 +282,12 @@ class EnvSource extends AppModel {
         'canLogin'=> true
       ),
       'env_identifier_samlpairwiseid' => array(
-        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SamlPairwiseId) . ")",
+        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SamlPairwise) . ")",
         'default' => 'ENV_OIS_SAML_PAIRWISE_ID',
         'canLogin'=> true
       ),
       'env_identifier_samlsubjectid' => array(
-        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SamlSubjectId) . ")",
+        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SamlSubject) . ")",
         'default' => 'ENV_OIS_SAML_SUBJECT_ID',
         'canLogin'=> true
       ),
