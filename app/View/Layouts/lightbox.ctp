@@ -68,7 +68,7 @@
       var tz = jstz.determine();
       // This won't be available for the first delivered page, but after that the
       // server side should see it and process it
-      document.cookie = "cm_registry_tz_auto=" + tz.name() + "; path=/";
+      document.cookie = "cm_registry_tz_auto=" + tz.name() + "; path=/; SameSite=Strict";
     </script>
 
 
