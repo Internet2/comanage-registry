@@ -2147,55 +2147,6 @@
     </index>
   </table>
   
-  <table name="co_provisioning_exports">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_provisioning_target_id" type="I">
-      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
-    </field>
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="co_group_id" type="I">
-      <constraint>REFERENCES cm_co_groups(id)</constraint>
-    </field>
-    <field name="co_email_list_id" type="I">
-      <constraint>REFERENCES cm_co_email_lists(id)</constraint>
-    </field>
-    <field name="co_service_id" type="I">
-      <constraint>REFERENCES cm_co_services(id)</constraint>
-    </field>
-    <field name="exporttime" type="T" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="co_provisioning_exports_i1">
-      <col>co_provisioning_target_id</col>
-      <col>co_person_id</col>
-      <unique />
-    </index>
-    
-    <index name="co_provisioning_exports_i2">
-      <col>co_provisioning_target_id</col>
-      <col>co_group_id</col>
-      <unique />
-    </index>
-    
-    <index name="co_provisioning_exports_i3">
-      <col>co_provisioning_target_id</col>
-      <col>co_email_list_id</col>
-      <unique />
-    </index>
-
-    <index name="co_provisioning_exports_i4">
-      <col>co_provisioning_target_id</col>
-      <col>co_service_id</col>
-      <unique />
-    </index>
-  </table>
-  
   <table name="authenticators">
     <field name="id" type="I">
       <key />
@@ -2535,6 +2486,55 @@
     <index name="co_services_i5">
       <col>co_id</col>
       <col>short_label</col>
+    </index>
+  </table>
+  
+  <table name="co_provisioning_exports">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_provisioning_target_id" type="I">
+      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="co_email_list_id" type="I">
+      <constraint>REFERENCES cm_co_email_lists(id)</constraint>
+    </field>
+    <field name="co_service_id" type="I">
+      <constraint>REFERENCES cm_co_services(id)</constraint>
+    </field>
+    <field name="exporttime" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_provisioning_exports_i1">
+      <col>co_provisioning_target_id</col>
+      <col>co_person_id</col>
+      <unique />
+    </index>
+    
+    <index name="co_provisioning_exports_i2">
+      <col>co_provisioning_target_id</col>
+      <col>co_group_id</col>
+      <unique />
+    </index>
+    
+    <index name="co_provisioning_exports_i3">
+      <col>co_provisioning_target_id</col>
+      <col>co_email_list_id</col>
+      <unique />
+    </index>
+
+    <index name="co_provisioning_exports_i4">
+      <col>co_provisioning_target_id</col>
+      <col>co_service_id</col>
+      <unique />
     </index>
   </table>
   
