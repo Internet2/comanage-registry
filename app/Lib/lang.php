@@ -550,10 +550,13 @@ original notification at
                                  IdentifierEnum::Mail => 'Mail',
                                  IdentifierEnum::National => 'National',
                                  IdentifierEnum::Network => 'Network',
+                                 IdentifierEnum::OIDCsub => 'OIDC sub',
                                  IdentifierEnum::OpenID => 'OpenID',
                                  IdentifierEnum::ORCID => 'ORCID iD',
                                  IdentifierEnum::ProvisioningTarget => 'Provisioning Target',
                                  IdentifierEnum::Reference => 'Match Reference',
+                                 IdentifierEnum::SamlPairwise =>'SAML pairwise-id',
+                                 IdentifierEnum::SamlSubject => 'SAML subject-id',
                                  IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::UID => 'UID'),
   

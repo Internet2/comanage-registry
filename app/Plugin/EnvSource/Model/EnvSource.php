@@ -155,12 +155,42 @@ class EnvSource extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'env_identifier_oidcsub' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'env_identifier_oidcsub_login' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'env_identifier_orcid' => array(
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
     ),
     'env_identifier_orcid_login' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'env_identifier_samlpairwiseid' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'env_identifier_samlpairwiseid_login' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'env_identifier_samlsubjectid' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'env_identifier_samlsubjectid_login' => array(
       'rule' => 'boolean',
       'required' => false,
       'allowEmpty' => true
@@ -241,9 +271,24 @@ class EnvSource extends AppModel {
         'default' => 'ENV_OIS_EPUID',
         'canLogin'=> true
       ),
+      'env_identifier_oidcsub' => array(
+        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::OIDCsub) . ")",
+        'default' => 'ENV_OIS_OIDC_SUB',
+        'canLogin'=> true
+      ),
       'env_identifier_orcid' => array(
         'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::ORCID) . ")",
         'default' => 'ENV_OIS_ORCID',
+        'canLogin'=> true
+      ),
+      'env_identifier_samlpairwiseid' => array(
+        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SamlPairwise) . ")",
+        'default' => 'ENV_OIS_SAML_PAIRWISE_ID',
+        'canLogin'=> true
+      ),
+      'env_identifier_samlsubjectid' => array(
+        'label'   => _txt('fd.identifier.identifier') . " (" . _txt('en.identifier.type', null, IdentifierEnum::SamlSubject) . ")",
+        'default' => 'ENV_OIS_SAML_SUBJECT_ID',
         'canLogin'=> true
       ),
       'env_identifier_network' => array(

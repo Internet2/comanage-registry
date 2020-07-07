@@ -81,7 +81,10 @@ class UnixCluster extends ClusterInterface {
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::Network,
+                                                 IdentifierEnum::OIDCsub,
                                                  IdentifierEnum::OpenID,
+                                                 IdentifierEnum::SamlPairwise,
+                                                 IdentifierEnum::SamlSubject,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false
@@ -95,7 +98,10 @@ class UnixCluster extends ClusterInterface {
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::Network,
+                                                 IdentifierEnum::OIDCsub,
                                                  IdentifierEnum::OpenID,
+                                                 IdentifierEnum::SamlPairwise,
+                                                 IdentifierEnum::SamlSubject,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false
@@ -134,7 +140,10 @@ class UnixCluster extends ClusterInterface {
                                                  IdentifierEnum::GID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::Network,
+                                                 IdentifierEnum::OIDCsub,
                                                  IdentifierEnum::OpenID,
+                                                 IdentifierEnum::SamlPairwise,
+                                                 IdentifierEnum::SamlSubject,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false
@@ -149,7 +158,10 @@ class UnixCluster extends ClusterInterface {
                                                  IdentifierEnum::GID,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::Network,
+                                                 IdentifierEnum::OIDCsub,
                                                  IdentifierEnum::OpenID,
+                                                 IdentifierEnum::SamlPairwise,
+                                                 IdentifierEnum::SamlSubject,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false
