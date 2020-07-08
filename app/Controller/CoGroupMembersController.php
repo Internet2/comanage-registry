@@ -34,6 +34,9 @@ class CoGroupMembersController extends StandardController {
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
+    'group' => array(
+      'CoPerson.id', 'PrimaryName.id'
+    ),
     'order' => array(
       'PrimaryName.family' => 'asc',
       'PrimaryName.given' => 'asc'
@@ -650,6 +653,8 @@ class CoGroupMembersController extends StandardController {
       // 'CoGroupMember' => array('conditions' => array('CoGroupMember.id' => $this->gid)),
       'PrimaryName'
     );
+
+    $this->Paginator->settings['conditions']['PrimaryName.primary_name'] = true;
     
     $coPeople = $this->Paginator->paginate('CoPerson');
 
