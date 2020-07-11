@@ -61,11 +61,31 @@
 
   // Add page title
   $params = array();
-  $params['title'] = _txt('op.grm.edit', array($cur_co['Co']['name'], $co_group['CoGroup']['name']));
+  $params['title'] = _txt('op.edit-a', array($co_group['CoGroup']['name']));
 
   print $this->element("pageTitleAndButtons", $params);
+  include("tabs.inc");
 
 ?>
+
+<h2 class="subtitle"><?php print _txt('op.grm.select', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])) ?></h2>
+
+<ul class="widget-actions">
+  <li>
+    <?php
+      // Return to simple listing of group memberships
+      print $this->Html->link(
+        _txt('op.grm.manage.return'),
+        array(
+          'controller' => 'co_groups',
+          'action' => 'members',
+          $co_group['CoGroup']['id']
+        ),
+        array('class' => 'backbutton')
+      );
+    ?>
+  </li>
+</ul>
 
 <?php // Load the top search bar
   if(isset($permissions['search']) && $permissions['search'] ) { // Should be true if we're in this view, but we'll check just in case

@@ -63,6 +63,11 @@ class CoGroupsController extends StandardController {
     'EmailListModerator',
     'Identifier'
   );
+
+  public $nest_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
+  );
   
   /**
    * Callback to set relevant tab to open when redirecting to another page
@@ -74,7 +79,7 @@ class CoGroupsController extends StandardController {
    */
 
   function beforeFilter() {
-    $this->redirectTab = 'group';
+    $this->redirectTab = 'group'; // XXX legacy? remove?
 
     parent::beforeFilter();
   }
@@ -277,6 +282,71 @@ class CoGroupsController extends StandardController {
     // Invoke the StandardController edit
     parent::edit($id);
   }
+
+  /**
+   * List group members for a CO Group.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function members($id) {
+    if(!$this->request->is('restful') && $this->request->is('get')) {
+
+      /*$req = $this->modelClass;
+      $model = $this->$req;
+      $args = array();
+      $args['conditions'][$req.'.id'] = $id;
+      $args['contain'] = $this->edit_contains;
+      $curdata = $model->find('first', $args);
+      $this->set('groupTitle',$curdata[$req][ $model->displayField ]);
+
+      $this->set('title_for_layout',
+        _txt('fd.group.desc.mem',
+          array(filter_var($this->viewVars['groupTitle'],FILTER_SANITIZE_SPECIAL_CHARS))));
+      */
+
+
+      // Retrieve the set of all group members for group with ID $id.
+      // Specify containable behavior to get necessary relations.
+      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
+    }
+
+    parent::edit($id);
+  }
+
+  /**
+   * List group nestings for a CO Group.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function nest($id) {
+    // Invoke the StandardController edit
+    parent::edit($id);
+  }
+
+  /**
+   * Show the Email Lists for a group
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function email_lists($id) {
+    // Invoke the StandardController edit
+    parent::edit($id);
+  }
   
   /**
    * Generate history records for a transaction. This method is intended to be
@@ -422,6 +492,9 @@ class CoGroupsController extends StandardController {
     
     // Edit an existing Group?
     $p['edit'] = (!$readonly && ($roles['cmadmin'] || $managed));
+    // Viewing members and Email Lists is part of group editing.
+    $p['members'] = $p['edit'];
+    $p['email_lists'] = $p['edit'];
     
     // View history for an existing Group?
     $p['history'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
@@ -526,8 +599,11 @@ class CoGroupsController extends StandardController {
       
       $this->set('co_group', $this->CoGroup->find('first', $args));
       $this->set('title_for_layout',
-                 _txt('fd.prov.status.for',
-                      array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        _txt('op.edit-a',
+          array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
+      $this->set('vv_subtitle',
+        _txt('fd.prov.status.for',
+          array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
     }
   }
   

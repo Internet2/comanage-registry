@@ -63,6 +63,9 @@ h2 {
   font-size: 2em;
   margin: 0;
 }
+h2.subtitle {
+  clear: both;
+}
 h3 {
   font-size: 1.6em;
   margin: 0;
@@ -716,6 +719,28 @@ body.co_people.canvas .titleNavContainer {
   position: relative;
   top: -2px;
   height: 33px;
+}
+/* SUBNAVIGATION TABS */
+.cm-subnav-tabs {
+  clear: both;
+  margin: 4em 0 1.5em;
+  padding: 1em 0 0;
+}
+.cm-subnav-tabs .mdl-tabs__tab-bar {
+  justify-content: left;
+}
+.cm-subnav-tabs .mdl-tabs__tab {
+  position: relative;
+  top: -1px;
+}
+.cm-subnav-tabs .mdl-tabs__tab.selected {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-bottom: 1px solid #fff;
+}
+.cm-subnav-tabs + form > .form-list,
+.cm-subnav-tabs + .top-search {
+  margin-top: 0;
 }
 /* DASHBOARDS */
 #dashboard-tabs {

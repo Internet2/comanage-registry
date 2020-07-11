@@ -25,7 +25,13 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-  print $this->element("pageTitle", array('title' => filter_var($title_for_layout, FILTER_SANITIZE_SPECIAL_CHARS)));
+  // Get a pointer to our model
+  $model = $this->name;
+
+  print $this->element("pageTitleAndButtons", array('title' => filter_var($title_for_layout, FILTER_SANITIZE_SPECIAL_CHARS)));
+  if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
+    include(APP . "View/" . $model . "/tabs.inc");
+  }
   
   // REST API Provisioning Request Type
   $requestType = "Unknown";
@@ -186,6 +192,10 @@
   });
 </script>
 
+<?php if(!empty($vv_subtitle)): ?>
+  <h2 class="subtitle"><?php print filter_var($vv_subtitle, FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
+<?php endif; ?>
+
 <div class="table-container">
   <table id="provisioning_status">
     <thead>
@@ -317,3 +327,6 @@
 <div id="result-dialog" class="co-dialog" title="<?php print _txt('op.prov'); ?>">
   <p><?php print _txt('rs.prov.ok'); ?></p>
 </div>
+
+<?php
+  print $this->element("changelog");

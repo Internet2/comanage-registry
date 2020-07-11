@@ -493,7 +493,7 @@ class CoGroupMembersController extends StandardController {
                      );
     } elseif(isset($this->gid)) {
       $params = array('controller' => 'co_groups',
-                      'action'     => 'edit',
+                      'action'     => 'members',
                       $this->gid,
                       'co'         => $this->cur_co['Co']['id']
                      );
@@ -763,7 +763,7 @@ class CoGroupMembersController extends StandardController {
       // Issue redirect
       
       $this->redirect(array('controller' => 'co_groups',
-                            'action'     => 'edit',
+                            'action'     => 'members',
                             $this->request->data['CoGroupMember']['co_group_id'],
                             'co'         => $this->cur_co['Co']['id']));
     }

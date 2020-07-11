@@ -367,7 +367,7 @@
             if($e || $v) {
               print $this->Html->link($c['CoGroup']['name'],
                                       array('controller' => 'co_groups',
-                                            'action' => ($e ? 'edit' : ($v ? 'view' : '')), $c['CoGroup']['id']));
+                                            'action' => ($e ? 'members' : ($v ? 'view' : '')), $c['CoGroup']['id']));
             } else {
               print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -430,7 +430,7 @@
               if($e) {
                 print $this->Html->link(_txt('op.edit'),
                                         array('controller' => 'co_groups',
-                                              'action' => 'edit',
+                                              'action' => 'members',
                                               $c['CoGroup']['id']),
                                         array('class' => 'editbutton'))
                 . "\n";
