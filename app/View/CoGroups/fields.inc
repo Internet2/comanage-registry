@@ -469,8 +469,17 @@
 ?>
 
 <h2><?php print _txt('ct.co_group_members.pl'); ?></h2>
+
+<?php if($co_groups[0]['CoGroup']['auto']): ?>
+  <div class="co-info-topbox">
+    <em class="material-icons">info</em>
+    <?php print _txt('in.co_group.auto', array($cur_co['Co']['id'])); ?>
+  </div>
+<?php endif; ?>
+
 <?php if(!empty($co_groups[0]['CoGroup']['id'])
-      && !$co_groups[0]['CoGroup']['auto']): ?>
+      && !$co_groups[0]['CoGroup']['auto']
+      && $e): ?>
   <ul class="widget-actions">
     <li>
       <?php

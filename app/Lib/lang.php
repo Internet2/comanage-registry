@@ -1719,6 +1719,7 @@ original notification at
   'in.co_email_lists.none' => 'No email lists',
   'in.co_group.source.none' => 'No source groups',
   'in.co_group.target.none' => 'No target groups',
+  'in.co_group.auto'   => 'This is an automatic group: membership is determined by person role. To manage membership in this group, please manage roles from the <a href="../../co_people/index/co:%1$s">CO Person Listing</a>.',
   'in.ois.noinventory' => 'This Organizational Identity Source does not support viewing inventory.',
   'in.ois.nosearch'    => 'This Organizational Identity Source cannot be searched.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
