@@ -37,6 +37,7 @@ class CoPeopleController extends StandardController {
   
   public $paginate = array(
     'limit' => 25,
+    // CO-1549. Group By CoPerson.id ensures duplicate users are not returned after joining with other tables (such as cm_names).
     'group' => array(
       'CoPerson.id', 'Co.id', 'PrimaryName.id'
     ),
