@@ -100,7 +100,7 @@
         </li>
       <?php endforeach; ?>
       <li id="see-all">
-        <a href="/registry/co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"
+        <a href="<?php print $this->Html->url('/');?>co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"
            class="co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"><?php print _txt('op.see.notifications')?></a>
       </li>
     </ul>

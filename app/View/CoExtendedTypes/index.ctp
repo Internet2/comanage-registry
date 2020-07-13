@@ -76,7 +76,7 @@
 ?>
 <div id="extendedTypesFilter" class="top-filter">
   <!-- Selector for which Extended Type to manage -->
-  <form method="get" action="/registry/co_extended_types/index/co:<?php print $cur_co['Co']['id'] ?>">
+  <form method="get" action="<?php print $this->Html->url('/');?>co_extended_types/index/co:<?php print $cur_co['Co']['id'] ?>">
     <span class="filters">
       <label class="select-name" for="attr"><?php print _txt('fd.et.forattr'); ?></label>
       <select name="attr" id="attr">
