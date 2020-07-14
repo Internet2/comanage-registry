@@ -349,7 +349,7 @@
                       }
                     } else {
                       // No attribute enumerations defined
-                      print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
+                      print $this->Form->input('title');
                     }
                   } else {
                     print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
