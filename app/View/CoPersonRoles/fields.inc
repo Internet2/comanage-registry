@@ -225,7 +225,7 @@
               <div class="field-info">
                 <?php
                   global $cm_lang, $cm_texts;
-                  $attrs = array();
+                  $attrs = array('class' => 'focusFirst');
                   $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
                     ? $co_person_roles[0]['CoPersonRole']['affiliation']
                     : AffiliationEnum::Member);
