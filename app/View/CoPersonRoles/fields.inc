@@ -225,7 +225,7 @@
               <div class="field-info">
                 <?php
                   global $cm_lang, $cm_texts;
-                  $attrs = array();
+                  $attrs = array('class' => 'focusFirst');
                   $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
                     ? $co_person_roles[0]['CoPersonRole']['affiliation']
                     : AffiliationEnum::Member);
@@ -349,7 +349,7 @@
                       }
                     } else {
                       // No attribute enumerations defined
-                      print $this->Form->input('title', array('size' => 60, 'class' => 'focusFirst'));
+                      print $this->Form->input('title', array('size' => 60));
                     }
                   } else {
                     print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
