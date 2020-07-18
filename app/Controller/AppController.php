@@ -106,13 +106,13 @@ class AppController extends Controller {
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - precondition:
-   * - postcondition: Auth component is configured 
+   * - postcondition: Auth component is configured
    * - postcondition:
    *
    * @since  COmanage Registry v0.1
    * @throws UnauthorizedException (REST)
    * @throws InvalidArgumentException
-   */   
+   */
   
   public function beforeFilter() {
     // Load plugin specific texts. We have to do this here because when lang.php is
@@ -302,18 +302,42 @@ class AppController extends Controller {
           global $cm_lang;
           
           $this->loadModel('CoLocalization');
+
+          // Load Platform text. Dynamic texts configured in COmanage CO
+          // Continuously we will replace any occurrence of dynamic texts with the global ones
+
+          $args = array();
+          $args['joins'][0]['table'] = 'cos';
+          $args['joins'][0]['alias'] = 'Co';
+          $args['joins'][0]['type'] = 'INNER';
+          $args['joins'][0]['conditions'][0] = 'CoLocalization.co_id=Co.id';
+          $args['conditions']['Co.name'] = 'COmanage';
+          $args['conditions']['Co.status'] = StatusEnum::Active;
+          $args['conditions']['CoLocalization.language'] = $cm_lang;
+          $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
+          $args['contain'] = false;
+
+          $ls_cm = $this->CoLocalization->find('list', $args);
+          unset($args);
+
+          // First load the Platform localization variables
+          if(!empty($ls_cm)) {
+            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls_cm);
+          }
           
           $args = array();
           $args['conditions']['CoLocalization.co_id'] = $coid;
           $args['conditions']['CoLocalization.language'] = $cm_lang;
           $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
           $args['contain'] = false;
-          
-          $ls = $this->CoLocalization->find('list', $args);
-          
-          if(!empty($ls)) {
-            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls);
+
+          $ls_co = $this->CoLocalization->find('list', $args);
+
+          // Replace all default texts with the ones configured in CO level
+          if(!empty($ls_co)) {
+            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls_co);
           }
+          unset($args);
           
           // Perform a bit of a sanity check before we get any further
           try {
@@ -721,11 +745,11 @@ class AppController extends Controller {
     } elseif($redirectMode != "calculate") {
       switch($rc) {
         case -1:
-          $this->Flash->set(_txt('er.person.noex'), array('key' => 'error'));            
+          $this->Flash->set(_txt('er.person.noex'), array('key' => 'error'));
           $this->redirect($redirect);
           break;
         case 0:
-          $this->Flash->set(_txt('er.person.none'), array('key' => 'error'));            
+          $this->Flash->set(_txt('er.person.none'), array('key' => 'error'));
           $this->redirect($redirect);
           break;
       }
