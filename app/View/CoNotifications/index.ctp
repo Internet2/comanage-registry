@@ -52,7 +52,8 @@
     $sortdir = filter_var($this->request->query['direction'], FILTER_SANITIZE_SPECIAL_CHARS);
   }
   
-  $furl = "/registry/co_notifications/index/sort:" . $sorttype
+  $furl = $this->Html->url('/')
+        . "co_notifications/index/sort:" . $sorttype
         . "/direction:" . $sortdir
         . "/" . $vv_request_type . ":" . $vv_co_person_id;
 ?>

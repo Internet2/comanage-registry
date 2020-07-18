@@ -318,7 +318,7 @@
     </script>
 
 
-    <?php if($this->here != '/registry/pages/eds/index'):
+    <?php if($this->here != $this->Html->url('/') .'pages/eds/index'):
       // Don't load the following scripts when loading the Shib EDS. ?>
 
       <!-- noty scripts -->
