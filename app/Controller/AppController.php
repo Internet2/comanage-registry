@@ -859,8 +859,9 @@ class AppController extends Controller {
     
     if(!empty($this->cur_co['Co']['id'])) {
       // First see if we're in an enrollment flow
-      if($this->name === 'CoPetitions'
-         || $this->name === 'CoInvites') {
+      if(($this->name === 'CoPetitions'
+          && $this->view !== 'view')
+          || $this->name === 'CoInvites') {
         $efId = $this->enrollmentFlowID();
         
         if($efId > -1) {
