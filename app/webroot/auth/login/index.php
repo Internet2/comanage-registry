@@ -41,6 +41,14 @@ if(empty($_SERVER['REMOTE_USER'])) {
   exit;
 }
 
-$_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
+// XXX if we define no redirect path, e.g. to an internal path: co_dashboards/configuration/co:2 then CAKEPHP thinks that should come back here
+// XXX as a result adds to the SESSION auth/login as the redirect path after login. This causes the login to happen twice for the case we are
+// XXX visiting the COmanage homepage
+if(empty($_SESSION["Auth"]["redirect"])) {
+  $_SESSION["Auth"]["redirect"] = '/';
+}
 
-header("Location: " . "/registry/users/login");
+$_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
+$path = str_replace('auth/login/', '', $_SERVER["REQUEST_URI"]);
+
+header('Location: ' . $path . 'users/login');

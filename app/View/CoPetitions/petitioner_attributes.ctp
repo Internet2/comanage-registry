@@ -33,10 +33,10 @@ $(document).ready(function() {
   $("input.matchable").keyup(function(event) {
     if(event.which != 13) {
       // 13 is enter/return... don't search on form submit
-      // XXX Don't hardcode fields here, or /registry prefix
+      // XXX Don't hardcode fields here
       var thisFieldId = $(this).attr("id");
       $.ajax({
-        url: '/registry/co_people/match/coef:' + <?php print filter_var($co_enrollment_flow_id,FILTER_SANITIZE_URL); ?>
+        url: '<?php print $this->Html->url('/');?>' + 'co_people/match/coef:' + <?php print filter_var($co_enrollment_flow_id,FILTER_SANITIZE_URL); ?>
              + '/given:' + document.getElementById(givenNameAttr).value
              + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
