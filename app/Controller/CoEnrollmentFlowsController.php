@@ -297,7 +297,11 @@ class CoEnrollmentFlowsController extends StandardController {
                             'action' => 'add',
                             'coef' => $this->CoEnrollmentFlow->id,
                             'co' => $this->cur_co['Co']['id']));
-    } elseif($this->action != 'edit') {
+    } elseif($this->action == 'edit') {
+      $this->redirect(array('controller' => 'co_enrollment_flows',
+                            'action' => 'edit',
+                            $this->CoEnrollmentFlow->id));
+    } else {
       parent::performRedirect();
     }
   }
