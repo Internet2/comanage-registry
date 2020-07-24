@@ -118,7 +118,7 @@ class CoProvisioningTargetsController extends StandardController {
    * @param  Array Current data
    * @return boolean true if dependency checks succeed, false otherwise.
    */
-  
+
   function checkDeleteDependencies($curdata) {
     // Annoyingly, the read() call in standardController resets the associations made
     // by the bindModel() call in beforeFilter(), above. Beyond that, deep down in
@@ -132,6 +132,10 @@ class CoProvisioningTargetsController extends StandardController {
       $model = "Co" . $plugin . "Target";
       
       if(!empty($curdata[$model]['id'])) {
+        // (CO-1988)Remove the plugin object from the instance and enforce the creation of a new one
+        if(!empty(ClassRegistry::getObject($model))) {
+          ClassRegistry::removeObject($model);
+        }
         $this->loadModel($plugin . "." . $model);
         $this->$model->delete($curdata[$model]['id']);
       }
