@@ -1126,7 +1126,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                       case 'voPosixAccountGidNumber':
                         // Find the Identifier of primary_co_group_id
                         $gidIdentifier = Hash::extract($provisioningData['CoGroupMember'], '{n}.CoGroup[id='.$ua['UnixClusterAccount']['primary_co_group_id'].'].Identifier.{n}[type='.$ua['UnixCluster']['gid_type'].']');
-                        $attributes[$lsattr] = $gidIdentifier[0]['identifier'];
+                        if(!empty($gidIdentifier)) {
+                          $attributes[$lsattr] = $gidIdentifier[0]['identifier'];
+                        }
                         break;
                       case 'homeDirectory':
                       case 'voPosixAccountHomeDirectory':
