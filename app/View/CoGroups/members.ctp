@@ -97,7 +97,11 @@
     $args['co'] = $cur_co['Co']['id'];
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   }
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_groups.1')));
+  if($e) {
+    $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_groups.1')));
+  } else {
+    $crumbTxt = _txt('op.view-a', array(_txt('ct.co_groups.1')));
+  }
   $this->Html->addCrumb($crumbTxt);
 
   $l = 1;
@@ -105,8 +109,16 @@
 
   <h2 class="subtitle"><?php print _txt('ct.co_group_members.pl'); ?></h2>
 
+  <?php if($co_groups[0]['CoGroup']['auto']): ?>
+    <div class="co-info-topbox">
+      <em class="material-icons">info</em>
+      <?php print _txt('in.co_group.auto', array($cur_co['Co']['id'])); ?>
+    </div>
+  <?php endif; ?>
+
   <?php if(!empty($co_groups[0]['CoGroup']['id'])
-    && !$co_groups[0]['CoGroup']['auto']): ?>
+    && !$co_groups[0]['CoGroup']['auto']
+    && $e): ?>
     <ul class="widget-actions">
       <li>
         <?php
@@ -126,13 +138,17 @@
   <?php endif; ?>
 
   <div class="table-container">
+    <?php $tableCols = 3; ?>
     <table id="groupMembers" class="common-table">
       <thead>
         <tr>
           <th><?php print _txt('fd.name'); ?></th>
           <th><?php print _txt('fd.co_people.status'); ?></th>
           <th><?php print _txt('fd.roles'); ?></th>
-          <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+          <?php if($e): ?>
+            <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+            <?php $tableCols = 4; ?>
+          <?php endif; ?>
         </tr>
       </thead>
       <tbody>
@@ -190,11 +206,11 @@
 
             print '</td>';
 
-            print '<td class="actions">';
             if($e) {
+              print '<td class="actions">';
               // Do not show edit or delete buttons if this is an automatic group
               // or if the membership is due to a nesting.
-              if(!$co_groups[0]['CoGroup']['auto'] && !$g['CoGroupMember']['co_group_nesting_id']) {
+              if (!$co_groups[0]['CoGroup']['auto'] && !$g['CoGroupMember']['co_group_nesting_id']) {
                 print $this->Html->link(
                   _txt('op.edit'),
                   array(
@@ -205,7 +221,7 @@
                   array('class' => 'editbutton')
                 );
 
-                if($dok) {
+                if ($dok) {
                   print '<a class="deletebutton" title="' . _txt('op.delete')
                     . '" onclick="javascript:js_confirm_generic(\''
                     . _txt('js.remove.member') . '\',\''    // dialog body text
@@ -221,19 +237,19 @@
                     . _txt('op.remove') . '\',\''    // dialog confirm button
                     . _txt('op.cancel') . '\',\''    // dialog cancel button
                     . _txt('op.remove') . '\',[\''   // dialog title
-                    . filter_var(_jtxt($co_groups[0]['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                    . filter_var(_jtxt($co_groups[0]['CoGroup']['name']), FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                     . '\']);">'
                     . _txt('op.delete')
                     . '</a>';
                 }
               }
+              print '</td>';
             }
-            print '</td>';
             print '</tr>';
           }
 
           if(empty($vv_co_group_members)) {
-            print '<tr><td colspan="4">' . _txt('in.co_group.members.none') . '</td></tr>';
+            print '<tr><td colspan="' . $tableCols . '">' . _txt('in.co_group.members.none') . '</td></tr>';
           }
         ?>
       </tbody>

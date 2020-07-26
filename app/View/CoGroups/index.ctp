@@ -367,7 +367,7 @@
             if($e || $v) {
               print $this->Html->link($c['CoGroup']['name'],
                                       array('controller' => 'co_groups',
-                                            'action' => ($e ? 'members' : ($v ? 'view' : '')), $c['CoGroup']['id']));
+                                            'action' => 'members', $c['CoGroup']['id']));
             } else {
               print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -438,7 +438,7 @@
               elseif($v) {
                 print $this->Html->link(_txt('op.view'),
                                         array('controller' => 'co_groups',
-                                              'action'     => 'view',
+                                              'action'     => 'members',
                                               $c['CoGroup']['id']),
                                         array('class'      => 'viewbutton'))
                       . "\n";

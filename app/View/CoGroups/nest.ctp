@@ -30,10 +30,10 @@
   $e = false;
   $v = false;
 
-  if(($permissions['nest'])
+  if(($permissions['buildnest'])
     && isset($co_groups[0]['CoGroup']['id'])
     && !empty($permissions['owner']))
-    // && in_array($co_groups[0]['CoGroup']['id'], $permissions['owner'])) XXX check this
+    // && in_array($co_groups[0]['CoGroup']['id'], $permissions['owner'])) // XXX check this
     $e = true;
 
   if(($permissions['delete'])
@@ -64,7 +64,11 @@
     $args['co'] = $cur_co['Co']['id'];
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   }
-  $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_groups.1')));
+  if($e) {
+    $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_groups.1')));
+  } else {
+    $crumbTxt = _txt('op.view-a', array(_txt('ct.co_groups.1')));
+  }
   $this->Html->addCrumb($crumbTxt);
 
 
@@ -98,7 +102,7 @@
 
       <?php if($e && $k == 'source' && !empty($co_groups[0]['CoGroup']['id'])
         && !$co_groups[0]['CoGroup']['auto']
-        && $permissions['nest']): ?>
+        && $permissions['buildnest']): ?>
         <ul class="widget-actions">
           <li>
             <?php
@@ -117,11 +121,15 @@
         </ul>
       <?php endif; ?>
 
+      <?php $tableCols = 1; ?>
       <table class="common-table">
         <thead>
           <tr>
             <th><?php print _txt('fd.name'); ?></th>
-            <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+            <?php if($e && $permissions['buildnest']): ?>
+              <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+              <?php $tableCols = 2; ?>
+            <?php endif; ?>
           </tr>
         </thead>
         <tbody>
@@ -132,13 +140,20 @@
                     // The model that we want to render, as contain'd by CoGroupNesting
                     $gnm = ($k == 'source' ? "CoGroup" : "TargetCoGroup");
 
-                    print $this->Html->link($n[$gnm]['name'],
-                      array('controller' => 'co_groups',
-                        'action' => $this->action,
-                        $n[$gnm]['id']));
-                  ?></td>
-                <td class="actions"><?php
-                    if($e && $permissions['nest']) {
+                    if($e && $permissions['buildnest']) {
+                      print $this->Html->link($n[$gnm]['name'],
+                        array('controller' => 'co_groups',
+                          'action' => $this->action,
+                          $n[$gnm]['id']));
+                    } else {
+                      print filter_var($n[$gnm]['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+                    }
+                  ?>
+                </td>
+
+                <?php if($e && $permissions['buildnest']): ?>
+                  <td class="actions">
+                    <?php
                       print '<a class="deletebutton" title="' . _txt('op.remove')
                         . '" onclick="javascript:js_confirm_generic(\''
                         . _txt('js.remove.nesting') . '\',\''    // dialog body text
@@ -156,12 +171,13 @@
                         . '\']);">'
                         . _txt('op.remove')
                         . '</a>';
-                    }
-                  ?></td>
+                    ?>
+                  </td>
+                <?php endif; ?>
               </tr>
             <?php endforeach; // $n ?>
           <?php else: ?>
-            <tr><td colspan="2"><?php print _txt('in.co_group.'.$k.'.none') ?></td></tr>
+            <tr><td colspan="<?php print $tableCols; ?>"><?php print _txt('in.co_group.'.$k.'.none') ?></td></tr>
           <?php endif; // $m ?>
         </tbody>
       </table>

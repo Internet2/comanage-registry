@@ -64,16 +64,10 @@
   $e = false;
   $v = false;
 
-  if($permissions['edit']
-    || (isset($co_groups[0]['CoGroup']['id'])
-      && !empty($permissions['owner'])
-      && in_array($co_groups[0]['CoGroup']['id'], $permissions['owner'])))
+  if($permissions['edit_email_lists'])
     $e = true;
 
-  if($permissions['delete']
-    || (isset($co_groups[0]['CoGroup']['id'])
-      && !empty($permissions['owner'])
-      && in_array($co_groups[0]['CoGroup']['id'], $permissions['owner'])))
+  if($permissions['delete'])
     $dok = true;
 
   if($permissions['view']
@@ -97,7 +91,11 @@
     $args['co'] = $cur_co['Co']['id'];
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   }
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_groups.1')));
+  if($e) {
+    $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_groups.1')));
+  } else {
+    $crumbTxt = _txt('op.view-a', array(_txt('ct.co_groups.1')));
+  }
   $this->Html->addCrumb($crumbTxt);
 
   $l = 1;
@@ -106,13 +104,17 @@
 <h2 class="subtitle"><?php print _txt('in.co_group.email_lists'); ?></h2>
 
 <div class="table-container">
+  <?php $tableCols = 3; ?>
   <table id="emailLists" class="common-table">
     <thead>
       <tr>
         <th><?php print _txt('fd.name'); ?></th>
         <th><?php print _txt('fd.status'); ?></th>
         <th><?php print _txt('fd.type'); ?></th>
-        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+        <?php if($e): ?>
+          <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+          <?php $tableCols = 4; ?>
+        <?php endif; ?>
       </tr>
     </thead>
     <tbody>
@@ -125,10 +127,16 @@
               print "<tr>";
 
               // List name
-              print "<td>" . $this->Html->link($el['name'],
+              print "<td>";
+              if($e) {
+                print $this->Html->link($el['name'],
                   array('controller' => 'co_email_lists',
-                    'action' => $this->action,
-                    $el['id'])) . "</td>";
+                    'action' => 'edit',
+                    $el['id']));
+              } else {
+                print filter_var($el['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+              print "</td>";
 
               // List's status
               print "<td>";
@@ -156,7 +164,7 @@
         }
 
         if(!$mailingListsExist) {
-          print '<tr><td colspan="4">' . _txt('in.co_email_lists.none') . '</td></tr>';
+          print '<tr><td colspan="' . $tableCols . '">' . _txt('in.co_email_lists.none') . '</td></tr>';
         }
       ?>
     </tbody>

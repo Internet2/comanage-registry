@@ -29,7 +29,7 @@
   $dok = false;
   $e = false;
   $v = false;
-  
+
   if(($this->action == "add" && $permissions['add'])
      || ($this->action == "edit" && $permissions['edit'])
      || (($this->action == 'add' || $this->action == 'edit')
@@ -205,77 +205,92 @@
   <?php endif; ?>
 </ul>
 
-<?php if ($this->action != 'add'): ?>
+<?php if ($permissions['viewids'] && ($this->action != 'add')): ?>
   <h2 class="subtitle"><?php print _txt('ct.identifiers.pl'); ?></h2>
-  <?php if (!empty($co_groups[0]['CoGroup']['id'])
+  <?php if($permissions['editids']
+    && !empty($co_groups[0]['CoGroup']['id'])
     // XXX It's not clear why we don't permit related models (eg: identifiers,
     // nested groups, email lists) to be added to automatic groups...
     && !$co_groups[0]['CoGroup']['auto']
     && $permissions['edit']
   ): ?>
+
     <ul class="widget-actions">
       <li>
         <?php
-          if ($e) {
-            // Autogenerate Identifiers button
-            if ($permissions['assign'] && !empty($co_identifier_assignments)) {
-              print $this->Html->link(
-                _txt('op.id.auto'),
-                'javascript:js_confirm_autogenerate();',
-                array('class' => 'contactbutton')
-              );
-            }
-
-            // Add an identifier
+          // Autogenerate Identifiers button
+          if ($permissions['assign'] && !empty($co_identifier_assignments)) {
             print $this->Html->link(
-              _txt('op.add-a', array(_txt('ct.identifiers.1'))),
-              array(
-                'controller' => 'identifiers',
-                'action' => 'add',
-                'cogroup' => $co_groups[0]['CoGroup']['id']
-              ),
-              array('class' => 'addbutton')
+              _txt('op.id.auto'),
+              'javascript:js_confirm_autogenerate();',
+              array('class' => 'contactbutton')
             );
           }
+
+          // Add an identifier
+          print $this->Html->link(
+            _txt('op.add-a', array(_txt('ct.identifiers.1'))),
+            array(
+              'controller' => 'identifiers',
+              'action' => 'add',
+              'cogroup' => $co_groups[0]['CoGroup']['id']
+            ),
+            array('class' => 'addbutton')
+          );
         ?>
       </li>
     </ul>
   <?php endif; ?>
 
   <div class="table-container">
+    <?php $tableCols = 2; ?>
     <table id="identifiers" class="common-table">
       <thead>
         <tr>
           <th><?php print _txt('fd.name'); ?></th>
           <th><?php print _txt('fd.type'); ?></th>
-          <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+          <?php if($permissions['editids']
+            && !empty($co_groups[0]['CoGroup']['id'])
+            && !$co_groups[0]['CoGroup']['auto']
+            && $permissions['edit']
+          ): ?>
+            <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+            <?php $tableCols = 3; ?>
+          <?php endif; ?>
         </tr>
       </thead>
       <tbody>
         <?php
-          if (!empty($co_groups[0]['Identifier'])) {
-            foreach ($co_groups[0]['Identifier'] as $id) {
+          if(!empty($co_groups[0]['Identifier'])) {
+            foreach($co_groups[0]['Identifier'] as $id) {
               print "<tr>";
 
               // Identifier
-              print "<td>" . $this->Html->link($id['identifier'],
+              print "<td>";
+              if($permissions['editids']) {
+                print $this->Html->link($id['identifier'],
                   array('controller' => 'identifiers',
                     'action' => $this->action,
-                    $id['id'])) . "</td>";
+                    $id['id']));
+              } else {
+                print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+              print "</td>";
 
               // Identifier Type
               print "<td>" . $vv_types['Identifier'][$id['type']] . "</td>";
 
-              print '<td class="actions">';
+              if($permissions['editids']
+                && !empty($co_groups[0]['CoGroup']['id'])
+                && !$co_groups[0]['CoGroup']['auto']
+                && $permissions['edit']) {
 
-              if ($e) {
-                if ($permissions['edit']) {
-                  print $this->Html->link(_txt('op.edit'),
-                    array('controller' => 'identifiers',
-                      'action' => 'edit',
-                      $id['id']),
-                    array('class' => 'editbutton'));
-                }
+                print '<td class="actions">';
+                print $this->Html->link(_txt('op.edit'),
+                  array('controller' => 'identifiers',
+                    'action' => 'edit',
+                    $id['id']),
+                  array('class' => 'editbutton'));
 
                 if ($permissions['delete']) {
                   print '<a class="deletebutton" title="' . _txt('op.delete')
@@ -297,22 +312,13 @@
                     . _txt('op.delete')
                     . '</a>';
                 }
-              } else {
-                if ($permissions['view']) {
-                  print $this->Html->link(_txt('op.view'),
-                    array('controller' => 'identifiers',
-                      'action' => 'view',
-                      $id['id']),
-                    array('class' => 'viewbutton'));
-                }
+
+                print "</td>";
               }
-
-              print "</td>";
-
               print "</tr>";
             }
           } else {
-            print '<tr><td colspan="3">' . _txt('in.co_group.ids.none') . '</td></tr>';
+            print '<tr><td colspan="' . $tableCols . '">' . _txt('in.co_group.ids.none') . '</td></tr>';
           }
         ?>
       </tbody>

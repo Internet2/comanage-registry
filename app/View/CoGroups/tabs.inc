@@ -77,18 +77,20 @@
         }
 
         // Provisioned services
-        if ($this->action == 'provision') {
-          print '<span class="mdl-tabs__tab selected">' . _txt('op.prov.view') . '</span>';
-        } else {
-          print $this->Html->link(
-            _txt('op.prov.view'),
-            array(
-              'controller' => 'co_groups',
-              'action' => 'provision',
-              $groupId
-            ),
-            array('class' => 'mdl-tabs__tab')
-          );
+        if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))) {
+          if ($this->action == 'provision') {
+            print '<span class="mdl-tabs__tab selected">' . _txt('op.prov.view') . '</span>';
+          } else {
+            print $this->Html->link(
+              _txt('op.prov.view'),
+              array(
+                'controller' => 'co_groups',
+                'action' => 'provision',
+                $groupId
+              ),
+              array('class' => 'mdl-tabs__tab')
+            );
+          }
         }
 
         // Email lists
@@ -107,18 +109,30 @@
         }
 
         // Properties
-        if ($this->action == 'edit') {
+        if ($this->action == 'edit' || $this->action == 'view') {
           print '<span class="mdl-tabs__tab selected">' . _txt('me.properties') . '</span>';
         } else {
-          print $this->Html->link(
-            _txt('me.properties'),
-            array(
-              'controller' => 'co_groups',
-              'action' => 'edit',
-              $groupId
-            ),
-            array('class' => 'mdl-tabs__tab')
-          );
+          if ($permissions['edit']) {
+            print $this->Html->link(
+              _txt('me.properties'),
+              array(
+                'controller' => 'co_groups',
+                'action' => 'edit',
+                $groupId
+              ),
+              array('class' => 'mdl-tabs__tab')
+            );
+          } else {
+            print $this->Html->link(
+              _txt('me.properties'),
+              array(
+                'controller' => 'co_groups',
+                'action' => 'view',
+                $groupId
+              ),
+              array('class' => 'mdl-tabs__tab')
+            );
+          }
         }
       ?>
     </nav>
