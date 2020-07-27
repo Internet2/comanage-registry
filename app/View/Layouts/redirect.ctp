@@ -65,32 +65,6 @@
       print $this->fetch('script');
     ?>
 
-    <script type="text/javascript">
-      // Add a spinner to this page
-      var coSpinnerOpts = {
-        top: '75%',
-        lines: 13, // The number of lines to draw
-        length: 6, // The length of each line
-        width: 3, // The line thickness
-        radius: 6, // The radius of the inner circle
-        corners: 0.4, // Corner roundness (0..1)
-        rotate: 0, // The rotation offset
-        direction: 1, // 1: clockwise, -1: counterclockwise
-        color: '#9FC6E2', // #rgb or #rrggbb or array of colors
-        speed: 1.2, // Rounds per second
-        trail: 60, // Afterglow percentage
-        shadow: false, // Whether to render a shadow
-        hwaccel: false, // Whether to use hardware acceleration
-        className: 'spinner', // The CSS class to assign to the spinner
-        zIndex: 100 // The z-index (defaults to 2000000000)
-      };
-      $(function() {
-        var coSpinnerTarget = document.getElementById('redirect-spinner');
-        var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
-      });
-
-    </script>
-
     <meta http-equiv="refresh" content="1;URL='<?php print $this->Html->url($vv_meta_redirect_target); ?>'" />
 
     <!-- Include custom CSS -->
@@ -249,7 +223,6 @@
     <!-- Load JavaScript -->
     <?php
       print $this->Html->script('mdl/mdl-1.3.0/material.min.js') . "\n    ";
-      print $this->Html->script('jquery/spin.min.js') . "\n    ";
     ?>
   </body>
 </html>

@@ -501,19 +501,16 @@
       }
     });
 
-    // Add a spinner when a form is submitted or when any item is clicked with a "spin" class
+    // Add loading animation when a form is submitted
+    // or when any item with a "spin" class is clicked.
+    // XXX we might consider applying this to all anchors except for those marked for exclusion
     $("input[type='submit'], .spin").click(function() {
 
-      var spinnerDiv = '<div id="coSpinner"></div>';
-      $("body").append(spinnerDiv);
-
-      var coSpinnerTarget = document.getElementById('coSpinner');
-      // coSpinnerOpts are set in js/comanage.js
-      var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
+      displaySpinner();
 
       // Test for invalid fields (HTML5) and turn off spinner explicitly if found
       if(document.querySelectorAll(":invalid").length) {
-        coSpinner.stop();
+        stopSpinner();
       }
 
     });
