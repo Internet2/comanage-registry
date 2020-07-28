@@ -229,24 +229,31 @@ class CoPetition extends AppModel {
   
   public function assignClusterAccounts($id, $actorCoPersonId) {
     $coPersonID = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    $enrollmentFlowID = $this->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
     //$coID = $this->field('co_id', array('CoPetition.id' => $id));
     
     if($coPersonID) {
       $clusters = $this->CoEnrollmentFlow
                        ->CoEnrollmentCluster
-                       ->active($this->cachedEnrollmentFlowID);
-      
+                       ->active($enrollmentFlowID);
+
       $clusterIds = array();
       
       // XXX Could use Hash?
       foreach($clusters as $c) {
-        $clusterIds[] = $c['Cluster']['id'];
+        if($c['CoEnrollmentCluster']['enabled']) {
+          $clusterIds[] = $c['Cluster']['id'];
+        }
       }
-      
-      $res = $this->CoEnrollmentFlow
-                  ->CoEnrollmentCluster
-                  ->Cluster
-                  ->assign($coPersonID, $actorCoPersonId, $clusterIds);
+
+      if($clusterIds) {
+        $res = $this->CoEnrollmentFlow
+                    ->CoEnrollmentCluster
+                    ->Cluster
+                    ->assign($coPersonID, $actorCoPersonId, $clusterIds);
+      } else {
+        $res = array();
+      }
       
       if(!empty($res)) {
         // Create Petition History Records for any results of interest

@@ -123,7 +123,7 @@ class Cluster extends AppModel {
    * @throws InvalidArgumentException
    */
   
-  public function assign($coPersonId, $actorCoPersonId, $clusterId=null) {
+  public function assign($coPersonId, $actorCoPersonId, $clusterIds=null) {
     // Similar to Identifier::assign
     
     $ret = array();
@@ -140,9 +140,9 @@ class Cluster extends AppModel {
     $args = array();
     $args['conditions']['Cluster.co_id'] = $coId;
     $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
-    if($clusterId) {
-      // But only this cluster, if specified
-      $args['conditions']['Cluster.id'] = $clusterId;
+    if(!is_null($clusterIds)) {
+      // But only include these clusters, if specified
+      $args['conditions']['Cluster.id'] = $clusterIds;
     }
     $args['contain'] = false;
     
