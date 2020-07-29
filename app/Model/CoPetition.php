@@ -1114,7 +1114,7 @@ class CoPetition extends AppModel {
    * @param  Integer CO Person ID of the petitioner
    * @param  String  URL to redirect to after enrollment, decoded
    * @return Integer ID of newly created Petition
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function initialize($enrollmentFlowID, $coId, $petitionerId=null, $returnUrl=null) {
@@ -1168,7 +1168,7 @@ class CoPetition extends AppModel {
    * @param  Integer CO Person ID to link
    * @param  Integer CO Person ID of the petitioner
    * @return Boolean True on success
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function linkCoPerson($enrollmentFlowID, $coPetitionId, $coPersonId, $petitionerId) {
@@ -1216,7 +1216,7 @@ class CoPetition extends AppModel {
    * @param  Integer Org Identity ID to link
    * @param  Integer CO Person ID of the petitioner
    * @return Boolean True on success
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function linkOrgIdentity($enrollmentFlowID, $coPetitionId, $orgIdentityId, $petitionerId) {
