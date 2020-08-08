@@ -112,6 +112,8 @@ class CoEnrollmentFlowsController extends StandardController {
       
       $this->set('vv_avail_ois', $this->CoEnrollmentFlow->Co->OrgIdentitySource->find('all', $args));
       
+      $this->set('vv_avail_efw', $this->loadAvailablePlugins('enroller', 'simple'));
+
       // Provide a list of message templates
       $args = array();
       $args['conditions']['co_id'] = $this->cur_co['Co']['id'];

@@ -1732,6 +1732,36 @@
       <col>co_enrollment_attribute_default_id</col>
     </index>
   </table>
+  
+  <table name="co_enrollment_flow_wedges">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_enrollment_flow_wedge_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_flow_wedges(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="co_enrollment_flow_wedges_i1">
+      <col>co_enrollment_flow_id</col>
+    </index>
+    <index name="co_enrollment_flow_wedges_i2">
+      <col>co_enrollment_flow_wedge_id</col>
+    </index>
+  </table>
 
   <table name="co_enrollment_sources">
     <field name="id" type="I">

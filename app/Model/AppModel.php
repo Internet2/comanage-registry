@@ -976,6 +976,19 @@ class AppModel extends Model {
       if(!empty($srvr['Server']['co_id'])) {
         return $srvr['Server']['co_id'];
       }
+    } elseif(isset($this->validate['co_enrollment_flow_wedge_id'])) {
+      // As of v4.0.0, Enroller Plugins refer to an enrollment flow wedge,
+      // which in turn refer to an enrollment flow
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain']['CoEnrollmentFlowWedge'] = array('CoEnrollmentFlow');
+      
+      $efw = $this->find('first', $args);
+      
+      if(!empty($efw['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['co_id'])) {
+        return $efw['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['co_id'];
+      }
     } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
       // Extended attributes need to be handled specially, as usual, since there
       // are no explicit validation rules. Find the CO via the CO Person Role ID.
