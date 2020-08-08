@@ -31,7 +31,8 @@ class IdentifierEnrollerCoPetitionsController extends CoPetitionsController {
   // Class name, used by Cake
   public $name = "IdentifierEnrollerCoPetitions";
 
-  public $uses = array("CoPetition");
+  public $uses = array("CoPetition",
+                       "IdentifierEnroller.IdentifierEnroller");
   
   /**
    * Collect additional identifiers
@@ -43,24 +44,19 @@ class IdentifierEnrollerCoPetitionsController extends CoPetitionsController {
    */
   
   protected function execute_plugin_collectIdentifier($id, $onFinish) {
-    // First pull the EF attributes
+    // Pull our config to see if we have any identifiers to collect
     
-    $efId = $this->CoPetition->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+    $efwid = $this->viewVars['vv_efwid'];
     
     $args = array();
-    $args['conditions']['CoEnrollmentAttribute.co_enrollment_flow_id'] = $efId;
-    // Using NotPermitted allows us to leverage the existing configuration
-    // in a non-intrusive way
-    $args['conditions']['CoEnrollmentAttribute.required'] = RequiredEnum::NotPermitted;
-    $args['conditions']['CoEnrollmentAttribute.attribute LIKE'] = 'p:identifier:%';
-    $args['order'] = 'CoEnrollmentAttribute.ordr ASC';
-    $args['contain'] = false;
+    $args['conditions']['IdentifierEnroller.co_enrollment_flow_wedge_id'] = $efwid;
+    $args['contain'] = array('IdentifierEnrollerIdentifier');
     
-    $attrs = $this->CoPetition->CoEnrollmentFlow->CoEnrollmentAttribute->find('all', $args);
+    $identifiers = $this->IdentifierEnroller->find('first', $args);
     
-    if(!empty($attrs)) {
-      // We have some attributes, render a form
-      $this->set('vv_identifiers', $attrs);
+    if(!empty($identifiers['IdentifierEnrollerIdentifier'])) {
+      // We have some identifiers, render a form
+      $this->set('vv_identifiers', $identifiers['IdentifierEnrollerIdentifier']);
       
       if($this->request->is('post')) {
         // Post, process the request
@@ -80,19 +76,15 @@ class IdentifierEnrollerCoPetitionsController extends CoPetitionsController {
         
         $err = false;
         
-        foreach($attrs as $attr) {
-          // This should be of the form p:identifier:TYPE
-          $a = explode(':', $attr['CoEnrollmentAttribute']['attribute'], 3);
-          
-          if(!empty($a[2])
-             // For simplicity in form management, the identifiers are submitted under 'CoPetition'
-             && !empty($this->request->data['CoPetition'][ $attr['CoEnrollmentAttribute']['id'] ])) {
+        foreach($identifiers['IdentifierEnrollerIdentifier'] as $ie) {
+          // For simplicity in form management, the identifiers are submitted under 'CoPetition'
+          if(!empty($this->request->data['CoPetition'][ $ie['id'] ])) {
             // We have the type and the proposed identifier
             
             $identifier = array(
               'Identifier' => array(
-                'identifier'   => $this->request->data['CoPetition'][ $attr['CoEnrollmentAttribute']['id'] ],
-                'type'         => $a[2],
+                'identifier'   => $this->request->data['CoPetition'][ $ie['id'] ],
+                'type'         => $ie['identifier_type'],
                 'login'        => false,
                 'co_person_id' => $coPersonId,
                 'status'       => SuspendableStatusEnum::Active
@@ -107,8 +99,8 @@ class IdentifierEnrollerCoPetitionsController extends CoPetitionsController {
               $actorCoPersonId = $this->Session->read('Auth.User.co_person_id');
               
               $txt = _txt('pl.identifierenroller.selected',
-                          array($this->request->data['CoPetition'][ $attr['CoEnrollmentAttribute']['id'] ],
-                                $a[2]));
+                          array($this->request->data['CoPetition'][ $ie['id'] ],
+                                $ie['identifier_type']));
               
               $this->CoPetition->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
                                                                          null,

@@ -760,30 +760,36 @@ class CoPetitionsController extends StandardController {
       if(isset($this->request->params['named']['done'])) {
         // Run the next plugin, if applicable
         
-        $plugins = $this->loadAvailablePlugins('enroller', 'simple');
+        $args = array();
+        $args['conditions']['CoEnrollmentFlowWedge.co_enrollment_flow_id'] = $efId;
+        $args['conditions']['CoEnrollmentFlowWedge.status'] = SuspendableStatusEnum::Active;
+        $args['order'] = array('ordr' => 'asc');
         
-        // Make sure $plugins is in alphabetical order so we know which one to
-        // try next.
-        sort($plugins);
+        $wedges = $this->CoPetition
+                       ->CoEnrollmentFlow
+                       ->CoEnrollmentFlowWedge
+                       ->find('all', $args);
         
-        // If there is garbage in $done or if it's "core", array_search will return
-        // a zero/false index which will tell us to start from the first entry in
-        // $plugins.
-        $current = array_search($this->request->params['named']['done'], $plugins);
+        // Find the current plugin so we know which plugin is next.
+        // If there is no next plugin (or if garbage is injected into the url),
+        // we'll fall out of this if/else clause.
         
-        if(!is_integer($current)) {
-          $current = 0;
-        } else {
-          // Move to the next item
-          $current++;
+        $index = 0;
+        
+        for($i = 0;$i < count($wedges);$i++) {
+          if($this->request->params['named']['done'] == $wedges[$i]['CoEnrollmentFlowWedge']['id']) {
+            // We found a match, move to the next item
+            $index = $i+1;
+            break;
+          }
         }
         
-        for($i = $current;$i < count($plugins);$i++) {
+        if(!empty($wedges[$index])) {
           // Redirect to the plugin
           
           $redirect = array(
-            'plugin'     => Inflector::underscore($plugins[$i]),
-            'controller' => Inflector::underscore($plugins[$i]) . '_co_petitions',
+            'plugin'     => Inflector::underscore($wedges[$index]['CoEnrollmentFlowWedge']['plugin']),
+            'controller' => Inflector::underscore($wedges[$index]['CoEnrollmentFlowWedge']['plugin']) . '_co_petitions',
             'action'     => $step
           );
           
@@ -795,6 +801,9 @@ class CoPetitionsController extends StandardController {
           } else {
             $redirect['coef'] = $efId;
           }
+          
+          // Add the wedge ID so the plugin can pull its configuration
+          $redirect['efwid'] = $wedges[$index]['CoEnrollmentFlowWedge']['id'];
           
           // If there is a token attached to the petition, insert it into the URL
           $token = null;
@@ -815,7 +824,6 @@ class CoPetitionsController extends StandardController {
           }
           
           $this->redirect($redirect);
-          break;
         }
       } else {
         // Run the step. This will typically happen first, unless we're now in
@@ -827,8 +835,31 @@ class CoPetitionsController extends StandardController {
           $curPlugin = Inflector::classify($this->request->params['plugin']);
         }
         
+        $wedgeId = "core";
+        
+        if($this->request->is('get') && !empty($this->request->params['named']['efwid'])) {
+          $wedgeId = filter_var($this->request->params['named']['efwid'], FILTER_SANITIZE_SPECIAL_CHARS);
+        } elseif($this->request->is('post') && !empty($this->request->data['CoPetition']['co_enrollment_flow_wedge_id'])) {
+          $wedgeId = $this->request->data['CoPetition']['co_enrollment_flow_wedge_id'];
+        }
+        
+        if($wedgeId != "core") {
+          // Make sure that $wedgeId is attached to $efId
+          
+          $wefId = $this->CoPetition
+                        ->CoEnrollmentFlow
+                        ->CoEnrollmentFlowWedge
+                        ->field('co_enrollment_flow_id', array('CoEnrollmentFlowWedge.id' => $wedgeId));
+          
+          if(!$wefId || ($wefId != $efId)) {
+            throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flow_wedges.1', array($wedgeId)))));
+          }
+
+          $this->set('vv_efwid', $wedgeId);
+        }
+        
         // Generate hint URL for where to go when the step is completed
-        $onFinish = $this->generateDoneRedirect($step, $id, $curPlugin);
+        $onFinish = $this->generateDoneRedirect($step, $id, $wedgeId);
         $this->set('vv_on_finish_url', $onFinish);
         
         // Run the step
@@ -2094,12 +2125,12 @@ class CoPetitionsController extends StandardController {
    * @since  COmanage Registry v0.9.4
    * @param  String  $step        Current step
    * @param  Integer $id          CO Petition ID, if known
-   * @param  String  $curPlugin   Current plugin name, or null
-   * @param  String  $curPluginId Current plugin ID (for OIS plugins), or null
+   * @param  Integer $curWedgeId  Current enrollment flow wedge ID, or "core""
+   * @param  Integer $curPluginId Current plugin ID (for OIS plugins), or null
    * @return Array URL in Cake array format
    */
   
-  protected function generateDoneRedirect($step, $id=null, $curPlugin=null, $curPluginId=null) {
+  protected function generateDoneRedirect($step, $id=null, $curWedgeId="core", $curPluginId=null) {
     $ret = array(
       'plugin'     => null,
       'controller' => 'co_petitions',
@@ -2126,7 +2157,7 @@ class CoPetitionsController extends StandardController {
     if($curPluginId) {
       $ret['piddone'] = $curPluginId;
     } else {
-      $ret['done'] = ($curPlugin ? $curPlugin : 'core');
+      $ret['done'] = $curWedgeId;
     }
     
     return $ret;

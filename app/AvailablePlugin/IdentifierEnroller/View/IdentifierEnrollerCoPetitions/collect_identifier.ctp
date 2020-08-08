@@ -41,16 +41,18 @@
   if(!empty($vv_petition_token)) {
     print $this->Form->hidden('token', array('default' => $vv_petition_token));
   }
+  
+  print $this->Form->hidden('co_enrollment_flow_wedge_id', array('default' => $vv_efwid));
 ?>
 <ul id="select_identifiers" class="fields form-list form-list-admin">
   <?php foreach($vv_identifiers as $id): ?>
     <li>
       <div class="field-name">
         <div class="field-title">
-          <?php print $id['CoEnrollmentAttribute']['label']; ?>
+          <?php print $id['label']; ?>
           <span class="required">*</span>
         </div>
-        <div class="field-desc"><?php print $id['CoEnrollmentAttribute']['description']; ?></div>
+        <div class="field-desc"><?php print $id['description']; ?></div>
       </div>
       <div class="field-info">
         <?php
@@ -60,7 +62,7 @@
           $args['label'] = false;
           $args['required'] = true;
           
-          print $this->Form->input($id['CoEnrollmentAttribute']['id'], $args);
+          print $this->Form->input($id['id'], $args);
         ?>
       </div>
     </li>

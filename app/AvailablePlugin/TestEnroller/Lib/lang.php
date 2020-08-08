@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Identifier Enroller Plugin Language File
+ * COmanage Registry Test Enroller Plugin Language File
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v2.0.0
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -31,19 +31,15 @@ global $cm_lang, $cm_texts;
 // position as passed to _txt.  This can be used to process the arguments in
 // a different order than they were passed.
 
-$cm_identifier_enroller_texts['en_US'] = array(
+$cm_test_enroller_texts['en_US'] = array(
   // Titles, per-controller
-  'ct.identifier_enroller_identifiers.1'  => 'Identifier Enroller Identifier',
-  'ct.identifier_enroller_identifiers.pl' => 'Identifier Enroller Identifiers',
-  'ct.identifier_enrollers.1'             => 'Identifier Enroller',
-  'ct.identifier_enrollers.pl'            => 'Identifier Enrollers',
+  'ct.test_enrollers.1'  => 'Test Enroller',
+  'ct.test_enrollers.pl' => 'Test Enrollers',
   
   // Error messages
-//  'er.identifierenroller.read' => 'Cannot open source file "%1$s" for reading',
+//  'er.filesource.copy' => 'Failed to copy "%1$s" to "%2$s"',
   
   // Plugin texts
-  'pl.identifierenroller.description.desc' => 'Description rendered when requesting a value for this Identifier',
-  'pl.identifierenroller.idtype' =>   'Identifier Type',
-  'pl.identifierenroller.label.desc' => 'Label rendered when requesting a value for this Identifier',
-  'pl.identifierenroller.selected' => 'Identifier "%1$s" (%2$s) selected',
+  'pl.testenroller.test_start'                 => 'Test Start',
+  'pl.testenroller.test_petitioner_attributes' => 'Test Petitoner Attributes'
 );
