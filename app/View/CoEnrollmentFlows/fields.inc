@@ -213,6 +213,17 @@
     fields_update_gadgets();
     authn_update_gadgets();
     authz_update_gadgets();
+    theme_config_fields();
+  }
+
+  function theme_config_fields() {
+      const $eofCustomTheme = $('#CoEnrollmentFlowCoThemeId > option:selected').val();
+      if($eofCustomTheme != undefined
+          && $eofCustomTheme !== '') {
+          $('.eof-theme-stacking').show().fadeIn('slow','swing');
+      } else {
+          $('.eof-theme-stacking').hide().fadeOut('slow','swing');
+      }
   }
 </script>
 <ul id="<?php print $this->action; ?>_co_enrollment_configuration" class="fields form-list form-list-admin">
@@ -1060,6 +1071,7 @@
         $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id'])
                            ? $co_enrollment_flows[0]['CoEnrollmentFlow']['co_theme_id']
                            : null);
+        $attrs['onchange'] = 'theme_config_fields()';
         $attrs['empty'] = true;
 
         if($e) {
@@ -1075,8 +1087,34 @@
         }
       ?>
     </div>
+    <ul class="field-children">
+      <li class="eof-theme-stacking">
+          <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('theme_stacking',_txt('fd.theme.stacking_status')) : _txt('fd.theme.stacking_status')); ?>
+              </div>
+          </div>
+          <div class="field-info">
+            <?php
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['theme_stacking'] : SuspendableStatusEnum::Active);
+            $attrs['empty'] = false;
+            if($e) {
+              print $this->Form->select('theme_stacking',
+                                        SuspendableStatusEnum::$to_api,
+                                        $attrs);
+              if($this->Form->isFieldError('theme_stacking')) {
+                print $this->Form->error('theme_stacking');
+              }
+            } else {
+              print _txt('en.status.susp', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['theme_stacking']);
+            }
+            ?>
+          </div>
+      </li>
+    </ul>
   </li>
-    
+
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name"></div>

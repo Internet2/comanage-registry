@@ -1739,6 +1739,7 @@ original notification at
   'fd.th.hide_title' => 'Hide Title',
   'fd.th.hide_footer_logo' => 'Hide Footer Logo',
   'fd.theme' =>       'Theme',
+  'fd.theme.stacking_status' => 'Inheritance/Stacking',
   'fd.timestamp' =>   'Timestamp',
   'fd.timestamp.tz' => 'Timestamp (%1$s)',
   'fd.title' =>       'Title',
