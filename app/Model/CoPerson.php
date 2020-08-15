@@ -275,6 +275,11 @@ class CoPerson extends AppModel {
    * @return void
    */
 	protected function deleteDependent($id) {
+    // Manually trigger beforeDelete. AppModel::delete overrides standard
+    // delete but doesn't trigger beforeDelete. That might be a bigger issue,
+    // and maybe one to figure out as part of framework migration.
+    $this->beforeDelete(true);
+
 		if (!empty($this->__backAssociation)) {
 			$savedAssociations = $this->__backAssociation;
 			$this->__backAssociation = array();
