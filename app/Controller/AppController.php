@@ -589,7 +589,9 @@ class AppController extends Controller {
     $model = $this->$req;
 
     $rc = 0;
-    $redirect = array();
+    $redirect = array(
+      'plugin' => null
+    );
     
     // Find a person
     $pids = $this->parsePersonID($data);
