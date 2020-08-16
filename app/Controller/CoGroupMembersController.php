@@ -32,13 +32,8 @@ class CoGroupMembersController extends StandardController {
   public $name = "CoGroupMembers";
   
   // Establish pagination parameters for HTML views
-  // CO-1549 group ensures that search results don't return
-  //   duplicates when user has more than one name
   public $paginate = array(
     'limit' => 25,
-    'group' => array(
-      'CoPerson.id', 'PrimaryName.id'
-    ),
     'order' => array(
       'PrimaryName.family' => 'asc',
       'PrimaryName.given' => 'asc'
@@ -656,8 +651,6 @@ class CoGroupMembersController extends StandardController {
       'PrimaryName'
     );
 
-    $this->Paginator->settings['conditions']['PrimaryName.primary_name'] = true;
-    
     $coPeople = $this->Paginator->paginate('CoPerson');
 
     $this->set('co_people', $coPeople);
