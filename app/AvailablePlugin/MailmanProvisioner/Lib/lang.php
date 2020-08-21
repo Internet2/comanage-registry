@@ -43,6 +43,7 @@ $cm_mailman_provisioner_texts['en_US'] = array(
   ),
   
   // Error messages
+  'er.mailmanprovisioner.api.none'      => 'Unable to connect to the API server',
   'er.mailmanprovisioner.listid.none'   => 'Mailman List ID for CO Email List %1$s not found',
   'er.mailmanprovisioner.pref.none'     => 'Unable to find a preferred email address',
   //'er.mailmanprovisioner.list'          => 'Failed to create or update list: %1$s',
