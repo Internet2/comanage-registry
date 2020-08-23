@@ -184,6 +184,18 @@
         );
       }
       
+      if($permissions['iddocuments']) {
+        $sidebarButtons[] = array(
+          'icon'    => 'document',
+          'title'   => _txt('ct.identity_documents.pl'),
+          'url'     => array(
+            'controller' => 'identity_documents',
+            'action'     => 'index',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
       if($vv_enable_nsf_demo) {
         // Adjust the link to the NSF Demographics Controller according to whether or
         // not data has been set.

@@ -38,6 +38,9 @@ class DictionaryEntry extends AppModel {
   // Default display field for cake generated views
   public $displayField = "value";
   
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
+  
   // Validation rules for table elements
   public $validate = array(
     'dictionary_id' => array(

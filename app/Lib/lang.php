@@ -176,6 +176,8 @@ $cm_texts['en_US'] = array(
   'ct.http_servers.pl' =>       'HTTP Servers',
   'ct.identifiers.1' =>         'Identifier',
   'ct.identifiers.pl' =>        'Identifiers',
+  'ct.identity_documents.1' =>  'Identity Document',
+  'ct.identity_documents.pl' => 'Identity Documents',
   'ct.ldap_servers.1' =>        'LDAP Server',
   'ct.ldap_servers.pl' =>       'LDAP Servers',
   'ct.match_servers.1' =>       'Match Server',
@@ -333,6 +335,9 @@ original notification at
     ActionEnum::ExpirationPolicyMatched     => 'Expiration Policy Matched',
     ActionEnum::HistoryRecordActorExpunged  => 'History Record Actor Expunged',
     ActionEnum::IdentifierAutoAssigned      => 'Identifier Auto Assigned',
+    ActionEnum::IdentityDocumentAdded       => 'Identity Document Added',
+    ActionEnum::IdentityDocumentEdited      => 'Identity Document Edited',
+    ActionEnum::IdentityDocumentDeleted     => 'Identity Document Deleted',
     ActionEnum::InvitationConfirmed         => 'Invitation Confirmed',
     ActionEnum::InvitationDeclined          => 'Invitation Declined',
     ActionEnum::InvitationExpired           => 'Invitation Expired',
@@ -371,6 +376,7 @@ original notification at
     PetitionActionEnum::Finalized           => 'Petition Finalized',
     PetitionActionEnum::FlaggedDuplicate    => 'Petition Flagged as Duplicate',
     PetitionActionEnum::IdentifiersAssigned => 'Identifiers Assigned',
+    PetitionActionEnum::IdentityDocumentAdded => 'Identity Document Added',
     PetitionActionEnum::IdentityLinked      => 'Identity Linked',
     PetitionActionEnum::IdentityNotLinked   => 'Identity Not Linked',
     PetitionActionEnum::IdentityRelinked    => 'Identity Relinked',
@@ -546,6 +552,27 @@ original notification at
     IdentifierAssignmentContextEnum::CoPerson     => 'CO Person'
   ),
 
+  'en.id.type' => array(
+    IdentityDocumentEnum::BirthCertificate  => 'Birth Certificate',
+    IdentityDocumentEnum::DriversLicense    => 'Driver\'s License',
+    IdentityDocumentEnum::Local             => 'Local Identity Card',
+    IdentityDocumentEnum::National          => 'National Identity Card',
+    IdentityDocumentEnum::NonDriver         => 'Non-Driver Identity Card',
+    IdentityDocumentEnum::Passport          => 'Passport',
+    IdentityDocumentEnum::Regional          => 'Regional Identity Card',
+    IdentityDocumentEnum::Residency         => 'Residency Card',
+    IdentityDocumentEnum::SelfAssertion     => 'Self Assertion',
+    IdentityDocumentEnum::Tribal            => 'Tribal Identity Card',
+    IdentityDocumentEnum::Visa              => 'Visa'
+  ),
+  
+  'en.id.verification' => array(
+    IdentityVerificationMethodEnum::None      => 'None',
+    IdentityVerificationMethodEnum::Online    => 'Online',
+    IdentityVerificationMethodEnum::Physical  => 'Physical',
+    IdentityVerificationMethodEnum::Remote    => 'Remote'
+  ),
+  
   // Extended type, key must be en.model.attribute
   'en.identifier.type' =>  array(IdentifierEnum::Badge => 'Badge',
                                  IdentifierEnum::Enterprise => 'Enterprise',
@@ -881,6 +908,7 @@ original notification at
   
   // Errors
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
+  'er.ae.value' =>    'Value not permitted by Attribute Enumeration (%1$s)',
   'er.archived' =>    'This record is already archived and cannot be edited',
   'er.api.username.prefix' => 'API username must begin with "%1$s"',
   'er.auth' =>        'Not authenticated',
@@ -1107,7 +1135,8 @@ original notification at
   'fd.address.state' => 'State',
   'fd.address.fields.req' => 'An address must consist of at least these fields:',
   'fd.admin' =>       'Administrator',
-  'fd.ae.optvalue.desc' => 'Permitted value for this attribute',
+  'fd.ae.allow_other' => 'Allow Other Values',
+  'fd.ae.allow_other.desc' => 'If enabled, a free form field will be made available in addition to the select list',
   'fd.affil-a' =>     '%1$s Affiliation',
   'fd.affiliation' => 'Affiliation',
   'fd.affiliation.ep' => 'eduPersonAffiliation',
@@ -1393,6 +1422,16 @@ original notification at
   'fd.identifier.login' => 'Login',
   'fd.identifier.login.desc' =>  'Allow this identifier to login to Registry',
   'fd.identifier.ids.login' => 'Login Identifiers',
+  'fd.identity_documents.document_identifier' => 'Document Identifier',
+  'fd.identity_documents.document_identifier.desc' => 'The document identifier, such as Passport Number',
+  'fd.identity_documents.document_subtype' => 'Document Sub-Type',
+  'fd.identity_documents.document_subtype.desc' => 'Additional document type information if needed, such as Visa Class',
+  'fd.identity_documents.document_type' => 'Document Type',
+  'fd.identity_documents.issuing_authority' => 'Issuing Authority',
+  'fd.identity_documents.subject' => 'Subject',
+  'fd.identity_documents.subject.desc' => 'The subject (CO Person) name on the Identity Document',
+  'fd.identity_documents.verification_method' => 'Verification Method',
+  'fd.identity_documents.verifier_identifier' => 'Verifier Identifier',
   'fd.ids' =>         'Identifiers',
   'fd.inactive' =>    'Inactive',
   'fd.index' =>       'Index',
@@ -2222,7 +2261,8 @@ original notification at
   'sh.ug.330.ssh' =>      'Instantiating SSH Key Authenticators',
   'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
   'sh.ug.330.users' =>    'Dropping users View',
-  'sh.ug.340.password' => 'Updating Password Sources'
+  'sh.ug.340.password' => 'Updating Password Sources',
+  'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

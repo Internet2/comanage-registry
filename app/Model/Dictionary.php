@@ -39,6 +39,9 @@ class Dictionary extends AppModel {
   // Default display field for cake generated views
   public $displayField = "description";
   
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
+  
   // Validation rules for table elements
   public $validate = array(
     'co_id' => array(

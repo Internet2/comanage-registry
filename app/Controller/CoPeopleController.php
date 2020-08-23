@@ -761,6 +761,11 @@ class CoPeopleController extends StandardController {
     // (ie: for group member picking, but maybe that's an RFE as part of CCWG-9?)
     $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'];
     
+    // Manage Identity Documents
+    $p['iddocuments'] = ($roles['cmadmin']
+                         || $roles['coadmin']
+                         || ($managed && $roles['couadmin']));
+    
     // View identifiers? This correlates with IdentifiersController
     $p['identifiers'] = ($roles['cmadmin']
                          || $roles['coadmin']

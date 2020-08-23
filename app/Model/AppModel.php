@@ -1300,7 +1300,9 @@ class AppModel extends Model {
   
   public function updateValidationRules($coId = null) {
     $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
-    
+
+    // Note this call is only used by Enrollment Flow/Petition code, so for now we don't
+    // support allow_other (CO-2012)
     $enumAttrs = $AttributeEnumeration->supportedAttrs();
     
     // Walk through the list of attributes supported for enumeration to see if any
@@ -1311,14 +1313,36 @@ class AppModel extends Model {
       if($a[0] == $this->name) {
         // Model is a match. See if there are any defined enums.
         
-        $enums = $AttributeEnumeration->active($coId, $attr, 'validation');
+        $cfg = $AttributeEnumeration->enumerations($coId, $attr);
         
-        if(!empty($enums)) {
-          // Enumerations defined, update the validation rule
-          $this->validate[ $a[1] ]['content']['rule'] = $enums;
+        if($cfg && !$cfg['allow_other']) {
+          // Enumerations defined (and allow other is false), update the validation rule
+          $this->validate[ $a[1] ]['content']['rule'] = array(
+            'inList',
+            $cfg['dictionary']
+          );
         }
       }
     }
+    
+    return true;
+  }
+  
+  /**
+   * Determine is a given value is valid for an Attribute Enumeration.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, in Model.attribute form
+   * @param  string  $value     Value to validate
+   * @return boolean            True on success
+   * @throws InvalidArgumentException
+   */
+
+  public function validateEnumeration($coId, $attribute, $value) {
+    $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
+    
+    $AttributeEnumeration->isValid($coId, $attribute, $value);
     
     return true;
   }

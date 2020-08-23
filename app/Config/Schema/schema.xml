@@ -116,9 +116,18 @@
     <field name="description" type="C" size="128" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="dictionary_id" type="I">
+      <constraint>REFERENCES cm_dictionaries(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="dictionaries_i1">
       <col>co_id</col>
+    </index>
+    <index name="dictionaries_i2">
+      <col>dictionary_id</col>
     </index>
   </table>
   
@@ -135,9 +144,18 @@
     <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="dictionary_entry_id" type="I">
+      <constraint>REFERENCES cm_dictionary_entries(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="dictionary_entries_i1">
       <col>dictionary_id</col>
+    </index>
+    <index name="dictionary_entries_i2">
+      <col>dictionary_entry_id</col>
     </index>
   </table>
   
@@ -152,9 +170,15 @@
     <field name="attribute" type="C" size="80">
       <notnull />
     </field>
-    <!-- "option" is a reserved keyword in MySQL -->
+    <!-- As of v4.0.0, optvalue is no longer used, but we leave it in place
+         for archival purposes. (Transmogrification will eventually drop it.)
+    -->
     <field name="optvalue" type="C" size="128" />
     <field name="status" type="C" size="2" />
+    <field name="dictionary_id" type="I">
+      <constraint>REFERENCES cm_dictionaries(id)</constraint>
+    </field>
+    <field name="allow_other" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="attribute_enumeration_id" type="I">
@@ -2444,6 +2468,42 @@
     
     <index name="co_t_and_c_agreements_i2">
       <col>co_person_id</col>
+    </index>
+  </table>
+  
+  <table name="identity_documents">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="document_type" type="C" size="2" />
+    <field name="document_subtype" type="C" size="80" />
+    <field name="issuing_authority" type="C" size="80" />
+    <field name="subject" type="C" size="80" />
+    <field name="document_identifier" type="C" size="80" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <field name="verification_method" type="C" size="2" />
+    <field name="verifier_identifier" type="C" size="256" />
+    <field name="verifier_comment" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="identity_document_id" type="I">
+      <constraint>REFERENCES cm_identity_documents(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="identity_documents_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="identity_documents_i2">
+      <col>identity_document_id</col>
     </index>
   </table>
   
