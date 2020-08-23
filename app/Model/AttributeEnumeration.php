@@ -33,10 +33,10 @@ class AttributeEnumeration extends AppModel {
   public $version = "1.0";
   
   // Association rules from this model to other models
-  public $belongsTo = array('Co');
+  public $belongsTo = array('Co', 'Dictionary');
   
   // Default display field for cake generated views
-  public $displayField = "optvalue";
+  public $displayField = "attribute";
   
   public $actsAs = array('Containable',
                          'Changelog' => array('priority' => 5));
@@ -44,32 +44,41 @@ class AttributeEnumeration extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'co_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'attribute' => array(
-      // Also need to add to supportedAttrs(), below
-      'rule' => array('inList', array('CoPersonRole.title',
-                                      'CoPersonRole.o',
-                                      'CoPersonRole.ou',
-                                      'OrgIdentity.title',
-                                      'OrgIdentity.o',
-                                      'OrgIdentity.ou')),
-      'required' => true,
-      'message' => 'A supported attribute must be provided'
+      // This should really track the list from supportedAttrs()
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
-    'optvalue' => array(
-      // optvalue is not required so blank options (ie: "") can be defined
-      'rule' => array('maxLength', 128),
-      'required' => false,
-      'allowEmpty' => true
+    'dictionary_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
+    'allow_other' => array(
+      'content' => array(
+        'rule' => array('boolean'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'status' => array(
-      'rule' => array('inList', array(SuspendableStatusEnum::Active,
-                                      SuspendableStatusEnum::Suspended)),
-      'required' => true,
-      'message' => 'A valid status must be selected'
+      'content' => array(
+        'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                        SuspendableStatusEnum::Suspended)),
+        'required' => true,
+        'allowEmpty' => false
+      )
     )
   );
   
@@ -80,94 +89,135 @@ class AttributeEnumeration extends AppModel {
   );
   
   /**
-   * Determine if there are any defined, active enumerations for a specific attribute.
-   *
-   * @since  COmanage Registry v2.0.0
-   * @param  Integer CO ID (or null for CMP level attributes)
-   * @param  String Attribute, of the form Model.attribute (or null for all)
-   * @param  String Format ('all' or 'list', as for Cake find, or 'validation' to return as a validation rule)
-   * @param  Boolean True if org identities are pooled and org identity enumerations should also be retrieved, false otherwise
-   * @return Array Formatted as requested
-   */
-  
-  public function active($coId, $attribute, $format='list', $pooled=false) {
-    $args = array();
-    if($coId && $pooled) {
-      // Very specific syntax required to pull CO ID of a specific value OR null
-      $args['conditions']['OR'] = array(
-        array('AttributeEnumeration.co_id' => $coId),
-        array('AttributeEnumeration.co_id' => null)
-      );
-    } else {
-      $args['conditions']['AttributeEnumeration.co_id'] = $coId;
-    }
-    if($attribute) {
-      $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
-    }
-    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
-    $args['order'][] = 'AttributeEnumeration.optvalue';
-    
-    if($format == 'list' || $format == 'validation') {
-      // When generating selects, we need the key and the value to both be the selectable option
-      $args['fields'] = array('AttributeEnumeration.optvalue',
-                              'AttributeEnumeration.optvalue');
-      
-      if(!$attribute) {
-        // Group by attribute
-        $args['fields'][] = 'AttributeEnumeration.attribute';
-      }
-    }
-    
-    $enums = $this->find(($format == 'validation' ? 'list' : $format), $args);
-    
-    if($format == 'validation') {
-      $ret = array();
-      
-      if(!empty($enums)) {
-        $ret[] = 'inList';
-        $ret[] = array_values($enums);
-      }
-      
-      return $ret;
-    } else {
-      return $enums;
-    }
-  }
-  
-  /**
    * Actions to take before a save operation is executed.
    *
    * @since  COmanage Registry v2.0.0
+   * @throws InvalidArgumentException
    */
   
   public function beforeSave($options = array()) {
-    // We temporarily load NormalizationBehavior so we can normalize the enumerations
-    // before saving (assuming normalizations are enabled). We do this so that
-    // the enumeration value matches the actual value saved (since the operational
-    // record save would normalize the selected value, which would then no longer
-    // match the configured option).
+    // Make sure there isn't already an entry for co_id+attribute. We only need
+    // to do this on add
     
-    $this->Behaviors->load('Normalization');
-    
-    // We need to restructure the data to fit what Normalizers expect
-    $data = array();
-    
-    $a = explode('.', $this->data['AttributeEnumeration']['attribute'], 2);
-    $data[ $a[0] ][ $a[1] ] = $this->data['AttributeEnumeration']['optvalue'];
-    
-    if(!empty($this->data['AttributeEnumeration']['co_id'])) {
-      $newdata = $this->normalize($data, $this->data['AttributeEnumeration']['co_id']);
-    } else {
-      // Normalizations not currently supported for org identity data (CO-1172)
-      $newdata = $data;
+    if(empty($this->data['AttributeEnumeration']['id'])
+       && !empty($this->data['AttributeEnumeration']['co_id'])
+       && !empty($this->data['AttributeEnumeration']['attribute'])) {
+      $args = array();
+      $args['conditions']['AttributeEnumeration.co_id'] = $this->data['AttributeEnumeration']['co_id'];
+      $args['conditions']['AttributeEnumeration.attribute'] = $this->data['AttributeEnumeration']['attribute'];
+      
+      if($this->find('count', $args) > 0) {
+        throw new InvalidArgumentException(_txt('er.ae.defined', array($this->data['AttributeEnumeration']['attribute'])));
+      }
     }
     
-    // Now that we have a result, copy it back into the record we want to save
-    $this->data['AttributeEnumeration']['optvalue'] = $newdata[ $a[0] ][ $a[1] ];
-    
-    $this->Behaviors->unload('Normalization');
-    
     return true;
+  }
+  
+  /**
+   * Determine the available enumeration values for a given attribute.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, of the form Model.attribute
+   * @return array              Array of AttributeEnumeration configuration
+   */
+  
+  public function enumerations($coId, $attribute) {
+    $args = array();
+    $args['conditions']['AttributeEnumeration.co_id'] = $coId;
+    $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $cfg = $this->find('first', $args);
+    
+    if(empty($cfg) || empty($cfg['AttributeEnumeration']['dictionary_id'])) {
+      return false;
+    }
+    
+    $ret = array(
+      'allow_other' => $cfg['AttributeEnumeration']['allow_other']
+    );
+    
+    $args = array();
+    $args['conditions']['DictionaryEntry.dictionary_id'] = $cfg['AttributeEnumeration']['dictionary_id'];
+    $args['order'] = array('DictionaryEntry.ordr', 'DictionaryEntry.value');
+    $args['contain'] = false;
+    
+    // Because code is optional, we can't use find('list'). We also have to manually
+    // build the array to return.
+    
+    $ret['dictionary'] = array();
+    $ret['coded'] = false;
+    
+    $dict = $this->Co->Dictionary->DictionaryEntry->find('all', $args);
+    
+    foreach($dict as $d) {
+      if(!empty($d['DictionaryEntry']['code'])) {
+        $ret['dictionary'][ $d['DictionaryEntry']['code'] ] = $d['DictionaryEntry']['value'];
+        // If any entry is coded, we treat the whole dictionary as coded
+        $ret['coded'] = true;
+      } else {
+        $ret['dictionary'][] = $d['DictionaryEntry']['value'];
+      }
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Determine if a given value is valid for the specified attribute.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, of the form Model.attribute
+   * @param  string  $value     Value to test
+   * @return boolean            True if $value is valid for $attribute
+   * @throws InvalidArgumentException
+   */
+
+  public function isValid($coId, $attribute, $value) {
+    // First, see if there is an enumeration defined for $coId + $attribute.
+    
+    $args = array();
+    $args['conditions']['AttributeEnumeration.co_id'] = $coId;
+    $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $attrEnum = $this->find('first', $args);
+    
+    // If there is no configuration, or there is no dictionary attached to the
+    // configuration, or the configuration allows other values then $value is
+    // always accepted.
+    
+    if(empty($attrEnum)
+       || empty($attrEnum['AttributeEnumeration']['dictionary_id'])
+       || (isset($attrEnum['AttributeEnumeration']['allow_other']) 
+           && $attrEnum['AttributeEnumeration']['allow_other'])) {
+      return true;
+    }
+    
+    // Make sure $value is valid. This is slightly tricky because $value could
+    // be a code or a value, but we only want to consider value when code is
+    // empty. Note these checks are intentionally case sensitive, since they
+    // should come from a prepopulated list and match exactly.
+    
+    $args = array();
+    $args['conditions']['DictionaryEntry.dictionary_id'] = $attrEnum['AttributeEnumeration']['dictionary_id'];
+    $args['conditions']['OR'][] = array('DictionaryEntry.code' => $value);
+    $args['conditions']['OR'][] = array(
+      'DictionaryEntry.code' => null,
+      'DictionaryEntry.value' => $value
+    );
+    
+    if($this->Dictionary->DictionaryEntry->find('count', $args) > 0) {
+      // Row found, entry is permitted
+      return true;
+    }
+    
+    throw new InvalidArgumentException(_txt('er.ae.value', array($attribute)));
   }
   
   /**
@@ -187,6 +237,13 @@ class AttributeEnumeration extends AppModel {
       $ret['CoPersonRole.title'] = _txt('fd.title') . " (" . _txt('ct.co_person_roles.1') . ")";
       $ret['CoPersonRole.o'] = _txt('fd.o') . " (" . _txt('ct.co_person_roles.1') . ")";
       $ret['CoPersonRole.ou'] = _txt('fd.ou') . " (" . _txt('ct.co_person_roles.1') . ")";
+      
+      // Create an attribute for each Identity Document Type for each supported field
+      $reflectionClass = new ReflectionClass('IdentityDocumentEnum');
+      
+      foreach($reflectionClass->getConstants() as $label => $key) {
+        $ret['IdentityDocument.issuing_authority.'.$key] = _txt('fd.identity_documents.issuing_authority') . " (" . _txt('ct.identity_documents.1') . "," . $label . ")";
+      }
     }
     
     if(!$pooled || $orgOnly) {
@@ -198,6 +255,99 @@ class AttributeEnumeration extends AppModel {
       $ret['OrgIdentity.ou'] = _txt('fd.ou') . " (" . _txt('ct.org_identities.1') . ")";
     }
     
+    asort($ret);
+
     return $ret;
   }
+  
+  /**
+   * Perform AttributeEnumeration model upgrade steps for version 4.0.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+  
+  public function _ug400() {
+    // Pull the current Attribute Enumerations so they can be converted to use
+    // Dictionaries. We'll create one Dictionary for each co_id+attribute
+    // combination (but only "Active" records).
+    
+    $args = array();
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    // In general, dictionary_id should always be null, but on testing instances
+    // we may have a dictionary already set.
+    $args['conditions']['AttributeEnumeration.dictionary_id'] = null;
+    $args['contain'] = false;
+    
+    $attrEnums = $this->find('all', $args); 
+    
+    // Walk the results (which could be completely empty) and construct a hash
+    // for subsequent output purposes.
+    
+    $todo = array();
+    
+    if(!empty($attrEnums)) {
+      foreach($attrEnums as $ae) {
+        // Key on co_id then attribute
+        $todo[ $ae['AttributeEnumeration']['co_id'] ][ $ae['AttributeEnumeration']['attribute'] ][] = $ae['AttributeEnumeration']['optvalue'];
+      }
+    }
+    
+    if(!empty($todo)) {
+      foreach(array_keys($todo) as $coId) {
+        foreach(array_keys($todo[$coId]) as $attr) {
+          // Create a Dictionary and populate it
+          
+          $dict = array(
+            'co_id'       => $coId,
+            'description' => $attr . " Dictionary"
+          );
+          
+          $this->Dictionary->clear();
+          $this->Dictionary->save($dict);
+          
+          $dictId = $this->Dictionary->id;
+          $values = array();
+          
+          if(!empty($todo[$coId][$attr])) {
+            foreach($todo[$coId][$attr] as $value) {
+              $values[] = array(
+                'dictionary_id' => $dictId,
+                'value'         => $value
+              );
+            }
+            
+            $this->Dictionary->DictionaryEntry->clear();
+            $this->Dictionary->DictionaryEntry->saveMany($values);
+          }
+          
+          // Drop any old style Attribute Enumerations
+          
+          $this->deleteAll(
+            array(
+              'AttributeEnumeration.co_id' => $coId,
+              'AttributeEnumeration.attribute' => $attr
+            ),
+            false,
+            // We run callbacks so we keep the rows via changelog...
+            // this will generate extra SQL queries, but we won't do this often
+            true
+          );
+          
+          // Insert a new entry attached to this dictionary
+          
+          $newEnum = array(
+            'co_id'         => $coId,
+            'attribute'     => $attr,
+            'status'        => SuspendableStatusEnum::Active,
+            'dictionary_id' => $dictId,
+            'allow_other'   => false
+          );
+          
+          $this->clear();
+          $this->save($newEnum);
+        }
+      }
+    }
+  }  
 }

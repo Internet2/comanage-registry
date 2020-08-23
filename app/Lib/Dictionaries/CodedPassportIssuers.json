@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Passport Issuers with ISO 3166-3 Codes",
   "source": "https://en.wikipedia.org/wiki/List_of_passports, https://www.passportindex.org, and https://www.iso.org/iso-3166-country-codes.html",
-  "description": "Passport issuing authorities that also have an ISO 3166 Aplha-3 Country Code assigned",
+  "description": "Passport issuing authorities that also have an ISO 3166 Alpha-3 Country Code assigned",
   "dictionary": [
     { "code": "AFG", "value": "Afghanistan" },
     { "code": "ALB", "value": "Albania" },

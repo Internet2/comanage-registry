@@ -3132,7 +3132,7 @@ class CoPetition extends AppModel {
       // Dynamically adjust validation rules according to the enrollment flow
       $this->adjustValidationRules($pmodel, $efAttrs);
       
-      // Manually validate OrgIdentity
+      // Manually validate data
       $this->$pmodel->set($ret);
       
       // Make sure to use invalidFields(), which won't try to validate (possibly

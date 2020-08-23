@@ -166,19 +166,28 @@ class CoEnrollmentAttributesController extends StandardController {
           $this->set('vv_ef_id', $this->CoEnrollmentAttribute->CoEnrollmentFlow->id);
           
           // Determine attribute enumerations
-          $enums = $this->AttributeEnumeration->active($this->viewVars['vv_coid'],
-                                                       null,
-                                                       'list',
-                                                       $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
           
-          // We need to rekey $enums from general format (eg) "OrgIdentity.o" to
-          // Enrollment Attribute format (eg) "o:o"
+          $supportedAttrEnums = array(
+            'CoPersonRole.o',
+            'CoPersonRole.ou',
+            'CoPersonRole.title',
+            'OrgIdentity.o',
+            'OrgIdentity.ou',
+            'OrgIdentity.title'
+          );
           
-          if(!empty($enums)) {
-            foreach($enums as $attr => $enum) {
+          $enums = array();
+          
+          foreach($supportedAttrEnums as $attr) {
+            $cfg = $this->AttributeEnumeration->enumerations($this->viewVars['vv_coid'], $attr);
+            
+            // XXX CO-2012 for now we don't support "allow_other"
+            if($cfg) {
+              // We need to rekey from general format (eg) "OrgIdentity.o" to
+              // Enrollment Attribute format (eg) "o:o"
               $a = explode('.', $attr, 2);
               $code = "";
-              
+
               switch($a[0]) {
                 case 'CoPersonRole':
                   $code = 'r';
@@ -190,9 +199,8 @@ class CoEnrollmentAttributesController extends StandardController {
                   throw new LogicException(_txt('er.notimpl'));
                   break;
               }
-              
-              $enums[ $code.":".$a[1] ] = $enum;
-              unset($enums[$attr]);
+
+              $enums[ $code.":".$a[1] ] = $cfg['dictionary'];
             }
           }
           

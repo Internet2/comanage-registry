@@ -32,5 +32,6 @@
     <h1>
       <?php print filter_var($title,FILTER_SANITIZE_SPECIAL_CHARS); ?>
     </h1>
+    <?php if(!empty($subtitle)) { print filter_var($subtitle,FILTER_SANITIZE_SPECIAL_CHARS); } ?>
   </div>
 </div>

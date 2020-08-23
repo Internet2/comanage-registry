@@ -221,14 +221,27 @@ class CoPersonRolesController extends StandardController {
     
     $coId = $this->cur_co['Co']['id'];
     
-    $enums_o = $this->AttributeEnumeration->active($coId, "CoPersonRole.o");
-    $this->set('vv_enums_o', $enums_o);
+    $enums = array();
     
-    $enums_ou = $this->AttributeEnumeration->active($coId, "CoPersonRole.ou");
-    $this->set('vv_enums_ou', $enums_ou);
+    $enums_o = $this->AttributeEnumeration->enumerations($coId, "CoPersonRole.o");
     
-    $enums_title = $this->AttributeEnumeration->active($coId, "CoPersonRole.title");
-    $this->set('vv_enums_title', $enums_title);
+    if(!empty($enums_o)) {
+      $enums['CoPersonRole.o'] = $enums_o;
+    }
+    
+    $enums_ou = $this->AttributeEnumeration->enumerations($coId, "CoPersonRole.ou");
+    
+    if(!empty($enums_ou)) {
+      $enums['CoPersonRole.ou'] = $enums_ou;
+    }
+    
+    $enums_title = $this->AttributeEnumeration->enumerations($coId, "CoPersonRole.title");
+    
+    if(!empty($enums_title)) {
+      $enums['CoPersonRole.title'] = $enums_title;
+    }
+    
+    $this->set('vv_enums', $enums);
     
     if(!empty($this->viewVars['vv_tz'])) {
       // Set the current timezone, primarily for beforeSave

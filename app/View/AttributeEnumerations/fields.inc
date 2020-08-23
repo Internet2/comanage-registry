@@ -69,7 +69,7 @@
           $attrs['value'] = (isset($attribute_enumerations)
                              ? $attribute_enumerations[0]['AttributeEnumeration']['attribute']
                              : null);
-          $attrs['empty'] = false;
+          $attrs['empty'] = true;
           
           print $this->Form->select('attribute',
                                     $vv_supported_attrs,
@@ -88,14 +88,47 @@
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title"><?php print _txt('fd.value'); ?></div>
-      <div class="field-desc"><?php print _txt('fd.ae.optvalue.desc'); ?></div>
+      <div class="field-title">
+        <?php print _txt('ct.dictionaries.1'); ?><span class="required">*</span>
+      </div>
     </div>
     <div class="field-info">
-      <?php print ($e ?
-                   $this->Form->input('optvalue', array('class' => 'focusFirst', 'size' => 60))
-                   : filter_var($attribute_enumerations[0]['AttributeEnumeration']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php
+        if($e) {
+          $attrs = array();
+          $attrs['value'] = (isset($attribute_enumerations)
+                             ? $attribute_enumerations[0]['AttributeEnumeration']['dictionary_id']
+                             : null);
+          $attrs['empty'] = true;
+          
+          print $this->Form->select('dictionary_id',
+                                    $vv_available_dictionaries,
+                                    $attrs);
+          
+          if($this->Form->isFieldError('dictionary_id')) {
+            print $this->Form->error('dictionary_id');
+          }
+        } else {
+          if(!empty($attribute_enumerations[0]['AttributeEnumeration']['dictionary_id'])) {
+            print $vv_available_dictionaries[ $attribute_enumerations[0]['AttributeEnumeration']['dictionary_id'] ];
+          }
+        }
+      ?>
     </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.ae.allow_other'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.ae.allow_other.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('allow_other')
+                   : (isset($attribute_enumerations[0]['AttributeEnumeration']['allow_other'])
+                      && $attribute_enumerations[0]['AttributeEnumeration']['allow_other']
+                      ? _txt('fd.yes') : _txt('fd.no')));
+            print ' ' . $this->Form->label('allow_other', _txt('fd.ae.allow_other'));
+      ?>
   </li>
   <li>
     <div class="field-name">

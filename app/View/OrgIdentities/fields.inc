@@ -77,7 +77,6 @@
   $l = 1;
 ?>
 
-
 <script type="text/javascript">
   $(function() {
     // Explorer menu toggles
@@ -93,7 +92,22 @@
     });
 
   });
+  
+  function js_local_onload() {
+    enum_update_gadgets(false);
+  }
 </script>
+  
+<?php 
+  $args = array(
+    'enumerables' => array(
+      'OrgIdentity.o',
+      'OrgIdentity.ou',
+      'OrgIdentity.title'
+    )
+  );
+  print $this->element('enumerations', $args); 
+?>
 
 <?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])): ?>
   <div class="co-info-topbox">
@@ -374,35 +388,11 @@
             </div>
             <div class="field-info">
               <?php
-                if($e) {
-                  if(!empty($vv_enums_title)) {
-                    // Attribute enumerations defined
-
-                    if(!empty($org_identities[0]['OrgIdentity']['title'])
-                       && !array_search($org_identities[0]['OrgIdentity']['title'], $vv_enums_title)) {
-                      print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
-                      
-                      print '<div>
-                               <span class="ui-icon ui-icon-info co-info"></span>
-                               <em>' . _txt('er.ae.val.inv') . '</em>
-                             </div>';
-                    }
-
-                    $attrs = array();
-                    $attrs['empty'] = true;
-
-                    print $this->Form->select('title', $vv_enums_title, $attrs);
-
-                    if($this->Form->isFieldError('title')) {
-                      print $this->Form->error('title');
-                    }
-                  } else {
-                    // No attribute enumerations defined
-                    print $this->Form->input('title', array('size' => 60));
-                  }
-                } else {
-                  print filter_var($org_identities[0]['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
-                }
+                $args = array(
+                  'column' => 'title',
+                  'editable' => $e
+                );
+                print $this->element('enumerableField', $args);
               ?>
             </div>
           </li>
@@ -412,35 +402,11 @@
             </div>
             <div class="field-info">
               <?php
-                if($e) {
-                  if(!empty($vv_enums_o)) {
-                    // Attribute enumerations defined
-
-                    if(!empty($org_identities[0]['OrgIdentity']['o'])
-                      && !array_search($org_identities[0]['OrgIdentity']['o'], $vv_enums_o)) {
-                      print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
-                      
-                      print '<div>
-                         <span class="ui-icon ui-icon-info co-info"></span>
-                         <em>' . _txt('er.ae.val.inv') . '</em>
-                       </div>';
-                    }
-
-                    $attrs = array();
-                    $attrs['empty'] = true;
-
-                    print $this->Form->select('o', $vv_enums_o, $attrs);
-
-                    if($this->Form->isFieldError('o')) {
-                      print $this->Form->error('o');
-                    }
-                  } else {
-                    // No attribute enumerations defined
-                    print $this->Form->input('o', array('size' => 60));
-                  }
-                } else {
-                  print filter_var($org_identities[0]['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
-                }
+                $args = array(
+                  'column' => 'o',
+                  'editable' => $e
+                );
+                print $this->element('enumerableField', $args);
               ?>
             </div>
           </li>
@@ -450,35 +416,11 @@
             </div>
             <div class="field-info">
               <?php
-                if($e) {
-                  if(!empty($vv_enums_ou)) {
-                    // Attribute enumerations defined
-
-                    if(!empty($org_identities[0]['OrgIdentity']['ou'])
-                      && !array_search($org_identities[0]['OrgIdentity']['ou'], $vv_enums_ou)) {
-                      print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
-                      
-                      print '<div>
-                         <span class="ui-icon ui-icon-info co-info"></span>
-                         <em>' . _txt('er.ae.val.inv') . '</em>
-                       </div>';
-                    }
-
-                    $attrs = array();
-                    $attrs['empty'] = true;
-
-                    print $this->Form->select('ou', $vv_enums_ou, $attrs);
-
-                    if($this->Form->isFieldError('ou')) {
-                      print $this->Form->error('ou');
-                    }
-                  } else {
-                    // No attribute enumerations defined
-                    print $this->Form->input('ou', array('size' => 60));
-                  }
-                } else {
-                  print filter_var($org_identities[0]['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
-                }
+                $args = array(
+                  'column' => 'ou',
+                  'editable' => $e
+                );
+                print $this->element('enumerableField', $args);
               ?>
             </div>
           </li>

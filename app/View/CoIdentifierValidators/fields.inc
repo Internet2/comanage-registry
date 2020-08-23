@@ -66,8 +66,8 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
-      </div><span class="required">*</span><br />
+        <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?><span class="required">*</span><br />
+      </div>
       <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_identifier_validators.1'))); ?></div>
     </div>
     <div class="field-info">

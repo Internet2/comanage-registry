@@ -62,7 +62,7 @@
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
-        <th><?php print $this->Paginator->sort('optvalue', _txt('fd.value')); ?></th>
+        <th><?php print $this->Paginator->sort('dictionary', _txt('ct.dictionaries.1')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
@@ -75,7 +75,10 @@
         <td>
           <?php
             if(isset($vv_supported_attrs[ $c['AttributeEnumeration']['attribute'] ])) {
-              print $vv_supported_attrs[ $c['AttributeEnumeration']['attribute'] ];
+              print $this->Html->link($vv_supported_attrs[ $c['AttributeEnumeration']['attribute'] ],
+                                      array('controller' => 'attribute_enumerations',
+                                            'action' => 'edit',
+                                            $c['AttributeEnumeration']['id']));
             } else {
               print filter_var($c['AttributeEnumeration']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -83,10 +86,10 @@
         </td>
         <td>
           <?php
-            print $this->Html->link($c['AttributeEnumeration']['optvalue'],
-                                    array('controller' => 'attribute_enumerations',
+            print $this->Html->link($vv_available_dictionaries[ $c['AttributeEnumeration']['dictionary_id'] ],
+                                    array('controller' => 'dictionaries',
                                           'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
-                                          $c['AttributeEnumeration']['id']));
+                                          $c['AttributeEnumeration']['dictionary_id']));
           ?>
         </td>
         <td><?php print _txt('en.status', null, $c['AttributeEnumeration']['status']); ?></td>

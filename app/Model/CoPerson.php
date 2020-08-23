@@ -118,6 +118,7 @@ class CoPerson extends AppModel {
     ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),
+    "IdentityDocument" => array('dependent' => true),
     "Name" => array('dependent' => true),
     // Make this last so it doesn't get recreated by ProvisionerBehavior when
     // deleting a CO person

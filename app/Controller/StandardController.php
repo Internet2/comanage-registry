@@ -214,7 +214,7 @@ class StandardController extends AppController {
     parent::beforeRender();
   }
 
-    /**
+  /**
    * Callback before other controller methods are invoked or views are rendered.
    *
    * @since  COmanage Registry v3.3
