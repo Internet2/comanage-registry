@@ -944,7 +944,16 @@ class ProvisionerBehavior extends ModelBehavior {
     $args['conditions']['CoService.id'] = $coServiceId;
     $args['contain'] = false;
 
-    return $coServiceModel->find('first', $args);
+    $svc = $coServiceModel->find('first', $args);
+    
+    if(isset($svc['CoService']['deleted']) && $svc['CoService']['deleted']) {
+      // This is a deleted record. While provisioning shouldn't be called on
+      // a deleted record, if for some reason it is we shouldn't return any data.
+      
+      return array();
+    }
+    
+    return $svc;
   }
 
   /**
@@ -962,7 +971,16 @@ class ProvisionerBehavior extends ModelBehavior {
     $args['conditions']['CoEmailList.id'] = $coEmailListId;
     $args['contain'] = false;
     
-    return $coEmailListModel->find('first', $args);
+    $elist = $coEmailListModel->find('first', $args);
+    
+    if(isset($elist['CoEmailList']['deleted']) && $elist['CoEmailList']['deleted']) {
+      // This is a deleted record. While provisioning shouldn't be called on
+      // a deleted record, if for some reason it is we shouldn't return any data.
+      
+      return array();
+    }
+    
+    return $elist;
   }
   
   /**
@@ -986,6 +1004,13 @@ class ProvisionerBehavior extends ModelBehavior {
     $args['contain'] = array('Identifier');
     
     $group = $coGroupModel->find('first', $args);
+    
+    if(isset($group['CoGroup']['deleted']) && $group['CoGroup']['deleted']) {
+      // This is a deleted record. While provisioning shouldn't be called on
+      // a deleted record, if for some reason it is we shouldn't return any data.
+      
+      return array();
+    }
     
     if(!empty($group['CoGroup']['id'])) {
       if($coPersonId) {
@@ -1070,6 +1095,13 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if(empty($coPersonData)) {
       throw new InvalidArgumentException(_txt('er.cop.unk'));
+    }
+    
+    if(isset($coPersonData['CoPerson']['deleted']) && $coPersonData['CoPerson']['deleted']) {
+      // This is a deleted record. While provisioning shouldn't be called on
+      // a deleted record, if for some reason it is we shouldn't return any data.
+      
+      return array();
     }
     
     // Because Authenticators are handled via plugins (which might not be configured)

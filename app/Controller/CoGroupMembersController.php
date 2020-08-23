@@ -650,7 +650,7 @@ class CoGroupMembersController extends StandardController {
       // 'CoGroupMember' => array('conditions' => array('CoGroupMember.id' => $this->gid)),
       'PrimaryName'
     );
-    
+
     $coPeople = $this->Paginator->paginate('CoPerson');
 
     $this->set('co_people', $coPeople);

@@ -455,7 +455,7 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     $handle = fopen($this->pluginCfg['filepath'], "r");
     
     if(!$handle) {
-      throw new RuntimeException('er.filesource.read', array($this->pluginCfg['filepath']));
+      throw new RuntimeException(_txt('er.filesource.read', array($this->pluginCfg['filepath'])));
     }
     
     while(($data = fgetcsv($handle)) !== false) {

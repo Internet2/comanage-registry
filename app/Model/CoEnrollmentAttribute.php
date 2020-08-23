@@ -442,7 +442,11 @@ class CoEnrollmentAttribute extends AppModel {
         } elseif($efAttr['CoEnrollmentAttribute']['attribute'] == 'r:sponsor_co_person_id') {
           // Special case for sponsor, we want to make sure the modifiable field passes
           // through even if there is no default value
-          $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
+          if(isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])) {
+            $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
+          } else {
+            $attr['modifiable'] = true;
+          }
         }
 
         // Attach the validation rules so the form knows how to render the field.
@@ -882,7 +886,7 @@ class CoEnrollmentAttribute extends AppModel {
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function findCoForRecord($id) {
@@ -1009,7 +1013,7 @@ class CoEnrollmentAttribute extends AppModel {
           : ( !empty($enrollmentAttributes[$i]['default'])
             ? $enrollmentAttributes[$i]['default'] : '');
 
-        $enrollmentAttributes[$i]['modifiable'] = (!isset($enrollmentAttributes[$i]['modifiable'])) ? false :
+        $enrollmentAttributes[$i]['modifiable'] = (!isset($enrollmentAttributes[$i]['modifiable'])) ? true :
           $enrollmentAttributes[$i]['modifiable'];
         // XXX Should we define default value for each env_var in case of complex attributes, e.g. given name
         // We use allowEmpty to check, which is more accurate than $validate->required.

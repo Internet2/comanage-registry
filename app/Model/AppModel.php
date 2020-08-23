@@ -124,7 +124,12 @@ class AppModel extends Model {
     if(!isset($changelogConfig->settings[$this->name])
        || (isset($changelogConfig->settings[$this->name]['expunge'])
            && $changelogConfig->settings[$this->name]['expunge'])) {
-      $hardDelete = true;
+// CO-1998
+// This has apparently been broken for a really long time, possibly as long as
+// 0.9.4 (when AppModel::delete was introduced). For compatibility, then, we no
+// longer treat expunge as hardDelete, though maybe at some point we want to
+// restore the original behavior.
+//      $hardDelete = true;
     }
     
     if($cascade) {
@@ -815,7 +820,7 @@ class AppModel extends Model {
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function findCoForRecord($id) {
@@ -1142,10 +1147,17 @@ class AppModel extends Model {
                          . ".Co" . $targets[$i]['CoProvisioningTarget']['plugin'] . "Target";
         
         if(!isset($plugins[ $pluginModelName ])) {
-          $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
-          
-          if(!$plugins[ $pluginModelName ]) {
-            throw new RuntimeException(_txt('er.plugin.fail', array($pluginModelName)));
+          try {
+            $plugins[ $pluginModelName ] = ClassRegistry::init($pluginModelName, true);
+          }
+          catch(Exception $e) {
+            $targets[$i]['status'] = array(
+              'status'    => ProvisioningStatusEnum::Unknown,
+              'timestamp' => null,
+              'comment'   => _txt('er.plugin.fail', array($targets[$i]['CoProvisioningTarget']['plugin']))
+            );
+            
+            continue;
           }
         }
         

@@ -2608,7 +2608,9 @@ class CoPetitionsController extends StandardController {
    */
   
   public function petitionerAttributes() {
-    if($this->request->is('get')) {
+    if($this->request->is('get')
+       // If we're in a plugin, we let dispatch execute the plugin
+       || !empty($this->request->params['plugin'])) {
       $this->dispatch('petitionerAttributes', $this->parseCoPetitionId());
     } else {
       // We've already been dispatched (rendered the form) and now we're back

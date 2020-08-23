@@ -59,8 +59,14 @@
     <field name="env_identifier_eptid_login" type="L" />
     <field name="env_identifier_epuid" type="C" size="80" />
     <field name="env_identifier_epuid_login" type="L" />
+    <field name="env_identifier_oidcsub" type="C" size="256" />
+    <field name="env_identifier_oidcsub_login" type="L" />
     <field name="env_identifier_orcid" type="C" size="80" />
     <field name="env_identifier_orcid_login" type="L" />
+    <field name="env_identifier_samlpairwiseid" type="C" size="256" />
+    <field name="env_identifier_samlpairwiseid_login" type="L" />
+    <field name="env_identifier_samlsubjectid" type="C" size="256" />
+    <field name="env_identifier_samlsubjectid_login" type="L" />
     <field name="env_identifier_sorid" type="C" size="1024" />
     <field name="env_identifier_sorid_login" type="L" />
     <field name="env_identifier_network" type="C" size="80" />
