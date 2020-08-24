@@ -105,9 +105,8 @@ class UsersController extends AppController {
       // At this point, Auth.User.username has been established by the Auth
       // Controller, but nothing else. We now populate the rest of the user's
       // session auth information.
-      
       $u = $this->Session->read('Auth.User.username');
-      
+
       if(!empty($u)) {
         // This is an Org Identity. Figure out which Org Identities this username
         // (identifier) is associated with. First, pull the identifiers.
@@ -128,7 +127,7 @@ class UsersController extends AppController {
         
         $co_people = $this->OrgIdentity->CoOrgIdentityLink->find('all', $oargs);
         $co_people = empty($co_people) ? array()
-                                       : array_map(function($a) {
+                                       : array_map(static function($a) {
                                             return $a['CoOrgIdentityLink']['co_person_id'];
                                           }, $co_people );
         unset($oargs);
@@ -145,13 +144,13 @@ class UsersController extends AppController {
         $oargs['conditions']['AND'][] = array(
           'OR' => array(
             'OrgIdentity.valid_from IS NULL',
-            'OrgIdentity.valid_from < ' => date('Y-m-d H:i:s', time())
+            'OrgIdentity.valid_from < ' => date('Y-m-d H:i:s')
           )
         );
         $oargs['conditions']['AND'][] = array(
           'OR' => array(
             'OrgIdentity.valid_through IS NULL',
-            'OrgIdentity.valid_through > ' => date('Y-m-d H:i:s', time())
+            'OrgIdentity.valid_through > ' => date('Y-m-d H:i:s')
           )
         );
         // data we need in one clever find
@@ -212,63 +211,72 @@ class UsersController extends AppController {
             $orgIdentities = $this->OrgIdentity->find('all', $oargs);
           }
         }
-        
+
+        // Get all the membership
+        // If org identities are pooled, OrgIdentity:co_id will be null, so look at
+        // the identity links to get the COs (via CO Person).
+        $co_people_id = Hash::extract($orgIdentities, '{n}.CoOrgIdentityLink.{n}.co_person_id');
+        $params = array(
+          'conditions' => array(
+            'CoGroupMember.co_person_id' => $co_people_id,
+            'AND' => array(
+              array('OR' => array(
+                'CoGroupMember.valid_from IS NULL',
+                'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s')
+              )),
+              array('OR' => array(
+                'CoGroupMember.valid_through IS NULL',
+                'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s')
+              ))
+            )
+          ),
+          'contain' => false
+        );
+        $memberships = $this->CoGroupMember->find('all', $params);
+        unset($params);
+
+        // Get all the Groups associated with the memberships
+        $group_ids = Hash::extract($memberships, '{n}.CoGroupMember.co_group_id');
+        $params = array(
+          'conditions' => array(
+            'CoGroup.id' => $group_ids
+          ),
+          'fields' => array('id', 'name'),
+          'contain' => false
+        );
+        $result = $this->CoGroup->find('all', $params);
+        $group_data = Hash::combine($result, '{n}.CoGroup.id', '{n}.CoGroup.name');
+        unset($params);
+
         foreach($orgIdentities as $o) {
           $orgs[] = array(
             'org_id' => $o['OrgIdentity']['id'],
             'co_id' => $o['OrgIdentity']['co_id']
           );
-          
-          foreach($o['CoOrgIdentityLink'] as $l)
-          {
-            // If org identities are pooled, OrgIdentity:co_id will be null, so look at
-            // the identity links to get the COs (via CO Person).
-            
+
+          foreach($o['CoOrgIdentityLink'] as $l) {
             $cos[ $l['CoPerson']['Co']['name'] ] = array(
               'co_id' => $l['CoPerson']['Co']['id'],
               'co_name' => $l['CoPerson']['Co']['name'],
               'co_person_id' => $l['co_person_id'],
               'co_person' => $l['CoPerson']
             );
-            
+
             // And assemble the Group Memberships
-            
-            $params = array(
-              'conditions' => array(
-                'CoGroupMember.co_person_id' => $l['co_person_id'],
-                'AND' => array(
-                  array('OR' => array(
-                    'CoGroupMember.valid_from IS NULL',
-                    'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-                  )),
-                  array('OR' => array(
-                    'CoGroupMember.valid_through IS NULL',
-                    'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-                  ))
-                )
-              ),
-              'contain' => false
-            );
-            $memberships = $this->CoGroupMember->find('all', $params);
-            
-            foreach($memberships as $m){
-              $params = array(
-                'conditions' => array(
-                  'CoGroup.id' => $m['CoGroupMember']['co_group_id']
-                ),
-                'contain' => false
-              );
-              $result = $this->CoGroup->find('first', $params);
-              
-              if(!empty($result)) {
-                $group = $result['CoGroup'];
-                
-                $cos[ $l['CoPerson']['Co']['name'] ]['groups'][ $group['name'] ] = array(
-                  'co_group_id' => $m['CoGroupMember']['co_group_id'],
-                  'name' => $group['name'],
-                  'member' => $m['CoGroupMember']['member'],
-                  'owner' => $m['CoGroupMember']['owner']
-                );
+            if(!empty($memberships)) {
+              foreach ($memberships as $m) {
+                if(!empty($group_data[$m['CoGroupMember']['co_group_id']])
+                   && $m['CoGroupMember']['co_person_id'] === $l['co_person_id']) {
+                  $co_group_id = $m['CoGroupMember']['co_group_id'];
+                  $co_group_name = $group_data[$co_group_id];
+                  $co_name = $l['CoPerson']['Co']['name'];
+                  $cos[$co_name]['groups'][$co_group_name] = array(
+                    'co_group_id' => $m['CoGroupMember']['co_group_id'],
+                    'name' => $group_data[$m['CoGroupMember']['co_group_id']],
+                    'member' => $m['CoGroupMember']['member'],
+                    'owner' => $m['CoGroupMember']['owner']
+                  );
+                }
               }
             }
           }
@@ -343,7 +351,7 @@ class UsersController extends AppController {
       // existing auth flash message.
       // (Test case: new user authenticates against an enrollment flow requiring authn.)
       CakeSession::delete('Message.error');
-      
+
       $this->redirect("/auth/login");
       //throw new RuntimeException("Failed to invoke Auth component login");
     }
