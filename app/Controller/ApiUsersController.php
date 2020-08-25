@@ -83,6 +83,14 @@ class ApiUsersController extends StandardController {
     }
     catch(Exception $e) {
       $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      
+      $target = array();
+      $target['plugin'] = null;
+      $target['controller'] = "api_users";
+      $target['action'] = 'edit';
+      $target[] = $id;
+      
+      $this->redirect($target);
     }
   }
   
