@@ -780,10 +780,6 @@ body.co_people.canvas .titleNavContainer {
   text-align: center;
   width: 240px;
 }
-#redirect-spinner {
-  padding: 1em 1em 2em;
-  position: relative;
-}
 /* SELECT CO */
 #fpCoList .co-row {
   cursor: pointer;
@@ -2153,6 +2149,66 @@ td.indented {
 }
 .submitCell {
   text-align: right;
+}
+/* Loading animation */
+@keyframes loading {
+  0%   { opacity: 0.3; }
+  30%  { opacity: 1.0; }
+  100% { opacity: 0.3; }
+}
+#co-loading {
+  display: none; /* revealed by JavaScript */
+  position: absolute;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  margin: -25px 0 0 -60px;
+  padding: 2em 0;
+  line-height: 0;
+  text-align: center;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 60px;
+}
+#co-loading-redirect {
+  padding: 1em 1em 0;
+  text-align: center;
+}
+#co-loading span,
+#co-loading-redirect span,
+.co-loading-mini span {
+  animation: 1.2s linear infinite both loading;
+  background-color: #9FC6E2;
+  display: inline-block;
+}
+#co-loading span {
+  height: 20px;
+  width: 20px;
+  border-radius: 10px;
+  margin: 0 2.5px;
+}
+#co-loading-redirect span {
+  height: 16px;
+  width: 16px;
+  border-radius: 8px;
+  margin: 0 2px;
+}
+.co-loading-mini span {
+  height: 6px;
+  width: 6px;
+  border-radius: 3px;
+  margin: 0 1px;
+}
+#co-loading span:nth-child(2),
+#co-loading-redirect span:nth-child(2),
+.co-loading-mini span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+#co-loading span:nth-child(3),
+#co-loading-redirect span:nth-child(3),
+.co-loading-mini span:nth-child(3) {
+  animation-delay: 0.4s;
 }
 /* MDL OVERRIDES */
 /* See also font-size in body, and in GENERAL ul,li from 14px to 12px */

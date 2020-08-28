@@ -299,7 +299,6 @@
       print $this->Html->script('mdl/mdl-1.3.0/material.min.js') . "\n    ";
       print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
       print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
-      print $this->Html->script('jquery/spin.min.js') . "\n    ";
       if ($this->controller = 'history_records') {
         // Until used more broadly, limit loading of Magnific Popup
         print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js') . "\n    ";
@@ -318,7 +317,7 @@
     </script>
 
 
-    <?php if($this->here != '/registry/pages/eds/index'):
+    <?php if($this->here != $this->Html->url('/') .'pages/eds/index'):
       // Don't load the following scripts when loading the Shib EDS. ?>
 
       <!-- noty scripts -->
@@ -339,6 +338,9 @@
         </p>
       </div>
     <?php endif // !eds ?>
+
+    <!-- loading animation -->
+    <div id="co-loading"><span></span><span></span><span></span></div>
 
   </body>
 </html>

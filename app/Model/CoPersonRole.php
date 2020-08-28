@@ -103,6 +103,7 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       ),
       'filter' => array(
+        // Note we perform additional checks in beforeSave, see that function for details
         'rule' => array('validateInput')
       )
     ),
@@ -113,6 +114,7 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       ),
       'filter' => array(
+        // Note we perform additional checks in beforeSave, see that function for details
         'rule' => array('validateInput')
       )
     ),
@@ -123,6 +125,7 @@ class CoPersonRole extends AppModel {
         'allowEmpty' => true
       ),
       'filter' => array(
+        // Note we perform additional checks in beforeSave, see that function for details
         'rule' => array('validateInput')
       )
     ),
@@ -314,6 +317,31 @@ class CoPersonRole extends AppModel {
       $args['contain'] = false;
 
       $this->cachedData = $this->find('first', $args);
+    }
+    
+    // Verify the Attribute Enumeration values for issuing_authority, if any.
+    // Because the logic is more complicated than the Cake 2 validation framework
+    // can handle, we do it here where we (generally) have full access to the record.
+    // Mostly this is a sanity check in case someone tries to bypass the UI, since
+    // ordinarily it shouldn't be possible to send an unpermitted value.
+
+    // On saveField, we'll only have id. On all other actions, we'll have co_person_id.
+    $coId = null;
+    
+    if(!empty($this->data[$this->alias]['co_person_id'])) {
+      $coId = $this->CoPerson->findCoForRecord($this->data[$this->alias]['co_person_id']);
+    } elseif(!empty($this->data[$this->alias]['id'])) {
+      $coId = $this->findCoForRecord($this->data[$this->alias]['id']);
+    }
+
+    if($coId) {
+      foreach(array('o', 'ou', 'title') as $a) {
+        if(!empty($this->data[$this->alias][$a])) {
+          $this->validateEnumeration($coId,
+                                     'CoPersonRole.'.$a, 
+                                     $this->data[$this->alias][$a]);
+        }
+      }
     }
     
     // Possibly convert the requested timestamps to UTC from browser time.

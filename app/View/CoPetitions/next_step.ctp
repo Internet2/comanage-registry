@@ -30,4 +30,4 @@
 <div id="redirect-box-content">
   <?php print _txt('op.petition.nextstep', array($vv_next_step));  ?>
 </div>
-<div id="redirect-spinner"></div>
+<div id="co-loading-redirect"><span></span><span></span><span></span></div>

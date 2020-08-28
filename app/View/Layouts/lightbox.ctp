@@ -58,7 +58,6 @@
     <?php
     print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
     print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
-    print $this->Html->script('jquery/spin.min.js');
     ?>
 
     <!-- Get timezone detection -->
@@ -72,7 +71,7 @@
     </script>
 
 
-    <?php if($this->here != '/registry/pages/eds/index'):
+    <?php if($this->here != $this->Html->url('/') .'pages/eds/index'):
       // Don't load the following scripts when loading the Shib EDS. ?>
       <!-- noty scripts -->
       <?php

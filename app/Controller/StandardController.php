@@ -214,7 +214,7 @@ class StandardController extends AppController {
     parent::beforeRender();
   }
 
-    /**
+  /**
    * Callback before other controller methods are invoked or views are rendered.
    *
    * @since  COmanage Registry v3.3
@@ -1017,76 +1017,46 @@ class StandardController extends AppController {
       // Set page title
       $this->set('title_for_layout', _txt('ct.' . $modelpl . '.pl'));
       
-      // Use server side pagination
-      if($this->requires_person)
-      {
-        $this->Paginator->settings = $this->paginate;
-        if(!empty($this->params['named']['copersonid']))
-        {
-          $q = $req . ".co_person_id = ";
-          $this->set($modelpl, $this->Paginator->paginate($req, array($q => $this->params['named']['copersonid'])));
-        }
-        elseif(!empty($this->params['named']['copersonroleid']))
-        {
-          $q = $req . ".co_person_role_id = ";
-          $this->set($modelpl, $this->Paginator->paginate($req, array($q => $this->params['named']['copersonroleid'])));
-        }
-        elseif(!empty($this->params['named']['orgidentityid']))
-        {
-          $q = $req . ".org_identity_id = ";
-          $this->set($modelpl, $this->Paginator->paginate($req, array($q => $this->params['named']['orgidentityid'])));
-        }
-        else
-        {
-          // Although requires_person is true, the UI sort of permits
-          // retrieval of all items of a given type
-          
-          $this->set($modelpl, $this->Paginator->paginate($req));
-        }
+      // Configure server side pagination
+      
+      $local = $this->paginationConditions();
+      
+      // XXX We could probaby come up with a better approach than manually enumerating
+      // each field we want to copy...
+      if(!empty($local['conditions'])) {
+        $this->paginate['conditions'] = $local['conditions'];
       }
-      else
-      {
-        // Configure pagination
-        
-        $local = $this->paginationConditions();
-        
-        // XXX We could probaby come up with a better approach than manually enumerating
-        // each field we want to copy...
-        if(!empty($local['conditions'])) {
-          $this->paginate['conditions'] = $local['conditions'];
-        }
-        
-        if(!empty($local['fields'])) {
-          $this->paginate['fields'] = $local['fields'];
-        }
-        
-        if(!empty($local['group'])) {
-          $this->paginate['group'] = $local['group'];
-        }
-        
-        if(!empty($local['joins'])) {
-          $this->paginate['joins'] = $local['joins'];
-        }
-        
-        if(isset($local['contain'])) {
-          $this->paginate['contain'] = $local['contain'];
-        } elseif(isset($this->view_contains)) {
-          $this->paginate['contain'] = $this->view_contains;
-        }
-        
-        // Used either to whitelist which fields can be used for sorting, or
-        // explicitly naming sortable fields for complex relations (ie: using
-        // linkable behavior).
-        $sortlist = array();
-        
-        if(!empty($local['sortlist'])) {
-          $sortlist = $local['sortlist'];
-        }
-        
-        $this->Paginator->settings = $this->paginate;
-        
-        $this->set($modelpl, $this->Paginator->paginate($req, array(), $sortlist));
+      
+      if(!empty($local['fields'])) {
+        $this->paginate['fields'] = $local['fields'];
       }
+      
+      if(!empty($local['group'])) {
+        $this->paginate['group'] = $local['group'];
+      }
+      
+      if(!empty($local['joins'])) {
+        $this->paginate['joins'] = $local['joins'];
+      }
+      
+      if(isset($local['contain'])) {
+        $this->paginate['contain'] = $local['contain'];
+      } elseif(isset($this->view_contains)) {
+        $this->paginate['contain'] = $this->view_contains;
+      }
+      
+      // Used either to whitelist which fields can be used for sorting, or
+      // explicitly naming sortable fields for complex relations (ie: using
+      // linkable behavior).
+      $sortlist = array();
+      
+      if(!empty($local['sortlist'])) {
+        $sortlist = $local['sortlist'];
+      }
+      
+      $this->Paginator->settings = $this->paginate;
+      
+      $this->set($modelpl, $this->Paginator->paginate($req, array(), $sortlist));
     }
   }
   
@@ -1150,11 +1120,27 @@ class StandardController extends AppController {
     
     $ret = array();
     
-    if(!empty($this->cur_co)) {
+    if($this->requires_person) {
+      if(!empty($this->params['named']['copersonid'])) {
+        $ret['conditions'][$req.'.co_person_id'] = $this->params['named']['copersonid'];
+      } elseif(!empty($this->params['named']['copersonroleid'])) {
+        $ret['conditions'][$req.'.co_person_role_id'] = $this->params['named']['copersonroleid'];
+      } elseif(!empty($this->params['named']['orgidentityid'])) {
+        $ret['conditions'][$req.'.org_identity_id'] = $this->params['named']['orgidentityid'];
+      } elseif(!empty($this->params['named']['codeptid'])) {
+        $ret['conditions'][$req.'.co_department_id'] = $this->params['named']['codeptid'];
+      } else {
+        // We previously allowed retrieval of all items of a given type
+        // (eg: Addresses), but it's not really clear why and there wasn't really
+        // a path to get there. So now we throw an error instead.
+        
+        throw new InvalidArgumentException(_txt('er.person.none'));
+      }
+    } elseif(!empty($this->cur_co)) {
       // Only retrieve members of the current CO
       $ret['conditions'][$req.'.co_id'] = $this->cur_co['Co']['id'];
     }
-
+    
     return $ret;
   }
   

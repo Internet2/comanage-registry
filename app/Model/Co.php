@@ -75,6 +75,7 @@ class Co extends AppModel {
     // It's OK to make the model dependent, because if they are pooled the
     // link won't be there to delete.
     "DataFilter" => array('dependent' => true),
+    "Dictionary" => array('dependent' => true),
     "OrgIdentity" => array('dependent' => true),
     "OrgIdentitySource" => array('dependent' => true),
     "CoPipeline" => array('dependent' => true),
@@ -269,6 +270,8 @@ class Co extends AppModel {
       
       foreach(array(
         'CoGroup',
+        'Dictionary',
+        'DictionaryEntry',
         'AttributeEnumeration',
         'Authenticator',
         'CoDashboard',

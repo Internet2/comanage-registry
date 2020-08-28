@@ -49,6 +49,19 @@ if($e)
       array('class' => 'editbutton')
     );
     
+    // Attach enrollment flow wedges
+    if(!empty($vv_avail_efw)) {
+      $params['topLinks'][] = $this->Html->link(
+        _txt('op.ef.efw'),
+        array(
+          'controller' => 'co_enrollment_flow_wedges',
+          'action'     => 'index',
+          'coef'       => $co_enrollment_flows[0]['CoEnrollmentFlow']['id']
+        ),
+        array('class' => 'relinkbutton')
+      );
+    }
+    
     // Attach enrollment sources
     if(!empty($vv_avail_ois)) {
       $params['topLinks'][] = $this->Html->link(

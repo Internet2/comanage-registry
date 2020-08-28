@@ -31,29 +31,60 @@ class TestEnrollerCoPetitionsController extends CoPetitionsController {
   // Class name, used by Cake
   public $name = "TestEnrollerCoPetitions";
 
-  public $uses = array("CoPetition");
+  // Note CoPetition should come first for inheritance reasons
+  public $uses = array("CoPetition", "TestEnroller.TestEnroller");
   
   /**
    * Process petitioner attributes
    *
    * @since  COmanage Registry v0.9.4
+   * @param  int    $id       CO Petition ID
+   * @param  string $onFinish URL to redirect to when the step is completed
    */
   
   protected function execute_plugin_petitionerAttributes($id, $onFinish) {
-    // The step is done
-    
-    $this->redirect($onFinish);
+    $this->maybe_execute_plugin_step('petitioner_attributes', $id, $onFinish);
   }
   
   /**
    * Start a new CO Petition
    *
    * @since  COmanage Registry v0.9.4
+   * @param  int    $id       CO Petition ID
+   * @param  string $onFinish URL to redirect to when the step is completed
    */
   
   protected function execute_plugin_start($id, $onFinish) {
-    // The step is done
+    $this->maybe_execute_plugin_step('start', $id, $onFinish);
+  }
+  
+  /**
+   * Maybe execute an enrollment flow step for this plugin.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  string $step     Enrollment Flow step
+   * @param  int    $id       CO Petition ID
+   * @param  string $onFinish URL to redirect to when the step is completed
+   */
+  
+  protected function maybe_execute_plugin_step($step, $id, $onFinish) {
+    // Pull our config to see if this step is enabled
     
+    $efwid = $this->viewVars['vv_efwid'];
+    
+    $args = array();
+    $args['conditions']['TestEnroller.co_enrollment_flow_wedge_id'] = $efwid;
+    $args['contain'] = false;
+    
+    $cfg = $this->TestEnroller->find('first', $args);
+    
+    if(isset($cfg['TestEnroller']['test_'.$step]) && $cfg['TestEnroller']['test_'.$step]) {
+      $this->log("TestEnroller $step is enabled");
+    } else {
+      $this->log("TestEnroller $step is disabled");
+    }
+    
+    // This step is done
     $this->redirect($onFinish);
   }
 }

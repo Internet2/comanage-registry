@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Identifier Enroller Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ 
+  @link          http://www.internet2.edu/comanage COmanage Project
+  @package       registry
+  @since         COmanage Registry v4.0.0
+  @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="identifier_enrollers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_enrollment_flow_wedge_id" type="I">
+      <constraint>REFERENCES cm_co_enrollment_flow_wedges(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="identifier_enroller_id" type="I">
+      <constraint>REFERENCES cm_identifier_enrollers(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="identifier_enrollers_i1">
+      <col>co_enrollment_flow_wedge_id</col>
+    </index>
+    <index name="identifier_enrollers_i2">
+      <col>identifier_enroller_id</col>
+    </index>
+  </table>
+  
+  <table name="identifier_enroller_identifiers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="identifier_enroller_id" type="I">
+      <constraint>REFERENCES cm_identifier_enrollers(id)</constraint>
+    </field>
+    <!-- This would preferably be a fk to cm_extended_types, but nothing else
+         does that at the moment (CO-956), so we don't either -->
+    <field name="label" type="C" size="80">
+      <notnull />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="identifier_type" type="C" size="32" />
+    <field name="default_env" type="C" size="80" />
+    <field name="ordr" type="I" />
+    
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="identifier_enroller_identifier_id" type="I">
+      <constraint>REFERENCES cm_identifier_enroller_identifiers(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="identifier_enroller_identifiers_i1">
+      <col>identifier_enroller_id</col>
+    </index>
+  </table>
+</schema>

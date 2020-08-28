@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -40,7 +40,57 @@ if(empty($_SERVER['REMOTE_USER'])) {
   print	"ERROR: REMOTE_USER is empty. Please check your configuration.";
   exit;
 }
+// XXX if we define no redirect path, e.g. to an internal path: co_dashboards/configuration/co:2 then CAKEPHP thinks that should come back here
+// XXX as a result adds to the SESSION auth/login as the redirect path after login. This causes the login to happen twice for the case we are
+// XXX visiting the COmanage homepage
+if(empty($_SESSION["Auth"]["redirect"])) {
+  $_SESSION["Auth"]["redirect"] = '/';
+}
 
 $_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
+$path = str_replace('auth/login/', '', $_SERVER["REQUEST_URI"]);
+$redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . $path . 'users/login';
 
-header("Location: " . "/registry/users/login");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+  @keyframes loading {
+    0%   { opacity: 0.3; }
+    30%  { opacity: 1.0; }
+    100% { opacity: 0.3; }
+  }
+  #co-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 100px;
+    margin: -56px 0 0 -80px;
+    padding: 0;
+    line-height: 0;
+    color: #9FC6E2;
+    text-align: center;
+  }
+  #co-loading span {
+    animation: 1.2s linear infinite both loading;
+    background-color: #9FC6E2;
+    display: inline-block;
+    height: 28px;
+    width: 28px;
+    border-radius: 20px;
+    margin: 0 2.5px;
+  }
+  #co-loading span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  #co-loading span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  </style>
+</head>
+<body onload="window.location.assign('<?php print $redirect_url; ?>')">
+  <div id="co-loading"><span></span><span></span><span></span></div>
+</body>
+</html>

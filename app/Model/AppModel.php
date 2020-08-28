@@ -124,7 +124,12 @@ class AppModel extends Model {
     if(!isset($changelogConfig->settings[$this->name])
        || (isset($changelogConfig->settings[$this->name]['expunge'])
            && $changelogConfig->settings[$this->name]['expunge'])) {
-      $hardDelete = true;
+// CO-1998
+// This has apparently been broken for a really long time, possibly as long as
+// 0.9.4 (when AppModel::delete was introduced). For compatibility, then, we no
+// longer treat expunge as hardDelete, though maybe at some point we want to
+// restore the original behavior.
+//      $hardDelete = true;
     }
     
     if($cascade) {
@@ -815,7 +820,7 @@ class AppModel extends Model {
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function findCoForRecord($id) {
@@ -975,6 +980,19 @@ class AppModel extends Model {
       
       if(!empty($srvr['Server']['co_id'])) {
         return $srvr['Server']['co_id'];
+      }
+    } elseif(isset($this->validate['co_enrollment_flow_wedge_id'])) {
+      // As of v4.0.0, Enroller Plugins refer to an enrollment flow wedge,
+      // which in turn refer to an enrollment flow
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain']['CoEnrollmentFlowWedge'] = array('CoEnrollmentFlow');
+      
+      $efw = $this->find('first', $args);
+      
+      if(!empty($efw['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['co_id'])) {
+        return $efw['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['co_id'];
       }
     } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
       // Extended attributes need to be handled specially, as usual, since there
@@ -1282,7 +1300,9 @@ class AppModel extends Model {
   
   public function updateValidationRules($coId = null) {
     $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
-    
+
+    // Note this call is only used by Enrollment Flow/Petition code, so for now we don't
+    // support allow_other (CO-2012)
     $enumAttrs = $AttributeEnumeration->supportedAttrs();
     
     // Walk through the list of attributes supported for enumeration to see if any
@@ -1293,14 +1313,36 @@ class AppModel extends Model {
       if($a[0] == $this->name) {
         // Model is a match. See if there are any defined enums.
         
-        $enums = $AttributeEnumeration->active($coId, $attr, 'validation');
+        $cfg = $AttributeEnumeration->enumerations($coId, $attr);
         
-        if(!empty($enums)) {
-          // Enumerations defined, update the validation rule
-          $this->validate[ $a[1] ]['content']['rule'] = $enums;
+        if($cfg && !$cfg['allow_other']) {
+          // Enumerations defined (and allow other is false), update the validation rule
+          $this->validate[ $a[1] ]['content']['rule'] = array(
+            'inList',
+            $cfg['dictionary']
+          );
         }
       }
     }
+    
+    return true;
+  }
+  
+  /**
+   * Determine is a given value is valid for an Attribute Enumeration.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, in Model.attribute form
+   * @param  string  $value     Value to validate
+   * @return boolean            True on success
+   * @throws InvalidArgumentException
+   */
+
+  public function validateEnumeration($coId, $attribute, $value) {
+    $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
+    
+    $AttributeEnumeration->isValid($coId, $attribute, $value);
     
     return true;
   }

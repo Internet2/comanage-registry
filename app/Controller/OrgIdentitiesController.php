@@ -116,14 +116,27 @@ class OrgIdentitiesController extends StandardController {
       $coId = $this->cur_co['Co']['id'];
     }
     
-    $enums_o = $this->AttributeEnumeration->active($coId, "OrgIdentity.o");
-    $this->set('vv_enums_o', $enums_o);
+    $enums = array();
     
-    $enums_ou = $this->AttributeEnumeration->active($coId, "OrgIdentity.ou");
-    $this->set('vv_enums_ou', $enums_ou);
+    $enums_o = $this->AttributeEnumeration->enumerations($coId, "OrgIdentity.o");
     
-    $enums_title = $this->AttributeEnumeration->active($coId, "OrgIdentity.title");
-    $this->set('vv_enums_title', $enums_title);
+    if(!empty($enums_o)) {
+      $enums['OrgIdentity.o'] = $enums_o;
+    }
+    
+    $enums_ou = $this->AttributeEnumeration->enumerations($coId, "OrgIdentity.ou");
+    
+    if(!empty($enums_ou)) {
+      $enums['OrgIdentity.ou'] = $enums_ou;
+    }
+    
+    $enums_title = $this->AttributeEnumeration->enumerations($coId, "OrgIdentity.title");
+    
+    if(!empty($enums_title)) {
+      $enums['OrgIdentity.title'] = $enums_title;
+    }
+    
+    $this->set('vv_enums', $enums);
     
     if(!empty($this->viewVars['vv_tz'])) {
       // Set the current timezone, primarily for beforeSave

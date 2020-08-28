@@ -171,7 +171,7 @@ class CoAnnouncement extends AppModel {
    * @param  integer Record to retrieve for
    * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
    * @throws InvalidArgumentException
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
 
   public function findCoForRecord($id) {

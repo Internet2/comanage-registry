@@ -143,6 +143,7 @@ class OrgIdentity extends AppModel {
     ),
     'o' => array(
       'content' => array(
+        // Note we perform additional checks in beforeSave, see that function for details
         'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
@@ -157,6 +158,7 @@ class OrgIdentity extends AppModel {
     ),*/
     'ou' => array(
       'content' => array(
+        // Note we perform additional checks in beforeSave, see that function for details
         'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
@@ -164,6 +166,7 @@ class OrgIdentity extends AppModel {
     ),
     'title' => array(
       'content' => array(
+        // Note we perform additional checks in beforeSave, see that function for details
         'rule' => array('validateInput'),
         'required' => false,
         'allowEmpty' => true
@@ -197,7 +200,32 @@ class OrgIdentity extends AppModel {
    * @since  COmanage Registry v2.0.0
    */
   
-  public function beforeSave($options = array()) {    
+  public function beforeSave($options = array()) {
+    // Verify the Attribute Enumeration values for issuing_authority, if any.
+    // Because the logic is more complicated than the Cake 2 validation framework
+    // can handle, we do it here where we (generally) have full access to the record.
+    // Mostly this is a sanity check in case someone tries to bypass the UI, since
+    // ordinarily it shouldn't be possible to send an unpermitted value.
+    
+    // On saveField, we'll only have id. On all other actions, we'll have co_id.
+    $coId = null;
+    
+    if(!empty($this->data[$this->alias]['co_id'])) {
+      $coId = $this->data[$this->alias]['co_id'];
+    } elseif(!empty($this->data[$this->alias]['id'])) {
+      $coId = $this->findCoForRecord($this->data[$this->alias]['id']);
+    }
+    
+    if($coId) {
+      foreach(array('o', 'ou', 'title') as $a) {
+        if(!empty($this->data[$this->alias][$a])) {
+          $this->validateEnumeration($coId,
+                                     'OrgIdentity.'.$a, 
+                                     $this->data[$this->alias][$a]);
+        }
+      }
+    }
+    
     // Possibly convert the requested timestamps to UTC from browser time.
     // Do this before the strtotime/time calls below, both of which use UTC.
     

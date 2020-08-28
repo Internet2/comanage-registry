@@ -229,24 +229,31 @@ class CoPetition extends AppModel {
   
   public function assignClusterAccounts($id, $actorCoPersonId) {
     $coPersonID = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    $enrollmentFlowID = $this->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
     //$coID = $this->field('co_id', array('CoPetition.id' => $id));
     
     if($coPersonID) {
       $clusters = $this->CoEnrollmentFlow
                        ->CoEnrollmentCluster
-                       ->active($this->cachedEnrollmentFlowID);
-      
+                       ->active($enrollmentFlowID);
+
       $clusterIds = array();
       
       // XXX Could use Hash?
       foreach($clusters as $c) {
-        $clusterIds[] = $c['Cluster']['id'];
+        if($c['CoEnrollmentCluster']['enabled']) {
+          $clusterIds[] = $c['Cluster']['id'];
+        }
       }
-      
-      $res = $this->CoEnrollmentFlow
-                  ->CoEnrollmentCluster
-                  ->Cluster
-                  ->assign($coPersonID, $actorCoPersonId, $clusterIds);
+
+      if($clusterIds) {
+        $res = $this->CoEnrollmentFlow
+                    ->CoEnrollmentCluster
+                    ->Cluster
+                    ->assign($coPersonID, $actorCoPersonId, $clusterIds);
+      } else {
+        $res = array();
+      }
       
       if(!empty($res)) {
         // Create Petition History Records for any results of interest
@@ -1107,7 +1114,7 @@ class CoPetition extends AppModel {
    * @param  Integer CO Person ID of the petitioner
    * @param  String  URL to redirect to after enrollment, decoded
    * @return Integer ID of newly created Petition
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function initialize($enrollmentFlowID, $coId, $petitionerId=null, $returnUrl=null) {
@@ -1161,7 +1168,7 @@ class CoPetition extends AppModel {
    * @param  Integer CO Person ID to link
    * @param  Integer CO Person ID of the petitioner
    * @return Boolean True on success
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function linkCoPerson($enrollmentFlowID, $coPetitionId, $coPersonId, $petitionerId) {
@@ -1209,7 +1216,7 @@ class CoPetition extends AppModel {
    * @param  Integer Org Identity ID to link
    * @param  Integer CO Person ID of the petitioner
    * @return Boolean True on success
-   * @throws RunTimeException
+   * @throws RuntimeException
    */
   
   public function linkOrgIdentity($enrollmentFlowID, $coPetitionId, $orgIdentityId, $petitionerId) {
@@ -3132,7 +3139,7 @@ class CoPetition extends AppModel {
       // Dynamically adjust validation rules according to the enrollment flow
       $this->adjustValidationRules($pmodel, $efAttrs);
       
-      // Manually validate OrgIdentity
+      // Manually validate data
       $this->$pmodel->set($ret);
       
       // Make sure to use invalidFields(), which won't try to validate (possibly

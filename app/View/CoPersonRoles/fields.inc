@@ -140,8 +140,22 @@
       $("#sponsors").val("");
       $("#sponsor_co_person_id").val(null);
     }
-
+    
+    function js_local_onload() {
+      enum_update_gadgets(false);
+    }
   </script>
+  
+  <?php 
+    $args = array(
+      'enumerables' => array(
+        'CoPersonRole.o',
+        'CoPersonRole.ou',
+        'CoPersonRole.title'
+      )
+    );
+    print $this->element('enumerations', $args); 
+  ?>
 
   <div id="<?php print $this->action; ?>_role_attributes" class="explorerContainer">
     <div id="role-attributes" class="personExplorer">
@@ -373,43 +387,11 @@
               </div>
               <div class="field-info">
                 <?php
-                  if($e && !$es) {
-                    if(!empty($vv_enums_o)) {
-                      // Attribute enumerations defined
-
-                      if(!empty($co_person_roles[0]['CoPersonRole']['o'])
-                        && !array_search($co_person_roles[0]['CoPersonRole']['o'], $vv_enums_o)) {
-                        print filter_var($co_person_roles[0]['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
-
-                        print '<div class="field-desc">
-                                 <span class="ui-icon ui-icon-info co-info"></span>
-                                 <em>' . _txt('er.ae.val.inv') . '</em>
-                               </div>';
-                      }
-
-                      $attrs = array();
-                      $attrs['empty'] = true;
-
-                      print $this->Form->select('o', $vv_enums_o, $attrs);
-
-                      if($this->Form->isFieldError('o')) {
-                        print $this->Form->error('o');
-                      }
-                    } else {
-                      // No attribute enumerations defined
-                      $args = array(
-                        'size' => 60
-                      );
-
-                      if($this->action == 'add') {
-                        $args['default'] = filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
-                      }
-
-                      print $this->Form->input('o', $args);
-                    }
-                  } else {
-                    print filter_var($co_person_roles[0]['CoPersonRole']['o'],FILTER_SANITIZE_SPECIAL_CHARS);
-                  }
+                  $args = array(
+                    'column' => 'o',
+                    'editable' => ($e && !$es)
+                  );
+                  print $this->element('enumerableField', $args);
                 ?>
               </div>
             </li>
@@ -425,35 +407,11 @@
               </div>
               <div class="field-info">
                 <?php
-                  if($e && !$es) {
-                    if(!empty($vv_enums_ou)) {
-                      // Attribute enumerations defined
-
-                      if(!empty($co_person_roles[0]['CoPersonRole']['ou'])
-                         && !array_search($co_person_roles[0]['CoPersonRole']['ou'], $vv_enums_ou)) {
-                        print filter_var($co_person_roles[0]['CoPersonRole']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
-
-                        print '<div class="field-desc">
-                                 <span class="ui-icon ui-icon-info co-info"></span>
-                                 <em>' . _txt('er.ae.val.inv') . '</em>
-                               </div>';
-                      }
-
-                      $attrs = array();
-                      $attrs['empty'] = true;
-
-                      print $this->Form->select('ou', $vv_enums_ou, $attrs);
-
-                      if($this->Form->isFieldError('ou')) {
-                        print $this->Form->error('ou');
-                      }
-                    } else {
-                      // No attribute enumerations defined
-                      print $this->Form->input('ou', array('size' => 60));
-                    }
-                  } else {
-                    print filter_var($co_person_roles[0]['CoPersonRole']['ou'],FILTER_SANITIZE_SPECIAL_CHARS);
-                  }
+                  $args = array(
+                    'column' => 'ou',
+                    'editable' => ($e && !$es)
+                  );
+                  print $this->element('enumerableField', $args);
                 ?>
               </div>
             </li>

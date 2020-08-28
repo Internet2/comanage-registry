@@ -308,7 +308,7 @@ class UnixClusterAccountsController extends StandardController {
   function paginationConditions() {
     // Only retrieve attributes in the current unix cluster
 
-    $ret = array();
+    $ret = parent::paginationConditions();
     
     if(!empty($this->ucid)) {
       $ret['conditions']['UnixClusterAccount.unix_cluster_id'] = $this->ucid;

@@ -51,63 +51,19 @@ function generateFlash(text, type) {
   });
 }
 
-// Explicitly generate a spinner. This can normally be done by
-// setting the "spin" class on an element.  (See View/Elements/javascript.ctp)
-// For dynamically created elements, we can generate the spinner
-// dynamically by calling this function.
+// Generate a loading animation by revealing a persistent hidden div with CSS animation.
+// An element's onclick action will trigger this to appear if it has the class "spin" class on an element.
+// (See View/Elements/javascript.ctp)
+// For dynamically created elements, we can generate the loading animation by calling this function.
 
-// Set defaults - this is used by all full-page spinners.
-var coSpinnerOpts = {
-  lines: 13, // The number of lines to draw
-  length: 20, // The length of each line
-  width: 8, // The line thickness
-  radius: 20, // The radius of the inner circle
-  corners: 0.4, // Corner roundness (0..1)
-  rotate: 0, // The rotation offset
-  direction: 1, // 1: clockwise, -1: counterclockwise
-  color: '#9FC6E2', // #rgb or #rrggbb or array of colors
-  speed: 1.2, // Rounds per second
-  trail: 60, // Afterglow percentage
-  shadow: false, // Whether to render a shadow
-  hwaccel: false, // Whether to use hardware acceleration
-  className: 'spinner', // The CSS class to assign to the spinner
-  zIndex: 100 // The z-index (defaults to 2000000000)
-};
-
-// Set defaults - this is used by all mini (localized) spinners.
-var coMiniSpinnerOpts = {
-  lines: 10, // The number of lines to draw
-  length: 4, // The length of each line
-  width: 2, // The line thickness
-  radius: 2, // The radius of the inner circle
-  corners: 0.2, // Corner roundness (0..1)
-  rotate: 0, // The rotation offset
-  direction: 1, // 1: clockwise, -1: counterclockwise
-  color: '#9FC6E2', // #rgb or #rrggbb or array of colors
-  speed: 1.2, // Rounds per second
-  trail: 60, // Afterglow percentage
-  shadow: false, // Whether to render a shadow
-  hwaccel: false, // Whether to use hardware acceleration
-  className: 'mini-spinner', // The CSS class to assign to the spinner
-  zIndex: 100, // The z-index (defaults to 2000000000)
-  top: '18px', // Positioning offset
-  left: '18px' // Positioning offset
-};
-
-
-// show a spinner
+// show loading animation
 function displaySpinner() {
-  var spinnerDiv = '<div id="coSpinner"></div>';
-  $("body").append(spinnerDiv);
-
-  var coSpinnerTarget = document.getElementById('coSpinner');
-  var coSpinner = new Spinner(coSpinnerOpts).spin(coSpinnerTarget);
+  $("#co-loading").show();
 }
 
 // stop a spinner explicitly
-// assumes spinner is in a div with ID "coSpinner"
 function stopSpinner() {
-  $("#coSpinner").remove();
+  $("#co-loading").hide();
 }
 
 

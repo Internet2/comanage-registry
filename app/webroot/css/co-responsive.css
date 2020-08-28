@@ -371,7 +371,7 @@
   /* REDIRECT PAGE */
   #redirect-box {
     margin: 4em auto;
-    padding: 2em;
+    padding: 2em 2em 1.5em;
     width: 320px;
     position: relative;
     left: -120px; /* offset the drawer margin */

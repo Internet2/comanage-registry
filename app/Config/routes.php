@@ -85,6 +85,7 @@ Router::mapResources(array(
   'email_addresses',
   'history_records',
   'identifiers',
+	'identity_documents',
   'names',
   'navigation_links',
   'org_identities',

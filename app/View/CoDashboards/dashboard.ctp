@@ -70,9 +70,7 @@
           $w[$pmodel]['id']
         );
 
-        print "var coSpinnerTarget" . $w['id'] . " = document.getElementById('widgetSpinner" . $w['id'] . "');\n";
-        print "var coSpinner" . $w['id'] . " = new Spinner(coMiniSpinnerOpts).spin(coSpinnerTarget" . $w['id'] . ");\n";
-        print "$('#widget" . $w['id'] . "').load('" . addslashes($this->Html->url($args)) . "', function() { coSpinner" . $w['id'] . ".stop(); });\n";
+        print "$('#widget" . $w['id'] . "').load('" . addslashes($this->Html->url($args)) . "', function() { $('#widgetSpinner" . $w['id'] . "').hide(); });\n";
       }
     }
   }
@@ -93,7 +91,7 @@
           <div class="dashboard-widget-container">
             <h2 class="widget-title">
               <?php print filter_var($w['description'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
-              <span id="widgetSpinner<?php print $w['id']; ?>" class="mini-spinner"></span>
+              <span id="widgetSpinner<?php print $w['id']; ?>" class="co-loading-mini"><span></span><span></span><span></span></span>
             </h2>
             <div id="widget<?php print $w['id']; ?>"></div>
           </div>

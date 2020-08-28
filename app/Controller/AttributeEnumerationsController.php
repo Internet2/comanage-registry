@@ -33,7 +33,8 @@ class AttributeEnumerationsController extends StandardController {
   
   // When using additional models, we must also specify our own
   public $uses = array('AttributeEnumeration',
-                       'CmpEnrollmentConfiguration');
+                       'CmpEnrollmentConfiguration',
+                       'Dictionary');
 
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -75,6 +76,12 @@ class AttributeEnumerationsController extends StandardController {
     
     $this->set('vv_supported_attrs', $this->AttributeEnumeration->supportedAttrs($pool,
                                                                                  ($pool && empty($cur_co))));
+    
+    $args = array();
+    $args['conditions']['Dictionary.co_id'] = $this->cur_co['Co']['id'];
+    $args['fields'] = array('id', 'description');
+    
+    $this->set('vv_available_dictionaries', $this->Dictionary->find('list', $args));
   }
   
   /**

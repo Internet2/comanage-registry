@@ -118,6 +118,7 @@ class CoPerson extends AppModel {
     ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),
+    "IdentityDocument" => array('dependent' => true),
     "Name" => array('dependent' => true),
     // Make this last so it doesn't get recreated by ProvisionerBehavior when
     // deleting a CO person
@@ -275,6 +276,11 @@ class CoPerson extends AppModel {
    * @return void
    */
 	protected function deleteDependent($id) {
+    // Manually trigger beforeDelete. AppModel::delete overrides standard
+    // delete but doesn't trigger beforeDelete. That might be a bigger issue,
+    // and maybe one to figure out as part of framework migration.
+    $this->beforeDelete(true);
+
 		if (!empty($this->__backAssociation)) {
 			$savedAssociations = $this->__backAssociation;
 			$this->__backAssociation = array();
@@ -311,7 +317,7 @@ class CoPerson extends AppModel {
             $currentRecord = $Model->find('first', array(
               'conditions' => array('id' => $record[$Model->alias][$Model->primaryKey])
             ));
-            if (!isset(current($currentRecord)['deleted'])) {
+            if (isset(current($currentRecord)['deleted']) && current($currentRecord)['deleted'] != true) {
               $Model->delete($record[$Model->alias][$Model->primaryKey]);
             }
 					}

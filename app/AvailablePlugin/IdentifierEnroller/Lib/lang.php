@@ -33,12 +33,17 @@ global $cm_lang, $cm_texts;
 
 $cm_identifier_enroller_texts['en_US'] = array(
   // Titles, per-controller
-  'ct.identifier_enroller.1'  => 'Identifier Enroller',
-  'ct.identifier_enroller.pl' => 'Identifier Enrollers',
+  'ct.identifier_enroller_identifiers.1'  => 'Identifier Enroller Identifier',
+  'ct.identifier_enroller_identifiers.pl' => 'Identifier Enroller Identifiers',
+  'ct.identifier_enrollers.1'             => 'Identifier Enroller',
+  'ct.identifier_enrollers.pl'            => 'Identifier Enrollers',
   
   // Error messages
 //  'er.identifierenroller.read' => 'Cannot open source file "%1$s" for reading',
   
   // Plugin texts
+  'pl.identifierenroller.description.desc' => 'Description rendered when requesting a value for this Identifier',
+  'pl.identifierenroller.idtype' =>   'Identifier Type',
+  'pl.identifierenroller.label.desc' => 'Label rendered when requesting a value for this Identifier',
   'pl.identifierenroller.selected' => 'Identifier "%1$s" (%2$s) selected',
 );

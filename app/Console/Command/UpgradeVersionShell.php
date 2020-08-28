@@ -29,6 +29,7 @@ class UpgradeVersionShell extends AppShell {
   var $uses = array('Meta',
                     'Address',
                     'ApiUser',
+                    'AttributeEnumeration',
                     'CmpEnrollmentConfiguration',
                     'Co',
                     'CoEnrollmentAttributeDefault',
@@ -87,7 +88,8 @@ class UpgradeVersionShell extends AppShell {
     "3.2.3" => array('block' => false),
     "3.2.4" => array('block' => false),
     "3.2.5" => array('block' => false),
-    "3.3.0" => array('block' => false, 'pre' => 'pre330', 'post' => 'post330')
+    "3.3.0" => array('block' => false, 'pre' => 'pre330', 'post' => 'post330'),
+    "4.0.0" => array('block' => false, 'post' => 'post400')
   );
   
   public function getOptionParser() {
@@ -499,5 +501,11 @@ class UpgradeVersionShell extends AppShell {
     $this->out(_txt('sh.ug.330.rename'));
     // SQL: Alter table foo rename column bar to baz (should be cross plaform)
     $this->CoEnrollmentFlow->query("ALTER TABLE " . $prefix . "co_enrollment_flows RENAME COLUMN return_url_whitelist TO return_url_allowlist");
+  }
+  
+  public function post400() {
+    // 4.0.0 converts Attribute Enumerations to use Dictionaries.
+    $this->out(_txt('sh.ug.400.attrenums'));
+    $this->AttributeEnumeration->_ug400();
   }
 }

@@ -27,11 +27,38 @@
 
 class TestEnroller extends AppModel {
   // Required by COmanage Plugins
-  // To enable this plugin (even though it doesn't do anything), change the type to 'enroller'
-  public $cmPluginType = "not-enroller";
+  public $cmPluginType = "enroller";
   
   // Document foreign keys
   public $cmPluginHasMany = array();
+  
+  // Add behaviors
+  public $actsAs = array('Containable', 'Changelog' => array('priority' => 5));
+  
+  // Association rules from this model to other models
+  public $belongsTo = array("CoEnrollmentFlowWedge");
+  
+  // Default display field for cake generated views
+  public $displayField = "test_start";
+  
+  // Validation rules for table elements
+  public $validate = array(
+    'co_enrollment_flow_wedge_id' => array(
+      'rule' => 'numeric',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'test_start' => array(
+      'rule' => 'boolean',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'test_petitioner_attributes' => array(
+      'rule' => 'boolean',
+      'required' => true,
+      'allowEmpty' => false
+    )
+  );
   
   /**
    * Expose menu items.
