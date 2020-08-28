@@ -246,9 +246,10 @@ class Cou extends AppModel {
     
     // Create options list all other COUS in CO
     $optionArrays = $this->find('all', $args);
-    $optionList = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
+    $parentNames = $this->childCousById($coId, true);
+    $optionList = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name','{n}.Cou.parent_id');
     
-    return $optionList;
+    return $parentNames;
   }
 
   /**
