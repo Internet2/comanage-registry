@@ -193,6 +193,7 @@
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
                     $attrs['empty'] = $vv_allow_empty_cou;
+                    $attrs['class'] = 'focusFirst';
 
                     if($e && !$es) {
                       print $this->Form->select('cou_id',
@@ -225,11 +226,14 @@
               <div class="field-info">
                 <?php
                   global $cm_lang, $cm_texts;
-                  $attrs = array('class' => 'focusFirst');
                   $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
                     ? $co_person_roles[0]['CoPersonRole']['affiliation']
                     : AffiliationEnum::Member);
                   $attrs['empty'] = false;
+            
+                  if(empty($permissions['cous'])):
+                    $attrs = array('class' => 'focusFirst');
+                  endif;
 
                   if($e && !$es) {
                     print $this->Form->select('affiliation',
