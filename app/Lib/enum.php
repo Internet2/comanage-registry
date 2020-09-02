@@ -334,6 +334,7 @@ class IdentifierEnum
   const SamlPairwise       = 'pairwiseid';
   const SamlSubject        = 'subjectid';
   const UID                = 'uid';
+}
 // These generally align with the TAP Core Schema
 class IdentityDocumentEnum {
   const BirthCertificate  = 'BC';
@@ -354,8 +355,6 @@ class IdentityVerificationMethodEnum {
   const Online    = 'O';
   const Physical  = 'P';
   const Remote    = 'R';
-}
-
 }
 
 class JobStatusEnum
