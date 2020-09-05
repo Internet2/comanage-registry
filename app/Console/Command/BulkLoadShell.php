@@ -113,6 +113,47 @@
         $autoGroups[ $grp['CoGroup']['group_type'] ][ $cou_id ] = $grp['CoGroup']['id'];
       }
 
+      // Open the input file and read the metadata
+      $infile = $this->args[1];
+      $handle = fopen($infile, "r");
+
+      if(!$handle) {
+        throw new InvalidArgumentException(_txt('er.file.read', array($infile)));
+      }
+      
+      // Read the metadata block
+      $metajson = fgets($handle);
+      
+      $meta = json_decode($metajson, true);
+      
+      // Additional models to look for
+      $pluginModels = array();
+      
+      if(!empty($meta['meta']['pluginModels'])) {
+        $pluginModels = $meta['meta']['pluginModels'];
+        
+        // Merge plugin models into the configuration
+        
+        foreach(array('CoPerson', 'Configuration') as $mt) {
+          foreach($pluginModels[$mt] as $m) {
+            // Make sure we're not overriding a core model. Note plugins risk
+            // all sorts of chaos if they reimplement a core model, so we shouldn't
+            // really need to test for this.
+            $bits = explode(".", $m, 2);
+            
+            if(!in_array($bits[1], $this->uses)) {
+              $tableName = Inflector::tableize($bits[1]);
+              
+              // Load the plugin model
+              $this->loadModel($m);
+              
+              // Register the table name
+              $this->dropIndexes[] = $tableName;
+            }
+          }
+        }
+      }
+      
       // Use the ConnectionManager to get the database config to pass to adodb.
       $db = ConnectionManager::getDataSource('default');
       
@@ -123,36 +164,23 @@
       // Records to load, keyed by table
       $outrecords = array();
       
-      // First load records from each file
-      for($i = 1;$i < count($this->args);$i++) {
-        $infile = $this->args[$i];
-        $line = 1;
+      // Load records from the file
+      $line = 1;
+      
+      $this->out(date('Y-m-d H:i:s ') . _txt('sh.bl.file.in', array($infile)));
+      
+      while(($recordjson = fgets($handle)) !== false) {
+        $line++;
         
-        $this->out(date('Y-m-d H:i:s ') . _txt('sh.bl.file.in', array($infile)));
-
-        // Open the input file and read the metadata
-        $handle = fopen($infile, "r");
-
-        if(!$handle) {
-          $this->out(date('Y-m-d H:i:s ') . _txt('er.file.read', array($infile)));
+        $inrecord = json_decode($recordjson, true);
+        
+        if(!$inrecord) {
+          $this->out(date('Y-m-d H:i:s ') . _txt('er.sh.bl.json', array($infile, $line)));
           continue;
         }
         
-        // XXX we don't need metadata right now...
-        $metajson = fgets($handle);
-        
-        $meta = json_decode($metajson, true);
-        
-        while(($recordjson = fgets($handle)) !== false) {
-          $line++;
-          
-          $inrecord = json_decode($recordjson, true);
-          
-          if(!$inrecord) {
-            $this->out(date('Y-m-d H:i:s ') . _txt('er.sh.bl.json', array($infile, $line)));
-            continue;
-          }
-          
+        if(!empty($inrecord['CoPerson'])) {
+          // Process a CO Person record
           // Track which Automatic Group Memberships we should create, by COU ID
           $autoGroupTodo = array('CO' => array(
             'status' => $inrecord['CoPerson']['status'],
@@ -423,35 +451,84 @@
             }
           }
           
-          // Create appropriate Automatic Group Memberships since we don't need an expensive
-          // recalculation job to run
-          foreach($autoGroupTodo as $couId => $cfg) {
-            // Always add an Active Group Membership
-            
-            foreach(array(GroupEnum::AllMembers, GroupEnum::ActiveMembers) as $groupType) {
-              if($groupType == GroupEnum::ActiveMembers 
-                 && !in_array($cfg['status'], array(StatusEnum::Active, StatusEnum::GracePeriod)))
-                continue;
+          // See if there are any plugin models in the record
+          
+          if(!empty($pluginModels['CoPerson'])) {
+            foreach($pluginModels['CoPerson'] as $m) {
+              $bits = explode(".", $m, 2);
               
-              $id = ++$maxIds['co_group_members'];
-              
-              $membership = array(
-                'id' => $id,
-                'co_group_id' => $autoGroups[$groupType][$couId], // $couId might be "CO"
-                'co_person_id' => $coPersonId,
-                'member' => true,
-                'owner'  => false,
-                'source_org_identity_id' => $cfg['source_org_identity_id']
-              );
-              
-              $outrecords['co_group_members'][] = $this->recordToRow($membership, array(), $this->getFields('CoGroupMember'));
+              if(!empty($inrecord[ $bits[1] ])) {
+                // Found it, walk the list
+                $tableName = Inflector::tableize($bits[1]);
+                
+                if(isset($maxIds[$tableName])) {
+                  foreach($inrecord[ $bits[1] ] as $r) {
+                    $id = ++$maxIds[$tableName];
+                    
+                    $outrecords[$tableName][] = $this->recordToRow($r,
+                                                                   array('id' => $id,
+                                                                         'co_person_id' => $coPersonId),
+                                                                   $this->getFields($bits[1]));
+                  }
+                }
+                
+                break; // Done with the foreach
+              }
             }
+          }
+        } else {
+          // There was no CoPerson record in the JSON blob, so it must be a Configuration plugin model
+          
+          if(!empty($pluginModels['Configuration'])) {
+            foreach($pluginModels['Configuration'] as $m) {
+              $bits = explode(".", $m, 2);
+              
+              if(!empty($inrecord[ $bits[1] ])) {
+                // Found it, process the record
+                $tableName = Inflector::tableize($bits[1]);
+                
+                if(isset($maxIds[$tableName])) {
+                  $id = ++$maxIds[$tableName];
+                  
+                  $outrecords[$tableName][] = $this->recordToRow($inrecord[ $bits[1] ],
+                                                                 array('id' => $id),
+                                                                 $this->getFields($bits[1]));
+                }
+                
+                break; // Done with the foreach
+              }
+            }
+          }
+        }
+        
+        // Create appropriate Automatic Group Memberships since we don't need an expensive
+        // recalculation job to run
+        foreach($autoGroupTodo as $couId => $cfg) {
+          // Always add an Active Group Membership
+          
+          foreach(array(GroupEnum::AllMembers, GroupEnum::ActiveMembers) as $groupType) {
+            if($groupType == GroupEnum::ActiveMembers 
+               && !in_array($cfg['status'], array(StatusEnum::Active, StatusEnum::GracePeriod)))
+              continue;
+            
+            $id = ++$maxIds['co_group_members'];
+            
+            $membership = array(
+              'id' => $id,
+              'co_group_id' => $autoGroups[$groupType][$couId], // $couId might be "CO"
+              'co_person_id' => $coPersonId,
+              'member' => true,
+              'owner'  => false,
+              'source_org_identity_id' => $cfg['source_org_identity_id']
+            );
+            
+            $outrecords['co_group_members'][] = $this->recordToRow($membership, array(), $this->getFields('CoGroupMember'));
           }
         }
       }
       
       // Drop the indexes of the tables we'll write to to improve write performance
-      $this->manageIndexes($db, 'drop');
+      $this->manageIndexes($db, 'drop', $pluginModels);
       
       // We use native Postgres calls in order to get access to the COPY FROM
       // command. This is a Postgres-specific command.
@@ -492,7 +569,7 @@
       }
       
       // Restore the database indexes
-      $this->manageIndexes($db, 'create');
+      $this->manageIndexes($db, 'create', $pluginModels);
     }
     
     /**
@@ -544,7 +621,7 @@
         'dbtype',
         array(
           'short'    => 't',
-          'help'     => 'Target database type (only "postgres" is current supported)',
+          'help'     => 'Target database type (only "postgres" is currently supported)',
           'choices'  => array('postgres'),
           'default'  => 'postgres'
         )
@@ -555,10 +632,11 @@
           'required' => true
         )
       )->addArgument(
-        // Cake doesn't support ... notation
-        'infiles',
+        // We only support one file at a time because per-file metadata is hard
+        // to deal with across multiple files.
+        'infile',
         array(
-          'help'     => 'One or more input data files in specified json format',
+          'help'     => 'Input data file in specified json format',
           'required' => true
         )
       )->description("Generate SQL for bulk load");
@@ -595,12 +673,13 @@
      * Drop or (re)create table indexes.
      *
      * @since  COmanage Registry v3.3.0
-     * @param  DatabaseConnection $db     Database connection handle
-     * @param  string             $action 'create' or 'drop'
+     * @param  DatabaseConnection $db           Database connection handle
+     * @param  string             $action       'create' or 'drop'
+     * @param  array              $pluginModels Array of plugin models to process
      * @throws RuntimeException
      */
     
-    protected function manageIndexes($db, $action) {
+    protected function manageIndexes($db, $action, $pluginModels) {
       $db_driver = explode("/", $db->config['datasource'], 2);
       
       if($db_driver[0] != 'Database') {
@@ -616,36 +695,76 @@
       $dbc = ADONewConnection($db_driverName);
       $dict = NewDataDictionary($dbc);
       
+      // This code is similar to, but not identical to, DatabaseShell.
       if($dbc->Connect($db->config['host'],
                        $db->config['login'],
                        $db->config['password'],
                        $db->config['database'])) {
-        // Note we don't load plugin schemas since we don't currently need to do anything with them
-        $schemaFile = APP . '/Config/Schema/schema.xml';
+        $schemaFiles = array(
+          APP . '/Config/Schema/schema.xml'
+        );
         
-        $schema = Xml::toArray(Xml::build(file_get_contents($schemaFile)));
+        if(!empty($pluginModels)) {
+          // This is actually an array of arrays, where the key is the parent
+          // model, but we don't care about the parent model here.
+          
+          foreach(array_keys($pluginModels) as $pk) {
+            foreach($pluginModels[$pk] as $pm) {
+              $bits = explode(".", $pm, 2);
+              
+              // Plugins can be under either APP or LOCAL
+              foreach(array(APP, LOCAL) as $dir) {
+                // Check to see if the file exists/is readable
+                $schemaFile = $dir . '/Plugin/' . $bits[0] . '/Config/Schema/schema.xml';
+
+                if(is_readable($schemaFile)) {
+                  $schemaFiles[] = $schemaFile;
+                  break;
+                }
+              }
+            }
+          }
+        }
         
         $this->out(date('Y-m-d H:i:s ') . _txt('sh.bl.indexes.' . ($action == 'drop' ? 'off' : 'on')));
         
-        foreach($schema['schema']['table'] as $table) {
-          if(in_array($table['@name'], $this->dropIndexes)) {
-            $this->out(date('Y-m-d H:i:s ') . "-> ". $table['@name']);
-            
-            foreach($table['index'] as $index) {
-              if($action == 'drop') {
-                $sql = $dict->dropIndexSql(
-                  $db->config['prefix'] . $index['@name'], 
-                  $db->config['prefix'] . $table['@name']
-                );
-              } else {
-                $sql = $dict->createIndexSql(
-                  $db->config['prefix'] . $index['@name'], 
-                  $db->config['prefix'] . $table['@name'],
-                  $index['col']
-                );
-              }              
+        foreach($schemaFiles as $schemaFile) {
+          $this->out(date('Y-m-d H:i:s ') . "-- " . $schemaFile);
+          
+          $schema = Xml::toArray(Xml::build(file_get_contents($schemaFile)));
+          
+          foreach($schema['schema']['table'] as $table) {
+            if(in_array($table['@name'], $this->dropIndexes)) {
+              $this->out(date('Y-m-d H:i:s ') . "-> ". $table['@name']);
               
-              $dict->executeSqlArray($sql);
+              $indexes = array();
+              
+              if(!empty($table['@name'])) {
+                // Annoyingly, $table['index'] might not be an array if there is
+                // only one entry...
+                if(isset($table['index']['@name'])) {
+                  $indexes[] = $table['index'];
+                } else {
+                  $indexes = $table['index'];
+                }
+              }
+              
+              foreach($indexes as $index) {
+                if($action == 'drop') {
+                  $sql = $dict->dropIndexSql(
+                    $db->config['prefix'] . $index['@name'], 
+                    $db->config['prefix'] . $table['@name']
+                  );
+                } else {
+                  $sql = $dict->createIndexSql(
+                    $db->config['prefix'] . $index['@name'], 
+                    $db->config['prefix'] . $table['@name'],
+                    $index['col']
+                  );
+                }              
+                
+                $dict->executeSqlArray($sql);
+              }
             }
           }
         }
