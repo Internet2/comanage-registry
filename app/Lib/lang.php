@@ -907,6 +907,7 @@ original notification at
   ),
   
   // Errors
+  'er.ae.defined' =>  'An Attribute Enumeration is already defined for the attribute "%1$s"',
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.ae.value' =>    'Value not permitted by Attribute Enumeration (%1$s)',
   'er.archived' =>    'This record is already archived and cannot be edited',
@@ -1180,6 +1181,8 @@ original notification at
   'fd.cou-a' =>       '%1$s COU',
   'fd.co_group.auto' => 'Automatic',
   'fd.co_group.group_type' => 'Group Type',
+  'fd.co_group.nesting_mode_all' => 'Require All for Nested Memberships',
+  'fd.co_group.nesting_mode_all.desc' => 'For membership in this group via nested groups, require membership in <i>all</i> Nested (Source) Groups to be a member of this group (instead of <i>any</i>)',
   'fd.co_group.source.1' => 'Source Group',
   'fd.co_group.source.pl' => 'Source Groups',
   'fd.co_group.source.desc' => 'Members of each Source Group become indirect members of %1$s',
@@ -1194,6 +1197,9 @@ original notification at
   'fd.co_group_member.sync.count.done' => 'Reprovisioned %1$s record(s)',
   'fd.co_group_member.sync.window' => 'Group Validity Sync Window',
   'fd.co_group_member.sync.window.desc' => 'When performing scheduled reprovisioning of group memberships due to validity status change, the "look back" window in minutes within which to check for changes (0 to disable)',
+  'fd.co_group_nesting.negate' => 'Negate Nesting',
+  'fd.co_group_nesting.negated' => 'Negative Membership',
+  'fd.co_group_nesting.negate.desc' => 'If true, members of the Nested Group will <i>not</i> be eligible to be a member of the Target Group',
   'fd.co_people.filter' => 'CO Person Filter',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',

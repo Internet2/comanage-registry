@@ -797,14 +797,104 @@ class CoGroupMember extends AppModel {
    * @param  Array     $targetGroup      Array describing CO Group to add the membership to
    * @param  Array     $coGroupNestingId CO Group Nesting ID
    * @param  Integer   $coPersonId       CO Person ID of member
-   * @param  Boolean   $eligible         Whether the CO Person is eligible to be a member of $targetGroup
+   * @param  Boolean   $sourceMember     Whether the CO Person is a member of the source CoGroup
    */
   
-  public function syncNestedMembership($targetGroup, $coGroupNestingId, $coPersonId, $eligible) {
-    // This is similar to syncMembership(), however we assume our caller has already
-    // determined the correct current state.
+  public function syncNestedMembership($targetGroup, $coGroupNestingId, $coPersonId, $sourceMember) {
+    // The operation we perform (add or delete) may be inverted by the CoGroupNesting
+    // configuration.
     
-    if($eligible) {
+    // Our pseudologic for what to do here is as follows:
+    //  t = isMemberOf($targetGroup)
+    //  t' = shouldBeMemberOf($targetGroup)
+    //  
+    //  if(t && !t') addTo($targetGroup)
+    //  elseif(!t && t') removeFrom($targetGroup)
+    
+    // $coPersonId should be a member of $targetGroup if any of the following are true
+    // (1) Nesting/Negate = false 
+    //     AND TargetGroup/Mode = any
+    //     AND $sourceMember
+    //     AND not a member of any source group for target where Nesting/Negate = true
+    // (2) Nesting/Negate = false
+    //     AND TargetGroup/Mode = all
+    //     AND member of all source groups for target
+    //     AND not a member of any source group for target where Nesting/Negate = true
+    // (3) Nesting/Negate = true
+    //     AND TargetGroup/Mode = any
+    //     AND !$sourceMember
+    //     AND member of any non-negated source group for target
+    //     AND not a member of any source group for target where Nesting/Negate = true
+    // (4) Nesting/Negate = true
+    //     AND TargetGroup/Mode = all
+    //     AND !$sourceMember
+    //     AND member of all non-negated source groups for target
+    //     AND not a member of any source group for target where Nesting/Negate = true
+    
+    $shouldBe = false;      // Should $coPerson be a member of $targetGroup?
+    $all = false;           // Is $targetGroup configured for nesting all mode?
+    $negated = false;       // $coPersonId is ineligible for $targetGroup due to any negative membership
+    $isAny = false;         // $coPersonId is a member of any (positive) source group for $targetGroup
+    $isAll = false;         // $coPersonId is a member of all (positive) source groups for $targetGroup
+    $isCurrent = false;     // $coPersonId is a member of $targetGroup
+    
+    // Figure out our configuration
+    
+    $all = $this->CoGroup->field('nesting_mode_all', array('CoGroup.id' => $targetGroup['id']));
+    
+    // All nestings for $targetGroup
+    $args = array();
+    $args['conditions']['CoGroupNesting.target_co_group_id'] = $targetGroup['id'];
+    $args['contain'] = false;
+    
+    // This should always have at least the current nesting
+    $nestings = $this->CoGroupNesting->find('all', $args);
+    
+    // Walk all nestings to determine negation and current memberships. To track
+    // $isAll, we need at least one positive membership. In other words, a Target
+    // Group with only one Nesting, and that one Nesting is negative, does not
+    // automatically make everybody else a member.
+    $pAvail = 0;    // Available positive memberships
+    $pCount = 0;    // Actual positive memberships
+    
+    foreach($nestings as $n) {
+      if($n['CoGroupNesting']['negate']) {
+        // If this is the current nesting we don't need to look anything up
+        if((($n['CoGroupNesting']['id'] == $coGroupNestingId) && $sourceMember)
+           ||
+           $this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
+          $negated = true;
+        }
+      } else {
+        $pAvail++;
+        
+        if((($n['CoGroupNesting']['id'] == $coGroupNestingId) && $sourceMember)
+           ||
+           $this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
+          $isAny = true;
+          $pCount++;
+        }
+      }
+    }
+    
+    // We need at least one positive group to count as ALL
+    $isAll = ($pAvail > 0 && $pCount == $pAvail);
+    
+    if(!$negated && !$all && $isAny) {
+      // Case (1) and (3)
+      $shouldBe = true;
+    } elseif(!$negated && $all && $isAll) {
+      // Case (2) and (4)
+      $shouldBe = true;
+    }
+    
+    $isCurrent = $this->isMember($targetGroup['id'], $coPersonId);
+    
+    $htxtkey = '';
+    $hAction = null;
+    
+    if(!$isCurrent && $shouldBe) {
+      // Add a CoGroupMember record associated with this Nesting
       $this->clear();
       
       $data = array();
@@ -818,10 +908,15 @@ class CoGroupMember extends AppModel {
       
       $htxtkey = 'rs.grm.added-n';
       $hAction = ActionEnum::CoGroupMemberAdded;
-    } else {
+    } elseif($isCurrent && !$shouldBe) {
+      // We delete all CoGroupMembers associated with any Nesting
       $conditions = array(
         'CoGroupMember.co_person_id' => $coPersonId,
-        'CoGroupMember.co_group_nesting_id' => $coGroupNestingId
+        'CoGroupMember.co_group_id' => $targetGroup['id'],
+        'CoGroupMember.co_group_nesting_id IS NOT NULL',
+        // For updateAll, we need to manually inject changelog
+        'CoGroupMember.deleted' => false,
+        'CoGroupMember.co_group_member_id' => null
       );
       
       $this->deleteAll($conditions, true, true);
@@ -829,27 +924,29 @@ class CoGroupMember extends AppModel {
       $htxtkey = 'rs.grm.deleted-n';
       $hAction = ActionEnum::CoGroupMemberDeleted;
     }
-    
-    // Pull the nested group name
-    $args = array();
-    $args['CoGroupNesting.id'] = $coGroupNestingId;
-    $args['contain'] = array('CoGroup');
 
-    $coGroupNesting = $this->CoGroup->CoGroupNesting->find('first', $args);
-    
-    $hText = _txt($htxtkey, array($targetGroup['name'],
-                                  $targetGroup['id'],
-                                  !empty($coGroupNesting['CoGroup']['name']) ? $coGroupNesting['CoGroup']['name'] : "(?)",
-                                  !empty($coGroupNesting['CoGroup']['id']) ? $coGroupNesting['CoGroup']['id'] : "(?)"));
-    
-    // Cut a history record
-    $this->CoPerson->HistoryRecord->record($coPersonId,
-                                           null,
-                                           null,
-                                           null,
-                                           $hAction,
-                                           $hText,
-                                           $targetGroup['id']);
+    if($hAction) {
+      // Pull the nested group name
+      $args = array();
+      $args['CoGroupNesting.id'] = $coGroupNestingId;
+      $args['contain'] = array('CoGroup');
+
+      $coGroupNesting = $this->CoGroup->CoGroupNesting->find('first', $args);
+      
+      $hText = _txt($htxtkey, array($targetGroup['name'],
+                                    $targetGroup['id'],
+                                    !empty($coGroupNesting['CoGroup']['name']) ? $coGroupNesting['CoGroup']['name'] : "(?)",
+                                    !empty($coGroupNesting['CoGroup']['id']) ? $coGroupNesting['CoGroup']['id'] : "(?)"));
+      
+      // Cut a history record
+      $this->CoPerson->HistoryRecord->record($coPersonId,
+                                             null,
+                                             null,
+                                             null,
+                                             $hAction,
+                                             $hText,
+                                             $targetGroup['id']);
+    }
   }
   
   /**

@@ -71,6 +71,11 @@ class CoGroupNesting extends AppModel {
         'rule' => 'numeric',
         'required' => true
       )
+    ),
+    'negate' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

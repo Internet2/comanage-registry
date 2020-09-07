@@ -139,7 +139,7 @@
   <?php endif; // group_type ?>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('name', _txt('fd.name')) . ' <span class="required">*</span>' : _txt('fd.name')); ?>
+      <div class="field-title"><?php print ($e ? $this->Form->label('name', _txt('fd.name')) . ' <span class="required">*</span>' : _txt('fd.name')); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -147,7 +147,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+      <div class="field-title"><?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('description') : filter_var($co_groups[0]['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -155,20 +155,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.open'); ?>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      <?php
-        if ($e) {
-          print $this->Form->label('open',_txt('fd.open'));
-        }
-      ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+      <div class="field-title"><?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?></div>
     </div>
     <div class="field-info">
       <?php
@@ -188,6 +175,33 @@
           }
         } else {
           print _txt('en.status', null, $co_groups[0]['CoGroup']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.open'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      <?php
+        if ($e) {
+          print $this->Form->label('open',_txt('fd.open'));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.co_group.nesting_mode_all'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.co_group.nesting_mode_all.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('nesting_mode_all') : ($co_groups[0]['CoGroup']['nesting_mode_all'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      <?php
+        if ($e) {
+          print $this->Form->label('nesting_mode_all',_txt('fd.co_group.nesting_mode_all'));
         }
       ?>
     </div>
@@ -363,6 +377,10 @@
                                     array('controller' => 'co_groups',
                                           'action' => $this->action,
                                           $n[$gnm]['id']));
+            
+            if($n['negate']) {
+              print " (" . _txt('fd.co_group_nesting.negated') . ")";
+            }
           ?></td>
           <td class="actions"><?php
             if($e && $permissions['nest']) {
