@@ -63,7 +63,7 @@
 <ul id="<?php print $this->action; ?>_co_group_nestings" class="fields form-list">
   <li>
     <div class="field-name">
-      <?php print _txt('fd.co_group.target.1'); ?>
+      <div class="field-title"><?php print _txt('fd.co_group.target.1'); ?></div>
     </div>
     <div class="field-info">
       <?php print filter_var($vv_parent_group['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
@@ -71,7 +71,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print $this->Form->label('co_group_id', _txt('ct.co_group_nestings.1')); ?>
+      <div class="field-title"><?php print $this->Form->label('co_group_id', _txt('ct.co_group_nestings.1')); ?></div>
     </div>
     <div class="field-info">
       <?php
@@ -88,6 +88,18 @@
             print $this->Form->error('co_group_id');
           }
         }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.co_group_nesting.negate'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.co_group_nesting.negate.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php 
+        print $this->Form->input('negate');
+        print $this->Form->label('negate',_txt('fd.co_group_nesting.negate'));
       ?>
     </div>
   </li>

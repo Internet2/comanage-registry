@@ -170,6 +170,11 @@ class CoGroup extends AppModel {
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'nesting_mode_all' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   

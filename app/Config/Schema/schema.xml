@@ -608,6 +608,7 @@
     <field name="status" type="C" size="2" />
     <field name="group_type" type="C" size="2" />
     <field name="auto" type="L" />
+    <field name="nesting_mode_all" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_group_id" type="I">
@@ -1348,6 +1349,7 @@
       <notnull />
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="negate" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_group_nesting_id" type="I">
