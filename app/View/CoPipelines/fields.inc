@@ -408,6 +408,33 @@
           </li>
           <li>
             <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.pi.sync.coperson.status'); ?>
+              </div>
+              <span class="field-desc"><?php print _txt('fd.pi.sync.coperson.status.desc'); ?></span>
+            </div>
+            <div class="field-info">
+              <?php
+                global $cm_lang, $cm_texts;
+                $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_coperson_status'])
+                                   ? $co_pipelines[0]['CoPipeline']['sync_coperson_status']
+                                   : '');
+                $attrs['empty'] = true;
+                if($e) {
+                  print $this->Form->select('sync_coperson_status',
+                                            $cm_texts[ $cm_lang ]['en.status'],
+                                            $attrs);
+                  if($this->Form->isFieldError('sync_coperson_status')) {
+                    print $this->Form->error('sync_coperson_status');
+                  }
+                } else {
+                  print _txt('en.status', null, $co_pipelines[0]['CoPipeline']['sync_coperson_status']);
+                }
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
               <div class="field-title"><?php print _txt('fd.pi.sync.role'); ?></div>
             </div>
             <div class="field-info checkbox">
