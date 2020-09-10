@@ -418,8 +418,8 @@
                 global $cm_lang, $cm_texts;
                 $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_coperson_status'])
                                    ? $co_pipelines[0]['CoPipeline']['sync_coperson_status']
-                                   : StatusEnum::Active);
-                $attrs['empty'] = false;
+                                   : '');
+                $attrs['empty'] = true;
                 if($e) {
                   print $this->Form->select('sync_coperson_status',
                                             $cm_texts[ $cm_lang ]['en.status'],

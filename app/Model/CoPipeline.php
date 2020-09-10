@@ -128,8 +128,8 @@ class CoPipeline extends AppModel {
                                       StatusEnum::PendingApproval,
                                       StatusEnum::PendingConfirmation,
                                       StatusEnum::Suspended)),
-      'required' => true,
-      'message' => 'A valid status must be selected'
+      'required' => false,
+      'allowEmpty' => true
     ),
     'create_role' => array(
       'rule'       => 'boolean',
@@ -775,7 +775,7 @@ class CoPipeline extends AppModel {
       $coPerson = array(
         'CoPerson' => array(
           'co_id'  => $orgIdentity['OrgIdentity']['co_id'],
-          'status' => $coPipeline['CoPipeline']['sync_coperson_status']
+          'status' => empty($coPipeline['CoPipeline']['sync_coperson_status']) ? StatusEnum::Active : $coPipeline['CoPipeline']['sync_coperson_status']
         )
       );
       

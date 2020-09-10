@@ -1509,7 +1509,7 @@ original notification at
   'fd.pi.sync.affil' => 'CO Person Role Affiliation',
   'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
   'fd.pi.sync.coperson.status' => 'New CO Person Status',
-  'fd.pi.sync.coperson.status.desc' => 'If a new CoPerson record is created, set its status to this',
+  'fd.pi.sync.coperson.status.desc' => 'If set, new CoPerson records will be created with this status',
   'fd.pi.sync.cou' => 'Sync to COU',
   'fd.pi.sync.cou.repl' => 'Replace Record in COU',
   'fd.pi.sync.cou.repl.desc' => 'If the CO Person has an existing role in the specified COU, that role will be deleted/expired',
