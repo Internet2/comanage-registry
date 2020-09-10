@@ -703,6 +703,8 @@
     <field name="bcc" type="C" size="256" />
     <field name="message_subject" type="C" size="256" />
     <field name="message_body" type="X" size="4000" />
+    <field name="message_body_html" type="X" size="4000" />
+    <field name="format" type="C" size="4" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

@@ -256,7 +256,7 @@ Please click the link below to confirm that this is a valid request.
 
 For questions regarding this process, please contact your administrator.',
   'em.invite.ok'             => 'Invitation has been emailed to %1$s',
-  'em.invite.footer'         => 'This email was sent using %1$s.',
+  'em.invite.footer'         => 'This email was sent from %1$s.',
   'em.notification.subject'  => 'New Notification for (@CO_NAME)',
   'em.notification.body'     => '(@COMMENT)
 
@@ -659,6 +659,11 @@ original notification at
                                  MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
                                  MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
                                  MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification'),
+
+  // Message Template Contexts
+  'en.mt.format' =>       array(MessageFormatEnum::Plaintext        => 'Plain Text',
+                                MessageFormatEnum::PlaintextAndHTML => 'Plain Text and HTML',
+                                MessageFormatEnum::HTML             => 'HTML'),
   
   // Extended type, key must be en.model.attribute
   'en.name.type' =>        array(NameEnum::Alternate => 'Alternate',
@@ -1034,6 +1039,9 @@ original notification at
   'er.lock' =>        'Error obtaining lock: %1$s',
   'er.lock.exists' => 'Lock #%1$s already held by pid %2$s since %3$s',
   'er.match.response' => 'Match Server responded: %1$s',
+  'er.mt.unknown' => 'Unknown %1$s',
+  'er.mt.invalid' => 'Invalid %1$s',
+  'er.mt.msg' => 'Template emailed to %1$s',
   'er.multiple' =>    'Unexpectedly found multiple results',
   'er.nd.already'  => 'NSF Demographic data already exists for this person',
   'er.nm.official.et' => 'The Name type "official" cannot be deleted or renamed',
@@ -1469,10 +1477,13 @@ original notification at
   'fd.model' =>       'Model',
   'fd.modified' =>    'Modified',
   'fd.modified.tz' => 'Modified (%1$s)',
-  'fd.mt.body' =>     'Message Body',
+  'fd.mt.body.txt' =>  'Message Body (Plain Text)',
+  'fd.mt.body.html' => 'Message Body (HTML)',
   'fd.mt.body.desc' => 'Body for message to be sent. Max 4000 characters, see <a href="https://spaces.at.internet2.edu/display/COmanage/Notification+Message+Substitutions">supported substitutions</a>.',
   'fd.mt.context' =>  'Message Context',
+  'fd.mt.format' =>   'Message Format',
   'fd.mt.sub' =>      'Message Subject',
+  'fd.mt.mail' =>     'Email:',
   'fd.mt.sub.desc' => 'Subject line for message to be sent. See <a href="https://spaces.at.internet2.edu/display/COmanage/Notification+Message+Substitutions">supported substitutions</a>.',
   'fd.name' =>        'Name',
   'fd.name-a' =>      '%1$s Name',
@@ -1786,6 +1797,7 @@ original notification at
   'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
   'in.pl.noconfig'     => 'This plugin has no configurable options',
+  'in.tpl.msg.test'    => 'Provide a valid email to forward a preview of the template.',
   'in.widgets.none'    => 'No widgets have been created for this dashboard yet.',
   
   // Menu
@@ -1839,6 +1851,8 @@ original notification at
   'js.reinvite'       =>  'Are you sure you wish to resend an invitation to {0}?  Any previous invitation will be invalidated.',
   'js.cancel.job'     =>  'Are you sure you wish to cancel this job? Cancelation may not be immediate.',
   'js.confirm.verify' =>  'Are you sure you wish to send a verification request to {0}? Any previous request will be invalidated.',
+  'js.input.provide'  =>  'Please provide your input.',
+  'js.text'           =>  'Input:',
 
   // Operations
   'op.accept' =>      'Accept',
@@ -1943,6 +1957,7 @@ original notification at
   'op.inventory.view' => 'View Inventory',
   'op.manage.grm' =>  'Manage Group Memberships',
   'op.menu' =>        'Menu',
+  'op.msg.tpl.test' => 'Test Template',
   'op.last' =>        'Last',
   'op.link' =>        'Link',
   'op.link.confirm' => 'Are you sure you wish to proceed?',
@@ -1956,6 +1971,8 @@ original notification at
   'op.logout' =>      'Logout',
   'op.manage' =>      'Manage',
   'op.manage-a' =>    'Manage %1$s',
+  'op.mt' => 'Message Template',
+  'op.mt.test.wait' => 'Sending...',
   'op.next' =>        'Next',
   'op.ois.conf.gr' => 'Configure Group Mapping',
   'op.ois.inventory' => 'View %1$s Inventory',

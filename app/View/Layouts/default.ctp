@@ -337,6 +337,15 @@
           <span id="dialog-text"><?php print _txt('op.proceed.ok'); ?></span>
         </p>
       </div>
+      <!-- Dialog Form -->
+      <div id="form-dialog" style="display:none;">
+        <form method="post" action="" >
+          <fieldset>
+            <legend id="form-dialog-legend"><?php print _txt('js.input.provide');?></legend>
+            <p><span id="form-dialog-input-lbl"><?php print _txt('js.text');?></span>&nbsp;<input id="form-dialog-text" type="text"/></p>
+          </fieldset>
+        </form>
+      </div>
     <?php endif // !eds ?>
 
     <!-- loading animation -->

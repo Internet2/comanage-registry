@@ -476,12 +476,15 @@ class CoExpirationPolicy extends AppModel {
             
             $subject = null;
             $body = null;
+            $format=MessageFormatEnum::Plaintext;
             
             if(!empty($p['ActNotifyMessageTemplate']['id'])) {
-              $subject = processTemplate($p['ActNotifyMessageTemplate']['message_subject'],
+              list($msg_body, $subject, $format, $cc, $bcc) = $this->ActNotifyMessageTemplate
+                                                                   ->getMessageTemplateFields($p['ActNotifyMessageTemplate']);
+              $subject = processTemplate($subject,
                                          $substitutions,
                                          $role['CoPerson']['Identifier']);
-              $body = processTemplate($p['ActNotifyMessageTemplate']['message_body'],
+              $body = processTemplate($msg_body,
                                       $substitutions,
                                       $role['CoPerson']['Identifier']);
             } else {
@@ -521,7 +524,10 @@ class CoExpirationPolicy extends AppModel {
                                 false,
                                 null,
                                 $subject,
-                                $body);
+                                $body,
+                                null,
+                                null,
+                                $format);
               }
               catch(Exception $e) {
                 if($appShell) {
@@ -557,7 +563,10 @@ class CoExpirationPolicy extends AppModel {
                                 false,
                                 null,
                                 $subject,
-                                $body);
+                                $body,
+                                null,
+                                null,
+                                $format);
               }
               catch(Exception $e) {
                 if($appShell) {
@@ -589,7 +598,10 @@ class CoExpirationPolicy extends AppModel {
                                 false,
                                 null,
                                 $subject,
-                                $body);
+                                $body,
+                                null,
+                                null,
+                                $format);
               }
               catch(Exception $e) {
                 if($appShell) {
@@ -622,7 +634,10 @@ class CoExpirationPolicy extends AppModel {
                                 false,
                                 null,
                                 $subject,
-                                $body);
+                                $body,
+                                null,
+                                null,
+                                $format);
               }
               catch(Exception $e) {
                 if($appShell) {
@@ -656,7 +671,10 @@ class CoExpirationPolicy extends AppModel {
                                 false,
                                 null,
                                 $subject,
-                                $body);
+                                $body,
+                                null,
+                                null,
+                                $format);
               }
               catch(Exception $e) {
                 if($appShell) {
