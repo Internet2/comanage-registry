@@ -1125,8 +1125,11 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     if($results->code != 200) {
       $jres = json_decode($results->body);
-      
-      throw new RuntimeException($jres->description);
+      if(isset($jres->description)) {
+        throw new RuntimeException($jres->description);
+      } else {
+        throw new RuntimeException(_txt('er.mailmanprovisioner.api.none'));
+      }
     }
     
     return true;
