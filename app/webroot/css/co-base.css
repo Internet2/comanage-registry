@@ -105,7 +105,7 @@ a {
 #skip-to-content:focus {
   top: 0;
   transition: top 0.1s ease-in 0s, background 0.5s linear 0s;
-  background-color: #4796CC;
+  background-color: #0c75c0;
 }
 /* HEADER */
 #banner {
@@ -214,7 +214,7 @@ body.logged-in #user-menu {
   font-size: 16px;
 }
 #global-search-box #CoDashboardQ:focus {
-  background-color: #ffe;
+  background-color: #ffd;
 }
 #global-search-box .mdl-button {
   position: relative;
@@ -407,17 +407,6 @@ form#notificationStatus {
   text-align: right;
 }
 /* Specialty Buttons */
-.co-menu-button a {
-  background-color: #2395E0;
-  color: white;
-  text-align: center;
-  padding: 0.4em;
-  display: block;
-  margin-bottom: -8px;
-}
-.co-menu-button a:hover {
-  background-color: #53B1F4;
-}
 .co-raised-button { /* should be used with mdl-button--raised */
   display: block;
   text-align: center;
@@ -539,9 +528,6 @@ form#notificationStatus {
 #main-menu li li a.selected {
   color: #06c;
   background-color: #fafafa;
-  /* keep these if we find a better method of selecting sub-menu items:
-  color: #0067A3;
-  background-color: #e6f4ff; */
 }
 #main-menu .fa-fw {
   width: 2em;
@@ -602,7 +588,7 @@ body.co_people.canvas .titleNavContainer {
 }
 .pageTitle .deleted,
 .pageTitle .archived {
-  background-color: #e33;
+  background-color: #c33;
   color: white;
   font-size: 0.7em;
   font-weight: 600;
@@ -612,7 +598,7 @@ body.co_people.canvas .titleNavContainer {
   text-transform: uppercase;
 }
 .pageTitle .archived {
-  background-color: #808083;
+  background-color: #666;
 }
 /* TOP CONTENT LINKS (contextual) */
 #topLinks {
@@ -629,7 +615,7 @@ body.co_people.canvas .titleNavContainer {
 }
 #topLinks a {
   text-decoration: none;
-  color: #1d5987;
+  color: #06c;
   /* override ui-icon settings: */
   border: none;
   background: none;
@@ -700,7 +686,7 @@ body.co_people.canvas .titleNavContainer {
   font-size: 16px;
 }
 #search input#CoDashboardQ:focus {
-  background-color: #ffe;
+  background-color: #ffd;
   border: 1px solid #ccc;
 }
 #search input[type=submit] {
@@ -1081,8 +1067,7 @@ body.co_petitions .ui-dialog {
   margin: 0;
   min-height: 1.5em;
   padding: 0.5em;
-  /*background-color: #9FC6E2;*/
-  background-color: #1D7AB4;
+  background-color: #0c75c0;
   color: white;
   text-align: center;
 }
@@ -1141,13 +1126,8 @@ body.co_petitions .ui-dialog {
 /********************************/
 /* Listing controls */
 .listControl {
-  color: #1D5987;
   margin: 0;
   clear: left;
-}
-.listControl a:hover {
-  color: #444;
-  text-decoration: none !important;
 }
 .listControl ul,
 .listControl li {
@@ -1363,7 +1343,6 @@ body.co_petitions .ui-dialog {
 #co_people .ui-widget-content .ui-state-focus,
 #co_people .ui-widget-header .ui-state-focus {
   border: 1px solid #79b7e7;
-  /*background-color: #d0e5f5;*/
   background-color: #e6f4ff;
   color: #1d5987;
 }
@@ -1388,7 +1367,7 @@ a.ui-button,
 a.ui-button:link,
 a.ui-button:visited,
 .ui-button {
-  color: #06b;
+  color: #06c;
   text-decoration: none;
 }
 /* For Top Search (co_people index and org_identity index)
@@ -1723,7 +1702,7 @@ ul.data-table li {
   padding: 0;
 }
 #changeLog tr.deleted td {
-  background-color: #e33;
+  background-color: #c33;
   color: white;
 }
 .explorerContainer #changeLog ul {
@@ -2055,7 +2034,7 @@ a.desc::before {
 }
 .ui-widget-header {
   /*background-color: #9FC6E2;*/
-  background-color: #1D7AB4;
+  background-color: #0c75c0;
 }
 .ui-button {
   font-size: 0.9em !important;
@@ -2104,7 +2083,7 @@ table.common-table td {
   padding: 0.25em 0.25em 0.25em 0.5em;
 }
 th {
-  background-color: #1D7AB4;
+  background-color: #0c75c0;
   color: white;
 }
 th a {
