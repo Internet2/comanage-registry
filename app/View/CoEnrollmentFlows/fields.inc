@@ -181,15 +181,17 @@
     } else {
       $("#authenticators").hide('fade');
     }
+    <?php endif; // $vv_authenticators ?>
     
     // If Establish Clusters is enabled, show the available clusters
     
+    <?php if(!empty($vv_clusters) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
     if(document.getElementById('CoEnrollmentFlowEstablishClusterAccounts').checked) {
       $("#clusters").show('fade');
     } else {
       $("#clusters").hide('fade');
     }
-    <?php endif; // $vv_authenticators ?>
+    <?php endif; // $vv_clusters ?>
   }
   
   function tandc_update_gadgets() {

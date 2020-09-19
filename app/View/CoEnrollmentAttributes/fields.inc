@@ -431,7 +431,7 @@
     print $this->Form->hidden('CoEnrollmentAttributeDefault.0.co_enrollment_attribute_id') . "\n";
   }
 
-  $co_enrollment_attribute_attribute = !empty(filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS))
+  $co_enrollment_attribute_attribute = !empty($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'])
                                        ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS)
                                        : '';
   print $this->Form->hidden('attribute', array('value' => $co_enrollment_attribute_attribute)) . "\n";
