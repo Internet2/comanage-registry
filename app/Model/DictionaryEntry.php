@@ -29,9 +29,6 @@ class DictionaryEntry extends AppModel {
   // Define class name for cake
   public $name = "DictionaryEntry";
   
-  // Document foreign keys
-  public $cmPluginHasMany = array();
-  
   // Association rules from this model to other models
   public $belongsTo = array("Dictionary");
   
