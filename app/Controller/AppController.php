@@ -1532,7 +1532,7 @@ class AppController extends Controller {
       throw new LogicException(_txt('er.co.specify'));
     }
     
-    // Specifically whitelist the actions we ignore
+    // Specifically enumerate the actions we ignore
     if(!$this->action !== 'index'
        && $this->action !== 'add'
        && !($this->modelClass === 'CoInvite'

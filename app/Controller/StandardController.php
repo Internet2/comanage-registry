@@ -1045,7 +1045,7 @@ class StandardController extends AppController {
         $this->paginate['contain'] = $this->view_contains;
       }
       
-      // Used either to whitelist which fields can be used for sorting, or
+      // Used either to enumerate which fields can be used for sorting, or
       // explicitly naming sortable fields for complex relations (ie: using
       // linkable behavior).
       $sortlist = array();

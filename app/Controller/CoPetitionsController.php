@@ -1580,15 +1580,15 @@ class CoPetitionsController extends StandardController {
     $targetUrl = $this->CoPetition->field('return_url', array('CoPetition.id' => $id));
 
     if($targetUrl) {
-      // Check that this URL is whitelisted
+      // Check that this URL is allowed
       
-      $whiteList = $this->CoPetition->CoEnrollmentFlow->field('return_url_whitelist',
+      $allowList = $this->CoPetition->CoEnrollmentFlow->field('return_url_allowlist',
                                                               array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
       
-      if(!empty($whiteList)) {
+      if(!empty($allowList)) {
         $found = false;
         
-        foreach(preg_split('/\R/', $whiteList) as $u) {
+        foreach(preg_split('/\R/', $allowList) as $u) {
           if(preg_match($u, $targetUrl)) {
             $found = true;
             break;
@@ -1601,7 +1601,7 @@ class CoPetitionsController extends StandardController {
           $targetUrl = null;
         }
       } else {
-        // No whitelisted URLs, so ignore return_url
+        // No allowed URLs, so ignore return_url
         $targetUrl = null;
       }
     }
@@ -1638,15 +1638,15 @@ class CoPetitionsController extends StandardController {
     $targetUrl = $this->CoPetition->field('return_url', array('CoPetition.id' => $id));
 
     if($targetUrl) {
-      // Check that this URL is whitelisted
+      // Check that this URL is allowed
       
-      $whiteList = $this->CoPetition->CoEnrollmentFlow->field('return_url_whitelist',
+      $allowList = $this->CoPetition->CoEnrollmentFlow->field('return_url_allowlist',
                                                               array('CoEnrollmentFlow.id' => $this->cachedEnrollmentFlowID));
       
-      if(!empty($whiteList)) {
+      if(!empty($allowList)) {
         $found = false;
         
-        foreach(preg_split('/\R/', $whiteList) as $u) {
+        foreach(preg_split('/\R/', $allowList) as $u) {
           if(preg_match($u, $targetUrl)) {
             $found = true;
             break;
@@ -1659,7 +1659,7 @@ class CoPetitionsController extends StandardController {
           $targetUrl = null;
         }
       } else {
-        // No whitelisted URLs, so ignore return_url
+        // No allowed URLs, so ignore return_url
         $targetUrl = null;
       }
     }
