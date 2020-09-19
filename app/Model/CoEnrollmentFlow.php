@@ -266,6 +266,11 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'return_url_allowlist' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'ignore_authoritative' => array(
       'rule' => array('boolean'),
       'required' => false,
