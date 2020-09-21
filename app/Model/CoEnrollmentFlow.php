@@ -490,13 +490,8 @@ class CoEnrollmentFlow extends AppModel {
     
     $ret = array();
     
-    // If introductory text was specified, it should be rendered.
-    
-    if(!empty($ef['CoEnrollmentFlow']['introduction_text'])) {
-      $ret['start']['enabled'] = RequiredEnum::Required;
-    } else {
-      $ret['start']['enabled'] = RequiredEnum::Optional;
-    }
+    // XXX Let execute_start function handle the presence of the introductory text
+    $ret['start']['enabled'] = RequiredEnum::Required;
     $ret['start']['role'] = EnrollmentRole::Petitioner;
     
     // selectOrgIdentity is dependent on the attached CoEnrollmentSources.
