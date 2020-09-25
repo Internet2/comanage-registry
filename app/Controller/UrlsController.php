@@ -42,12 +42,14 @@ class UrlsController extends MVPAController {
   public $edit_contains = array(
     'CoDepartment',
     'CoPerson' => array('PrimaryName'),
+    'Organization',
     'OrgIdentity' => array('PrimaryName')
   );
 
   public $view_contains = array(
     'CoDepartment',
     'CoPerson' => array('PrimaryName'),
+    'Organization',
     'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
                            'PrimaryName'),
     'SourceUrl'

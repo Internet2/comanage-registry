@@ -146,6 +146,22 @@
         $vv_pid['copersonroleid']
       );
       $this->Html->addCrumb($vv_bc_name, $args);
+    } elseif(!empty($vv_pid['organizationid'])) {
+      // Organization ID
+      $args = array(
+        'plugin' => null,
+        'controller' => 'organizations',
+        'action' => 'index',
+        'co' => $cur_co['Co']['id']
+      );
+      $this->Html->addCrumb(_txt('ct.organizations.pl'), $args);
+      
+      $args = array(
+        'controller' => 'organizations',
+        'action' => 'edit',
+        $vv_pid['organizationid']
+      );
+      $this->Html->addCrumb($vv_bc_name, $args);
     } else {
       // Org ID
       $args = array(

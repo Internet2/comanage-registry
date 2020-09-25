@@ -160,6 +160,9 @@ class ApiComponent extends Component {
           case 'Org':
             $this->reqConvData['org_identity_id'] = $this->reqData[$attr]['Id'];
             break;
+          case 'Organization':
+            $this->reqConvData['organization_id'] = $this->reqData[$attr]['Id'];
+            break;
         }
       } elseif(isset($this->reqModel->cm_enum_types[$dbattr])) {
         // Convert the wire attribute back to the appropriate 
@@ -400,6 +403,7 @@ class ApiComponent extends Component {
         'copersonid' => 'CoPerson',
         'copersonroleid' => 'CoPersonRole',
         'couid' => 'Cou',
+        'organizationid' => 'Organization',
         'orgidentityid' => 'OrgIdentity'
       );
       

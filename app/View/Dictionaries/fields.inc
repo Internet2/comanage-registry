@@ -59,6 +59,34 @@
       <?php print ($e ? $this->Form->input('description') : filter_var($dictionaries[0]['Dictionary']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('mode', _txt('fd.dict.mode')) : _txt('fd.dict.mode')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($dictionaries[0]['Dictionary']['mode']) ? $dictionaries[0]['Dictionary']['mode'] : DictionaryModeEnum::Standard);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('mode',
+                                    $cm_texts[ $cm_lang ]['en.dictionary.mode'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('mode')) {
+            print $this->Form->error('mode');
+          }
+        } else {
+          print _txt('en.dictionary.mode', null, $dictionaries[0]['Dictionary']['mode']);
+        }
+      ?>
+    </div>
+  </li>
   
   <?php if($e): ?>
     <li class="fields-submit">

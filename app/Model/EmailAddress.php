@@ -44,6 +44,8 @@ class EmailAddress extends AppModel {
     "CoDepartment",
     // An email address may be attached to a CO Person
     "CoPerson",
+    // An Ad Hoc Attribute may be attached to an Organization
+    "Organization",
     // An email address may be attached to an Org Identity
     "OrgIdentity",
     // An email address created from a Pipeline has a Source Email Address

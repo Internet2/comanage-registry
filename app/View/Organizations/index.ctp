@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Dictionary Index View
+ * COmanage Registry Organizations Index View
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,8 +27,8 @@
 
   // Add breadcrumbs
   print $this->element("coCrumb");
-  $this->Html->addCrumb(_txt('ct.dictionaries.pl'));
-  
+  $this->Html->addCrumb(_txt('ct.organizations.pl'));
+
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
@@ -38,23 +38,25 @@
 
   if($permissions['add']) {
     $params['topLinks'][] = $this->Html->link(
-      _txt('op.add.new', array(_txt('ct.dictionaries.1'))),
+      _txt('op.add.new', array(_txt('ct.organizations.1'))),
       array(
-        'controller' => 'dictionaries',
+        'controller' => 'organizations',
         'action' => 'add',
-        'co' => $cur_co['Co']['id']
+        'co' => $this->params['named']['co']
       ),
       array('class' => 'addbutton')
     );
   }
 
   print $this->element("pageTitleAndButtons", $params);
+
 ?>
 
 <div class="table-container">
-  <table id="dictionaries">
+  <table id="organizations">
     <thead>
       <tr>
+        <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
@@ -62,44 +64,41 @@
 
     <tbody>
       <?php $i = 0; ?>
-      <?php foreach($dictionaries as $c): ?>
+      <?php foreach ($organizations as $c): ?>
       <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
           <?php
             print $this->Html->link(
-              $c['Dictionary']['description'],
+              $c['Organization']['name'],
               array(
-                'controller' => 'dictionaries',
-                'action' => 'edit',
-                $c['Dictionary']['id']
+                'controller' => 'organizations',
+                'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                $c['Organization']['id']
               )
             );
           ?>
         </td>
+        <td><?php print filter_var($c['Organization']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
           <?php
             if($permissions['edit']) {
               print $this->Html->link(
-                _txt('op.edit'),
-                array(
-                  'controller' => 'dictionaries',
-                  'action' => 'edit',
-                  $c['Dictionary']['id']
-                ),
-                array('class' => 'editbutton')
-              ) . "\n";
-              
-              if($c['Dictionary']['mode'] == DictionaryModeEnum::Standard) {
-                print $this->Html->link(
-                  _txt('op.manage'),
+                  _txt('op.edit'),
                   array(
-                    'controller' => 'dictionary_entries',
-                    'action' => 'index',
-                    'dictionary' => $c['Dictionary']['id']
+                    'controller' => 'organizations',
+                    'action' => 'edit',
+                    $c['Organization']['id']
                   ),
-                  array('class' => 'configurebutton')
-                ) . "\n";
-              }
+                  array('class' => 'editbutton')) . "\n";
+            } elseif($permissions['view']) {
+              print $this->Html->link(
+                  _txt('op.view'),
+                  array(
+                    'controller' => 'organizations',
+                    'action' => 'view',
+                    $c['Organization']['id']
+                  ),
+                  array('class' => 'viewbutton')) . "\n";
             }
             
             if($permissions['delete']) {
@@ -108,15 +107,15 @@
                 . _txt('js.remove') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
                   array(
-                    'controller' => 'dictionaries',
+                    'controller' => 'organizations',
                     'action' => 'delete',
-                    $c['Dictionary']['id']
+                    $c['Organization']['id']
                   )
                 ) . '\',\''
                 . _txt('op.remove') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
                 . _txt('op.remove') . '\',[\''   // dialog title
-                . filter_var(_jtxt($c['Dictionary']['description']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                . filter_var(_jtxt($c['Organization']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                 . '\']);">'
                 . _txt('op.delete')
                 . '</button>';

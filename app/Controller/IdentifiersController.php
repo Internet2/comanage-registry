@@ -43,6 +43,7 @@ class IdentifiersController extends MVPAController {
     'CoDepartment',
     'CoPerson' => array('PrimaryName'),
     'CoProvisioningTarget',
+    'Organization',
     'OrgIdentity' => array('PrimaryName')
   );
 
@@ -50,6 +51,7 @@ class IdentifiersController extends MVPAController {
     'CoDepartment',
     'CoPerson' => array('PrimaryName'),
     'CoProvisioningTarget',
+    'Organization',
     'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
                            'PrimaryName'),
     'SourceIdentifier'

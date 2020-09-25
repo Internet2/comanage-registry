@@ -211,6 +211,18 @@ class DataFilterContextEnum
   const ProvisioningTarget = 'PT';
 }
 
+class DepartmentEnum {
+  const Department          = 'department';
+  const ResearchInstitute   = 'researchinstitute';
+  const VO                  = 'vo';
+}
+
+class DictionaryModeEnum {
+  const Department    = "OU";
+  const Organization  = "O";
+  const Standard      = "S";
+}
+
 class ElectStrategyEnum {
   const FIFO        = 'FI';
   const Manual      = 'M';
@@ -457,6 +469,12 @@ class Oauth2GrantEnum
   const AuthorizationCode = 'AC';
   const ClientCredentials = 'CC';
   // We don't currently support Implicit or Password Credentials
+}
+
+class OrganizationEnum {
+  const Academic            = 'edu';
+  const Commercial          = 'com';
+  const Government          = 'gov';
 }
 
 class OrgIdentityMismatchEnum
@@ -771,12 +789,6 @@ class TrueFalseEnum {
 class UrlEnum {
   const Official      = 'official';
   const Personal      = 'personal';
-}
-
-class DepartmentEnum {
-  const VO                  = 'vo';
-  const ResearchInstitute   = 'researchinstitute';
-  const Department          = 'department';
 }
 
 class VerificationModeEnum

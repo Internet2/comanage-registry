@@ -41,6 +41,8 @@ class Identifier extends AppModel {
     "CoPerson",
     // An identifier may be created from a Provisioner
     "CoProvisioningTarget",
+    // An Ad Hoc Attribute may be attached to an Organization
+    "Organization",
     // An identifier may be attached to an Org Identity
     "OrgIdentity",
     // An identifier created from a Pipeline has a Source Identifier
@@ -406,6 +408,7 @@ class Identifier extends AppModel {
       'CoDepartment',
       'CoGroup',
       'CoPerson',
+      'Organization',
       'OrgIdentity'
     );
 

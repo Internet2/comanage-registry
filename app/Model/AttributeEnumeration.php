@@ -30,7 +30,7 @@ class AttributeEnumeration extends AppModel {
   public $name = "AttributeEnumeration";
   
   // Current schema version for API
-  public $version = "1.0";
+  public $version = "1.1";
   
   // Association rules from this model to other models
   public $belongsTo = array('Co', 'Dictionary');
@@ -136,32 +136,8 @@ class AttributeEnumeration extends AppModel {
       return false;
     }
     
-    $ret = array(
-      'allow_other' => $cfg['AttributeEnumeration']['allow_other']
-    );
-    
-    $args = array();
-    $args['conditions']['DictionaryEntry.dictionary_id'] = $cfg['AttributeEnumeration']['dictionary_id'];
-    $args['order'] = array('DictionaryEntry.ordr', 'DictionaryEntry.value');
-    $args['contain'] = false;
-    
-    // Because code is optional, we can't use find('list'). We also have to manually
-    // build the array to return.
-    
-    $ret['dictionary'] = array();
-    $ret['coded'] = false;
-    
-    $dict = $this->Co->Dictionary->DictionaryEntry->find('all', $args);
-    
-    foreach($dict as $d) {
-      if(!empty($d['DictionaryEntry']['code'])) {
-        $ret['dictionary'][ $d['DictionaryEntry']['code'] ] = $d['DictionaryEntry']['value'];
-        // If any entry is coded, we treat the whole dictionary as coded
-        $ret['coded'] = true;
-      } else {
-        $ret['dictionary'][] = $d['DictionaryEntry']['value'];
-      }
-    }
+    $ret = $this->Dictionary->entries($cfg['AttributeEnumeration']['dictionary_id']);
+    $ret['allow_other'] = $cfg['AttributeEnumeration']['allow_other'];
     
     return $ret;
   }
@@ -199,21 +175,7 @@ class AttributeEnumeration extends AppModel {
       return true;
     }
     
-    // Make sure $value is valid. This is slightly tricky because $value could
-    // be a code or a value, but we only want to consider value when code is
-    // empty. Note these checks are intentionally case sensitive, since they
-    // should come from a prepopulated list and match exactly.
-    
-    $args = array();
-    $args['conditions']['DictionaryEntry.dictionary_id'] = $attrEnum['AttributeEnumeration']['dictionary_id'];
-    $args['conditions']['OR'][] = array('DictionaryEntry.code' => $value);
-    $args['conditions']['OR'][] = array(
-      'DictionaryEntry.code' => null,
-      'DictionaryEntry.value' => $value
-    );
-    
-    if($this->Dictionary->DictionaryEntry->find('count', $args) > 0) {
-      // Row found, entry is permitted
+    if($this->Dictionary->isValidEntry($attrEnum['AttributeEnumeration']['dictionary_id'], $value)) {
       return true;
     }
     

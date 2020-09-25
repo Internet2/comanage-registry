@@ -523,6 +523,18 @@ class AppController extends Controller {
                                                   array(_txt('ct.co_person_roles.1'),
                                                         filter_var($p['copersonroleid'],FILTER_SANITIZE_SPECIAL_CHARS))));
         }
+      } elseif(!empty($p['organizationid']) && (isset($model->Organization))) {
+        $Organization = $model->Organization;
+        
+        $coId = $Organization->field('co_id', array('id' => $p['organizationid']));
+        
+        if($coId) {
+          return $coId;
+        } else {
+          throw new InvalidArgumentException(_txt('er.notfound',
+                                                  array(_txt('ct.organizations.1'),
+                                                        filter_var($p['organizationid'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        }
       } elseif(!empty($p['orgidentityid'])) {
         if(isset($model->OrgIdentity)) {
           $coId = $model->OrgIdentity->field('co_id', array('id' => $p['orgidentityid']));
@@ -624,6 +636,7 @@ class AppController extends Controller {
     $coprid = $pids['copersonroleid'];
     $codeptid = $pids['codeptid'];
     $cogroupid = $pids['cogroupid'];
+    $orgid = $pids['organizationid'];
     $orgiid = $pids['orgidentityid'];
     $co = null;
     
@@ -709,6 +722,24 @@ class AppController extends Controller {
       {
         $redirect['action'] = 'edit';
         $redirect[] = $cogroupid;
+        $rc = 1;
+      }
+    }
+    elseif($orgid != null)
+    {
+      $redirect['controller'] = 'organizations';
+
+      $x = $model->Organization->findById($orgid);
+      
+      if(empty($x))
+      {
+        $redirect['action'] = 'index';
+        $rc = -1;
+      }
+      else
+      {
+        $redirect['action'] = 'edit';
+        $redirect[] = $orgid;
         $rc = 1;
       }
     }
@@ -1129,6 +1160,9 @@ class AppController extends Controller {
     // View/Edit own Demographics profile?
     $p['menu']['nsfdemoprofile'] = $roles['user'];
     
+    // Manage Organizations?
+    $p['menu']['organizations'] = $roles['cmadmin'] || $roles['coadmin'];
+    
     // Manage org identity sources? CO Admins can only do this if org identities are NOT pooled
     $this->loadModel('CmpEnrollmentConfiguration');
     
@@ -1415,6 +1449,7 @@ class AppController extends Controller {
     $deptid = null;
     $groupid = null;
     $orgiid = null;
+    $orgid = null;
     
     if(!empty($data['co_person_id']))
       $copid = $data['co_person_id'];
@@ -1436,6 +1471,8 @@ class AppController extends Controller {
       $deptid = $data[$req]['co_department_id'];
     elseif(!empty($data[$req]['co_group_id']))
       $groupid = $data[$req]['co_group_id'];
+    elseif(!empty($data[$req]['organization_id']))
+      $orgid = $data[$req]['organization_id'];
     elseif(!empty($this->request->data[$req]['co_person_id']))
       $copid = $this->request->data[$req]['co_person_id'];
     elseif(!empty($this->request->data[$req]['co_person_role_id']))
@@ -1446,6 +1483,8 @@ class AppController extends Controller {
       $deptid = $this->request->data[$req]['codeptid'];
     elseif(!empty($this->request->data[$req]['co_group_id']))
       $groupid = $this->request->data[$req]['co_group_id'];
+    elseif(!empty($this->request->data[$req]['organization_id']))
+      $orgid = $this->request->data[$req]['organization_id'];
     elseif(!empty($this->request->params['named']['copersonid']))
       $copid = $this->request->params['named']['copersonid'];
     elseif(!empty($this->request->params['named']['copersonroleid']))
@@ -1456,6 +1495,8 @@ class AppController extends Controller {
       $deptid = $this->request->params['named']['codeptid'];
     elseif(!empty($this->request->params['named']['cogroup']))
       $groupid = $this->request->params['named']['cogroup'];
+    elseif(!empty($this->request->params['named']['orgid']))
+      $orgid = $this->request->params['named']['orgid'];
     // XXX Why don't we need to check query for other parameters?
     elseif(!empty($this->request->query['cogroupid']))
       $groupid = $this->request->query['cogroupid'];
@@ -1477,6 +1518,9 @@ class AppController extends Controller {
         case 'Org':
           $orgiid = $this->request->data[$modelcc][0]['Person']['Id'];
           break;
+        case 'Organization':
+          $orgid = $this->request->data[$modelcc][0]['Person']['Id'];
+          break;
       }
     }
     elseif(isset($this->request->data[$modelcc][$req]['Person'])) {
@@ -1496,6 +1540,9 @@ class AppController extends Controller {
           break;
         case 'Org':
           $orgiid = $this->request->data[$modelcc][$req]['Person']['Id'];
+          break;
+        case 'Organization':
+          $orgid = $this->request->data[$modelcc][$req]['Person']['Id'];
           break;
       }
     }
@@ -1523,12 +1570,15 @@ class AppController extends Controller {
         $deptid = $rec[$req]['co_department_id'];
       elseif(isset($rec[$req]['co_group_id']))
         $groupid = $rec[$req]['co_group_id'];
+      elseif(isset($rec[$req]['organization_id']))
+        $orgid = $rec[$req]['organization_id'];
     }
     
     return(array("codeptid" => $deptid,
                  "cogroupid" => $groupid,
                  "copersonid" => $copid,
                  "copersonroleid" => $coprid,
+                 "organizationid" => $orgid,
                  "orgidentityid" => $orgiid));
   }
   

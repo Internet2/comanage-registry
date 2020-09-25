@@ -736,6 +736,8 @@ class StandardController extends AppController {
     // XXX Model specific logic should be moved to individual Controllers.
 
     if($this->request->is('restful')) {
+      $this->set('vv_model_version', $model->version);
+      
       if(!empty($this->request->query['search_identifier'])) {
         // XXX temporary implementation -- need more general approach (CO-1053)
         $args = array();
@@ -879,6 +881,31 @@ class StandardController extends AppController {
               $this->Api->restResultHeader(404, "CO Person Role Unknown");
             } else {
               $this->Api->restResultHeader(204, "CO Person Role Has No " . $req);
+            }
+            
+            return;
+          }
+          
+          $this->set($modelpl, $this->Api->convertRestResponse($t));
+        } elseif(!empty($this->params['url']['organizationid'])) {
+          $args = array();
+          $args['conditions'][$model->name . '.organization_id'] = $this->params['url']['organizationid'];
+          $args['contain'] = false;
+          
+          $t = $model->find('all', $args);
+          
+          if(empty($t)) {
+            // We need to determine if codeptid is unknown or just
+            // has no objects attached to it
+            
+            $args = array();
+            $args['conditions']['Organization.id'] = $this->params['url']['organizationid'];
+            $args['contain'] = false;
+            
+            if(!$model->Organization->find('count', $args)) {
+              $this->Api->restResultHeader(404, "Organization Unknown");
+            } else {
+              $this->Api->restResultHeader(204, "Organization Has No " . $req);
             }
             
             return;
@@ -1129,6 +1156,8 @@ class StandardController extends AppController {
         $ret['conditions'][$req.'.org_identity_id'] = $this->params['named']['orgidentityid'];
       } elseif(!empty($this->params['named']['codeptid'])) {
         $ret['conditions'][$req.'.co_department_id'] = $this->params['named']['codeptid'];
+      } elseif(!empty($this->params['named']['orgid'])) {
+        $ret['conditions'][$req.'.organization_id'] = $this->params['named']['orgid'];
       } else {
         // We previously allowed retrieval of all items of a given type
         // (eg: Addresses), but it's not really clear why and there wasn't really
@@ -1311,6 +1340,8 @@ class StandardController extends AppController {
       }
     } else {
       if($this->request->is('restful')) {
+        $this->set('vv_model_version', $model->version);
+        
         $this->set($modelpl, $this->Api->convertRestResponse(array(0 => $obj)));
         $this->Api->restResultHeader(200, "OK");
       } else {

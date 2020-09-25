@@ -50,6 +50,11 @@ class DictionaryIdentifierValidatorsController extends SIVController {
     
     $args = array();
     $args['conditions']['Dictionary.co_id'] = $this->cur_co['Co']['id'];
+    // We only support Standard Dictionaries because it's not clear what it would
+    // mean to validate against on Organization or Department. We also directly
+    // use DictionaryEntry in DictionaryIdentifierValidator.php, though that
+    // presumably could be rewritten.
+    $args['conditions']['Dictionary.mode'] = DictionaryModeEnum::Standard;
     $args['fields'] = array('id', 'description');
     
     $this->set('vv_available_dictionaries', $this->DictionaryIdentifierValidator->CoIdentifierValidator->Co->Dictionary->find('list', $args));

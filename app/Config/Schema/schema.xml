@@ -114,6 +114,7 @@
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="description" type="C" size="128" />
+    <field name="mode" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="dictionary_id" type="I">
@@ -198,6 +199,32 @@
     </index>
     <index name="attribute_enumerations_i2">
       <col>attribute_enumeration_id</col>
+    </index>
+  </table>
+  
+  <table name="organizations">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="name" type="C" size="128" />
+    <field name="description" type="C" size="128" />
+    <field name="type" type="C" size="32" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_co_departments(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="organizations_i1">
+      <col>co_id</col>
     </index>
   </table>
   
@@ -983,6 +1010,9 @@
     <field name="co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
+    </field>
     <field name="source_identifier_id" type="I">
       <constraint>REFERENCES cm_identifiers(id)</constraint>
     </field>
@@ -1027,6 +1057,9 @@
     <index name="identifiers_i8">
       <col>org_identity_id</col>
     </index>
+    <index name="identifiers_i10">
+      <col>organization_id</col>
+    </index>
   </table>
 
   <table name="email_addresses">
@@ -1046,6 +1079,9 @@
     </field>
     <field name="co_department_id" type="I">
       <constraint>REFERENCES cm_co_departments(id)</constraint>
+    </field>
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
     </field>
     <field name="source_email_address_id" type="I">
       <constraint>REFERENCES cm_email_addresses(id)</constraint>
@@ -1143,6 +1179,9 @@
     <field name="co_department_id" type="I">
       <constraint>REFERENCES cm_co_departments(id)</constraint>
     </field>
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
+    </field>
     <field name="source_address_id" type="I">
       <constraint>REFERENCES cm_addresses(id)</constraint>
     </field>
@@ -1170,6 +1209,9 @@
     <index name="addresses_i5">
       <col>co_department_id</col>
     </index>
+    <index name="addresses_i6">
+      <col>organization_id</col>
+    </index>
   </table>
 
   <table name="telephone_numbers">
@@ -1191,6 +1233,9 @@
     </field>
     <field name="co_department_id" type="I">
       <constraint>REFERENCES cm_co_departments(id)</constraint>
+    </field>
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
     </field>
     <field name="source_telephone_number_id" type="I">
       <constraint>REFERENCES cm_telephone_numbers(id)</constraint>
@@ -1219,6 +1264,9 @@
     <index name="telephone_numbers_i5">
       <col>co_department_id</col>
     </index>
+    <index name="telephone_numbers_i6">
+      <col>organization_id</col>
+    </index>
   </table>
   
   <table name="urls">
@@ -1237,6 +1285,9 @@
     </field>
     <field name="co_department_id" type="I">
       <constraint>REFERENCES cm_co_departments(id)</constraint>
+    </field>
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
     </field>
     <field name="source_url_id" type="I">
       <constraint>REFERENCES cm_urls(id)</constraint>
@@ -1265,6 +1316,9 @@
     <index name="urls_i5">
       <col>source_url_id</col>
     </index>
+    <index name="urls_i6">
+      <col>organization_id</col>
+    </index>
   </table>
   
   <table name="ad_hoc_attributes">
@@ -1283,6 +1337,9 @@
     </field>
     <field name="co_department_id" type="I">
       <constraint>REFERENCES cm_co_departments(id)</constraint>
+    </field>
+    <field name="organization_id" type="I">
+      <constraint>REFERENCES cm_organizations(id)</constraint>
     </field>
     <field name="source_ad_hoc_attribute_id" type="I">
       <constraint>REFERENCES cm_ad_hoc_attributes(id)</constraint>
@@ -1307,6 +1364,9 @@
     </index>
     <index name="ad_hoc_attributes_i4">
       <col>ad_hoc_attribute_id</col>
+    </index>
+    <index name="ad_hoc_attributes_i5">
+      <col>organization_id</col>
     </index>
   </table>
   
