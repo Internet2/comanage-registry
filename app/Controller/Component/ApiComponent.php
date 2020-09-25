@@ -18,13 +18,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.3
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
- 
+
 class ApiComponent extends Component {
   // Invoking controller
   protected $controller = null;
@@ -43,28 +43,28 @@ class ApiComponent extends Component {
   protected $reqModelNamePl = null;
   // Invalid fields from request body
   protected $invalidFields = null;
-  
+
   /**
    * Verify that a document POSTed via the REST API exists, and matches the
    * invoking controller.
-   * 
+   *
    * @since  COmanage Registry v0.9.3
    * @return True on success
    * @throws InvalidArgumentException
    */
-  
+
   public function checkRestPost() {
     if(!$this->reqData) {
       $this->parseRestRequestDocument();
     }
-    
+
     if(!$this->reqData) {
       throw new InvalidArgumentException("Bad Request", 400);
     }
-    
+
     // Check version number against the model. Note we have to check both 'Version'
     // (JSON) and '@Version' (XML).
-    
+
     if((!isset($this->reqData['Version']) && !isset($this->reqData['@Version']))
        ||
        (isset($this->reqData['Version']) && $this->reqData['Version'] != $this->reqModel->version)
@@ -73,16 +73,16 @@ class ApiComponent extends Component {
       $this->invalidFields['Version'][] = "Unknown version";
       throw new InvalidArgumentException("Invalid Fields", 400);
     }
-    
+
     // Use the model to validate the provided fields
-    
+
     if(!empty($this->reqModel->validate['type']['content']['rule'][0])
        && $this->reqModel->validate['type']['content']['rule'][0] == 'validateExtendedType') {
       // If the model supports extended types, we need to determine the CO ID,
       // which we have to calculate from the requested person date.
-      
+
       $coId = null;
-      
+
       if(!empty($this->reqConvData['co_person_id'])) {
         $coId = $this->reqModel->CoPerson->field('co_id',
                                                  array('CoPerson.id' => $this->reqConvData['co_person_id']));
@@ -95,25 +95,25 @@ class ApiComponent extends Component {
                                                                  array('CoPerson.id' => $coPersonId));
         }
       }
-      
+
       if($coId) {
         $vrule = $this->reqModel->validate['type']['content']['rule'];
         $vrule[1]['coid'] = $coId;
-        
+
         $this->reqModel->validator()->getField('type')->getRule('content')->rule = $vrule;
       }
     }
- 
+
     $this->reqModel->set($this->reqConvData);
-    
+
     if(!$this->reqModel->validates()) {
       $this->invalidFields = $this->reqModel->validationErrors;
       throw new InvalidArgumentException("Invalid Fields", 400);
     }
-    
+
     return true;
   }
-  
+
   /**
    * Convert the contents of a request from a REST transaction to Cake format.
    * - preconditions: $this->reqData holds original request data
@@ -121,17 +121,17 @@ class ApiComponent extends Component {
    *
    * @since  COmanage Registry v0.9.3
    */
-  
+
   protected function convertRestPost() {
-    if(!$this->reqData || $this->reqConvData) { 
+    if(!$this->reqData || $this->reqConvData) {
       throw new RuntimeException('Unexpected state (convertRestPost)');
     }
-    
+
     // Walk through the array of attributes, converting as we go
-    
+
     foreach(array_keys($this->reqData) as $attr) {
       $dbattr = Inflector::underscore($attr);
-      
+
       if($attr == 'Version'
          || $attr == '@Version') {
         // Don't copy version
@@ -143,7 +143,7 @@ class ApiComponent extends Component {
                && !empty($this->reqData[$attr]['Id'])
                && !empty($this->reqData[$attr]['Type'])) {
         // Flatten back to the appropriate key
-        
+
         switch($this->reqData[$attr]['Type']) {
           case 'CO':
             $this->reqConvData['co_person_id'] = $this->reqData[$attr]['Id'];
@@ -160,11 +160,14 @@ class ApiComponent extends Component {
           case 'Org':
             $this->reqConvData['org_identity_id'] = $this->reqData[$attr]['Id'];
             break;
+          case 'Organization':
+            $this->reqConvData['organization_id'] = $this->reqData[$attr]['Id'];
+            break;
         }
       } elseif(isset($this->reqModel->cm_enum_types[$dbattr])) {
-        // Convert the wire attribute back to the appropriate 
+        // Convert the wire attribute back to the appropriate
         $enumClass = $this->reqModel->cm_enum_types[$dbattr];
-        
+
         if(isset($enumClass::$from_api[ $this->reqData[$attr] ])) {
           $this->reqConvData[$dbattr] = $enumClass::$from_api[ $this->reqData[$attr] ];
         }
@@ -174,7 +177,7 @@ class ApiComponent extends Component {
         // here (other than pass them along) since we probably don't know what CO
         // we're operating under yet. (We may need to parse the inbound document to
         // find an identifier to use to associate with a CO.)
-        
+
         $this->reqConvData[$dbattr] = $this->reqData[$attr];
       }
     }
@@ -187,19 +190,19 @@ class ApiComponent extends Component {
    * @param  Array Result set, of the format returned by (eg) $this->find()
    * @return Array Converted array
    */
-  
+
   public function convertRestResponse($res) {
     $ret = array();
-    
+
     foreach($res as $r) {
       // We may get a bunch of associated data, but we only care about the Model
       // we're currently working with
       $rr = array();
-      
+
       foreach(array_keys($r) as $m) {
         if($m == $this->reqModelName) {
           // Copy all keys, inflecting the key name
-          
+
           foreach(array_keys($r[$this->reqModelName]) as $k) {
             if(isset($this->reqModel->cm_enum_types[$k])
                && !((isset($r[$m]['co_person_id']) || isset($r[$m]['co_person_role_id']))
@@ -210,7 +213,7 @@ class ApiComponent extends Component {
               // Convert database format to API format, but not if it's an
               // extended type and attached to a CO Person
               $enumClass = $this->reqModel->cm_enum_types[$k];
-              
+
               if(isset($enumClass::$to_api[ $r[$m][$k] ])) {
                 $rr[$m][Inflector::camelize($k)] = $enumClass::$to_api[ $r[$m][$k] ];
               }
@@ -224,7 +227,7 @@ class ApiComponent extends Component {
           // Extended Attributes need to be handled specially. Currently, extended
           // attributes are NOT inflected to keep them consistent with their
           // database definitions.
-          
+
           foreach(array_keys($r[$m]) as $attr) {
             // Don't copy metadata
             if(!in_array($attr, array('id', 'co_person_role_id', 'created', 'modified', 'CoPersonRole'))) {
@@ -233,56 +236,56 @@ class ApiComponent extends Component {
           }
         }
       }
-      
+
       $ret[] = $rr;
     }
-    
+
     return $ret;
   }
-  
+
   /**
    * Obtain the API data parsed from the request body.
-   * 
+   *
    * @since  COmanage Registry v0.9.3
    * @return Array Request data, in usual Cake format
    */
-  
+
   public function getData() {
     return $this->reqConvData;
   }
-  
+
   /**
    * Obtain invalid fields from request body, based on model validation.
-   * 
+   *
    * @since  COmanage Registry v0.9.3
    * @return Array Array of invalid fields, if any
    * @throws InvalidArgumentException
    */
-  
+
   public function getInvalidFields() {
     return $this->invalidFields;
   }
-  
+
   /**
    * Callback to perform Component specific initializations at startup.
-   * 
+   *
    * @since  COmanage Registry v0.9.3
    */
-  
+
   public function initialize(Controller $controller) {
     // Grab the request and response objects for use elsewhere in the Component
-    
+
     $this->controller = $controller;
     $this->request = $controller->request;
     $this->response = $controller->response;
-    
+
     if($controller->name != 'Authenticators') {
       // SAMController already cleans this up in beforeFilter, but apparently that
       // doesn't get called earlier enough for initialize(). This is a big mess
       // that hopefully gets cleaned up in Registry PE.
       if($controller->modelClass == 'Authenticator') {
         $mName = Inflector::singularize($controller->name);
-        
+
         $controller->loadModel($mName.'Authenticator.'.$mName);
         $this->reqModel = $controller->$mName;
         $this->reqModelName = Inflector::singularize($controller->name);
@@ -298,26 +301,26 @@ class ApiComponent extends Component {
     // If we want to check the Accept header we'll need a slightly more complicated detector
     $this->request->addDetector('restful', array('param' => 'ext', 'options' => array('json', 'xml')));
   }
-  
+
   /**
    * Parse an API request document. (The parsed document is available via getData().)
-   * 
+   *
    * @since  COmanage Registry v0.9.3
    */
-  
+
   public function parseRestRequestDocument() {
     if(!empty($this->reqData)) {
       // No need to reparse
       return;
     }
-    
+
     if(!empty($this->request->data)) {
       // Currently, we expect all request documents to match the model name (ie: StudlySingular).
-      
+
       // The inbound formats are currently lists with one entry. (Multiple entries
       // per request are not currently supported.) The format varies slightly between
       // JSON and XML.
-      
+
       if(isset($this->request->data[$this->reqModelNamePl][$this->reqModelName])) {
         // XML
         $this->reqData = $this->request->data[$this->reqModelNamePl][$this->reqModelName];
@@ -330,7 +333,7 @@ class ApiComponent extends Component {
       // $_POST isn't set when the client sets the content type to application/json.
       // PHP can't handle that by default, and Cake seems not to pick up on it.
       // Here's a workaround, based on CakeRequest::_readInput().
-      
+
       switch($this->request->params['ext']) {
         case 'json':
           $fh = fopen('php://input', 'r');
@@ -338,7 +341,7 @@ class ApiComponent extends Component {
           fclose($fh);
           if(!empty($doc)) {
             $json = json_decode($doc, true);
-            
+
             if(!empty($json[$this->reqModelNamePl][0])) {
               $this->reqData = $json[$this->reqModelNamePl][0];
             } else {
@@ -361,13 +364,13 @@ class ApiComponent extends Component {
           break;
       }
     }
-    
+
     if(!empty($this->reqData)) {
       $this->convertRestPost($this->reqData);
     }
     // else DELETE or other bodyless request
   }
-  
+
   /**
    * Determine the requested COID based on the requested URL, and specifically
    * its query parameters.
@@ -378,10 +381,10 @@ class ApiComponent extends Component {
    * @param  $data    Parsed PUT/POST body
    * @return int      CO ID, or null if not found
    */
-  
+
   public function requestedCOID($model, $request, $data) {
     $coid = null;
-    
+
     // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
     // for REST operations that meet the following requirements:
     //
@@ -389,7 +392,7 @@ class ApiComponent extends Component {
     // (2) The requested model directly belongsTo the parent link
     // (Note Registry v5 implements this as a per-model check instead, but
     // we don't have the infrastructure for that.)
-    
+
     if(empty($request->params['pass'])) {
       // For historical reasons, the query string keys aren't standard
       $permittedKeys = array(
@@ -414,29 +417,29 @@ class ApiComponent extends Component {
           'org_identity_id' => 'OrgIdentity'
         )
       );
-      
+
       // PUT and POST are basically the same
       $permittedKeys['PUT'] = $permittedKeys['POST'];
-      
+
       if(!empty($model->permittedApiFilters)) {
         // Merge in the plugin's additional permitted key
         foreach(array('GET', 'POST', 'PUT') as $a) {
           $permittedKeys[$a] = array_merge($permittedKeys[$a], $model->permittedApiFilters);
         }
       }
-      
+
       if(!empty($permittedKeys[$request->method()])) {
         foreach($permittedKeys[$request->method()] as $k => $m) {
           // For plugins, $m is of the form Plugin.Model, but belongsTo[]
           // will be keyed only on Model
           $b = strstr($m, '.');
-          
+
           if($b) {
             $b = ltrim($b, '.');
           } else {
             $b = $m;
           }
-          
+
           if(!empty($model->belongsTo[$b])) {
             if($request->method() == 'GET') {
               if(!empty($request->query[$k])) {
@@ -444,12 +447,12 @@ class ApiComponent extends Component {
                   $coid = $request->query['coid'];
                 } else {
                   // For any other key, we need to map it to a CO
-                  
+
                   $ParentModel = ClassRegistry::init($m);
-                  
+
                   $coid = $ParentModel->findCoForRecord($request->query[$k]);
                 }
-                
+
                 break;
               }
             } else {
@@ -458,12 +461,12 @@ class ApiComponent extends Component {
                   $coid = $data['co_id'];
                 } else {
                   // For any other key, we need to map it to a CO
-                  
+
                   $ParentModel = ClassRegistry::init($m);
-                  
+
                   $coid = $ParentModel->findCoForRecord($data[$k]);
                 }
-                
+
                 break;
               }
             }
@@ -471,10 +474,10 @@ class ApiComponent extends Component {
         }
       }
     }
-    
+
     return $coid;
   }
-  
+
   /**
    * Prepare a REST result HTTP header.
    * - precondition: HTTP headers must not yet have been sent
@@ -484,14 +487,14 @@ class ApiComponent extends Component {
    * @param  integer HTTP result code
    * @param  string HTTP result comment
    */
-  
+
   public function restResultHeader($status, $txt=null) {
     if(isset($txt)) {
       // We need to update the text associated with $status
-      
+
       $this->response->httpCodes(array($status => $txt));
     }
-    
+
     $this->response->statusCode($status);
   }
 }

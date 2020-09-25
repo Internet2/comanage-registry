@@ -103,6 +103,17 @@ class DictionaryEntriesController extends StandardController {
     }
 
     if($dict) {
+      // While we're here, look up the mode of the requested dictionary.
+      // We only allow Dictionary Entries to be managed for Standard Dictionaries.
+      // (We could do this check in isAuthorized, but we're already processing $dict.)
+      
+      $mode = $this->DictionaryEntry->Dictionary->field('mode', array('Dictionary.id' => $dict));
+      
+      if($mode != DictionaryModeEnum::Standard) {
+        // Suboptimally, this will manifest as "No CO Specified"
+        throw new RuntimeException(_txt('er.dict.entry.mode'));
+      }
+      
       // Map Dictionary to CO
 
       $coId = $this->DictionaryEntry->Dictionary->field('co_id', array('Dictionary.id' => $dict));

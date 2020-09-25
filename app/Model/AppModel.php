@@ -849,6 +849,9 @@ class AppModel extends Model {
         if(isset($this->belongsTo['CoDepartment'])) {
           $args['contain'][] = 'CoDepartment';
         }
+        if(isset($this->belongsTo['Organization'])) {
+          $args['contain'][] = 'Organization';
+        }
         $args['contain'][] = 'OrgIdentity';
       }
       
@@ -858,7 +861,7 @@ class AppModel extends Model {
         return $cop['CoPerson']['co_id'];
       }
       
-      // Is this an MVPA where this is an org identity or CO department?
+      // Is this an MVPA where this is an org identity, CO department, or Organization?
       
       if(!empty($cop['OrgIdentity']['co_id'])) {
         return $cop['OrgIdentity']['co_id'];
@@ -866,6 +869,10 @@ class AppModel extends Model {
       
       if(!empty($cop['CoDepartment']['co_id'])) {
         return $cop['CoDepartment']['co_id'];
+      }
+      
+      if(!empty($cop['Organization']['co_id'])) {
+        return $cop['Organization']['co_id'];
       }
       
       // If this is an MVPA, don't fail on no CO ID since that may not be the current configuration
@@ -885,12 +892,15 @@ class AppModel extends Model {
         if(isset($this->belongsTo['CoDepartment'])) {
           $args['contain'][] = 'CoDepartment';
         }
+        if(isset($this->belongsTo['Organization'])) {
+          $args['contain'][] = 'Organization';
+        }
         $args['contain'][] = 'OrgIdentity';
       }
       
       $copr = $this->find('first', $args);
       
-      // Is this an MVPA where this is an org identity or CO department?
+      // Is this an MVPA where this is an org identity, CO department, or Organization?
       
       if(!empty($copr['OrgIdentity']['co_id'])) {
         return $copr['OrgIdentity']['co_id'];
@@ -898,6 +908,10 @@ class AppModel extends Model {
       
       if(!empty($copr['CoDepartment']['co_id'])) {
         return $copr['CoDepartment']['co_id'];
+      }
+      
+      if(!empty($copr['Organization']['co_id'])) {
+        return $copr['Organization']['co_id'];
       }
       
       // Else lookup the CO Person
@@ -1319,7 +1333,7 @@ class AppModel extends Model {
           // Enumerations defined (and allow other is false), update the validation rule
           $this->validate[ $a[1] ]['content']['rule'] = array(
             'inList',
-            $cfg['dictionary']
+            ($cfg['coded'] ? array_keys($cfg['dictionary']) : $cfg['dictionary'])
           );
         }
       }
@@ -1461,7 +1475,7 @@ class AppModel extends Model {
     if(!preg_match('/\S/', $v)) {
       return _txt('er.input.blank');
     }
-        
+    
     return true;
   }
   

@@ -44,6 +44,8 @@ class Address extends AppModel {
     "CoDepartment",
     // An address may be attached to a CO person role
     "CoPersonRole",
+    // An Ad Hoc Attribute may be attached to an Organization
+    "Organization",
     // An address may be attached to an Org identity
     "OrgIdentity",
     // An address created from a Pipeline has a Source Address

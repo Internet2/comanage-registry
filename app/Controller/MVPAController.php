@@ -134,6 +134,8 @@ class MVPAController extends StandardController {
         // Also set a parent breadcrumb of the Person
         $this->set('vv_pbc_id', $this->viewVars[$modelpl][0]['CoPersonRole']['CoPerson']['id']);
         $this->set('vv_pbc_name', generateCn($this->viewVars[$modelpl][0]['CoPersonRole']['CoPerson']['PrimaryName']));
+      } elseif(!empty($this->viewVars[$modelpl][0]['Organization']['name'])) {
+        $this->set('vv_bc_name', $this->viewVars[$modelpl][0]['Organization']['name']);
       } elseif(!empty($this->viewVars[$modelpl][0]['OrgIdentity']['PrimaryName']['id'])) {
         $this->set('vv_bc_name', generateCn($this->viewVars[$modelpl][0]['OrgIdentity']['PrimaryName']));
       } elseif($this->action == 'add') {
@@ -167,6 +169,8 @@ class MVPAController extends StandardController {
           // But also set a parent breadcrumb of the Person
           $this->set('vv_pbc_id', $p['CoPerson']['id']);
           $this->set('vv_pbc_name', generateCn($p['CoPerson']['PrimaryName']));
+        } elseif(!empty($pid['organizationid'])) {
+          $this->set('vv_bc_name', $model->Organization->field('name', array('Organization.id' => $pid['organizationid'])));
         } elseif(!empty($pid['orgidentityid'])) {
           $args = array();
           $args['conditions']['OrgIdentity.id'] = $pid['orgidentityid'];

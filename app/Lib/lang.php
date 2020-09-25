@@ -188,6 +188,8 @@ $cm_texts['en_US'] = array(
   'ct.navigation_links.pl' =>   'Navigation Links',
   'ct.oauth2_servers.1' =>      'OAuth2 Server',
   'ct.oauth2_servers.pl' =>     'OAuth2 Servers',
+  'ct.organizations.1' =>       'Organization',
+  'ct.organizations.pl' =>      'Organizations',
   'ct.org_identities.1' =>      'Organizational Identity',
   'ct.org_identities.fi' =>     'Organizational Identity Filter',
   'ct.org_identities.se' =>     'Organizational Identity Search',
@@ -428,6 +430,13 @@ original notification at
     PermittedCharacterEnum::Any               => ''
   ),
   
+  // Extended type, key must be en.model.attribute
+  'en.co_department.type' => array(
+    DepartmentEnum::VO                => 'VO',
+    DepartmentEnum::ResearchInstitute => 'Research Institute',
+    DepartmentEnum::Department        => 'Department',
+  ),
+
   'en.contact' =>     array(ContactEnum::Fax => 'Fax',
                             ContactEnum::Home => 'Home',
                             ContactEnum::Mobile => 'Mobile',
@@ -471,6 +480,19 @@ original notification at
                                          AffiliationEnum::Affiliate     => 'Affiliate',
                                          AffiliationEnum::Employee      => 'Employee',
                                          AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
+  
+  // Extended type, key must be en.model.attribute
+  'en.organization.type' => array(
+    OrganizationEnum::Academic   => 'Academic',
+    OrganizationEnum::Commercial => 'Commercial',
+    OrganizationEnum::Government => 'Government'
+  ),
+  
+  'en.dictionary.mode' => array(
+    DictionaryModeEnum::Department   => 'Department Registry',
+    DictionaryModeEnum::Organization => 'Organization Registry',
+    DictionaryModeEnum::Standard     => 'Standard'
+  ),
   
   'en.elect.strategy' => array(
     ElectStrategyEnum::FIFO   => 'FIFO',
@@ -892,13 +914,6 @@ original notification at
     UrlEnum::Personal => 'Personal',
   ),
   
-  // Extended type, key must be en.model.attribute
-  'en.co_department.type' => array(
-    DepartmentEnum::VO                => 'VO',
-    DepartmentEnum::ResearchInstitute => 'Research Institute',
-    DepartmentEnum::Department        => 'Department',
-  ),
-
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
@@ -964,6 +979,7 @@ original notification at
   'er.db.schema' =>   'Possibly failed to update database schema',
   'er.db.save' =>     'Database save failed',
   'er.db.save-a' =>   'Database save failed: %1$s',
+  'er.dict.entry.mode' => 'Unsupported Dictionary Mode for Dictionary Entries',
   'er.ea.alter' =>    'Failed to alter table for attribute',
   'er.ea.exists' =>   'An attribute named "%1$s" already exists within the CO',
   'er.ea.index' =>    'Failed to update index for attribute',
@@ -1066,7 +1082,7 @@ original notification at
   'er.perm.status' => 'Permission Denied: Status is %1$s',
   'er.permission' =>  'Permission Denied',
   'er.person.noex' => 'Person does not exist',
-  'er.person.none' => 'No CO Person, CO Person Role, Org Identity, or CO Department specified',
+  'er.person.none' => 'No CO Person, CO Person Role, Org Identity, Organization, or CO Department specified',
   'er.pi.match.multi' => 'Canonical %1$s match type found more than one matching record',
   'er.picker.toomany' => 'Too many results, continue typing to narrow your search',
   'er.plugin.fail' => 'Failed to load plugin "%1$s"',
@@ -1224,6 +1240,7 @@ original notification at
   'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.default'    =>  'Default',
   'fd.date_of_birth' => 'Date of Birth',
+  'fd.dict.mode'  => 'Dictionary Mode',
   'fd.dp.group.admin' => 'Administrative Group',
   'fd.dp.group.admin.desc' => 'Group containing the Department administrators',
   'fd.dp.group.leader' => 'Leadership Group',
@@ -2268,7 +2285,8 @@ original notification at
   'sh.ug.330.ssh.key' =>  'Migrating SSH Key type',
   'sh.ug.330.users' =>    'Dropping users View',
   'sh.ug.340.password' => 'Updating Password Sources',
-  'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations'
+  'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations',
+  'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

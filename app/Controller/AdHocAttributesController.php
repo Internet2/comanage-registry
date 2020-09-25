@@ -42,12 +42,14 @@ class AdHocAttributesController extends MVPAController {
   public $edit_contains = array(
     'CoDepartment',
     'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
+    'Organization',
     'OrgIdentity' => array('PrimaryName')
   );
 
   public $view_contains = array(
     'CoDepartment',
     'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
+    'Organization',
     'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
                            'PrimaryName'),
     'SourceAdHocAttribute'

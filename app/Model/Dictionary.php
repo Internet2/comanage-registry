@@ -53,6 +53,138 @@ class Dictionary extends AppModel {
       'rule' => array('validateInput'),
       'required' => true,
       'allowEmpty' => false
+    ),
+    'mode' => array(
+      'rule' => array('inList', array(DictionaryModeEnum::Department,
+                                      DictionaryModeEnum::Organization,
+                                      DictionaryModeEnum::Standard)),
+      'required' => true,
+      'allowEmpty' => false
     )
   );
+  
+  /**
+   * Obtain the entries in this Dictionary.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $id Dictionary ID
+   * @return array       Array with two keys: 'dictionary' (entries) and 'coded' (boolean, true if entries are coded)
+   * @throws InvalidArgumentException
+   */
+  
+  public function entries($id) {
+    // First determine the mode of the Dictionary
+    
+    $mode = $this->field('mode', array('Dictionary.id' => $id));
+    $coId = $this->field('co_id', array('Dictionary.id' => $id));
+    
+    if(!$mode) {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.dictionaries.1', $id)));
+    }
+    
+    $ret = array(
+      'coded' => false,
+      'dictionary' => array()
+    );
+    
+    switch($mode) {
+      case DictionaryModeEnum::Department:
+        $args = array();
+        $args['conditions']['CoDepartment.co_id'] = $coId;
+        $args['order'] = 'CoDepartment.name ASC';
+        $args['fields'] = array('id', 'name');
+        
+        $ret['dictionary'] = $this->Co->CoDepartment->find('list', $args);
+        $ret['coded'] = true;
+        break;
+      case DictionaryModeEnum::Organization:
+        $args = array();
+        $args['conditions']['Organization.co_id'] = $coId;
+        $args['order'] = 'Organization.name ASC';
+        $args['fields'] = array('id', 'name');
+        
+        $ret['dictionary'] = $this->Co->Organization->find('list', $args);
+        $ret['coded'] = true;
+        break;
+      case DictionaryModeEnum::Standard:
+        // Pull the list of Dictionary Entries
+        $args = array();
+        $args['conditions']['DictionaryEntry.dictionary_id'] = $id;
+        $args['order'] = array('DictionaryEntry.ordr', 'DictionaryEntry.value');
+        $args['contain'] = false;
+        // Because code is optional, we can't use find('list'). We also have to manually
+        // build the array to return.
+        
+        $dict = $this->DictionaryEntry->find('all', $args);
+        
+        foreach($dict as $d) {
+          if(!empty($d['DictionaryEntry']['code'])) {
+            $ret['dictionary'][ $d['DictionaryEntry']['code'] ] = $d['DictionaryEntry']['value'];
+            // If any entry is coded, we treat the whole dictionary as coded
+            $ret['coded'] = true;
+          } else {
+            $ret['dictionary'][] = $d['DictionaryEntry']['value'];
+          }
+        }
+        break;
+      default:
+        throw new LogicException('NOT IMPLEMENTED');
+        break;
+    }
+    
+    return $ret;
+  }
+  
+  /**
+   * Determine if a specific value is a valid Dictionary Entry.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer  $id    Dictionary ID
+   * @param  string   $value Value to check
+   * @return boolean         True if valid, false otherwise
+   * @throws InvalidArgumentException
+   */
+  
+  public function isValidEntry($id, $value) {
+    $mode = $this->field('mode', array('Dictionary.id' => $id));
+    $coId = $this->field('co_id', array('Dictionary.id' => $id));
+    
+    if(!$mode) {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.dictionaries.1', $id)));
+    }
+    
+    switch($mode) {
+      case DictionaryModeEnum::Department:
+        // $value is actually CoDepartment.id. We simply pull the co_id and make
+        // sure it matches (and exists).
+        $recCoId = $this->Co->CoDepartment->field('co_id', array('CoDepartment.id' => (int)$value));
+        
+        return ($recCoId && $recCoId == $coId);
+        break;
+      case DictionaryModeEnum::Organization:
+        $recCoId = $this->Co->Organization->field('co_id', array('Organization.id' => (int)$value));
+        
+        return ($recCoId && $recCoId == $coId);
+        break;
+      case DictionaryModeEnum::Standard:
+        // Make sure $value is valid. This is slightly tricky because $value could
+        // be a code or a value, but we only want to consider value when code is
+        // empty. Note these checks are intentionally case sensitive, since they
+        // should come from a prepopulated list and match exactly.
+        
+        $args = array();
+        $args['conditions']['DictionaryEntry.dictionary_id'] = $id;
+        $args['conditions']['OR'][] = array('DictionaryEntry.code' => $value);
+        $args['conditions']['OR'][] = array(
+          'DictionaryEntry.code' => null,
+          'DictionaryEntry.value' => $value
+        );
+        
+        return (bool)$this->DictionaryEntry->find('count', $args);
+        break;
+      default:
+        throw new LogicException('NOT IMPLEMENTED');
+        break;
+    }
+  }
 }

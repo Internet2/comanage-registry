@@ -44,6 +44,8 @@ class TelephoneNumber extends AppModel {
     "CoDepartment",
     // A telephone number may be attached to a CO Person Role
     "CoPersonRole",
+    // An Ad Hoc Attribute may be attached to an Organization
+    "Organization",
     // A telephone number may be attached to an Org Identity
     "OrgIdentity",
     // A telephone number created from a Pipeline has a Source Telephone Number

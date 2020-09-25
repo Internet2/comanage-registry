@@ -38,6 +38,7 @@
 
   // We can emit all attributes because the ones we don't want should be null
   print $this->Form->hidden('co_department_id', array('default' => $vv_pid['codeptid'])) . "\n";
+  print $this->Form->hidden('organization_id', array('default' => $vv_pid['organizationid'])) . "\n";
   print $this->Form->hidden('org_identity_id', array('default' => $vv_pid['orgidentityid'])) . "\n";
   print $this->Form->hidden('co_person_role_id', array('default' => $vv_pid['copersonroleid'])) . "\n";
   

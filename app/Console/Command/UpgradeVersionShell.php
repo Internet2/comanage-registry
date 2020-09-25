@@ -507,5 +507,20 @@ class UpgradeVersionShell extends AppShell {
     // 4.0.0 converts Attribute Enumerations to use Dictionaries.
     $this->out(_txt('sh.ug.400.attrenums'));
     $this->AttributeEnumeration->_ug400();
+    
+    // 4.0.0 adds Organization Extended Type
+    $this->out(_txt('sh.ug.400.org'));
+    
+    $args = array();
+    $args['contain'] = false;
+    
+    $cos = $this->Co->find('all', $args);
+    
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+      
+      $this->CoExtendedType->addDefault($co['Co']['id'], 'Organization.type');
+    }
   }
 }

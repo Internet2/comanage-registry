@@ -245,6 +245,25 @@ if(!empty($vv_enrollment_flow_cos)) {
       }
       // END Departments Menu
       
+      // Organizations Menu
+      if($permissions['menu']['organizations']) {
+        print '<li id="orgMenu">';
+
+        $linkContent = '<em class="material-icons" aria-hidden="true">account_balance</em><span class="menuTitle">' . _txt('ct.organizations.pl') .
+          '</span><span class="mdl-ripple"></span>';
+
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'organizations';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+
+        print $this->Html->link($linkContent, $args, array('class' => 'mdl-js-ripple-effect', 'escape' => false,));
+
+        print "</li>";
+      }
+      // END Organizations Menu
+      
       // Email Lists Menu
       if($permissions['menu']['colists']) {
         print '<li id="emailMenu">';

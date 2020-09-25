@@ -44,6 +44,8 @@ class Url extends AppModel {
     "CoDepartment",
     // A URL may be attached to a CO Person
     "CoPerson",
+    // An Ad Hoc Attribute may be attached to an Organization
+    "Organization",
     // A URL may be attached to an Org Identity
     "OrgIdentity",
     // A URL created from a Pipeline has a Source URL
