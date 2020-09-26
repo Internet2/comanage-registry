@@ -170,7 +170,7 @@
               <?php
               $attrs = array();
               $attrs['value'] = (isset($co_departments) ? $co_departments[0]['CoDepartment']['type'] : "");
-              $attrs['empty'] = false;
+              $attrs['empty'] = true;
 
               if($e) {
                 print $this->Form->select('type',

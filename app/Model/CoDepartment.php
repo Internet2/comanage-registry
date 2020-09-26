@@ -91,8 +91,8 @@ class CoDepartment extends AppModel {
             'default' => array(DepartmentEnum::VO,
                                DepartmentEnum::ResearchInstitute,
                                DepartmentEnum::Department))),
-        'required' => true,
-        'allowEmpty' => false
+        'required' => false,
+        'allowEmpty' => true
       )
     ),
     'description' => array(

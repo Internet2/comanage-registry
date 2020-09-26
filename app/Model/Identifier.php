@@ -409,17 +409,17 @@ class Identifier extends AppModel {
       'OrgIdentity'
     );
 
-    $id = $this->find('first', $args);
+    $identifier = $this->find('first', $args);
     
-    if(!empty($id)) {
+    if(!empty($identifier)) {
       foreach($args['contain'] as $m) {
-        if(!empty($id[$m]['co_id'])) {
-          return $id[$m]['co_id'];
+        if(!empty($identifier[$m]['co_id'])) {
+          return $identifier[$m]['co_id'];
         }
       }
     }
     
-    throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.identifiers.1'), $id)));
+    throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.identifiers.1'), $identifier)));
   }
   
   /**
