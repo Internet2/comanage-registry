@@ -292,7 +292,7 @@
             $attrs['value'] = (isset($co_enrollment_flows)
                                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id']
                                : null);
-            $attrs['empty'] = true;
+            $attrs['empty'] = _txt('op.select.empty');
 
             if($e) {
               print $this->Form->label('authz_co_group_id', _txt('fd.ef.authz.group')) . ': ';
