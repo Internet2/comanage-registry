@@ -82,6 +82,11 @@ class CmpEnrollmentConfiguration extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'redirect_on_logout' => array(
+      'rule' => array('url', true),
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**
@@ -101,7 +106,8 @@ class CmpEnrollmentConfiguration extends AppModel {
       'attrs_from_ldap'     => false,
       'attrs_from_saml'     => false,
       'pool_org_identities' => $pool,
-      'status'              => StatusEnum::Active
+      'status'              => StatusEnum::Active,
+      'redirect_on_logout'  => null,
     );
     
     if($this->save($ef)) {
@@ -127,7 +133,27 @@ class CmpEnrollmentConfiguration extends AppModel {
     
     return $this->find('first', $args);
   }
-  
+
+
+  /**
+   * Get the Logoute Redirect URL specified in the Platform CO.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return string Logout Redirect URL
+   */
+
+  public function getLogoutRedirectUrl() {
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['fields'] = array('CmpEnrollmentConfiguration.redirect_on_logout');
+    $args['contain'] = false;
+
+    $cmp = $this->find('first', $args);
+
+    return $cmp["CmpEnrollmentConfiguration"]["redirect_on_logout"];
+  }
+
   /**
    * Determine if enrollment attribute values may be obtained from the environment,
    * and if so which ones.

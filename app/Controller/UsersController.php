@@ -369,16 +369,20 @@ class UsersController extends AppController {
   
   public function logout() {
     $this->Session->delete('Auth');
-    
+
     $redirect = "/";
-    
+
     if($this->Session->check('Logout.redirect')) {
+      // Session handled redirect must be honored at all times. It is currently used by EnvSource plugin
+      // during Enrollment Flow and handles account linking cases
       $redirect = $this->Session->read('Logout.redirect');
-      
       // Clear the redirect so we don't use it again
       $this->Session->delete('Logout.redirect');
+    } else {
+      $global_logout = $this->CmpEnrollmentConfiguration->getLogoutRedirectUrl();
+      $redirect = !empty($global_logout) ? $global_logout : $redirect;
     }
-    
+
     $this->redirect($redirect);
   }
 }
