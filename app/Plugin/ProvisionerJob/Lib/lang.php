@@ -41,6 +41,7 @@ $cm_provisioner_job_texts['en_US'] = array(
   
   // Plugin texts
   'pl.provisionerjob.arg.co_provisioning_target_id' => 'CO Provisioning Target ID',
+  'pl.provisionerjob.arg.provisioning_action' => 'ProvisioningActionEnum',
   'pl.provisionerjob.arg.record_type' => 'Type of record to reprovision',
   'pl.provisionerjob.arg.record_id' => 'Record ID to reprovision, omit to reprovision all records of the specified type',
   'pl.provisionerjob.count'  => 'Reprovisioning %1$s %2$s record(s)',

@@ -295,22 +295,48 @@ class JobShell extends AppShell {
       
       $this->out(_txt('sh.job.lock.obt', array($lockid)), 1, Shell::NORMAL);
       
-      // Pull all jobs where status is queued
+      // Pull all jobs where status is queued and whose start time isn't deferred.
+      // We do this in a loop rather than pull all at once for two reasons:
+      // (1) to work with very large queues (this is effectively keyset pagination
+      // with a single entry page size) and (2) for future compatibility with
+      // support for multiple queue runners.
+      
       $args = array();
       $args['conditions']['CoJob.co_id'] = $this->params['coid'];
       $args['conditions']['CoJob.status'] = JobStatusEnum::Queued;
+      $args['conditions']['OR'] = array(
+        'CoJob.start_after_time IS NULL',
+        'CoJob.start_after_time < ' => date('Y-m-d H:i:s', time())
+      );
       $args['order'] = 'CoJob.id ASC';
+      $args['limit'] = 1;
       $args['contain'] = false;
       
-      $jobs = $this->CoJob->find('all', $args);
+      $count = $this->CoJob->find('count', $args);
       
-      $this->out(_txt('sh.job.count', array(count($jobs))), 1, Shell::NORMAL);
+      $this->out(_txt('sh.job.count', array($count)), 1, Shell::NORMAL);
       
-      foreach($jobs as $j) {
-        $this->out(_txt('sh.job.proc', array($j['CoJob']['id'])), 1, Shell::NORMAL);
+      // In order to prevent resource exhaustion, we'll cap the number of jobs
+      // we run to 100 at which point we'll exit and another process can be started.
+      $maxtodo = 100;
+
+      while($maxtodo > 0) {
+        $maxtodo--;
         
-        // XXX CO-1729 pass in actor_co_person_id of registerer
-        $this->dispatch($j['CoJob']['job_type'], json_decode($j['CoJob']['job_params'], true), $j['CoJob']['id']);
+        // We sort by id ASC so we always get the oldest job ready to process.
+        // XXX When we support multiple queue runners we'll need a read lock,
+        // at least until we change the job status.
+        
+        $job = $this->CoJob->find('first', $args);
+        
+        if(!empty($job)) {
+          $this->out(_txt('sh.job.proc', array($job['CoJob']['id'])), 1, Shell::NORMAL);
+          
+          // XXX CO-1729 pass in actor_co_person_id of registerer
+          $this->dispatch($job['CoJob']['job_type'], json_decode($job['CoJob']['job_params'], true), $job['CoJob']['id']);
+        } else {
+          $done = true;
+        }
       }
       
       $this->out(_txt('sh.job.lock.rel'), 1, Shell::NORMAL);

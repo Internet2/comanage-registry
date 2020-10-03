@@ -144,7 +144,7 @@
       <?php
         global $cm_lang, $cm_texts;
         $attrs = array();
-        $attrs['value'] = (isset($co_enrollment_flow_wedges) ? $co_enrollment_flow_wedges[0]['CoEnrollmentFlowWedge']['status'] : ProvisionerStatusEnum::AutomaticMode);
+        $attrs['value'] = (isset($co_enrollment_flow_wedges) ? $co_enrollment_flow_wedges[0]['CoEnrollmentFlowWedge']['status'] : SuspendableStatusEnum::Active);
         $attrs['empty'] = false;
 
         if($e) {

@@ -47,8 +47,7 @@ class CoJob extends AppModel {
     'co_id' => array(
       'rule' => 'numeric',
       'required' => true,
-      'allowEmpty' => false,
-      'message' => 'A CO ID must be provided'
+      'allowEmpty' => false
     ),
     'job_type' => array(
       'rule' => array('maxLength', 64),
@@ -62,6 +61,21 @@ class CoJob extends AppModel {
     ),
     'job_params' => array(
       'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'requeue_interval' => array(
+      'rule' => array('numeric'),   // We really want range of 0+
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'retry_interval' => array(
+      'rule' => array('numeric'),   // We really want range of 0+
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'requeued_from_co_job_id' => array(
+      'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -90,6 +104,11 @@ class CoJob extends AppModel {
       'allowEmpty' => true
     ),
     'queue_time' => array(
+      'rule' => 'datetime',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'start_after_time' => array(
       'rule' => 'datetime',
       'required' => false,
       'allowEmpty' => true
@@ -172,6 +191,7 @@ class CoJob extends AppModel {
    * @param  String        $summary    Summary
    * @param  JobStatusEnum $result Job Result
    * @return Boolean True on success
+   * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
@@ -180,15 +200,69 @@ class CoJob extends AppModel {
       throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_jobs.1'), $id)));
     }
     
-    // There's not really an elegant way to update more than 1 but less than all fields...
+    // Pull the current job
     
-    $this->id = $id;
-    $this->saveField('status', $result);
-    $this->saveField('complete_time', date('Y-m-d H:i:s', time()));
+    $args = array();
+    $args['conditions']['CoJob.id'] = $id;
+    $args['contain'] = false;
+    
+    $job = $this->find('first', $args);
+    
+    if(empty($job)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
+    $job['CoJob']['status'] = $result;
+    $job['CoJob']['complete_time'] = date('Y-m-d H:i:s', time());
     
     // Make sure $summary fits in the available space
     $limit = $this->validate['finish_summary']['rule'][1];
-    $this->saveField('finish_summary', substr($summary, 0, $limit));
+    $job['CoJob']['finish_summary'] = substr($summary, 0, $limit);
+    
+    $this->save($job, true, array('complete_time', 'finish_summary', 'status'));
+    
+    // On success, if a requeue_interval is specified then register a new job
+    // with the same parameters, but with a delayed start time. Do the same thing
+    // on failure if a retry_interval is specified. We need to do this after we
+    // update the status of $id to avoid issues with concurrent jobs.
+    
+    if($result == JobStatusEnum::Complete
+       && !empty($job['CoJob']['requeue_interval'])
+       && $job['CoJob']['requeue_interval'] > 0) {
+      // The new job will be substantially the same as the last one...
+      
+      $this->register($job['CoJob']['co_id'], 
+                      $job['CoJob']['job_type'],
+                      $job['CoJob']['job_type_fk'],
+                      $job['CoJob']['job_mode'],
+                      $job['CoJob']['register_summary'],
+                      true,
+                      // we only support serialized jobs, not concurrent
+                      false,
+                      json_decode($job['CoJob']['job_params'], true),
+                      $job['CoJob']['requeue_interval'],
+                      $job['CoJob']['requeue_interval'],
+                      $job['CoJob']['retry_interval'],
+                      $job['CoJob']['id']);
+    } elseif($result == JobStatusEnum::Failed
+             && !empty($job['CoJob']['retry_interval'])
+             && $job['CoJob']['retry_interval'] > 0) {
+      // The new job will be substantially the same as the last one...
+      
+      $this->register($job['CoJob']['co_id'], 
+                      $job['CoJob']['job_type'],
+                      $job['CoJob']['job_type_fk'],
+                      $job['CoJob']['job_mode'],
+                      $job['CoJob']['register_summary'],
+                      true,
+                      // we only support serialized jobs, not concurrent
+                      false,
+                      json_decode($job['CoJob']['job_params'], true),
+                      $job['CoJob']['retry_interval'],
+                      $job['CoJob']['requeue_interval'],
+                      $job['CoJob']['retry_interval'],
+                      $job['CoJob']['id']);
+    }
     
     return true;
   }
@@ -225,19 +299,34 @@ class CoJob extends AppModel {
    * Register a job.
    *
    * @since  COmanage Registry v2.0.0
-   * @param  Integer     $coId       CO ID
-   * @param  JobTypeEnum $jobType    Job Type
-   * @param  Integer     $jobTypeFk  Foreign key suitable for $jobType (eg: cm_org_identity_sources:id)
-   * @param  String      $jobMode    Job Mode
-   * @param  String      $summary    Summary
-   * @param  Boolean     $queued     Whether the job is queued (true) or started (false)
-   * @param  Boolean     $concurrent Whether multiple instances of this job (coid+jobtype+jobtypefk) are permitted to run concurrently
-   * @param  Array       $params     Parameters to pass to job plugin
-   * @return Integer                 Job ID
+   * @param  Integer     $coId            CO ID
+   * @param  JobTypeEnum $jobType         Job Type
+   * @param  Integer     $jobTypeFk       Foreign key suitable for $jobType (eg: cm_org_identity_sources:id)
+   * @param  String      $jobMode         Job Mode
+   * @param  String      $summary         Summary
+   * @param  Boolean     $queued          Whether the job is queued (true) or started (false)
+   * @param  Boolean     $concurrent      Whether multiple instances of this job (coid+jobtype+jobtypefk) are permitted to run concurrently
+   * @param  Array       $params          Parameters to pass to job plugin
+   * @param  Integer     $delay           Minimum number of seconds to delay the start of this job
+   * @param  Integer     $requeueInterval If non-zero, number of seconds after successful completion to requeue the same job
+   * @param  Integer     $retryInterval   If non-zero, number of seconds after failed completion to requeue the same job
+   * @param  Integer     $requeuedFrom    If requeued, the CO Job ID that created this Job
+   * @return Integer                      Job ID
    * @throws RuntimeException
    */
   
-  public function register($coId, $jobType, $jobTypeFk=null, $jobMode="", $summary="", $queued=false, $concurrent=false, $params=null) {
+  public function register($coId, 
+                           $jobType,
+                           $jobTypeFk=null,
+                           $jobMode="",
+                           $summary="",
+                           $queued=false,
+                           $concurrent=false,
+                           $params=null,
+                           $delay=0,
+                           $requeueInterval=0,
+                           $retryInterval=0,
+                           $requeuedFrom=null) {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
@@ -249,9 +338,15 @@ class CoJob extends AppModel {
       $args = array();
       $args['conditions']['CoJob.co_id'] = $coId;
       $args['conditions']['CoJob.job_type'] = $jobType;
-      $args['conditions']['CoJob.job_type_fk'] = $jobTypeFk;
+      if($jobTypeFk) {
+        $args['conditions']['CoJob.job_type_fk'] = $jobTypeFk;
+      }
+      if($params) {
+        $args['conditions']['CoJob.job_params'] = json_encode($params);
+      }
+      $args['conditions']['CoJob.job_mode'] = $jobMode;
       $args['conditions']['CoJob.status'] = array(JobStatusEnum::Queued, JobStatusEnum::InProgress);
-      $args['fields'] = array();
+      $args['fields'] = array(); //array('co_id', 'job_type', 'job_params', 'job_mode', 'status');
       
       $jobs = $this->findForUpdate($args['conditions'], $args['fields']);
       
@@ -264,14 +359,21 @@ class CoJob extends AppModel {
     
     $coJob = array();
     $coJob['CoJob']['co_id'] = $coId;
-      $coJob['CoJob']['job_type'] = $jobType;
+    $coJob['CoJob']['job_type'] = $jobType;
     if($params) {
       $coJob['CoJob']['job_params'] = json_encode($params);
-    } else {
-      $coJob['CoJob']['job_type_fk'] = $jobTypeFk;
-      $coJob['CoJob']['job_mode'] = $jobMode;
     }
+    $coJob['CoJob']['job_type_fk'] = $jobTypeFk;
+    $coJob['CoJob']['job_mode'] = $jobMode;
     $coJob['CoJob']['queue_time'] = date('Y-m-d H:i:s', time());
+    $coJob['CoJob']['requeue_interval'] = $requeueInterval;
+    $coJob['CoJob']['retry_interval'] = $retryInterval;
+    if($requeuedFrom) {
+      $coJob['CoJob']['requeued_from_co_job_id'] = $requeuedFrom;
+    }
+    if($delay > 0) {
+      $coJob['CoJob']['start_after_time'] = date('Y-m-d H:i:s', time()+$delay);
+    }
     if(!empty($jobs)) {
       $coJob['CoJob']['status'] = JobStatusEnum::Failed;
       $coJob['CoJob']['complete_time'] = $coJob['CoJob']['queue_time'];

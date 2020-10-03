@@ -1145,7 +1145,7 @@ class AppModel extends Model {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = $this->name.'.co_id=CoProvisioningTarget.co_id';
     $args['conditions'][$this->name.'.id'] = $id;
-    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerStatusEnum::Disabled;
+    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerModeEnum::Disabled;
     $args['contain'] = false;
     
     $targets = $this->Co->CoProvisioningTarget->find('all', $args);
@@ -1186,6 +1186,20 @@ class AppModel extends Model {
             'timestamp' => null,
             'comment'   => $e->getMessage()
           );
+        }
+        
+        // If this provisioner is in a mode that supports queuing, see if there is
+        // a queued job for this subject
+        if($targets[$i]['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
+           || $targets[$i]['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueOnErrorMode) {
+          $args = array();
+          $args['conditions']['CoJob.job_type'] = 'Provisioner';
+          $args['conditions']['CoJob.job_mode'] = $this->name;
+          $args['conditions']['CoJob.job_type_fk'] = $id;
+          $args['conditions']['CoJob.status'] = JobStatusEnum::Queued;
+          $args['contain'] = false;
+          
+          $targets[$i]['queued'] = $this->Co->CoJob->find('all', $args);
         }
       }
     }

@@ -566,12 +566,13 @@ class PetitionStatusEnum
   const PendingConfirmation = 'PC';
 }
 
-// The status of a provisioning plugin
-class ProvisionerStatusEnum
+class ProvisionerModeEnum
 {
   const AutomaticMode       = 'A';
   const Disabled            = 'X';
   const EnrollmentMode      = 'E';
+  const QueueMode           = 'Q';
+  const QueueOnErrorMode    = 'QE';
   const ManualMode          = 'M';
 }
 

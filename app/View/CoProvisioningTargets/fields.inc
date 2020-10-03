@@ -49,6 +49,25 @@
 
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    var mode = document.getElementById('CoProvisioningTargetStatus').value;
+    
+    if(mode == '<?php print ProvisionerModeEnum::QueueMode; ?>'
+       || mode == '<?php print ProvisionerModeEnum::QueueOnErrorMode; ?>') {
+      $("#requeuediv").show('fade');
+    } else {
+      $("#requeuediv").hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+</script>
 <?php if(empty($plugins)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
@@ -125,7 +144,10 @@
     <div class="field-info">
       <?php
         global $cm_lang, $cm_texts;
-        $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerStatusEnum::AutomaticMode);
+        
+        $attrs = array();
+        $attrs['value'] = (isset($co_provisioning_targets) ? $co_provisioning_targets[0]['CoProvisioningTarget']['status'] : ProvisionerModeEnum::AutomaticMode);
+        $attrs['onChange'] = 'fields_update_gadgets();';
         $attrs['empty'] = false;
         
         if($e) {
@@ -140,6 +162,23 @@
           print _txt('en.status', null, $co_provisioning_targets[0]['CoProvisioningTarget']['status']);
         }
       ?>
+    </div>
+    <div id="requeuediv" style="display:none">
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('requeue_interval', _txt('fd.job.retry_interval')) : _txt('fd.job.retry_interval')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.prov.retry_interval.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php print ($e
+                         ? $this->Form->input('retry_interval')
+                         : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['retry_interval'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+          </div>
+        </li>
+      </ul>
     </div>
   </li>
   <li>

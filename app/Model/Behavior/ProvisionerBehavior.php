@@ -765,10 +765,14 @@ class ProvisionerBehavior extends ModelBehavior {
     // Pull the Provisioning Targets for this CO. We use the CO ID from $provisioningData.
     
     $args = array();
-    $args['conditions']['CoProvisioningTarget.status'] = array(ProvisionerStatusEnum::AutomaticMode);
+    $args['conditions']['CoProvisioningTarget.status'] = array(
+      ProvisionerModeEnum::AutomaticMode,
+      ProvisionerModeEnum::QueueMode,
+      ProvisionerModeEnum::QueueOnErrorMode
+    );
     if($action == ProvisioningActionEnum::CoPersonPetitionProvisioned) {
       // Also run provisioners in Enrollment Mode
-      $args['conditions']['CoProvisioningTarget.status'][] = ProvisionerStatusEnum::EnrollmentMode;
+      $args['conditions']['CoProvisioningTarget.status'][] = ProvisionerModeEnum::EnrollmentMode;
     }
     if(isset($provisioningData[ $model->name ]['co_id'])) {
       $args['conditions']['CoProvisioningTarget.co_id'] = $provisioningData[ $model->name ]['co_id'];
@@ -799,19 +803,75 @@ class ProvisionerBehavior extends ModelBehavior {
     
     if(!empty($targets)) {
       foreach($targets as $target) {
-        // Fire off each provisioning target
+        // Look at each plugin's mode (confusingly called status). If it is
+        // Automatic or QueueOnError, invoke it now. If it is Queue, register
+        // a job.
         
-        try {
-          $this->invokePlugin($target,
-                              $provisioningData,
-                              $action,
-                              $actorCoPersonId);
+        // Note that queued jobs will trigger manualProvision, which calls
+        // invokePlugin() directly (bypassing invokePlugins).
+        
+        $error = false;
+        
+        if($target['CoProvisioningTarget']['status'] != ProvisionerModeEnum::QueueMode) {
+          // Fire off each provisioning target
+          
+          try {
+            $this->invokePlugin($target,
+                                $provisioningData,
+                                $action,
+                                $actorCoPersonId);
+          }
+          catch(InvalidArgumentException $e) {
+            $err .= _txt('er.prov.plugin', array($target['CoProvisioningTarget']['description'], $e->getMessage())) . ";";
+          }
+          catch(RuntimeException $e) {
+            // XXX should we maybe suppress or modify this when mode = QueueOnErrorMode?
+            $err .= _txt('er.prov.plugin', array($target['CoProvisioningTarget']['description'], $e->getMessage())) . ";";
+            
+            // We only requeue on RuntimeException, not InvalidArgumentException
+            // (which presumably won't be fixed by rerunning it).
+            $error = true;
+          }
         }
-        catch(InvalidArgumentException $e) {
-          $err .= _txt('er.prov.plugin', array($target['CoProvisioningTarget']['description'], $e->getMessage())) . ";";
-        }
-        catch(RuntimeException $e) {
-          $err .= _txt('er.prov.plugin', array($target['CoProvisioningTarget']['description'], $e->getMessage())) . ";";
+        
+        if($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
+           || ($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueOnErrorMode
+               && $error)) {
+          // Queue the job. The job will be processed by ProvisionerJob, and the
+          // job infrastructure will handle retrying if it fails (again).
+          
+          $retry = (!empty($target['CoProvisioningTarget']['retry_interval'])
+                    ? $target['CoProvisioningTarget']['retry_interval']
+                    : 900);
+          
+          // It's possible we'll try to register a job for a target when there is
+          // already one in the queue, eg if two changes are made in quick succession.
+          // To keep the noise down, we'll ignore these errors.
+          $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'], 
+                                      'Provisioner',
+                                      $provisioningData[ $model->name ]['id'],
+                                      $model->name,
+                                      _txt(($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
+                                            ? 'rs.prov.queue'
+                                            : 'rs.prov.queue.err'), 
+                                           array($model->name,
+                                                 $provisioningData[ $model->name ]['id'],
+                                                 $target['CoProvisioningTarget']['description'],
+                                                 $target['CoProvisioningTarget']['id'])),
+                                      true,
+                                      false,
+                                      array(
+                                        'co_provisioning_target_id' => $target['CoProvisioningTarget']['id'],
+                                        'record_type' => $model->name,
+                                        'record_id' => $provisioningData[ $model->name ]['id'],
+                                        'provisioning_action' => $action
+                                      ),
+                                      // Start as soon as possible, unless on error, in which case we
+                                      // retry in 15 minutes XXX document, make con
+                                      ($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
+                                       ? 0 : $retry),
+                                      0,
+                                      $retry);
         }
       }
     }
