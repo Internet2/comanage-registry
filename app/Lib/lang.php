@@ -829,10 +829,12 @@ original notification at
   ),
   
   'en.status.prov' => array(
-    ProvisionerStatusEnum::AutomaticMode  => 'Automatic Mode',
-    ProvisionerStatusEnum::EnrollmentMode => 'Enrollment Mode',
-    ProvisionerStatusEnum::ManualMode     => 'Manual Mode',
-    ProvisionerStatusEnum::Disabled       => 'Disabled'
+    ProvisionerModeEnum::AutomaticMode    => 'Automatic Mode',
+    ProvisionerModeEnum::EnrollmentMode   => 'Enrollment Mode',
+    ProvisionerModeEnum::ManualMode       => 'Manual Mode',
+    ProvisionerModeEnum::QueueMode        => 'Queue Mode',
+    ProvisionerModeEnum::QueueOnErrorMode => 'Queue On Error Mode',
+    ProvisionerModeEnum::Disabled         => 'Disabled'
   ),
   
   'en.status.prov.desc' =>  'See <a href="https://spaces.at.internet2.edu/display/COmanage/Provisioning+From+Registry#ProvisioningFromRegistry-AddingaProvisioningTarget">the documentation</a> for mode information',
@@ -1470,6 +1472,13 @@ original notification at
   'fd.job.params' =>  'Job Parameters',
   'fd.job.queue_time' => 'Queued',
   'fd.job.register_summary' => 'Register Summary',
+  'fd.job.requeue_interval' => 'Requeue Interval',
+  'fd.job.requeue_interval.desc' => 'After the job successfully completes, it will automatically be requeued to execute after this interval (in seconds). (To stop requeuing, simply cancel this job.)',
+  'fd.job.requeued_from_co_job_id' => 'Requeued From Job',
+  'fd.job.retry_interval' => 'Retry Interval',
+  'fd.job.retry_interval.desc' => 'If the job fails, it will automatically be retried after this interval (in seconds). (To stop retrying, simply cancel this job.)',
+  'fd.job.start_after_time' => 'Start After',
+  'fd.job.start_after_time.desc' => 'The queued job will not be started until after this time',
   'fd.job.start_summary' => 'Start Summary',
   'fd.job.start_time' => 'Started',
   'fd.job.type' =>    'Job Type',
@@ -1597,6 +1606,7 @@ original notification at
   'fd.plugin.warn' => 'Once a new %1$s has been created, the Plugin cannot be changed',
   'fd.prov.group' =>  'Provisioning Group',
   'fd.prov.group.desc' => 'If set, only provision members of the specified group to this target',
+  'fd.prov.retry_interval.desc' => 'If the provisioning action fails, it will automatically be retried after this interval (in seconds), default is 900 seconds. Set to 0 to not try again. (To stop retrying, cancel the job in the Job Queue.)',
   'fd.prov.skipois' => 'Skip If Associated With Org Identity Source',
   'fd.prov.skipois.desc' => 'If set, do not provision CoPerson records that have an attached Org Identity record from the specified Org Identity Source',
   'fd.prov.status' => 'Provisioning Status',
@@ -2149,6 +2159,9 @@ original notification at
   'rs.prov.inel.group' => 'Ineligible: Not the provisioning group',
   'rs.prov.inel.ois' => 'Ineligible: Associated record from Org Identity Source',
   'rs.prov.ok' =>     'Provisioning completed successfully',
+  'rs.prov.queue' =>  'Queued %1$s %2$s for provisioning to %3$s (%4$s)',
+  'rs.prov.queue.err' => 'Provisioning attempt failed, queued %1$s %2$s for retry to %3$s (%4$s)',
+  'rs.prov.queued' => 'Provisioning job %1$s scheduled',
   'rs.pt.approve' =>  'Petition Approved',
   'rs.pt.attr.upd' => 'Petition attributes updated',
   'rs.pt.confirm' =>  'Petition Confirmed',

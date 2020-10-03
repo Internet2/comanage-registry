@@ -85,6 +85,9 @@ class ProvisionerJob extends CoJobBackend {
     $success = 0;
     $failed = 0;
     $modelCount = 0; // How many models we've worked with so far
+    // Our job status will be Complete, unless we have a single record to try and
+    // that record failed.
+    $status = JobStatusEnum::Complete;
     
     foreach($modelsTodo as $sModel) {
       // We need to manually assemble the model dependencies that ProvisionerBehavior
@@ -102,22 +105,26 @@ class ProvisionerJob extends CoJobBackend {
       // What provisioning action are we requesting?
       $sAction = null;
       
-      switch($sModel) {
-        case 'CoEmailList':
-          $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
-          break;
-        case 'CoGroup':
-          $sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
-          break;
-        case 'CoPerson':
-          $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
-          break;
-        case 'CoService':
-          $sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
-          break;
-        default:
-          throw new LogicException('NOT IMPLEMENTED');
-          break;
+      if(!empty($params['provisioning_action'])) {
+        $sAction = $params['provisioning_action'];
+      } else {
+        switch($sModel) {
+          case 'CoEmailList':
+            $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
+            break;
+          case 'CoGroup':
+            $sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
+            break;
+          case 'CoPerson':
+            $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
+            break;
+          case 'CoService':
+            $sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
+            break;
+          default:
+            throw new LogicException('NOT IMPLEMENTED');
+            break;
+        }
       }
       
       if(!empty($params['record_id'])) {
@@ -129,6 +136,7 @@ class ProvisionerJob extends CoJobBackend {
           $success++;
         } else {
           $failed++;
+          $status = JobStatusEnum::Failed;
         }
 
         $recordIds[] = $params['record_id'];
@@ -183,7 +191,9 @@ class ProvisionerJob extends CoJobBackend {
       $modelCount++;
     }
     
-    $CoJob->finish($CoJob->id, _txt('pl.provisionerjob.finish', array(($success + $failed), $success, $failed)));
+    $CoJob->finish($CoJob->id, 
+                   _txt('pl.provisionerjob.finish', array(($success + $failed), $success, $failed)),
+                   $status);
   }
   
   /**
@@ -194,6 +204,10 @@ class ProvisionerJob extends CoJobBackend {
    */
   
   public function parameterFormat() {
+    $reflectionClass = new ReflectionClass('ProvisioningActionEnum');
+    
+    $actions = $reflectionClass->getConstants();
+    
     $params = array(
       'co_provisioning_target_id' => array(
         'help'     => _txt('pl.provisionerjob.arg.co_provisioning_target_id'),
@@ -203,12 +217,18 @@ class ProvisionerJob extends CoJobBackend {
       'record_type' => array(
         'help'     => _txt('pl.provisionerjob.arg.record_type'),
         'type'     => 'select',
-        'choices'  => array('CoEmailList', 'CoGroup', 'CoPerson'),
+        'choices'  => array('All', 'CoEmailList', 'CoGroup', 'CoPerson', 'CoService'),
         'required' => true
       ),
       'record_id' => array(
         'help'     => _txt('pl.provisionerjob.arg.record_id'),
         'type'     => 'int',
+        'required' => false
+      ),
+      'provisioning_action' => array(
+        'help'     => _txt('pl.provisionerjob.arg.provisioning_action'),
+        'type'     => 'select',
+        'choices'  => array_values($actions),
         'required' => false
       )
     );

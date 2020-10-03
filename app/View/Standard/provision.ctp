@@ -235,6 +235,17 @@
                 print " (" . _txt('rs.prov.inel.ois') . ")";
               }
             }
+            
+            if(!empty($c['queued'])) {
+              $link = $this->Html->link($c['queued'][0]['CoJob']['id'],
+                                        array(
+                                          'controller' => 'co_jobs',
+                                          'action'     => 'view',
+                                          $c['queued'][0]['CoJob']['id']
+                                        ));
+              
+              print "<hr /><p>" . _txt('rs.prov.queued', array($link)) . "</p>\n";
+            }
           ?>
         </td>
         <td>

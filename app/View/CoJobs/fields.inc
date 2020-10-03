@@ -66,7 +66,9 @@
 <ul id="<?php print $this->action; ?>_co_job" class="fields form-list">
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.type'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.type'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php 
@@ -76,16 +78,14 @@
         } else {
           print filter_var($co_jobs[0]['CoJob']['job_type'], FILTER_SANITIZE_SPECIAL_CHARS);
         }
-        
-        if(!empty($co_jobs[0]['CoJob']['job_type_fk'])) {
-          print " (" . $co_jobs[0]['CoJob']['job_type_fk'] . ")";
-        }
       ?>
     </div>
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.params'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.params'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print filter_var($co_jobs[0]['CoJob']['job_params'], FILTER_SANITIZE_STRING); ?>
@@ -93,15 +93,25 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.mode'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.mode'); ?>
+      </div>
     </div>
     <div class="field-info">
-      <?php print filter_var($co_jobs[0]['CoJob']['job_mode'], FILTER_SANITIZE_STRING); ?>
+      <?php
+        print filter_var($co_jobs[0]['CoJob']['job_mode'], FILTER_SANITIZE_STRING); 
+        
+        if(!empty($co_jobs[0]['CoJob']['job_type_fk'])) {
+          print " (" . $co_jobs[0]['CoJob']['job_type_fk'] . ")";
+        }
+    ?>
     </div>
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.status'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.status'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php
@@ -138,7 +148,9 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.queue_time'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.queue_time'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print $this->Time->format($co_jobs[0]['CoJob']['queue_time'], "%c $vv_tz", false, $vv_tz); ?>
@@ -146,7 +158,9 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.register_summary'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.register_summary'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print filter_var($co_jobs[0]['CoJob']['register_summary'], FILTER_SANITIZE_STRING); ?>
@@ -154,7 +168,62 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.start_time'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.start_after_time'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.job.start_after_time.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print $this->Time->format($co_jobs[0]['CoJob']['start_after_time'], "%c $vv_tz", false, $vv_tz); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.requeue_interval'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.job.requeue_interval.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_jobs[0]['CoJob']['requeue_interval'], FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.retry_interval'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.job.retry_interval.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_jobs[0]['CoJob']['retry_interval'], FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.requeued_from_co_job_id'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        if(!empty($co_jobs[0]['CoJob']['requeued_from_co_job_id'])) {
+          print $this->Html->link($co_jobs[0]['CoJob']['requeued_from_co_job_id'],
+                                  array(
+                                    'plugin' => null,
+                                    'controller' => 'co_jobs',
+                                    'action' => 'view',
+                                    $co_jobs[0]['CoJob']['requeued_from_co_job_id']
+                                  ));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.start_time'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print $this->Time->format($co_jobs[0]['CoJob']['start_time'], "%c $vv_tz", false, $vv_tz); ?>
@@ -162,7 +231,9 @@
   </li>  
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.start_summary'); ?>
+      <div class="field-title"> 
+        <?php print _txt('fd.job.start_summary'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print filter_var($co_jobs[0]['CoJob']['start_summary'], FILTER_SANITIZE_STRING); ?>
@@ -170,7 +241,9 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.complete_time'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.complete_time'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print $this->Time->format($co_jobs[0]['CoJob']['complete_time'], "%c $vv_tz", false, $vv_tz); ?>
@@ -178,7 +251,9 @@
   </li>  
   <li>
     <div class="field-name">
-      <?php print _txt('fd.job.finish_summary'); ?>
+      <div class="field-title">
+        <?php print _txt('fd.job.finish_summary'); ?>
+      </div>
     </div>
     <div class="field-info">
       <?php print filter_var($co_jobs[0]['CoJob']['finish_summary'], FILTER_SANITIZE_STRING); ?>

@@ -980,6 +980,7 @@
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
     <field name="status" type="C" size="2" />
+    <field name="retry_interval" type="I" />
     <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -2229,15 +2230,24 @@
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="job_type" type="C" size="64" />
-    <!-- job_type_fk and job_mode are deprecated and will be removed in v4.0.0 (CO-1310) -->
+    <!-- job_type_fk and job_mode are deprecated and will be removed in v4.0.0 (CO-1310) 
+     We may need to un-deprecate this field, since ProvisionerJob uses it to track
+     if a job is queued for a given subject (in particular for provisioner status)
+    -->
     <field name="job_type_fk" type="I" />
     <field name="job_mode" type="C" size="16" />
-    <field name="job_params" type="X" size="4000" />
+    <field name="job_params" type="XL" />
+    <field name="requeue_interval" type="I" />
+    <field name="retry_interval" type="I" />
+    <field name="requeued_from_co_job_id" type="I">
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
     <field name="status" type="C" size="2" />
     <field name="register_summary" type="C" size="256" />
     <field name="start_summary" type="C" size="256" />
     <field name="finish_summary" type="C" size="256" />
     <field name="queue_time" type="T" />
+    <field name="start_after_time" type="T" />
     <field name="start_time" type="T" />
     <field name="complete_time" type="T" />
     <field name="percent_complete" type="I" />
@@ -2258,6 +2268,10 @@
       <col>job_type</col>
       <col>job_type_fk</col>
       <col>status</col>
+    </index>
+    
+    <index name="co_jobs_i4">
+      <col>co_job_id</col>
     </index>
   </table>
   
