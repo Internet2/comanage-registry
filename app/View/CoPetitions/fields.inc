@@ -146,9 +146,10 @@
                     print _txt('en.status.pt', null, $co_petitions[0]['CoPetition']['status']);
                     print '</span>';
                     
-                    if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
-                       || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation) {
-                      
+                    if(($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
+                        || $co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation)
+                       && $permissions['deny']) {
+
                       // We create a form here as part of CO-1658, since it's cleaner than
                       // grabbing the comment and stuffing it into a GET paramater on submit.
                       // For now this isn't a problem because even though we're in fields.inc,
@@ -158,7 +159,7 @@
                       // "form" attribute eg <input type="text" form="approverForm" ...>
                       // (browser support should be better by then), or by simply only allowing
                       // approval/denial when viewing (not editing) the petition.
-                      
+
                       $args = array(
                         'type' => 'post',
                         'url' => array(
@@ -167,10 +168,11 @@
                           $co_petitions[0]['CoPetition']['id']
                         )
                       );
-                      
+
                       print $this->Form->create('CoPetition', $args);
 
-                      if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval) {
+                      if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
+                         && $permissions['approve']) {
                         print $this->Form->submit(_txt('op.approve'),
                           array(
                             'class' => 'checkbutton approve-button',

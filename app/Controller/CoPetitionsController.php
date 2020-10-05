@@ -2330,6 +2330,7 @@ class CoPetitionsController extends StandardController {
       }
       // Actual approval is handled by the approver
       $p['approve'] = $isApprover;
+      $p['deny'] = $isApprover;
       // Finalize and finalize steps could be reached by anyone, in theory
       foreach(array('finalize', 'provision') as $xstep) {
         switch($steps[$xstep]['role']) {
