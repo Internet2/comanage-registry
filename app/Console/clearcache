@@ -28,7 +28,9 @@
 # we're trying to clear out the old. First we need to figure out where
 # the cache directory is.
 
-CACHEDIR=`dirname $0`"/../../local/tmp/cache"
+if [[ -z "${CACHEDIR}" ]]; then
+  CACHEDIR=`dirname $0`"/../../local/tmp/cache"
+fi
 
 # Make sure $CACHEDIR exists
 if [ ! -d ${CACHEDIR} ]; then
