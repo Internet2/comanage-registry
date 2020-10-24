@@ -71,6 +71,8 @@ class CoLocalizationsController extends StandardController {
         }
       }
       
+      ksort($texts);
+      
       $this->set('vv_cm_texts', $texts);
     }
     

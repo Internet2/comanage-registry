@@ -2270,7 +2270,7 @@ function _txt($key, $vars=null, $index=null)
 
 function _bootstrap_plugin_txt()
 {
-  global $cm_lang, $cm_texts;
+  global $cm_lang, $cm_texts, $cm_texts_orig;
   
   $plugins = App::objects('plugin');
   
@@ -2287,6 +2287,9 @@ function _bootstrap_plugin_txt()
         $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
         
         $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+        
+        // Copy to cm_texts_orig for localization purposes
+        $cm_texts_orig[$cm_lang] = array_merge($cm_texts_orig[$cm_lang], ${$varName}[$cm_lang]);
         
         break;
       }
