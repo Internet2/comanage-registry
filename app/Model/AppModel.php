@@ -1292,7 +1292,9 @@ class AppModel extends Model {
       $args['joins'][1]['type'] = 'INNER';
       $args['joins'][1]['conditions'][0] = 'CoPersonRole.co_person_id=CoPerson.id';
       $args['conditions']['CoPerson.co_id'] = $coId;
-    } elseif ($this->alias === 'CoDepartment'){                                 // This attribute is attached to a CO Department
+    } elseif ($this->alias === 'CoDepartment') {                                 // This attribute is attached to a CO Department
+      $args['conditions'][$this->alias . '.co_id'] = $coId;
+    } elseif ($this->alias === 'Organization') {                                 // This attribute is attached to an Organization
       $args['conditions'][$this->alias . '.co_id'] = $coId;
     } else {
       throw new RuntimeException(_txt('er.notimpl'));

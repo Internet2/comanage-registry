@@ -43,7 +43,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="nationality_enroller_id" type="I">
-      <constraint>REFERENCES cm_identifier_enrollers(id)</constraint>
+      <constraint>REFERENCES cm_nationality_enrollers(id)</constraint>
     </field>
     <field name="revision" type="I" />
     <field name="deleted" type="L" />

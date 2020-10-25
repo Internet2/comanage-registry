@@ -217,7 +217,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="organization_id" type="I">
-      <constraint>REFERENCES cm_co_departments(id)</constraint>
+      <constraint>REFERENCES cm_organizations(id)</constraint>
     </field>
     <field name="revision" type="I" />
     <field name="deleted" type="L" />

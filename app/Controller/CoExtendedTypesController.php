@@ -38,6 +38,7 @@ class CoExtendedTypesController extends StandardController {
                        'EmailAddress',
                        'Identifier',
                        'Name',
+                       'Organization',
                        'TelephoneNumber',
                        'Url',
                        'CoEnrollmentAttribute',
