@@ -138,7 +138,9 @@ class LdapSourceBackend extends OrgIdentitySourceBackend {
     $orgdata['OrgIdentity'] = array();
     
     if(!empty($result['edupersonaffiliation'][0]))
-      $orgdata['OrgIdentity']['affiliation'] = $result['edupersonaffiliation'][0];
+      // XXX we probably need a better approach than this, but the string needs to be lowercase
+      // to pass validation
+      $orgdata['OrgIdentity']['affiliation'] = strtolower($result['edupersonaffiliation'][0]);
     if(!empty($result['o'][0]))
       $orgdata['OrgIdentity']['o'] = $result['o'][0];
     if(!empty($result['ou'][0]))

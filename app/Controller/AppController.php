@@ -1389,7 +1389,7 @@ class AppController extends Controller {
       $coid = -1;
       
       if($this->request->is('restful')) {
-        $coid = $this->Api->requestedCOID($model, $this->request);
+        $coid = $this->Api->requestedCOID($model, $this->request, $data);
         
         if(!$coid) {
           $coid = -1;
@@ -1609,7 +1609,7 @@ class AppController extends Controller {
       throw new LogicException(_txt('er.co.specify'));
     }
     
-    // Specifically whitelist the actions we ignore
+    // Specifically enumerate the actions we ignore
     if(!$this->action !== 'index'
        && $this->action !== 'add'
        && !($this->modelClass === 'CoInvite'

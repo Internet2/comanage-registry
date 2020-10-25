@@ -377,65 +377,102 @@ class ApiComponent extends Component {
    *
    * @since  COmanage Registry v3.3.0
    * @param  $model   Cake Model
-   * @param  $request Cake Rquest
+   * @param  $request Cake Request
+   * @param  $data    Parsed PUT/POST body
    * @return int      CO ID, or null if not found
    */
   
-  public function requestedCOID($model, $request) {
+  public function requestedCOID($model, $request, $data) {
     $coid = null;
     
     // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
     // for REST operations that meet the following requirements:
-    // (1) The request is a GET
-    // (2) The request does not include a specific ID (eg view by CO, not view by ID)
-    // (3) The requested model directly belongsTo the parent link
+    //
+    // (1) The request does not include a specific ID (eg view by CO, not view by ID)
+    // (2) The requested model directly belongsTo the parent link
     // (Note Registry v5 implements this as a per-model check instead, but
     // we don't have the infrastructure for that.)
     
-    if($request->method() == 'GET'
-       && empty($request->params['pass'])) {
+    if(empty($request->params['pass'])) {
       // For historical reasons, the query string keys aren't standard
       $permittedKeys = array(
-        'clusterid' => 'Cluster',
-        'codeptid' => 'CoDepartment',
-        'cogroupid' => 'CoGroup',
-        'coid' => 'Co',
-        'copersonid' => 'CoPerson',
-        'copersonroleid' => 'CoPersonRole',
-        'couid' => 'Cou',
-        'organizationid' => 'Organization',
-        'orgidentityid' => 'OrgIdentity'
+        'GET' => array(
+          'clusterid' => 'Cluster',
+          'codeptid' => 'CoDepartment',
+          'cogroupid' => 'CoGroup',
+          'coid' => 'Co',
+          'copersonid' => 'CoPerson',
+          'copersonroleid' => 'CoPersonRole',
+          'couid' => 'Cou',
+          'organizationid' => 'Organization',
+          'orgidentityid' => 'OrgIdentity'
+        ),
+        'POST' => array(
+          'cluster_id' => 'Cluster',
+          'co_department_id' => 'CoDepartment',
+          'co_group_id' => 'CoGroup',
+          'co_id' => 'Co',
+          'co_person_id' => 'CoPerson',
+          'co_person_role_id' => 'CoPersonRole',
+          'cou_id' => 'Cou',
+          'org_identity_id' => 'OrgIdentity',
+          'organization_id' => 'Organization'
+        )
       );
+      
+      // PUT and POST are basically the same
+      $permittedKeys['PUT'] = $permittedKeys['POST'];
       
       if(!empty($model->permittedApiFilters)) {
         // Merge in the plugin's additional permitted key
-        $permittedKeys = array_merge($permittedKeys, $model->permittedApiFilters);
+        foreach(array('GET', 'POST', 'PUT') as $a) {
+          $permittedKeys[$a] = array_merge($permittedKeys[$a], $model->permittedApiFilters);
+        }
       }
       
-      foreach($permittedKeys as $k => $m) {
-        // For plugins, $m is of the form Plugin.Model, but belongsTo[]
-        // will be keyed only on Model
-        $b = strstr($m, '.');
-        
-        if($b) {
-          $b = ltrim($b, '.');
-        } else {
-          $b = $m;
-        }
-        
-        if(!empty($request->query[$k])
-           && !empty($model->belongsTo[$b])) {
-          if($k == 'coid') {
-            $coid = $request->query['coid'];
+      if(!empty($permittedKeys[$request->method()])) {
+        foreach($permittedKeys[$request->method()] as $k => $m) {
+          // For plugins, $m is of the form Plugin.Model, but belongsTo[]
+          // will be keyed only on Model
+          $b = strstr($m, '.');
+          
+          if($b) {
+            $b = ltrim($b, '.');
           } else {
-            // For any other key, we need to map it to a CO
-            
-            $ParentModel = ClassRegistry::init($m);
-            
-            $coid = $ParentModel->findCoForRecord($request->query[$k]);
+            $b = $m;
           }
           
-          break;
+          if(!empty($model->belongsTo[$b])) {
+            if($request->method() == 'GET') {
+              if(!empty($request->query[$k])) {
+                if($k == 'coid') {
+                  $coid = $request->query['coid'];
+                } else {
+                  // For any other key, we need to map it to a CO
+                  
+                  $ParentModel = ClassRegistry::init($m);
+                  
+                  $coid = $ParentModel->findCoForRecord($request->query[$k]);
+                }
+                
+                break;
+              }
+            } else {
+              if(!empty($data[$k])) {
+                if($k == 'co_id') {
+                  $coid = $data['co_id'];
+                } else {
+                  // For any other key, we need to map it to a CO
+                  
+                  $ParentModel = ClassRegistry::init($m);
+                  
+                  $coid = $ParentModel->findCoForRecord($data[$k]);
+                }
+                
+                break;
+              }
+            }
+          }
         }
       }
     }

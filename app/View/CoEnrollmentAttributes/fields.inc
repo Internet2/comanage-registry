@@ -29,14 +29,13 @@
 <script type="text/javascript">
   function js_local_onload() {
     initialize_attr_select();
-    toggle_attr_def_div();
-    toggle_attr_type_div();
-    toggle_copy_to_coperson_div();
   }
 
   const available_attributes_nested = <?php print json_encode($vv_available_attributes_nested);?>;
   const vv_attributes_properties = <?php print json_encode($vv_attributes_properties);?>;
   var stored_attribute = null;
+  // Ensure that fields are updated once
+  let fields_updated = false;
 
   function enum_for_attr(attrname) {
     // Determine if an attribute has defined enumerations. We use PHP code to
@@ -85,12 +84,25 @@
   
   function set_attr_def_value(elementid) {
     // Offset date requires a + prefix
-    document.getElementById('CoEnrollmentAttributeDefault0Value').value =
-      (elementid == "def_date_val_offset" ? "+" : "") +
-      document.getElementById(elementid).value
+    const input_value =
+      (elementid == "def_date_val_offset" ? "+" : "") + document.getElementById(elementid).value;
+
+    // Update Form Input Field
+    document.getElementById('CoEnrollmentAttributeDefault0Value').value = input_value;
+    // Save state
+    const $default = $('div[id^="attr_def_val_"').find(':visible');
+    if($default.length > 0) {
+        if($('#type_fields_div').is(':visible')) {
+            const $selected_option = $('#type_fields_div > select').find(':selected');
+            $selected_option.attr('data-default', input_value);
+        } else {
+            const $selected_option = $('#attr_fields_div > select').find(':selected');
+            $selected_option.attr('data-default', input_value);
+        }
+    }
   }
   
-  function toggle_attr_def_div() {
+  function toggle_attr_def_div(curval) {
     // For now, only CO Person Role attributes (type 'r'), Organizational Identity
     // attributes (type 'o'), or Extended Attributes (type 'x') can have default values.
     
@@ -109,8 +121,9 @@
       $("#attr_def_val_enum_div").hide();
       $("#attr_def_val_group_div").hide();
       $("#attr_def_val_sponsor_div").hide();
-      
-      var curval = document.getElementById('CoEnrollmentAttributeDefault0Value').value;
+
+      // Update the Form input value
+      document.getElementById('CoEnrollmentAttributeDefault0Value').value = curval;
       
       var curattrarr = curattr.split(":");
       var curattrcode = curattrarr[0];
@@ -172,7 +185,9 @@
         document.getElementById('def_group_val').value = curval;
         $("#attr_def_val_group_div").show("fade");
       } else {
-        $("#attr_def_val_div").show();
+        // Set current value before showing
+        document.getElementById('def_val_div').value = curval;
+        $("#attr_def_val_div").show("fade");
       }
     } else {
       $("#attr_def_div").hide("fade", { "direction" : "up" });
@@ -263,6 +278,8 @@
   function trigger_update_fields(element) {
       let databind = $("option:selected", element).data('bind');
       let value = $("option:selected", element).attr('value');
+      fields_updated = false;
+
       if( databind !== null
           && databind !== ''
           && $.isPlainObject(databind)) {
@@ -277,10 +294,17 @@
           document.getElementById('CoEnrollmentAttributeAttribute').value = value;
       }
 
-      document.getElementById('CoEnrollmentAttributeRequiredFields').value='';
-      toggle_attr_def_div();
-      toggle_copy_to_coperson_div();
-      toggle_attr_type_div();
+      // Force run only once. Run while in the deepest level of recursion
+      if(!fields_updated) {
+          if(document.getElementById('CoEnrollmentAttributeRequiredFields') != null) {
+              document.getElementById('CoEnrollmentAttributeRequiredFields').value = '';
+              let default_val = ($("option:selected", element).data('default') == null) ? '' : $("option:selected", element).data('default');
+              toggle_attr_def_div(default_val);
+              toggle_copy_to_coperson_div();
+              toggle_attr_type_div();
+              fields_updated = true;
+          }
+      }
   }
 
   function update_attr_fields(select_obj_id, options_object, parent_class) {
@@ -314,6 +338,9 @@
       }
       if ($.inArray(cur_value, attributesProperty) !== -1) {
           option.attr('selected', 'selected');
+          <?php if(!empty($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])): ?>
+          option.attr('data-default', '<?php print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS); ?>');
+          <?php endif; ?>
       }
       parent.append(option);
   }
@@ -341,7 +368,7 @@
     <?php endif; //vv_sponsor_mode ?>
   });
 
-  <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
+  <?php if($vv_sponsor_mode !== SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
   function reset_sponsor() {
     $("#sponsors").val("");
     document.getElementById('CoEnrollmentAttributeDefault0Value').value = null;
@@ -351,11 +378,15 @@
 <?php
   // Determine if fields are editable
   $e = false;
-  
-  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
+  $display = '';
+
+  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit'])) {
     $e = true;
-    
-  // We shouldn't get here if we don't have at least read permission, but check just in case
+    $display = 'none';
+  }
+
+
+// We shouldn't get here if we don't have at least read permission, but check just in case
   
   if(!$e && !$permissions['view'])
     return(false);
@@ -400,10 +431,11 @@
     print $this->Form->hidden('CoEnrollmentAttributeDefault.0.co_enrollment_attribute_id') . "\n";
   }
 
-  $co_enrollment_attribute_attribute = !empty(filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS))
+  $co_enrollment_attribute_attribute = !empty($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'])
                                        ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS)
                                        : '';
   print $this->Form->hidden('attribute', array('value' => $co_enrollment_attribute_attribute)) . "\n";
+  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.value', array('value' => filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   $l = 1;
 ?>
@@ -467,7 +499,7 @@
             <div id="attr_print_div">
               <?php
                 $attrProps = $vv_attributes_properties[ $co_enrollment_attribute_attribute ];
-                print $attrProps['attrName'] . '(' . implode(',', array_slice(array_filter($attrProps), '1')) . ')';
+                print $attrProps['attrName'] . '(' . implode(', ', array_slice(array_filter($attrProps), '1')) . ')';
               ?>
             </div>
           <?php endif; ?>
@@ -611,16 +643,24 @@
         </td>
       </tr>
     </tbody>
-    <tbody id="attr_def_div" style="display: none">
+    <tbody id="attr_def_div" style="display: <?php print $display;?>">
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td width="50%">
           <b><?php print _txt('fd.ed.default'); ?></b><br />
         </td>
         <td>
           <div id="attr_def_val_div">
-            <?php print ($e
-              ? $this->Form->input('CoEnrollmentAttributeDefault.0.value', array('size' => 40))
-              : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            <?php if($e): ?>
+                <input name="def_val_div"
+                       id="def_val_div"
+                       size="40"
+                       maxlength="80"
+                       type="text"
+                       onchange="set_attr_def_value('def_val_div')"
+                />
+            <?php else: ?>
+              <?php print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            <?php endif; ?>
           </div>
           <div id="attr_def_val_affil_div">
             <?php if($e): ?>

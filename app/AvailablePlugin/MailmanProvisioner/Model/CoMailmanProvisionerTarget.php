@@ -1021,15 +1021,23 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     // Remove memberships for lists that don't have a corresponding group membership
-    
+
     foreach($curMemberships as $mailmanListId => $m) {
       foreach($m as $listRole => $membershipId) {
         if(isset($mailmanListIds[$mailmanListId])) {
           // Map to CO Email List ID
           $lid = $mailmanListIds[$mailmanListId];
-          
+
           // Figure out the array for this role
           $coEmailLists = array_search($listRole, $listType);
+
+          // In addition to the roles member, owner, and operator Mailman
+          // may return nonmember if the Mailman administrator has used
+          // functionality outside of this provisioner to add an email address
+          // to a list as a nonmember. In such cases skip over that role.
+          if($coEmailLists === false) {
+            continue;
+          }
           
           if(!Hash::check($$coEmailLists, '{n}[id='.$lid.'].id')) {
             try {
@@ -1125,8 +1133,11 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
     
     if($results->code != 200) {
       $jres = json_decode($results->body);
-      
-      throw new RuntimeException($jres->description);
+      if(isset($jres->description)) {
+        throw new RuntimeException($jres->description);
+      } else {
+        throw new RuntimeException(_txt('er.mailmanprovisioner.api.none'));
+      }
     }
     
     return true;

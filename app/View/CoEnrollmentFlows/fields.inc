@@ -181,15 +181,17 @@
     } else {
       $("#authenticators").hide('fade');
     }
+    <?php endif; // $vv_authenticators ?>
     
     // If Establish Clusters is enabled, show the available clusters
     
+    <?php if(!empty($vv_clusters) && !empty($co_enrollment_flows[0]['CoEnrollmentFlow']['id'])): ?>
     if(document.getElementById('CoEnrollmentFlowEstablishClusterAccounts').checked) {
       $("#clusters").show('fade');
     } else {
       $("#clusters").hide('fade');
     }
-    <?php endif; // $vv_authenticators ?>
+    <?php endif; // $vv_clusters ?>
   }
   
   function tandc_update_gadgets() {
@@ -290,7 +292,7 @@
             $attrs['value'] = (isset($co_enrollment_flows)
                                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['authz_co_group_id']
                                : null);
-            $attrs['empty'] = true;
+            $attrs['empty'] = _txt('op.select.empty');
 
             if($e) {
               print $this->Form->label('authz_co_group_id', _txt('fd.ef.authz.group')) . ': ';
@@ -861,14 +863,14 @@
   <li class="field-stack">
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('return_url_whitelist', _txt('fd.ef.whitelist')) : _txt('fd.ef.whitelist')); ?>
+        <?php print ($e ? $this->Form->label('return_url_allowlist', _txt('fd.ef.allowlist')) : _txt('fd.ef.allowlist')); ?>
       </div>
-      <div class="field-desc"><?php print _txt('fd.ef.whitelist.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.ef.allowlist.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e
-                   ? $this->Form->input('return_url_whitelist')
-                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['return_url_whitelist'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+                   ? $this->Form->input('return_url_allowlist')
+                   : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['return_url_allowlist'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>

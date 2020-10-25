@@ -58,7 +58,7 @@
     if(authz == 'CG') {
       document.getElementById('sponsorgroupdiv').style.display = "block";
     } else {
-      document.getElementById('CoEnrollmentFlowAuthzCoGroupId').value = "";
+      document.getElementById('CoSettingSponsorCoGroupId').value = "";
     }
   }
   

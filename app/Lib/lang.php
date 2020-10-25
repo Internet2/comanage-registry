@@ -1374,8 +1374,8 @@ original notification at
   'fd.ef.vmt.desc' => 'Message template used for email sent as part of verification step',
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
-  'fd.ef.whitelist' => 'Return URL Whitelist',
-  'fd.ef.whitelist.desc' => 'Permitted regular expressions (one per line) for <i>return</i> parameter, which if specified overrides Finalization Redirect URL',
+  'fd.ef.allowlist' => 'Return URL Whitelist',
+  'fd.ef.allowlist.desc' => 'Permitted regular expressions (one per line) for <i>return</i> parameter, which if specified overrides Finalization Redirect URL',
   // (End enrollment configuration fields)
   // Enrollment Flow Template Names
   'fd.ef.tmpl.arl' => 'Additional Role (Template)',
@@ -1590,6 +1590,8 @@ original notification at
   'fd.pi.sync.add.ef.desc' => 'Enrollment Flow to trigger on add action, see the <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Pipelines#RegistryPipelines-TriggeringEnrollmentFlowsFromPipelines">documentation</a> for more details',
   'fd.pi.sync.affil' => 'CO Person Role Affiliation',
   'fd.pi.sync.affil.desc' => 'If set, created CO Person Roles will be given this affiliation (not the affiliation of the Organizational Identity)',
+  'fd.pi.sync.coperson.status' => 'New CO Person Status',
+  'fd.pi.sync.coperson.status.desc' => 'If set, new CoPerson records will be created with this status',
   'fd.pi.sync.cou' => 'Sync to COU',
   'fd.pi.sync.cou.repl' => 'Replace Record in COU',
   'fd.pi.sync.cou.repl.desc' => 'If the CO Person has an existing role in the specified COU, that role will be deleted/expired',
@@ -2360,7 +2362,7 @@ function _txt($key, $vars=null, $index=null)
 
 function _bootstrap_plugin_txt()
 {
-  global $cm_lang, $cm_texts;
+  global $cm_lang, $cm_texts, $cm_texts_orig;
   
   $plugins = App::objects('plugin');
   
@@ -2377,6 +2379,9 @@ function _bootstrap_plugin_txt()
         $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
         
         $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
+        
+        // Copy to cm_texts_orig for localization purposes
+        $cm_texts_orig[$cm_lang] = array_merge($cm_texts_orig[$cm_lang], ${$varName}[$cm_lang]);
         
         break;
       }

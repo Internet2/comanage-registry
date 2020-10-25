@@ -113,6 +113,24 @@ class CoPipeline extends AppModel {
       'required'   => false,
       'allowEmpty' => true
     ),
+    'sync_coperson_status' => array(
+      'rule' => array('inList', array(StatusEnum::Active,
+                                      StatusEnum::Approved,
+                                      StatusEnum::Confirmed,
+                                      StatusEnum::Declined,
+                                      StatusEnum::Deleted,
+                                      StatusEnum::Denied,
+                                      StatusEnum::Duplicate,
+                                      StatusEnum::Expired,
+                                      StatusEnum::GracePeriod,
+                                      StatusEnum::Invited,
+                                      StatusEnum::Pending,
+                                      StatusEnum::PendingApproval,
+                                      StatusEnum::PendingConfirmation,
+                                      StatusEnum::Suspended)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'create_role' => array(
       'rule'       => 'boolean',
       'required'   => false,
@@ -757,7 +775,7 @@ class CoPipeline extends AppModel {
       $coPerson = array(
         'CoPerson' => array(
           'co_id'  => $orgIdentity['OrgIdentity']['co_id'],
-          'status' => StatusEnum::Active
+          'status' => empty($coPipeline['CoPipeline']['sync_coperson_status']) ? StatusEnum::Active : $coPipeline['CoPipeline']['sync_coperson_status']
         )
       );
       
