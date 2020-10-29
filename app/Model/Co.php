@@ -76,6 +76,7 @@ class Co extends AppModel {
     // link won't be there to delete.
     "DataFilter" => array('dependent' => true),
     "Dictionary" => array('dependent' => true),
+    "Organization" => array('dependent' => true),
     "OrgIdentity" => array('dependent' => true),
     "OrgIdentitySource" => array('dependent' => true),
     "CoPipeline" => array('dependent' => true),
