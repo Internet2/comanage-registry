@@ -148,6 +148,9 @@
                     } else {
                       print filter_var($n[$gnm]['name'],FILTER_SANITIZE_SPECIAL_CHARS);
                     }
+                    if($n['negate']) {
+                      print " (" . _txt('fd.co_group_nesting.negated') . ")";
+                    }
                   ?>
                 </td>
 
