@@ -715,6 +715,9 @@ class CoGroupsController extends StandardController {
       }
     }
 
+    // Set this use-once session variable to TRUE to let pagination know we came from the search and not from elsewhere.
+    $this->Session->write('Ui.CoGroups.Search.active', true);
+
     // redirect the user to the url
     $this->redirect($url, null, true);
   }
@@ -786,45 +789,129 @@ class CoGroupsController extends StandardController {
     $pagcond = array();
 
     // Use server side pagination
-
     if($this->requires_co) {
       $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
     }
 
-    // Filter by group name
-    if(!empty($this->params['named']['search.groupName'])) {
-      $searchterm = strtolower($this->params['named']['search.groupName']);
-      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
-    }
+    // Track if the form has any terms
+    $searchHasTerms = false;
 
-    // Filter by group description
-    if(!empty($this->params['named']['search.groupDesc'])) {
-      $searchterm = strtolower($this->params['named']['search.groupDesc']);
-      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
-    }
+    // If we came from the form, use only the passed form parameters, clearing out session variables
+    // if fields are empty. This allows users to explicitly set empty values in the form fields.
+    // The 'Ui.CoGroups.Search.active' session variable only exists if terms were explicitly passed from
+    // the search form (it is deleted after use).
+    if($this->Session->consume('Ui.CoGroups.Search.active')) {
 
-    // Filter by status
-    if(!empty($this->params['named']['search.status'])) {
-      $searchterm = $this->params['named']['search.status'];
-      $pagcond['conditions']['CoGroup.status'] = $searchterm;
-    }
+      // Filter by group name
+      if(!empty($this->params['named']['search.groupName'])) {
+        $searchterm = strtolower($this->params['named']['search.groupName']);
+        $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+        $this->Session->write('Ui.CoGroups.Search.name', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.name');
+      }
 
-    // Filter by openness
-    if(!empty($this->params['named']['search.open'])) {
-      $searchterm = $this->params['named']['search.open'];
-      $pagcond['conditions']['CoGroup.open'] = $searchterm;
-    }
+      // Filter by group description
+      if(!empty($this->params['named']['search.groupDesc'])) {
+        $searchterm = strtolower($this->params['named']['search.groupDesc']);
+        $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+        $this->Session->write('Ui.CoGroups.Search.desc', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.desc');
+      }
 
-    // Filter by management type (automatic / manual)
-    if(!empty($this->params['named']['search.auto'])) {
-      $searchterm = $this->params['named']['search.auto'];
-      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
-    }
+      // Filter by status
+      if(!empty($this->params['named']['search.status'])) {
+        $searchterm = $this->params['named']['search.status'];
+        $pagcond['conditions']['CoGroup.status'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.status', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.status');
+      }
 
-    // Filter by group type
-    if(!empty($this->params['named']['search.group_type'])) {
-      $searchterm = $this->params['named']['search.group_type'];
-      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+      // Filter by openness
+      if(!empty($this->params['named']['search.open'])) {
+        $searchterm = $this->params['named']['search.open'];
+        $pagcond['conditions']['CoGroup.open'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.open', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.open');
+      }
+
+      // Filter by management type (automatic / manual)
+      if(!empty($this->params['named']['search.auto'])) {
+        $searchterm = $this->params['named']['search.auto'];
+        $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.auto', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.auto');
+      }
+
+      // Filter by group type
+      if(!empty($this->params['named']['search.group_type'])) {
+        $searchterm = $this->params['named']['search.group_type'];
+        $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.type', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.type');
+      }
+
+      // The whole form is empty? Throw away the top-level Session array too (should it exist).
+      if(!$searchHasTerms) {
+        $this->Session->delete('Ui.CoGroups.Search');
+      }
+
+    // Else we didn't come from the form but from elsewhere;
+    // use the saved session variables to restore the search state
+    } else {
+
+      // Filter by group name
+      if ($this->Session->check('Ui.CoGroups.Search.name')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.name');
+        $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+        $searchHasTerms = true;
+      }
+
+      // Filter by group description
+      if ($this->Session->check('Ui.CoGroups.Search.desc')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.desc');
+        $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+        $searchHasTerms = true;
+      }
+
+      // Filter by status
+      if ($this->Session->check('Ui.CoGroups.Search.status')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.status');
+        $pagcond['conditions']['CoGroup.status'] = $searchterm;
+        $searchHasTerms = true;
+      }
+
+      // Filter by openness
+      if ($this->Session->check('Ui.CoGroups.Search.open')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.open');
+        $pagcond['conditions']['CoGroup.open'] = $searchterm;
+        $searchHasTerms = true;
+      }
+
+      // Filter by management type (automatic / manual)
+      if ($this->Session->check('Ui.CoGroups.Search.auto')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.auto');
+        $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+        $searchHasTerms = true;
+      }
+
+      // Filter by group type
+      if ($this->Session->check('Ui.CoGroups.Search.type')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.type');
+        $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+        $searchHasTerms = true;
+      }
     }
 
     return $pagcond;

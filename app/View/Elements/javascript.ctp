@@ -167,6 +167,12 @@
       }
     });
 
+    // Add behaviors for Main Menu search filters when present
+    $('#main-menu-co-groups-link').click(function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      $('#main-menu-co-groups-search-form').submit();
+    });
     // END DESKTOP MENU DRAWER BEHAVIOR
 
     // USER MENU BEHAVIORS
@@ -216,6 +222,7 @@
         $(".cm-inline-editable-field").removeClass('active');
       }
     });
+    // END USER MENU BEHAVIOR
 
     // Toggle the top search filter box
     $("#top-search-toggle, #top-search-toggle button.cm-toggle").click(function(e) {
@@ -249,6 +256,7 @@
       $(this).hide();
       $("#top-search-toggle .top-search-active-filter").hide();
       $("#top-search-clear").click();
+      console.log('Clear all clicked.');
     });
 
     // Inline Edit Controls: disable default button behavior
