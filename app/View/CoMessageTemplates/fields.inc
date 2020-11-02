@@ -29,9 +29,10 @@
   // Determine if fields are editable
   $e = false;
   
-  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
+  if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit'])) {
     $e = true;
-    
+  }
+
   // We shouldn't get here if we don't have at least read permission, but check just in case
   
   if(!$e && !$permissions['view'])
@@ -52,6 +53,64 @@
   
   $l = 1;
 ?>
+
+<script>
+  function js_local_onload() {
+    initialize_format();
+  }
+
+  function initialize_format() {
+    let  format = '<?php print $co_message_templates[0]['CoMessageTemplate']['format']?>';
+    if(format == null) {
+      format = '<?php print MessageFormatEnum::PlaintextAndHTML; ?>'
+    }
+    $('#CoMessageTemplateFormat').val(format).prop('selected',true);
+      message_body_toggle(format);
+  }
+
+  function message_body_toggle(format) {
+    switch (format) {
+      case '<?php print MessageFormatEnum::Plaintext; ?>':
+        $('#msg-bod-txt').show();
+        $('#msg-bod-html').hide();
+        break;
+      case '<?php print MessageFormatEnum::HTML; ?>':
+        $('#msg-bod-txt').hide();
+        $('#msg-bod-html').show();
+        break;
+      case '<?php print MessageFormatEnum::PlaintextAndHTML; ?>':
+        $('#msg-bod-txt').show();
+        $('#msg-bod-html').show();
+        break;
+      default:
+        break;
+    }
+  }
+
+  function enable_disable_sub_btn(value) {
+    if (value == undefined
+      || value === "") {
+      $('.ui-dialog #btnSubmit').button("disable");
+    } else {
+      $('.ui-dialog #btnSubmit').button("enable");
+    }
+  }
+
+  $(function(){
+    $('#CoMessageTemplateFormat').on('change', () => {
+      message_body_toggle($('#CoMessageTemplateFormat').find('option:selected').val());
+    });
+
+    $('#form-dialog').on("dialogopen", (event, ui) => {
+      enable_disable_sub_btn($('input[id="form-dialog-text"]').val());
+    });
+
+    $('input[id="form-dialog-text"]').on("input", () => {
+      enable_disable_sub_btn($('input[id="form-dialog-text"]').val());
+    });
+  });
+</script>
+
 <ul id="<?php print $this->action; ?>_co_message_templates" class="fields form-list">
   <li>
     <div class="field-name">
@@ -130,19 +189,90 @@
                    : filter_var($co_message_templates[0]['CoMessageTemplate']['message_subject'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <li class="field-stack">
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('fd.mt.body'); ?>
-        <span class="required">*</span>
+  <li>
+      <div class="field-name">
+          <div class="field-title">
+            <?php print _txt('fd.mt.format'); ?>
+            <span class="required">*</span>
+          </div>
       </div>
-      <span class="descr"><?php print _txt('fd.mt.body.desc'); ?></span>
-    </div>
-    <div class="field-info">
-      <?php print ($e
-                   ? $this->Form->input('message_body')
-                   : filter_var($co_message_templates[0]['CoMessageTemplate']['message_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-    </div>
+      <div class="field-info">
+        <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (isset($co_message_templates[0]['CoMessageTemplate']['format'])
+                            ? $co_message_templates[0]['CoMessageTemplate']['format']
+                            : MessageFormatEnum::Plaintext);
+        $attrs['empty'] = false;
+        if($e) {
+          print $this->Form->select('format',
+                                    $cm_texts[ $cm_lang ]['en.mt.format'],
+                                    $attrs);
+          if($this->Form->isFieldError('format')) {
+            print $this->Form->error('format');
+          }
+        } elseif(!empty($co_message_templates[0]['CoMessageTemplate']['format'])) {
+          print _txt('en.mt.format', null, $co_message_templates[0]['CoMessageTemplate']['format']);
+        }
+
+        // Check if we have data in the database/
+        $unconfigured = empty($co_message_templates[0]['CoMessageTemplate']['format']);
+
+        $test_btn =  '<button type="button" class="forwardbutton" title="' . _txt('op.msg.tpl.test')
+          . '" onclick="javascript:js_form_generic(\''
+          . _txt('in.tpl.msg.test') . '\',\''        // dialog body text
+          . $this->Html->url(                        // dialog confirm URL
+            array(
+              'controller'   => 'co_message_templates',
+              'action'       => 'test',
+              'co'           => $cur_co["Co"]["id"],
+              'cfg'          => empty($co_message_templates[0]['CoMessageTemplate']['id']) ? -1 : $co_message_templates[0]['CoMessageTemplate']['id'],
+            )
+          ) . '\',\''
+          . _txt('op.cont') . '\',\''            // dialog confirm button
+          . _txt('op.cancel') . '\',\''          // dialog cancel button
+          . _txt('op.msg.tpl.test') . '\',\''    // dialog title
+          . _txt('fd.mt.mail') . '\',\''         // dialog label
+          . _txt('op.mt.test.wait') . '\''       // dialog sending text
+          . ');"';                               // Close the js_form_generic parameter list
+        if($unconfigured){
+            $test_btn = $test_btn . ' disabled';
+        }
+        $test_btn = $test_btn . '>' . _txt('op.msg.tpl.test') . '</button>';
+
+        print $test_btn;
+        ?>
+      </div>
+      <ul class="field-children">
+          <li id="msg-bod-txt" class="field-stack">
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.mt.body.txt'); ?>
+                <span class="required">*</span>
+              </div>
+              <span class="descr"><?php print _txt('fd.mt.body.desc'); ?></span>
+            </div>
+            <div class="field-info">
+              <?php print ($e
+                           ? $this->Form->input('message_body')
+                           : filter_var($co_message_templates[0]['CoMessageTemplate']['message_body'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            </div>
+          </li>
+          <li id="msg-bod-html" class="field-stack">
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.mt.body.html'); ?>
+                  <span class="required">*</span>
+              </div>
+              <span class="descr"><?php print _txt('fd.mt.body.desc'); ?></span>
+            </div>
+            <div class="field-info">
+              <?php print ($e
+                ? $this->Form->input('message_body_html')
+                : filter_var($co_message_templates[0]['CoMessageTemplate']['message_body_html'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            </div>
+          </li>
+      </ul>
   </li>
   <li>
     <div class="field-name">
@@ -168,10 +298,8 @@
           if($this->Form->isFieldError('status')) {
             print $this->Form->error('status');
           }
-        } else {
-          if(!empty($co_message_templates[0]['CoMessageTemplate']['status'])) {
-            print _txt('en.status', null, $co_message_templates[0]['CoMessageTemplate']['status']);
-          }
+        } elseif(!empty($co_message_templates[0]['CoMessageTemplate']['status'])) {
+          print _txt('en.status', null, $co_message_templates[0]['CoMessageTemplate']['status']);
         }
       ?>
     </div>
@@ -189,3 +317,4 @@
 </ul>
 <?php
   print $this->element("changelog");
+

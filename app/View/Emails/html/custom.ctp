@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry basic email layout
+ * COmanage Registry CO Custom HTML Email Template
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,14 +21,8 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v0.6
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-  print $this->fetch('content');
-
-  print '
-  
-';
-
-  print _txt('em.invite.footer', array(_txt('coordinate')));
+  print $this->viewVars['html'];

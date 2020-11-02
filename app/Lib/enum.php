@@ -408,6 +408,13 @@ class MessageTemplateEnum
   const ExpirationNotification = 'XN';
 }
 
+class MessageFormatEnum
+{
+    const Plaintext        = 'text';
+    const HTML             = 'html';
+    const PlaintextAndHTML = 'both';
+}
+
 class NameEnum
 {
   const Alternate = 'alternate';

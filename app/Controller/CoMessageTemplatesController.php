@@ -38,9 +38,54 @@ class CoMessageTemplatesController extends StandardController {
       'CoMessageTemplate.description' => 'asc'
     )
   );
-  
+
   // This controller needs a CO to be set
   public $requires_co = true;
+
+  /**
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: post request should be of type ajax
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+  public function beforeFilter() {
+      if( $this->request->is('ajax') ) {
+          $this->Security->unlockedActions = array('test');
+      }
+      // Since we're overriding, we need to call the parent to run the authz check
+      parent::beforeFilter();
+  }
+
+  /**
+   * Generate and send a test email to provided recepient
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+  public function test() {
+    // Parse the Tempate id from the request
+    if(empty($this->request->params['named']['cfg'])) {
+      $this->response->body(_txt('er.mt.unknown', array("Configuration")));
+      $this->response->statusCode(204);
+      return $this->response;
+    }
+    if(!empty($this->request->data["input"])) {
+      $email = filter_var($this->request->data["input"], FILTER_SANITIZE_EMAIL);
+      if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $this->response->body(_txt('er.mt.invalid', array("Email Format")));
+        $this->response->statusCode(406);
+        return $this->response;
+      }
+    } else {
+      $this->response->body(_txt('er.mt.unknown', array("Email Recepient")));
+      $this->response->statusCode(204);
+      return $this->response;
+    }
+
+    $this->CoMessageTemplate->templateTest($this->request->params['named']['cfg'], $this->request->data["input"]);
+    $this->response->body(_txt('er.mt.msg', array($this->request->data["input"])));
+    $this->response->statusCode(200);
+    return $this->response;
+  }
   
   /**
    * Duplicate an existing Message Template
@@ -60,6 +105,25 @@ class CoMessageTemplatesController extends StandardController {
     }
     
     $this->performRedirect();
+  }
+
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    // Define Controller's own actions
+    if($this->action == 'test') {
+      if(!empty($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+
+    return parent::parseCOID($data);
   }
   
   /**
@@ -96,6 +160,9 @@ class CoMessageTemplatesController extends StandardController {
     
     // View an existing Message Template?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+
+    // Test/Preview an existing Message Template?
+    $p['test'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

@@ -226,3 +226,94 @@ function clearTopSearch(formObj) {
   }
   formObj.submit();
 }
+
+// Generate a dialog box with input form.  On confirmation, post to <url>.
+// txt                - body text           (string, optional)
+// url                - forward url         (string, required)
+// submitbtxt         - submit button text  (string, optional)
+// cancelbtxt         - cancel button text  (string, optional)
+// titletxt           - dialog title text   (string, optional)
+// lbltxt             - dialog label text   (string, optional)
+// sendingtxt         - submit button text
+//                      while processing    (string, optional)
+function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sendingtxt) {
+  let url_str = (url) ? url : '#';
+  let body_text = (txt) ? txt : 'Form';
+  let cancel_btn_txt = (cancelbtxt) ? cancelbtxt : 'Cancel';
+  let title_txt = (titletxt) ? titletxt : 'Provide input.';
+  let label_text = (lbltxt) ? lbltxt : 'Input:';
+  let submit_btn_txt = (submitbtxt) ? submitbtxt : 'Submit';
+  let submit_btn_txt_sending = (sendingtxt) ? sendingtxt : 'Sending...';
+
+  if(txt != null) {
+    $("#form-dialog-legend").html(body_text);
+  }
+  if(lbltxt != null) {
+    $("#form-dialog-input-lbl").html(label_text);
+  }
+
+  $("#form-dialog").dialog({
+    modal: true,
+    title: title_txt,
+    buttons: [{
+      text: submit_btn_txt,
+      "id": "btnSubmit",
+      click: function () {
+        let dialog_input = $(this).find('input[id="form-dialog-text"]').val();
+        let $data = {};
+        $data.input = dialog_input;
+
+        // Handle the submit button
+        $btn = $("#btnSubmit");
+        $btn.html(submit_btn_txt_sending);
+        $btn.prepend("<i class='fa fa-spinner fa-spin'></i> ");
+        $btn.button("disable");
+
+        let jqxhr = $.ajax({
+          cache: false,
+          type: "POST",
+          url: url_str,
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+          },
+          data: $data,
+        });
+
+        jqxhr.done((data, textStatus, xhr) => {
+          $("#form-dialog").dialog('close');
+          generateFlash(data, textStatus);
+        });
+
+        jqxhr.fail((xhr, textStatus, error) => {
+          $("#form-dialog").dialog('close');
+          // Show an error message
+          // HTML Text
+          let err_msg = $.parseHTML(xhr.responseText)[0].innerHTML;
+          // JSON text
+          try{
+            //try to parse JSON
+            encodedJson = $.parseJSON(xhr.responseText);
+            err_msg = encodedJson.msg;
+          }catch(error){
+            // Plain text
+            err_msg = xhr.responseText;
+          }
+
+          if(err_msg != null) {
+            error = error + ': ' + err_msg;
+          }
+          generateFlash(error, textStatus);
+        });
+      },
+    }, {
+      text: cancel_btn_txt,
+      "id": "btnCancel",
+      click: function () {
+        $(this).dialog('close');
+      },
+    }],
+    close: function () {
+      //do something
+    }
+  });
+}

@@ -24,7 +24,9 @@
  * @since         COmanage Registry v2.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-  
+
+App::uses('CakeEmail', 'Network/Email');
+
 class CoMessageTemplate extends AppModel {
   // Define class name for cake
   public $name = "CoMessageTemplate";
@@ -110,6 +112,17 @@ class CoMessageTemplate extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'message_body_html' => array(
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'format' => array(
+      'rule' => array('inList', array(MessageFormatEnum::PlaintextAndHTML,
+                                      MessageFormatEnum::HTML,
+                                      MessageFormatEnum::Plaintext)),
+      'required' => true
+    ),
     'status' => array(
       'rule' => array('inList', array(SuspendableStatusEnum::Active,
                                       SuspendableStatusEnum::Suspended)),
@@ -170,5 +183,133 @@ class CoMessageTemplate extends AppModel {
     }
     
     return true;
+  }
+
+  /**
+   * Return email required fields per Context type
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  Array $tmpl The template stored in the database
+   *
+   * @return Array fields returned in the following order [$body, $subject, $format, $cc, $bcc]
+   */
+  public function getMessageTemplateFields($tmpl) {
+    $subject = null;
+    $body = null;
+    $cc = null;
+    $bcc = null;
+    $format = MessageFormatEnum::Plaintext;
+
+    $subject = $tmpl['message_subject'];
+    $format = $tmpl['format'];
+    if($format === MessageFormatEnum::Plaintext) {
+      $body = array(
+        MessageFormatEnum::Plaintext => $tmpl['message_body'],
+      );
+    } elseif ($format === MessageFormatEnum::HTML) {
+      $body = array(
+        MessageFormatEnum::HTML => $tmpl['message_body_html'],
+      );
+    } elseif ($format === MessageFormatEnum::PlaintextAndHTML) {
+      $body = array(
+        MessageFormatEnum::HTML => $tmpl['message_body_html'],
+        MessageFormatEnum::Plaintext => $tmpl['message_body'],
+      );
+    }
+
+      $cc = $tmpl['cc'];
+      $bcc = $tmpl['bcc'];
+
+    return array(
+      $body,
+      $subject,
+      $format,
+      $cc,
+      $bcc);
+  }
+
+  /**
+   * Test the Template by sending an email to the $toEmail recipient. Ignore cc and bcc configuration.
+   *
+   * @param intenger $id
+   * @param string $toEmail Send test email to this address
+   * @since COmanage Registry v4.0.0
+   */
+  public function templateTest($id, $toEmail) {
+    $subject = null;
+    $body = null;
+    $cc = null;
+    $bcc = null;
+    $format = MessageFormatEnum::Plaintext;
+
+    $args = array();
+    $args['conditions']['CoMessageTemplate.id'] = $id;
+    $args['contain'] = false;
+
+    $tmpl = $this->find('first', $args);
+    list($body, $subject, $format, $cc, $bcc) = $this->getMessageTemplateFields($tmpl['CoMessageTemplate']);
+
+
+    $co_id = $tmpl['CoMessageTemplate']['co_id'];
+    $this->Co->id = $co_id;
+    $co_name = $this->Co->field('name');
+
+    // Set up and send the invitation via email
+    $email = new CakeEmail('default');
+
+    $substitutions = array(
+      'CO_NAME'           => $co_name,
+      'ACTOR_NAME'        => 'template_test',
+      'NOTIFICATION_URL'  => '#',
+      'SOURCE_URL'        => '#',
+      'INVITE_URL'        => '#',
+      'ORIG_AFFIL'        => "member",
+      'NEW_AFFIL'         => "faculty",
+      'CO_PERSON'         => "John Doe",
+      'ORIG_COU'          => "",
+      'NEW_COU'           => "",
+      'ORIG_STATUS'       => "Active",
+      'NEW_STATUS'        => "Grace Period",
+      'DAYS_TO_EXPIRY'    => "5",
+      'POLICY_DESC'       => "Expiration Policy Description",
+      'SPONSOR'           => "Bob Builder",
+      'TITLE'             => "Mr",
+      'VALID_FROM'        => "YYYY/MM/DD",
+      'VALID_THROUGH'     => "YYYY/MM/DD",
+    );
+
+    try {
+      $msgSubject = processTemplate($subject, $substitutions);
+      $msgBody = processTemplate($body, $substitutions);
+
+      if($format === MessageFormatEnum::PlaintextAndHTML) {
+        $viewVariables = array(
+          MessageFormatEnum::Plaintext  => $msgBody[MessageFormatEnum::Plaintext],
+          MessageFormatEnum::HTML => $msgBody[MessageFormatEnum::HTML],
+        );
+      } elseif($format === MessageFormatEnum::HTML) {
+        $viewVariables = array(
+          MessageFormatEnum::HTML => $msgBody[MessageFormatEnum::HTML],
+        );
+      } else {
+        if(is_array($msgBody)) {
+          $viewVariables = array(
+            MessageFormatEnum::Plaintext => $msgBody[MessageFormatEnum::Plaintext],
+          );
+        } else {
+          $viewVariables = array(
+            MessageFormatEnum::Plaintext => $msgBody,
+          );
+        }
+      }
+      $email->template('custom', 'basic')
+        ->emailFormat($format)
+        ->to($toEmail)
+        ->viewVars($viewVariables)
+        ->subject($msgSubject);
+      $email->send();
+    } catch(Exception $e) {
+      throw new RuntimeException($e->getMessage());
+    }
   }
 }

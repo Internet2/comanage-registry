@@ -2185,6 +2185,7 @@ class CoPetition extends AppModel {
       $cc = null;
       $bcc = null;
       $comment = null;
+      $format = MessageFormatEnum::Plaintext;
       
       $subs = array(
         'APPROVER_COMMENT' => (!empty($pt['CoPetition']['approver_comment'])
@@ -2206,20 +2207,21 @@ class CoPetition extends AppModel {
         
         if($pt['CoPetition']['status'] == PetitionStatusEnum::Denied) {
           if(!empty($ef['CoEnrollmentFlowDenMessageTemplate']['id'])) {
-            $subject = $ef['CoEnrollmentFlowDenMessageTemplate']['message_subject'];
-            $body = $ef['CoEnrollmentFlowDenMessageTemplate']['message_body'];
-            $cc = $ef['CoEnrollmentFlowDenMessageTemplate']['cc'];
-            $bcc = $ef['CoEnrollmentFlowDenMessageTemplate']['bcc'];
+            // Deny
+            list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
+                                                             ->CoEnrollmentFlowDenMessageTemplate
+                                                             ->getMessageTemplateFields($ef['CoEnrollmentFlowDenMessageTemplate']);
+
           } else {
             // No template, nothing to do
             return true;
           }
         } else {
           if(!empty($ef['CoEnrollmentFlowAppMessageTemplate']['id'])) {
-            $subject = $ef['CoEnrollmentFlowAppMessageTemplate']['message_subject'];
-            $body = $ef['CoEnrollmentFlowAppMessageTemplate']['message_body'];
-            $cc = $ef['CoEnrollmentFlowAppMessageTemplate']['cc'];
-            $bcc = $ef['CoEnrollmentFlowAppMessageTemplate']['bcc'];
+            // Approve
+            list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
+                                                             ->CoEnrollmentFlowAppMessageTemplate
+                                                             ->getMessageTemplateFields($ef['CoEnrollmentFlowAppMessageTemplate']);
           } else {
             if(!empty($ef['CoEnrollmentFlow']['approval_subject'])) {
               $subject = $ef['CoEnrollmentFlow']['approval_subject'];
@@ -2237,10 +2239,10 @@ class CoPetition extends AppModel {
                                               $ef['CoEnrollmentFlow']['name']));
       } else {
         if(!empty($ef['CoEnrollmentFlowFinMessageTemplate']['id'])) {
-          $subject = $ef['CoEnrollmentFlowFinMessageTemplate']['message_subject'];
-          $body = $ef['CoEnrollmentFlowFinMessageTemplate']['message_body'];
-          $cc = $ef['CoEnrollmentFlowFinMessageTemplate']['cc'];
-          $bcc = $ef['CoEnrollmentFlowFinMessageTemplate']['bcc'];
+          // Finalize
+          list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
+                                                           ->CoEnrollmentFlowFinMessageTemplate
+                                                           ->getMessageTemplateFields($ef['CoEnrollmentFlowFinMessageTemplate']);
           $comment = _txt('rs.pt.final');
         } else {
           // No template, nothing to do
@@ -2271,7 +2273,8 @@ class CoPetition extends AppModel {
                       $subject,
                       $body,
                       $cc,
-                      $bcc);
+                      $bcc,
+                      $format);
       
       // And cut a history record
       
@@ -2469,7 +2472,8 @@ class CoPetition extends AppModel {
     $body = null;
     $cc = null;
     $bcc = null;
-    
+    $format = MessageFormatEnum::Plaintext;
+
     // Generate additional substitutions to supplement those handled by CoInvites.
     // This is separate from the substitutions managed by CoNotification.
     $subs = array(
@@ -2482,10 +2486,10 @@ class CoPetition extends AppModel {
     );
     
     if(!empty($ef['CoEnrollmentFlowVerMessageTemplate']['id'])) {
-      $subject = $ef['CoEnrollmentFlowVerMessageTemplate']['message_subject'];
-      $body = $ef['CoEnrollmentFlowVerMessageTemplate']['message_body'];
-      $cc = $ef['CoEnrollmentFlowVerMessageTemplate']['cc'];
-      $bcc = $ef['CoEnrollmentFlowVerMessageTemplate']['bcc'];
+      // Verification Email
+      list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
+                                                       ->CoEnrollmentFlowVerMessageTemplate
+                                                       ->getMessageTemplateFields($ef['CoEnrollmentFlowVerMessageTemplate']);
     } else {
       if(!empty($ef['CoEnrollmentFlow']['verification_subject'])) {
         $subject = $ef['CoEnrollmentFlow']['verification_subject'];
@@ -2509,7 +2513,8 @@ class CoPetition extends AppModel {
                                         $ef['CoEnrollmentFlow']['invitation_validity'],
                                         $cc,
                                         $bcc,
-                                        $subs);
+                                        $subs,
+                                        $format);
     
     // Add the invite ID to the petition record
     

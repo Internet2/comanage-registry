@@ -525,6 +525,7 @@ class CoNotification extends AppModel {
    * @param  String  $bodyTemplate      Body template for notification email (if null, default body using $comment and $source is sent)
    * @param  String  $cc                Comma separated list of addresses to cc
    * @param  String  $bcc               Comma separated list of addresses to bcc
+   * @param  String  $format            Message Body format type it can be txt, html or both
    * @return Array CO Notification ID(s)
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -543,7 +544,8 @@ class CoNotification extends AppModel {
                            $subjectTemplate=null,
                            $bodyTemplate=null,
                            $cc=null,
-                           $bcc=null) {
+                           $bcc=null,
+                           $format=MessageFormatEnum::Plaintext) {
     // Create the notification. Perhaps this should be embedded in a transaction.
     
     $n = array();
@@ -644,7 +646,8 @@ class CoNotification extends AppModel {
                                $subjectTemplate,
                                $bodyTemplate,
                                $cc,
-                               $bcc);
+                               $bcc,
+                               $format);
           
           // We get an array back but it should only have one entry
           $ids[] = $r[0];
@@ -752,7 +755,8 @@ class CoNotification extends AppModel {
                              $fromAddress,
                              false,
                              $cc,
-                             $bcc);
+                             $bcc,
+                             $format);
           }
           catch(Exception $e) {
             throw new RuntimeException($e->getMessage());
@@ -894,6 +898,7 @@ class CoNotification extends AppModel {
    * @param  Boolean $resolution        If true, store a copy of the subject and email as the resolution message for the specified CO Notification (otherwise store as notification)
    * @param  String  $cc                Comma separated list of addresses to cc
    * @param  String  $bcc               Comma separated list of addresses to bcc
+   * @param  String  $format            Message Body format type it can be txt, html or both
    * @throws RuntimeException
    */
   
@@ -908,7 +913,8 @@ class CoNotification extends AppModel {
                                $fromAddress=null,
                                $resolution=false,
                                $cc=null,
-                               $bcc=null) {
+                               $bcc=null,
+                               $format=MessageFormatEnum::Plaintext) {
     // Create the message subject and body based on the templates.
     
     $msgBody = "";
@@ -954,11 +960,39 @@ class CoNotification extends AppModel {
       if($bcc) {
         $email->bcc(explode(',', $bcc));
       }
-      
-      $email->emailFormat('text')
-            ->to($recipient)
-            ->subject($msgSubject)
-            ->send($msgBody);
+
+      if($format === MessageFormatEnum::PlaintextAndHTML
+         && is_array($msgBody)) {
+        $viewVariables = array(
+          MessageFormatEnum::Plaintext  => $msgBody[MessageFormatEnum::Plaintext],
+          MessageFormatEnum::HTML => $msgBody[MessageFormatEnum::HTML],
+        );
+        $msgBody = $msgBody[MessageFormatEnum::Plaintext];
+      } elseif($format === MessageFormatEnum::HTML
+               && is_array($msgBody)) {
+        $viewVariables = array(
+          MessageFormatEnum::HTML => $msgBody[MessageFormatEnum::HTML],
+        );
+        $msgBody = $msgBody[MessageFormatEnum::HTML];
+      } else {
+        if(is_array($msgBody)) {
+          $viewVariables = array(
+            MessageFormatEnum::Plaintext => $msgBody[MessageFormatEnum::Plaintext],
+          );
+          $msgBody = $msgBody[MessageFormatEnum::Plaintext];
+        } else {
+          $viewVariables = array(
+            MessageFormatEnum::Plaintext => $msgBody,
+          );
+        }
+      }
+
+      $email->template('custom', 'basic')
+        ->emailFormat($format)
+        ->to($recipient)
+        ->viewVars($viewVariables)
+        ->subject($msgSubject);
+      $email->send();
       
       // Store a copy of this message in the appropriate place
       
