@@ -187,7 +187,7 @@
                 </div>
               </li>
             <?php endif; ?>
-            <?php if(!empty($permissions['cous'])): ?>
+            <?php if(!empty($vv_available_cous)): ?>
               <li>
                 <div class="field-name">
                   <?php
@@ -210,7 +210,7 @@
 
                     if($e && !$es) {
                       print $this->Form->select('cou_id',
-                        $permissions['cous'],
+                        $vv_available_cous,
                         $attrs);
 
                       if($this->Form->isFieldError('cou_id')) {

@@ -638,7 +638,7 @@ class RoleComponent extends Component {
         // Pull the COU and its children (if any)
         
         try {
-          $childCous = array_unique($childCous + $Cou->childCousById($couGroup['CoGroup']['cou_id'], true));
+          $childCous = array_unique($childCous + $Cou->childCousById($couGroup['CoGroup']['cou_id'], true, true));
         }
         catch(InvalidArgumentException $e) {
           throw new InvalidArgumentException($e->getMessage());
