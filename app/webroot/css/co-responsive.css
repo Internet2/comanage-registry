@@ -34,6 +34,15 @@
   #notifications {
     margin-right: 4px;
   }
+
+  #user-panel {
+    max-width: 100%;
+  }
+
+  .co-info-topbox {
+    word-wrap: break-word;
+  }
+
 }
 
 /* PHONE LANDSCAPE */
@@ -78,6 +87,7 @@
   }
   #user-panel {
     min-width: 400px;
+    max-width: unset;
   }
   #user-panel-user-info {
     border-top: none;
