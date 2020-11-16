@@ -41,7 +41,7 @@ print $this->Html->Link(
   _txt('op.begin') . ' <em class="material-icons">forward</em>',
   $vv_on_finish_url,
   array(
-    'class' => 'co-button enrollmentFlowStartButton mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect',
+    'class' => 'co-button enrollmentFlowStartButton btn btn-primary',
     'escape' => false
   )
 );

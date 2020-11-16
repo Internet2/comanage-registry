@@ -35,7 +35,7 @@ html * {
 body {
   color: #222;
   -webkit-overflow-scrolling: touch; /* for dialog boxes */
-  font-size: 12px; /* MDL override from 14px; */
+  font-size: 12px;
 }
 h1,h2,h3,h4,h5 {
   font-family: 'Noto Sans Bold','Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
@@ -76,10 +76,6 @@ a {
 #main a:hover {
   text-decoration: underline;
 }
-#main a.mdl-button:active,
-#main a.mdl-button:hover {
-  text-decoration: none;
-}
 #main a.ui-widget:active,
 #main a.ui-widget:hover {
   text-decoration: none;
@@ -101,6 +97,7 @@ a {
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   top: -40px;
+  text-decoration: underline;
 }
 #skip-to-content:focus {
   top: 0;
@@ -109,14 +106,13 @@ a {
 }
 /* HEADER */
 #banner {
-  box-shadow: 0 1px 2px #999;
-}
-header.mdl-layout__header {
-  display: block !important;  /* don't hide on mobile */
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75em 1em;
+  margin: 0;
+  box-shadow: 0 0 3px #666;
   background-color: #aed9f9;
-}
-.mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-  padding-left: 16px;
 }
 /* TOP MENU (BLACK BAR) */
 #top-menu {
@@ -124,9 +120,6 @@ header.mdl-layout__header {
   line-height: 1.5em;
   height: 30px;
   background-color: #222;
-}
-#desktop-hamburger {
-  display: none; /* hide our custom drawer toggle on mobile where we will expose the MDL drawer toggle */
 }
 button.cm-toggle {
   padding: 0;
@@ -151,10 +144,9 @@ button.cm-toggle:focus {
 /* LOGO */
 #logo {
   display: block;
-  position: absolute;
-  right: 1em;
+  margin-right: 1em;
   overflow: hidden;
-  width: 45px;
+  width: 40px;
 }
 #logo img {
   height: 38px;
@@ -171,32 +163,38 @@ body.logged-out #user-menu {
   text-align: right;
 }
 body.logged-in #user-menu {
-  float: right;
-  margin: 0 1em 1em;
-  margin-top: 1px;
+  position: absolute;
+  margin: 0;
+  top: 0;
+  right: 1em;
+  display: flex;
 }
 #user-menu #user,
 #user-menu #notifications,
 #user-menu #global-search,
 #user-menu #logout {
-  float: left;
-  position: relative;
   color: white;
 }
 #user-menu #global-search {
   text-align: right;
 }
+#user-menu #global-search label {
+  margin: 0;
+}
 #user-menu #global-search .material-icons {
-  margin: 4px 22px 0 1px;
+  margin: 5px 15px 0 1px;
   vertical-align: bottom;
   font-size: 20px;
 }
 #global-search-box {
-  position: relative;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  min-width: 320px;
   z-index: 10;
-  margin: 5px 22px 0 0;
+  margin: 0;
   padding: 8px;
-  background-color: white;
+  background-color: #f8f8f8;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
   border-radius: 2px;
 }
@@ -205,8 +203,8 @@ body.logged-in #user-menu {
   display: inline-block;
 }
 #global-search-box #CoDashboardQ {
-  width: 170px;
-  padding: 4px;
+  width: 194px;
+  padding: 18px 6px;
   height: 24px;
   margin: 2px 8px 0 0;
   border-radius: 2px;
@@ -216,12 +214,9 @@ body.logged-in #user-menu {
 #global-search-box #CoDashboardQ:focus {
   background-color: #ffd;
 }
-#global-search-box .mdl-button {
+#global-search-box .btn {
   position: relative;
   top: -4px;
-}
-.mdl-menu__container {
-  top: 26px !important;
 }
 #user-menu #user,
 #user-menu #logout {
@@ -229,6 +224,9 @@ body.logged-in #user-menu {
 }
 #user-common-name {
   display: none;
+}
+#user-menu a.topMenu {
+  color: #fff;
 }
 #user-menu .material-icons {
   vertical-align: bottom;
@@ -323,7 +321,16 @@ body.logged-in #user-menu {
   top: -1px;
 }
 #notifications #notifications-menu {
+  display: none; /* hide by default */
+  position: absolute;
   width: 220px;
+  right: 140px;
+  background-color: #f8f8f8;
+  top: 30px;
+  list-style: none;
+  padding: 0 0 1em;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+  border-radius: 3px;
 }
 #notifications .notification {
   line-height: 1.3em;
@@ -335,10 +342,7 @@ body.logged-in #user-menu {
   display: block;
 }
 #notifications .notification:nth-child(odd) {
-  background-color: #fff;
-}
-#notifications .notification:nth-child(even) {
-  background-color: #f8f8f8;
+  background-color: #f2f2f2;
 }
 #notifications li.notification:nth-child(n+4) {
   /* only show three notifications on mobile phones. */
@@ -407,7 +411,7 @@ form#notificationStatus {
   text-align: right;
 }
 /* Specialty Buttons */
-.co-raised-button { /* should be used with mdl-button--raised */
+.co-raised-button {
   display: block;
   text-align: center;
   vertical-align: middle;
@@ -475,14 +479,31 @@ form#notificationStatus {
   z-index: 100;
   padding-top: 0;
 }
-.mdl-layout__drawer-button {
-  color: white;
-  top: -14px;
-  left: -2px;
+#navigation-drawer {
+  display: none;
+  position: absolute;
+  top: 30px;
+  z-index: 20;
+  background-color: #fafafa;
+  border-right: 1px solid #ddd;
+  min-width: 250px;
+}
+/* show our custom navigation icon for shrinking and expanding the drawer
+   - this baves a little differently in mobile vs desktop mode */
+#co-hamburger {
+  display: inline-block;
+  float: left;
+  position: relative;
+  top: 3px;
+  margin: 0;
+  padding: 0 0 0 12px;
+  color: #f5f5f5;
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
 }
 #main-menu {
   margin: 0;
-  padding: 0 0 1em 0;
+  padding: 0;
 }
 #main-menu ul {
   padding: 0.5em 0 1em 0;
@@ -535,9 +556,6 @@ form#notificationStatus {
 #main-menu li.active a.menuTop {
   background-color: #f2f2f2;
 }
-#main-menu .mdl-ripple {
-  background-color: #aed9f9;
-}
 #main-menu .menuTitleAdjust {
   margin-left: -4px;
 }
@@ -582,8 +600,12 @@ body.co_person_roles .titleNavContainer,
 body.co_people.canvas .titleNavContainer {
   padding-bottom: 0;
 }
+.titleNavContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 0.5em;
+}
 .pageTitle {
-  float: left;
   padding-bottom: 0.25em;
 }
 .pageTitle .deleted,
@@ -602,8 +624,7 @@ body.co_people.canvas .titleNavContainer {
 }
 /* TOP CONTENT LINKS (contextual) */
 #topLinks {
-  float: left;
-  margin: 0.6em 0 0;
+  margin: 1.5em 0 0 0;
   padding: 0;
 }
 #topLinks.ui-widget-content {
@@ -651,6 +672,9 @@ body.co_people.canvas .titleNavContainer {
   line-height: 1.2em;
 }
 /* INNER CONTENT - for non-table-based layouts */
+#content {
+  padding: 1em 1.5em;
+}
 .inner-content {
   clear: both;
   margin-top: 1em;
@@ -1408,8 +1432,10 @@ a.ui-button:visited,
   background-color: #f5f5f5;
   margin: 0 -0.5em;
   padding: 0.5em 0.5em 0;
-  line-height: 2em;
+  line-height: 2.25em;
   cursor: pointer;
+  font-size: 1em;
+  box-sizing: content-box;
 }
 #top-search-fields {
   display: none;
@@ -1446,7 +1472,8 @@ a.ui-button:visited,
   width: 80px;
   line-height: 28px;
   height: 28px;
-  margin: 0.5em;
+  margin: 1em 0.5em;
+  padding: 0;
 }
 .top-search .top-search-checkboxes {
   margin-top: 0.5em;
@@ -1685,7 +1712,7 @@ ul.data-table li {
 }
 /* Changelog */
 #changeLog {
-  margin-top: 1em;
+  margin: 1em 0;
 }
 #changeLog ul {
   margin: 0;
@@ -2042,14 +2069,22 @@ a.desc::before {
 }
 .co-grid {
   clear: both;
+  max-width: 100%; /* used with Bootstrap .container */
+  border-radius: 3px;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
-.co-grid .mdl-cell {
+.co-grid .col {
   margin: 0;
+  padding: 1em;
 }
 .co-grid .co-grid-header {
-  display: none;
+  background-color: #e5e5e5 !important;
+  font-weight: bold;
 }
-.co-grid .mdl-grid:nth-child(even) {
+.co-grid .co-row {
+  border-top: 1px solid #eee;
+}
+.co-grid .co-row:nth-child(even) {
   background-color: #f8f8f8;
 }
 .co-grid > div:nth-child(2) {
@@ -2063,6 +2098,8 @@ code,
 table {
   width: 100%;
   border-collapse: collapse;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
 }
 .table-container {
   overflow: auto;
@@ -2189,43 +2226,45 @@ td.indented {
 .co-loading-mini span:nth-child(3) {
   animation-delay: 0.4s;
 }
-/* MDL OVERRIDES */
-/* See also font-size in body, and in GENERAL ul,li from 14px to 12px */
-#main.mdl-layout__content {
-  overflow-x: auto; /* allow side scrolling on mobile */
+/*#main { XXX - need to check this
+  overflow-x: auto; /* allow side scrolling on mobile * /
+}*/
+/* Buttons */
+.btn {
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 3px;
+  font-size: 1.2em;
+  padding: 0.5em 1.5em;
 }
-.mdl-textfield input[type=text],
-.mdl-textfield input[type=number] {
-  border-left: none;
-  border-top: none;
-  border-right: none;
-}
-.mdl-button.mdl-button--colored,
-.mdl-button--raised.mdl-button--colored {
-  background-color: #0C75C0 !important; /* important required to override MDL's active state */
+.btn-primary,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #0c75c0;
   color: white;
+  border-color: #0c75c0;
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
-.mdl-button--raised.mdl-button--colored:hover {
-  background-color: #222 !important;
+.btn-primary:hover {
+  background-color: black;
   color: white !important;
+  text-decoration: none !important;
 }
-.mdl-button:hover {
-  background-color: #f2f2f2;
+.btn-default,
+.btn-default:focus,
+.btn-default:active {
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
-.mdl-button--colored:hover {
-  background-color: rgb(33, 150, 243);
+.btn-default:hover {
+  background-color: #eee;
+  text-decoration: underline;
 }
-.mdl-button--accent.mdl-button--accent.mdl-button--raised,
-.mdl-button--accent.mdl-button--accent.mdl-button--fab {
+.btn-secondary {
   background-color: #c33; /* red */
-  color: #fff;
-}
-.mdl-data-table th,
-.mdl-data-table td {
-  text-align: left;
+  color: white;
 }
 /* FOOTER */
 footer {
   text-align: center;
-  padding-bottom: 1em;
+  padding: 2em 2em 1em;
 }

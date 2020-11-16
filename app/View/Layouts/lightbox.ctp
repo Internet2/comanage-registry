@@ -47,7 +47,7 @@
     <!-- Load CSS -->
     <?php
     print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
-    print $this->Html->css('mdl/mdl-1.3.0/material.min.css') . "\n    ";
+    print $this->Html->css('bootstrap/bootstrap-4.5.3-dist/css/bootstrap.min.css') . "\n    ";
     print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
     print $this->Html->css('co-base');
     print $this->Html->css('co-responsive');

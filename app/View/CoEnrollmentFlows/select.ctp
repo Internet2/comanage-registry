@@ -75,7 +75,7 @@ if(!empty($this->plugin)) {
                 'coef' => $c['CoEnrollmentFlow']['id']
               ),
               array(
-                'class' => 'co-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect',
+                'class' => 'co-button btn btn-primary',
                 'escape' => false
               )
             ) . "\n";
@@ -106,7 +106,7 @@ if(!empty($this->plugin)) {
                   )
                 ),
                 array(
-                  'class' => 'co-button qr-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect', 
+                  'class' => 'co-button qr-button btn btn-primary', 
                   'escape' => false,
                   'title'  => _txt('op.display.qr.for',array($c['CoEnrollmentFlow']['name']))
                 )
