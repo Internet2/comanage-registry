@@ -2094,6 +2094,35 @@ code,
 .fixed-width * {
   font-family: "Courier New","Courier",monospace !important;
 }
+/* Bootstrap badge-outline */
+.badge-outline-primary {
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+.badge-outline-info {
+  color: #17a2b8;
+  border: 1px solid #17a2b8;
+}
+.badge-outline-danger {
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+.badge-outline-success {
+  color: #28a745;
+  border: 1px solid #28a745;
+}
+.badge-outline-warning {
+  color: #d39e00;
+  border: 1px solid #d39e00;
+}
+.badge-outline-light {
+  color: #212529;
+  border: 1px solid #212529;
+}
+.badge-outline-secondary {
+  color: #6c757d;
+  border: 1px solid #6c757d;
+}
 /* Tables */
 table {
   width: 100%;
