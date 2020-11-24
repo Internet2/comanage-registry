@@ -644,7 +644,7 @@
           
           print $this->element('mvpa', $args);
           
-          $args['edit']         = $e;
+          $args['edit']         = $e && $permissions['add_emailaddress'];
           $args['self_service'] = true;
           $args['mvpa_model']   = 'EmailAddress';
           $args['mvpa_field']   = 'mail';

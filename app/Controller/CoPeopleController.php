@@ -892,6 +892,11 @@ class CoPeopleController extends StandardController {
     else
       $p['cous'] = array();
     
+
+    // CO-1650: only allow adding email addresses if there are any types set as self-serviceable
+    $email_address_types = $this->CoPerson->EmailAddress->defaultTypes('type');
+    $p['add_emailaddress'] = $p['edit'] && sizeof($email_address_types) > 0;
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }
