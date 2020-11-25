@@ -47,6 +47,16 @@
 <script type="text/javascript">
   <!-- JS specific to these fields -->
   
+  function theme_config_fields() {
+      const $coCustomTheme = $('#CoSettingCoThemeId > option:selected').val();
+      if ($coCustomTheme != undefined
+          && $coCustomTheme !== '') {
+          $('.co-theme-stacking').show();
+      } else {
+          $('.co-theme-stacking').hide();
+      }
+  }
+  
   function sponsor_update_gadgets() {
     // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
     // being saved. (ie: we don't need a group ID if not setting sponsor to 'CG')
@@ -64,6 +74,7 @@
   
   function js_local_onload() {
     sponsor_update_gadgets();
+    theme_config_fields();
   }
 </script>
 <ul id="<?php print $this->action; ?>_co_settings" class="fields form-list form-list-admin">
@@ -421,6 +432,7 @@
         $attrs['value'] = (isset($co_settings[0]['CoSetting']['co_theme_id'])
                            ? $co_settings[0]['CoSetting']['co_theme_id']
                            : null);
+        $attrs['onchange'] = 'theme_config_fields()';
         $attrs['empty'] = true;
         
         if($e) {
@@ -436,6 +448,34 @@
         }
       ?>
     </div>
+    <?php if( $cur_co["Co"]["name"] !== 'COmanage'): ?>
+    <ul class="field-children">
+      <li class="co-theme-stacking">
+          <div class="field-name">
+              <div class="field-title">
+                <?php print ($e ? $this->Form->label('theme_stacking',_txt('fd.theme.stacking_status')) : _txt('fd.theme.stacking_status')); ?>
+              </div>
+          </div>
+          <div class="field-info">
+            <?php
+            $attrs = array();
+            $attrs['value'] = (isset($co_settings) ? $co_settings[0]['CoSetting']['theme_stacking'] : SuspendableStatusEnum::Active);
+            $attrs['empty'] = false;
+            if($e) {
+              print $this->Form->select('theme_stacking',
+                                        SuspendableStatusEnum::$to_api,
+                                        $attrs);
+              if($this->Form->isFieldError('theme_stacking')) {
+                print $this->Form->error('theme_stacking');
+              }
+            } else {
+              print _txt('en.status.susp', null, $co_settings[0]['CoSetting']['theme_stacking']);
+            }
+            ?>
+          </div>
+      </li>
+    </ul>
+    <?php endif; ?>
   </li>
   <?php if($e): ?>
     <li class="fields-submit">

@@ -92,7 +92,13 @@
     <!-- Include custom CSS -->
     <?php if(!empty($vv_theme_css)): ?>
       <style type="text/css">
-        <?php print $vv_theme_css; ?>
+        <?php
+        if(is_array($vv_theme_css)) {
+            foreach ($vv_theme_css as $theme_css) {
+              print $theme_css . PHP_EOL . PHP_EOL;
+            }
+        }
+        ?>
       </style>
     <?php endif; ?>
   </head>
