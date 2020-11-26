@@ -51,6 +51,7 @@
  $vv_dictionary = 'vv_' . $lmvpapl . '_types';
  
  $action = ($edit ? 'edit' : 'view');
+ $lorder = ($edit ? MenuActionoOrder::Edit : MenuActionoOrder::View);
 ?>
 
   <li id="fields-<?php print $lmvpa; ?>" class="fieldGroup">
@@ -88,11 +89,16 @@
             $displaystr = (!empty($mvpa_field) ? $m[$mvpa_field] : "");
             $typestr = !empty($m['type']) ? $m['type'] : null;
             $laction = $action;
-            
+            // Store the action list
+            $action_args = array();
+            $action_args['vv_attr_mdl'] = $mvpa_model;
+            $action_args['vv_attr_id'] = $m["id"];
+
             if(!empty($m[$smodel]['id'])) {
               // Records attached to a SourceModel are read only
               $editable = false;
               $laction = 'view';
+              $lorder = MenuActionoOrder::View;
             } elseif($self_service) {
               // If self service, check appropriate permissions
               $perm = $this->Permission->selfService($permissions,
@@ -104,10 +110,12 @@
                 case PermissionEnum::ReadWrite:
                   $editable = true;
                   $laction = 'edit';
+                  $lorder = MenuActionoOrder::Edit;
                   break;
                 case PermissionEnum::ReadOnly:
                   $editable = false;
                   $laction = 'view';
+                  $lorder = MenuActionoOrder::View;
                   break;
                 default:
                   // No permission, skip this entry entirely
@@ -160,6 +168,27 @@
             // If this is an Email Address and is verified, add that to the type string
             if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
               $typestr = maybeAppend($typestr, ", ", ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')));
+              if(!$m['verified']) {
+                $dg_url = array(
+                  'controller' => 'co_invites',
+                  'action' => 'verifyEmailAddress',
+                  'email_address_id' => $m['id'],
+                );
+                // Verify button
+                $action_args['vv_actions'][] = array(
+                  'order' => MenuActionoOrder::EmailVerify,
+                  'url' => 'javascript:void(0);',
+                  'label' => _txt('op.verify'),
+                  'onclick' => array(
+                    'dg_bd_txt' => _txt('js.confirm.verify'),
+                    'dg_url' => $this->Html->url($dg_url),
+                    'dg_conf_btn' => _txt('op.verify'),
+                    'dg_cancel_btn' => _txt('op.cancel'),
+                    'dg_title' => _txt('op.verify'),
+                    'db_bd_txt_repl_str' => filter_var(_jtxt($m['mail']),FILTER_SANITIZE_STRING),
+                  ),
+                );
+              }
             }
             
             // If $mvpa_format is a defined function, use that to render the display string
@@ -168,7 +197,7 @@
             }
 
             print '<li class="field-data-container">';
-            print '<div class="field-data">';
+            print '<div class="field-data force-wrap">';
             if (($mvpa_model == 'Identifier') && !$permissions['identifiers'] ) {
               print $displaystr;
             } else {
@@ -178,58 +207,73 @@
                                             'action' => $laction,
                                             $m['id']));
             }
-            
-            if(!empty($typestr)) {
-              print "&nbsp;(" . $typestr . ")\n";
-            }
             print '</div>';
+            if(!empty($typestr)) {
+              print '<div class="field-data data-label">';
+              print $typestr;
+              print '</div>';
+            }
             print '<div class="field-actions">';
-            
             // Render specific buttons
             if($mvpa_model == 'Identifier') {
               // Login identifiers link to Authentication Events
               if(isset($m['login']) && $m['login']) {
-                print $this->Html->link(_txt('ct.authentication_events.pl'),
-                                        array('controller' => 'authentication_events',
-                                              'action' => 'index',
-                                              'identifier' => rawurlencode($m['identifier'])),
-                                        array('class' => 'notebutton'));
+                $action_args['vv_actions'][] = array(
+                  'order' => MenuActionoOrder::AuthEvent,
+                  'url' => $this->Html->url(
+                    array(
+                      'controller' => 'authentication_events',
+                      'action' => 'index',
+                      'identifier' => rawurlencode($m['identifier']),
+                    )
+                  ),
+                  'label' => _txt('ct.authentication_events.pl'),
+                );
               }
             }
             
             if (($mvpa_model != 'Identifier') || 
                (($mvpa_model == 'Identifier') && $permissions['identifiers'])) {
               // This renders the View or Edit button, as appropriate
-              print $this->Html->link(_txt('op.'.$laction),
-                                      array(
-                                        'controller' => $lmvpapl,
-                                        'action' => $laction,
-                                        $m['id']),
-                                      array('class' => $laction.'button')) . "\n";
+              $action_args['vv_actions'][] = array(
+                'order' => $lorder,
+                'url' => $this->Html->url(
+                  array(
+                    'controller' => $lmvpapl,
+                    'action' => $laction,
+                    $m['id'])
+                ),
+                'label' => _txt('op.'.$laction),
+              );
             }
             
             // Possibly render a delete button
             if($laction == 'edit' && $editable) {
               // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-              print '<a class="deletebutton" title="' . _txt('op.delete')
-                . '" onclick="javascript:js_confirm_generic(\''
-                . $removetxt . '\',\''    // dialog body text
-                . $this->Html->url(              // dialog confirm URL
-                  array(
-                    'controller' => $lmvpapl,
-                    'action' => 'delete',
-                    $m['id']
-                  )
-                ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
-                . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
-                . filter_var(_jtxt($displaystr),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\']);">'
-                . _txt('op.delete')
-                . '</a>';
+              $dg_url = array(
+                'controller' => $lmvpapl,
+                'action' => 'delete',
+                $m['id'],
+              );
+              // Delete button
+              $action_args['vv_actions'][] = array(
+                'order' => MenuActionoOrder::Delete,
+                'url' => 'javascript:void(0);',
+                'label' => _txt('op.delete'),
+                'onclick' => array(
+                  'dg_bd_txt' => $removetxt,
+                  'dg_url' => $this->Html->url($dg_url),
+                  'dg_conf_btn' => _txt('op.remove'),
+                  'dg_cancel_btn' => _txt('op.cancel'),
+                  'dg_title' => _txt('op.remove'),
+                  'db_bd_txt_repl_str' => filter_var(_jtxt($displaystr),FILTER_SANITIZE_STRING),
+                ),
+              );
             }
-            
+
+            if(!empty($action_args['vv_actions'])) {
+              print $this->element('menuAction', $action_args);
+            }
             print '</div>';
             print '</li>';
           }

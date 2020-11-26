@@ -44,6 +44,13 @@
     word-wrap: break-word;
   }
 
+  .field-data-container {
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-areas:
+      "value value value value value value value value value action"
+      "label label label label label label label label label action";
+  }
 }
 
 /* PHONE LANDSCAPE */
@@ -107,6 +114,12 @@
   }
   #content {
     padding: 1.75em;
+  }
+  .field-data-container {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: unset;
+    grid-template-areas:
+    "value value value label label action";
   }
   /* CO PEOPLE */
   #co_people .rolestatus {

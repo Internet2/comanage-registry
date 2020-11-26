@@ -1659,23 +1659,60 @@ ul.data-list li {
   overflow: hidden;
   padding: 2px 0 3px 0;
   background-color: #F5F5F5;
+  border: 1px solid #F5F5F5;
 }
 ul.data-list li:nth-child(2n) {
   background-color: #ededed; /* note that this is slightly lighter than the .form-list zebra */
+  border: 1px solid #ededed;
 }
 ul.data-table li {
   background-color: unset;
 }
+ul.fields.data-list li {
+  overflow: visible;
+}
 .field-actions {
-   float: right;
-   padding: 2px;
+  padding: 2px;
+  position: relative;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: center;
+  grid-area: action
+}
+.td-field-actions {
+  padding-right: 1em;
 }
 .field-data {
-  float: left;
   padding: 4px 0 0 10px;
+  grid-area: value;
 }
 .field-data-alone {
   padding: 2px 0 2px 10px;
+}
+.field-data-container {
+  display: grid;
+}
+.field-actions,
+.field-data {
+  display: flex;
+  padding: 0.2em 1em 0.2em 1em;
+  align-content: center;
+}
+.field-data a {
+  margin: auto;
+  width: 100%;
+  text-align: start;
+}
+.td-field-actions a,
+.field-actions a {
+  text-decoration: none !important;
+}
+.field-data.force-wrap {
+  overflow-wrap: anywhere;
+}
+.field-data.data-label {
+  align-items: center;
+  grid-area: label;
 }
 #names-container ul.data-list {
   margin-bottom: 0;
@@ -2026,6 +2063,20 @@ ul, ol { /* MDL override XXX check if still needed */
 .required {
   color: #c00;
 }
+.field-data-container.highlight {
+  border: 1px dashed #bbb !important;
+}
+tr.tr-highlight td,
+tr.tr-highlight th,
+tr.highlight td {
+  border-bottom: 2px dashed #bbb;
+}
+tr.highlight td:last-child {
+  border-right: 2px dashed #bbb;
+}
+tr.highlight td:first-child {
+  border-left: 2px dashed #bbb;
+}
 .center {
   text-align: center;
 }
@@ -2063,6 +2114,7 @@ a.desc::before {
 .ui-button {
   font-size: 0.9em !important;
   padding: 0.3em 0.75em 0.3em 0.5em;
+  height: min-content;
   /*margin: 0.25em 0.25em 0.25em 0; keep for now */
 }
 .co-grid {
@@ -2291,6 +2343,20 @@ td.indented {
 .btn-secondary {
   background-color: #c33; /* red */
   color: white;
+}
+/*Bootstrap*/
+.dropdown-menu {
+  text-align: center;
+  font-size: 1em;
+  border-radius: unset;
+}
+.dropdown-item {
+  color: #06c;
+  padding: 0.5em;
+}
+.dropdown-item:focus,
+.dropdown-item:hover {
+  text-decoration: none !important;
 }
 /* FOOTER */
 footer {

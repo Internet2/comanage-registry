@@ -397,6 +397,19 @@ class MatchStrategyEnum
   const NoMatching   = 'NO';
 }
 
+class MenuActionoOrder
+{
+  const EmailVerify = 1;
+  const PrimaryName = 2;
+  const AuthEvent = 3;
+  const PetitionView = 9;
+  const View = 10;
+  const Edit = 12;
+  const Relink = 14;
+  const Unlink = 17;
+  const Delete = 20;
+}
+
 class MessageTemplateEnum
 {
   const EnrollmentApproval     = 'EA';

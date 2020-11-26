@@ -342,14 +342,53 @@
 
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
-  
+  var observer = new Array();
+
   function js_confirm_autogenerate() {
     // Open the dialog to confirm autogeneration of identifiers
     var $tabs = $( "#tabs" ).tabs();
     $('#autogenerate-dialog').dialog('open');
   }
 
+  // Options for the observer (which mutations to observe)
+  let options = {
+    attributes: true,
+    attributeFilter: ['class']
+  };
+
+  function add_observer(element, target_element, modify_class) {
+    observer[element] = new MutationObserver((mutationList) => {
+      // Use traditional 'for loops' for IE 11
+      for(const mutation of mutationList) {
+        if (mutation.type === 'attributes') {
+          bs_dropdown = mutation.target.parentNode;
+          if($(bs_dropdown).hasClass('show')) {
+            if(target_element === 'tr') {
+              $(bs_dropdown).closest(target_element).prev(target_element).addClass(target_element + '-' + modify_class);
+            }
+            $(bs_dropdown).closest(target_element).addClass(modify_class);
+          } else {
+            if(target_element === 'tr') {
+              $(bs_dropdown).closest(target_element).prev(target_element).removeClass(target_element + '-' + modify_class);
+            }
+            $(bs_dropdown).closest(target_element).removeClass(modify_class);
+          }
+        }
+      }
+    });
+    observer[element].observe(element,options);
+  }
+
   $(function() {
+    // Handle action menus
+    $('.field-actions .dropdown-menu').each( (key, elem) => {
+      add_observer(elem, 'li', 'highlight');
+    });
+
+    $('.td-field-actions .dropdown-menu').each( (key, elem) => {
+      add_observer(elem, 'tr', 'highlight');
+    });
+
     // Explorer menu toggles
     $(".fieldGroupName").click(function(event) {
       event.preventDefault();
@@ -556,7 +595,7 @@
               <?php
                 $perm = $this->Permission->selfService($permissions, $e, 'Name', (!empty($n['type']) ? $n['type'] : null));
               ?>
-              <div class="field-data <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
+              <div class="field-data force-wrap <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
                 <?php
                 if($perm == PermissionEnum::ReadWrite) {
                   print $this->Html->link(generateCn($n),
@@ -566,63 +605,94 @@
                 } elseif($perm == PermissionEnum::ReadOnly) {
                   print filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                 }
-
-                  print " ("
+               ?>
+              </div>
+              <div class="field-data data-label <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
+              <?php
+                  print " "
                     . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                    . (!empty($n['SourceName']['id'])
+                    . (!empty($n['SourceName']['id']) && !empty($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])
                       ? filter_var($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS) . ", "
                       : "")
                     . filter_var($vv_cop_name_types[ $n['type'] ],FILTER_SANITIZE_SPECIAL_CHARS)
-                    . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "")
-                    . ")";
+                    . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "");
                 ?>
               </div>
               <div class="field-actions">
                 <?php
-                  if(!empty($n['SourceName']['id'])) {
-                    // This name came from an OIS and so can't be edited, and for the moment
-                    // can't be made primary (though maybe that'll change with a use case).
-                    print $this->Html->link(_txt('op.view'),
-                      array('controller' => 'names',
+                $action_args = array();
+                $action_args['vv_attr_mdl'] = "Name";
+                $action_args['vv_attr_id'] = $n['id'];
+                if(!empty($n['SourceName']['id'])) {
+                  // This name came from an OIS and so can't be edited, and for the moment
+                  // can't be made primary (though maybe that'll change with a use case).
+                  // View button
+                  $action_args['vv_actions'][] = array(
+                    'order' => MenuActionoOrder::View,
+                    'url' => $this->Html->url(
+                      array(
+                        'controller' => 'names',
                         'action' => 'view',
-                        $n['id']),
-                      array('class' => 'viewbutton'));
+                        $n['id'],
+                      )
+                    ),
+                    'label' => _txt('op.view'),
+                  );
                   } else {
-                    if ($perm == PermissionEnum::ReadWrite) {
+                    if ($perm === PermissionEnum::ReadWrite) {
                       if (!$n['primary_name']) {
-                        print '<a class="deletebutton" title="' . _txt('op.delete')
-                          . '" onclick="javascript:js_confirm_generic(\''
-                          . _txt('js.remove') . '\',\''    // dialog body text
-                          . $this->Html->url(              // dialog confirm URL
+                        // Delete Action button
+                        $dg_url = array(
+                          'controller' => 'names',
+                          'action' => 'delete', $n['id'],
+                          'co' => $cur_co['Co']['id']
+                        );
+                        $action_args['vv_actions'][] = array(
+                          'order' => MenuActionoOrder::Delete,
+                          'url' => 'javascript:void(0);',
+                          'label' => _txt('op.delete'),
+                          'onclick' => array(
+                            'dg_bd_txt' => _txt('js.remove'),
+                            'dg_url' => $this->Html->url($dg_url),
+                            'dg_conf_btn' => _txt('op.remove'),
+                            'dg_cancel_btn' => _txt('op.cancel'),
+                            'dg_title' => _txt('op.remove'),
+                            'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($n)), FILTER_SANITIZE_STRING),
+                          ),
+                        );
+
+                        // Primary name Action Button
+                        $action_args['vv_actions'][] = array(
+                          'order' => MenuActionoOrder::PrimaryName,
+                          'label' => _txt('op.primary'),
+                          'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
-                              'action' => 'delete', $n['id'],
-                              'co' => $cur_co['Co']['id']
+                              'action' => 'primary',
+                              $n['id'],
+                              'copersonid' => $co_people[0]['CoPerson']['id'],
                             )
-                          ) . '\',\''
-                          . _txt('op.remove') . '\',\''    // dialog confirm button
-                          . _txt('op.cancel') . '\',\''    // dialog cancel button
-                          . _txt('op.remove') . '\',[\''   // dialog title
-                          . filter_var(_jtxt(generateCn($n)), FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                          . '\']);">'
-                          . _txt('op.delete')
-                          . '</a>';
-
-                        print $this->Html->link(_txt('op.primary'),
-                          array('controller' => 'names',
-                            'action' => 'primary',
-                            $n['id'],
-                            'copersonid' => $co_people[0]['CoPerson']['id']),
-                          array('class' => 'primarybutton'));
+                          ),
+                        );
                       }
 
-                      print $this->Html->link(_txt('op.edit'),
-                          array('controller' => 'names',
+                      // Edit Action button
+                      $action_args['vv_actions'][] = array(
+                        'order' => MenuActionoOrder::Edit,
+                        'url' => $this->Html->url(
+                          array(
+                            'controller' => 'names',
                             'action' => 'edit',
-                            $n['id']),
-                          array('class' => 'editbutton')) . "\n";
+                            $n['id'],
+                            )
+                        ),
+                        'label' => _txt('op.edit'),
+                      );
                     }
-                  }  
+                  }
+                if(!empty($action_args['vv_actions'])) {
+                  print $this->element('menuAction', $action_args);
+                }
                 ?>
               </div>
             </li>
@@ -688,18 +758,21 @@
               foreach($co_people[0]['CoGroupMember'] as $g) {
                 if($e && !$es && !$g['CoGroup']['auto']) {
                   if($g['member'] || $g['owner']) {
-                    print '<li class="field-data-container"><div class="field-data">';
+                    print '<li class="field-data-container centered">';
+                    print '<div class="field-data">';
                     print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
+                    print '</div>';
+                    print '<div class="field-data data-label">';
                     if($g['owner']) {
                       if($g['member']) {
-                        print ' ' . _txt('fd.group.grmemown');
+                        print ' ' . _txt('fd.group.own')
+                          . ', ' . _txt('fd.group.mem');
                       } else {
                         print ' ' . _txt('fd.group.own.only');
                       }
                     } elseif($g['member']) {
                       print ' ' . _txt('fd.group.mem');
                     }
-                    
                     // Warn if membership is invalid
                     if((!empty($g['valid_from'])
                         && strtotime($g['valid_from']) >= time())
@@ -708,42 +781,68 @@
                         && strtotime($g['valid_through']) < time())) {
                       print " (" . _txt('fd.inactive') . ")";
                     }
+                    print '</div>';
 
-                    print '</div><div class="field-actions">';
-                    print $this->Html->link(_txt('op.edit'),
-                      array('controller' => 'co_group_members',
-                            'action' => 'edit',
-                            $g['id']),
-                      array('class' => 'editbutton'));
-                    
                     // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-                    print '<a class="deletebutton" title="' . _txt('op.delete')
-                      . '" onclick="javascript:js_confirm_generic(\''
-                      . _txt('js.remove.member') . '\',\''    // dialog body text
-                      . $this->Html->url(                     // dialog confirm URL
+
+                    // Action list
+                    $action_args = array();
+                    $action_args['vv_attr_mdl'] = "Group";
+                    $action_args['vv_attr_id'] = $g['CoGroup']['id'];
+                    // Edit
+                    $action_args['vv_actions'][] = array(
+                      'order' => MenuActionoOrder::Edit,
+                      'url' => $this->Html->url(
                         array(
                           'controller' => 'co_group_members',
-                          'action' => 'delete', $g['id'],
-                          'copersonid' => $co_people[0]['CoPerson']['id'],
-                          'return' => 'person'
+                          'action' => 'edit',
+                          $g['id'],
                         )
-                      ) . '\',\''
-                      . _txt('op.remove') . '\',\''    // dialog confirm button
-                      . _txt('op.cancel') . '\',\''    // dialog cancel button
-                      . _txt('op.remove') . '\',[\''   // dialog title
-                      . filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                      . '\']);">'
-                      . _txt('op.delete')
-                      . '</a>';
+                      ),
+                      'label' => _txt('op.edit'),
+                    );
+                    // Delete
+                    $dg_url = array(
+                      'controller' => 'co_group_members',
+                      'action' => 'delete', $g['id'],
+                      'copersonid' => $co_people[0]['CoPerson']['id'],
+                      'return' => 'person'
+                    );
+                    $action_args['vv_actions'][] = array(
+                      'order' => MenuActionoOrder::Delete,
+                      'url' => 'javascript:void(0);',
+                      'label' => _txt('op.delete'),
+                      'onclick' => array(
+                        'dg_bd_txt' => _txt('js.remove.member'),
+                        'dg_url' => $this->Html->url($dg_url),
+                        'dg_conf_btn' => _txt('op.remove'),
+                        'dg_cancel_btn' => _txt('op.cancel'),
+                        'dg_title' => _txt('op.remove'),
+                        'db_bd_txt_repl_str' => filter_var(_jtxt($g['CoGroup']['name']),FILTER_SANITIZE_STRING),
+                      ),
+                    );
 
                     if(!empty($g['source_org_identity_id'])) {
-                      print $this->Html->link(_txt('op.view.source'),
-                        array('controller' => 'org_identities',
-                          'action' => 'view',
-                          $g['source_org_identity_id']),
-                        array('class' => 'viewbutton'));
+                      $action_args['vv_actions'][] = array(
+                        'order' => MenuActionoOrder::View,
+                        'label' =>  _txt('op.view.source'),
+                        'url' =>  $this->Html->url(
+                          array(
+                            'controller' => 'org_identities',
+                            'action' => 'view',
+                            $g['source_org_identity_id'],
+                          )
+                        ),
+                      );
                     }
-                    print '</div></li>';
+
+                    // XXX we have to kinds of actions. The ones that requires a confirmation and the ones that do not
+                    print '<div class="field-actions">';
+                    if(!empty($action_args['vv_actions'])) {
+                      print $this->element('menuAction', $action_args);
+                    }
+                    print '</div>';
+                    print '</li>';
                   }
                 } else {
                   if($g['member'])
@@ -936,6 +1035,10 @@
 
                     // Set the status styling
                     $statusClass = "status-normal";
+                    // Store the action list
+                    $action_args = array();
+                    $action_args['vv_attr_mdl'] = "CoPersonRole";
+                    $action_args['vv_attr_id'] = $r["id"];
 
                     if($r['status'] == StatusEnum::Suspended 
                        || $r['status'] == StatusEnum::Expired
@@ -994,7 +1097,7 @@
                         } 
                       ?>
                     </td>
-                    <td>
+                    <td class="td-field-actions">
                       <?php
                         if ($es // Editing self
                           || empty($r['Cou']) // No COU set for this person
@@ -1008,53 +1111,98 @@
                           // Currently, users can self-edit some role level attributes,
                           // so give them an edit button, too.
 
+                          // XXX TODO: this is an important action. Ask ARLEN
                           if ($permissions['enroll']
                             && $r['status'] == StatusEnum::PendingApproval
                             && !empty($r['CoPetition'][0]['id'])
                           ) {
-                            print $this->Html->link(_txt('op.petition'),
-                              array('controller' => 'co_petitions',
-                                'action' => 'view',
-                                $r['CoPetition'][0]['id'],
-                                'co' => $r['CoPetition'][0]['co_id'],
-                                'coef' => $r['CoPetition'][0]['co_enrollment_flow_id']),
-                              array('class' => 'petitionbutton'));
+                            $action_args['vv_actions'][] = array(
+                              'order' => MenuActionoOrder::PetitionView,
+                              'url' => $this->Html->url(
+                                array('controller' => 'co_petitions',
+                                  'action' => 'view',
+                                  $r['CoPetition'][0]['id'],
+                                  'co' => $r['CoPetition'][0]['co_id'],
+                                  'coef' => $r['CoPetition'][0]['co_enrollment_flow_id'])
+                              ),
+                              'label' => _txt('op.petition'),
+                            );
                           }
 
                           if ($permissions['canvas']) {
-                            print $this->Html->link(_txt('op.edit'),
-                                array('controller' => 'co_person_roles', 'action' => 'edit', $r['id']),
-                                array('class' => 'editbutton')) . "\n";
+                            $action_args['vv_actions'][] = array(
+                              'order' => MenuActionoOrder::Edit,
+                              'url' => $this->Html->url(
+                                array(
+                                  'controller' => 'co_person_roles',
+                                  'action' => 'edit',
+                                  $r['id'])
+                              ),
+                              'label' => _txt('op.edit'),
+                            );
                           }
 
                           if ($permissions['relink']) {
-                            print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.role.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'copersonroleid' => $r['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
+                            $rlnk_url = array(
+                              'controller' => 'co_people',
+                              'action' => 'relink',
+                              $co_people[0]['CoPerson']['id'],
+                              'copersonroleid' => $r['id'],
+                            );
+
+                            // Relink button
+                            $action_args['vv_actions'][] = array(
+                              'url' => 'javascript:void(0);',
+                              'order' => MenuActionoOrder::Relink,
+                              'label' => _txt('op.relink'),
+                              'onclick' => array(
+                                'dg_bd_txt' => _jtxt(_txt('op.relink.role.confirm')),
+                                'dg_url' => $this->Html->url($rlnk_url),
+                                'dg_conf_btn' => _txt('op.ok'),
+                                'dg_cancel_btn' => _txt('op.cancel'),
+                                'dg_title' => _txt('op.confirm'),
+                                'db_bd_txt_repl_str' => '',
+                              ),
+                            );
                           }
 
                           if ($permissions['delete']) {
-                            print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                              . '" onclick="javascript:js_confirm_generic(\''
-                              . _txt('js.remove') . '\',\''    // dialog body text
-                              . $this->Html->url(              // dialog confirm URL
-                                array(
-                                  'controller' => 'co_person_roles',
-                                  'action' => 'delete',
-                                  $r['id']
-                                )
-                              ) . '\',\''
-                              . _txt('op.remove') . '\',\''    // dialog confirm button
-                              . _txt('op.cancel') . '\',\''    // dialog cancel button
-                              . _txt('op.remove') . '\',[\''   // dialog title
-                              . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])), FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                              . '\']);">'
-                              . _txt('op.delete')
-                              . '</button>';
+                            $dr_url = array(
+                              'controller' => 'co_person_roles',
+                              'action' => 'delete',
+                              $r['id'],
+                            );
+
+                            // Delete button
+                            $action_args['vv_actions'][] = array(
+                              'url' => 'javascript:void(0);',
+                              'order' => MenuActionoOrder::Delete,
+                              'label' => _txt('op.delete'),
+                              'onclick' => array(
+                                'dg_bd_txt' => _txt('js.remove'),
+                                'dg_url' => $this->Html->url($dr_url),
+                                'dg_conf_btn' => _txt('op.remove'),
+                                'dg_cancel_btn' => _txt('op.cancel'),
+                                'dg_title' => _txt('op.remove'),
+                                'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])), FILTER_SANITIZE_STRING),
+                              ),
+                            );
                           }
                         } elseif ($permissions['view']) {
-                          print $this->Html->link(_txt('op.view'),
-                              array('controller' => 'co_person_roles', 'action' => 'view', $r['id']),
-                              array('class' => 'viewbutton')) . "\n";
+                          $action_args['vv_actions'][] = array(
+                            'order' => MenuActionoOrder::View,
+                            'url' => $this->Html->url(
+                              array(
+                                'controller' => 'co_person_roles',
+                                'action' => 'view',
+                                $r['id'])
+                              ),
+                              'label' => _txt('op.view'),
+                            );
                         }
+                      if(!empty($action_args['vv_actions'])) {
+                        print $this->element('menuAction', $action_args);
+                      }
                       ?>
                     </td>
                   </tr>
@@ -1159,25 +1307,83 @@
                         }
                       ?>
                     </td>
-                    <td>
+                    <td class="td-field-actions">
                       <?php
-                        print $this->Html->link(_txt($e && !$es ? 'op.edit' : 'op.view'),
-                            array('controller' => 'org_identities',
-                              'action' => ($e && !$es ? 'edit' : 'view'),
-                              $link['OrgIdentity']['id']),
-                            array('class' => ($e && !$es ? 'editbutton' : 'viewbutton'))) . "\n";
+                        $action_args = array();
+                        $action_args['vv_attr_mdl'] = "OrgIdentity";
+                        $action_args['vv_attr_id'] = $link['OrgIdentity']['id'];
 
+                        // Edit / View Action
+                        $label = ($e && !$es) ? 'op.edit' : 'op.view';
+                        $action = ($e && !$es) ? 'edit' : 'view';
+                        $order = ($e && !$es) ? MenuActionoOrder::Edit : MenuActionoOrder::View;
+                        $action_args['vv_actions'][] = array(
+                          'order' => $order,
+                          'url' => $this->Html->url(
+                            array(
+                              'controller' => 'org_identities',
+                              'action' => $action,
+                              $link['OrgIdentity']['id'])
+                          ),
+                          'label' => _txt($label),
+                        );
+
+                        // Relink Action
                         if($permissions['relink']) {
-                        print '<a class="relinkbutton" title="' . _txt('op.relink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.relink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_people', 'action' => 'relink', $co_people[0]['CoPerson']['id'], 'linkid' => $link['id'])) . '\');">' . _txt('op.relink') . '</a>' . "\n";
-                      }
+                          $rlnk_url = array(
+                            'controller' => 'co_people',
+                            'action' => 'relink',
+                            $co_people[0]['CoPerson']['id'],
+                            'linkid' => $link['id'],
+                          );
 
+                          // Relink button
+                          $action_args['vv_actions'][] = array(
+                            'order' => MenuActionoOrder::Relink,
+                            'url' => 'javascript:void(0);',
+                            'label' => _txt('op.relink'),
+                            'onclick' => array(
+                              'dg_bd_txt' => _jtxt(_txt('op.relink.confirm')),
+                              'dg_url' => $this->Html->url($rlnk_url),
+                              'dg_conf_btn' => _txt('op.ok'),
+                              'dg_cancel_btn' => _txt('op.cancel'),
+                              'dg_title' => _txt('op.confirm'),
+                              'db_bd_txt_repl_str' => '',
+                            ),
+                          );
+                        }
+
+                      // Delete Action
                       if($permissions['delete']
                         && count($co_people[0]['CoOrgIdentityLink']) > 1) {
                         // An Org Identity Link can only be removed if there is at least one other remaining
                         // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
                         // away, even if it's the last one attached to the CO Preson.
 
-                        print '<a class="unlinkbutton" title="' . _txt('op.unlink') . '" onclick="javascript:js_confirm_generic(\'' . _jtxt(_txt('op.unlink.confirm')) . '\', \'' . $this->Html->url(array('controller' => 'co_org_identity_links', 'action' => 'delete', $link['id'])) . '\');">' . _txt('op.unlink') . '</a>' . "\n";
+                       $unlnk_url = array(
+                         'controller' => 'co_org_identity_links',
+                         'action' => 'delete',
+                         $link['id'],
+                       );
+
+                       // Unlink button
+                       $action_args['vv_actions'][] = array(
+                         'order' => MenuActionoOrder::Unlink,
+                         'url' => 'javascript:void(0);',
+                         'label' => _txt('op.unlink'),
+                         'onclick' => array(
+                           'dg_bd_txt' => _jtxt(_txt('op.unlink.confirm')),
+                           'dg_url' => $this->Html->url($unlnk_url),
+                           'dg_conf_btn' => _txt('op.ok'),
+                           'dg_cancel_btn' => _txt('op.cancel'),
+                           'dg_title' => _txt('op.confirm'),
+                           'db_bd_txt_repl_str' => '',
+                         ),
+                       );
+                      }
+
+                      if(!empty($action_args['vv_actions'])) {
+                        print $this->element('menuAction', $action_args);
                       }
                       ?>
                     </td>
@@ -1199,5 +1405,3 @@
 <div id="autogenerate-dialog" class="co-dialog" title="<?php print _txt('op.id.auto'); ?>">
   <?php print _txt('op.id.auto.confirm'); ?>
 </div>
-
-
