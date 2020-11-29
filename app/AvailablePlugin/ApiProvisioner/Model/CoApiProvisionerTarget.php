@@ -244,7 +244,7 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
     
     $message = array(
       'meta' => array(
-        'version' => '1.0',
+        'version' => '1.0.0',
         'objectType' => 'person'
       ),
       'person' => array(
@@ -395,7 +395,7 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
     $message = array(
       'meta' => array(
         // Note version is also specified in deletePerson()
-        'version' => '1.0',
+        'version' => '1.0.0',
         'objectType' => 'person'
       )
     );
