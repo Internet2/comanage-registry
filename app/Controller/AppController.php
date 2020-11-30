@@ -950,15 +950,18 @@ class AppController extends Controller {
         $args['contain'][] = 'CoTheme';
 
         $settings = $this->Co->CoSetting->find('first', $args);
-        $co_allow_stack = $settings['CoSetting']['theme_stacking'];
+        
+        if(!empty($settings)) {
+          $co_allow_stack = $settings['CoSetting']['theme_stacking'];
 
-        if(!empty($settings['CoTheme']['id'])) {
-          if(is_null($coTheme)) {
-            $coTheme = $settings['CoTheme'];
-            $cssStack = array();
-            $cssStack['b_co'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
-          } else {
-            $cssStack['b_co'] = '/*' . $settings['CoTheme']["name"] . '*/' . PHP_EOL . $settings['CoTheme']['css'];
+          if(!empty($settings['CoTheme']['id'])) {
+            if(is_null($coTheme)) {
+              $coTheme = $settings['CoTheme'];
+              $cssStack = array();
+              $cssStack['b_co'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
+            } else {
+              $cssStack['b_co'] = '/*' . $settings['CoTheme']["name"] . '*/' . PHP_EOL . $settings['CoTheme']['css'];
+            }
           }
         }
       }
