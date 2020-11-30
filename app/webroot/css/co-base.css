@@ -1830,6 +1830,7 @@ ul.form-list input[type="password"]:focus {
   background-color: #ffd;
 }
 ul.form-list select {
+  display: block;
   font-size: 0.9em;
 }
 ul.form-list li.fields-submit .required {
