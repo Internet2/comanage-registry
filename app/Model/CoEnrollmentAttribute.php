@@ -114,14 +114,14 @@ class CoEnrollmentAttribute extends AppModel {
       'allowEmpty' => true
     ),
     'hidden' => array(
-      'ruleName' => array(
+      'validateRequired' => array(
         'rule' => array('boolean'),
-        'required' => true // All attributes class have a hidden value sent even if they are not applicable
+        'required' => true,
+        'allowEmpty' => true
       ),
-      'ruleName2' => array(
+      'validateHidden' => array(
         'rule' => array('validateHidden'),
-        'required' => false, 
-        'message' => 'A hidden field must have a default value'
+        'required' => false
       )
     )
   );
@@ -143,7 +143,7 @@ class CoEnrollmentAttribute extends AppModel {
     // A default value must be provided if field is hidden
     $defaultValue = $this->data['CoEnrollmentAttributeDefault'][0]['value'];
     if(isset($a['hidden']) && $a['hidden'] && empty($defaultValue)) {
-      return false;
+      return _txt('er.field.hidden.req');
     }
 
     return true;
