@@ -913,6 +913,9 @@ class AppController extends Controller {
   protected function getTheme() {
     // Determine if a theme is in use
     $coTheme = null;
+    $cssStack = null;
+    $eof_allow_stack = null;
+    $co_allow_stack = null;
     
     if(!empty($this->cur_co['Co']['id'])) {
       // First see if we're in an enrollment flow
@@ -929,29 +932,42 @@ class AppController extends Controller {
           $args['contain'][] = 'CoTheme';
           
           $efConfig = $this->Co->CoEnrollmentFlow->find('first', $args);
-          
+          $eof_allow_stack = $efConfig['CoEnrollmentFlow']['theme_stacking'];
+
           if(!empty($efConfig['CoTheme']['id'])) {
             $coTheme = $efConfig['CoTheme'];
+            $cssStack = array();
+            $cssStack['c_ef'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
           }
         }
       }
-      
-      if(!$coTheme) {
+
+      if(is_null($coTheme) || $eof_allow_stack === SuspendableStatusEnum::Active) {
         // See if there is a CO-wide theme in effect
-        
+
         $args = array();
         $args['conditions']['CoSetting.co_id'] = $this->cur_co['Co']['id'];
         $args['contain'][] = 'CoTheme';
-        
+
         $settings = $this->Co->CoSetting->find('first', $args);
         
-        if(!empty($settings['CoTheme']['id'])) {
-          $coTheme = $settings['CoTheme'];
+        if(!empty($settings)) {
+          $co_allow_stack = $settings['CoSetting']['theme_stacking'];
+
+          if(!empty($settings['CoTheme']['id'])) {
+            if(is_null($coTheme)) {
+              $coTheme = $settings['CoTheme'];
+              $cssStack = array();
+              $cssStack['b_co'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
+            } else {
+              $cssStack['b_co'] = '/*' . $settings['CoTheme']["name"] . '*/' . PHP_EOL . $settings['CoTheme']['css'];
+            }
+          }
         }
       }
     }
-    
-    if(!$coTheme) {
+
+    if(is_null($coTheme)  || $co_allow_stack === SuspendableStatusEnum::Active) {
       // See if there is a platform theme
       $args = array();
       $args['joins'][0]['table'] = 'cos';
@@ -961,17 +977,27 @@ class AppController extends Controller {
       $args['conditions']['Co.name'] = 'COmanage';
       $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
       $args['contain'][] = 'CoTheme';
-      
+
       $this->loadModel('CoSetting');
-      
+
       $settings = $this->CoSetting->find('first', $args);
-      
+
       if(!empty($settings['CoTheme']['id'])) {
-        $coTheme = $settings['CoTheme'];
+        if(is_null($coTheme)) {
+          $coTheme = $settings['CoTheme'];
+          $cssStack = array();
+          $cssStack['a_cmp'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
+        } else {
+          $cssStack['a_cmp'] = '/*' . $settings['CoTheme']["name"] . '*/' . PHP_EOL . $settings['CoTheme']['css'];
+        }
       }
     }
       
     if($coTheme) {
+      // Sort the cssStack starting with CMP css to EF css
+      if(!empty($cssStack) && ksort($cssStack)) {
+        $coTheme['css'] = $cssStack;
+      }
       $this->set('vv_theme_hide_title', $coTheme['hide_title']);
       $this->set('vv_theme_hide_footer_logo', $coTheme['hide_footer_logo']);
       

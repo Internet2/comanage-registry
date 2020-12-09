@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://github.com/Internet2/comanage-registry/tree/4.0.0/app/AvailablePlugin/ApiProvisioner/Config/Schema/message.json",
+  "title": "COmanage API Provisioner Message Format",
+  "description": "COmanage API Provisioner Message Format",
+  
+  "definitions": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "COmanage identifier for this object",
+          "type": "string"
+        },
+        "created": {
+          "description": "When this person record was originally created",
+          "type": "string",
+          "format": "date-time"
+        },
+        "deleted": {
+          "description": "Whether this person record has been deleted",
+          "type": "boolean"
+        },
+        "lastModified": {
+          "description": "When this person record was last modified (core person only, not associated data)",
+          "type": "string",
+          "format": "date-time"
+        },
+        "revision": {
+          "description": "The revision number for this object",
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [ "id" ]
+    }
+  },
+  
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "const": "1.0.0",
+        },
+        "objectType": {
+          "const": "person"
+        }
+      },
+      "required": [ "version", "objectType" ]
+    },
+    "person": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "emailAddresses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "meta": {
+                "$ref": "#/definitions/meta"
+              },
+              "address": {
+                "description": "An email address for the person",
+                "type": "string",
+                "format": "email"
+              },
+              "type": {
+                "description": "The type of email address",
+                "type": "string"
+              },
+              "verified": {
+                "description": "Whether this email address has been verified",
+                "type": "boolean"
+              }
+            },
+            "required" [ "meta" ]
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "meta": {
+                "$ref": "#/definitions/meta"
+              },
+              "identifier": {
+                "description": "A identifier for the person",
+                "type": "string",
+                "format": "email"
+              },
+              "type": {
+                "description": "The type of identifier",
+                "type": "string"
+              }
+            },
+            "required" [ "meta" ]
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "description": "The name of a group of which the person is a member",
+            "type": "string"
+          }
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "meta": {
+                "$ref": "#/definitions/meta"
+              },
+              "family": {
+                "description": "The person's family or surname",
+                "type": "string"
+              },
+              "formatted": {
+                "description": "The fully formmatted name for the person",
+                "type": "string"
+              },
+              "given": {
+                "description": "The person's given or first name",
+                "type": "string"
+              },
+              "language": {
+                "description": "The language encoding for this name",
+                "type": "string"
+              },
+              "middle": {
+                "description": "The person's middle name",
+                "type": "string"
+              },
+              "prefix": {
+                "description": "The honorific or prefix for the person's name",
+                "type": "string"
+              },
+              "suffix": {
+                "description": "The suffix for this person's name",
+                "type": "string"
+              },
+              "type": {
+                "description": "The type of name",
+                "type": "string"
+              }
+            },
+            "required" [ "meta" ]
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "meta": {
+                "$ref": "#/definitions/meta"
+              },
+              "addresses": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "$ref": "#/definitions/meta"
+                    },
+                    "country": {
+                      "description": "The country for this address",
+                      "type": "string"
+                    },
+                    "formatted": {
+                      "description": "The formatted address for this role",
+                      "type": "string"
+                    },
+                    "language": {
+                      "description": "The language encoding for this address",
+                      "type": "string"
+                    },
+                    "locality": {
+                      "description": "The city or locality for this address",
+                      "type": "string"
+                    },
+                    "postalCode": {
+                      "description": "The postal code for this address",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "The state, province, or region for this address",
+                      "type": "string"
+                    },
+                    "room": {
+                      "description": "The room number for this address",
+                      "type": "string"
+                    },
+                    "street": {
+                      "description": "The street for this address",
+                      "type": "string"
+                    },
+                    "type": {
+                      "description": "The type of address",
+                      "type": "string"
+                    }
+                  },
+                  "required" [ "meta" ]
+                }
+              },
+              "affiliation": {
+                "description": "The affiliation for this role",
+                "type": "string"
+              },
+              "couId": {
+                "description": "The Collaborative Organization Unit for this role",
+                "type": "integer",
+                "minimum": 1
+              },
+              "department": {
+                "description": "The department for this role",
+                "type": "string"
+              },
+              "organization": {
+                "description": "The organization for this role",
+                "type": "string"
+              },
+              "rank": {
+                "description": "The rank or order for this role, among all roles (lower number indicate higher priorities)",
+                "type": "integer"
+              },
+              "status": {
+                "description": "The status for this role",
+                "type": "string"
+              },
+              "telephoneNumbers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "$ref": "#/definitions/meta"
+                    },
+                    "number": {
+                      "description": "A telephone number for the person",
+                      "type": "string",
+                      "format": "itu-e164"
+                    },
+                    "type": {
+                      "description": "The type of telephone number",
+                      "type": "string"
+                    }
+                  },
+                  "required" [ "meta" ]
+                }
+              },
+              "title": {
+                "description": "The title for this role",
+                "type": "string"
+              },
+              "validFrom": {
+                "description": "The time from which this role is valid",
+                "type": "string",
+                "format": "date-time"
+              },
+              "validThrough": {
+                "description": "The time through which this role is valid",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        },
+        "status": {
+          "description": "The overall status for the person",
+          "type": "string"
+        },
+        "urls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "meta": {
+                "$ref": "#/definitions/meta"
+              },
+              "url": {
+                "description": "A URL for the person",
+                "type": "string",
+                "format": "uri"
+              },
+              "type": {
+                "description": "The type of URL",
+                "type": "string"
+              }
+            },
+            "required" [ "meta" ]
+          }
+        },
+        "required": [ "meta" ]
+      }
+    }
+  },
+  "required": [ "meta", "person" ]
+}

@@ -143,7 +143,14 @@ class CoSetting extends AppModel {
                             ElectStrategyEnum::Manual)),
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
+    'theme_stacking' => array(
+      'rule' => array('inList',
+                      array(SuspendableStatusEnum::Active,
+                            SuspendableStatusEnum::Suspended)),
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   // Default values for each setting
@@ -162,6 +169,7 @@ class CoSetting extends AppModel {
     'sponsor_eligibility'        => SponsorEligibilityEnum::CoOrCouAdmin,
     't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced,
     'enable_empty_cou'           => false,
+    'theme_stacking'             => SuspendableStatusEnum::Suspended,
   );
   
   /**

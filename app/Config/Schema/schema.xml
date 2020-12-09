@@ -847,6 +847,7 @@
     <field name="co_theme_id" type="I">
       <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
+    <field name="theme_stacking" type="C" size="2" />
     <field name="establish_authenticators" type="L" />
     <field name="establish_cluster_accounts" type="L" />
     <field name="created" type="T" />
@@ -2889,6 +2890,7 @@
     <field name="required_fields_name" type="C" size="160" />
     <field name="t_and_c_login_mode" type="C" size="2" />
     <field name="sponsor_eligibility" type="C" size="2" />
+    <field name="theme_stacking" type="C" size="2" />
     <field name="sponsor_co_group_id" type="I" />
     <field name="default_co_pipeline_id" type="I">
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
