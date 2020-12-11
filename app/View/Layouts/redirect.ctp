@@ -65,9 +65,9 @@
       print $this->fetch('css');
       print $this->fetch('script');
     ?>
-<?php /*
+
     <meta http-equiv="refresh" content="1;URL='<?php print $this->Html->url($vv_meta_redirect_target); ?>'" />
-*/?>
+
     <!-- Include custom CSS -->
     <?php if(!empty($vv_theme_css)): ?>
       <style type="text/css">
