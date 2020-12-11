@@ -301,9 +301,6 @@
     line-height: 1.6em;
     padding-right: 240px;
   }
-  .co-grid .mdl-cell {
-    margin: 8px;
-  }
   .co-grid .co-grid-header {
     display: flex;
     background-color: #0c75c0 !important;

@@ -791,7 +791,7 @@ body.co_people.canvas .titleNavContainer {
 #fpCoList .co-row {
   cursor: pointer;
 }
-#fpCoList .mdl-grid.co-row:hover {
+#fpCoList .co-row:hover {
   background-color: #eee;
 }
 /* CONFIGURATION PAGE */
@@ -867,10 +867,6 @@ body.co_people.canvas .titleNavContainer {
   padding: 1em;
   background-color: rgb(250, 250, 250);
   clear: both;
-}
-.modelbox .mdl-textfield {
-  display: block;
-  width: 100%;
 }
 .modelbox .boxtitle {
   padding: 0 0 5px 0;
@@ -1997,12 +1993,12 @@ ul.form-list li.field-stack textarea {
 .invisible {
   display: none;
 }
-p { /* MDL override */
+p { /* MDL override XXX check if still needed */
   font-size: inherit;
   margin: 0 0 1em;
   line-height: 1.6em;
 }
-ul, ol { /* MDL override */
+ul, ol { /* MDL override XXX check if still needed */
   font-size: 12px;
   line-height: 20px;
 }
