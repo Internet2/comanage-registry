@@ -69,7 +69,7 @@
       <?php endif?>
       <em class="material-icons">arrow_drop_down</em>
     </button>
-    <ul id="notifications-menu" for="user-notifications" class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right">
+    <ul id="notifications-menu">
 
       <?php $notificationCount = 0; ?>
       <?php foreach($vv_my_notifications as $n): ?>

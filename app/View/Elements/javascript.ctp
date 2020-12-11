@@ -451,10 +451,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function() {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
@@ -467,10 +464,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function(selectedDate) {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
@@ -481,10 +475,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function(selectedDate) {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
@@ -496,10 +487,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function(selectedDate) {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });

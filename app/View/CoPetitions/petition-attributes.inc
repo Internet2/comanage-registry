@@ -381,7 +381,7 @@
               }
 
               // Render the form field, label, and error (if any)
-              print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
+              print $this->Form->label($fieldName, $ea['label']);
               print $this->Form->text($fieldName, $args);
               /* XXX CO-1329: field errors on text fields are output by default; check to see if
                  an error is being properly produced for dates and if this next statement is needed. */
@@ -491,7 +491,7 @@
                   }
 
                   print '<div class="' . $iefClasses . '">';
-                  print ' <label for="sponsors" class="mdl-textfield__label">'
+                  print ' <label for="sponsors">'
                         .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
                         . '</label>
                            <div class="ui-widget">
@@ -522,7 +522,7 @@
                 
                 // Render the form field, label, and error (if any)
                 // error is output by default with class "error-message"
-                print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+                print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol);
                 print $this->Form->input($fieldName, $args);
               }
 
