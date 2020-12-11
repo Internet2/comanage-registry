@@ -174,19 +174,8 @@
     float: left;
   }
   /* PETITION ATTRIBUTES */
-  .modelbox .mdl-textfield {
-    display: block;
-    width: 100%;
-  }
   .modelbox .boxtitle {
-    float: left;
-    width: 25%;
-    padding: 5px 0 5px 8px;
-  }
-  .modelbox .mdl-textfield,
-  .modelbox .mdl-selectfield {
-    float: right;
-    width: 70%;
+    padding: 0 0 0.5em;
   }
   .modelbox-data-label {
     width: 120px;
@@ -395,6 +384,8 @@
   }
   body.petitionerAttributes .modelbox {
     margin: 0 0.5em 1.5em 0;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
   }
   /* DASHBOARDS and WIDGETS */
   /* Service Portal */
@@ -461,6 +452,9 @@
     margin-left: 1em;
   }
   /* GENERAL */
+  .submit-buttons {
+    margin-right: 0.5em;
+  }
   .two-col {
     -webkit-column-count: 2; /* Chrome, Safari, Opera */
     -moz-column-count: 2; /* Firefox */

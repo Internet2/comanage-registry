@@ -60,12 +60,10 @@ h1.firstPrompt {
 }
 h2 {
   font-size: 2em;
-  line-height: 2.5em;
   margin: 0;
 }
 h3 {
   font-size: 1.6em;
-  line-height: 1.6em;
   margin: 0;
 }
 a {
@@ -722,23 +720,22 @@ body.co_people.canvas .titleNavContainer {
 #dashboard-tabs {
   clear: both;
   margin: 1em 0;
-  padding-top: 1em;
 }
 #dashboard-desc {
   clear: both;
   margin-top: 1em;
 }
-#dashboard-tabs .mdl-tabs__tab-bar {
-  justify-content: left;
+#dashboard-tabs .nav-link {
+  text-transform: uppercase;
+  padding: 1em 1.5em;
+  font-size: 1.2em;
+  opacity: 0.8;
 }
-#dashboard-tabs .mdl-tabs__tab {
-  position: relative;
-  top: -1px;
-}
-#dashboard-tabs .mdl-tabs__tab.selected {
+#dashboard-tabs .nav-link.active {
   background-color: #f8f8f8;
   border: 1px solid #f2f2f2;
   border-bottom: none;
+  border-radius: 0;
 }
 .mini-spinner {
   position: relative;
@@ -1964,14 +1961,12 @@ ul.form-list li.field-stack textarea {
   font-size: 16px;
   margin: 0;
 }
-
-/* XXX determine which among the following five rules are still in use */
-.required-info {
-  float: left;
-}
 .submit-buttons {
   float: right;
-  margin-right: 0.5em;
+  margin: 0 0 1em;
+}
+.required-info {
+  float: left;
 }
 .co-selectfield {
   width: 100%;
@@ -1991,7 +1986,6 @@ ul.form-list li.field-stack textarea {
 #content .co-button .material-icons {
   font-size: 17px;
   margin-right: -8px;
-  padding-top: 6px;
 }
 #content .material-icons {
   font-size: 17px;
@@ -2081,10 +2075,12 @@ a.desc::before {
   background-color: #e5e5e5 !important;
   font-weight: bold;
 }
-.co-grid .co-row {
+.co-grid .co-row,
+.co-grid .row {
   border-top: 1px solid #eee;
 }
-.co-grid .co-row:nth-child(even) {
+.co-grid .co-row:nth-child(even),
+.co-grid .row:nth-child(even) {
   background-color: #f8f8f8;
 }
 .co-grid > div:nth-child(2) {
