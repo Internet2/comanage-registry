@@ -76,7 +76,7 @@
   <li class="fields-submit">
     <div class="submit">
       <?php print $this->Html->link(_txt('pl.serviceswidget.return'),
-        $args,  array('class' => 'spin submit-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect')); ?>
+        $args,  array('class' => 'spin submit-button btn btn-primary')); ?>
     </div>
   </li>
 </ul>
