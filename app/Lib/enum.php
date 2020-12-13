@@ -328,12 +328,15 @@ class IdentifierAssignmentExclusionEnum
 
 class IdentifierEnum
 {
+  const AffiliateSOR       = 'sor-affiliate';
   const Badge              = 'badge';
   const Enterprise         = 'enterprise';
   const ePPN               = 'eppn';
   const ePTID              = 'eptid';
   const ePUID              = 'epuid';
   const GID                = 'gid';
+  const GuestSOR           = 'sor-guest';
+  const HRSOR              = 'sor-hr';
   const Mail               = 'mail';
   const National           = 'national';
   const Network            = 'network';
@@ -342,9 +345,10 @@ class IdentifierEnum
   const ORCID              = 'orcid';
   const ProvisioningTarget = 'provisioningtarget';
   const Reference          = 'reference';
-  const SORID              = 'sorid';
   const SamlPairwise       = 'pairwiseid';
   const SamlSubject        = 'subjectid';
+  const StudentSOR         = 'sor-student';
+  const SORID              = 'sorid';
   const UID                = 'uid';
 }
 // These generally align with the TAP Core Schema
@@ -644,6 +648,7 @@ class ServerEnum
 {
   // When adding a new server type, be sure to add it to ServersController::view_contains
   const HttpServer    = 'HT';
+  const KafkaServer   = 'KA';
   const LdapServer    = 'LD';
   const MatchServer   = 'MT';
   const Oauth2Server  = 'O2';

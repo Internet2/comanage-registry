@@ -178,6 +178,8 @@ $cm_texts['en_US'] = array(
   'ct.identifiers.pl' =>        'Identifiers',
   'ct.identity_documents.1' =>  'Identity Document',
   'ct.identity_documents.pl' => 'Identity Documents',
+  'ct.kafka_servers.1' =>       'Kafka Server',
+  'ct.kafka_servers.pl' =>      'Kafka Servers',
   'ct.ldap_servers.1' =>        'LDAP Server',
   'ct.ldap_servers.pl' =>       'LDAP Servers',
   'ct.match_servers.1' =>       'Match Server',
@@ -596,12 +598,15 @@ original notification at
   ),
   
   // Extended type, key must be en.model.attribute
-  'en.identifier.type' =>  array(IdentifierEnum::Badge => 'Badge',
+  'en.identifier.type' =>  array(IdentifierEnum::AffiliateSOR => 'Affiliate SoRID',
+                                 IdentifierEnum::Badge => 'Badge',
                                  IdentifierEnum::Enterprise => 'Enterprise',
                                  IdentifierEnum::ePPN => 'ePPN',
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::ePUID => 'ePUID',
                                  IdentifierEnum::GID => 'GID',
+                                 IdentifierEnum::GuestSOR => 'Guest SoRID',
+                                 IdentifierEnum::HRSOR => 'HR SoRID',
                                  IdentifierEnum::Mail => 'Mail',
                                  IdentifierEnum::National => 'National',
                                  IdentifierEnum::Network => 'Network',
@@ -613,6 +618,7 @@ original notification at
                                  IdentifierEnum::SamlPairwise =>'SAML pairwise-id',
                                  IdentifierEnum::SamlSubject => 'SAML subject-id',
                                  IdentifierEnum::SORID => 'System of Record ID',
+                                 IdentifierEnum::StudentSOR => 'Student SoRID',
                                  IdentifierEnum::UID => 'UID'),
   
   'en.job.type' => array(
@@ -755,6 +761,7 @@ original notification at
   
   'en.server' => array(
     ServerEnum::HttpServer   => 'HTTP',
+    ServerEnum::KafkaServer  => 'Kafka',
     ServerEnum::LdapServer   => 'LDAP',
     ServerEnum::MatchServer  => 'Match',
     ServerEnum::Oauth2Server => 'OAuth2',
@@ -1646,6 +1653,10 @@ original notification at
   'fd.searchbase' =>  'Search Base',
   'fd.server' =>      'Server',
   'fd.server.hostname' => 'Hostname',
+  'fd.server.kafka.brokers' => 'Kafka Brokers',
+  'fd.server.kafka.brokers.desc' => 'A comma separated list of Kafka Brokers to connect to',
+  'fd.server.kafka.sasl_mechanism' => 'Kafka SASL Mechanism',
+  'fd.server.kafka.security_protocol' => 'Kafka Security Protocol',
   'fd.server.match.is_comanage_match' => 'COmanage Match',
   'fd.server.match.is_comanage_match.desc' => 'If the match server is COmanage Match, checking this box will enable extra functionality',
   'fd.server.match.sor_label' => 'SOR Label',

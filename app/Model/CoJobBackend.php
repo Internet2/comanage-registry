@@ -26,6 +26,8 @@
  */
 
 abstract class CoJobBackend extends AppModel {
+  public $useTable = false;
+  
   /**
    * Build an option parser based on the plugin's parameters.
    * 

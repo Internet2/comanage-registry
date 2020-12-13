@@ -287,14 +287,21 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
     
     // We search the cache of existing records (push), but not (currently) a
     // remote URL (pull).
+    $ApiSource = ClassRegistry::init('ApiSource.ApiSource');
     $ApiSourceRecord = ClassRegistry::init('ApiSource.ApiSourceRecord');
+    
+    // Map OIS ID to ApiSource ID
+    $apiSourceId = $ApiSource->field('id', array('ApiSource.org_identity_source_id' => $this->pluginCfg['org_identity_source_id']));
+    
+    if(!$apiSourceId) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.api_sources.1'))));
+    }
     
     $args = array();
     $args['conditions']['ApiSourceRecord.sorid'] = $id;
-    $args['conditions']['ApiSource.org_identity_source_id'] = $this->pluginCfg['org_identity_source_id'];
-    // We don't really need ApiSource, but it forces the join
-    $args['contain'] = array('ApiSource');
-    
+    $args['conditions']['ApiSourceRecord.api_source_id'] = $apiSourceId;
+    $args['contain'] = false;
+
     $result = $ApiSourceRecord->find('first', $args);
     
     if(empty($result)) {
@@ -323,13 +330,20 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
     
     // We search the cache of existing records (push), but not (currently) a
     // remote URL (pull).
+    $ApiSource = ClassRegistry::init('ApiSource.ApiSource');
     $ApiSourceRecord = ClassRegistry::init('ApiSource.ApiSourceRecord');
+    
+    // Map OIS ID to ApiSource ID
+    $apiSourceId = $ApiSource->field('id', array('ApiSource.org_identity_source_id' => $this->pluginCfg['org_identity_source_id']));
+    
+    if(!$apiSourceId) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.api_sources.1'))));
+    }
     
     $args = array();
     $args['conditions']['ApiSourceRecord.sorid'] = $attributes['SORID'];
-    $args['conditions']['ApiSource.org_identity_source_id'] = $this->pluginCfg['org_identity_source_id'];
-    // We don't really need ApiSource, but it forces the join
-    $args['contain'] = array('ApiSource');
+    $args['conditions']['ApiSourceRecord.api_source_id'] = $apiSourceId;
+    $args['contain'] = false;
     
     $results = $ApiSourceRecord->find('all', $args);
     

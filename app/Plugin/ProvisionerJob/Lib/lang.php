@@ -46,5 +46,6 @@ $cm_provisioner_job_texts['en_US'] = array(
   'pl.provisionerjob.arg.record_id' => 'Record ID to reprovision, omit to reprovision all records of the specified type',
   'pl.provisionerjob.count'  => 'Reprovisioning %1$s %2$s record(s)',
   'pl.provisionerjob.finish' => 'Processed %1$s record(s) (%2$s success, %3$s error)',
+  'pl.provisionerjob.job'    => 'Run Provisioning',
   'pl.provisionerjob.start'  => 'Reprovisioning target id %1$s for record type %2$s',
 );

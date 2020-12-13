@@ -44,11 +44,15 @@ class JobShell extends AppShell {
    */
   
   public function dispatch($command, $params, $coJobId=null) {
-    $classCore = Inflector::classify($command);
-    $pluginName = $classCore . "Job";
-    $modelName = $pluginName;
-    $pluginModelName = $pluginName . "." . $modelName;
+    // In v3.3.0, the job name "Foo" implied a plugin named "FooJob" and a
+    // model named "FooJob". However, this prevents other types of plugins from
+    // defining jobs, and also prevents multiple jobs from being defined in the
+    // same plugin.
     
+    // As of v4.0.0, commands are of the form "Plugin.Foo" corresponding to the
+    // plugin model implementing the job (without "Job" suffixed).
+    
+    $pluginModelName = $command . "Job";
     $pluginModel = ClassRegistry::init($pluginModelName);
     
     try {
@@ -77,7 +81,7 @@ class JobShell extends AppShell {
         // Register a new CoJob. This will throw an exception if a job is already in progress.
         
         $jobId = $this->CoJob->register($params['coid'],
-                                        $classCore,
+                                        $command,
                                         null,
                                         null,
                                         _txt('rs.jb.started', array($pwent['name'], $pwent['uid'])));
@@ -132,18 +136,23 @@ class JobShell extends AppShell {
     
     // Load the set of available jobs
     
-    foreach($this->Co->loadAvailablePlugins('job') as $jModel) {
-      $j = Inflector::tableize($jModel->name);
-      // Toss the _job at the end
-      $jobCmd = substr($j, 0, strlen($j)-5);
-      
-      // Add a subcommand
-      $subparser = $jModel->getOptionParser();
-      
-      $parser->addSubcommand($jobCmd, array(
-        'help' => 'Plugin text here', // XXX
-        'parser' => $subparser
-      ));
+    foreach($this->Co->loadAvailablePlugins('job') as $jPlugin) {
+      $pluginModel = ClassRegistry::init($jPlugin->name . "." . $jPlugin->name);
+        
+      $models = $pluginModel->getAvailableJobs();
+
+      foreach($models as $jModel => $helpTxt) {
+        $command = $jPlugin->name . "." . $jModel;
+        $jobModel = ClassRegistry::init($command . "Job");
+        
+        // Add a subcommand
+        $subparser = $jobModel->getOptionParser();
+        
+        $parser->addSubcommand($command, array(
+          'help' => $helpTxt,
+          'parser' => $subparser
+        ));
+      }
     }
     
     // XXX CO-1310 after the other jobs migrate to plugins, this can go away (implemented in CoJobBackend)

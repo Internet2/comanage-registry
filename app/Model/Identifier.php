@@ -85,11 +85,14 @@ class Identifier extends AppModel {
       'content' => array(
         'rule' => array('validateExtendedType',
                         array('attribute' => 'Identifier.type',
-                              'default' => array(IdentifierEnum::Badge,
+                              'default' => array(IdentifierEnum::AffiliateSOR,
+                                                 IdentifierEnum::Badge,
                                                  IdentifierEnum::Enterprise,
                                                  IdentifierEnum::ePPN,
                                                  IdentifierEnum::ePTID,
                                                  IdentifierEnum::ePUID,
+                                                 IdentifierEnum::GuestSOR,
+                                                 IdentifierEnum::HRSOR,
                                                  IdentifierEnum::Mail,
                                                  IdentifierEnum::National,
                                                  IdentifierEnum::Network,
@@ -101,6 +104,7 @@ class Identifier extends AppModel {
                                                  IdentifierEnum::SamlPairwise,
                                                  IdentifierEnum::SamlSubject,
                                                  IdentifierEnum::SORID,
+                                                 IdentifierEnum::StudentSOR,
                                                  IdentifierEnum::UID))),
         'required' => true,
         'allowEmpty' => false

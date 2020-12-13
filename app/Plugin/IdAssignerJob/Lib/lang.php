@@ -44,5 +44,6 @@ $cm_id_assigner_job_texts['en_US'] = array(
   'pl.idassignerjob.arg.object_id' => 'CO Person ID to assign identifiers for',
   'pl.idassignerjob.count' => 'Assigning Identifiers for %1$s %2$s record(s)',
   'pl.idassignerjob.finish' => 'Processed %1$s total record(s)',
+  'pl.idassignerjob.job'    => 'Run Identifier Assignments',
   'pl.idassignerjob.start'  => 'Assigning identifiers'
 );

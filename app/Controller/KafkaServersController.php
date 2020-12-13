@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Servers Controller
+ * COmanage Registry Kafka Servers Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,21 +21,21 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.2.0
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
 App::uses("StandardController", "Controller");
 
-class ServersController extends StandardController {
+class KafkaServersController extends StandardController {
   // Class name, used by Cake
-  public $name = "Servers";
+  public $name = "KafkaServers";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 50,
     'order' => array(
-      'Server.description' => 'asc'
+      'KafkaServer.brokers' => 'asc'
     )
   );
   
@@ -43,24 +43,22 @@ class ServersController extends StandardController {
   public $requires_co = true;
   
   public $view_contains = array(
-    'HttpServer',
-    'KafkaServer',
-    'LdapServer',
-    'MatchServer',
-    'Oauth2Server',
-    'SqlServer'
+    'Server'
   );
   
   /**
-   * Callback before views are rendered.
+   * Callback after controller methods are invoked but before views are rendered.
    *
-   * @since  COmanage Registry v3.2.0
+   * @since  COmanage Registry v4.0.0
    */
   
   public function beforeRender() {
-    parent::beforeRender();
+    // Determine select values from validation rules
     
-    $this->set('vv_server_type_models', $this->Server->serverTypeModels);
+    $this->set('vv_sasl_mechanisms', $this->KafkaServer->validate['sasl_mechanism']['rule'][1]);
+    $this->set('vv_security_protocols', $this->KafkaServer->validate['security_protocol']['rule'][1]);
+    
+    parent::beforeRender();
   }
   
   /**
@@ -68,7 +66,7 @@ class ServersController extends StandardController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.2.0
+   * @since  COmanage Registry v4.0.0
    * @return Array Permissions
    */
   
@@ -80,47 +78,38 @@ class ServersController extends StandardController {
     
     // Determine what operations this user can perform
     
-    // Add a new Server?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Delete an existing Server?
-    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Edit an existing Server?
+    // Edit an existing SQL Server?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // View all Servers?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
-    // View this Server?
+    // View this SQL Server?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];
   }
   
+// XXX maybe we need an intermediate controller for servers?
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated
    *
-   * @since  COmanage Registry v3.2.0
+   * @since  COmanage Registry v4.0.0
    */
-  
+
   function performRedirect() {
-    // On add, redirect to the edit view for the appropriate server type.
-    
-    if($this->action == 'add' && !empty($this->Server->data)) {
-      $smodel = $this->Server->serverTypeModels[ $this->Server->data['Server']['server_type'] ];
-      
-      $target = array(
-        'controller' => Inflector::tableize($smodel),
-        'action'     => 'edit',
-        $this->Server->data[$smodel]['id']
-      );
-      
-      $this->redirect($target);
+    $target = array();
+    $target['plugin'] = null;
+
+    if(!empty($this->request->params['pass'][0])) {
+      $target['controller'] = 'kafka_servers';
+      $target['action'] = 'edit';
+      $target[] = filter_var($this->request->params['pass'][0], FILTER_SANITIZE_SPECIAL_CHARS);
     } else {
-      parent::performRedirect();
+      $target['controller'] = "servers";
+      $target['action'] = 'index';
+      $target['co'] = $this->cur_co['Co']['id'];
     }
+
+    $this->redirect($target);
   }
 }

@@ -67,7 +67,10 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+        <span class="required">*</span>
+      </div>
     </div>
     <div class="field-info">
       <?php
@@ -92,7 +95,10 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('server_type', _txt('fd.type')) : _txt('fd.type')); ?>
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('server_type', _txt('fd.type')) : _txt('fd.type')); ?>
+        <span class="required">*</span>
+      </div>
       <div class="field-desc"><?php print _txt('fd.server.warn'); ?></div>
     </div>
     <div class="field-info">
@@ -102,8 +108,8 @@
         switch($this->action) {
           case 'add':
             $attrs = array();
-            $attrs['value'] = (isset($servers) ? $servers[0]['Server']['server_type'] : ServerEnum::LdapServer);
-            $attrs['empty'] = false;
+            $attrs['value'] = (isset($servers) ? $servers[0]['Server']['server_type'] : "");
+            $attrs['empty'] = true;
             
             print $this->Form->select('server_type',
                                       $cm_texts[ $cm_lang ]['en.server'],

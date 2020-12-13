@@ -38,9 +38,18 @@
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
     <field name="sor_label" type="C" size="32" />
+    <!-- For use in push mode -->
     <field name="api_user_id" type="I">
       <constraint>REFERENCES cm_api_users(id)</constraint>
     </field>
+    <!-- For use in poll mode (kafka) -->
+    <field name="poll_mode" type="C" size="2" />
+    <field name="kafka_server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
+    <field name="kafka_groupid" type="C" size="80" />
+    <field name="kafka_topic" type="C" size="80" />
+
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

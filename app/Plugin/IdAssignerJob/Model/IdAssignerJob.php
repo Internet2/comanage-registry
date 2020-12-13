@@ -56,6 +56,19 @@ class IdAssignerJob extends CoJobBackend {
   }
   
   /**
+   * Obtain the list of jobs implemented by this plugin.
+   *
+   * @since COmanage Registry v4.0.0
+   * @return Array Array of job names and help texts
+   */
+  
+  public function getAvailableJobs() {
+    return array(
+      'IdAssigner' => _txt('pl.idassignerjob.job')
+    );
+  }
+  
+  /**
    * Perform identifier assignment.
    *
    * @since  COmanage Registry v3.3.0

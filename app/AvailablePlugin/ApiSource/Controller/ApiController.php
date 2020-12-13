@@ -279,73 +279,26 @@ class ApiController extends Controller {
       }
       
       // We shouldn't get here if params['sorid'] is null
-      $args = array();
-      $args['conditions']['ApiSourceRecord.api_source_id'] = $this->cur_api_src['ApiSource']['id'];
-      $args['conditions']['ApiSourceRecord.sorid'] = $this->request->params['sorid'];
-      $args['contain'] = false;
       
-      $currec = $this->ApiSourceRecord->find('first', $args);
+      $r = $this->ApiSource->upsert($this->cur_api_src['ApiSource']['id'], 
+                                    $this->cur_api_src['OrgIdentitySource']['id'],
+                                    $this->cur_api_src['OrgIdentitySource']['co_id'],
+                                    $this->request->params['sorid'],
+                                    $json);
       
-      $rec = array(
-        'api_source_id' => $this->cur_api_src['ApiSource']['id'],
-        'sorid' => $this->request->params['sorid'],
-        // Since we may have mucked with $json for returnUrl above, we don't know
-        // if the original document was "pretty" or not. For consistency, we'll
-        // always make the source_record pretty (which should also make it slightly)
-        // easier for an admin to look at it.
-        'source_record' => json_encode($json, JSON_PRETTY_PRINT)
-      );
-      
-      $this->ApiSourceRecord->clear();
-      
-      if(!empty($currec)) {
-        // Update, though it's possible an update for us still needs to trigger a
-        // createOrgIdentity() call...
-        
-        $rec['id'] = $currec['ApiSourceRecord']['id'];
-      } else {
-        // Insert
-      }
-      
-      // Save the new or updated record
-      // We currently don't bother diff'ing the record to see if it changed, but we could
-      $this->ApiSourceRecord->save($rec);
-
-      // Do we already have an OIS Record for this sorid?
-      $args = array();
-      $args['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->cur_api_src['OrgIdentitySource']['id'];
-      $args['conditions']['OrgIdentitySourceRecord.sorid'] = $this->request->params['sorid'];
-      $args['contain'] = false;
-      
-      $this->loadModel('OrgIdentitySource');
-      
-      $curoisrec = $this->OrgIdentitySource->OrgIdentitySourceRecord->find('first', $args);
-      
-      $orgId = null;
-      
-      if(!empty($curoisrec)) {
+      if(!$r['new']) {
         // Update
-        
-        $info = $this->OrgIdentitySource->syncOrgIdentity($this->cur_api_src['OrgIdentitySource']['id'],
-                                                          $this->request->params['sorid']);
-        
-        $orgId = $info['id'];
         
         $this->Api->restResultHeader(200);
       } else {
         // Create
-        
-        $orgId = $this->OrgIdentitySource->createOrgIdentity($this->cur_api_src['OrgIdentitySource']['id'],
-                                                             $this->request->params['sorid'],
-                                                             null,
-                                                             $this->cur_api_src['OrgIdentitySource']['co_id']);
         
         if($returnUrl) {
           $this->loadModel('CoPetition');
           
           // Try to find the CO Petition ID associated with this Org Identity.
           // If found, insert the return URL.
-          $coPetitionId = $this->CoPetition->field('id', array('CoPetition.enrollee_org_identity_id' => $orgId));
+          $coPetitionId = $this->CoPetition->field('id', array('CoPetition.enrollee_org_identity_id' => $r['org_identity_id']));
           
           if($coPetitionId) {
             $this->CoPetition->clear();
@@ -362,7 +315,7 @@ class ApiController extends Controller {
         $this->Api->restResultHeader(201);
       }
       
-      if($orgId) {
+      if(!empty($r['org_identity_id'])) {
         // We always return identifiers, since on a 200 we might have generated new ones
         $this->loadModel('Identifier');
         $results = array();
@@ -376,7 +329,7 @@ class ApiController extends Controller {
         $args['joins'][1]['alias'] = 'CoOrgIdentityLink';
         $args['joins'][1]['type'] = 'INNER';
         $args['joins'][1]['conditions'][0] = 'CoPerson.id=CoOrgIdentityLink.co_person_id';
-        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $orgId;
+        $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $r['org_identity_id'];
         $args['conditions']['Identifier.status'] = StatusEnum::Active;
         $args['contain'] = false;
         

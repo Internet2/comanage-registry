@@ -848,7 +848,7 @@ class ProvisionerBehavior extends ModelBehavior {
           // already one in the queue, eg if two changes are made in quick succession.
           // To keep the noise down, we'll ignore these errors.
           $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'], 
-                                      'Provisioner',
+                                      'ProvisionerJob.Provisioner',
                                       $provisioningData[ $model->name ]['id'],
                                       $model->name,
                                       _txt(($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode

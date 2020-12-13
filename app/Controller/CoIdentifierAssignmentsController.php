@@ -56,7 +56,7 @@ class CoIdentifierAssignmentsController extends StandardController {
     
     try {
       $jobid = $this->CoJob->register($this->cur_co['Co']['id'],
-                                      'IdAssigner',
+                                      'IdAssignerJob.IdAssigner',
                                       null,
                                       "",
                                       // Update with CO-1729
