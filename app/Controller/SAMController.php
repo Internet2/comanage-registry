@@ -131,8 +131,10 @@ class SAMController extends StandardController {
       $coPersonId = $this->$model->field('co_person_id',
                                          array($this->modelClass.'.id' => $this->request->params['pass'][0]));
       
-      $authmodel = $this->modelClass . "Authenticator";
-      $modelAuthenticatorId = $this->$model->field(Inflector::underscore($this->modelClass) . '_authenticator_id',
+      $authfield = $this->request->plugin . "_id";
+      $authmodel = Inflector::classify($this->request->plugin);
+      
+      $modelAuthenticatorId = $this->$model->field($authfield,
                                                    array($this->modelClass.'.id' => $this->request->params['pass'][0]));
       
       if($modelAuthenticatorId) {
@@ -563,6 +565,10 @@ class SAMController extends StandardController {
    */
   
   public function performRedirect() {
+    // Annoyingly, some old code in StandardController calls checkPersonID
+    // instead of performRedirect() on delete, so this doesn't get triggered.
+    // This should get fixed with Cake 4.
+    
     if(!empty($this->request->params['named']['onFinish'])) {
       $this->redirect(urldecode($this->request->params['named']['onFinish']));
     }

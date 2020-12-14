@@ -285,8 +285,9 @@ class ApiComponent extends Component {
       // that hopefully gets cleaned up in Registry PE.
       if($controller->modelClass == 'Authenticator') {
         $mName = Inflector::singularize($controller->name);
+        $pName = Inflector::classify($this->request->plugin);
         
-        $controller->loadModel($mName.'Authenticator.'.$mName);
+        $controller->loadModel($pName.$mName);
         $this->reqModel = $controller->$mName;
         $this->reqModelName = Inflector::singularize($controller->name);
       } else {

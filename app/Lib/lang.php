@@ -2117,6 +2117,7 @@ original notification at
   'rs.authr.status' => 'Authenticator "%1$s" status changed from %2$s to %3$s',
   'rs.authr.unlocked' => 'Authenticator "%1$s" unlocked',
   'rs.cluster.acct.ok' => 'Cluster Accounts Assigned (%1$s)',
+  'rs.confirmed-a2' => '%1$s "%2$s" Confirmed',
   'rs.cop.recalc' =>  'CO Person status recalculated to %1$s',
   'rs.copr.mod' =>    'CO Person Role status changed from %1$s to %2$s',
   'rs.copy-a1' =>     '%1$s Copied',
@@ -2330,6 +2331,7 @@ original notification at
   'sh.ug.330.users' =>    'Dropping users View',
   'sh.ug.340.password' => 'Updating Password Sources',
   'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations',
+  'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'
 );
 

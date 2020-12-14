@@ -145,6 +145,11 @@ class Authenticator extends AppModel {
   
   public function lock($id, $coPersonId, $actorCoPersonId) {
     // Just let any exceptions pass up the stack
+    
+    // Give the backend a chance to do something
+    $plugin = $this->field('plugin', array('Authenticator.id'=> $id));
+    $this->$plugin->lock($id, $coPersonId);
+    
     $this->AuthenticatorStatus->setStatus($id, $coPersonId, $actorCoPersonId, true);
     $this->provision($coPersonId);
     
@@ -244,6 +249,11 @@ class Authenticator extends AppModel {
   
   public function unlock($id, $coPersonId, $actorCoPersonId) {
     // Just let any exceptions pass up the stack    
+    
+    // Give the backend a chance to do something
+    $plugin = $this->field('plugin', array('Authenticator.id'=> $id));
+    $this->$plugin->unlock($id, $coPersonId);
+    
     $this->AuthenticatorStatus->setStatus($id, $coPersonId, $actorCoPersonId, false);
     $this->provision($coPersonId);
     

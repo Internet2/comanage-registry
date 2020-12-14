@@ -523,5 +523,9 @@ class UpgradeVersionShell extends AppShell {
       
       $this->CoExtendedType->addDefault($co['Co']['id'], 'Organization.type');
     }
+    
+    // Resize HttpServer password column
+    $this->out(_txt('sh.ug.400.http_server.password'));
+    $this->HttpServer->_ug400();
   }
 }

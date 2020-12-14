@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Standard Identitifier Validator (SIV) Controller
+ * COmanage Registry Standard Identifier Validator (SIV) Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.

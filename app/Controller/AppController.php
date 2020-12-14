@@ -655,7 +655,7 @@ class AppController extends Controller {
     {
       $redirect['controller'] = 'co_people';
 
-      $x = $model->CoPerson->findById($copid);
+      $x = $model->CoPerson->field('created', array('CoPerson.id' => $copid));
       
       if(empty($x))
       {
@@ -673,7 +673,7 @@ class AppController extends Controller {
     {
       $redirect['controller'] = 'co_person_roles';
 
-      $x = $model->CoPersonRole->findById($coprid);
+      $x = $model->CoPersonRole->field('created', array('CoPersonRole.id' => $coprid));
       
       if(empty($x))
       {
@@ -693,7 +693,7 @@ class AppController extends Controller {
     {
       $redirect['controller'] = 'co_departments';
 
-      $x = $model->CoDepartment->findById($codeptid);
+      $x = $model->CoDepartment->field('created', array('CoDepartment.id' => $codeptid));
       
       if(empty($x))
       {
@@ -711,7 +711,7 @@ class AppController extends Controller {
     {
       $redirect['controller'] = 'co_groups';
 
-      $x = $model->CoGroup->findById($cogroupid);
+      $x = $model->CoGroup->field('created', array('CoGroup.id' => $cogroupid));
       
       if(empty($x))
       {
@@ -729,7 +729,7 @@ class AppController extends Controller {
     {
       $redirect['controller'] = 'organizations';
 
-      $x = $model->Organization->findById($orgid);
+      $x = $model->Organization->field('created', array('Organization.id' => $orgid));
       
       if(empty($x))
       {
@@ -747,7 +747,7 @@ class AppController extends Controller {
     {
       $redirect['controller'] = 'org_identities';
 
-      $x = $model->OrgIdentity->findById($orgiid);
+      $x = $model->OrgIdentity->field('created', array('OrgIdentity.id' => $orgiid));
       
       if(empty($x))
       {

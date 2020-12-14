@@ -67,7 +67,7 @@ class AuthenticatorsController extends SAuthController {
     // data to figure out which type of Plugin we should bind).
     
     foreach(array_values($plugins) as $plugin) {
-      $this->Authenticator->bindModel(array('hasOne' => array($plugin => array('dependent' => true))));
+      $this->Authenticator->bindModel(array('hasOne' => array($plugin => array('dependent' => true))), false);
     }
     
     $this->set('plugins', $plugins);

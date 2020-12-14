@@ -91,6 +91,21 @@ abstract class AuthenticatorBackend extends AppModel {
   }
   
   /**
+   * Perform backend specific actions on a lock operation.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $id         Authenticator ID
+   * @param  integer $coPersonId CO Person ID
+   * @return Boolean             true on success
+   * @throws RuntimeException
+   */
+  
+  public function lock($id, $coPersonId) {
+    // Plugin can override this but is not required to
+    return true;
+  }
+  
+  /**
    * Manage Authenticator data, as submitted from the view.
    *
    * @since  COmanage Registry v3.1.0
@@ -139,4 +154,19 @@ abstract class AuthenticatorBackend extends AppModel {
    */
   
   abstract public function status($coPersonId);
+  
+  /**
+   * Perform backend specific actions on an unlock operation.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $id         Authenticator ID
+   * @param  integer $coPersonId CO Person ID
+   * @return Boolean             true on success
+   * @throws RuntimeException
+   */
+  
+  public function unlock($id, $coPersonId) {
+    // Plugin can override this but is not required to
+    return true;
+  }
 }

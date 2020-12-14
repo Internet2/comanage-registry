@@ -83,7 +83,7 @@ class AuthenticatorStatus extends AppModel {
     $args = array();
     $args['conditions']['AuthenticatorStatus.authenticator_id'] = $authenticatorId;
     $args['conditions']['AuthenticatorStatus.co_person_id'] = $coPersonId;
-    $args['contain'][] = 'Authenticator';
+    $args['contain'] = false;
     
     $curStatus = $this->find('first', $args);
     
@@ -114,20 +114,25 @@ class AuthenticatorStatus extends AppModel {
            && $curStatus['AuthenticatorStatus']['locked']) {
           // Record is locked, cannot lock
           $this->_rollback();
-          throw new RuntimeException(_txt('er.status.already', array(_txt('en.status.authr', null, $newStatus))));
+          throw new RuntimeException(_txt('er.status.already', array(_txt('en.status.authr', null, AuthenticatorStatusEnum::Locked))));
         }
       }
     }
     // else no current record
     
+    // Pull the Authenticator description separately from the find above, since
+    // on initial status creation Authenticator will be blank.
+    
+    $description = $this->Authenticator->field('description', array('Authenticator.id' => $authenticatorId));
+    
     $comment = "";
     
     if(!$locked) {
       $data['AuthenticatorStatus']['locked'] = false;
-      $comment = _txt('rs.authr.unlocked', array($curStatus['Authenticator']['description']));
+      $comment = _txt('rs.authr.unlocked', array($description));
     } elseif($locked) {
       $data['AuthenticatorStatus']['locked'] = true;
-      $comment = _txt('rs.authr.locked', array($curStatus['Authenticator']['description']));
+      $comment = _txt('rs.authr.locked', array($description));
     }
     
     $this->save($data);
