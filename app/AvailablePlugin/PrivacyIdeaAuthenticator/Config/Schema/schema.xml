@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry PrivacyIDEA Authenticator Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="privacy_idea_authenticators">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="authenticator_id" type="I">
+      <constraint>REFERENCES cm_authenticators(id)</constraint>
+    </field>
+    <field name="server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
+    <field name="validation_server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
+    <field name="realm" type="C" size="80" />
+    <field name="token_type" type="C" size="2" />
+    <field name="identifier_type" type="C" size="32" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="privacy_idea_authenticator_id" type="I">
+      <constraint>REFERENCES cm_privacy_idea_authenticators(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />    
+    
+    <index name="privacy_idea_authenticators_i1">
+      <col>authenticator_id</col>
+    </index>
+    <index name="privacy_idea_authenticators_i2">
+      <col>privacy_idea_authenticator_id</col>
+    </index>
+  </table>
+  
+  <!-- Note by default we're expected to have a table and model called
+       "privacy_ideas", but we don't really have a need for this, so we do
+       some magic in the Controller to redirect to the appropriate token type.
+  -->
+  
+  <table name="totp_tokens">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="privacy_idea_authenticator_id" type="I">
+      <constraint>REFERENCES cm_privacy_idea_authenticators(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="serial" type="C" size="80" />
+    <field name="confirmed" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="totp_token_id" type="I">
+      <constraint>REFERENCES cm_totp_tokens(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />    
+    
+    <index name="totp_tokens_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="totp_tokens_i2">
+      <col>serial</col>
+    </index>
+    <index name="totp_tokens_i3">
+      <col>totp_token_id</col>
+    </index>
+  </table>
+</schema>
