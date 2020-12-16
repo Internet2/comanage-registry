@@ -24,7 +24,8 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-/* Reponsive breakpoints for the COmanage theme are set to 360, 480, 600, 840, 960, 1280, 1440, and 1600dp.
+/* Reponsive breakpoints for the COmanage theme are set to 360, 480, 576, 768, 992, 1024, 1200px.
+   These breakpoints are based on Bootstrap 4's normal grid breakpoints.
    This is a mobile-first theme.  General and 320 mobile portrait styles are in co-base.css */
 
 /* LARGE PHONE PORTRAIT */
@@ -45,10 +46,10 @@
   }
 }
 
-/* SMALL TABLET */
+/* SMALL */
 /**************************************************************************************************************/
-/* Very small devices (tablets, 600px and up) */
-@media only screen and (min-width: 600px) {
+/* Very small devices (tablets, landscape phones 576px and up) */
+@media only screen and (min-width: 576px) {
   h1 {
     font-size: 2.6em;
   }
@@ -60,16 +61,8 @@
     display: block;
     color: white;
   }
-  #user-menu {
-    right: 15px;
-  }
   #global-search-box #CoDashboardQ {
-    width: 204px;
     font-size: 14px;
-  }
-  #global-search-box .mdl-button {
-    position: relative;
-    top: -2px;
   }
   #user-common-name {
     display: inline;
@@ -77,25 +70,34 @@
     top: -1px;
   }
   #user-panel {
-    min-width: 400px;
+    width: 400px;
+    min-width: 0;
   }
   #user-panel-user-info {
     border-top: none;
     margin: 0 80px 0 0;
     padding-top: 0;
   }
-  #user-panel-user-info #user-panel-cn {
-  }
   #logout-in-panel {
     position: absolute;
     top: 0;
     right: 0;
   }
+  #siteTitle {
+    min-height: 46px;
+    font-size: 2.4em;
+    line-height: 1.6em;
+  }
+  #logo {
+    width: auto;
+    right: 2em;
+    margin-top: 4px;
+  }
   #notifications li.notification:nth-child(n+4) { /* show all notifications on tablets (and larger) */
     display: block;
   }
   #content {
-    padding: 1em;
+    padding: 1.75em;
   }
   /* CO PEOPLE */
   #co_people .rolestatus {
@@ -172,19 +174,8 @@
     float: left;
   }
   /* PETITION ATTRIBUTES */
-  .modelbox .mdl-textfield {
-    display: block;
-    width: 100%;
-  }
   .modelbox .boxtitle {
-    float: left;
-    width: 25%;
-    padding: 5px 0 5px 8px;
-  }
-  .modelbox .mdl-textfield,
-  .modelbox .mdl-selectfield {
-    float: right;
-    width: 70%;
+    padding: 0 0 0.5em;
   }
   .modelbox-data-label {
     width: 120px;
@@ -205,10 +196,14 @@
   /* PAGINATION */
   #pagination {
     text-align: left;
+    min-height: 2.5em;
   }
   #pagination .paginationCounter {
     float: right;
     margin-right: 0.5em;
+  }
+  #pagination.with-pagination-elements .paginationCounter {
+    margin-top: 2px;
   }
   footer {
     text-align: right;
@@ -216,94 +211,41 @@
   }
 }
 
-/* SMALL DESKTOP - Primary breakpoint */
+/* MEDIUM - Primary breakpoint */
 /**************************************************************************************************************/
-/* Small devices (desktops, 840px and up) */
-@media only screen and (min-width: 840px) {
-  /*** START MDL OVERRIDES ***/
-  /*** Layout overrides to MDL breakpoint - from 1024 to 840 ***/
-  /* header */
-  .mdl-layout__container.has-scrolling-header .mdl-layout__content {
-    overflow-x: visible;
-    overflow-y: visible;
+/* Medium devices (tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  /* CONTENT LAYOUT */
+  #main-wrapper {
+    display: flex;
   }
-  .mdl-layout--fixed-drawer.is-upgraded:not(.is-small-screen) > .mdl-layout__header {
-    /* override mdl to always make header full width and set the height */
-    margin-left: 0;
-    width: auto;
+  #main {
+    flex-basis: 100%;
   }
-  .mdl-layout--fixed-drawer > .mdl-layout__header .mdl-layout__header-row {
-    padding-left: 12px;
-    height: 64px;
-  }
-  /* navigation / side drawer */
-  /* mdl drawer overrides - change the drawer breakpoint from 1025 to 840 */
-  .mdl-layout--fixed-drawer > .mdl-layout__drawer {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
-  .mdl-layout__drawer {
-    top: 64px; /* never cover header */
-    box-shadow: none; /* use no shadow on desktop menu */
-  }
-  body.logged-in .mdl-layout__drawer {
-    top: 94px;
-  }
-  .mdl-layout__drawer-button {
-    display: none; /* never show native mdl drawer button on desktop - we use custom behavior */
-  }
-  /* show our custom navigation icon for shrinking and expanding the drawer in desktop mode */
-  #desktop-hamburger {
-    display: inline-block;
-    float: left;
-    position: relative;
-    top: 3px;
-    margin: 0;
-    padding: 0 0 0 12px;
-    color: #f5f5f5;
-    cursor: pointer;
-    -webkit-font-smoothing: antialiased;
+  #navigation-drawer {
+    position: static;
+    display: block;
+    top: unset;
+    z-index: unset;
+    min-width: 180px;
   }
   /* menu drawer half-closed styles */
   #navigation-drawer.half-closed {
-    width: 48px;
+    width: 52px;
+    min-width: 0;
     transition: width 0.1s ease;
   }
   #main.drawer-half-closed {
-    margin-left: 48px !important;
     transition: margin 0.1s ease;
   }
   #navigation-drawer.half-closed .menuTitle,
   #navigation-drawer.half-closed .arrow {
     display: none;
   }
-  /* mdl content overrides */
-  .mdl-layout__content {
-    margin-left: 240px !important;
-    position: relative;
-    z-index: 3;
-    background-color: white;
-  }
-  #main.mdl-layout__content {
-    overflow-x: visible;
-  }
-  body.title-hidden .mdl-layout__content {
-    margin-top: 0;
-  }
-  body.logged-out .mdl-layout__content {
-    margin-left: 0 !important;
-    margin-top: 0;
-  }
-  /*** END MDL OVERRIDES ***/
-
   /* HEADER */
   #banner {
+    position: relative;
     z-index: 8;
-  }
-  #logo {
-    width: auto;
-    right: 2em;
-    margin-top: 4px;
   }
   #user-menu {
     z-index: 30;
@@ -332,7 +274,10 @@
   #user-defined-links-top .custom-links a {
     color: white;
   }
-
+  /* USER MENU */
+  #global-search-box {
+    right: 200px;
+  }
   /* RIGHT SIDEBAR */
   .sidebar {
     background-color: #fafafa;
@@ -356,9 +301,6 @@
     line-height: 1.6em;
     padding-right: 240px;
   }
-  .co-grid .mdl-cell {
-    margin: 8px;
-  }
   .co-grid .co-grid-header {
     display: flex;
     background-color: #0c75c0 !important;
@@ -373,8 +315,6 @@
     margin: 4em auto;
     padding: 2em 2em 1.5em;
     width: 320px;
-    position: relative;
-    left: -120px; /* offset the drawer margin */
   }
   body.ui-mode-basic #redirect-box {
     left: unset;
@@ -439,6 +379,8 @@
   }
   body.petitionerAttributes .modelbox {
     margin: 0 0.5em 1.5em 0;
+    display: grid;
+    grid-template-columns: 1fr 5fr;
   }
   /* DASHBOARDS and WIDGETS */
   /* Service Portal */
@@ -505,6 +447,9 @@
     margin-left: 1em;
   }
   /* GENERAL */
+  .submit-buttons {
+    margin-right: 0.5em;
+  }
   .two-col {
     -webkit-column-count: 2; /* Chrome, Safari, Opera */
     -moz-column-count: 2; /* Firefox */
@@ -524,42 +469,38 @@
 
 }
 
-/* MEDIUM DESKTOP */
+/* LARGE */
 /**************************************************************************************************************/
-/* Medium devices (desktops, 960px and up) */
-@media only screen and (min-width: 960px) {
+/* Medium devices (desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+  #navigation-drawer {
+    min-width: 200px;
+  }
+  #content.with-sidebar {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+  }
   #co_people .person-info-inner {
     width: 250px;
   }
   #co_people .person-status {
     width: auto;
   }
+  #right-sidebar {
+    margin-left: 1.5em;
+  }
   #right-sidebar #menu {
     padding-left: 1em;
   }
 }
 
-/* MDL override */
-/*@media screen and (max-width: 1024px) {
-  .mdl-layout__container.has-scrolling-header .mdl-layout__content {
-    overflow-x: visible;
-    overflow-y: visible;
-  }
-}*/
-
-/* MID-LARGE DESKTOP */
+/* EXTRA LARGE */
 /**************************************************************************************************************/
-/* Mid to large devices (desktops, 1024px and up) */
-@media only screen and (min-width: 1024px) {
-  #co_people .person-info-inner {
-    width: 300px;
+/* Extra large devices (desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+  #navigation-drawer {
+    min-width: 240px;
   }
-}
-
-/* LARGE DESKTOP */
-/**************************************************************************************************************/
-/* Large devices (desktops, 1280px and up) */
-@media only screen and (min-width: 1280px) {
   #co_people .person-info-inner {
     width: 550px;
   }

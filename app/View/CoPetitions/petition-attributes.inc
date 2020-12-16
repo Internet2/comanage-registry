@@ -320,7 +320,7 @@
             switch($ruleType) {
             case 'inList':
               // This is a select
-              print '<div class="mdl-selectfield">';
+              print '<div class="form-group">';
               print "\n";
 
               $args = array();
@@ -335,7 +335,7 @@
                 $ea['required'] = !($ea['allow_empty'] && $vv_allow_empty_cou);
               }
               $args['empty'] = !$ea['required'];
-              $args['class'] = 'co-selectfield';
+              $args['class'] = 'co-selectfield form-control';
               $args['aria-label'] = $m;
 
               // Add focusFirst class if the first field
@@ -346,21 +346,21 @@
               // Render the form field, label, and error (if any)
               print $this->Form->select($fieldName, $ea['select'], $args);
               // We use only the aria-label attribute on select boxes. A label would look like this:
-              // print $this->Form->label($fieldName, $m, array('class' => 'mdl-selectfield__label'));
+              // print $this->Form->label($fieldName, $m, array('class' => ''));
               if($this->Form->isFieldError($fieldName)) {
-                print $this->Form->error($fieldName, array('class' => 'mdl-selectfield__error'));
+                print $this->Form->error($fieldName, array('class' => 'is-invalid'));
               }
 
               print "</div>\n";
               break;
             case 'validateTimestamp':
               // Handle dates specially to generate the popup calendar
-              print '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">';
+              print '<div class="form-group">';
 
               $args = array();
 
               // Add starting classes
-              $args['class'] = 'mdl-textfield__input';
+              $args['class'] = 'form-control';
 
               if($ea['field'] == 'valid_from') {
                 $args['class'] .= ' datepicker-f';
@@ -381,7 +381,7 @@
               }
 
               // Render the form field, label, and error (if any)
-              print $this->Form->label($fieldName, $ea['label'], array('class' => 'mdl-textfield__label'));
+              print $this->Form->label($fieldName, $ea['label']);
               print $this->Form->text($fieldName, $args);
               /* XXX CO-1329: field errors on text fields are output by default; check to see if
                  an error is being properly produced for dates and if this next statement is needed. */
@@ -393,7 +393,7 @@
               break;
             default:
               // Use default field - a text input
-              print '<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">';
+              print '<div class="form-group">';
 
               $args = array();
               // An attribute is required if (1) it is part of an MVPA that is required
@@ -415,7 +415,7 @@
               }
 
               // Add starting classes
-              $args['class'] = 'mdl-textfield__input';
+              $args['class'] = 'form-control';
 
               // Add focusFirst class if the first field
               if ($coe_attribute_index == 0) {
@@ -491,11 +491,11 @@
                   }
 
                   print '<div class="' . $iefClasses . '">';
-                  print ' <label for="sponsors" class="mdl-textfield__label">'
+                  print ' <label for="sponsors">'
                         .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
                         . '</label>
                            <div class="ui-widget">
-                             <input id="sponsors" type="text" class="mdl-textfield__input"/>'
+                             <input id="sponsors" type="text" class="form-control"/>'
                         . $this->Form->hidden($fieldName,
                                               array(
                                                 // We don't support two sponsors, but if we did this id would break
@@ -522,7 +522,7 @@
                 
                 // Render the form field, label, and error (if any)
                 // error is output by default with class "error-message"
-                print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol, array('class' => 'mdl-textfield__label'));
+                print $this->Form->label($fieldName, filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS) . $requiredSymbol);
                 print $this->Form->input($fieldName, $args);
               }
 

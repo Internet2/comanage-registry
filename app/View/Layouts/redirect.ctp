@@ -47,14 +47,15 @@
     <!-- Load CSS -->
     <?php
       print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
-      print $this->Html->css('mdl/mdl-1.3.0/material.css') . "\n    ";
+      print $this->Html->css('bootstrap/bootstrap-4.5.3-dist/css/bootstrap.min.css') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
     ?>
 
     <!-- Load JavaScript -->
-    <?php /* only JQuery here - other scripts at bottom */
+    <?php /* only JQuery and Bootstrap here - other scripts at bottom */
       print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
+      print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     ?>
 
@@ -129,7 +130,7 @@
     <?php endif; ?>
 
     <!-- Primary layout -->
-    <div id="comanage-wrapper" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+    <div id="comanage-wrapper">
 
       <div id="top-menu">
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
@@ -142,52 +143,50 @@
         </nav>
       </div>
 
-      <header id="banner" class="mdl-layout__header mdl-layout__header--scroll">
-        <div class="mdl-layout__header-row">
-          <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
-            <div id="collaborationTitle">
-              <?php
-                if(!empty($cur_co['Co']['name'])) {
-                  $args = array();
-                  $args['plugin'] = null;
-                  $args['controller'] = 'co_dashboards';
-                  $args['action'] = 'dashboard';
-                  $args['co'] = $cur_co['Co']['id'];
-                  print $this->Html->link($cur_co['Co']['name'],$args);
-                } else {
-                  print _txt('coordinate');
-                }
-              ?>
-            </div>
-          <?php endif; // $vv_theme_hide_title ?>
-
-          <div id="logo">
+      <header id="banner">
+        <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+          <div id="collaborationTitle">
             <?php
-              $imgFile = 'COmanage-Logo-LG-onBlue.png';
-
-              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-                // A custom logo has been installed, so use that instead
-                $imgFile = 'logo.png';
+              if(!empty($cur_co['Co']['name'])) {
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'co_dashboards';
+                $args['action'] = 'dashboard';
+                $args['co'] = $cur_co['Co']['id'];
+                print $this->Html->link($cur_co['Co']['name'],$args);
+              } else {
+                print _txt('coordinate');
               }
-
-              // Clicking on the logo will take us to the front page
-              print $this->Html->link(
-                $this->Html->image(
-                  $imgFile,
-                  array(
-                    'alt' => 'COmanage Logo'
-                  )
-                ),'/',
-                array('escape' => false)
-              );
             ?>
           </div>
+        <?php endif; // $vv_theme_hide_title ?>
+
+        <div id="logo">
+          <?php
+            $imgFile = 'COmanage-Logo-LG-onBlue.png';
+
+            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+              // A custom logo has been installed, so use that instead
+              $imgFile = 'logo.png';
+            }
+
+            // Clicking on the logo will take us to the front page
+            print $this->Html->link(
+              $this->Html->image(
+                $imgFile,
+                array(
+                  'alt' => 'COmanage Logo'
+                )
+              ),'/',
+              array('escape' => false)
+            );
+          ?>
         </div>
 
       </header>
 
       <?php
-        $mainCssClasses = 'cm-main-full mdl-layout__content';
+        $mainCssClasses = 'cm-main-full';
         if(!empty($vv_ui_mode)) {
           if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
             $mainCssClasses = 'cm-main-basic';
@@ -196,8 +195,8 @@
       ?>
       <main id="main" class="<?php print $mainCssClasses; ?>">
 
-        <div id="content" class="mdl-grid">
-          <div id="content-inner" class="mdl-cell mdl-cell--12-col">
+        <div id="content">
+          <div id="content-inner">
             <div id="redirect-box">
               <?php print $this->fetch('content'); ?>
             </div>
@@ -205,7 +204,7 @@
         </div>
 
         <?php if(Configure::read('debug') > 0): ?>
-          <div id="debug" class="mdl-grid">
+          <div id="debug">
             <?php print $this->element('sql_dump'); ?>
           </div>
         <?php endif; ?>
@@ -225,10 +224,5 @@
       <?php endif; ?>
 
     </div>
-
-    <!-- Load JavaScript -->
-    <?php
-      print $this->Html->script('mdl/mdl-1.3.0/material.min.js') . "\n    ";
-    ?>
   </body>
 </html>

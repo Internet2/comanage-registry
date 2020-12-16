@@ -90,10 +90,10 @@
       }
 
       print '<h2>' . _txt('op.home.collabs') . '</h2>';
-      print '<div id="fpCoList" class="co-grid co-grid-with-header mdl-shadow--2dp">';
-      print '<div class="mdl-grid co-grid-header">';
-      print '  <div class="mdl-cell mdl-cell--6-col">' . _txt('fd.name') . '</div>';
-      print '  <div class="mdl-cell mdl-cell--6-col">' . _txt('fd.desc') . '</div>';
+      print '<div id="fpCoList" class="co-grid co-grid-with-header container">';
+      print '<div class="row co-grid-header">';
+      print '  <div class="col">' . _txt('fd.name') . '</div>';
+      print '  <div class="col">' . _txt('fd.desc') . '</div>';
       print '</div>';
 
       //loop over each CO
@@ -111,8 +111,8 @@
             continue;
           }
 
-          print '<div class="mdl-grid co-row spin">';
-          print '<div class="mdl-cell mdl-cell--6-col collab-name">';
+          print '<div class="row co-row spin">';
+          print '<div class="col collab-name">';
           // We use $menuCoData here and not $menuCoName because the former will indicate
           // 'Not a Member' for CMP Admins (where they are not a member of the CO)
           $args = array();
@@ -123,7 +123,7 @@
 
           print $this->Html->link($menuCoData['co_name'], $args, array('class' => 'co-link'));
 
-          print '</div><div class="mdl-cell mdl-cell--6-col collab-desc">';
+          print '</div><div class="col collab-desc">';
 
           if (!empty($menuCoData['co_person']['Co']['description'])) {
             print filter_var($menuCoData['co_person']['Co']['description'],FILTER_SANITIZE_SPECIAL_CHARS);
@@ -154,7 +154,7 @@
       // Please login
       print '<h1 class="loginMsg">' . _txt('op.home.login', array(_txt('coordinate'))) . '</h1>';
       // Print the login button
-      $buttonClasses = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored focusFirst";
+      $buttonClasses = "btn btn-primary focusFirst";
       $args = array('controller' => 'auth',
         'action'     => 'login',
         'plugin'     => false

@@ -94,7 +94,7 @@ global $cm_lang, $cm_texts;
     print '<div class="sideSearchSubmit">';
     $args = array();
     $args['aria-label'] = _txt('op.filter');
-    $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
+    $args['class'] = 'submit-button spin btn btn-primary';
     print $this->Form->submit(_txt('op.search'),$args);
     print '</div>';
 

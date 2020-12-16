@@ -39,7 +39,7 @@
         )
       );
       print $this->Form->create('CoDashboard', $options);
-      print $this->Form->label('q', '<span class="visuallyhidden">' . _txt('op.search')
+      print $this->Form->label('q', '<span class="sr-only">' . _txt('op.search')
         . '</span><button type="button" id="global-search-toggle" aria-expanded="false" class="cm-toggle"><em class="material-icons">search</em></button>');
       print '<div id="global-search-box" style="display: none;">';
       $options = array(
@@ -69,7 +69,7 @@
       <?php endif?>
       <em class="material-icons">arrow_drop_down</em>
     </button>
-    <ul id="notifications-menu" for="user-notifications" class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right">
+    <ul id="notifications-menu">
 
       <?php $notificationCount = 0; ?>
       <?php foreach($vv_my_notifications as $n): ?>
@@ -101,7 +101,7 @@
       <?php endforeach; ?>
       <li id="see-all">
         <a href="<?php print $this->Html->url('/');?>co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"
-           class="co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"><?php print _txt('op.see.notifications')?></a>
+           class="co-raised-button btn btn-default"><?php print _txt('op.see.notifications')?></a>
       </li>
     </ul>
   </div>
@@ -125,7 +125,7 @@
             'action'     => 'logout',
             'plugin'     => false);
           print $this->Html->link(_txt('op.logout') . ' <span class="fa fa-sign-out"></span>',
-            $args, array('escape'=>false, 'class' => 'mdl-button mdl-js-button mdl-js-ripple-effect'));
+            $args, array('escape'=>false, 'class' => 'btn'));
         ?>
       </div>
       <div id="user-panel-user-info">
@@ -158,7 +158,7 @@
                     $co['co_person_id']
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">account_circle</em>' . _txt('me.profile.for', array($co['co_name'])), $args,
-                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-profile-button co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                    array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-profile-button co-raised-button btn btn-default'));
                 }
 
                 // Groups
@@ -173,7 +173,7 @@
                     'co' => $co['co_id']
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groups'), $args,
-                    array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect'));
+                    array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button btn btn-default'));
                 }
 
                 print '</div>';

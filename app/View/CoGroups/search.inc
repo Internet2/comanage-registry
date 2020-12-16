@@ -88,7 +88,7 @@
               <span class="top-search-active-filter-value"><?php print filter_var($vv_group_type[$this->request->params['named']['search.groupType']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <button id="top-search-clear-all-button" class="filter-clear-all-button spin mdl-button" aria-controls="top-search-clear">
+          <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear">
             <?php print _txt('op.clear.filters.pl');?>
           </button>
         </span>
@@ -152,12 +152,12 @@
           $args = array();
           // search button (submit)
           $args['aria-label'] = _txt('op.filter');
-          $args['class'] = 'submit-button spin mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect';
+          $args['class'] = 'submit-button spin btn btn-primary';
           print $this->Form->submit(_txt('op.filter'),$args);
 
           // clear button
           $args['id'] = 'top-search-clear';
-          $args['class'] = 'clear-button spin mdl-button';
+          $args['class'] = 'clear-button spin btn btn-default';
           $args['aria-label'] = _txt('op.clear');
           $args['onclick'] = 'clearTopSearch(this.form)';
           print $this->Form->button(_txt('op.clear'),$args);

@@ -32,17 +32,8 @@
     // Establish left-side navigation
     $('#main-menu').metisMenu();
 
-    // Never allow MDL to apply "aria-hidden" on the fixed menu drawer (it should always be available to screen readers)
-    $('#navigation-drawer').removeAttr('aria-hidden');
-
     // Focus any designated form element
     $('.focusFirst').focus();
-
-    // MDL prematurely marks all required=true fields with "is-invalid" class.
-    // Remove it. Must be done after MDL scripts have run (hence, window.load)
-    $(window).on('load', function() {
-      $('.mdl-textfield').removeClass('is-invalid');
-    });
 
     // DESKTOP MENU DRAWER BEHAVIOR
     // Check the drawer half-closed cookie on first load and set the drawer state appropriately
@@ -60,21 +51,37 @@
       }
     }
 
-    // Desktop hamburger menu-drawer toggle
-    $('#desktop-hamburger').click(function () {
-      if( $("#navigation-drawer").hasClass("half-closed")) {
-        $("#navigation-drawer").removeClass("half-closed");
-        $("#main").removeClass("drawer-half-closed");
-        // set a cookie to hold drawer half-open state between requests
-        Cookies.set("desktop-drawer-state", "open");
+    // Hamburger menu-drawer toggle
+    $('#co-hamburger').click(function () {
+      if($(window).width() < 768) {
+        // Mobile mode
+        $("#navigation-drawer").removeClass("half-closed").toggle();
       } else {
-        $("#navigation-drawer").addClass("half-closed");
-        $("#main").addClass("drawer-half-closed");
-        // ensure all the sub-menus collapse when half-closing the menu
-        $("#navigation .metismenu li ul").removeClass("in");
-        $("#navigation .metismenu li").removeClass("active");
-        // set a cookie to hold drawer half-open state between requests
-        Cookies.set("desktop-drawer-state", "half-closed");
+        // Desktop mode
+        if ($("#navigation-drawer").hasClass("half-closed")) {
+          $("#navigation-drawer").removeClass("half-closed");
+          $("#main").removeClass("drawer-half-closed");
+          // set a cookie to hold drawer half-open state between requests
+          Cookies.set("desktop-drawer-state", "open");
+        } else {
+          $("#navigation-drawer").addClass("half-closed");
+          $("#main").addClass("drawer-half-closed");
+          // ensure all the sub-menus collapse when half-closing the menu
+          $("#navigation .metismenu li ul").removeClass("in");
+          $("#navigation .metismenu li").removeClass("active");
+          // set a cookie to hold drawer half-open state between requests
+          Cookies.set("desktop-drawer-state", "half-closed");
+        }
+      }
+    });
+
+    // Catch the edge-case of browser resize causing menu-drawer
+    // to remain hidden and vice versa.
+    $(window).resize(function() {
+      if($( window ).width() > 767) {
+        $("#navigation-drawer").show();
+      } else {
+        $("#navigation-drawer").hide();
       }
     });
 
@@ -121,10 +128,22 @@
       }
     });
 
+    // Toggle the notifications panel in the user menu
+    $("#user-notifications").click(function(e) {
+      e.stopPropagation();
+      if ($("#notifications-menu").is(":visible")) {
+        $("#notifications-menu").hide();
+        $(this).attr("aria-expanded","false");
+      } else {
+        $("#notifications-menu").show();
+        $(this).attr("aria-expanded","true");
+      }
+    });
+
     // Hide interface items on click outside
     $(document).on('click', function (e) {
-      if ($(e.target).closest("#user-panel, #global-search-box").length === 0) {
-        $("#user-panel, #global-search-box").hide();
+      if ($(e.target).closest("#user-panel, #global-search-box, #notification-menu").length === 0) {
+        $("#user-panel, #global-search-box, #notifications-menu").hide();
       }
       if ($(e.target).closest(".cm-inline-editable-field").length === 0) {
         $(".cm-inline-editable-field").removeClass('active');
@@ -181,8 +200,8 @@
     // Accordion
     $(".accordion").accordion();
 
-    // Make all submit buttons pretty (MDL)
-    $("input:submit").addClass("spin submit-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect");
+    // Add classes to all submit buttons
+    $("input:submit").addClass("spin submit-button btn btn-primary");
 
     // Other buttons (jQuery)
     $(".addbutton").button({
@@ -432,10 +451,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function() {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
@@ -448,10 +464,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function(selectedDate) {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
@@ -462,10 +475,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function(selectedDate) {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
@@ -477,10 +487,7 @@
       numberOfMonths: 1,
       showButtonPanel: false,
       showOtherMonths: true,
-      selectOtherMonths: true,
-      onSelect: function(selectedDate) {
-        $(this).closest('.mdl-textfield').addClass('is-dirty');
-      }
+      selectOtherMonths: true
     }).bind('click',function () {
       $("#ui-datepicker-div").appendTo($(this).closest('.modelbox-data'));
     });
