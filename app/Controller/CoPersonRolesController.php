@@ -306,6 +306,22 @@ class CoPersonRolesController extends StandardController {
       $this->set('vv_extended_attributes', $this->extended_attributes);
       // (Dis)allow Empty COUs
       $this->set('vv_allow_empty_cou', $emptyCousPermit);
+
+      $roles = $this->Role->calculateCMRoles();
+      $this->set('vv_available_cous', array());
+      // Determine which COUs a person can manage.
+      if($roles['cmadmin'] || $roles['coadmin']) {
+        // Note that here we get id => name while in CoPeopleController we just
+        // get a list of names. This is to generate the pop-up on the edit form.
+        $cous = $this->CoPersonRole->Cou->find('threaded',array('conditions' => array("Cou.co_id" => $this->cur_co['Co']['id'])));
+        $childCous = array();
+        foreach($cous as $cou) {
+          $childCous = array_unique($childCous + $this->CoPersonRole->Cou->childCousById($cou['Cou']['id'], true, true));
+        }
+        $this->set('vv_available_cous', $childCous);
+      } elseif(!empty($roles['admincous'])) {
+        $this->set('vv_available_cous', $roles['admincous']);
+      }
     }
   }
   
@@ -601,17 +617,6 @@ class CoPersonRolesController extends StandardController {
     
     // Add a new CO Person Role?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
-    
-    // Determine which COUs a person can manage.
-    if($roles['cmadmin'] || $roles['coadmin']) {
-      // Note that here we get id => name while in CoPeopleController we just
-      // get a list of names. This is to generate the pop-up on the edit form.
-      $p['cous'] = $this->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
-    } elseif(!empty($roles['admincous'])) {
-      $p['cous'] = $roles['admincous'];
-    } else {
-      $p['cous'] = array();
-    }
     
     // Delete an existing CO Person Role?
     $p['delete'] = ($roles['cmadmin']
