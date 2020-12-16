@@ -174,13 +174,13 @@
                                                                                      '?'                  => array('status' => 'all'))))); ?></strong>
   </p>
   <?php endif; ?>
-  
-  <p>
+
+  <div class="checkbox">
     <?php
       print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"));
       print $this->Form->label('confirm',_txt('op.confirm.box'));
     ?>
-  </p>
+  </div>
   
   <p>
     <?php
