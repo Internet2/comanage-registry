@@ -256,7 +256,6 @@
       $(this).hide();
       $("#top-search-toggle .top-search-active-filter").hide();
       $("#top-search-clear").click();
-      console.log('Clear all clicked.');
     });
 
     // Inline Edit Controls: disable default button behavior
