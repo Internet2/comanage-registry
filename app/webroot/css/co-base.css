@@ -723,20 +723,13 @@ body.co_people.canvas .titleNavContainer {
 /* SUBNAVIGATION TABS */
 .cm-subnav-tabs {
   clear: both;
-  margin: 4em 0 1.5em;
+  margin: 0 0 1.5em;
   padding: 1em 0 0;
 }
-.cm-subnav-tabs .mdl-tabs__tab-bar {
-  justify-content: left;
-}
-.cm-subnav-tabs .mdl-tabs__tab {
-  position: relative;
-  top: -1px;
-}
-.cm-subnav-tabs .mdl-tabs__tab.selected {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-bottom: 1px solid #fff;
+.cm-subnav-tabs .nav-link {
+  text-transform: uppercase;
+  padding: 1em 1.5em;
+  font-size: 1.1em;
 }
 .cm-subnav-tabs + form > .form-list,
 .cm-subnav-tabs + .top-search {
@@ -745,23 +738,11 @@ body.co_people.canvas .titleNavContainer {
 /* DASHBOARDS */
 #dashboard-tabs {
   clear: both;
-  margin: 1em 0;
+  margin: 0 0 2em;
 }
 #dashboard-desc {
   clear: both;
   margin-top: 1em;
-}
-#dashboard-tabs .nav-link {
-  text-transform: uppercase;
-  padding: 1em 1.5em;
-  font-size: 1.2em;
-  opacity: 0.8;
-}
-#dashboard-tabs .nav-link.active {
-  background-color: #f8f8f8;
-  border: 1px solid #f2f2f2;
-  border-bottom: none;
-  border-radius: 0;
 }
 .mini-spinner {
   position: relative;

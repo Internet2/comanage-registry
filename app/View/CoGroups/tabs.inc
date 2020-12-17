@@ -42,100 +42,117 @@
   }
   ?>
 
-  <div id="cm-group-subnav-tabs" class="cm-subnav-tabs mdl-tabs">
-    <nav class="mdl-tabs__tab-bar">
-      <?php
-
-        // Group memberships
-        if ($this->action == 'members') {
-          print '<span class="mdl-tabs__tab selected">' . _txt('me.members') . '</span>';
-        } else {
-          print $this->Html->link(
-            _txt('me.members'),
-            array(
-              'controller' => 'co_groups',
-              'action' => 'members',
-              $groupId
-            ),
-            array('class' => 'mdl-tabs__tab')
-          );
-        }
-
-        // Nested groups
-        if ($this->action == 'nest') {
-          print '<span class="mdl-tabs__tab selected">' . _txt('ct.co_group_nestings.pl') . '</span>';
-        } else {
-          print $this->Html->link(
-            _txt('ct.co_group_nestings.pl'),
-            array(
-              'controller' => 'co_groups',
-              'action' => 'nest',
-              $groupId
-            ),
-            array('class' => 'mdl-tabs__tab')
-          );
-        }
-
-        // Provisioned services
-        if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))) {
-          if ($this->action == 'provision') {
-            print '<span class="mdl-tabs__tab selected">' . _txt('op.prov.view') . '</span>';
+  <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <?php
+          // Group memberships
+          if ($this->action == 'members') {
+            print '<span class="nav-link active">' . _txt('me.members') . '</span>';
           } else {
             print $this->Html->link(
-              _txt('op.prov.view'),
+              _txt('me.members'),
               array(
                 'controller' => 'co_groups',
-                'action' => 'provision',
+                'action' => 'members',
                 $groupId
               ),
-              array('class' => 'mdl-tabs__tab')
+              array('class' => 'nav-link')
             );
           }
-        }
+        ?>
+      </li>
 
-        // Email lists
-        if ($this->action == 'email_lists') {
-          print '<span class="mdl-tabs__tab selected">' . _txt('ct.co_email_lists.pl') . '</span>';
-        } else {
-          print $this->Html->link(
-            _txt('ct.co_email_lists.pl'),
-            array(
-              'controller' => 'co_groups',
-              'action' => 'email_lists',
-              $groupId
-            ),
-            array('class' => 'mdl-tabs__tab')
-          );
-        }
-
-        // Properties
-        if ($this->action == 'edit' || $this->action == 'view') {
-          print '<span class="mdl-tabs__tab selected">' . _txt('me.properties') . '</span>';
-        } else {
-          if ($permissions['edit']) {
-            print $this->Html->link(
-              _txt('me.properties'),
-              array(
-                'controller' => 'co_groups',
-                'action' => 'edit',
-                $groupId
-              ),
-              array('class' => 'mdl-tabs__tab')
-            );
+      <li class="nav-item">
+        <?php
+          // Nested groups
+          if ($this->action == 'nest') {
+            print '<span class="nav-link active">' . _txt('ct.co_group_nestings.pl') . '</span>';
           } else {
             print $this->Html->link(
-              _txt('me.properties'),
+              _txt('ct.co_group_nestings.pl'),
               array(
                 'controller' => 'co_groups',
-                'action' => 'view',
+                'action' => 'nest',
                 $groupId
               ),
-              array('class' => 'mdl-tabs__tab')
+              array('class' => 'nav-link')
             );
           }
-        }
-      ?>
-    </nav>
-  </div>
+        ?>
+      </li>
+
+      <li class="nav-item">
+        <?php
+          // Provisioned services
+          if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))) {
+            if ($this->action == 'provision') {
+              print '<span class="nav-link active">' . _txt('op.prov.view') . '</span>';
+            } else {
+              print $this->Html->link(
+                _txt('op.prov.view'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'provision',
+                  $groupId
+                ),
+                array('class' => 'nav-link')
+              );
+            }
+          }
+        ?>
+      </li>
+
+      <li class="nav-item">
+        <?php
+          // Email lists
+          if ($this->action == 'email_lists') {
+            print '<span class="nav-link active">' . _txt('ct.co_email_lists.pl') . '</span>';
+          } else {
+            print $this->Html->link(
+              _txt('ct.co_email_lists.pl'),
+              array(
+                'controller' => 'co_groups',
+                'action' => 'email_lists',
+                $groupId
+              ),
+              array('class' => 'nav-link')
+            );
+          }
+        ?>
+      </li>
+
+      <li class="nav-item">
+        <?php
+          // Properties
+          if ($this->action == 'edit' || $this->action == 'view') {
+            print '<span class="nav-link active">' . _txt('me.properties') . '</span>';
+          } else {
+            if ($permissions['edit']) {
+              print $this->Html->link(
+                _txt('me.properties'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'edit',
+                  $groupId
+                ),
+                array('class' => 'nav-link')
+              );
+            } else {
+              print $this->Html->link(
+                _txt('me.properties'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'view',
+                  $groupId
+                ),
+                array('class' => 'nav-link')
+              );
+            }
+          }
+        ?>
+      </li>
+    </ul>
+  </nav>
 
 <?php endif; ?>
