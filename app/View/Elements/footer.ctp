@@ -27,6 +27,7 @@
  */
 ?>
 
+<div id="footer-drawer"></div>
 <div class="footer">
   <div class="poweredByComanage">
     <span class="poweredText">Powered by</span>

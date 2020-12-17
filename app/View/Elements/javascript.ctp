@@ -38,7 +38,7 @@
     // DESKTOP MENU DRAWER BEHAVIOR
     // Check the drawer half-closed cookie on first load and set the drawer state appropriately
     if (Cookies.get("desktop-drawer-state") == "half-closed") {
-      $("#navigation-drawer").addClass("half-closed");
+      $("#navigation-drawer,#footer-drawer").addClass("half-closed");
       $("#main").addClass("drawer-half-closed");
     } else {
       // Preserve the state of the most recently selected menu item if it is expandable (a "menuTop" item)
@@ -55,16 +55,16 @@
     $('#co-hamburger').click(function () {
       if($(window).width() < 768) {
         // Mobile mode
-        $("#navigation-drawer").removeClass("half-closed").toggle();
+        $("#navigation-drawer,#footer-drawer").removeClass("half-closed").toggle();
       } else {
         // Desktop mode
         if ($("#navigation-drawer").hasClass("half-closed")) {
-          $("#navigation-drawer").removeClass("half-closed");
+          $("#navigation-drawer,#footer-drawer").removeClass("half-closed");
           $("#main").removeClass("drawer-half-closed");
           // set a cookie to hold drawer half-open state between requests
           Cookies.set("desktop-drawer-state", "open");
         } else {
-          $("#navigation-drawer").addClass("half-closed");
+          $("#navigation-drawer,#footer-drawer").addClass("half-closed");
           $("#main").addClass("drawer-half-closed");
           // ensure all the sub-menus collapse when half-closing the menu
           $("#navigation .metismenu li ul").removeClass("in");

@@ -248,7 +248,8 @@ body.logged-in #user-menu {
   min-width: calc(100vw - 50px);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
-#user-panel a:hover {
+#user-panel a:hover,
+#user-panel a:focus {
   text-decoration: underline;
 }
 #user-panel-cn {
@@ -281,7 +282,8 @@ body.logged-in #user-menu {
 #user-panel .co-info-topbox strong {
   font-weight: normal;
 }
-#user-panel .co-profile-button:hover {
+#user-panel .co-profile-button:hover,
+#user-panel .co-profile-button:focus {
   background-color: #eee;
 }
 #user-panel .co-profile-button .material-icons {
@@ -2286,5 +2288,5 @@ td.indented {
 /* FOOTER */
 footer {
   text-align: center;
-  padding: 2em 2em 1em;
+  padding: 2em;
 }
