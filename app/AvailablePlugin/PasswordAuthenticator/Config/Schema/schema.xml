@@ -63,9 +63,18 @@
     <field name="password_type" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="password_id" type="I">
+      <constraint>REFERENCES cm_passwords(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
     
     <index name="passwords_i1">
       <col>co_person_id</col>
+    </index>
+    <index name="passwords_i2">
+      <col>password_id</col>
     </index>
   </table>
 </schema>

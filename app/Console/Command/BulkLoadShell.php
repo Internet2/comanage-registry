@@ -135,20 +135,22 @@
         // Merge plugin models into the configuration
         
         foreach(array('CoPerson', 'Configuration') as $mt) {
-          foreach($pluginModels[$mt] as $m) {
-            // Make sure we're not overriding a core model. Note plugins risk
-            // all sorts of chaos if they reimplement a core model, so we shouldn't
-            // really need to test for this.
-            $bits = explode(".", $m, 2);
-            
-            if(!in_array($bits[1], $this->uses)) {
-              $tableName = Inflector::tableize($bits[1]);
+          if(!empty($pluginModels[$mt])) {
+            foreach($pluginModels[$mt] as $m) {
+              // Make sure we're not overriding a core model. Note plugins risk
+              // all sorts of chaos if they reimplement a core model, so we shouldn't
+              // really need to test for this.
+              $bits = explode(".", $m, 2);
               
-              // Load the plugin model
-              $this->loadModel($m);
-              
-              // Register the table name
-              $this->dropIndexes[] = $tableName;
+              if(!in_array($bits[1], $this->uses)) {
+                $tableName = Inflector::tableize($bits[1]);
+                
+                // Load the plugin model
+                $this->loadModel($m);
+                
+                // Register the table name
+                $this->dropIndexes[] = $tableName;
+              }
             }
           }
         }
@@ -471,8 +473,6 @@
                                                                    $this->getFields($bits[1]));
                   }
                 }
-                
-                break; // Done with the foreach
               }
             }
           }
@@ -494,8 +494,6 @@
                                                                  array('id' => $id),
                                                                  $this->getFields($bits[1]));
                 }
-                
-                break; // Done with the foreach
               }
             }
           }

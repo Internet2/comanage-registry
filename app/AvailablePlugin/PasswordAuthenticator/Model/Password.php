@@ -33,7 +33,8 @@ class Password extends AppModel {
   public $version = "1.0";
   
 	// Add behaviors
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
 	
 	// Association rules from this model to other models
 	public $belongsTo = array(
