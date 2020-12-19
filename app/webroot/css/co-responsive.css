@@ -480,6 +480,13 @@
   .poweredByComanage {
     padding: 1em 2em 2em 0;
   }
+  body.logged-out footer {
+    position: fixed;
+    display: block;
+    right: 0;
+    left: unset;
+    transform: unset;
+  }
 }
 
 /* LARGE */

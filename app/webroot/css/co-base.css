@@ -1447,6 +1447,9 @@ a.ui-button:visited,
   border: 1px solid #ddd;
   background-color: #fff;
 }
+.top-search label {
+  margin-bottom: 0;
+}
 ::-webkit-input-placeholder,
 ::-moz-placeholder,
 :-ms-input-placeholder,
@@ -2289,4 +2292,13 @@ td.indented {
 footer {
   text-align: center;
   padding: 2em;
+}
+body.logged-out footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+body.logged-out #footer-drawer {
+  display: none;
 }
