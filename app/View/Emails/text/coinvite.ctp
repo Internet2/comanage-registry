@@ -30,5 +30,5 @@
   print '
   ';
 
-  $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'reply', $this->viewVars['invite_id']), true);
+  $u = $this->Html->url(array('plugin' => null, 'controller' => 'co_invites', 'action' => 'reply', $this->viewVars['invite_id']), true);
   print $u;
