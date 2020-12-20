@@ -54,7 +54,9 @@ class EmailConfig {
 		'from' => array('site@localhost' => 'My Site'),
 		'host' => 'localhost',
 		'port' => 25,
-		'timeout' => 30,
+		// This timeout should be lower than the web server/PHP timeout to ensure
+		// SMTP errors get caught in the application stack and can be reported
+		'timeout' => 20,
 		'username' => 'user',
 		'password' => 'secret',
 		'client' => null,
