@@ -244,7 +244,7 @@
               if(!empty($role['cou_id'])) {
                 $autoGroupTodo[ $role['cou_id'] ] = array(
                   'status' => $role['status'],
-                  'org_identity_source_id' => null
+                  'source_org_identity_id' => null
                 );
               }
             }
