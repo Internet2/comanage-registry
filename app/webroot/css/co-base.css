@@ -651,6 +651,7 @@ body.co_people.canvas .titleNavContainer {
   background-color: #fafafa;
   padding: 10px;
   border: 1px solid #ddd;
+  min-width: 20em;
 }
 #right-sidebar #menu {
   padding-left: 0;
@@ -1719,11 +1720,9 @@ ul.fields.data-list li {
 }
 #names-container ul.data-list li:last-child {
   margin-bottom: 0;
-  border-bottom: 2px solid #ccc;
+  border-bottom: 1px solid #ccc;
 }
-.personExplorer .coAddEditButtons .ui-state-default,
-.personExplorer .coAddEditButtons .ui-widget-content .ui-state-default,
-.personExplorer .coAddEditButtons .ui-widget-header .ui-state-default {
+.personExplorer .coAddEditButtons .addbutton {
   background: none;
   border: none;
 }
@@ -1805,6 +1804,7 @@ ul.fields.data-list li {
 label {
   cursor: pointer;
 }
+#coOrgIdExplorer.personExplorer,
 ul.fields li {
   overflow-x: auto; /* required for data tables on mobile */
 }

@@ -53,7 +53,7 @@
       class="dropdown-menu dropdown-menu-left">
     <?php foreach($vv_actions as $action): ?>
       <?php if(empty($action['onclick'])): ?>
-        <a class="dropdown-item" href="<?php print $action['url']; ?>"><?php print $action['label']; ?></a>
+        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="displaySpinner()"><?php print $action['label']; ?></a>
       <?php else: ?>
       <?php
         $dg_onclick = 'javascript:js_confirm_generic(\''
