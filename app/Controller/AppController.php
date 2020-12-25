@@ -942,32 +942,32 @@ class AppController extends Controller {
         }
       }
 
-      if(is_null($coTheme) || $eof_allow_stack === SuspendableStatusEnum::Active) {
+      if(is_null($coTheme)                                              // No Theme
+         || $eof_allow_stack === SuspendableStatusEnum::Active) {       // CO Theme allows stacking
         // See if there is a CO-wide theme in effect
+        $co_allow_stack = $this->Co->CoSetting->themeStackingEnabled($this->cur_co['Co']['id']);
+        $co_theme_id = $this->Co->CoSetting->getThemeId($this->cur_co['Co']['id']);
 
-        $args = array();
-        $args['conditions']['CoSetting.co_id'] = $this->cur_co['Co']['id'];
-        $args['contain'][] = 'CoTheme';
-
-        $settings = $this->Co->CoSetting->find('first', $args);
-        
-        if(!empty($settings)) {
-          $co_allow_stack = $settings['CoSetting']['theme_stacking'];
-
-          if(!empty($settings['CoTheme']['id'])) {
-            if(is_null($coTheme)) {
-              $coTheme = $settings['CoTheme'];
-              $cssStack = array();
-              $cssStack['b_co'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
-            } else {
-              $cssStack['b_co'] = '/*' . $settings['CoTheme']["name"] . '*/' . PHP_EOL . $settings['CoTheme']['css'];
-            }
+        if(!is_null($co_theme_id)) {
+          $args = array();
+          $args['conditions']['CoTheme.id'] = $co_theme_id;
+          $args['contain'] = false;
+          $coThemeCfg = $this->Co->CoSetting->CoTheme->find('first', $args);
+          if(is_null($coTheme)) {
+            $coTheme = $coThemeCfg['CoTheme'];
+            $cssStack = array();
+            $cssStack['b_co'] = '/*' . $coTheme["name"] . '*/' . PHP_EOL . $coTheme['css'];
+          } else {
+            $cssStack['b_co'] = '/*' . $coThemeCfg['CoTheme']["name"] . '*/' . PHP_EOL . $coThemeCfg['CoTheme']['css'];
           }
         }
       }
     }
 
-    if(is_null($coTheme)  || $co_allow_stack === SuspendableStatusEnum::Active) {
+    if(is_null($coTheme)                                       // No Theme
+       || $co_allow_stack === SuspendableStatusEnum::Active    // CO Theme, EF Theme allows stacking
+       || ($eof_allow_stack === SuspendableStatusEnum::Active  // CMP Theme, No CO Theme, EF Theme allows stacking
+           && empty($cssStack['b_co']))) {
       // See if there is a platform theme
       $args = array();
       $args['joins'][0]['table'] = 'cos';
