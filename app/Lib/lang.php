@@ -1517,8 +1517,8 @@ original notification at
   'fd.mt.body.desc' => 'Body for message to be sent. Max 4000 characters, see <a href="https://spaces.at.internet2.edu/display/COmanage/Notification+Message+Substitutions">supported substitutions</a>.',
   'fd.mt.context' =>  'Message Context',
   'fd.mt.format' =>   'Message Format',
-  'fd.mt.sub' =>      'Message Subject',
   'fd.mt.mail' =>     'Email:',
+  'fd.mt.sub' =>      'Message Subject',
   'fd.mt.sub.desc' => 'Subject line for message to be sent. See <a href="https://spaces.at.internet2.edu/display/COmanage/Notification+Message+Substitutions">supported substitutions</a>.',
   'fd.name' =>        'Name',
   'fd.name-a' =>      '%1$s Name',
@@ -2332,6 +2332,7 @@ original notification at
   'sh.ug.340.password' => 'Updating Password Sources',
   'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations',
   'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
+  'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'
 );
 

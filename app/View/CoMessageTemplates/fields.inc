@@ -60,8 +60,8 @@
   }
 
   function initialize_format() {
-    let  format = '<?php print $co_message_templates[0]['CoMessageTemplate']['format']?>';
-    if(format == null) {
+    let  format = '<?php print empty($co_message_templates[0]['CoMessageTemplate']['format']) ? '' : $co_message_templates[0]['CoMessageTemplate']['format'];?>';
+    if(format == '') {
       format = '<?php print MessageFormatEnum::PlaintextAndHTML; ?>'
     }
     $('#CoMessageTemplateFormat').val(format).prop('selected',true);
@@ -240,7 +240,7 @@
         }
         $test_btn = $test_btn . '>' . _txt('op.msg.tpl.test') . '</button>';
 
-        print $test_btn;
+        print '&ensp;' . $test_btn;
         ?>
       </div>
       <ul class="field-children">

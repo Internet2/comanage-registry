@@ -41,6 +41,7 @@ class UpgradeVersionShell extends AppShell {
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'HttpServer',
                     'Identifier',
+                    'CoMessageTemplate',
                     'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
   
@@ -527,5 +528,9 @@ class UpgradeVersionShell extends AppShell {
     // Resize HttpServer password column
     $this->out(_txt('sh.ug.400.http_server.password'));
     $this->HttpServer->_ug400();
+
+    // Update CoMessageTemplate format column
+    $this->out(_txt('sh.ug.400.messagetemplate.format'));
+    $this->CoMessageTemplate->_ug400();
   }
 }
