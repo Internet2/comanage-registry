@@ -280,9 +280,13 @@
                 $attrs['empty'] = false;
 
                 if($e && !$es) {
+                  // Actions can not Lock roles because roles cannot be Locked
+                  $statuses = $cm_texts[ $cm_lang ]['en.status'];
+                  unset($statuses[StatusEnum::Locked]);
+                  
                   print $this->Form->select('status',
-                    $cm_texts[ $cm_lang ]['en.status'],
-                    $attrs);
+                                            $statuses,
+                                            $attrs);
 
                   if($this->Form->isFieldError('status')) {
                     print $this->Form->error('status');

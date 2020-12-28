@@ -1569,6 +1569,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                       array(StatusEnum::Active,
                             StatusEnum::Expired,
                             StatusEnum::GracePeriod,
+                            StatusEnum::Locked,
                             StatusEnum::Suspended))) {
         // Convert this to a delete operation. Basically we (may) have a record in LDAP,
         // but the person is no longer active. Don't delete the DN though, since

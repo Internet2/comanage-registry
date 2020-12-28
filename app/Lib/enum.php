@@ -684,6 +684,7 @@ class StatusEnum
   const Expired             = 'XP';
   const GracePeriod         = 'GP';
   const Invited             = 'I';
+  const Locked              = 'LK';
   const Pending             = 'P';
   const PendingApproval     = 'PA';
   const PendingConfirmation = 'PC';
@@ -700,6 +701,7 @@ class StatusEnum
     'Expired'             => StatusEnum::Expired,
     'GracePeriod'         => StatusEnum::GracePeriod,
     'Invited'             => StatusEnum::Invited,
+    'Locked'              => StatusEnum::Locked,
     'Pending'             => StatusEnum::Pending,
     'PendingApproval'     => StatusEnum::PendingApproval,
     'PendingConfirmation' => StatusEnum::PendingConfirmation,
@@ -717,6 +719,7 @@ class StatusEnum
     StatusEnum::Expired             => 'Expired',
     StatusEnum::GracePeriod         => 'GracePeriod',
     StatusEnum::Invited             => 'Invited',
+    StatusEnum::Locked              => 'Locked',
     StatusEnum::Pending             => 'Pending',
     StatusEnum::PendingApproval     => 'PendingApproval',
     StatusEnum::PendingConfirmation => 'PendingConfirmation',

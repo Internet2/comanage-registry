@@ -156,6 +156,7 @@ class CoPerson extends AppModel {
                                         StatusEnum::Expired,
                                         StatusEnum::GracePeriod,
                                         StatusEnum::Invited,
+                                        StatusEnum::Locked,
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
                                         StatusEnum::PendingConfirmation,
@@ -890,6 +891,11 @@ class CoPerson extends AppModel {
       
       // Pull the current value
       $curStatus = $this->field('status');
+      
+      // Locked status cannot be recalculated. This isn't an error, per se.
+      if($curStatus == StatusEnum::Locked) {
+        return $curStatus;
+      }
       
       if($newStatus != $curStatus) {
         $coId = $this->field('co_id');

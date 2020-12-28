@@ -795,6 +795,7 @@ original notification at
                             StatusEnum::Expired             => 'Expired',
                             StatusEnum::GracePeriod         => 'Grace Period',
                             StatusEnum::Invited             => 'Invited',
+                            StatusEnum::Locked              => 'Locked',
                             StatusEnum::Pending             => 'Pending',
                             StatusEnum::PendingApproval     => 'Pending Approval',
                             StatusEnum::PendingConfirmation => 'Pending Confirmation',

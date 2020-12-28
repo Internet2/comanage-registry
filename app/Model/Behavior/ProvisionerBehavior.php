@@ -42,6 +42,7 @@ class ProvisionerBehavior extends ModelBehavior {
     StatusEnum::Active,
     StatusEnum::Expired,
     StatusEnum::GracePeriod,
+    StatusEnum::Locked,
     StatusEnum::Suspended
   );
   

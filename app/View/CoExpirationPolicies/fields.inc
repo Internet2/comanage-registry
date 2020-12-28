@@ -282,8 +282,12 @@
                 $attrs['empty'] = true;
 
                 if($e) {
+                  // Conditions can not include Locked status because roles cannot be Locked
+                  $statuses = $cm_texts[ $cm_lang ]['en.status'];
+                  unset($statuses[StatusEnum::Locked]);
+                  
                   print $this->Form->select('cond_status',
-                                            $cm_texts[ $cm_lang ]['en.status'],
+                                            $statuses,
                                             $attrs);
 
                   if($this->Form->isFieldError('cond_status')) {
@@ -405,8 +409,12 @@
                 $attrs['empty'] = true;
 
                 if($e) {
+                  // Actions can not Lock roles because roles cannot be Locked
+                  $statuses = $cm_texts[ $cm_lang ]['en.status'];
+                  unset($statuses[StatusEnum::Locked]);
+                  
                   print $this->Form->select('act_status',
-                                            $cm_texts[ $cm_lang ]['en.status'],
+                                            $statuses,
                                             $attrs);
 
                   if($this->Form->isFieldError('act_status')) {
