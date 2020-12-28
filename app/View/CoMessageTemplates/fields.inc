@@ -63,6 +63,7 @@
     let  format = '<?php print empty($co_message_templates[0]['CoMessageTemplate']['format']) ? '' : $co_message_templates[0]['CoMessageTemplate']['format'];?>';
     if(format == '') {
       format = '<?php print MessageFormatEnum::PlaintextAndHTML; ?>'
+      $('#test-template-btn-info').show();
     }
     $('#CoMessageTemplateFormat').val(format).prop('selected',true);
       message_body_toggle(format);
@@ -241,6 +242,7 @@
         $test_btn = $test_btn . '>' . _txt('op.msg.tpl.test') . '</button>';
 
         print '&ensp;' . $test_btn;
+        print '<div id="test-template-btn-info" class="field-desc" style="display:none;"><span class="ui-icon ui-icon-info"></span>' . _txt('fd.mt.test.info') . '</div>';
         ?>
       </div>
       <ul class="field-children">

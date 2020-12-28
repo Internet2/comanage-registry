@@ -1520,6 +1520,7 @@ original notification at
   'fd.mt.mail' =>     'Email:',
   'fd.mt.sub' =>      'Message Subject',
   'fd.mt.sub.desc' => 'Subject line for message to be sent. See <a href="https://spaces.at.internet2.edu/display/COmanage/Notification+Message+Substitutions">supported substitutions</a>.',
+  'fd.mt.test.info' => 'You must first save the template before it can be tested',
   'fd.name' =>        'Name',
   'fd.name-a' =>      '%1$s Name',
   'fd.name.affil'  => 'Name and Affiliation',
