@@ -389,6 +389,15 @@
       add_observer(elem, 'tr', 'highlight');
     });
 
+    // Handle caret up/down toggle
+    $('li.field-data-container').on('shown.bs.collapse', function () {
+      $(this).find('.field-data > a i').removeClass('fa-caret-down').addClass('fa-caret-up');
+    })
+
+    $('li.field-data-container').on('hidden.bs.collapse', function () {
+      $(this).find('.field-data > a i').removeClass('fa-caret-up').addClass('fa-caret-down');
+    })
+
     // Explorer menu toggles
     $(".fieldGroupName").click(function(event) {
       event.preventDefault();
@@ -994,226 +1003,219 @@
         <!-- Roles -->
         <li id="fields-role" class="fieldGroup">
           <?php
-            if($e && !$es) {
-              print '<div class="coAddEditButtons">';
-              $linktarget = array('controller' => 'co_person_roles',
-                'action'     => 'add',
-                'copersonid' => $co_people[0]['CoPerson']['id'],
-                'co'         => $cur_co['Co']['id']
-              );
-              $linkparams = array('class'  => 'addbutton');
+          if($e && !$es) {
+            print '<div class="coAddEditButtons">';
+            $linktarget = array('controller' => 'co_person_roles',
+              'action'     => 'add',
+              'copersonid' => $co_people[0]['CoPerson']['id'],
+              'co'         => $cur_co['Co']['id']
+            );
+            $linkparams = array('class'  => 'addbutton');
 
-              print $this->Html->link(_txt('op.add'),
-                  $linktarget,
-                  $linkparams) . "\n";
-              print '</div>';
-            }
+            print $this->Html->link(_txt('op.add'),
+                $linktarget,
+                $linkparams) . "\n";
+            print '</div>';
+          }
           ?>
           <a href="#tabs-role" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.attrs.copr'); ?>
           </a>
-          <ul id="tabs-role" class="fields data-list data-table">
-            <li>
-              <?php if($this->action != "invite"): ?>
-                <!-- Person Role Data -->
-                <table id="<?php print $this->action; ?>_co_person_roles">
-                  <tbody>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <th><?php print _txt('fd.ordr'); ?></th>
-                    <th><?php print _txt('fd.cou'); ?></th>
-                    <th><?php print _txt('fd.title'); ?></th>
-                    <th><?php print _txt('fd.affiliation'); ?></th>
-                    <th><?php print _txt('fd.valid_from'); ?></th>
-                    <th><?php print _txt('fd.valid_through'); ?></th>
-                    <th><?php print _txt('fd.status'); ?></th>
-                    <th><?php print _txt('fd.actions'); ?></th>
-                  </tr>
-                  <?php
-                  $rcnt = 1;
-                  foreach($co_people[0]['CoPersonRole'] as $r):
+          <!--     Table     -->
+          <ul id="tabs-role" class="fields data-list">
+              <?php
+              if($this->action != "invite"){
+                // Person Role Data
+                $rcnt = 1;
+                foreach($co_people[0]['CoPersonRole'] as $r) {
+                  // Set the status styling
+                  $statusClass = "status-normal";
+                  // Store the action list
+                  $action_args = array();
+                  $action_args['vv_attr_mdl'] = "CoPersonRole";
+                  $action_args['vv_attr_id'] = $r["id"];
 
-                    // Set the status styling
-                    $statusClass = "status-normal";
-                    // Store the action list
-                    $action_args = array();
-                    $action_args['vv_attr_mdl'] = "CoPersonRole";
-                    $action_args['vv_attr_id'] = $r["id"];
+                  if($r['status'] == StatusEnum::Suspended
+                    || $r['status'] == StatusEnum::Expired
+                    || $r['status'] == StatusEnum::Deleted) {
+                    // Style status for suspended, expired, deleted
+                    $statusClass = "danger"; // reddish
+                  } elseif($r['status'] != StatusEnum::Active) {
+                    // Style status if otherwise not active
+                    $statusClass = "warning"; // yellowish
+                  } elseif($r['status'] == StatusEnum::Active) {
+                    $statusClass = "success";
+                  }
+                  // Independent of status, set the style based on dates if needed:
+                  $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
+                  $validFromDate = !empty($r['valid_from']) ? $this->Time->format($r['valid_from'], "%F", false, $vv_tz) : false;
 
-                    if($r['status'] == StatusEnum::Suspended 
-                       || $r['status'] == StatusEnum::Expired
-                       || $r['status'] == StatusEnum::Deleted) {
-                      // Style status for suspended, expired, deleted
-                      $statusClass = "warn-level-a"; // reddish-pink
-                    } elseif($r['status'] != StatusEnum::Active) {
-                      // Style status if otherwise not active
-                      $statusClass = "warn-level-b"; // yellowish
+                  if ($validThroughDate && $this->Time->isPast($validThroughDate)) {
+                    // valid through date exists and is in the past
+                    $statusClass = "danger"; // reddish
+                  } elseif ($validFromDate && $this->Time->isFuture($validFromDate)) {
+                    // valid from date is in the future
+                    $statusClass = "warning"; // yellowish
+                  }
+
+                  // fixme: Why use isset here if we do not do this when picking a status color
+                  $status = isset($r['status']) ? _txt('en.status', null, $r['status']) : 'unknown';
+                  $cou_name = (empty($r['Cou']['name']))
+                              ? '<cite class="text-muted"><i class="fa fa-caret-down"></i>&nbsp;empty</cite>'
+                              : '<i class="fa fa-caret-down"></i>&nbsp;' . filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+
+                  print '<li class="field-data-container centered">';
+                  print '<div class="field-data">';
+                  $linkparams = array(
+                    'id' => 'role-content_' . md5("CoPersonRole" . $r['id']),
+                    'aria-controls' => 'collapse_link_' . md5("CoPersonRole" . $r['id']),
+                    'escape' => false,
+                    'data-toggle' => 'collapse',
+                    'aria-haspopup' => true,
+                    'aria-expanded' => false,
+                  );
+                  print $this->Html->link(
+                    $cou_name . '&nbsp;<cite class="text-muted">(' . $r['id'] . ')</cite>',
+                    '#collapse_link_' . md5("CoPersonRole" . $r['id']),
+                    $linkparams
+                  );
+                  print '</div>';
+                  print '<div class="field-data data-label">';
+                  print '<span class="badge badge-outline-' . $statusClass . '">' . $status . '</span>';
+                  print '</div>';
+
+                  if ($es // Editing self
+                    || empty($r['Cou']) // No COU set for this person
+                    || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))
+                  ) // Admin for the COU
+                  {
+                    // COU Admins can only edit their own folks, so we need a bit of
+                    // a machination to determine if they can edit these records
+                    // along side other authorized folks.
+
+                    // Currently, users can self-edit some role level attributes,
+                    // so give them an edit button, too.
+
+                    if ($permissions['enroll']
+                      && $r['status'] == StatusEnum::PendingApproval
+                      && !empty($r['CoPetition'][0]['id'])
+                    ) {
+                      $action_args['vv_actions'][] = array(
+                        'order' => MenuActionoOrder::PetitionView,
+                        'url' => $this->Html->url(
+                          array('controller' => 'co_petitions',
+                            'action' => 'view',
+                            $r['CoPetition'][0]['id'],
+                            'co' => $r['CoPetition'][0]['co_id'],
+                            'coef' => $r['CoPetition'][0]['co_enrollment_flow_id'])
+                        ),
+                        'label' => _txt('op.petition'),
+                      );
                     }
 
-                    // Independent of status, set the style based on dates if needed:
-                    $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
-                    $validFromDate = !empty($r['valid_from']) ? $this->Time->format($r['valid_from'], "%F", false, $vv_tz) : false;
+                    if ($permissions['canvas']) {
+                      $action_args['vv_actions'][] = array(
+                        'order' => MenuActionoOrder::Edit,
+                        'url' => $this->Html->url(
+                          array(
+                            'controller' => 'co_person_roles',
+                            'action' => 'edit',
+                            $r['id'])
+                        ),
+                        'label' => _txt('op.edit'),
+                      );
 
-                    if ($validThroughDate && $this->Time->isPast($validThroughDate)) {
-                      // valid through date exists and is in the past
-                      $statusClass = "warn-level-a";
-                    } elseif ($validFromDate && $this->Time->isFuture($validFromDate)) {
-                      // valid from date is in the future
-                      $statusClass = "warn-level-b";
+                      // todo: Here show the petition action link
                     }
-                    
-                  ?>
-                  <tr class="line<?php print ($l % 2) . ' ' . $statusClass; $l++; ?>">
-                    <td><?php if (isset($r['ordr'])) {
-                        print filter_var($r['ordr'], FILTER_SANITIZE_SPECIAL_CHARS);
-                      } ?></td>
-                    <td><?php if (isset($r['Cou']['name'])) {
-                        print filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
-                      } ?></td>
-                    <td><?php if (isset($r['title'])) {
-                        print filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS);
-                      } ?></td>
-                    <td><?php if (isset($r['affiliation'])) {
-                        print $vv_copr_affiliation_types[$r['affiliation']];
-                      } ?></td>
-                    <td>
-                      <?php
-                        if (isset($r['valid_from']) && $r['valid_from'] > 0) {
-                          print $this->Time->format($r['valid_from'], "%F %T", false, $vv_tz);
-                        }
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if (isset($r['valid_through']) && $r['valid_through'] > 0) {
-                          print $this->Time->format($r['valid_through'], "%F %T", false, $vv_tz);
-                        }
-                      ?>
-                    </td>
-                    <td>
-                      <?php 
-                        if (isset($r['status'])) {
-                          print _txt('en.status', null, $r['status']);
-                        } 
-                      ?>
-                    </td>
-                    <td class="td-field-actions">
-                      <?php
-                        if ($es // Editing self
-                          || empty($r['Cou']) // No COU set for this person
-                          || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))
-                        ) // Admin for the COU
-                        {
-                          // COU Admins can only edit their own folks, so we need a bit of
-                          // a machination to determine if they can edit these records
-                          // along side other authorized folks.
 
-                          // Currently, users can self-edit some role level attributes,
-                          // so give them an edit button, too.
+                    if ($permissions['relink']) {
+                      $rlnk_url = array(
+                        'controller' => 'co_people',
+                        'action' => 'relink',
+                        $co_people[0]['CoPerson']['id'],
+                        'copersonroleid' => $r['id'],
+                      );
 
-                          // XXX TODO: this is an important action. Ask ARLEN
-                          if ($permissions['enroll']
-                            && $r['status'] == StatusEnum::PendingApproval
-                            && !empty($r['CoPetition'][0]['id'])
-                          ) {
-                            $action_args['vv_actions'][] = array(
-                              'order' => MenuActionoOrder::PetitionView,
-                              'url' => $this->Html->url(
-                                array('controller' => 'co_petitions',
-                                  'action' => 'view',
-                                  $r['CoPetition'][0]['id'],
-                                  'co' => $r['CoPetition'][0]['co_id'],
-                                  'coef' => $r['CoPetition'][0]['co_enrollment_flow_id'])
-                              ),
-                              'label' => _txt('op.petition'),
-                            );
-                          }
+                      // Relink button
+                      $action_args['vv_actions'][] = array(
+                        'url' => 'javascript:void(0);',
+                        'order' => MenuActionoOrder::Relink,
+                        'label' => _txt('op.relink'),
+                        'onclick' => array(
+                          'dg_bd_txt' => _jtxt(_txt('op.relink.role.confirm')),
+                          'dg_url' => $this->Html->url($rlnk_url),
+                          'dg_conf_btn' => _txt('op.ok'),
+                          'dg_cancel_btn' => _txt('op.cancel'),
+                          'dg_title' => _txt('op.confirm'),
+                          'db_bd_txt_repl_str' => '',
+                        ),
+                      );
+                    }
 
-                          if ($permissions['canvas']) {
-                            $action_args['vv_actions'][] = array(
-                              'order' => MenuActionoOrder::Edit,
-                              'url' => $this->Html->url(
-                                array(
-                                  'controller' => 'co_person_roles',
-                                  'action' => 'edit',
-                                  $r['id'])
-                              ),
-                              'label' => _txt('op.edit'),
-                            );
-                          }
+                    if ($permissions['delete']) {
+                      $dr_url = array(
+                        'controller' => 'co_person_roles',
+                        'action' => 'delete',
+                        $r['id'],
+                      );
 
-                          if ($permissions['relink']) {
-                            $rlnk_url = array(
-                              'controller' => 'co_people',
-                              'action' => 'relink',
-                              $co_people[0]['CoPerson']['id'],
-                              'copersonroleid' => $r['id'],
-                            );
+                      // Delete button
+                      $action_args['vv_actions'][] = array(
+                        'url' => 'javascript:void(0);',
+                        'order' => MenuActionoOrder::Delete,
+                        'label' => _txt('op.delete'),
+                        'onclick' => array(
+                          'dg_bd_txt' => _txt('js.remove'),
+                          'dg_url' => $this->Html->url($dr_url),
+                          'dg_conf_btn' => _txt('op.remove'),
+                          'dg_cancel_btn' => _txt('op.cancel'),
+                          'dg_title' => _txt('op.remove'),
+                          'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])), FILTER_SANITIZE_STRING),
+                        ),
+                      );
+                    }
+                  } elseif ($permissions['view']) {
+                    $action_args['vv_actions'][] = array(
+                      'order' => MenuActionoOrder::View,
+                      'url' => $this->Html->url(
+                        array(
+                          'controller' => 'co_person_roles',
+                          'action' => 'view',
+                          $r['id'])
+                      ),
+                      'label' => _txt('op.view'),
+                    );
+                  }
 
-                            // Relink button
-                            $action_args['vv_actions'][] = array(
-                              'url' => 'javascript:void(0);',
-                              'order' => MenuActionoOrder::Relink,
-                              'label' => _txt('op.relink'),
-                              'onclick' => array(
-                                'dg_bd_txt' => _jtxt(_txt('op.relink.role.confirm')),
-                                'dg_url' => $this->Html->url($rlnk_url),
-                                'dg_conf_btn' => _txt('op.ok'),
-                                'dg_cancel_btn' => _txt('op.cancel'),
-                                'dg_title' => _txt('op.confirm'),
-                                'db_bd_txt_repl_str' => '',
-                              ),
-                            );
-                          }
-
-                          if ($permissions['delete']) {
-                            $dr_url = array(
-                              'controller' => 'co_person_roles',
-                              'action' => 'delete',
-                              $r['id'],
-                            );
-
-                            // Delete button
-                            $action_args['vv_actions'][] = array(
-                              'url' => 'javascript:void(0);',
-                              'order' => MenuActionoOrder::Delete,
-                              'label' => _txt('op.delete'),
-                              'onclick' => array(
-                                'dg_bd_txt' => _txt('js.remove'),
-                                'dg_url' => $this->Html->url($dr_url),
-                                'dg_conf_btn' => _txt('op.remove'),
-                                'dg_cancel_btn' => _txt('op.cancel'),
-                                'dg_title' => _txt('op.remove'),
-                                'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])), FILTER_SANITIZE_STRING),
-                              ),
-                            );
-                          }
-                        } elseif ($permissions['view']) {
-                          $action_args['vv_actions'][] = array(
-                            'order' => MenuActionoOrder::View,
-                            'url' => $this->Html->url(
-                              array(
-                                'controller' => 'co_person_roles',
-                                'action' => 'view',
-                                $r['id'])
-                              ),
-                              'label' => _txt('op.view'),
-                            );
-                        }
-                      if(!empty($action_args['vv_actions'])) {
-                        print $this->element('menuAction', $action_args);
-                      }
-                      ?>
-                    </td>
-                  </tr>
-                  <?php
-                    $rcnt++;
-                    endforeach; // co_people
-                  ?>
-                  </tbody>
-                </table>
-              <?php endif; // invite ?>
-            </li>
+                  print '<div class="field-actions">';
+                  if(!empty($action_args['vv_actions'])) {
+                    print $this->element('menuAction', $action_args);
+                  }
+                  print '</div>';
+                  // Construct the array with the fields for the card
+                  $card_role_args = array();
+                  $card_role_args[_txt('fd.ordr')] = !empty($r['ordr']) ? filter_var($r['ordr'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.cou')] = !empty($r['Cou']['name']) ? filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.title')] = !empty($r['title']) ? filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.affiliation')] = !empty($r['affiliation']) ? filter_var($r['affiliation'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.valid_from')] = !empty($r['valid_from']) ? filter_var($r['valid_from'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.valid_through')] = !empty($r['valid_through']) ? filter_var($r['valid_through'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.status')] = $status;
+                  // Make this an element
+                  print '<ul class="field-children collapse" id="collapse_link_' . md5("CoPersonRole" . $r['id']) . '">';
+                  print '<li class="card-data-container">';
+                  foreach($card_role_args as $role_col => $value) {
+                    print '<div>';
+                    print '<div>' . $value. '</div>';
+                    print '<small class="text-muted"><cite>' . $role_col . '</cite></small>';
+                    print '</div>';
+                  }
+                  print '</li></ul>';
+                  // Make this an element
+                } // foreach
+              } // invite
+              ?>
           </ul><!-- tabs-role -->
         </li><!-- fields-role -->
 
