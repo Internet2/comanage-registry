@@ -1772,6 +1772,9 @@ label {
 ul.fields li {
   overflow-x: auto; /* required for data tables on mobile */
 }
+#form-dialog-legend {
+  font-size: inherit;
+}
 /*** ul.form-list is the main structure for representing forms
      as well as data where field name is in the left column and
      field data is in the right column; see also ul.data-list

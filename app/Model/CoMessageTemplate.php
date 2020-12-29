@@ -201,7 +201,7 @@ class CoMessageTemplate extends AppModel {
     $format = MessageFormatEnum::Plaintext;
 
     $subject = $tmpl['message_subject'];
-    $format = $tmpl['format'];
+    $format = empty($tmpl['format']) ? $format : $tmpl['format'];
     if($format === MessageFormatEnum::Plaintext) {
       $body = array(
         MessageFormatEnum::Plaintext => $tmpl['message_body'],
@@ -311,5 +311,30 @@ class CoMessageTemplate extends AppModel {
     } catch(Exception $e) {
       throw new RuntimeException($e->getMessage());
     }
+  }
+
+  /**
+   * Perform CoMessageTemplate model upgrade steps for version 4.0.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function _ug400() {
+    // Temporarily unbind all relations
+    $this->unbindModel(
+      array(
+        'belongsTo' => array('Co'),
+      )
+    );
+
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    $this->updateAll(
+      array('CoMessageTemplate.format'=> "'" . MessageFormatEnum::Plaintext . "'"),
+      array(
+        'CoMessageTemplate.deleted' => false,
+        'CoMessageTemplate.format' => null,
+        )
+    );
   }
 }
