@@ -1708,6 +1708,7 @@ ul.fields.data-list li {
 .field-actions a {
   text-decoration: none !important;
 }
+small.force-wrap,
 .field-data.force-wrap {
   overflow-wrap: anywhere;
 }
@@ -2065,6 +2066,14 @@ ul, ol { /* MDL override XXX check if still needed */
 }
 .field-data-container.highlight {
   border: 1px dashed #bbb !important;
+}
+#tabs-orgid .field-data-container .field-data,
+#tabs-role .field-data-container .field-data {
+  cursor: pointer;
+}
+#tabs-orgid .field-data-container .field-data > a,
+#tabs-role .field-data-container .field-data > a {
+  color: inherit;
 }
 tr.tr-highlight td,
 tr.tr-highlight th,

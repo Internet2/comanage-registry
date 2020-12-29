@@ -23,6 +23,7 @@
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ * @todo          Decide if the format of Roles and OrgIdentities will be [value with subtext,status,actions -- expand for details]. Make entire tab an element
  */
 
   // Globals
@@ -397,6 +398,11 @@
     $('li.field-data-container').on('hidden.bs.collapse', function () {
       $(this).find('.field-data > a i').removeClass('fa-caret-up').addClass('fa-caret-down');
     })
+
+    // Enable collapse effect on the entire row, except Action fraction
+    $('.field-data-container div.field-data').on('click', function() {
+      $(this).parent('li.field-data-container').find('.collapse').collapse('toggle');
+    });
 
     // Explorer menu toggles
     $(".fieldGroupName").click(function(event) {
@@ -1045,7 +1051,7 @@
                     // Style status if otherwise not active
                     $statusClass = "warning"; // yellowish
                   } elseif($r['status'] == StatusEnum::Active) {
-                    $statusClass = "success";
+                    $statusClass = "secondary";
                   }
                   // Independent of status, set the style based on dates if needed:
                   $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
@@ -1066,7 +1072,7 @@
                               : '<i class="fa fa-caret-down"></i>&nbsp;' . filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
 
                   print '<li class="field-data-container centered">';
-                  print '<div class="field-data">';
+                  print '<div class="field-data flex-column">';
                   $linkparams = array(
                     'id' => 'role-content_' . md5("CoPersonRole" . $r['id']),
                     'aria-controls' => 'collapse_link_' . md5("CoPersonRole" . $r['id']),
@@ -1081,10 +1087,11 @@
                     $linkparams
                   );
                   print '</div>';
-                  print '<div class="field-data data-label">';
-                  print '<span class="badge badge-outline-' . $statusClass . '">' . $status . '</span>';
-                  print '</div>';
-
+                  ?>
+                  <div class="field-data data-label">
+                    <span class="badge badge-outline-<?php print $statusClass; ?>"><?php print $status; ?></span>
+                  </div>
+                  <?php
                   if ($es // Editing self
                     || empty($r['Cou']) // No COU set for this person
                     || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))
@@ -1195,23 +1202,26 @@
                   print '</div>';
                   // Construct the array with the fields for the card
                   $card_role_args = array();
-                  $card_role_args[_txt('fd.ordr')] = !empty($r['ordr']) ? filter_var($r['ordr'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
-                  $card_role_args[_txt('fd.cou')] = !empty($r['Cou']['name']) ? filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
-                  $card_role_args[_txt('fd.title')] = !empty($r['title']) ? filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
-                  $card_role_args[_txt('fd.affiliation')] = !empty($r['affiliation']) ? filter_var($r['affiliation'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
-                  $card_role_args[_txt('fd.valid_from')] = !empty($r['valid_from']) ? filter_var($r['valid_from'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
-                  $card_role_args[_txt('fd.valid_through')] = !empty($r['valid_through']) ? filter_var($r['valid_through'], FILTER_SANITIZE_SPECIAL_CHARS) : '<cite class="text-muted">' . _txt('fd.none') . '</cite>';
+                  $card_role_args[_txt('fd.ordr')] = !empty($r['ordr']) ? filter_var($r['ordr'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.cou')] = !empty($r['Cou']['name']) ? filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.title')] = !empty($r['title']) ? filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.affiliation')] = !empty($r['affiliation']) ? filter_var($r['affiliation'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.valid_from')] = !empty($r['valid_from']) ? filter_var($r['valid_from'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.valid_through')] = !empty($r['valid_through']) ? filter_var($r['valid_through'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.status')] = $status;
-                  // Make this an element
-                  print '<ul class="field-children collapse" id="collapse_link_' . md5("CoPersonRole" . $r['id']) . '">';
-                  print '<li class="card-data-container">';
-                  foreach($card_role_args as $role_col => $value) {
-                    print '<div>';
-                    print '<div>' . $value. '</div>';
-                    print '<small class="text-muted"><cite>' . $role_col . '</cite></small>';
-                    print '</div>';
-                  }
-                  print '</li></ul>';
+                  ?>
+                  <!-- Collapsed data -->
+                  <ul class="field-children collapse" id="collapse_link_<?php print md5("CoPersonRole" . $r['id']); ?>">
+                    <li class="card-data-container">
+                    <?php foreach($card_role_args as $role_col => $value): ?>
+                      <div>
+                        <div><?php print $value; ?></div>
+                        <small class="text-muted"><cite><?php print $role_col; ?></cite></small>
+                      </div>
+                    <?php endforeach; ?>
+                    </li>
+                  </ul>
+                  <?php
                   // Make this an element
                 } // foreach
               } // invite
@@ -1219,182 +1229,204 @@
           </ul><!-- tabs-role -->
         </li><!-- fields-role -->
 
-        <!-- Org Ids -->
+        <!-- Org Ids New -->
         <li id="fields-orgid" class="fieldGroup">
           <?php
-            if(isset($permissions['link']) && $permissions['link']) {
-              print '<div class="coAddEditButtons">';
-              $linktarget = array(
-                'controller' => 'org_identities',
-                'action'     => 'find',
-                'copersonid' => $co_people[0]['CoPerson']['id']
-              );
-              $linkparams = array('class' => 'addbutton');
-              
-              print $this->Html->link(_txt('op.link'),
-                                      $linktarget,
-                                      $linkparams);
-              print '</div>';
-            }
+          if(isset($permissions['link']) && $permissions['link']) {
+            print '<div class="coAddEditButtons">';
+            $linktarget = array(
+              'controller' => 'org_identities',
+              'action'     => 'find',
+              'copersonid' => $co_people[0]['CoPerson']['id']
+            );
+            $linkparams = array('class' => 'addbutton');
+
+            print $this->Html->link(_txt('op.link'),
+              $linktarget,
+              $linkparams);
+            print '</div>';
+          }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.org_identities.pl'); ?>
           </a>
-          <ul id="tabs-orgid" class="fields data-list data-table">
-            <li>
-              <!-- Org Identity Data -->
-              <table id="<?php print $this->action; ?>_org_identities">
-                <tbody>
-                <tr class="line<?php print ($l % 2); $l++; ?>">
-                  <th><?php print _txt('fd.name'); ?></th>
-                  <th><?php print _txt('fd.source'); ?></th>
-                  <th><?php print _txt('fd.o'); ?></th>
-                  <th><?php print _txt('fd.valid_from.tz', array($vv_tz)); ?></th>
-                  <th><?php print _txt('fd.valid_through.tz', array($vv_tz)); ?></th>
-                  <th><?php print _txt('fd.identifier.ids.login'); ?></th>
-                  <th><?php print _txt('fd.actions'); ?></th>
-                </tr>
-                <?php if(!empty($co_people[0]['CoOrgIdentityLink'])): ?>
-                <?php foreach($co_people[0]['CoOrgIdentityLink'] as $link): ?>
-                  <tr class="line<?php print ($l % 2); $l++; ?>">
-                    <td>
-                      <?php
-                        if(!empty($link['OrgIdentity']['PrimaryName'])) {
-                          print filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
-                        }
+          <ul id="tabs-orgid" class="fields data-list">
+            <?php
+            if(!empty($co_people[0]['CoOrgIdentityLink'])){
+              foreach($co_people[0]['CoOrgIdentityLink'] as $link) {
+                // Organization Name and Id
+                $orgid_name = empty($link['OrgIdentity']['PrimaryName'])
+                    ? '<cite class="text-muted"><i class="fa fa-caret-down"></i>&nbsp;empty</cite>'
+                    : '<i class="fa fa-caret-down"></i>&nbsp;' . filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
 
-                        print " (" . filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ")";
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
-                          print filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS);
-                        }
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if(!empty($link['OrgIdentity']['o'])) {
-                          print filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS);
-                        }  
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if(isset($link['OrgIdentity']['valid_from']) && $link['OrgIdentity']['valid_from'] > 0) {
-                          print $this->Time->format($link['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz);
-                        }  
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if(isset($link['OrgIdentity']['valid_through']) && $link['OrgIdentity']['valid_through'] > 0) {
-                          print $this->Time->format($link['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz);
-                        }  
-                      ?>
-                    </td>
-                    <td>
-                      <?php
-                        if(!empty($link['OrgIdentity']['Identifier'])) {
-                          foreach($link['OrgIdentity']['Identifier'] as $id) {
-                            if(!empty($id['identifier'])
-                              && $id['login']
-                              && $id['status'] == StatusEnum::Active) {
-                              print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS)
-                                . " (" . filter_var($id['type'],FILTER_SANITIZE_SPECIAL_CHARS) . ")<br />";
-                            }
-                          }
-                        }
-                      ?>
-                    </td>
-                    <td class="td-field-actions">
-                      <?php
-                        $action_args = array();
-                        $action_args['vv_attr_mdl'] = "OrgIdentity";
-                        $action_args['vv_attr_id'] = $link['OrgIdentity']['id'];
+                $identifier = array();
+                // todo: think a better approach on how to calculate status
+                if(!empty($link['OrgIdentity']['Identifier'])) {
+                  foreach($link['OrgIdentity']['Identifier'] as $id) {
+                    if(!empty($id['identifier'])
+                      && $id['login']
+                      && $id['status'] == StatusEnum::Active) {
+                      $identifier[filter_var($id['type'],FILTER_SANITIZE_SPECIAL_CHARS)] = filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+                    }
+                  }
+                }
+                $ident_login = (!empty($identifier)) ? "secondary" : "danger";
 
-                        // Edit / View Action
-                        $label = ($e && !$es) ? 'op.edit' : 'op.view';
-                        $action = ($e && !$es) ? 'edit' : 'view';
-                        $order = ($e && !$es) ? MenuActionoOrder::Edit : MenuActionoOrder::View;
-                        $action_args['vv_actions'][] = array(
-                          'order' => $order,
-                          'url' => $this->Html->url(
-                            array(
-                              'controller' => 'org_identities',
-                              'action' => $action,
-                              $link['OrgIdentity']['id'])
-                          ),
-                          'label' => _txt($label),
-                        );
+                print '<li class="field-data-container centered">';
+                print '<div class="field-data flex-column">';
+                $linkparams = array(
+                  'id' => 'role-content_' . md5("OrgIdentity" . $link['OrgIdentity']['id']),
+                  'aria-controls' => 'collapse_link_' . md5("OrgIdentity" . $link['OrgIdentity']['id']),
+                  'escape' => false,
+                  'data-toggle' => 'collapse',
+                  'aria-haspopup' => true,
+                  'aria-expanded' => false,
+                );
+                // Name
+                print $this->Html->link(
+                  $orgid_name . '&nbsp;<cite class="text-muted">(' .filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ')</cite>',
+                  '#collapse_link_' . md5("OrgIdentity" . $link['OrgIdentity']['id']),
+                  $linkparams
+                );
+                // Identifier list
+                foreach($identifier as $type => $ident) {
+                  print $this->Html->tag(
+                    'small',
+                    $ident . '&nbsp;<span class="badge badge-outline-secondary">' . $type .'</span>',
+                    array(
+                      'class' => 'text-muted pl-2 force-wrap',
+                      'escape' => false,
+                    )
+                  );
+                }
+                print '</div>';
+                ?>
+                <!-- Status -->
+                <div class="field-data data-label">
+                  <span class="badge badge-outline-<?php print $ident_login; ?>">Login</span>
+                </div>
 
-                        // Relink Action
-                        if($permissions['relink']) {
-                          $rlnk_url = array(
-                            'controller' => 'co_people',
-                            'action' => 'relink',
-                            $co_people[0]['CoPerson']['id'],
-                            'linkid' => $link['id'],
-                          );
+                <?php
+                // Actions
 
-                          // Relink button
-                          $action_args['vv_actions'][] = array(
-                            'order' => MenuActionoOrder::Relink,
-                            'url' => 'javascript:void(0);',
-                            'label' => _txt('op.relink'),
-                            'onclick' => array(
-                              'dg_bd_txt' => _jtxt(_txt('op.relink.confirm')),
-                              'dg_url' => $this->Html->url($rlnk_url),
-                              'dg_conf_btn' => _txt('op.ok'),
-                              'dg_cancel_btn' => _txt('op.cancel'),
-                              'dg_title' => _txt('op.confirm'),
-                              'db_bd_txt_repl_str' => '',
-                            ),
-                          );
-                        }
+                $action_args = array();
+                $action_args['vv_attr_mdl'] = "OrgIdentity";
+                $action_args['vv_attr_id'] = $link['OrgIdentity']['id'];
 
-                      // Delete Action
-                      if($permissions['delete']
-                        && count($co_people[0]['CoOrgIdentityLink']) > 1) {
-                        // An Org Identity Link can only be removed if there is at least one other remaining
-                        // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
-                        // away, even if it's the last one attached to the CO Preson.
+                // Edit / View Action
+                $label = ($e && !$es) ? 'op.edit' : 'op.view';
+                $action = ($e && !$es) ? 'edit' : 'view';
+                $order = ($e && !$es) ? MenuActionoOrder::Edit : MenuActionoOrder::View;
+                $action_args['vv_actions'][] = array(
+                  'order' => $order,
+                  'url' => $this->Html->url(
+                    array(
+                      'controller' => 'org_identities',
+                      'action' => $action,
+                      $link['OrgIdentity']['id'])
+                  ),
+                  'label' => _txt($label),
+                );
 
-                       $unlnk_url = array(
-                         'controller' => 'co_org_identity_links',
-                         'action' => 'delete',
-                         $link['id'],
-                       );
+                // Relink Action
+                if($permissions['relink']) {
+                  $rlnk_url = array(
+                    'controller' => 'co_people',
+                    'action' => 'relink',
+                    $co_people[0]['CoPerson']['id'],
+                    'linkid' => $link['id'],
+                  );
 
-                       // Unlink button
-                       $action_args['vv_actions'][] = array(
-                         'order' => MenuActionoOrder::Unlink,
-                         'url' => 'javascript:void(0);',
-                         'label' => _txt('op.unlink'),
-                         'onclick' => array(
-                           'dg_bd_txt' => _jtxt(_txt('op.unlink.confirm')),
-                           'dg_url' => $this->Html->url($unlnk_url),
-                           'dg_conf_btn' => _txt('op.ok'),
-                           'dg_cancel_btn' => _txt('op.cancel'),
-                           'dg_title' => _txt('op.confirm'),
-                           'db_bd_txt_repl_str' => '',
-                         ),
-                       );
-                      }
+                  // Relink button
+                  $action_args['vv_actions'][] = array(
+                    'order' => MenuActionoOrder::Relink,
+                    'url' => 'javascript:void(0);',
+                    'label' => _txt('op.relink'),
+                    'onclick' => array(
+                      'dg_bd_txt' => _jtxt(_txt('op.relink.confirm')),
+                      'dg_url' => $this->Html->url($rlnk_url),
+                      'dg_conf_btn' => _txt('op.ok'),
+                      'dg_cancel_btn' => _txt('op.cancel'),
+                      'dg_title' => _txt('op.confirm'),
+                      'db_bd_txt_repl_str' => '',
+                    ),
+                  );
+                }
 
-                      if(!empty($action_args['vv_actions'])) {
-                        print $this->element('menuAction', $action_args);
-                      }
-                      ?>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-                <?php endif; ?>
-                </tbody>
-              </table>
-            </li>
+                // Delete Action
+                if($permissions['delete']
+                  && count($co_people[0]['CoOrgIdentityLink']) > 1) {
+                  // An Org Identity Link can only be removed if there is at least one other remaining
+                  // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
+                  // away, even if it's the last one attached to the CO Preson.
+
+                  $unlnk_url = array(
+                    'controller' => 'co_org_identity_links',
+                    'action' => 'delete',
+                    $link['id'],
+                  );
+
+                  // Unlink button
+                  $action_args['vv_actions'][] = array(
+                    'order' => MenuActionoOrder::Unlink,
+                    'url' => 'javascript:void(0);',
+                    'label' => _txt('op.unlink'),
+                    'onclick' => array(
+                      'dg_bd_txt' => _jtxt(_txt('op.unlink.confirm')),
+                      'dg_url' => $this->Html->url($unlnk_url),
+                      'dg_conf_btn' => _txt('op.ok'),
+                      'dg_cancel_btn' => _txt('op.cancel'),
+                      'dg_title' => _txt('op.confirm'),
+                      'db_bd_txt_repl_str' => '',
+                    ),
+                  );
+                }
+
+
+                print '<div class="field-actions">';
+                if(!empty($action_args['vv_actions'])) {
+                  print $this->element('menuAction', $action_args);
+                }
+                print '</div>';
+
+                $card_org_args = array();
+                $card_org_args[_txt('fd.name')] = !empty($link['OrgIdentity']['PrimaryName'])
+                                                  ? filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS)
+                                                  : '-';
+                $card_org_args[_txt('fd.source')] = !empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])
+                                                    ? filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS)
+                                                    : '-';
+                $card_org_args[_txt('fd.o')] = !empty($link['OrgIdentity']['o'])
+                                               ? filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                $card_org_args[_txt('fd.status')] = !empty($link['OrgIdentity']['status'])
+                                               ? filter_var($link['OrgIdentity']['status'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                $card_org_args[_txt('fd.affiliation')] = !empty($link['OrgIdentity']['affiliation'])
+                                               ? filter_var($link['OrgIdentity']['affiliation'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                $card_org_args[_txt('fd.date_of_birth')] = !empty($link['OrgIdentity']['date_of_birth'])
+                                               ? filter_var($link['OrgIdentity']['date_of_birth'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                $card_org_args[_txt('fd.valid_from.tz', array($vv_tz))] = (isset($link['OrgIdentity']['valid_from']) && $link['OrgIdentity']['valid_from'] > 0)
+                                                                          ? $this->Time->format($link['OrgIdentity']['valid_from'], "%F %T", false, $vv_tz) : '-';
+                $card_org_args[_txt('fd.valid_through.tz', array($vv_tz))] = (isset($link['OrgIdentity']['valid_through']) && $link['OrgIdentity']['valid_through'] > 0)
+                                                                             ? $this->Time->format($link['OrgIdentity']['valid_through'], "%F %T", false, $vv_tz) : '-';
+                ?>
+                <!-- Collapsed data -->
+                <ul class="field-children collapse" id="collapse_link_<?php print md5("OrgIdentity" . $link['OrgIdentity']['id']); ?>">
+                  <li class="card-data-container">
+                    <?php foreach($card_org_args as $org_col => $value): ?>
+                      <div>
+                        <div><?php print $value; ?></div>
+                        <small class="text-muted"><cite><?php print $org_col; ?></cite></small>
+                      </div>
+                    <?php endforeach; ?>
+                  </li>
+                </ul>
+                <?php
+
+              }
+            }
+
+            ?>
           </ul><!-- tabs-orgid -->
         </li><!-- fields-orgid -->
       <?php endif; ?>

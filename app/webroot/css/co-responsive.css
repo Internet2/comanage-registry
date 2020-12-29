@@ -66,6 +66,8 @@
     grid-auto-rows: min-content;
     grid-auto-flow: dense;
     grid-gap: 2em;
+    padding-right: 0.5em !important;
+    padding-left: 0.5em !important;
   }
 }
 
