@@ -64,8 +64,9 @@ class CoExtendedType extends AppModel {
       'message' => 'A supported attribute type must be provided'
     ),
     'name' => array(
-      'rule' => 'alphaNumeric',
+      'rule' => '/^[a-zA-Z0-9\-\.]+$/',
       'required' => true,
+      'allowEmpty' => false,
       'message' => 'A name must be provided and consist of alphanumeric characters'
     ),
     'display_name' => array(
