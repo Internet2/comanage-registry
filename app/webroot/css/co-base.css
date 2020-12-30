@@ -100,7 +100,7 @@ a {
 #skip-to-content:focus {
   top: 0;
   transition: top 0.1s ease-in 0s, background 0.5s linear 0s;
-  background-color: #0c75c0;
+  background-color: var(--cmg-blue-primary);
 }
 /* HEADER */
 #banner {
@@ -453,7 +453,7 @@ form#notificationStatus {
 .co-info-topbox {
   clear: both;
   padding: 1em;
-  background-color: #fbec88;
+  background-color: var(--cmg-infobox-yellow);
   margin-bottom: 0.5em;
 }
 #lastLogin p {
@@ -1083,7 +1083,7 @@ body.co_petitions .ui-dialog {
   margin: 0;
   min-height: 1.5em;
   padding: 0.5em;
-  background-color: #0c75c0;
+  background-color: var(--cmg-blue-primary);
   color: white;
   text-align: center;
 }
@@ -1805,9 +1805,10 @@ small.force-wrap,
 label {
   cursor: pointer;
 }
+#coPersonExplorer.personExplorer,
 #coOrgIdExplorer.personExplorer,
 ul.fields li {
-  overflow-x: auto; /* required for data tables on mobile */
+  overflow: visible; /* required for data tables on mobile */
 }
 #form-dialog-legend {
   font-size: inherit;
@@ -2094,11 +2095,11 @@ tr.highlight td:first-child {
 }
 .warn-level-a,
 .warn-level-a td {
-  background-color: #fcc;
+  background-color: var(--cmg-warn-yellow);
 }
 .warn-level-b,
 .warn-level-b td {
-  background-color: #f5f5bb;
+  background-color: var(--cmg-warn-red);
 }
 .asc, .desc {
   font-style: italic;
@@ -2118,7 +2119,7 @@ a.desc::before {
 }
 .ui-widget-header {
   /*background-color: #9FC6E2;*/
-  background-color: #0c75c0;
+  background-color: var(--cmg-blue-primary);
 }
 .ui-button {
   font-size: 0.9em !important;
@@ -2155,10 +2156,33 @@ code,
 .fixed-width * {
   font-family: "Courier New","Courier",monospace !important;
 }
+/*Bootstrap badge*/
+.badge {
+  font-size: 0.9em;
+}
+.badge-secondary,
+.badge-success,
+.badge-danger,
+.badge-warning,
+.badge-info,
+.badge-light,
+.badge-dark,
+.badge-primary {
+  border: 1px solid transparent;
+}
+.badge-warning {
+  background-color: var(--cmg-infobox-yellow);
+}
+.badge-primary {
+  background-color: var(--cmg-blue-primary);
+}
+.badge-secondary {
+  background-color: var(--cmg-gray-secondary);
+}
 /* Bootstrap badge-outline */
 .badge-outline-primary {
-  color: #007bff;
-  border: 1px solid #007bff;
+  color: var(--cmg-blue-primary);
+  border: 1px solid var(--cmg-blue-primary);
 }
 .badge-outline-info {
   color: #17a2b8;
@@ -2173,16 +2197,16 @@ code,
   border: 1px solid #28a745;
 }
 .badge-outline-warning {
-  color: #d39e00;
-  border: 1px solid #d39e00;
+  color: var(--cmg-infobox-yellow);
+  border: 1px solid var(--cmg-infobox-yellow);
 }
 .badge-outline-light {
   color: #212529;
   border: 1px solid #212529;
 }
 .badge-outline-secondary {
-  color: #6c757d;
-  border: 1px solid #6c757d;
+  color: var(--cmg-gray-secondary);
+  border: 1px solid var(--cmg-gray-secondary);
 }
 /* Tables */
 table {
@@ -2209,7 +2233,7 @@ table.common-table td {
   padding: 0.25em 0.25em 0.25em 0.5em;
 }
 th {
-  background-color: #0c75c0;
+  background-color: var(--cmg-blue-primary);
   color: white;
 }
 th a {
@@ -2330,9 +2354,9 @@ td.indented {
 .btn-primary,
 .btn-primary:focus,
 .btn-primary:active {
-  background-color: #0c75c0;
+  background-color: var(--cmg-blue-primary);
   color: white;
-  border-color: #0c75c0;
+  border-color: var(--cmg-blue-primary);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
 .btn-primary:hover {

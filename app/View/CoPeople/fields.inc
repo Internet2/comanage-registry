@@ -23,7 +23,6 @@
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * @todo          Decide if the format of Roles and OrgIdentities will be [value with subtext,status,actions -- expand for details]. Make entire tab an element
  */
 
   // Globals
@@ -470,7 +469,6 @@
               //'escape' => false
             );
 
-            //print $this->Html->link('<span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>' . _txt('op.add'),
             print $this->Html->link(_txt('op.add'),
               $linktarget,
               $linkparams);
@@ -624,14 +622,42 @@
               </div>
               <div class="field-data data-label <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
               <?php
-                  print " "
-                    . ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                    . (!empty($n['SourceName']['id']) && !empty($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])
-                      ? filter_var($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS) . ", "
-                      : "")
-                    . filter_var($vv_cop_name_types[ $n['type'] ],FILTER_SANITIZE_SPECIAL_CHARS)
-                    . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "");
-                ?>
+              $badge_list = array();
+              // Primary name
+              if($n['primary_name']) {
+                $badge_list[] = array(
+                  'order' => BadgeOrderEnum::SpecialType,
+                  'text' => _txt('fd.name.primary_name'),
+                  'color' => BadgeColorModeEnum::Blue,
+                );
+              }
+              // OrgIdentitySource
+              if(!empty($n['SourceName']['id']) && !empty($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
+                $badge_list[] = array(
+                  'order' => BadgeOrderEnum::Source,
+                  'text' => filter_var($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+                  'color' => BadgeColorModeEnum::Gray,
+                );
+              }
+              // Name Type
+              $badge_list[] = array(
+                'order' => BadgeOrderEnum::Status,
+                'text' => filter_var($vv_cop_name_types[ $n['type'] ],FILTER_SANITIZE_SPECIAL_CHARS),
+                'color' => BadgeColorModeEnum::Gray,
+              );
+              // Name Language
+              if(!empty($n['language'])) {
+                $badge_list[] = array(
+                  'order' => BadgeOrderEnum::Other,
+                  'text' => _txt('en.language', null, $n['language']),
+                  'color' => BadgeColorModeEnum::Gray,
+                );
+              }
+
+              if(!empty($badge_list)) {
+                print $this->element('badgeList', array('vv_badge_list' => $badge_list));
+              }
+              ?>
               </div>
               <div class="field-actions">
                 <?php
@@ -777,24 +803,52 @@
                     print '<div class="field-data">';
                     print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
                     print '</div>';
-                    print '<div class="field-data data-label">';
+
+                    $badge_list = array();
                     if($g['owner']) {
                       if($g['member']) {
-                        print ' ' . _txt('fd.group.own')
-                          . ', ' . _txt('fd.group.mem');
+                        // Owner Badge
+                        $badge_list[] = array(
+                          'order' => BadgeOrderEnum::SpecialType,
+                          'text' => _txt('fd.group.own'),
+                          'color' => BadgeColorModeEnum::Blue,
+                        );
+                        // Member Badge
+                        $badge_list[] = array(
+                          'order' => BadgeOrderEnum::Type,
+                          'text' => _txt('fd.group.mem'),
+                          'color' => BadgeColorModeEnum::Gray,
+                        );
                       } else {
-                        print ' ' . _txt('fd.group.own.only');
+                        $badge_list[] = array(
+                          'order' => BadgeOrderEnum::SpecialType,
+                          'text' => _txt('fd.group.own.only'),
+                          'color' => BadgeColorModeEnum::Blue,
+                        );
                       }
                     } elseif($g['member']) {
-                      print ' ' . _txt('fd.group.mem');
+                      $badge_list[] = array(
+                        'order' => BadgeOrderEnum::Type,
+                        'text' => _txt('fd.group.mem'),
+                        'color' => BadgeColorModeEnum::Gray,
+                      );
                     }
                     // Warn if membership is invalid
                     if((!empty($g['valid_from'])
                         && strtotime($g['valid_from']) >= time())
-                       ||
-                       (!empty($g['valid_through'])
+                      ||
+                      (!empty($g['valid_through'])
                         && strtotime($g['valid_through']) < time())) {
-                      print " (" . _txt('fd.inactive') . ")";
+                      $badge_list[] = array(
+                        'order' => BadgeOrderEnum::Status,
+                        'text' => _txt('fd.inactive'),
+                        'color' => BadgeColorModeEnum::Yellow,
+                      );
+                    }
+                    // Add element
+                    print '<div class="field-data data-label">';
+                    if(!empty($badge_list)) {
+                      print $this->element('badgeList', array('vv_badge_list' => $badge_list));
                     }
                     print '</div>';
 
@@ -860,10 +914,29 @@
                     print '</li>';
                   }
                 } else {
-                  if($g['member'])
-                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . "</div></li>\n";
-                  if($g['owner'])
-                    print '<li class="field-data-container"><div class="field-data field-data-alone">' . filter_var($g['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS) . " (" . _txt('fd.group.own') . ")</div></li>\n";
+                  if($g['member']) {
+                    print '<li class="field-data-container">';
+                    print '<div class="field-data field-data-alone">';
+                    print filter_var($g['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+                    print '</div></li>' . PHP_EOL;
+                  }
+                  if($g['owner']) {
+                    print '<li class="field-data-container">';
+                    print '<div class="field-data field-data-alone">';
+                    print filter_var($g['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+                    print $this->element('badgeList',
+                      array('vv_badge_list' =>
+                        array(
+                          array(
+                            'order' => BadgeOrderEnum::SpecialType,
+                            'text' => _txt('fd.group.own'),
+                            'color' => BadgeColorModeEnum::Blue,
+                            )
+                        )
+                      )
+                    );
+                    print '</div></li>' . PHP_EOL;
+                  }
                 }
               }
             }
@@ -1036,7 +1109,9 @@
                 $rcnt = 1;
                 foreach($co_people[0]['CoPersonRole'] as $r) {
                   // Set the status styling
-                  $statusClass = "status-normal";
+                  $statusClass = BadgeColorModeEnum::Gray;
+                  // Set ordering
+                  $bgOrder = BadgeOrderEnum::Other;
                   // Store the action list
                   $action_args = array();
                   $action_args['vv_attr_mdl'] = "CoPersonRole";
@@ -1046,12 +1121,15 @@
                     || $r['status'] == StatusEnum::Expired
                     || $r['status'] == StatusEnum::Deleted) {
                     // Style status for suspended, expired, deleted
-                    $statusClass = "danger"; // reddish
+                    $bgOrder = BadgeOrderEnum::Status;
+                    $statusClass = BadgeColorModeEnum::Red; // reddish
                   } elseif($r['status'] != StatusEnum::Active) {
                     // Style status if otherwise not active
-                    $statusClass = "warning"; // yellowish
+                    $bgOrder = BadgeOrderEnum::Status;
+                    $statusClass = BadgeColorModeEnum::Yellow; // yellowish
                   } elseif($r['status'] == StatusEnum::Active) {
-                    $statusClass = "secondary";
+                    $bgOrder = BadgeOrderEnum::Status;
+                    $statusClass = BadgeColorModeEnum::Gray; // grayish
                   }
                   // Independent of status, set the style based on dates if needed:
                   $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
@@ -1059,14 +1137,15 @@
 
                   if ($validThroughDate && $this->Time->isPast($validThroughDate)) {
                     // valid through date exists and is in the past
-                    $statusClass = "danger"; // reddish
+                    $bgOrder = BadgeOrderEnum::Status;
+                    $statusClass = BadgeColorModeEnum::Red; // reddish
                   } elseif ($validFromDate && $this->Time->isFuture($validFromDate)) {
                     // valid from date is in the future
-                    $statusClass = "warning"; // yellowish
+                    $bgOrder = BadgeOrderEnum::Status;
+                    $statusClass = BadgeColorModeEnum::Yellow; // yellowish
                   }
 
-                  // fixme: Why use isset here if we do not do this when picking a status color
-                  $status = isset($r['status']) ? _txt('en.status', null, $r['status']) : 'unknown';
+                  $status = !empty($r['status']) ? _txt('en.status', null, $r['status']) : '-';
                   $cou_name = (empty($r['Cou']['name']))
                               ? '<cite class="text-muted"><i class="fa fa-caret-down"></i>&nbsp;empty</cite>'
                               : '<i class="fa fa-caret-down"></i>&nbsp;' . filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
@@ -1087,11 +1166,20 @@
                     $linkparams
                   );
                   print '</div>';
-                  ?>
-                  <div class="field-data data-label">
-                    <span class="badge badge-outline-<?php print $statusClass; ?>"><?php print $status; ?></span>
-                  </div>
-                  <?php
+                  print '<div class="field-data data-label">';
+                  print $this->element('badgeList',
+                    array(
+                      'vv_badge_list' =>
+                        array(
+                          array(
+                            'order' => $bgOrder,
+                            'text' => $status,
+                            'color' => $statusClass,
+                            ),
+                          )
+                    )
+                  );
+                  print '</div>';
                   if ($es // Editing self
                     || empty($r['Cou']) // No COU set for this person
                     || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))
@@ -1229,7 +1317,7 @@
           </ul><!-- tabs-role -->
         </li><!-- fields-role -->
 
-        <!-- Org Ids New -->
+        <!-- Org Ids -->
         <li id="fields-orgid" class="fieldGroup">
           <?php
           if(isset($permissions['link']) && $permissions['link']) {
@@ -1271,7 +1359,7 @@
                     }
                   }
                 }
-                $ident_login = (!empty($identifier)) ? "secondary" : "danger";
+                $ident_login = (!empty($identifier)) ? BadgeColorModeEnum::Blue : BadgeColorModeEnum::Red;
 
                 print '<li class="field-data-container centered">';
                 print '<div class="field-data flex-column">';
@@ -1291,9 +1379,20 @@
                 );
                 // Identifier list
                 foreach($identifier as $type => $ident) {
+                  $ident_badge_type = $this->element('badgeList',
+                    array(
+                      'vv_badge_list' =>
+                        array(
+                          array(
+                            'text' => $type,
+                            'color' => BadgeColorModeEnum::Gray,
+                          ),
+                        )
+                    )
+                  );
                   print $this->Html->tag(
                     'small',
-                    $ident . '&nbsp;<span class="badge badge-outline-secondary">' . $type .'</span>',
+                    $ident . '&nbsp;' . $ident_badge_type,
                     array(
                       'class' => 'text-muted pl-2 force-wrap',
                       'escape' => false,
@@ -1301,13 +1400,20 @@
                   );
                 }
                 print '</div>';
-                ?>
-                <!-- Status -->
-                <div class="field-data data-label">
-                  <span class="badge badge-outline-<?php print $ident_login; ?>">Login</span>
-                </div>
-
-                <?php
+                // Status
+                print '<div class="field-data data-label">';
+                print $this->element('badgeList',
+                  array(
+                    'vv_badge_list' =>
+                      array(
+                        array(
+                          'text' => "Login",
+                          'color' => $ident_login,
+                        ),
+                      )
+                  )
+                );
+                print '</div>';
                 // Actions
 
                 $action_args = array();

@@ -181,6 +181,25 @@ class AuthenticatorStatusEnum
   const NotSet                 = 'NS';
 }
 
+class BadgeColorModeEnum {
+  const Green                  = "success";
+  const Red                    = "danger";
+  const Yellow                 = "warning";
+  const Blue                   = "primary";
+  const LightGray              = "secondary";
+  const Gray                   = "light";
+  const LightBlue              = "info";
+  const Black                  = "dark";
+}
+
+class BadgeOrderEnum {
+  const SpecialType           = 3;  // e.g. Primary Name for Name Models
+  const Source                = 6;
+  const Type                  = 9;
+  const Status                = 12;
+  const Other                 = 15;
+}
+
 class ComparisonEnum
 {
   const Contains               = 'CTS'; // Substr

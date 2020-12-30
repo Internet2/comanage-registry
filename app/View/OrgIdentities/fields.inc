@@ -291,9 +291,32 @@
                   </div>
                   <div class="field-data data-label">
                     <?php
-                       print ($n['primary_name'] ? (_txt('fd.name.primary_name') . ", ") : "")
-                        . _txt('en.name.type', null, $n['type'])
-                        . (!empty($n['language']) ? (", " . _txt('en.language', null, $n['language'])) : "");
+                    $badge_list = array();
+                    // Primary name
+                    if($n['primary_name']) {
+                      $badge_list[] = array(
+                        'order' => BadgeOrderEnum::SpecialType,
+                        'text' => _txt('fd.name.primary_name'),
+                        'color' => BadgeColorModeEnum::Blue,
+                      );
+                    }
+                    // Name Type
+                    $badge_list[] = array(
+                      'order' => BadgeOrderEnum::Type,
+                      'text' => _txt('en.name.type', null, $n['type']),
+                      'color' => BadgeColorModeEnum::Gray,
+                    );
+                    // Name Language
+                    if(!empty($n['language'])) {
+                      $badge_list[] = array(
+                        'order' => BadgeOrderEnum::Other,
+                        'text' => _txt('en.language', null, $n['language']),
+                        'color' => BadgeColorModeEnum::Gray,
+                      );
+                    }
+                    if(!empty($badge_list)) {
+                      print $this->element('badgeList', array('vv_badge_list' => $badge_list));
+                    }
                     ?>
                   </div>
                   <div class="field-actions">
@@ -664,7 +687,17 @@
                       $o['CoPerson']['id']));
                   print '</div>';
                   print '<div class="field-data data-label">';
-                  print filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+                  print $this->element('badgeList',
+                    array('vv_badge_list' =>
+                      array(
+                        array(
+                          'order' => BadgeOrderEnum::Other,
+                          'text' => filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS),
+                          'color' => BadgeColorModeEnum::Gray,
+                        )
+                      )
+                    )
+                  );
                   print '</div>';
                   $action_coil_args = array();
                   $action_coil_args['vv_attr_mdl'] = "CoOrgIdentityLink";

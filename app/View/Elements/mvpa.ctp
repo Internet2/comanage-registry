@@ -87,12 +87,13 @@
             $editable = ($action == 'edit');
             $removetxt = _txt('js.remove');
             $displaystr = (!empty($mvpa_field) ? $m[$mvpa_field] : "");
-            $typestr = !empty($m['type']) ? $m['type'] : null;
             $laction = $action;
             // Store the action list
             $action_args = array();
             $action_args['vv_attr_mdl'] = $mvpa_model;
             $action_args['vv_attr_id'] = $m["id"];
+            // Store the Bagde list
+            $badge_list = array();
 
             if(!empty($m[$smodel]['id'])) {
               // Records attached to a SourceModel are read only
@@ -123,10 +124,20 @@
                   break;
               }
             }
-            
+
             // Lookup the extended type friendly name, if set
             if(!empty($m['type']) && isset(${$vv_dictionary}[ $m['type'] ])) {
-              $typestr = ${$vv_dictionary}[ $m['type'] ];
+              $badge_list[$mvpa_model . '_type'] = array(
+                'order' => BadgeOrderEnum::Type,
+                'text' => ${$vv_dictionary}[ $m['type'] ],
+                'color' => BadgeColorModeEnum::Gray,
+              );
+            } elseif (!empty($m['type'])) {
+              $badge_list[$mvpa_model . '_type'] = array(
+                'order' => BadgeOrderEnum::Type,
+                'text' => $m['type'],
+                'color' => BadgeColorModeEnum::Gray,
+              );
             }
             
             // Adjust text strings for identifiers associated with provisioning targets specially
@@ -141,12 +152,18 @@
                     // means something else).
 
                     if($permissions['link']) {
+                      // todo: Move this into action list -- Benn's comment needed
                       $typestr = $this->Html->link($m['CoProvisioningTarget']['description'],
                                                    array('controller' => 'co_provisioning_targets',
                                                          'action' => 'edit',
                                                          $m['CoProvisioningTarget']['id']));
                     } else {
-                      $typestr = $m['CoProvisioningTarget']['description'];
+                      $badge_list[$mvpa_model . '_prov'] = array(
+                        'order' => BadgeOrderEnum::Other,
+                        'text' => $m['CoProvisioningTarget']['description'],
+                        'color' => BadgeColorModeEnum::Gray,
+                        'outline' => true,
+                      );
                     }
                   }
                 }
@@ -155,20 +172,27 @@
             
             // Prepend the attribute source to the type string, if there is one
             if(!empty($m[$smodel]['id'])) {
-              $typestr = maybeAppend(filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
-                                     ", ",
-                                     $typestr);
+                $badge_list[$mvpa_model . '_source'] = array(
+                  'order' => BadgeOrderEnum::Source,
+                  'text' => filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+                  'color' => BadgeColorModeEnum::Gray,
+                  'outline' => true,
+                );
             }
             
-            // Add a suspended flag to the type string, if appropriate
+            // Add a suspended badge, if appropriate
             if(isset($m['status']) && $m['status'] == SuspendableStatusEnum::Suspended) {
-              $typestr = maybeAppend($typestr, ", ", _txt('en.status.susp', null, SuspendableStatusEnum::Suspended));
+              $badge_list[$mvpa_model . '_status'] = array(
+                'order' => BadgeOrderEnum::Status,
+                'text' => _txt('en.status.susp', null, SuspendableStatusEnum::Suspended),
+                'color' => BadgeColorModeEnum::Red,
+              );
             }
             
             // If this is an Email Address and is verified, add that to the type string
             if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
-              $typestr = maybeAppend($typestr, ", ", ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')));
               if(!$m['verified']) {
+                // Action
                 $dg_url = array(
                   'controller' => 'co_invites',
                   'action' => 'verifyEmailAddress',
@@ -188,6 +212,19 @@
                     'db_bd_txt_repl_str' => filter_var(_jtxt($m['mail']),FILTER_SANITIZE_STRING),
                   ),
                 );
+
+                // Badge email Unverified
+                $badge_list[$mvpa_model . '_status'] = array(
+                  'order' => BadgeOrderEnum::Status,
+                  'text' => _txt('fd.email_address.unverified'),
+                  'color' => BadgeColorModeEnum::Yellow,
+                );
+              } else {
+                // Badge email Verfied
+                $badge_list[$mvpa_model . '_type']['order'] = BadgeOrderEnum::Status;
+                $badge_list[$mvpa_model . '_type']['fa_class'] = 'fa-check-circle';
+                $badge_list[$mvpa_model . '_type']['outline'] = false;
+                $badge_list[$mvpa_model . '_type']['color'] = BadgeColorModeEnum::Green;
               }
             }
             
@@ -208,11 +245,11 @@
                                             $m['id']));
             }
             print '</div>';
-            if(!empty($typestr)) {
-              print '<div class="field-data data-label">';
-              print $typestr;
-              print '</div>';
+            print '<div class="field-data data-label">';
+            if(!empty($badge_list)) {
+              print $this->element('badgeList', array('vv_badge_list' => $badge_list));
             }
+            print '</div>';
             print '<div class="field-actions">';
             // Render specific buttons
             if($mvpa_model == 'Identifier') {
