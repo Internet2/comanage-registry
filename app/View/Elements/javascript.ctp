@@ -29,6 +29,14 @@
 
 <script type="text/javascript">
   $(function() {
+    $('#user-panel-toggle,#user-notifications,#global-search').on('click', function() {
+      if($(window).width() < 768) {
+        if ($('#navigation-drawer').is(':visible')) {
+          $('#co-hamburger').trigger('click');
+        }
+      }
+    });
+
     // Establish left-side navigation
     $('#main-menu').metisMenu();
 

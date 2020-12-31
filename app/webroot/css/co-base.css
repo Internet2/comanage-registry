@@ -54,6 +54,7 @@ h1.firstPrompt {
   font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
   font-size: 1.2em;
   font-weight: normal;
+  overflow: hidden;
 }
 #fpDashboard h2 {
   margin: 0.5em 0;
