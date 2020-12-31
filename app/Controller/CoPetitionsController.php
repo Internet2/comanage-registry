@@ -569,17 +569,23 @@ class CoPetitionsController extends StandardController {
                                                             array('CoEnrollmentFlow.id' => $enrollmentFlowID));
         
         if($authn || $authz != EnrollmentAuthzEnum::None) {
-          $tArgs = array();
-          $tArgs['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
-          $tArgs['conditions']['CoTermsAndConditions.cou_id'] = null;
-          $tArgs['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
-          $tArgs['contain'] = false;
-          
-          $this->set('vv_terms_and_conditions',
-                     $this->CoPetition->Co->CoTermsAndConditions->find('all', $tArgs));
+          $selectCou = null;
+          foreach($enrollmentAttributes as $ea) {
+            if($ea['model'] == 'EnrolleeCoPersonRole') {
+              $selectCou = $ea;
+              break;
+            }
+          }
+          if(isset($selectCou['default']) && $selectCou['modifiable'] === false) {
+            $tnc = $this->CoPetition->Co->CoTermsAndConditions->getTermsAndConditionsByCouId($this->cur_co['Co']['id'], $selectCou['default']);
+          }
+          else {
+            $tnc = $this->CoPetition->Co->CoTermsAndConditions->getTermsAndConditionsByCouId($this->cur_co['Co']['id'], NULL);
+          }
+
+          $this->set('vv_terms_and_conditions', $tnc);
           
           // Also pass through the T&C Mode
-          
           $tcmode = $this->CoPetition
                          ->CoEnrollmentFlow->field('t_and_c_mode',
                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowID));
