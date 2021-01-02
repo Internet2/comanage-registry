@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://github.com/Internet2/comanage-registry/tree/4.0.0/app/Config/Schema/json/BulkLoadShell/meta-schema.json",
+  "title": "COmanage Registry BulkLoad Shell Metadata Object",
+  "description": "COmanage Registry BulkLoad Shell metadata",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "BulkLoad Shell metadata",
+      "properties": {
+        "pluginModels": {
+          "type": "object",
+          "properties": {
+            "CoGroup": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "Configuration": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "CoPerson": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "local": {
+          "description": "Additional site specific information may be encoded here",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

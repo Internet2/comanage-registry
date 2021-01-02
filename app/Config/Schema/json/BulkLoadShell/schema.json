@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://github.com/Internet2/comanage-registry/tree/4.0.0/app/Config/Schema/json/BulkLoadShell/schema.json",
+  "title": "COmanage Registry BulkLoad Shell",
+  "description": "COmanage Registry BulkLoad Shell record format",
+  "type": "object",
+  
+  "definitions": {
+    "AdHocAttribute": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "co_person_role_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "required": [ "tag", "value" ],
+        "additionalProperties": false
+      }
+    },
+    "Address": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "locality": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "room": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "street": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "co_person_role_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "CoGroup": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "open": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "CoGroupMember": { "$ref": "#/definitions/CoGroup" },
+        "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" },
+        "Identifier": { "$ref": "#/definitions/Identifier" }
+      },
+      "required": [ "name", "status" ],
+      "additionalProperties": false
+    },
+    "CoGroupMember": {
+      "type": "object",
+      "properties": {
+        "co_group_id": {
+          "type": "integer"
+        },
+        "co_person_id": {
+          "type": "integer"
+        },
+        "member": {
+          "type": "boolean"
+        },
+        "owner": {
+          "type": "boolean"
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_through": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CoPerson": {
+      "type": "object",
+      "properties": {
+        "date_of_birth": {
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "CoPersonRole": { "$ref": "#/definitions/CoPersonRole" },
+        "EmailAddress": { "$ref": "#/definitions/EmailAddress" },
+        "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" },
+        "Identifier": { "$ref": "#/definitions/Identifier" },
+        "Name": { "$ref": "#/definitions/Name" },
+        "OrgIdentity": { "$ref": "#/definitions/OrgIdentities" },
+        "Url": { "$ref": "#/definitions/Url" }
+      },
+      "required": [ "status" ],
+      "additionalProperties": false
+    },
+    "CoPersonRole": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "affiliation": {
+            "type": "string"
+          },
+          "co_person_id": {
+            "type": "integer"
+          },
+          "cou_id": {
+            "type": "integer"
+          },
+          "o": {
+            "type": "string"
+          },
+          "ordr": {
+            "type": "integer"
+          },
+          "ou": {
+            "type": "string"
+          },
+          "sponsor_co_person_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_through": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "AdHocAttribute": { "$ref": "#/definitions/AdHocAttribute" },
+          "Address": { "$ref": "#/definitions/Address" },
+          "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" }
+        },
+        "required": [ "affiliation", "co_person_id", "status" ],
+        "additionalProperties": false
+      }
+    },
+    "EmailAddress": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "mail": {
+            "type": "string",
+            "format": "email"
+          },
+          "type": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "string"
+          },
+          "co_person_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "required": [ "mail", "type" ],
+        "additionalProperties": false
+      }
+    },
+    "HistoryRecord": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string",
+            "format": "email"
+          },
+          "co_group_id": {
+            "type": "integer"
+          },
+          "co_person_id": {
+            "type": "integer"
+          },
+          "co_person_role_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "Identifier": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "format": "email"
+          },
+          "login": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "co_group_id": {
+            "type": "integer"
+          },
+          "co_person_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "required": [ "identifier", "type", "status" ],
+        "additionalProperties": false
+      }
+    },
+    "Name": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "given": {
+            "type": "string"
+          },
+          "honorific": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "middle": {
+            "type": "string"
+          },
+          "primary_name": {
+            "type": "boolean"
+          },
+          "suffix": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "co_person_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "required": [ "given", "type" ],
+        "additionalProperties": false
+      }
+    },
+    "OrgIdentities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/OrgIdentity"
+      }
+    },
+    "OrgIdentity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "affiliation": {
+            "type": "string"
+          },
+          "co_id": {
+            "type": "integer"
+          },
+          "date_of_birth": {
+            "type": "string",
+            "format": "date"
+          },
+          "o": {
+            "type": "string"
+          },
+          "ordr": {
+            "type": "integer"
+          },
+          "ou": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_through": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "AdHocAttribute": { "$ref": "#/definitions/AdHocAttribute" },
+          "Address": { "$ref": "#/definitions/Address" },
+          "EmailAddress": { "$ref": "#/definitions/EmailAddress" },
+          "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" },
+          "Identifier": { "$ref": "#/definitions/Identifier" },
+          "Name": { "$ref": "#/definitions/Name" },
+          "Url": { "$ref": "#/definitions/Url" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "OrgIdentitySourceRecord": {
+      "type": "object",
+      "properties": {
+        "org_identity_id": {
+          "type": "integer"
+        },
+        "org_identity_source_id": {
+          "type": "integer"
+        },
+        "last_update": {
+          "type": "string",
+          "format": "date"
+        },
+        "reference_identifier": {
+          "type": "string"
+        },
+        "sorid": {
+          "type": "string"
+        },
+        "source_record": {
+          "type": "string"
+        },
+        "OrgIdentity": { "$ref": "#/definitions/OrgIdentity" }
+      },
+      "required": [ "org_identity_source_id", "sorid", "last_update" ],
+      "additionalProperties": false
+    },
+    "Url": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "co_person_id": {
+            "type": "integer"
+          },
+          "org_identity_id": {
+            "type": "integer"
+          }
+        },
+        "required": [ "url", "type" ],
+        "additionalProperties": false
+      }
+    }
+  },
+  
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "objectType": {
+          "type": "string",
+          "description": "Indicator of the primary object type for this record",
+          "enum": [
+            "CoGroup",
+            "CoPerson"
+          ]
+        },
+        "xref": {
+          "type": "string",
+          "description": "Cross Reference label that can be used to lookup the new object ID assigned to this primary object",
+          "pattern": "^[a-zA-Z0-9]+$"
+        },
+        "local": {
+          "description": "Additional site specific information may be encoded here",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "AdHocAttribute": { "$ref": "#/definitions/AdHocAttribute" },
+    "Address": { "$ref": "#/definitions/Address" },
+    "CoGroup": { "$ref": "#/definitions/CoGroup" },
+    "CoGroupMember": { "$ref": "#/definitions/CoGroupMember" },
+    "CoPerson": { "$ref": "#/definitions/CoPerson" },
+    "CoPersonRole": { "$ref": "#/definitions/CoPersonRole" },
+    "EmailAddress": { "$ref": "#/definitions/EmailAddress" },
+    "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" },
+    "Identifier": { "$ref": "#/definitions/Identifier" },
+    "Name": { "$ref": "#/definitions/Name" },
+    "OrgIdentity": { "$ref": "#/definitions/OrgIdentities" },
+    "OrgIdentitySourceRecord": { "$ref": "#/definitions/OrgIdentitySourceRecord" },
+    "Url": { "$ref": "#/definitions/Url" }
+  }
+}

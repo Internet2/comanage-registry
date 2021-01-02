@@ -296,6 +296,7 @@ original notification at
     ActionEnum::CoEmailListManuallyProvisioned => 'CO Email List Provisioned (Manual)',
     ActionEnum::CoEmailListProvisioned      => 'CO Email List Provisioned',
     ActionEnum::CoGroupAdded                => 'CO Group Added',
+    ActionEnum::CoGroupAddedBulk            => 'CO Group Added (Bulk)',
     ActionEnum::CoGroupDeleted              => 'CO Group Deleted',
     ActionEnum::CoGroupEdited               => 'CO Group Edited',
     ActionEnum::CoGroupManuallyProvisioned  => 'CO Group Provisioned (Manual)',
@@ -949,6 +950,7 @@ original notification at
   'er.auth.roles' =>  'You do not have any current roles. If your request for enrollment is still being processed, you will not be able to login until it is approved. Please contact an administrator for assistance.',
   // authr = Authenticator (model), vs Authentication (login)
   'er.authr.unlocked' => 'Authenticator is already unlocked',
+  'er.bulk.label.unknown' => 'Unknown cross reference label "%1$s"',
   'er.changelog.model.load' => 'Failed to load model "%1$s"',
   'er.cluster.acct.already' => 'Cluster Account already assigned (%1$s)',
   'er.cluster.acct.grmem' => 'CO Person is not a member of the Default CO Group',

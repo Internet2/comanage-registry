@@ -43,6 +43,7 @@ class ActionEnum
   const CoEmailListManuallyProvisioned  = 'PCEM';
   const CoEmailListProvisioned          = 'PCEA';
   const CoGroupAdded                    = 'ACGR';
+  const CoGroupAddedBulk                = 'ACGB';
   const CoGroupDeleted                  = 'DCGR';
   const CoGroupEdited                   = 'ECGR';
   const CoGroupManuallyProvisioned      = 'PCGM';

@@ -62,6 +62,7 @@
       'co_org_identity_links',
       'ad_hoc_attributes',
       'addresses',
+      'co_groups',
       'co_group_members',
       'email_addresses',
       'history_records',
@@ -71,6 +72,9 @@
       'telephone_numbers',
       'urls'
     );
+    
+    // Cross reference lookup table
+    protected $xrefs = array();
     
     function main() {
       $coId = $this->args[0];
@@ -134,7 +138,7 @@
         
         // Merge plugin models into the configuration
         
-        foreach(array('CoPerson', 'Configuration') as $mt) {
+        foreach(array('CoPerson', 'CoGroup', 'Configuration') as $mt) {
           if(!empty($pluginModels[$mt])) {
             foreach($pluginModels[$mt] as $m) {
               // Make sure we're not overriding a core model. Note plugins risk
@@ -181,6 +185,8 @@
           continue;
         }
         
+        $autoGroupTodo = array();
+        
         if(!empty($inrecord['CoPerson'])) {
           // Process a CO Person record
           // Track which Automatic Group Memberships we should create, by COU ID
@@ -193,6 +199,11 @@
           
           // We have to manually key the records
           $coPersonId = ++$maxIds['co_people'];
+          
+          // If there is a cross reference label, store the ID for lookup
+          if(!empty($inrecord['meta']['xref'])) {
+            $this->xrefs[ $inrecord['meta']['xref'] ] = $coPersonId;
+          }
           
           // This will give us a fully populated record
           $outrecords['co_people'][] = $this->recordToRow($inrecord['CoPerson'], 
@@ -476,8 +487,51 @@
               }
             }
           }
+        } elseif(!empty($inrecord['CoGroup'])) {
+          // Process a CO Group record
+
+          // We have to manually key the records
+          $coGroupId = ++$maxIds['co_groups'];
+          
+          // If there is a cross reference label, store the ID for lookup
+          if(!empty($inrecord['meta']['xref'])) {
+            $this->xrefs[ $inrecord['meta']['xref'] ] = $coGroupId;
+          }
+          
+          // This will give us a fully populated record
+          $outrecords['co_groups'][] = $this->recordToRow($inrecord['CoGroup'], 
+                                                          array('id' => $coGroupId,
+                                                                'co_id' => $coId),
+                                                          $this->getFields('CoGroup'));
+          // Process CO Group models
+          foreach(array('Identifier', 'CoGroupMember', 'HistoryRecord') as $m) {
+            $table = Inflector::tableize($m);
+            
+            if(!empty($inrecord[$m])) {
+              foreach($inrecord[$m] as $subrecord) {
+                $id = ++$maxIds[$table];
+                
+                $outrecords[$table][] = $this->recordToRow($subrecord,
+                                                           array('id' => $id,
+                                                                 'co_group_id' => $coGroupId),
+                                                           $this->getFields($m));
+              }
+            }
+          }
+          
+          // Inject a History Record
+          $id = ++$maxIds['history_records'];
+          
+          $history = array(
+            'id' => $id,
+            'co_group_id' => $coGroupId,
+            'action' => ActionEnum::CoGroupAddedBulk,
+            'comment' => _txt('en.action', null, ActionEnum::CoGroupAddedBulk)
+          );
+          
+          $outrecords['history_records'][] = $this->recordToRow($history, array(), $this->getFields('HistoryRecord'));
         } else {
-          // There was no CoPerson record in the JSON blob, so it must be a Configuration plugin model
+          // This must be a Configuration plugin model
           
           if(!empty($pluginModels['Configuration'])) {
             foreach($pluginModels['Configuration'] as $m) {
@@ -812,10 +866,23 @@
         } elseif(is_bool($full[$f])) {
           $formatted[$f] = $full[$f] ? 't' : 'f';
         } else {
+          $v = $full[$f];
+          $m = null;
+          
+          // Process xrefs
+          if(preg_match('/\@\{([a-zA-Z0-9]+)\}/', $v, $m)) {
+            // $m[1] has the xref label to replace, $m[0] includes the @{}
+            
+            if(!empty($this->xrefs[ $m[1] ])) {
+              $v = preg_replace('/'.$m[0].'/', $this->xrefs[ $m[1] ], $v);
+            } else {
+              $this->out(_txt('er.bulk.label.unknown', array($m[1])));
+            }
+          }
           // XXX also need to convert multiline to single line
           //     and escape instances of delimiter
           
-          $formatted[$f] = $full[$f];
+          $formatted[$f] = $v;
         }
       }
       
