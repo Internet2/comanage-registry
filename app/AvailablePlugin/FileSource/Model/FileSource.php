@@ -54,6 +54,14 @@ class FileSource extends AppModel {
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'threshold_warn' => array(
+      'rule' => array('range', -1, 101),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'threshold_override' => array(
+      'rule' => array('boolean')
     )
   );
   
@@ -65,5 +73,29 @@ class FileSource extends AppModel {
    */
   public function cmPluginMenus() {
     return array();
+  }
+
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function beforeSave($options = array()) {
+    if(!empty($this->data['FileSource']['threshold_warn'])
+       && (empty($this->data['FileSource']['archivedir'])
+           || !is_readable($this->data['FileSource']['archivedir']))) {
+      // If a Warning Threshold is set, we require an Archive Directory for
+      // several reasons:
+      // (1) We need the prior file in order to run a diff
+      // (2) We run the diff in getChangeList, because we can easily throw an error
+      //     there to stop processing, and we're already comparing files there
+      // (3) We could support forcesyncorgsources to override, though that disables
+      //     changelist detection, so for now at least we use a separate configuration
+      
+      throw new InvalidArgumentException(_txt('er.filesource.threshold.cfg'));
+    }
+    
+    return true;
   }
 }

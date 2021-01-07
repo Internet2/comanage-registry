@@ -77,6 +77,9 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
           $knownRecords[ $d[0] ] = $d[1];
         }
         
+        $knownCount = count($knownRecords);
+        $newCount = 0;
+        
         fclose($handle);
         
         // Now read the new file and look for changes.
@@ -99,7 +102,8 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
             unset($knownRecords[ $d[0] ]);
           } else {
             // This is a new record (ie: in $infile, not in $archive1),
-            // so we ignore it.
+            // so we ignore it, except to count it.
+            $newCount++;
           }
         }
         
@@ -108,6 +112,34 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
         // Finally, any remaining keys in $knownRecords are delete operations.
         if(!empty($knownRecords)) {
           $ret = array_merge($ret, array_keys($knownRecords));
+        }
+        
+        if(!empty($this->pluginCfg['threshold_warn'])) {
+          // Check the number of changed records vs warning threshold. Note this
+          // check (correctly) does not run the first time a file is processed
+          // since there will be no archive file to compare against.
+          
+          if(isset($this->pluginCfg['threshold_override'])
+             && $this->pluginCfg['threshold_override']) {
+            // Ignore thresholds, but unset this configuration for our next run
+            
+            $FileSource = ClassRegistry::init('FileSource.FileSource');
+            
+            $FileSource->clear();
+            $FileSource->id = $this->pluginCfg['id'];
+            
+            $FileSource->saveField('threshold_override', false);
+          } else {
+            $changed = count($ret) + $newCount;
+            $pct = floor(($changed * 100) / $knownCount);
+            
+            if($pct > $this->pluginCfg['threshold_warn']) {
+              throw new RuntimeException(_txt('er.filesource.threshold', array($changed,
+                                                                               $knownCount,
+                                                                               $pct,
+                                                                               $this->pluginCfg['threshold_warn'])));
+            }
+          }
         }
         
         // If no changes, don't archive.

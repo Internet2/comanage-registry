@@ -39,10 +39,16 @@ $cm_file_source_texts['en_US'] = array(
   // Error messages
   'er.filesource.copy' => 'Failed to copy "%1$s" to "%2$s"',
   'er.filesource.read' => 'Cannot open source file "%1$s" for reading',
+  'er.filesource.threshold'     => '%1$s of %2$s records changed (%3$s %%, including new records), exceeding threshold of %4$s %% - processing canceled',
+  'er.filesource.threshold.cfg' => 'Warning Threshold requires Archive Directory',
   
   // Plugin texts
   'pl.filesource.archivedir'       => 'Archive Directory',
   'pl.filesource.archivedir.desc'  => 'If specified, a limited number of prior copies of the source file will be stored here.',
   'pl.filesource.filepath'         => 'File Path',
   'pl.filesource.info'             => 'The specified file must be readable before this configuration can be saved.',
+  'pl.filesource.threshold_warn'          => 'Warning Threshold',
+  'pl.filesource.threshold_warn.desc'     => 'If the number of changed records exceeds the specified percentage, a warning will be generated and processing will stop (requires <i>Archive Directory</i>)',
+  'pl.filesource.threshold_override'      => 'Warning Threshold Override',
+  'pl.filesource.threshold_override.desc' => 'If set, the next Full sync will ignore the Abort Threshold'
 );

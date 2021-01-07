@@ -39,6 +39,11 @@
     </field>
     <field name="filepath" type="C" size="256" />
     <field name="archivedir" type="C" size="256" />
+    <field name="threshold_warn" type="I" />
+    <!-- we can use forcesyncorgsources instead of threshold_override, though this requires shell access
+         (alternate: unset value)
+         - but then that drops diff behavior which slows things down... -->
+    <field name="threshold_override" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
