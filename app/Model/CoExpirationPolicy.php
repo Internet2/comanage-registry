@@ -233,11 +233,11 @@ class CoExpirationPolicy extends AppModel {
    *
    * @since  COmanage Registry v0.9.2
    * @param  integer $coId CO ID
-   * @param  AppShell $appShell If set, log progress via this provided AppShell
+   * @param  integer $coJobId CO Job ID
    * @return boolean True on success
    */
   
-  public function executePolicies($coId, $appShell=null) {
+  public function executePolicies($coId, $coJobId=null) {
     // Select all policies where status=active
     
     $args = array();
@@ -316,15 +316,17 @@ class CoExpirationPolicy extends AppModel {
             
             // Log that this expiration policy matched
             
-            if($appShell) {
-              $appShell->out(generateCn($role['CoPerson']['PrimaryName'])
-                             . " (" . $role['CoPersonRole']['co_person_id']
-                             . "/" . $role['CoPersonRole']['id'] . "): "
-                             . _txt('rs.xp.match', array($p['CoExpirationPolicy']['description'],
-                                                         $p['CoExpirationPolicy']['id'])));
-            }
-            
             try {
+              if($coJobId) {
+                $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                             $role['CoPersonRole']['id'],
+                                                             _txt('rs.xp.match', array($p['CoExpirationPolicy']['description'],
+                                                                                       $p['CoExpirationPolicy']['id'])),
+                                                             $role['CoPersonRole']['co_person_id'],
+                                                             null,
+                                                             JobStatusEnum::Notice);
+              }
+              
               $this->Co->CoPerson->HistoryRecord->record($role['CoPersonRole']['co_person_id'],
                                                          $role['CoPersonRole']['id'],
                                                          null,
@@ -334,8 +336,13 @@ class CoExpirationPolicy extends AppModel {
                                                                                    $p['CoExpirationPolicy']['id'])));
             }
             catch(Exception $e) {
-              if($appShell) {
-                $appShell->out($e->getMessage(), 1, Shell::QUIET);
+              if($coJobId) {
+                $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                             $role['CoPersonRole']['id'],
+                                                             $e->getMessage(),
+                                                             $role['CoPersonRole']['co_person_id'],
+                                                             null,
+                                                             JobStatusEnum::Failed);
               }
             }
             
@@ -397,8 +404,15 @@ class CoExpirationPolicy extends AppModel {
                                                                            $oldRoleData,
                                                                            $coId);
                 
-                if($appShell) {
-                  $appShell->out('+ ' . $ctxt);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               _txt('rs.xp.action', array($p['CoExpirationPolicy']['description'],
+                                                                                          $p['CoExpirationPolicy']['id'],
+                                                                                          $ctxt)),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Notice);
                 }
                 
                 $this->Co->CoPerson->HistoryRecord->record($role['CoPersonRole']['co_person_id'],
@@ -411,8 +425,13 @@ class CoExpirationPolicy extends AppModel {
                                                                                       $ctxt)));
               }
               catch(Exception $e) {
-                if($appShell) {
-                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               $e->getMessage(),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
                 }
               }
             }
@@ -530,8 +549,13 @@ class CoExpirationPolicy extends AppModel {
                                 $format);
               }
               catch(Exception $e) {
-                if($appShell) {
-                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               $e->getMessage(),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
                 }
               }
             }
@@ -569,8 +593,13 @@ class CoExpirationPolicy extends AppModel {
                                 $format);
               }
               catch(Exception $e) {
-                if($appShell) {
-                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               $e->getMessage(),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
                 }
               }
             }
@@ -604,8 +633,13 @@ class CoExpirationPolicy extends AppModel {
                                 $format);
               }
               catch(Exception $e) {
-                if($appShell) {
-                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               $e->getMessage(),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
                 }
               }
             }
@@ -640,8 +674,13 @@ class CoExpirationPolicy extends AppModel {
                                 $format);
               }
               catch(Exception $e) {
-                if($appShell) {
-                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               $e->getMessage(),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
                 }
               }
             }
@@ -677,8 +716,13 @@ class CoExpirationPolicy extends AppModel {
                                 $format);
               }
               catch(Exception $e) {
-                if($appShell) {
-                  $appShell->out($e->getMessage(), 1, Shell::QUIET);
+                if($coJobId) {
+                  $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                               $role['CoPersonRole']['id'],
+                                                               $e->getMessage(),
+                                                               $role['CoPersonRole']['co_person_id'],
+                                                               null,
+                                                               JobStatusEnum::Failed);
                 }
               }
             }

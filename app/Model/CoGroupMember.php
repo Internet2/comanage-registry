@@ -498,9 +498,10 @@ class CoGroupMember extends AppModel {
    * @since  COmanage Registry 3.2.0
    * @param  Integer $coId   CO ID
    * @param  Integer $window Time in minutes to look back for changes (ie: within the last $window minutes)
+   * @param  integer $coJobId CO Job ID
    */
   
-  public function reprovisionByValidity($coId, $window=DEF_GROUP_SYNC_WINDOW) {
+  public function reprovisionByValidity($coId, $window=DEF_GROUP_SYNC_WINDOW, $coJobId) {
     // Pull all group memberships with valid_from or valid_through timestamps
     // in the last $window minutes
     
@@ -533,17 +534,9 @@ class CoGroupMember extends AppModel {
     
     $memberships = $this->find('all', $args);
     
-    // Register a new CoJob. This will throw an exception if a job is already in progress.
-    $jobId = $this->CoPerson->Co->CoJob->register($coId,
-                                                  JobTypeEnum::GroupValidity,
-                                                  null,
-                                                  "",
-                                                  _txt('fd.co_group_member.sync.count',
-                                                       array(count($memberships))));
+    $this->CoPerson->Co->CoJob->update($coJobId, null, null, _txt('fd.co_group_member.sync.count', array(count($memberships))));
     
-    // Flag the Job as started
     $cnt = 0;
-    $this->CoPerson->Co->CoJob->start($jobId);
     
     foreach($memberships as $grm) {
       try {
@@ -565,7 +558,7 @@ class CoGroupMember extends AppModel {
                                                $cmt,
                                                $grm['CoGroupMember']['co_group_id']);
         
-        $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($jobId,
+        $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($coJobId,
                                                                $grm['CoGroupMember']['id'],
                                                                $cmt,
                                                                $grm['CoGroupMember']['co_person_id'],
@@ -584,7 +577,12 @@ class CoGroupMember extends AppModel {
       }
     }
     
-    $this->CoPerson->Co->CoJob->finish($jobId, _txt('fd.co_group_member.sync.count.done', array($cnt)));
+    $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                           null,
+                                                           _txt('fd.co_group_member.sync.count.done', array($cnt)),
+                                                           null,
+                                                           null,
+                                                           JobStatusEnum::Complete);
   }
   
   /**

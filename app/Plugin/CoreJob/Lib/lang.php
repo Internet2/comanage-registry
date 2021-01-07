@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry ID Assigner Job Plugin Language File
+ * COmanage Registry Core Job Plugin Language File
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.3.0
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -31,19 +31,32 @@ global $cm_lang, $cm_texts;
 // position as passed to _txt.  This can be used to process the arguments in
 // a different order than they were passed.
 
-$cm_id_assigner_job_texts['en_US'] = array(
+$cm_core_job_texts['en_US'] = array(
   // Titles, per-controller
-//  'ct.identifier_enroller.1'  => 'Identifier Enroller',
-//  'ct.identifier_enroller.pl' => 'Identifier Enrollers',
   
   // Error messages
-//  'er.identifierenroller.read' => 'Cannot open source file "%1$s" for reading',
   
   // Plugin texts
+  'pl.expirationjob.done'  => 'Expiration Finished',
+  'pl.expirationjob.job'   => 'Run Expirations',
+  'pl.groupvalidityjob.done' => 'Reprovisioning Finished',
+  'pl.groupvalidityjob.job' => 'Process Group Validity',
   'pl.idassignerjob.arg.object_type' => 'Object Type to assign identifiers for',
   'pl.idassignerjob.arg.object_id' => 'CO Person ID to assign identifiers for',
   'pl.idassignerjob.count' => 'Assigning Identifiers for %1$s %2$s record(s)',
   'pl.idassignerjob.finish' => 'Processed %1$s total record(s)',
   'pl.idassignerjob.job'    => 'Run Identifier Assignments',
-  'pl.idassignerjob.start'  => 'Assigning identifiers'
+  'pl.idassignerjob.start'  => 'Assigning identifiers',
+  'pl.provisionerjob.arg.co_provisioning_target_id' => 'CO Provisioning Target ID',
+  'pl.provisionerjob.arg.provisioning_action' => 'ProvisioningActionEnum',
+  'pl.provisionerjob.arg.record_type' => 'Type of record to reprovision',
+  'pl.provisionerjob.arg.record_id' => 'Record ID to reprovision, omit to reprovision all records of the specified type',
+  'pl.provisionerjob.count'  => 'Reprovisioning %1$s %2$s record(s)',
+  'pl.provisionerjob.finish' => 'Processed %1$s record(s) (%2$s success, %3$s error)',
+  'pl.provisionerjob.job'    => 'Run Provisioning',
+  'pl.provisionerjob.start'  => 'Reprovisioning target id %1$s for record type %2$s',
+  'pl.syncjob.arg.force'  => 'Force processing',
+  'pl.syncjob.arg.ois_id' => 'Org Identity Source ID to process (or all, by default)',
+  'pl.syncjob.done'       => 'Sync Finished',
+  'pl.syncjob.job'        => 'Sync Organizational Identity Sources',
 );

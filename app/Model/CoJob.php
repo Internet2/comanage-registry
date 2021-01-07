@@ -272,7 +272,7 @@ class CoJob extends AppModel {
    *
    * @since  COmanage Registry v3.1.0
    * @param  Integer     $coId       CO ID
-   * @param  JobTypeEnum $jobType    Job Type
+   * @param  string      $jobType    Job Type
    * @param  Integer     $jobTypeFk  Foreign key suitable for $jobType (eg: cm_org_identity_sources:id)
    * @return Integer                 Timestamp, or 0 if no previous run was found
    */
@@ -300,7 +300,7 @@ class CoJob extends AppModel {
    *
    * @since  COmanage Registry v2.0.0
    * @param  Integer     $coId            CO ID
-   * @param  JobTypeEnum $jobType         Job Type
+   * @param  String      $jobType         Job Type
    * @param  Integer     $jobTypeFk       Foreign key suitable for $jobType (eg: cm_org_identity_sources:id)
    * @param  String      $jobMode         Job Mode
    * @param  String      $summary         Summary

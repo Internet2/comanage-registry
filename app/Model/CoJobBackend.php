@@ -38,10 +38,15 @@ abstract class CoJobBackend extends AppModel {
   public function getOptionParser() {
     $parser = new ConsoleOptionParser();
     
-    // For now, we always support -c/-s, but that could change on a per-plugin
-    // basis at some point
-    
     $parser->addOption(
+      'asynchronous',
+      array(
+        'short'    => 'a',
+        'help'     => _txt('sh.job.arg.asynchronous'),
+        'boolean'  => true,
+        'default'  => false
+      )
+    )->addOption(
       'coid',
       array(
         'short'    => 'c',
@@ -58,7 +63,7 @@ abstract class CoJobBackend extends AppModel {
         'boolean' => true,
         'default' => false
       )
-    )->epilog(_txt('sh.job.arg.epilog'));
+    );
     
     foreach($this->parameterFormat() as $p => $cfg) {
       if($cfg['type'] == 'bool') {

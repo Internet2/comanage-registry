@@ -678,13 +678,14 @@ class OrgIdentitySource extends AppModel {
    * Sync all Org Identity Sources. Intended primarily for use by JobShell
    *
    * @since  COmanage Registry v2.0.0
-   * @param  integer $coId CO ID
-   * @param  Boolean $force If true, force a sync even if the source record has not changed
+   * @param  integer $coJobId CO Job ID
+   * @param  integer $coId    CO ID
+   * @param  Boolean $force   If true, force a sync even if the source record has not changed
    * @return boolean True on success
    * @throws RuntimeException
    */
   
-  public function syncAll($coId, $force=false) {
+  public function syncAll($coJobId, $coId, $force=false) {
     $errors = array();
     
     // Select all org identity sources where status=active
@@ -692,23 +693,45 @@ class OrgIdentitySource extends AppModel {
     $args = array();
     $args['conditions']['OrgIdentitySource.co_id'] = $coId;
     $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+    // Don't automatically sync sources that are in Manual mode
+    $args['conditions']['OrgIdentitySource.sync_mode !='] = SyncModeEnum::Manual;
     $args['contain'] = false;
     
     $sources = $this->find('all', $args);
+    $doneCnt = 0;
     
     foreach($sources as $src) {
-      // Don't automatically sync sources that are in Manual mode
+      if($this->Co->CoJob->canceled($coJobId)) { return false; }
       
-      if($src['OrgIdentitySource']['sync_mode'] != SyncModeEnum::Manual) {
-        try {
-          $this->syncOrgIdentitySource($src, $force);
-        }
-        catch(Exception $e) {
-          // What do we do with the exception? We don't want to abort the run,
-          // so we'll assemble them and then re-throw them later.
-          $errors[] = $e->getMessage();
-        }
+      try {
+        $this->Co->CoJob->update($coJobId, null, null, _txt('jb.ois.sync.start', array($src['OrgIdentitySource']['description'])));
+        
+        // We don't pass in $coJobId because we want a new Job to be created with
+        // the results just from that source.
+        $this->syncOrgIdentitySource($src, $force);
+        
+        $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                     $src['OrgIdentitySource']['id'],
+                                                     _txt('jb.ois.sync.full.finish'),
+                                                     null,
+                                                     null,
+                                                     JobStatusEnum::Complete);
       }
+      catch(Exception $e) {
+        // What do we do with the exception? We don't want to abort the run,
+        // so we'll assemble them and then re-throw them later.
+        $errors[] = $e->getMessage();
+        
+        $this->Co->CoJob->CoJobHistoryRecord->record($coJobId,
+                                                     $src['OrgIdentitySource']['id'],
+                                                     $e->getMessage(),
+                                                     null,
+                                                     null,
+                                                     JobStatusEnum::Failed);
+      }
+      
+      $doneCnt++;
+      $this->Co->CoJob->setPercentComplete($coJobId, floor(($doneCnt * 100)/count($sources)));
     }
     
     if(!empty($errors)) {
@@ -1241,7 +1264,7 @@ class OrgIdentitySource extends AppModel {
                                  : SyncActionEnum::Update,
                                  $actorCoPersonId,
                                  true,
-                                 $brec['raw'],
+                                 (!empty($brec['raw']) ? $brec['raw'] : null),
                                  $cursrcrec['OrgIdentitySourceRecord']['id']);
         }
         catch(Exception $e) {
@@ -1286,11 +1309,12 @@ class OrgIdentitySource extends AppModel {
    * @since  COmanage Registry v2.0.0
    * @param  Array   $orgIdentitySource Org Identity Source to process
    * @param  Boolean $force             If true, force a sync even if the source record has not changed
+   * @param  integer $coJobId           CO Job ID, if already registered
    * @return boolean                    True on success
    * @throws RuntimeException
    */
   
-  public function syncOrgIdentitySource($orgIdentitySource, $force=false) {
+  public function syncOrgIdentitySource($orgIdentitySource, $force=false, $coJobId=null) {
     // We don't check here that the source is in Manual mode in case an admin
     // wants to manually force a sync. (syncAll honors that setting.)
     
@@ -1304,8 +1328,9 @@ class OrgIdentitySource extends AppModel {
     // Figure out the last time we started a job for this source, primarily for changelist.
     // We use start_time rather than complete_time because it's safer (we might perform an
     // extra sync rather than miss something that updated after the job started processing).
+    // Note lastStart will only examine Jobs that are in Complete status.
     $lastStart = $this->Co->CoJob->lastStart($orgIdentitySource['OrgIdentitySource']['co_id'],
-                                             JobTypeEnum::OrgIdentitySync,
+                                             "CoreJob.Sync",
                                              $orgIdentitySource['OrgIdentitySource']['id']);
     
     // We'll need the set of records associated with this source.
@@ -1320,17 +1345,31 @@ class OrgIdentitySource extends AppModel {
     $orgRecords = $this->OrgIdentitySourceRecord->find('all', $args);
     
     // Register a new CoJob. This will throw an exception if a job is already in progress.
+    // Note we might already have $coJobId, if SyncJob started a single sync (vs sync all).
+    // In that case, update that Job rather than create a new one.
     
-    $jobId = $this->Co->CoJob->register($orgIdentitySource['OrgIdentitySource']['co_id'],
-                                        JobTypeEnum::OrgIdentitySync,
-                                        $orgIdentitySource['OrgIdentitySource']['id'],
-                                        $orgIdentitySource['OrgIdentitySource']['sync_mode'],
-                                        _txt('fd.ois.record.count',
-                                             array($orgIdentitySource['OrgIdentitySource']['description'],
-                                                   count($orgRecords))));
+    $jobId = $coJobId;
     
-    // Flag the Job as started
-    $this->Co->CoJob->start($jobId);
+    if($coJobId) {
+      // We don't want to finish the job later, either
+      $this->Co->CoJob->update($coJobId,
+                               $orgIdentitySource['OrgIdentitySource']['id'],
+                               $orgIdentitySource['OrgIdentitySource']['sync_mode'],
+                               _txt('fd.ois.record.count',
+                                    array($orgIdentitySource['OrgIdentitySource']['description'],
+                                          count($orgRecords))));
+    } else {
+      $jobId = $this->Co->CoJob->register($orgIdentitySource['OrgIdentitySource']['co_id'],
+                                          "CoreJob.Sync",
+                                          $orgIdentitySource['OrgIdentitySource']['id'],
+                                          $orgIdentitySource['OrgIdentitySource']['sync_mode'],
+                                          _txt('fd.ois.record.count',
+                                               array($orgIdentitySource['OrgIdentitySource']['description'],
+                                                     count($orgRecords))));
+      
+      // Flag the Job as started
+      $this->Co->CoJob->start($jobId);
+    }
     
     // Count results of various types
     $resCnt = array(
@@ -1373,8 +1412,10 @@ class OrgIdentitySource extends AppModel {
         catch(Exception $e) {
           // On error, fail the job rather than risk inconsistent sync state
           
-          $this->Co->CoJob->finish($jobId, $e->getMessage(), JobStatusEnum::Failed);
-          return false;
+          if(!$coJobId) {
+            $this->Co->CoJob->finish($jobId, $e->getMessage(), JobStatusEnum::Failed);
+          }
+          throw new RuntimeException($e->getMessage());
         }
       }
       
@@ -1746,8 +1787,12 @@ class OrgIdentitySource extends AppModel {
                                                    null,
                                                    JobStatusEnum::Notice);
     }
-
-    $this->Co->CoJob->finish($jobId, json_encode($resCnt));
+    
+    if(!$coJobId) {
+      $this->Co->CoJob->finish($jobId, json_encode($resCnt));
+    }
+    
+    return true;
   }
   
   /**

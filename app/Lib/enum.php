@@ -384,14 +384,6 @@ class JobStatusEnum
   const Queued     = 'Q';
 }
 
-class JobTypeEnum
-{
-  // Reserve X* for local plugins/jobs
-  const Expiration      = 'EX';
-  const GroupValidity   = 'GV';
-  const OrgIdentitySync = 'OS';
-}
-
 class LinkLocationEnum
 {
   const topBar  = 'topbar';

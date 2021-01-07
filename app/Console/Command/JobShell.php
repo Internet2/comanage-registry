@@ -27,12 +27,8 @@
 
 class JobShell extends AppShell {
   var $uses = array('Co',
-                    'CoExpirationPolicy',
-                    'CoGroupMember',
                     'CoJob',
-                    'CoSetting',
-                    'Lock',
-                    'OrgIdentitySource');
+                    'Lock');
   
   /**
    * Dispatch the specified command.
@@ -58,7 +54,7 @@ class JobShell extends AppShell {
     try {
       $this->CoJob->clear();
       
-      // Pull current user info (maybe move into a utility call?)
+      // Pull current user info (maybe move into a utility call?, also used again below)
       $pwent = posix_getpwuid(posix_getuid());
         
       if($coJobId) {
@@ -69,8 +65,6 @@ class JobShell extends AppShell {
         $this->CoJob->id = $coJobId;
         
         $this->validateParameters($pluginModel->parameterFormat(), $params);
-        
-        $this->CoJob->start($coJobId, _txt('rs.jb.started', array($pwent['name'], $pwent['uid'])));
       } else {
         // Register a new job. In this case, if parameter validation fails we want
         // to just emit the error and not register the job. (So we make sure
@@ -92,9 +86,14 @@ class JobShell extends AppShell {
         $this->CoJob->id = $jobId;
       }
       
-      // We have to look at $this->params for coid since we won't have it when we
-      // were passed the Job ID.
-      $pluginModel->execute($this->params['coid'], $this->CoJob, $params);
+      if($this->CoJob->id 
+         || (isset($params['synchronous']) && $params['synchronous'])) {
+        $this->CoJob->start($this->CoJob->id, _txt('rs.jb.started', array($pwent['name'], $pwent['uid'])));
+        
+        // We have to look at $this->params for coid since we won't have it when we
+        // were passed the Job ID.
+        $pluginModel->execute($this->params['coid'], $this->CoJob, $params);
+      }
     }
     catch(Exception $e) {
       $this->out($e->getMessage(), 1, Shell::NORMAL);
@@ -105,23 +104,6 @@ class JobShell extends AppShell {
     }
   }
   
-  /**
-   * Execute expirations for the specified CO
-   *
-   * @since  COmanage Registry v0.9.2
-   * @param  Integer  $coId       CO ID
-   */
-  
-  protected function expirations($coId) {
-    // First see if expirations are enabled
-    
-    if($this->CoSetting->expirationEnabled($coId)) {
-      $this->CoExpirationPolicy->executePolicies($coId, $this);
-    } else {
-      $this->out("- " . _txt('sh.job.xp.disabled'));
-    }
-  }
-
   /**
    * Configure the option parser based on the available job plugins.
    * 
@@ -143,7 +125,7 @@ class JobShell extends AppShell {
 
       foreach($models as $jModel => $helpTxt) {
         $command = $jPlugin->name . "." . $jModel;
-        $jobModel = ClassRegistry::init($command . "Job");
+        $jobModel = ClassRegistry::init($command . "Job", true);
         
         // Add a subcommand
         $subparser = $jobModel->getOptionParser();
@@ -155,7 +137,6 @@ class JobShell extends AppShell {
       }
     }
     
-    // XXX CO-1310 after the other jobs migrate to plugins, this can go away (implemented in CoJobBackend)
     $parser->addOption(
       'coid',
       array(
@@ -173,14 +154,6 @@ class JobShell extends AppShell {
         'default' => false
       )
     )->addOption(
-      'synchronous',
-      array(
-        'short'   => 's',
-        'help'    => _txt('sh.job.arg.synchronous'),
-        'boolean' => true,
-        'default' => false
-      )
-    )->addOption(
       'unlock',
       array(
         'short'   => 'U',
@@ -188,51 +161,17 @@ class JobShell extends AppShell {
         'boolean' => false,
         'default' => false
       )
-    )->epilog(_txt('sh.job.arg.epilog'));
+    )->addOption(
+      'cancel',
+      array(
+        'short'   => 'X',
+        'help'    => _txt('sh.job.arg.cancel'),
+        'boolean' => false,
+        'default' => false
+      )
+    );
     
     return $parser;
-  }
-  
-  /**
-   * Execute group validity based reprovisioning for the specified CO
-   *
-   * @since  COmanage Registry v3.2.0
-   * @param  Integer $coId CO ID
-   */
-  
-  protected function groupValidity($coId) {
-    // Pull the current window for reprovisioning
-    
-    $w = $this->CoSetting->getGroupValiditySyncWindow($coId);
-    
-    if($w > 0) {
-      $this->CoGroupMember->reprovisionByValidity($coId, $w);
-    } else {
-      $this->out("- " . _txt('sh.job.gv.disabled'));
-    }
-  }
-  
-  /**
-   * Sync Organizational Identity Sources for the specified CO
-   *
-   * @since  COmanage Registry v2.0.0
-   * @param  Integer  $coId       CO ID
-   * @param  Boolean  $force      Force sync unchanged records
-   */
-  
-  protected function syncOrgSources($coId, $force=false) {
-    // First see if syncing is enabled
-    
-    if($this->CoSetting->oisSyncEnabled($coId)) {
-      try {
-        $this->OrgIdentitySource->syncAll($coId, $force);
-      }
-      catch(Exception $e) {
-        $this->out("- " . $e->getMessage());
-      }
-    } else {
-      $this->out("- " . _txt('sh.job.sync.ois.disabled'));
-    }
   }
   
   /**
@@ -291,7 +230,10 @@ class JobShell extends AppShell {
     // We need to run this in getOptionParser since that runs before main()
     //_bootstrap_plugin_txt();
     
-    if(isset($this->params['runqueue']) && $this->params['runqueue']) {
+    if(isset($this->params['cancel']) && $this->params['cancel']) {
+      $pwent = posix_getpwuid(posix_getuid());
+      $this->CoJob->cancel($this->params['cancel'], $pwent['name']);
+    } elseif(isset($this->params['runqueue']) && $this->params['runqueue']) {
       // Obtain a run lock
       
       try {
@@ -369,43 +311,7 @@ class JobShell extends AppShell {
       $this->Lock->release($lockid);
     } elseif(isset($this->params['unlock']) && $this->params['unlock']) {
       $this->Lock->release($this->params['unlock']);
-    } else {
-      // First, pull a set of COs
-      
-      $args = array();
-      $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
-      $args['contain'] = false;
-      
-      $cos = $this->Co->find('all', $args);
-      
-      // Now hand off to the various tasks
-      $runAll = empty($this->args);
-      $runCoId = $this->params['coid'];
-      
-      foreach($cos as $co) {
-        if(!$runCoId || $runCoId == $co['Co']['id']) {
-          if($runAll || in_array('expirations', $this->args)) {
-            $this->out(_txt('sh.job.xp', array($co['Co']['name'], $co['Co']['id'])));
-            $this->expirations($co['Co']['id']);
-          }
-          
-          if($runAll || in_array('forcesyncorgsources', $this->args)) {
-            $this->out(_txt('sh.job.sync.ois', array($co['Co']['name'], $co['Co']['id'], _txt('fd.yes'))));
-            $this->syncOrgSources($co['Co']['id'], true);
-          }
-          
-          if($runAll || in_array('groupvalidity', $this->args)) {
-            $this->out(_txt('sh.job.gv', array($co['Co']['name'], $co['Co']['id'])));
-            $this->groupValidity($co['Co']['id']);
-          }
-          
-          if($runAll || in_array('syncorgsources', $this->args)) {
-            $this->out(_txt('sh.job.sync.ois', array($co['Co']['name'], $co['Co']['id'], _txt('fd.no'))));
-            $this->syncOrgSources($co['Co']['id']);
-          }
-        }
-      }
-    }    
+    }
     
     $this->out(_txt('sh.job.done'));
   }

@@ -622,12 +622,6 @@ original notification at
                                  IdentifierEnum::StudentSOR => 'Student SoRID',
                                  IdentifierEnum::UID => 'UID'),
   
-  'en.job.type' => array(
-    JobTypeEnum::Expiration      => 'Expiration',
-    JobTypeEnum::GroupValidity   => 'Group Validity',
-    JobTypeEnum::OrgIdentitySync => 'Org Identity Sync'
-  ),
-  
   // As a moderately arbitrary decision, the languages listed here those with at least
   // 100m speakers per Ethnologue (by way of wikipedia)
   //  http://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers
@@ -1879,6 +1873,7 @@ original notification at
   'jb.ois.sync.full.start' => 'Beginning sync of new org identities from source (%1$s in source; %2$s already known, %3$s new)',
   'jb.ois.sync.query.finish' => 'Query for matching org identities from source complete',
   'jb.ois.sync.query.start' => 'Beginning query for matching org identities from source (%1$s email addresses to query of %2$s known)',
+  'jb.ois.sync.start' => 'Syncing "%1$s"',
   'jb.ois.sync.update.changed' => '%1$s known record(s) changed, of %2$s reported by source',
   'jb.ois.sync.update.finish' => 'Sync of existing org identities from source complete',
   'jb.ois.sync.update.start' => 'Beginning sync of existing org identities from source (%1$s current total)',
@@ -2283,8 +2278,9 @@ original notification at
   'sh.bl.indexes.on' =>   'Recreating table indexes, this may take some time...',
   'sh.bl.file.in' =>      'Reading records from file %1$s',
   'sh.bl.record.id' =>    'Record at line %1$s assigned %2$s %3$s',
-  'sh.job.arg.coid' =>    'Numeric CO ID to run tasks for',
-  'sh.job.arg.epilog' =>  'If no task specified, all run. Available tasks: expirations, groupvalidity, syncorgsources, forcesyncorgsources',
+  'sh.job.arg.asynchronous' => 'Run asynchronously',
+  'sh.job.arg.cancel' =>  'Cancel the specified job',
+  'sh.job.arg.coid' =>    'Numeric CO ID to run queue for',
   'sh.job.arg.runqueue' => 'Process queued jobs',
   'sh.job.arg.synchronous' => 'Run synchronously',
   'sh.job.arg.unlock' =>  'Remove the specified lock',

@@ -21,53 +21,14 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.3.0
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
 App::uses("CoJobBackend", "Model");
 App::uses("PaginatedSqlIterator", "Lib");
 
-class ProvisionerJob extends CoJobBackend {
-  // Required by COmanage Plugins
-  public $cmPluginType = "job";
-  
-  // Document foreign keys
-  public $cmPluginHasMany = array();
-  
-  // Association rules from this model to other models
-//  public $belongsTo = array("OrgIdentitySource");
-  
-  // Default display field for cake generated views
-//  public $displayField = "env_name_given";
-  
-  // Validation rules for table elements
-  public $validate = array();
-  
-  /**
-   * Expose menu items.
-   * 
-   * @since COmanage Registry v3.3.0
-   * @return Array with menu location type as key and array of labels, controllers, actions as values.
-   */
-  
-  public function cmPluginMenus() {
-    return array();
-  }
-  
-  /**
-   * Obtain the list of jobs implemented by this plugin.
-   *
-   * @since COmanage Registry v4.0.0
-   * @return Array Array of job names and help texts
-   */
-  
-  public function getAvailableJobs() {
-    return array(
-      'Provisioner' => _txt('pl.provisionerjob.job')
-    );
-  }
-  
+class ProvisionJob extends CoJobBackend {
   /**
    * Execute the requested Job.
    *
