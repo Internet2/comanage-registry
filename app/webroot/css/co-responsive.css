@@ -480,7 +480,8 @@
   .poweredByComanage {
     padding: 1em 2em 2em 0;
   }
-  body.logged-out footer {
+  body.logged-out footer,
+  body.redirect footer {
     position: fixed;
     display: block;
     right: 0;
