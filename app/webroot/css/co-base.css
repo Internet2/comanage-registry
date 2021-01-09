@@ -126,9 +126,6 @@ button.cm-toggle {
   cursor: pointer;
   font-size: 1em;
 }
-button.cm-toggle:focus {
-  border: 1px dotted #222;
-}
 #top-menu button.cm-toggle {
   color: white;
 }
@@ -1480,6 +1477,8 @@ a.ui-button:visited,
   width: auto;
   height: auto;
   line-height: unset;
+  margin: 0;
+  padding: 0 1em;
 }
 .top-search .filter-clear-all-button:hover {
   background-color: unset;
