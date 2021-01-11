@@ -148,14 +148,21 @@ global $cm_lang, $cm_texts;
 
         ?>
 
-        <div class="top-search-checkboxes">
+        <div class="top-search-checkboxes input">
           <div class="top-search-checkbox-label"><?php print _txt('fd.membership'); ?></div>
-          <?php
-          print $this->Form->checkbox('search.members', array('checked' => !empty($this->request->params['named']['search.members'])));
-          print $this->Form->label('search.members',_txt('fd.members')) . "\n";
-          print $this->Form->checkbox('search.owners', array('checked' => !empty($this->request->params['named']['search.owners'])));
-          print $this->Form->label('search.owners', _txt('fd.owners')) . "\n";
-          ?>
+          <div class="top-search-checkbox-fields">
+            <div class="form-check form-check-inline">
+            <?php
+              print $this->Form->checkbox('search.members', array('checked' => !empty($this->request->params['named']['search.members']), 'class' => 'form-check-input'));
+              print $this->Form->label('search.members',_txt('fd.members')) . "\n";
+            ?>
+            </div>
+            <div class="form-check form-check-inline">
+            <?php
+              print $this->Form->checkbox('search.owners', array('checked' => !empty($this->request->params['named']['search.owners']), 'class' => 'form-check-input'));
+              print $this->Form->label('search.owners', _txt('fd.owners')) . "\n";
+            ?>
+          </div>
         </div>
       </div>
 

@@ -1824,6 +1824,14 @@ ul.fields.data-list li {
 #groupMembers tr:nth-child(even) td {
   background-color: #eee;
 }
+#group-add-member-name {
+  font-weight: 600;
+  font-size: 1.4em;
+  margin-right: 0.25em;
+}
+#group-add-member-clear-button {
+  padding: 0.5em;
+}
 /* FORMS */
 label {
   cursor: pointer;

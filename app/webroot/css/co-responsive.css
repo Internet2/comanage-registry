@@ -447,6 +447,20 @@
   body.petitionerAttributes .modelbox.hidden {
     display: none;
   }
+  /* GROUPS */
+  #group-members-select-title {
+    clear: none;
+    float: left;
+  }
+  #group-add-member-search {
+    margin: 1em 0 0;
+  }
+  #group-add-member-search label {
+    margin-right: 0.25em;
+  }
+  #group-add-member {
+    width: 300px;
+  }
   /* DASHBOARDS and WIDGETS */
   /* Service Portal */
   .co-services {

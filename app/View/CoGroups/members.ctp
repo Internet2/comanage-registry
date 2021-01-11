@@ -128,7 +128,9 @@
             array(
               'controller' => 'co_group_members',
               'action'     => 'select',
-              'cogroup'    => $co_groups[0]['CoGroup']['id']
+              'cogroup'    => $co_groups[0]['CoGroup']['id'],
+              'search.members' => 1,
+              'search.owners'  => 1
             ),
             array('class' => 'editbutton')
           );

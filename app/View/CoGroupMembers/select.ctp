@@ -68,7 +68,87 @@
 
 ?>
 
-<h2 class="subtitle"><?php print _txt('op.grm.select', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])) ?></h2>
+<div id="group-add-member-info" class="field-info">
+  <span class="ui-icon ui-icon-info co-info"></span>
+  <em><?php print _txt('op.grm.add.desc'); ?></em>
+</div>
+
+<h2 class="subtitle"><?php print _txt('op.manage.grm', array($cur_co['Co']['name'], $co_group['CoGroup']['name'])) ?></h2>
+
+<?php
+  /* Group Add Member Search
+   * The following javascript is used to look up a CoPerson using the #group-add-member field that immediately follows it.
+   * Note that the co_people/find mode "CoPerson" (CP) will simply bypass filters and perform a lookup against
+   * all CoPerson records.
+   */
+?>
+<script>
+  $(function() {
+
+    $("#group-add-member").autocomplete({
+      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::CoPerson)); ?>",
+      minLength: 3,
+      select: function (event, ui) {
+        $("#group-add-member").hide();
+        $("#group-add-member-name").text(ui.item.label).show();
+        $("#CoGroupMemberCoPersonId").val(ui.item.value);
+        $("#CoGroupMemberCoPersonLabel").val(ui.item.label);
+        $("#group-add-member-button").prop('disabled', false).focus();
+        $("#group-add-member-clear-button").show();
+        return false;
+      }
+    });
+
+    $("#group-add-member-button").click(function(e) {
+      displaySpinner();
+      //e.preventDefault();
+      var coPersonId = $("#CoGroupMemberCoPersonId").val();
+      // Though the form's behavior should preclude the need for this, let's check to see if we have what
+      // appears to be a positive integer for a CoPerson ID as a baseline test
+      if(/^([1-9]\d*)$/.test(coPersonId)) {
+        $("#CoGroupMemberCoPersonId").submit();
+      } else {
+        // shouldn't get here
+        alert("member ID couldn't be parsed");
+        $("#group-add-member-button").prop('disabled', true);
+        stopSpinner();
+        return false;
+      }
+    });
+
+    $("#group-add-member-clear-button").click(function() {
+      stopSpinner();
+      $("#group-add-member-name").hide();
+      $("#CoGroupMemberCoPersonId").val("");
+      $("#group-add-member-button").prop('disabled', true).focus();
+      $("#group-add-member-clear-button").hide();
+      $("#group-add-member").val("").show().focus();
+      return false;
+    });
+
+  });
+</script>
+<div id="group-add-member-search-container">
+  <?php
+    print $this->Form->create('CoGroupMember', array('url' => array('action' => 'addMemberById'), 'inputDefaults' => array('label' => false, 'div' => false))) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_id', array('default' => $cur_co['Co']['id'])) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_group_id', array('default' => $co_group['CoGroup']['id'])) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_group_name', array('default' => $co_group['CoGroup']['name'])) . "\n";
+    print $this->Form->hidden('CoGroupMember.co_person_id') . "\n";
+    print $this->Form->hidden('CoGroupMember.co_person_label') . "\n";
+    // unlock fields so we can manipulate them with JavaScript
+    $this->Form->unlockField('CoGroupMember.co_person_id');
+    $this->Form->unlockField('CoGroupMember.co_person_label');
+  ?>
+    <label for="group-add-member" class="col-form-label-sm"><?php print _txt('op.grm.add'); ?></label>
+    <input id="group-add-member" type="text" class="form-control-sm" placeholder="<?php print _txt('op.grm.add.placeholder'); ?>"/>
+    <span id="group-add-member-name" style="display: none;"></span>
+    <button id="group-add-member-button" class="btn btn-primary btn-sm" disabled="disabled"><?php print _txt('op.add'); ?></button>
+    <button id="group-add-member-clear-button" class="btn btn-sm" style="display: none;"><?php print _txt('op.clear'); ?></button>
+  <?php
+    print $this->Form->end();
+  ?>
+</div>
 
 <ul class="widget-actions">
   <li>
