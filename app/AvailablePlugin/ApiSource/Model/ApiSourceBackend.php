@@ -116,6 +116,9 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
     if(!empty($attrs['sorAttributes']['names'])) {
       // If no name is provided, OrgIdentitySource::validateOISRecord will complain
       
+      // We want exactly one Primary Name. The first name we see becomes primary.
+      $primaryNameSet = false;
+      
       foreach($attrs['sorAttributes']['names'] as $name) {
         $n = array();
         
@@ -133,7 +136,9 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
           $n['type'] = NameEnum::Official;
         if(!empty($name['language']))
           $n['language'] = $name['language'];
-        $n['primary_name'] = true;
+        
+        $n['primary_name'] = !$primaryNameSet;
+        $primaryNameSet = true;
         
         $orgdata['Name'][] = $n;
       }
