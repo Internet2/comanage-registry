@@ -196,7 +196,7 @@ class CoGroupsController extends StandardController {
     
     // Do not allow edits to automatic groups. This probably isn't exactly right, as
     // ultimately it should be possible to (eg) change the description of an automatic group.
-    if($curdata['CoGroup']['auto']) {
+    if(isset($curdata['CoGroup']['auto']) && $curdata['CoGroup']['auto']) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Automatic groups may not be edited directly");
       } else {
