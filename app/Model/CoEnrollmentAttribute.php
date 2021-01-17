@@ -112,8 +112,42 @@ class CoEnrollmentAttribute extends AppModel {
       'rule' => array('numeric'),
       'required' => false,
       'allowEmpty' => true
+    ),
+    'hidden' => array(
+      'validateRequired' => array(
+        'rule' => array('boolean'),
+        'required' => true,
+        'allowEmpty' => true
+      ),
+      'validateHidden' => array(
+        'rule' => array('validateHidden'),
+        'required' => false
+      )
     )
-  );  
+  );
+
+  /**
+   * Validate that the field is allowed to be hidden based on the attribute and default value
+   *
+   * @param  array Array of fields to validate
+   * @return boolean True if allowed, false if not
+   */
+  public function validateHidden($a) {
+    // Hidden attribute is only applicable to CO Person Role attributes (type 'r'), CO Person attributes (type 'g'),
+    // Organizational Identity attributes (type 'o'), or Extended Attributes (type 'x')
+    $attrCode = explode(':', $this->data['CoEnrollmentAttribute']['attribute']);
+    if(!in_array($attrCode[0], array('r', 'g', 'o', 'x'))) {
+      return true;
+    }
+
+    // A default value must be provided if field is hidden
+    $defaultValue = $this->data['CoEnrollmentAttributeDefault'][0]['value'];
+    if(isset($a['hidden']) && $a['hidden'] && empty($defaultValue)) {
+      return _txt('er.field.hidden.req');
+    }
+
+    return true;
+  }
   
   /**
    * Determine the attributes available to be requested as part of an Enrollment Flow.
