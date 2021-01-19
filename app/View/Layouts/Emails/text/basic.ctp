@@ -27,8 +27,3 @@
 
   print $this->fetch('content');
 
-  print '
-  
-';
-
-  print _txt('em.invite.footer', array(_txt('coordinate')));

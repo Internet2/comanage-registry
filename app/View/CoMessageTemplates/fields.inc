@@ -72,16 +72,24 @@
   function message_body_toggle(format) {
     switch (format) {
       case '<?php print MessageFormatEnum::Plaintext; ?>':
-        $('#msg-bod-txt').show();
+        $('#CoMessageTemplateMessageBodyHtml').removeAttr("required");
         $('#msg-bod-html').hide();
+
+        $('#CoMessageTemplateMessageBody').attr("required","required");
+        $('#msg-bod-txt').show();
         break;
       case '<?php print MessageFormatEnum::HTML; ?>':
         $('#msg-bod-txt').hide();
+        $('#CoMessageTemplateMessageBody').removeAttr("required");
+
+        $('#CoMessageTemplateMessageBodyHtml').attr("required","required");
         $('#msg-bod-html').show();
         break;
       case '<?php print MessageFormatEnum::PlaintextAndHTML; ?>':
         $('#msg-bod-txt').show();
         $('#msg-bod-html').show();
+        $('#CoMessageTemplateMessageBody').attr("required","required");
+        $('#CoMessageTemplateMessageBodyHtml').attr("required","required");
         break;
       default:
         break;

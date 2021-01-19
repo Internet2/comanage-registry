@@ -129,6 +129,29 @@ class CoMessageTemplate extends AppModel {
       'required' => true
     )
   );
+
+  /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function beforeValidate($options = array())
+  {
+    if(empty($this->data['CoMessageTemplate']["format"])) {
+      return false;
+    }
+    // Disable PlainText Message Body if only HTML is configured and vise versa
+    if($this->data['CoMessageTemplate']["format"] === MessageFormatEnum::HTML) {
+      $this->validate["message_body"]["required"] = false;
+      $this->validate["message_body"]["allowEmpty"] = true;
+    } elseif($this->data['CoMessageTemplate']["format"] === MessageFormatEnum::Plaintext) {
+      $this->validate["message_body_html"]["required"] = false;
+      $this->validate["message_body_html"]["allowEmpty"] = true;
+    }
+
+    return true;
+  }
   
   /**
    * Duplicate an existing Message Template.
