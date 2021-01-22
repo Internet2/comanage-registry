@@ -41,31 +41,10 @@
 
 ?>
 <script type="text/javascript">
-  function fields_update_gadgets() {
-    // Hide or show gadgets according to current state
-    var source = document.getElementById('PasswordAuthenticatorPasswordSource').value;
-    
-    if(source == "<?php print PasswordAuthPasswordSourceEnum::AutoGenerate; ?>") {
-      $("#PasswordAuthenticatorMaxLength").closest("li").show('fade');
-      $("#PasswordAuthenticatorMinLength").closest("li").hide('fade');
-      $("#crypt_checkbox").show('fade');
-      $("#crypt_text").hide('fade');
-    } else if(source == "<?php print PasswordAuthPasswordSourceEnum::External; ?>") {
-      $("#PasswordAuthenticatorMaxLength").closest("li").hide('fade');
-      $("#PasswordAuthenticatorMinLength").closest("li").hide('fade');
-      $("#crypt_checkbox").show('fade');
-      $("#crypt_text").hide('fade');
-    } else {
-      $("#PasswordAuthenticatorMaxLength").closest("li").show('fade');
-      $("#PasswordAuthenticatorMinLength").closest("li").show('fade');
-      $("#crypt_checkbox").hide('fade');
-      $("#crypt_text").show('fade');
-    }
-  }
   
   function js_local_onload() {
-    fields_update_gadgets();
   }
+
 </script>
 <ul id="<?php print $this->action; ?>_privacy_idea_authenticator" class="fields form-list form-list-admin">
   <li>
