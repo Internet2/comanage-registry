@@ -265,43 +265,52 @@ class MeemEnrollerCoPetitionsController extends CoPetitionsController {
     
     $cfg = $this->MeemEnroller->find('first', $args);
     
-    if(!empty($cfg['MeemEnroller']['mfa_exempt_co_group_id'])
-       && !empty($cfg['MeemEnroller']['mfa_co_enrollment_flow_id'])
-       && $cfg['MeemEnroller']['enable_reminder_page']) {
-      // Determine the enrollee's CO Person ID
-      $coPersonID = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    // We also need to see if Approval is required (if so, don't redirect since
+    // that would confuse the approver).
+    $coEnrollmentFlowID = $this->CoPetition->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+    
+    if($coEnrollmentFlowID) {
+      $requiresApproval = $this->CoPetition->CoEnrollmentFlow->field('approval_required', array('CoEnrollmentFlow.id' => $coEnrollmentFlowID));
       
-      if($coPersonID) {
-        // If the CO Person is a member of the exemption group, redirect them to
-        // a splash page to start the MFA enrollment
+      if(!$requiresApproval
+         && !empty($cfg['MeemEnroller']['mfa_exempt_co_group_id'])
+         && !empty($cfg['MeemEnroller']['mfa_co_enrollment_flow_id'])
+         && $cfg['MeemEnroller']['enable_reminder_page']) {
+        // Determine the enrollee's CO Person ID
+        $coPersonID = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
         
-        if($this->CoGroupMember->isMember($cfg['MeemEnroller']['mfa_exempt_co_group_id'], $coPersonID)) {
-          $args = array(
-            'CoGroupMember.co_group_id' => $cfg['MeemEnroller']['mfa_exempt_co_group_id'],
-            'CoGroupMember.co_person_id' => $coPersonID,
-            'CoGroupMember.member' => true
-          );
+        if($coPersonID) {
+          // If the CO Person is a member of the exemption group, redirect them to
+          // a splash page to start the MFA enrollment
           
-          $validThrough = $this->CoGroupMember->field('valid_through', $args);
-          $countdown = -1;
-          
-          if(!empty($validThrough)) {
-            $countdown = strtotime($validThrough) - time();
+          if($this->CoGroupMember->isMember($cfg['MeemEnroller']['mfa_exempt_co_group_id'], $coPersonID)) {
+            $args = array(
+              'CoGroupMember.co_group_id' => $cfg['MeemEnroller']['mfa_exempt_co_group_id'],
+              'CoGroupMember.co_person_id' => $coPersonID,
+              'CoGroupMember.member' => true
+            );
+            
+            $validThrough = $this->CoGroupMember->field('valid_through', $args);
+            $countdown = -1;
+            
+            if(!empty($validThrough)) {
+              $countdown = strtotime($validThrough) - time();
+            }
+            
+            $redirect = array(
+              'plugin'     => 'meem_enroller',
+              'controller' => 'meem_reminders',
+              'action'     => 'remind',
+              $cfg['MeemEnroller']['id'],
+              '?'          => array(
+                'efid'      => $cfg['MeemEnroller']['mfa_co_enrollment_flow_id'],
+                'countdown' => $countdown,
+                'return'    => htmlspecialchars(Router::url($onFinish, true))
+              )
+            );
+            
+            $this->redirect($redirect);
           }
-          
-          $redirect = array(
-            'plugin'     => 'meem_enroller',
-            'controller' => 'meem_reminders',
-            'action'     => 'remind',
-            $cfg['MeemEnroller']['id'],
-            '?'          => array(
-              'efid'      => $cfg['MeemEnroller']['mfa_co_enrollment_flow_id'],
-              'countdown' => $countdown,
-              'return'    => htmlspecialchars(Router::url($onFinish, true))
-            )
-          );
-          
-          $this->redirect($redirect);
         }
       }
     }
