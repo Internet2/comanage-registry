@@ -1,0 +1,735 @@
+{
+  "id": "db222ab8-10c5-4870-94ec-9140d93b6f48",
+  "name": "00-CmpAdminSuite",
+  "url": "http://localhost",
+  "tests": [{
+    "id": "000-CmpAdmin-UnauthHome",
+    "name": "000-CmpAdmin-UnauthHome",
+    "commands": [{
+      "id": "149572a6-8a32-4383-87d5-af6737ecdcf0",
+      "comment": "",
+      "command": "open",
+      "target": "/registry",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5f120813-75de-49f1-a502-bd7b4dd3e1c6",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "id=welcome-login-button",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "001-CmpAdmin-Login",
+    "name": "001-CmpAdmin-Login",
+    "commands": [{
+      "id": "b51111ae-ccdb-49c0-bf21-5c4763c415a0",
+      "comment": "",
+      "command": "open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "474847af-3a65-4408-9d36-9c353b0fc2ee",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": "id=welcome-login-button",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f266c2af-9e1e-4890-93c8-325109335456",
+      "comment": "",
+      "command": "click",
+      "target": "id=welcome-login-button",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b6b26a5d-caa3-495c-8cde-59a5efd3ead0",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "css=h1.firstPrompt",
+      "targets": [
+        ["css=h2", "css:finder"],
+        ["xpath=//div[@id='fpDashboard']/h2", "xpath:idRelative"],
+        ["xpath=//h2", "xpath:position"],
+        ["xpath=//h2[contains(.,'Available Collaborations')]", "xpath:innerText"]
+      ],
+      "value": "30000"
+    }]
+  }, {
+    "id": "002-CmpAdmin-CreateCO",
+    "name": "002-CmpAdmin-CreateCO",
+    "commands": [{
+      "id": "826ea0ea-a797-4271-8101-49b0ce3956d1",
+      "comment": "",
+      "command": "open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b1dab52c-c34f-4a65-b4b2-294c37e93685",
+      "comment": "",
+      "command": "click",
+      "target": "css=#platformMenu > a.menuTop",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "df181dbd-7e03-407d-9012-0085447279b0",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=COs",
+      "targets": [
+        ["linkText=COs", "linkText"]
+      ],
+      "value": ""
+    }, {
+      "id": "20f4f6b3-d03f-4d76-b07e-6c1010dc278c",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "COs"
+    }, {
+      "id": "ecd5b246-a70f-439d-ac11-41b9ee5f28d5",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Add CO",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a8092e8a-046a-4f82-a537-747230c7cb17",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "Add a New CO"
+    }, {
+      "id": "59d7d629-4df6-43de-9157-fe8bddba2133",
+      "comment": "",
+      "command": "type",
+      "target": "id=CoName",
+      "targets": [],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "7ca7b3b6-7d09-4708-a06f-f8af39a61e4f",
+      "comment": "",
+      "command": "type",
+      "target": "id=CoDescription",
+      "targets": [],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "99ea0d39-d38d-43a0-b756-62db5c650389",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@value='Add']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "058bdf3c-7234-43a7-8236-01792ed580a8",
+      "comment": "",
+      "command": "assertText",
+      "target": "linkText=CmpAdmin Test CO",
+      "targets": [],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "11f6edc2-d10f-4f55-80be-621a517719b3",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//span[@class=\"noty_text\" and contains(text(),\"Added\")] ",
+      "targets": [],
+      "value": "30000"
+    }]
+  }, {
+    "id": "003-CmpAdmin-EditCO",
+    "name": "003-CmpAdmin-EditCO",
+    "commands": [{
+      "id": "1d00221b-29f6-4aec-a4b4-99b18f540ce1",
+      "comment": "",
+      "command": "open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9e6a259e-31fa-4292-8e78-b5c5eda87a72",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=COs",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c376431c-b349-4b0e-924f-57a7c5c0b5f3",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "COs"
+    }, {
+      "id": "da3d23a8-1c4a-45b9-8e6f-0676e1bb0a87",
+      "comment": "",
+      "command": "assertText",
+      "target": "linkText=CmpAdmin Test CO",
+      "targets": [],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "41a4799e-731a-44bf-ba48-840cc16e715c",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=CmpAdmin Test CO",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8a1269d3-2189-40ed-ab32-ce2d6ae5e724",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "Edit CmpAdmin Test CO"
+    }, {
+      "id": "1b4cb18c-7adf-40f8-9b8c-9874581b8f02",
+      "comment": "",
+      "command": "type",
+      "target": "id=CoName",
+      "targets": [],
+      "value": "CmpAdmin Test CO Edited!"
+    }, {
+      "id": "01c8aad2-34c0-48ee-9e77-a000c218bbd7",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@value='Save']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9ad0a62b-19d8-40ab-84cd-d8c70ea78603",
+      "comment": "",
+      "command": "assertText",
+      "target": "linkText=CmpAdmin Test CO Edited!",
+      "targets": [
+        ["xpath=//td[contains(.,'CmpAdmin Test CO Edited!')]", "xpath:innerText"]
+      ],
+      "value": "CmpAdmin Test CO Edited!"
+    }, {
+      "id": "0a24b50f-b6f8-488c-98aa-066bb874083f",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "css=.noty_message > span.ui-icon-circle-check",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "41a4799e-731a-44bf-ba48-840cc16e715c",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=CmpAdmin Test CO Edited!",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8a1269d3-2189-40ed-ab32-ce2d6ae5e724",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "Edit CmpAdmin Test CO Edited!"
+    }, {
+      "id": "1b4cb18c-7adf-40f8-9b8c-9874581b8f02",
+      "comment": "",
+      "command": "type",
+      "target": "id=CoName",
+      "targets": [],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "01c8aad2-34c0-48ee-9e77-a000c218bbd7",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//input[@value='Save']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9ad0a62b-19d8-40ab-84cd-d8c70ea78603",
+      "comment": "",
+      "command": "assertText",
+      "target": "linkText=CmpAdmin Test CO",
+      "targets": [
+        ["xpath=//td[contains(.,'CmpAdmin Test CO')]", "xpath:innerText"]
+      ],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "0a24b50f-b6f8-488c-98aa-066bb874083f",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//span[@class=\"noty_text\" and contains(text(),\"Updated\")]",
+      "targets": [],
+      "value": "30000"
+    }]
+  }, {
+    "id": "006-CmpAdmin-DeleteCO",
+    "name": "006-CmpAdmin-DeleteCO",
+    "commands": [{
+      "id": "eb76afac-753a-49db-a847-5f6616ed6048",
+      "comment": "",
+      "command": "open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ab5dc4f7-ed0a-459b-bf04-239b101cc4b2",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=COs",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e3f3b598-617f-48fb-bd6a-ae769a05f97a",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "COs"
+    }, {
+      "id": "7d7cd94e-b86c-4004-ac0a-15ef2d8b3b5f",
+      "comment": "",
+      "command": "assertText",
+      "target": "linkText=CmpAdmin Test CO",
+      "targets": [],
+      "value": "CmpAdmin Test CO"
+    }, {
+      "id": "6958f238-e6b8-42a7-9594-9060ed3b1177",
+      "comment": "",
+      "command": "click",
+      "target": "css=.deletebutton[onclick*=\"CmpAdmin Test CO\"]",
+      "targets": [
+        ["css=.line1:nth-child(5) .deletebutton", "css:finder"],
+        ["xpath=(//button[@type='button'])[5]", "xpath:attributes"],
+        ["xpath=//table[@id='cos']/tbody/tr[5]/td[4]/button", "xpath:idRelative"],
+        ["xpath=//tr[5]/td[4]/button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "6cba21a5-78db-4671-8396-b2234c718d23",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//button[text()=\"Remove\"]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "22096d14-01a9-4c79-baf9-e3b29be8e7a2",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "xpath=//span[@class=\"noty_text\" and contains(text(),\"Deleted\")] ",
+      "targets": [],
+      "value": "30000"
+    }]
+  }, {
+    "id": "007-CmpAdmin-Logout",
+    "name": "007-CmpAdmin-Logout",
+    "commands": [{
+      "id": "0b78a8e3-058f-4d27-98e9-262b0cc500b9",
+      "comment": "",
+      "command": "open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "21401796-cf7e-4d2f-a733-276795cdf2d4",
+      "comment": "",
+      "command": "click",
+      "target": "id=user-panel-toggle",
+      "targets": [
+        ["id=user-common-name", "id"],
+        ["css=#user-common-name", "css:finder"],
+        ["xpath=//span[@id='user-common-name']", "xpath:attributes"],
+        ["xpath=//button[@id='user-panel-toggle']/span", "xpath:idRelative"],
+        ["xpath=//button/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Paul Edwards ')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "07b0a7c3-0895-4659-9e84-ebde463f7379",
+      "comment": "",
+      "command": "click",
+      "target": "css=#logout-in-panel a",
+      "targets": [
+        ["css=.btn", "css:finder"],
+        ["xpath=//a[contains(text(),'Logout')]", "xpath:link"],
+        ["xpath=//div[@id='logout-in-panel']/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/auth/logout')]", "xpath:href"],
+        ["xpath=//div/div/a", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "1c4de89e-06ee-4121-86e2-24a053013225",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "id=welcome-login",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "a7acf19c-7bd8-4680-828a-d1d6eac92b60",
+    "name": "004-CmpAdmin-DuplicateEnrollmentFlow",
+    "commands": [{
+      "id": "40e44776-a717-4645-84c7-3cae4602d810",
+      "comment": "",
+      "command": "open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "569f05a6-c602-448b-b3b1-bf5a12154bfc",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=CmpAdmin Test CO (Not a Member)",
+      "targets": [
+        ["linkText=CmpAdmin Test CO (Not a Member)", "linkText"],
+        ["css=.row:nth-child(8) .co-link", "css:finder"],
+        ["xpath=//a[contains(text(),'CmpAdmin Test CO (Not a Member)')]", "xpath:link"],
+        ["xpath=//div[@id='fpCoList']/div[8]/div/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/co_dashboards/dashboard/co:73')]", "xpath:href"],
+        ["xpath=//div[8]/div/a", "xpath:position"],
+        ["xpath=//a[contains(.,'CmpAdmin Test CO (Not a Member)')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "7d1cba4f-97b6-40b1-8ea8-4e2fb105ccaa",
+      "comment": "",
+      "command": "click",
+      "target": "css=#configMenu .menuTitle",
+      "targets": [
+        ["css=#configMenu .menuTitle", "css:finder"],
+        ["xpath=//li[@id='configMenu']/a/span", "xpath:idRelative"],
+        ["xpath=//li[9]/a/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Configuration')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "1bf83328-0d00-4921-aa79-53751b666bad",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Enrollment Flows",
+      "targets": [
+        ["linkText=Enrollment Flows", "linkText"],
+        ["css=li:nth-child(12) > a", "css:finder"],
+        ["xpath=//a[contains(text(),'Enrollment Flows')]", "xpath:link"],
+        ["xpath=//ul[@id='configuration-menu']/li[12]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/co_enrollment_flows/index/co:73')]", "xpath:href"],
+        ["xpath=//li[12]/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Enrollment Flows')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "7d9f99a5-7836-4a64-90f7-3c78ebaad292",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Add/Restore Default Templates",
+      "targets": [
+        ["linkText=Add/Restore Default Templates", "linkText"],
+        ["css=li:nth-child(2) > .addbutton", "css:finder"],
+        ["xpath=//a[contains(text(),'Add/Restore Default Templates')]", "xpath:link"],
+        ["xpath=//ul[@id='topLinks']/li[2]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/co_enrollment_flows/addDefaults/co:73')]", "xpath:href"],
+        ["xpath=//div[2]/ul/li[2]/a", "xpath:position"],
+        ["xpath=//a[contains(.,' Add/Restore Default Templates')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "bc82db0d-7798-4e48-b3c0-7551e2b964da",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Conscription With Approval (Template)",
+      "targets": [
+        ["css=.line1:nth-child(3) .copybutton", "css:finder"],
+        ["xpath=(//a[contains(text(),'Duplicate')])[3]", "xpath:link"],
+        ["xpath=//table[@id='cous']/tbody/tr[3]/td[4]/a[2]", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/co_enrollment_flows/duplicate/224')]", "xpath:href"],
+        ["xpath=//tr[3]/td[4]/a[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "627a366a-8aba-4a04-863a-2ec0579520a6",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Duplicate",
+      "targets": [
+        ["linkText=Duplicate", "linkText"],
+        ["css=.copybutton", "css:finder"],
+        ["xpath=//a[contains(text(),'Duplicate')]", "xpath:link"],
+        ["xpath=//ul[@id='topLinks']/li[2]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/co_enrollment_flows/duplicate/224')]", "xpath:href"],
+        ["xpath=//div[2]/ul/li[2]/a", "xpath:position"],
+        ["xpath=//a[contains(.,' Duplicate')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "4a922e38-0fd0-496c-938e-4af918926a31",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Copy of Conscription With Approval (Template)",
+      "targets": [
+        ["linkText=Copy of Conscription With Approval (Template)", "linkText"],
+        ["css=.line2:nth-child(4) > td:nth-child(1) > a", "css:finder"],
+        ["xpath=//a[contains(text(),'Copy of Conscription With Approval (Template)')]", "xpath:link"],
+        ["xpath=//table[@id='cous']/tbody/tr[4]/td/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/registry/co_enrollment_flows/edit/228/co:73')]", "xpath:href"],
+        ["xpath=//tr[4]/td/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Copy of Conscription With Approval (Template)')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "f9945bd8-e6bc-4510-ac05-e2e69d47295e",
+      "comment": "",
+      "command": "click",
+      "target": "id=CoEnrollmentFlowName",
+      "targets": [
+        ["id=CoEnrollmentFlowName", "id"],
+        ["name=data[CoEnrollmentFlow][name]", "name"],
+        ["css=#CoEnrollmentFlowName", "css:finder"],
+        ["xpath=//input[@id='CoEnrollmentFlowName']", "xpath:attributes"],
+        ["xpath=//ul[@id='edit_co_enrollment_configuration']/li/div[2]/input", "xpath:idRelative"],
+        ["xpath=//li/div[2]/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "31002a96-dd8c-4d23-8d8d-c49693b729b5",
+      "comment": "",
+      "command": "type",
+      "target": "id=CoEnrollmentFlowName",
+      "targets": [
+        ["id=CoEnrollmentFlowName", "id"],
+        ["name=data[CoEnrollmentFlow][name]", "name"],
+        ["css=#CoEnrollmentFlowName", "css:finder"],
+        ["xpath=//input[@id='CoEnrollmentFlowName']", "xpath:attributes"],
+        ["xpath=//ul[@id='edit_co_enrollment_configuration']/li/div[2]/input", "xpath:idRelative"],
+        ["xpath=//li/div[2]/input", "xpath:position"]
+      ],
+      "value": "CmpAdmin Test Conscription With Approval"
+    }, {
+      "id": "8d169a3c-5836-4b32-b9c5-369361285f85",
+      "comment": "",
+      "command": "click",
+      "target": "id=CoEnrollmentFlowStatus",
+      "targets": [
+        ["id=CoEnrollmentFlowStatus", "id"],
+        ["name=data[CoEnrollmentFlow][status]", "name"],
+        ["css=#CoEnrollmentFlowStatus", "css:finder"],
+        ["xpath=//select[@id='CoEnrollmentFlowStatus']", "xpath:attributes"],
+        ["xpath=//ul[@id='edit_co_enrollment_configuration']/li[2]/div[2]/select", "xpath:idRelative"],
+        ["xpath=//select", "xpath:position"],
+        ["xpath=//select[contains(.,'Active\nSuspended\nTemplate')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "126a48bd-08c0-4307-8563-94353c723934",
+      "comment": "",
+      "command": "select",
+      "target": "id=CoEnrollmentFlowStatus",
+      "targets": [],
+      "value": "label=Active"
+    }, {
+      "id": "7acaff90-a848-4337-b390-bff5561c0032",
+      "comment": "",
+      "command": "click",
+      "target": "id=CoEnrollmentFlowApprovalRequired",
+      "targets": [
+        ["id=CoEnrollmentFlowApprovalRequired", "id"],
+        ["css=#CoEnrollmentFlowApprovalRequired", "css:finder"],
+        ["xpath=//input[@id='CoEnrollmentFlowApprovalRequired']", "xpath:attributes"],
+        ["xpath=//ul[@id='edit_co_enrollment_configuration']/li[6]/div[2]/input[2]", "xpath:idRelative"],
+        ["xpath=//li[6]/div[2]/input[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4b46bd9c-273b-4531-ba4a-c93fd1a194a1",
+      "comment": "",
+      "command": "click",
+      "target": "css=input[value=\"Save\"]",
+      "targets": [
+        ["css=.submit:nth-child(1) > .spin", "css:finder"],
+        ["xpath=//input[@value='Save']", "xpath:attributes"],
+        ["xpath=//ul[@id='edit_co_enrollment_configuration']/li[20]/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "66929e8b-a012-4bd2-a9e6-206973eab727",
+    "name": "005-CmpAdmin-ConscribeUser",
+    "commands": [{
+      "id": "3bec6c09-981b-4fa0-b131-ce5e0103061e",
+      "comment": "",
+      "command": "//open",
+      "target": "/registry/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "70ac8677-b702-4abb-8ba8-908f77a07a5a",
+      "comment": "",
+      "command": "//click",
+      "target": "linkText=CmpAdmin Test CO (Not a Member)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f931b9ca-273c-420b-ab4d-a72068817d0d",
+      "comment": "",
+      "command": "//click",
+      "target": "css=#peopleMenu .menuTitle",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "608a2e3d-dd8c-4541-9afb-fba1cde2664c",
+      "comment": "",
+      "command": "//click",
+      "target": "linkText=Enroll",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8d35dab1-872b-4ef3-b232-96c37b0ebf43",
+      "comment": "",
+      "command": "//click",
+      "target": "xpath=//a[@class='co-button' and contains(text(),'Begin')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4a9c227b-5fe8-46c9-b7b7-6a9cf6a1e38e",
+      "comment": "",
+      "command": "//assertText",
+      "target": "css=h1",
+      "targets": [],
+      "value": "CmpAdmin Test Conscription With Approval"
+    }, {
+      "id": "b6072583-7906-410e-97e6-c7481f466595",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeOrgIdentityName800Honorific",
+      "targets": [],
+      "value": "Mr."
+    }, {
+      "id": "a67a7a66-9ab7-4366-bf02-47bfbd8cee02",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeOrgIdentityName800Given",
+      "targets": [],
+      "value": "Testy"
+    }, {
+      "id": "d6ced234-4693-40ab-abfe-d5df90aa57f7",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeOrgIdentityName800Middle",
+      "targets": [],
+      "value": "Mick"
+    }, {
+      "id": "9080743f-6074-4e93-8df5-ffadb25622b5",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeOrgIdentityName800Family",
+      "targets": [],
+      "value": "Tester"
+    }, {
+      "id": "88a63db7-46d2-4b5f-b319-adaeedecabc0",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeOrgIdentityName800Suffix",
+      "targets": [],
+      "value": "Jr."
+    }, {
+      "id": "d1a0314a-4998-46e1-94ea-cae4d989292e",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeOrgIdentityEmailAddress801Mail",
+      "targets": [],
+      "value": "testy@myvro.org"
+    }, {
+      "id": "ae7e33cf-a596-451b-8c69-f98d9df76a72",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeCoPersonName802Given",
+      "targets": [],
+      "value": "Testy"
+    }, {
+      "id": "9d0cec93-7868-4552-8996-20f4702f1cd1",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeCoPersonName802Middle",
+      "targets": [],
+      "value": "Mick"
+    }, {
+      "id": "1647e9b9-ddf9-493c-8c82-c0a0d41f6d26",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeCoPersonName802Family",
+      "targets": [],
+      "value": "Tester"
+    }, {
+      "id": "66719471-cd34-435f-89d3-7ebf1a0ba2ab",
+      "comment": "",
+      "command": "//type",
+      "target": "id=EnrolleeCoPersonName802Suffix",
+      "targets": [],
+      "value": "Jr."
+    }, {
+      "id": "c0709b32-c779-4baa-b6c2-5888165a3ae0",
+      "comment": "",
+      "command": "//click",
+      "target": "id=EnrolleeCoPersonRoleAffiliation",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5772fe20-0660-4006-aa09-65fe7cf87a82",
+      "comment": "",
+      "command": "//select",
+      "target": "id=EnrolleeCoPersonRoleAffiliation",
+      "targets": [],
+      "value": "label=Member"
+    }, {
+      "id": "bcf5fc8c-d01e-49f7-9dc4-bbb29ac2fdd9",
+      "comment": "",
+      "command": "//click",
+      "target": "css=option:nth-child(6)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c57e4b2b-6a8e-4d57-b218-b4de880a65b2",
+      "comment": "",
+      "command": "//click",
+      "target": "xpath=//input[@value='Save']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d1543774-106a-4ecf-8db4-d27f6cf3bad0",
+      "comment": "",
+      "command": "//waitForElementPresent",
+      "target": "xpath=//h1[contains(text()='View CO Petition')]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "f5db9a27-7608-497e-a734-c57988c81f80",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "//span[@class='noty_text' and contains(text(),'Petition Finalized')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "932183d8-4f7a-46f9-8fa4-6ee1380e9f2a",
+      "comment": "",
+      "command": "//click",
+      "target": "linkText=My Population",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "69c80936-c02d-47e5-b5e0-c7a2bb02fe67",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "linkText=\"Testy Mick Tester Jr.\"",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "71b33789-4723-4e26-ace0-22e3d89da122",
+    "name": "00-CmpAdminSuite",
+    "persistSession": true,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["000-CmpAdmin-UnauthHome", "001-CmpAdmin-Login", "002-CmpAdmin-CreateCO", "003-CmpAdmin-EditCO", "006-CmpAdmin-DeleteCO", "007-CmpAdmin-Logout"]
+  }],
+  "urls": ["http://localhost/registry", "http://localhost/"],
+  "plugins": []
+}
