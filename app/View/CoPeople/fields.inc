@@ -1196,7 +1196,7 @@
   <?php print $this->element("changelog"); ?>
 </div> <!-- explorerContainer -->
 
-<div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
+<div id="autogenerate-dialog" class="co-dialog" title="<?php print _txt('op.id.auto'); ?>">
   <?php print _txt('op.id.auto.confirm'); ?>
 </div>
 

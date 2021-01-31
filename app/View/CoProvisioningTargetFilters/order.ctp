@@ -154,6 +154,6 @@
                           array('class'  => 'checkbutton right'));
 ?>
 
-<div id="result-dialog" title="<?php print _txt('op.reorder'); ?>">
+<div id="result-dialog" class="co-dialog" title="<?php print _txt('op.reorder'); ?>">
   <p></p>
 </div>

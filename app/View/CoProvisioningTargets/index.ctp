@@ -213,6 +213,6 @@
   
 <?php print $this->element("pagination"); ?>
 
-<div id="provision-dialog" title="<?php print _txt('op.prov'); ?>">
+<div id="provision-dialog" class="co-dialog" title="<?php print _txt('op.prov'); ?>">
   <p><?php print _txt('op.prov.all.confirm'); ?></p>
 </div>

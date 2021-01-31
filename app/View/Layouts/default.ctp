@@ -346,7 +346,7 @@
         </p>
       </div>
       <!-- Dialog Form -->
-      <div id="form-dialog" style="display:none;">
+      <div id="form-dialog" class="co-dialog">
         <form method="post" action="" >
           <fieldset>
             <legend id="form-dialog-legend"><?php print _txt('js.input.provide');?></legend>

@@ -181,6 +181,6 @@
 
 <?php print $this->element("pagination"); ?>
 
-<div id="autogenerate-dialog" title="<?php print _txt('op.id.auto'); ?>">
+<div id="autogenerate-dialog" class="co-dialog" title="<?php print _txt('op.id.auto'); ?>">
   <p><?php print _txt('op.id.auto.all.confirm'); ?></p>
 </div>

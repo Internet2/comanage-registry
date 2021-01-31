@@ -1996,7 +1996,8 @@ ul.form-list li.field-stack textarea {
 }
 /* GENERAL */
 .hidden,
-.invisible {
+.invisible,
+.co-dialog {
   display: none;
 }
 p { /* MDL override XXX check if still needed */

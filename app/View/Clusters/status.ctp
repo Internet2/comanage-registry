@@ -160,6 +160,6 @@
   </tbody>
 </table>
 
-<div id="autogenerate-dialog" title="<?php print _txt('op.cluster.acct.auto'); ?>">
+<div id="autogenerate-dialog" class="co-dialog" title="<?php print _txt('op.cluster.acct.auto'); ?>">
   <?php print _txt('op.cluster.acct.auto.confirm'); ?>
 </div>

@@ -203,15 +203,15 @@ if($permissions['history'] && !empty($co_groups[0]['CoGroup']['id'])) {
   });
 </script>
 
-<div id="progressbar-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
+<div id="progressbar-dialog" class="co-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
   <p><?php print _txt('op.gr.reconcile.wait'); ?></p>
   <div id="reconcile-progressbar"></div>
 </div>
 
-<div id="reconcile-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
+<div id="reconcile-dialog" class="co-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
   <p><?php print _txt('op.gr.reconcile.confirm'); ?></p>
 </div>
 
-<div id="result-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
+<div id="result-dialog" class="co-dialog" title="<?php print _txt('op.gr.reconcile'); ?>">
   <p><?php print _txt('rs.gr.reconcile.ok'); ?></p>
 </div>
