@@ -728,7 +728,7 @@
     "persistSession": true,
     "parallel": false,
     "timeout": 300,
-    "tests": ["000-CmpAdmin-UnauthHome", "001-CmpAdmin-Login", "002-CmpAdmin-CreateCO", "003-CmpAdmin-EditCO", "006-CmpAdmin-DeleteCO", "007-CmpAdmin-Logout"]
+    "tests": ["000-CmpAdmin-UnauthHome", "001-CmpAdmin-Login", "002-CmpAdmin-CreateCO", "003-CmpAdmin-EditCO", "004-CmpAdmin-DuplicateEnrollmentFlow", ""006-CmpAdmin-DeleteCO", "007-CmpAdmin-Logout"]
   }],
   "urls": ["http://localhost/registry", "http://localhost/"],
   "plugins": []
