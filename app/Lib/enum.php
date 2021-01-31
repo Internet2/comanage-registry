@@ -193,11 +193,11 @@ class BadgeColorModeEnum {
 }
 
 class BadgeOrderEnum {
-  const SpecialType           = 3;  // e.g. Primary Name for Name Models
-  const Source                = 6;
-  const Type                  = 9;
-  const Status                = 12;
-  const Other                 = 15;
+  const Type                  = 6;
+  const Status                = 9;
+  const SpecialType           = 12;
+  const Source                = 15;
+  const Other                 = 17;
 }
 
 class ComparisonEnum
@@ -416,11 +416,12 @@ class MatchStrategyEnum
   const NoMatching   = 'NO';
 }
 
-class MenuActionoOrder
+class MenuActionOrder
 {
   const EmailVerify = 1;
   const PrimaryName = 2;
   const AuthEvent = 3;
+  const Provision = 4;
   const PetitionView = 9;
   const View = 10;
   const Edit = 12;

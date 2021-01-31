@@ -610,27 +610,33 @@
               ?>
               <div class="field-data force-wrap <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
                 <?php
+                $primary_name_with_bg = $this->Html->tag(
+                  'span',
+                  strtolower(_txt('fd.name.primary_name')),
+                  array(
+                    'class' => 'mr-1 badge badge-outline-' . BadgeColorModeEnum::LightGray,
+
+                  )
+                );
+                $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . "&nbsp;<small>" . $primary_name_with_bg . "</small>"
+                                         : filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                 if($perm == PermissionEnum::ReadWrite) {
-                  print $this->Html->link(generateCn($n),
+                  print $this->Html->link(
+                    $cn,
                     array('controller' => 'names',
                           'action' => 'edit',
-                          $n['id']));
+                          $n['id']),
+                    array(
+                      'escape' => false,
+                    ));
                 } elseif($perm == PermissionEnum::ReadOnly) {
-                  print filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
+                  print $cn;
                 }
                ?>
               </div>
               <div class="field-data data-label <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
               <?php
               $badge_list = array();
-              // Primary name
-              if($n['primary_name']) {
-                $badge_list[] = array(
-                  'order' => BadgeOrderEnum::SpecialType,
-                  'text' => _txt('fd.name.primary_name'),
-                  'color' => BadgeColorModeEnum::Blue,
-                );
-              }
               // OrgIdentitySource
               if(!empty($n['SourceName']['id']) && !empty($n['SourceName']['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])) {
                 $badge_list[] = array(
@@ -669,7 +675,7 @@
                   // can't be made primary (though maybe that'll change with a use case).
                   // View button
                   $action_args['vv_actions'][] = array(
-                    'order' => MenuActionoOrder::View,
+                    'order' => MenuActionOrder::View,
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'names',
@@ -689,7 +695,7 @@
                           'co' => $cur_co['Co']['id']
                         );
                         $action_args['vv_actions'][] = array(
-                          'order' => MenuActionoOrder::Delete,
+                          'order' => MenuActionOrder::Delete,
                           'url' => 'javascript:void(0);',
                           'label' => _txt('op.delete'),
                           'onclick' => array(
@@ -704,7 +710,7 @@
 
                         // Primary name Action Button
                         $action_args['vv_actions'][] = array(
-                          'order' => MenuActionoOrder::PrimaryName,
+                          'order' => MenuActionOrder::PrimaryName,
                           'label' => _txt('op.primary'),
                           'url' => $this->Html->url(
                             array(
@@ -719,7 +725,7 @@
 
                       // Edit Action button
                       $action_args['vv_actions'][] = array(
-                        'order' => MenuActionoOrder::Edit,
+                        'order' => MenuActionOrder::Edit,
                         'url' => $this->Html->url(
                           array(
                             'controller' => 'names',
@@ -860,7 +866,7 @@
                     $action_args['vv_attr_id'] = $g['CoGroup']['id'];
                     // Edit
                     $action_args['vv_actions'][] = array(
-                      'order' => MenuActionoOrder::Edit,
+                      'order' => MenuActionOrder::Edit,
                       'url' => $this->Html->url(
                         array(
                           'controller' => 'co_group_members',
@@ -878,7 +884,7 @@
                       'return' => 'person'
                     );
                     $action_args['vv_actions'][] = array(
-                      'order' => MenuActionoOrder::Delete,
+                      'order' => MenuActionOrder::Delete,
                       'url' => 'javascript:void(0);',
                       'label' => _txt('op.delete'),
                       'onclick' => array(
@@ -893,7 +899,7 @@
 
                     if(!empty($g['source_org_identity_id'])) {
                       $action_args['vv_actions'][] = array(
-                        'order' => MenuActionoOrder::View,
+                        'order' => MenuActionOrder::View,
                         'label' =>  _txt('op.view.source'),
                         'url' =>  $this->Html->url(
                           array(
@@ -914,29 +920,35 @@
                     print '</li>';
                   }
                 } else {
+                  $badge_list = array();
+                  print '<li class="field-data-container">';
+                  print '<div class="field-data field-data-alone">';
                   if($g['member']) {
-                    print '<li class="field-data-container">';
-                    print '<div class="field-data field-data-alone">';
                     print filter_var($g['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
-                    print '</div></li>' . PHP_EOL;
+                    if(!$g['CoGroup']['auto']) {
+                      $badge_list[] = array(
+                        'order' => BadgeOrderEnum::Type,
+                        'text' => _txt('fd.group.mem'),
+                        'color' => BadgeColorModeEnum::Gray,
+                      );
+                    }
                   }
                   if($g['owner']) {
-                    print '<li class="field-data-container">';
-                    print '<div class="field-data field-data-alone">';
                     print filter_var($g['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
-                    print $this->element('badgeList',
-                      array('vv_badge_list' =>
-                        array(
-                          array(
-                            'order' => BadgeOrderEnum::SpecialType,
-                            'text' => _txt('fd.group.own'),
-                            'color' => BadgeColorModeEnum::Blue,
-                            )
-                        )
-                      )
+                    $badge_list[] = array(
+                      'order' => BadgeOrderEnum::SpecialType,
+                      'text' => _txt('fd.group.own'),
+                      'color' => BadgeColorModeEnum::Blue,
                     );
-                    print '</div></li>' . PHP_EOL;
                   }
+                  print '</div>';
+                  // Add Badge elements
+                  print '<div class="field-data data-label">';
+                  if(!empty($badge_list)) {
+                    print $this->element('badgeList', array('vv_badge_list' => $badge_list));
+                  }
+                  print '</div>';
+                  print '</li>';
                 }
               }
             }
@@ -1197,7 +1209,7 @@
                       && !empty($r['CoPetition'][0]['id'])
                     ) {
                       $action_args['vv_actions'][] = array(
-                        'order' => MenuActionoOrder::PetitionView,
+                        'order' => MenuActionOrder::PetitionView,
                         'url' => $this->Html->url(
                           array('controller' => 'co_petitions',
                             'action' => 'view',
@@ -1211,7 +1223,7 @@
 
                     if ($permissions['canvas']) {
                       $action_args['vv_actions'][] = array(
-                        'order' => MenuActionoOrder::Edit,
+                        'order' => MenuActionOrder::Edit,
                         'url' => $this->Html->url(
                           array(
                             'controller' => 'co_person_roles',
@@ -1235,7 +1247,7 @@
                       // Relink button
                       $action_args['vv_actions'][] = array(
                         'url' => 'javascript:void(0);',
-                        'order' => MenuActionoOrder::Relink,
+                        'order' => MenuActionOrder::Relink,
                         'label' => _txt('op.relink'),
                         'onclick' => array(
                           'dg_bd_txt' => _jtxt(_txt('op.relink.role.confirm')),
@@ -1258,7 +1270,7 @@
                       // Delete button
                       $action_args['vv_actions'][] = array(
                         'url' => 'javascript:void(0);',
-                        'order' => MenuActionoOrder::Delete,
+                        'order' => MenuActionOrder::Delete,
                         'label' => _txt('op.delete'),
                         'onclick' => array(
                           'dg_bd_txt' => _txt('js.remove'),
@@ -1272,7 +1284,7 @@
                     }
                   } elseif ($permissions['view']) {
                     $action_args['vv_actions'][] = array(
-                      'order' => MenuActionoOrder::View,
+                      'order' => MenuActionOrder::View,
                       'url' => $this->Html->url(
                         array(
                           'controller' => 'co_person_roles',
@@ -1385,7 +1397,8 @@
                         array(
                           array(
                             'text' => $type,
-                            'color' => BadgeColorModeEnum::Gray,
+                            'color' => BadgeColorModeEnum::LightGray,
+                            'outline' => true,
                           ),
                         )
                     )
@@ -1423,7 +1436,7 @@
                 // Edit / View Action
                 $label = ($e && !$es) ? 'op.edit' : 'op.view';
                 $action = ($e && !$es) ? 'edit' : 'view';
-                $order = ($e && !$es) ? MenuActionoOrder::Edit : MenuActionoOrder::View;
+                $order = ($e && !$es) ? MenuActionOrder::Edit : MenuActionOrder::View;
                 $action_args['vv_actions'][] = array(
                   'order' => $order,
                   'url' => $this->Html->url(
@@ -1446,7 +1459,7 @@
 
                   // Relink button
                   $action_args['vv_actions'][] = array(
-                    'order' => MenuActionoOrder::Relink,
+                    'order' => MenuActionOrder::Relink,
                     'url' => 'javascript:void(0);',
                     'label' => _txt('op.relink'),
                     'onclick' => array(
@@ -1475,7 +1488,7 @@
 
                   // Unlink button
                   $action_args['vv_actions'][] = array(
-                    'order' => MenuActionoOrder::Unlink,
+                    'order' => MenuActionOrder::Unlink,
                     'url' => 'javascript:void(0);',
                     'label' => _txt('op.unlink'),
                     'onclick' => array(

@@ -330,7 +330,7 @@
                             'co' => $cur_co['Co']['id']
                           );
                           $action_name_args['vv_actions'][] = array(
-                            'order' => MenuActionoOrder::Delete,
+                            'order' => MenuActionOrder::Delete,
                             'url' => 'javascript:void(0);',
                             'label' => _txt('op.delete'),
                             'onclick' => array(
@@ -344,7 +344,7 @@
                           );
                           // Primary Name Action Button
                           $action_name_args['vv_actions'][] = array(
-                            'order' => MenuActionoOrder::PrimaryName,
+                            'order' => MenuActionOrder::PrimaryName,
                             'label' => _txt('op.primary'),
                             'url' => $this->Html->url(
                               array(
@@ -358,7 +358,7 @@
                         }
                         // Edit Action Button
                         $action_name_args['vv_actions'][] = array(
-                          'order' => MenuActionoOrder::Edit,
+                          'order' => MenuActionOrder::Edit,
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
@@ -371,7 +371,7 @@
                       } else {
                         // View Action Button
                         $action_name_args['vv_actions'][] = array(
-                          'order' => MenuActionoOrder::View,
+                          'order' => MenuActionOrder::View,
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
@@ -707,7 +707,7 @@
                   // be done from CO Person Canvas, which places some restrictions on that action.
 
                   $action_coil_args['vv_actions'][] = array(
-                    'order' => MenuActionoOrder::View,
+                    'order' => MenuActionOrder::View,
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'co_people',
@@ -737,7 +737,7 @@
                 print '<div class="field-data data-label"></div>';
 
                 $action_pcpr_args['vv_actions'][] = array(
-                  'order' => MenuActionoOrder::Edit,
+                  'order' => MenuActionOrder::Edit,
                   'url' => $this->Html->url(
                     array(
                       'controller' => 'co_person_roles',
@@ -767,7 +767,7 @@
                   print '<div class="field-data data-label"></div>';
 
                   $action_pcgm_args['vv_actions'][] = array(
-                    'order' => MenuActionoOrder::Edit,
+                    'order' => MenuActionOrder::Edit,
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'co_group_members',

@@ -51,7 +51,7 @@
  $vv_dictionary = 'vv_' . $lmvpapl . '_types';
  
  $action = ($edit ? 'edit' : 'view');
- $lorder = ($edit ? MenuActionoOrder::Edit : MenuActionoOrder::View);
+ $lorder = ($edit ? MenuActionOrder::Edit : MenuActionOrder::View);
 ?>
 
   <li id="fields-<?php print $lmvpa; ?>" class="fieldGroup">
@@ -99,7 +99,7 @@
               // Records attached to a SourceModel are read only
               $editable = false;
               $laction = 'view';
-              $lorder = MenuActionoOrder::View;
+              $lorder = MenuActionOrder::View;
             } elseif($self_service) {
               // If self service, check appropriate permissions
               $perm = $this->Permission->selfService($permissions,
@@ -111,12 +111,12 @@
                 case PermissionEnum::ReadWrite:
                   $editable = true;
                   $laction = 'edit';
-                  $lorder = MenuActionoOrder::Edit;
+                  $lorder = MenuActionOrder::Edit;
                   break;
                 case PermissionEnum::ReadOnly:
                   $editable = false;
                   $laction = 'view';
-                  $lorder = MenuActionoOrder::View;
+                  $lorder = MenuActionOrder::View;
                   break;
                 default:
                   // No permission, skip this entry entirely
@@ -127,13 +127,13 @@
 
             // Lookup the extended type friendly name, if set
             if(!empty($m['type']) && isset(${$vv_dictionary}[ $m['type'] ])) {
-              $badge_list[$mvpa_model . '_type'] = array(
+              $badge_list[] = array(
                 'order' => BadgeOrderEnum::Type,
                 'text' => ${$vv_dictionary}[ $m['type'] ],
                 'color' => BadgeColorModeEnum::Gray,
               );
             } elseif (!empty($m['type'])) {
-              $badge_list[$mvpa_model . '_type'] = array(
+              $badge_list[] = array(
                 'order' => BadgeOrderEnum::Type,
                 'text' => $m['type'],
                 'color' => BadgeColorModeEnum::Gray,
@@ -152,13 +152,19 @@
                     // means something else).
 
                     if($permissions['link']) {
-                      // todo: Move this into action list -- Benn's comment needed
-                      $typestr = $this->Html->link($m['CoProvisioningTarget']['description'],
-                                                   array('controller' => 'co_provisioning_targets',
-                                                         'action' => 'edit',
-                                                         $m['CoProvisioningTarget']['id']));
+                      $action_args['vv_actions'][] = array(
+                        'order' => MenuActionOrder::Provision,
+                        'url' => $this->Html->link(
+                          array(
+                            'controller' => 'co_provisioning_targets',
+                            'action' => 'edit',
+                            $m['CoProvisioningTarget']['id'],
+                            )
+                        ),
+                        'label' => $m['CoProvisioningTarget']['description'],
+                      );
                     } else {
-                      $badge_list[$mvpa_model . '_prov'] = array(
+                      $badge_list[] = array(
                         'order' => BadgeOrderEnum::Other,
                         'text' => $m['CoProvisioningTarget']['description'],
                         'color' => BadgeColorModeEnum::Gray,
@@ -172,7 +178,7 @@
             
             // Prepend the attribute source to the type string, if there is one
             if(!empty($m[$smodel]['id'])) {
-                $badge_list[$mvpa_model . '_source'] = array(
+                $badge_list[] = array(
                   'order' => BadgeOrderEnum::Source,
                   'text' => filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
                   'color' => BadgeColorModeEnum::Gray,
@@ -182,7 +188,7 @@
             
             // Add a suspended badge, if appropriate
             if(isset($m['status']) && $m['status'] == SuspendableStatusEnum::Suspended) {
-              $badge_list[$mvpa_model . '_status'] = array(
+              $badge_list[] = array(
                 'order' => BadgeOrderEnum::Status,
                 'text' => _txt('en.status.susp', null, SuspendableStatusEnum::Suspended),
                 'color' => BadgeColorModeEnum::Red,
@@ -190,42 +196,36 @@
             }
             
             // If this is an Email Address and is verified, add that to the type string
-            if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
-              if(!$m['verified']) {
-                // Action
-                $dg_url = array(
-                  'controller' => 'co_invites',
-                  'action' => 'verifyEmailAddress',
-                  'email_address_id' => $m['id'],
-                );
-                // Verify button
-                $action_args['vv_actions'][] = array(
-                  'order' => MenuActionoOrder::EmailVerify,
-                  'url' => 'javascript:void(0);',
-                  'label' => _txt('op.verify'),
-                  'onclick' => array(
-                    'dg_bd_txt' => _txt('js.confirm.verify'),
-                    'dg_url' => $this->Html->url($dg_url),
-                    'dg_conf_btn' => _txt('op.verify'),
-                    'dg_cancel_btn' => _txt('op.cancel'),
-                    'dg_title' => _txt('op.verify'),
-                    'db_bd_txt_repl_str' => filter_var(_jtxt($m['mail']),FILTER_SANITIZE_STRING),
-                  ),
-                );
+            if($mvpa_model === 'EmailAddress'
+               && isset($m['verified'])
+               && !$m['verified']) {
+              // Action
+              $dg_url = array(
+                'controller' => 'co_invites',
+                'action' => 'verifyEmailAddress',
+                'email_address_id' => $m['id'],
+              );
+              // Verify button
+              $action_args['vv_actions'][] = array(
+                'order' => MenuActionOrder::EmailVerify,
+                'url' => 'javascript:void(0);',
+                'label' => _txt('op.verify'),
+                'onclick' => array(
+                  'dg_bd_txt' => _txt('js.confirm.verify'),
+                  'dg_url' => $this->Html->url($dg_url),
+                  'dg_conf_btn' => _txt('op.verify'),
+                  'dg_cancel_btn' => _txt('op.cancel'),
+                  'dg_title' => _txt('op.verify'),
+                  'db_bd_txt_repl_str' => filter_var(_jtxt($m['mail']), FILTER_SANITIZE_STRING),
+                ),
+              );
 
-                // Badge email Unverified
-                $badge_list[$mvpa_model . '_status'] = array(
-                  'order' => BadgeOrderEnum::Status,
-                  'text' => _txt('fd.email_address.unverified'),
-                  'color' => BadgeColorModeEnum::Yellow,
-                );
-              } else {
-                // Badge email Verfied
-                $badge_list[$mvpa_model . '_type']['order'] = BadgeOrderEnum::Status;
-                $badge_list[$mvpa_model . '_type']['fa_class'] = 'fa-check-circle';
-                $badge_list[$mvpa_model . '_type']['outline'] = false;
-                $badge_list[$mvpa_model . '_type']['color'] = BadgeColorModeEnum::Green;
-              }
+              // Badge email Unverified
+              $badge_list[] = array(
+                'order' => BadgeOrderEnum::Status,
+                'text' => _txt('fd.email_address.unverified'),
+                'color' => BadgeColorModeEnum::Yellow,
+              );
             }
             
             // If $mvpa_format is a defined function, use that to render the display string
@@ -256,7 +256,7 @@
               // Login identifiers link to Authentication Events
               if(isset($m['login']) && $m['login']) {
                 $action_args['vv_actions'][] = array(
-                  'order' => MenuActionoOrder::AuthEvent,
+                  'order' => MenuActionOrder::AuthEvent,
                   'url' => $this->Html->url(
                     array(
                       'controller' => 'authentication_events',
@@ -294,7 +294,7 @@
               );
               // Delete button
               $action_args['vv_actions'][] = array(
-                'order' => MenuActionoOrder::Delete,
+                'order' => MenuActionOrder::Delete,
                 'url' => 'javascript:void(0);',
                 'label' => _txt('op.delete'),
                 'onclick' => array(
