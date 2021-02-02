@@ -43,18 +43,9 @@
     <field name="identifier_type" type="C" size="32" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    <field name="privacy_idea_authenticator_id" type="I">
-      <constraint>REFERENCES cm_privacy_idea_authenticators(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />    
     
     <index name="privacy_idea_authenticators_i1">
       <col>authenticator_id</col>
-    </index>
-    <index name="privacy_idea_authenticators_i2">
-      <col>privacy_idea_authenticator_id</col>
     </index>
   </table>
   

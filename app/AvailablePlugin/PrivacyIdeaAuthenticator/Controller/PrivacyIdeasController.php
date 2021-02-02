@@ -52,17 +52,19 @@ class PrivacyIdeasController extends SAMController {
     if($this->request->is('get')) {
       $controller = Inflector::tableize($this->pi_token_models[ $this->viewVars['vv_authenticator']['PrivacyIdeaAuthenticator']['token_type']]);
       
-      $this->redirect(
-        array(
-          'plugin'          => 'privacy_idea_authenticator',
-          'controller'      => $controller,
-          'action'          => 'add',
-          'authenticatorid' => $this->request->params['named']['authenticatorid'],
-          'copersonid'      => $this->request->params['named']['copersonid'],
-          // For reentry into the Enrollment Flow
-          'onFinish'        => $this->request->params['named']['onFinish']
-        )
-      );
+      if(!empty($controller)) {
+        $this->redirect(
+          array(
+            'plugin'          => 'privacy_idea_authenticator',
+            'controller'      => $controller,
+            'action'          => 'add',
+            'authenticatorid' => $this->request->params['named']['authenticatorid'],
+            'copersonid'      => $this->request->params['named']['copersonid'],
+            // For reentry into the Enrollment Flow
+            'onFinish'        => $this->request->params['named']['onFinish']
+          )
+        );
+      }
     }
   }
   

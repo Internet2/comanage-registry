@@ -36,8 +36,7 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
   public $cmPluginType = "authenticator";
 	
 	// Add behaviors
-  public $actsAs = array('Containable',
-                         'Changelog' => array('priority' => 5));
+  public $actsAs = array('Containable');
 	
   // Document foreign keys
   public $cmPluginHasMany = array(

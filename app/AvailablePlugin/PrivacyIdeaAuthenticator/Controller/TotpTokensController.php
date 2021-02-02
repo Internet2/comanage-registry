@@ -40,7 +40,7 @@ class TotpTokensController extends SAMController {
   /**
    * Add a Standard Object.
    *
-   * @since  COmanage Regsitry v4.0.0
+   * @since  COmanage Registry v4.0.0
    */
   
   public function add() {
