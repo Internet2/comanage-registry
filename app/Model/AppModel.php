@@ -1351,6 +1351,10 @@ class AppModel extends Model {
             'inList',
             ($cfg['coded'] ? array_keys($cfg['dictionary']) : $cfg['dictionary'])
           );
+          
+          // Also store the dictionary for use in constructing selects in enrollment flows.
+          // This is a bit of a hack, but this whole thing should be rewritten as part of PE.
+          $this->validate[ $a[1] ]['content']['dictionary'] = $cfg['dictionary'];
         }
       }
     }
@@ -1550,18 +1554,22 @@ class AppModel extends Model {
     $ret = array();
     
     if(isset($this->validate[$field]['content']['rule'])
-       && $this->validate[$field]['content']['rule'][0] == 'inList'
-       && isset($this->validate[$field]['content']['rule'][1])) {
-      // This is the list of valid values for this field. Map these to their
-      // translated names. Note as of v2.0.0 there may not be "translated"
-      // names (ie: for attribute enumerations), in which case we just want
-      // the original string.
-      
-      foreach($this->validate[$field]['content']['rule'][1] as $key) {
-        if(isset($this->cm_enum_txt[$field])) {
-          $ret[$key] = _txt($this->cm_enum_txt[$field], NULL, $key);
-        } else {
-          $ret[$key] = $key;
+       && $this->validate[$field]['content']['rule'][0] == 'inList') {
+      if(!empty($this->validate[$field]['content']['dictionary'])) {
+        // Just use the provided dectionary (as set in updateValidationRules, above)
+        $ret = $this->validate[$field]['content']['dictionary'];
+      } elseif(isset($this->validate[$field]['content']['rule'][1])) {
+        // This is the list of valid values for this field. Map these to their
+        // translated names. Note as of v2.0.0 there may not be "translated"
+        // names (ie: for attribute enumerations), in which case we just want
+        // the original string.
+        
+        foreach($this->validate[$field]['content']['rule'][1] as $key) {
+          if(isset($this->cm_enum_txt[$field])) {
+            $ret[$key] = _txt($this->cm_enum_txt[$field], NULL, $key);
+          } else {
+            $ret[$key] = $key;
+          }
         }
       }
     }
