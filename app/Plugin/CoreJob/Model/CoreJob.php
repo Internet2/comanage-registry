@@ -57,6 +57,7 @@ class CoreJob extends CoJobBackend {
   
   public function getAvailableJobs() {
     return array(
+      'Bulk' => _txt('pl.bulkjob.job'),
       'Expire' => _txt('pl.expirationjob.job'),
       'IdAssign' => _txt('pl.idassignerjob.job'),
       'Provision' => _txt('pl.provisionerjob.job'),

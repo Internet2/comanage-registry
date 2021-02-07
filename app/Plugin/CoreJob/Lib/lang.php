@@ -35,8 +35,19 @@ $cm_core_job_texts['en_US'] = array(
   // Titles, per-controller
   
   // Error messages
+  'er.bulkjob.arg.actionArgs' => 'Action specific argument "%1$s" not provided',
+  'er.bulkjob.action.unknown' => 'Unknown action "%1$s"',
+  'er.bulkjob.record.co'   => 'Record %1$s is not in CO %2$s',
+  'er.bulkjob.recordType'  => 'Action "%1$s" does not support record type "%2$s"',
   
   // Plugin texts
+  'pl.bulkjob.arg.action'  => 'Bulk task action',
+  'pl.bulkjob.arg.actionArgs' => 'Bulk task action specific arguments',
+  'pl.bulkjob.arg.recordType' => 'Record type to apply action to',
+  'pl.bulkjob.arg.records' => 'Comma separated list of record IDs',
+  'pl.bulkjob.done'        => 'Bulk Processing Finished',
+  'pl.bulkjob.job'         => 'Run Bulk Task',
+  'pl.bulkjob.updateStatus.done' => 'BulkJob updated %1$s status to %2$s',
   'pl.expirationjob.done'  => 'Expiration Finished',
   'pl.expirationjob.job'   => 'Run Expirations',
   'pl.groupvalidityjob.done' => 'Reprovisioning Finished',
