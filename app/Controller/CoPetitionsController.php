@@ -2178,7 +2178,7 @@ class CoPetitionsController extends StandardController {
       $pt = $this->CoPetition->find('first', $args);
       
       if(!$pt) {
-        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1', $petitionId))), array('key' => 'error'));
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $petitionId)), array('key' => 'error'));
         $this->redirect('/');
       }
       
