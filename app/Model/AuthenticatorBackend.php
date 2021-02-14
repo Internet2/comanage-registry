@@ -45,8 +45,20 @@ abstract class AuthenticatorBackend extends AppModel {
    */
   
   public function current($id, $backendId, $coPersonId) {
-    // Plugin either needs to override and implement this, or override and implement manage()
-    throw new RuntimeException(_txt('er.notimpl'));
+    // As of v4.0.0, we'll provide default behavior for "simple" cases
+    // (where the object being managed matches our alias)
+    
+    // $authplugin = (eg) PasswordAuthenticator
+    // $authmodel = (eg) Password
+    $authplugin = $this->alias;
+    $authmodel = substr($authplugin, 0, -13);
+    
+    $args = array();
+    $args['conditions'][$authmodel.'.password_authenticator_id'] = $backendId;
+    $args['conditions'][$authmodel.'.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+
+    return $this->$authmodel->find('all', $args);
   }
   
   /**

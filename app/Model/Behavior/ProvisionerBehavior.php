@@ -1177,51 +1177,56 @@ class ProvisionerBehavior extends ModelBehavior {
       // $authmodel = (eg) Password
       $authmodel = substr($authplugin, 0, -13);
       
-      // We should be able to just modify the 'contain' above, but for some reason
-      // this isn't working (possibly cake resetting associations somewhere or maybe
-      // due to Passward not being changelog enabled).
-      $coPersonModel->bindModel(array('hasMany' => array($authplugin.'.'.$authmodel => array('dependent' => true))));
+      // A plugin can be multiply instantiated, so first find those. Note we have
+      // to manually bind the association.
+      $coPersonModel->Co->Authenticator->bindModel(array('hasOne' => array($authplugin.'.'.$authplugin => array('dependent' => true))));
       
       $args = array();
-      $args['conditions'][$authmodel.'.co_person_id'] = $coPersonId;
-      // We also need the configuration ("Authenticator") status as well as
-      // the status of this specific authenticator ("AuthenticatorStatus").
-      // For some reason when called from SAMController::manage() (but not from other functions)
-      // this contain picks up (eg) PasswordAuthenticator, but not Authenticator or AuthenticatorStatus.
-      // So we have to make multiple calls.
-//      $args['contain']['PasswordAuthenticator']['Authenticator'] = 'AuthenticatorStatus';
-      $args['contain'][] = $authplugin;
+      $args['conditions']['Authenticator.co_id'] = $coPersonData['CoPerson']['co_id'];
+      $args['conditions']['Authenticator.plugin'] = $authplugin;
+      $args['conditions']['Authenticator.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = $authplugin;
       
-      $authenticators = $coPersonModel->$authmodel->find('all', $args);
+      $authenticators = $coPersonModel->Co->Authenticator->find('all', $args);
       
-      // We only want Authenticators that are Active. (The Plugins decide what to do
-      // with AuthenticatorStatus.)
+      // For each instantiation, request the current() data if the authenticator
+      // is not locked
       
-      $coPersonData[$authmodel] = array();
-      
-      foreach($authenticators as $p) {
-        // Now we need to pull the Authenticator and Status
-        if(!empty($p[$authplugin]['authenticator_id'])) {
-          $args = array();
-          $args['conditions']['Authenticator.id'] = $p[$authplugin]['authenticator_id'];
-          $args['contain'] = array(
-            'AuthenticatorStatus' => array(
-              'conditions' => array('AuthenticatorStatus.co_person_id' => $coPersonId)
-            )
-          );
-          
-          $aStatus = $coPersonModel->$authmodel->$authplugin->Authenticator->find('first', $args);
-          
-          if(isset($aStatus['Authenticator']['status'])
-             && $aStatus['Authenticator']['status'] == SuspendableStatusEnum::Active) {
-            // Reformat the data to match the main find
-            $pd = $p[$authmodel];
+      foreach($authenticators as $a) {
+        // Is this Authenticator locked? Note this only examines default lock
+        // behavior. Plugins can override this. If they do so and do not write
+        // an AuthenticatorStatus record, then their data will be provisioned
+        // (if returned by current()).
+        $args = array(
+          'AuthenticatorStatus.authenticator_id' => $a['Authenticator']['id'],
+          'AuthenticatorStatus.co_person_id' => $coPersonId
+        );
+        
+        $locked = $coPersonModel->Co->Authenticator->AuthenticatorStatus->field('locked', $args);
+        
+        if(!$locked) {
+          // Ask the plugin for the current data associated with the Authenticator
+          try {
+            $objects = $coPersonModel->Co->Authenticator->$authplugin->current($a['Authenticator']['id'],
+                                                                               $a[$authplugin]['id'],
+                                                                               $coPersonId);
             
-            if(!empty($aStatus['AuthenticatorStatus'][0])) {
-              $pd['AuthenticatorStatus'] = $aStatus['AuthenticatorStatus'][0];
+            if(!empty($objects)) {
+              // We'll have an array of the form 0.Password.data, but we need to
+              // store it as Password.0.data. Note we can have multiple types of
+              // records if the Authenticator supports more than one.
+              
+              foreach($objects as $o) {
+                foreach(array_keys($o) as $k) {
+                  $coPersonData[$k][] = $o[$k];
+                }
+              }
             }
-            
-            $coPersonData[$authmodel][] = $pd;
+          }
+          catch(Exception $e) {
+            // We'll get a RuntimeException if the plugin doesn't implement
+            // current(), but it's not clear what to do with it, so we just
+            // ignore the error and keep trying. In PE, we should log this.
           }
         }
       }

@@ -119,6 +119,26 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
   	return array();
   }
 	
+	/**
+   * Obtain current data suitable for passing to manage() and provisioners.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $id				 Authenticator ID
+   * @param  integer $backendId  Authenticator Backend ID
+   * @param  integer $coPersonId CO Person ID
+   * @return Array As returned by find
+   * @throws RuntimeException
+	 */
+
+	public function current($id, $backendId, $coPersonId) {
+    $args = array();
+    $args['conditions']['TotpToken.privacy_idea_authenticator_id'] = $backendId;
+    $args['conditions']['TotpToken.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    
+    return $this->TotpToken->find('all', $args);
+	}
+  
   /**
    * Perform backend specific actions on a lock operation.
    *

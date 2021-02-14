@@ -78,27 +78,6 @@ class CertificateAuthenticator extends AuthenticatorBackend {
   }
 	
 	/**
-   * Obtain current data suitable for passing to manage().
-   *
-   * @since  COmanage Registry v3.1.0
-   * @param  integer $id				 Authenticator ID
-   * @param  integer $backendId  Authenticator Backend ID
-   * @param  integer $coPersonId CO Person ID
-   * @return Array As returned by find
-   * @throws RuntimeException
-	 */
-	
-	public function current($id, $backendId, $coPersonId) {
-    // XXX this could probably move to AuthenticatorBackend as a default
-		$args = array();
-		$args['conditions']['Certificate.certificate_authenticator_id'] = $backendId;
-		$args['conditions']['Certificate.co_person_id'] = $coPersonId;
-		$args['contain'] = false;
-		
-		return $this->Certificate->find('all', $args);
-	}
-	
-	/**
 	 * Manage Authenticator data, as submitted from the view.
 	 *
 	 * @since  COmanage Registry v3.1.0

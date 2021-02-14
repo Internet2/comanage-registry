@@ -240,29 +240,6 @@ class PrivacyIdea extends AppModel {
   }
   
   /**
-   * Implement a model specific find.
-   *
-   * @since  COmanage Registry v4.0.0
-   * @param  string $type  Type of find
-   * @param  array  $query Find query parameters
-   * @return array         Results
-   */
-  
-  public function find($type='first', $query=array()) {
-    // Because we're a virtual table, we need to override find(), in particular
-    // for ProvisionerBehavior::marshallCoPersonData, which invokes Authenticator
-    // plugins to find data to provision.
-    
-    // XXX we basically need to recast the find() against each backend model
-    // (right now, just TotpToken) but then key the results on PrivacyIdea
-    // somehow. There's also a second call that pulls AuthenticatorStatus.
-    // For now we just return an array since we don't need to provision anything
-    // yet.
-    
-    return array();
-  }
-  
-  /**
    * Lookup the Identifier of the specified type for the specified CO Person.
    *
    * @since  COmanage Registry v4.0.0

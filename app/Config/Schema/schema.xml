@@ -2357,6 +2357,11 @@
     <index name="authenticators_i1">
       <col>co_id</col>
     </index>
+    
+    <index name="authenticators_i2">
+      <col>co_id</col>
+      <col>plugin</col>
+    </index>
   </table>
   
   <table name="authenticator_statuses">

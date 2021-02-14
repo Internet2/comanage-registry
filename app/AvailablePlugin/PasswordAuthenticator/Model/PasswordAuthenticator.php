@@ -127,26 +127,6 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   }
   
 	/**
-   * Obtain current data suitable for passing to manage().
-   *
-   * @since  COmanage Registry v3.1.0
-   * @param  integer $id				 Authenticator ID
-   * @param  integer $backendId  Authenticator Backend ID
-   * @param  integer $coPersonId CO Person ID
-   * @return Array As returned by find
-   * @throws RuntimeException
-	 */
-	
-	public function current($id, $backendId, $coPersonId) {
-		$args = array();
-		$args['conditions']['Password.password_authenticator_id'] = $backendId;
-		$args['conditions']['Password.co_person_id'] = $coPersonId;
-		$args['contain'] = false;
-		
-		return $this->Password->find('all', $args);
-	}
-	
-	/**
 	 * Manage Authenticator data, as submitted from the view.
 	 *
 	 * @since  COmanage Registry v3.1.0
