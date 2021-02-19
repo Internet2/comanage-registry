@@ -198,6 +198,31 @@ class CoPetitionsController extends StandardController {
    */
   
   public function approve($id) {
+    if($this->request->is('post')
+       && !empty($this->request->data['action'])
+       && $this->request->data['action'] == 'Deny') {
+      // As a workaround for CO-2037, we need to check if the status is pending
+      // confirmation, and if so process the denial. (If the Enrollment Flow does
+      // not require approval, then this step won't run, even though denial is
+      // available as long as email confirmation is available.)
+      
+      // While we're bypassing some of the dispatch checks here, it should
+      // generally be OK because in order to get here we need to be processing
+      // a form created with FormHelper.
+      
+      // Eventually we should split deny back into its own state, or maybe add
+      // a more generic "cancel" option. (Part of the merge with "approve" was
+      // to simplify processing of the new comment field.)
+      
+      $pStatus = $this->CoPetition->field('status', array('CoPetition.id' => $id));
+      
+      if($pStatus == StatusEnum::PendingConfirmation) {
+        // This will end in a redirect, so we won't return here
+        $this->execute_approve($id);
+      }
+      // other statuses can be handled by the usual implementation
+    }
+    
     $this->dispatch('approve', $id);
   }
   
