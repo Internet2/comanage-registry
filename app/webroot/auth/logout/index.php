@@ -30,8 +30,11 @@
 
 session_name("CAKEPHP");
 session_start();
-$path = str_replace('auth/logout/', '', $_SERVER["REQUEST_URI"]);
+
+$re = '/(.*)\/auth\/logout(.*)/m';
+$subst = '$1/users/logout$2';
+$redirect_location = preg_replace($re, $subst, $_SERVER["REQUEST_URI"]);
 
 unset($_SESSION['Auth']);
 
-header('Location: ' . $path . 'users/logout');
+header('Location: ' . $redirect_location);
