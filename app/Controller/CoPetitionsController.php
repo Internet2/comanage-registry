@@ -1465,8 +1465,17 @@ class CoPetitionsController extends StandardController {
                                       PetitionStatusEnum::Finalized,
                                       $this->Session->read('Auth.User.co_person_id'));
       
-      // Maybe establish Cluster Accounts
-      $this->CoPetition->assignClusterAccounts($id, $this->Session->read('Auth.User.co_person_id'));
+      // Maybe establish Cluster Accounts.
+      // Note in contrast with establish_authenticators, there is no separate
+      // establish_cluster_accounts step. (Maybe there should be?) As such, we
+      // need to check if cluster accounts should be assigned (since we don't
+      // have CoEnrollmentFlow::configuredSteps() to do it automatically for us).
+      
+      $clusters = $this->CoPetition->CoEnrollmentFlow->field('establish_cluster_accounts', array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
+      
+      if($clusters) {
+        $this->CoPetition->assignClusterAccounts($id, $this->Session->read('Auth.User.co_person_id'));
+      }
     }
     
     // The step is done
