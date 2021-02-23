@@ -62,7 +62,7 @@ $redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . $
     100% { opacity: 0.3; }
   }
   #co-loading {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     width: 160px;
