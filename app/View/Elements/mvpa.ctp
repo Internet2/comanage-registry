@@ -52,6 +52,7 @@
  
  $action = ($edit ? 'edit' : 'view');
  $lorder = ($edit ? MenuActionOrder::Edit : MenuActionOrder::View);
+ $action_icon = ($edit ? MenuActionIcon::Edit : MenuActionIcon::View);
 ?>
 
   <li id="fields-<?php print $lmvpa; ?>" class="fieldGroup">
@@ -100,6 +101,7 @@
               $editable = false;
               $laction = 'view';
               $lorder = MenuActionOrder::View;
+              $action_icon = MenuActionIcon::View;
             } elseif($self_service) {
               // If self service, check appropriate permissions
               $perm = $this->Permission->selfService($permissions,
@@ -112,11 +114,13 @@
                   $editable = true;
                   $laction = 'edit';
                   $lorder = MenuActionOrder::Edit;
+                  $action_icon = MenuActionIcon::Edit;
                   break;
                 case PermissionEnum::ReadOnly:
                   $editable = false;
                   $laction = 'view';
                   $lorder = MenuActionOrder::View;
+                  $icon = MenuActionIcon::View;
                   break;
                 default:
                   // No permission, skip this entry entirely
@@ -154,6 +158,7 @@
                     if($permissions['link']) {
                       $action_args['vv_actions'][] = array(
                         'order' => MenuActionOrder::Provision,
+                        'icon' => MenuActionIcon::Provision,
                         'url' => $this->Html->link(
                           array(
                             'controller' => 'co_provisioning_targets',
@@ -208,6 +213,7 @@
               // Verify button
               $action_args['vv_actions'][] = array(
                 'order' => MenuActionOrder::EmailVerify,
+                'icon' => MenuActionIcon::EmailVerify,
                 'url' => 'javascript:void(0);',
                 'label' => _txt('op.verify'),
                 'onclick' => array(
@@ -257,6 +263,7 @@
               if(isset($m['login']) && $m['login']) {
                 $action_args['vv_actions'][] = array(
                   'order' => MenuActionOrder::AuthEvent,
+                  'icon' => MenuActionIcon::AuthEvent,
                   'url' => $this->Html->url(
                     array(
                       'controller' => 'authentication_events',
@@ -274,6 +281,7 @@
               // This renders the View or Edit button, as appropriate
               $action_args['vv_actions'][] = array(
                 'order' => $lorder,
+                'icon' => $action_icon,
                 'url' => $this->Html->url(
                   array(
                     'controller' => $lmvpapl,
@@ -295,6 +303,7 @@
               // Delete button
               $action_args['vv_actions'][] = array(
                 'order' => MenuActionOrder::Delete,
+                'icon' => MenuActionIcon::Delete,
                 'url' => 'javascript:void(0);',
                 'label' => _txt('op.delete'),
                 'onclick' => array(

@@ -283,23 +283,29 @@
                 <li class="field-data-container">
                   <div class="field-data force-wrap">
                     <?php
-                      print $this->Html->link(generateCn($n),
-                          array('controller' => 'names',
-                            'action' => ($e ? 'edit' : 'view'),
-                            $n['id']));
+                      $primary_name_with_bg = $this->Utils->badgeIt(
+                        strtolower(_txt('fd.name.primary_name')),
+                        BadgeColorModeEnum::LightGray,
+                        false,
+                        true
+                      );
+                      $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . "&nbsp;<small>" . $primary_name_with_bg . "</small>"
+                                               : filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
+                      print $this->Html->link(
+                        $cn,
+                        array(
+                          'controller' => 'names',
+                          'action' => ($e ? 'edit' : 'view'),
+                          $n['id']),
+                        array(
+                          'escape' => false,
+                        )
+                      );
                     ?>
                   </div>
                   <div class="field-data data-label">
                     <?php
                     $badge_list = array();
-                    // Primary name
-                    if($n['primary_name']) {
-                      $badge_list[] = array(
-                        'order' => BadgeOrderEnum::SpecialType,
-                        'text' => _txt('fd.name.primary_name'),
-                        'color' => BadgeColorModeEnum::Blue,
-                      );
-                    }
                     // Name Type
                     $badge_list[] = array(
                       'order' => BadgeOrderEnum::Type,
@@ -331,6 +337,7 @@
                           );
                           $action_name_args['vv_actions'][] = array(
                             'order' => MenuActionOrder::Delete,
+                            'icon' => MenuActionIcon::Delete,
                             'url' => 'javascript:void(0);',
                             'label' => _txt('op.delete'),
                             'onclick' => array(
@@ -345,6 +352,7 @@
                           // Primary Name Action Button
                           $action_name_args['vv_actions'][] = array(
                             'order' => MenuActionOrder::PrimaryName,
+                            'icon' => MenuActionIcon::Icon,
                             'label' => _txt('op.primary'),
                             'url' => $this->Html->url(
                               array(
@@ -359,6 +367,7 @@
                         // Edit Action Button
                         $action_name_args['vv_actions'][] = array(
                           'order' => MenuActionOrder::Edit,
+                          'icon' => MenuActionIcon::Edit,
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
@@ -372,6 +381,7 @@
                         // View Action Button
                         $action_name_args['vv_actions'][] = array(
                           'order' => MenuActionOrder::View,
+                          'icon' => MenuActionIcon::View,
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
@@ -708,6 +718,7 @@
 
                   $action_coil_args['vv_actions'][] = array(
                     'order' => MenuActionOrder::View,
+                    'icon' => MenuActionIcon::View,
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'co_people',
@@ -738,6 +749,7 @@
 
                 $action_pcpr_args['vv_actions'][] = array(
                   'order' => MenuActionOrder::Edit,
+                  'icon' => MenuActionIcon::Edit,
                   'url' => $this->Html->url(
                     array(
                       'controller' => 'co_person_roles',
@@ -768,6 +780,7 @@
 
                   $action_pcgm_args['vv_actions'][] = array(
                     'order' => MenuActionOrder::Edit,
+                    'icon' => MenuActionIcon::Edit,
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'co_group_members',

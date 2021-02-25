@@ -50,10 +50,15 @@
   });
   ?>
   <ul id="org-action-list_<?php print  md5($vv_attr_mdl . $vv_attr_id); ?>"
-      class="dropdown-menu dropdown-menu-left">
+      class="dropdown-menu">
     <?php foreach($vv_actions as $action): ?>
       <?php if(empty($action['onclick'])): ?>
-        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="displaySpinner()"><?php print $action['label']; ?></a>
+        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="displaySpinner()">
+          <?php if(!empty($action['icon'])): ?>
+          <i class="<?php print $action['icon']; ?>"></i>
+          <?php endif; ?>
+          <?php print $action['label']; ?>
+        </a>
       <?php else: ?>
       <?php
         $dg_onclick = 'javascript:js_confirm_generic(\''
@@ -65,7 +70,12 @@
           . $action['onclick']['db_bd_txt_repl_str']             // dialog body text replacement strings
           . '\']);';
       ?>
-        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>"><?php print $action['label']; ?></a>
+        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
+          <?php if(!empty($action['icon'])): ?>
+            <i class="<?php print $action['icon']; ?>"></i>
+          <?php endif; ?>
+          <?php print $action['label']; ?>
+        </a>
       <?php endif; ?>
     <?php endforeach;?>
   </ul>

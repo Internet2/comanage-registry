@@ -193,11 +193,16 @@ class BadgeColorModeEnum {
 }
 
 class BadgeOrderEnum {
-  const Type                  = 6;
-  const Status                = 9;
-  const SpecialType           = 12;
-  const Source                = 15;
-  const Other                 = 17;
+  const Status                = 1;
+  const Owner                 = 3;
+  const Member                = 5;
+  const Title                 = 7;
+  const All                   = 9;
+  const Active                = 11;
+  const Type                  = 13;
+  const SpecialType           = 15;
+  const Source                = 17;
+  const Other                 = 19;
 }
 
 class ComparisonEnum
@@ -418,16 +423,30 @@ class MatchStrategyEnum
 
 class MenuActionOrder
 {
-  const EmailVerify = 1;
-  const PrimaryName = 2;
-  const AuthEvent = 3;
-  const Provision = 4;
-  const PetitionView = 9;
-  const View = 10;
-  const Edit = 12;
-  const Relink = 14;
-  const Unlink = 17;
-  const Delete = 20;
+  const EmailVerify   = 1;   // fa fa-envelope
+  const PrimaryName   = 2;   // fa fa-tag
+  const AuthEvent     = 3;   // fa fa-sign-in
+  const Provision     = 4;   // fa fa-forward
+  const PetitionView  = 9;   // fa fa-user-plus
+  const View          = 10;  // fa fa-eye
+  const Edit          = 12;  // fa fa-edit
+  const Relink        = 14;  // fa fa-link
+  const Unlink        = 17;  // fa fa-chain-broken
+  const Delete        = 20;  // fa fa-trash
+}
+
+class MenuActionIcon
+{
+  const EmailVerify   =  "fa fa-envelope";
+  const PrimaryName   =  "fa fa-tag";
+  const AuthEvent     =  "fa fa-sign-in";
+  const Provision     =  "fa fa-forward";
+  const PetitionView  =  "fa fa-user-plus";
+  const View          =  "fa fa-eye";
+  const Edit          =  "fa fa-edit";
+  const Relink        =  "fa fa-link";
+  const Unlink        =  "fa fa-chain-broken";
+  const Delete        =  "fa fa-trash";
 }
 
 class MessageTemplateEnum
