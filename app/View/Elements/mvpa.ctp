@@ -192,7 +192,7 @@
                 print $this->Html->link(_txt('ct.authentication_events.pl'),
                                         array('controller' => 'authentication_events',
                                               'action' => 'index',
-                                              'identifier' => $m['identifier']),
+                                              'identifier' => rawurlencode($m['identifier'])),
                                         array('class' => 'notebutton'));
               }
             }

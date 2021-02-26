@@ -86,25 +86,27 @@ class CoGroupsController extends StandardController {
    */
 
   public function beforeRender() {
-    global $cm_lang, $cm_texts;
-    $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
-    $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
-    $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
-    $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
-    
-    $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
+    if(!$this->request->is('restful')) {
+      global $cm_lang, $cm_texts;
+      $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
+      $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
+      $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
+      $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
+      
+      $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
 
-    $this->set('vv_types', array('Identifier'   => $idTypes));
-    
-    // Determine if there are any identifier assignments for this CO.
-    
-    $args = array();
-    $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
-    $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoGroup;
-    $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
-    $args['contain'] = false;
-    
-    $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
+      $this->set('vv_types', array('Identifier'   => $idTypes));
+      
+      // Determine if there are any identifier assignments for this CO.
+      
+      $args = array();
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoIdentifierAssignment.context'] = IdentifierAssignmentContextEnum::CoGroup;
+      $args['conditions']['CoIdentifierAssignment.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
+    }
 
     parent::beforeRender();
   }
@@ -194,7 +196,7 @@ class CoGroupsController extends StandardController {
     
     // Do not allow edits to automatic groups. This probably isn't exactly right, as
     // ultimately it should be possible to (eg) change the description of an automatic group.
-    if($curdata['CoGroup']['auto']) {
+    if(isset($curdata['CoGroup']['auto']) && $curdata['CoGroup']['auto']) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Automatic groups may not be edited directly");
       } else {

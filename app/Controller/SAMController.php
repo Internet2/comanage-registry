@@ -72,6 +72,52 @@ class SAMController extends StandardController {
       $this->requires_person = true;
     }
     
+    if(($this->action == 'add' || $this->action == 'manage')
+       && !empty($this->request->params['named']['authenticatorid'])
+       && !empty($this->request->params['named']['copetitionid'])) {
+      $args = array();
+      $args['conditions']['CoPetition.id'] = $this->request->params['named']['copetitionid'];
+      $args['contain'] = array('CoEnrollmentFlow' => 'CoEnrollmentAuthenticator');
+      
+      $pt = $this->CoPetition->find('first', $args);
+      
+      // Make sure the requested authenticator ID is attached to the enrollment
+      // flow attached to the petition
+      
+      $ea = Hash::extract($pt, "CoEnrollmentFlow.CoEnrollmentAuthenticator.{n}[authenticator_id=".$this->request->params['named']['authenticatorid']."]");
+      
+      if(empty($ea) || $ea[0]['required'] == RequiredEnum::NotPermitted) {
+        throw new InvalidArgumentException(_txt('er.permission'));
+      }
+      
+      // If we're in an enrollment flow, we may need to check the petition token for authorization.
+      // We'll do this when all of the following are true:
+      // - The action is "add" or "manage"
+      // - A copetitionid is provided, and maps to an Enrollment Flow where
+      //   - the petition is in a valid state (created or confirmed)
+      //   - the enrollment flow is active and does NOT require authentication
+      // - A token is provided, and matches the enrollee token in the petition
+      
+      if(!empty($pt['CoPetition'])
+         && !empty($pt['CoEnrollmentFlow'])
+         && !empty($this->request->params['named']['token'])
+         && ($pt['CoPetition']['status'] == PetitionStatusEnum::Created
+             || $pt['CoPetition']['status'] == PetitionStatusEnum::Confirmed)
+         && !empty($pt['CoPetition']['enrollee_co_person_id'])
+         && $pt['CoEnrollmentFlow']['status'] == SuspendableStatusEnum::Active
+         && !$pt['CoEnrollmentFlow']['require_authn']
+         && $this->request->params['named']['token'] === $pt['CoPetition']['enrollee_token']) {
+        
+        $this->Auth->allow($this->action);
+        
+        // Load the Authenticator plugin
+        $this->setViewVars($this->request->params['named']['authenticatorid'], $pt['CoPetition']['enrollee_co_person_id']);
+        
+        // Set permissions for views
+        $this->set('permissions', array($this->action => true));
+      }
+    }
+    
     parent::beforeFilter();
   }
   
@@ -643,7 +689,7 @@ class SAMController extends StandardController {
         $plugin = $this->Authenticator->field('plugin', array('id' => $authenticatorId));
         
         if(empty($plugin)) {
-          throw new InvalidArgumentException(_txt('er.notfound', array('ct.authenticators.1',
+          throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.authenticators.1'),
                                                                        filter_var($authenticatorId,FILTER_SANITIZE_SPECIAL_CHARS))));
         }
         

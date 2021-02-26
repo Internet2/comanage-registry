@@ -1271,47 +1271,46 @@ class AppController extends Controller {
                                                                  $this->cur_co['Co']['id'],
                                                                  $this->Session->read('Auth.User.co_person_id'),
                                                                  false);
-    }
-    
-    // Pull the list of COUs and their names. Primarily intended for CO Service portal.
-    $args = array();
-    $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
-    $args['fields'] = array('Cou.id', 'Cou.name');
-    $args['contain'] = false;
-    
-    $menu['cous'] = $this->Co->Cou->find('list', $args);
+      
+      // Pull the list of COUs and their names. Primarily intended for CO Service portal.
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('Cou.id', 'Cou.name');
+      $args['contain'] = false;
+      
+      $menu['cous'] = $this->Co->Cou->find('list', $args);
 
-    // Gather the available Enrollment Flows available to the current user.
-    // This will be used on the user panel.
-    // Limit this to flows that are flagged to appear in panel
-    $args = array();
-    $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
-    $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
-    $args['conditions']['CoEnrollmentFlow.my_identity_shortcut'] = true;
-    $args['order']['CoEnrollmentFlow.name'] = 'asc';
-    $args['contain'][] = false;
+      // Gather the available Enrollment Flows available to the current user.
+      // This will be used on the user panel.
+      // Limit this to flows that are flagged to appear in panel
+      $args = array();
+      $args['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Active;
+      $args['conditions']['CoEnrollmentFlow.my_identity_shortcut'] = true;
+      $args['order']['CoEnrollmentFlow.name'] = 'asc';
+      $args['contain'][] = false;
 
-    $this->loadModel('CoEnrollmentFlow');
-    $flows = $this->CoEnrollmentFlow->find('all', $args);
+      $this->loadModel('CoEnrollmentFlow');
+      $flows = $this->CoEnrollmentFlow->find('all', $args);
 
-    // Walk through the list of flows and see which ones this user is authorized to run
-    $authedFlows = array();
-    $roles = $this->Role->calculateCMRoles();
+      // Walk through the list of flows and see which ones this user is authorized to run
+      $authedFlows = array();
+      $roles = $this->Role->calculateCMRoles();
 
-    foreach($flows as $f) {
-      // pass $role to model->authorize
+      foreach($flows as $f) {
+        // pass $role to model->authorize
 
-      if($roles['cmadmin']
-        || $this->CoEnrollmentFlow->authorize($f,
-          $this->Session->read('Auth.User.co_person_id'),
-          $this->Session->read('Auth.User.username'),
-          $this->Role)) {
-        $authedFlows[] = $f;
+        if($roles['cmadmin']
+          || $this->CoEnrollmentFlow->authorize($f,
+            $this->Session->read('Auth.User.co_person_id'),
+            $this->Session->read('Auth.User.username'),
+            $this->Role)) {
+          $authedFlows[] = $f;
+        }
       }
+
+      $menu['flows'] = $authedFlows;
     }
-
-    $menu['flows'] = $authedFlows;
-
 
     // Gather up the appropriate OrgIds for the current user.
     // These will be presented on the user panel.

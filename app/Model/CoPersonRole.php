@@ -384,9 +384,7 @@ class CoPersonRole extends AppModel {
       
       if(!empty($this->data[$this->alias]['valid_through'])) {
         if(strtotime($this->data[$this->alias]['valid_through']) < time()
-           && ($this->data[$this->alias]['status'] == StatusEnum::Active
-               ||
-               $this->data[$this->alias]['status'] == StatusEnum::GracePeriod)) {
+           && ($this->data[$this->alias]['status'] == StatusEnum::Active)) {
           // Flag role as expired
           $this->data[$this->alias]['status'] = StatusEnum::Expired;
         } elseif(strtotime($this->data[$this->alias]['valid_through']) > time()

@@ -1389,9 +1389,8 @@ class ProvisionerBehavior extends ModelBehavior {
     foreach($coServiceIds as $coServiceId) {
       $coService = $this->marshallCoServiceData($model, $coServiceId);
 
-      if(empty($coService)) {
-        // XXX here and below (People/Groups), do we really want to abort if only one entry is not found?
-        throw new InvalidArgumentException($e->getMessage());
+      if(empty($coService) && $provisioningAction != ProvisioningActionEnum::CoServiceDeleted) {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_services.1'), $coServiceId)));
       }
 
       $paction = $provisioningAction ? $provisioningAction : ProvisioningActionEnum::CoServiceUpdated;
@@ -1439,9 +1438,9 @@ class ProvisionerBehavior extends ModelBehavior {
     foreach($coEmailListIds as $coEmailListId) {
       $emaillist = $this->marshallCoEmailListData($model, $coEmailListId);
       
-      if(empty($emaillist)) {
+      if(empty($emaillist) && $provisioningAction != ProvisioningActionEnum::CoEmailListDeleted) {
         // XXX here and below (People/Groups), do we really want to abort if only one entry is not found?
-        throw new InvalidArgumentException($e->getMessage());
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_email_lists.1'), $coServiceId)));
       }
       
       $paction = $provisioningAction ? $provisioningAction : ProvisioningActionEnum::CoEmailListUpdated;

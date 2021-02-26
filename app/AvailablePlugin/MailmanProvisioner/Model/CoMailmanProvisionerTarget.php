@@ -674,6 +674,7 @@ class CoMailmanProvisionerTarget extends CoProvisionerPluginTarget {
         
         $listId = $json->list_id;
         
+        $this->CoMailmanList->clear();
         $this->CoMailmanList->save($data);
         
         $this->CoMailmanList

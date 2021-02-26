@@ -349,6 +349,7 @@ class CoGrouperProvisionerGroup extends AppModel {
       unset($provisionerGroup['CoGrouperProvisionerGroup']['modified']);
     }
     
+    $this->clear();
     if(!$this->save($provisionerGroup)) {
       throw new RuntimeException(_txt('er.db.save'));
     }

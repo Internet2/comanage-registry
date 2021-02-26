@@ -314,7 +314,8 @@ class CoLdapProvisionerDn extends AppModel {
         if(!empty($dnRecord)) {
           $newDnRecord['CoLdapProvisionerDn']['id'] = $dnRecord['CoLdapProvisionerDn']['id'];
         }
-        
+
+        $this->clear();
         if(!$this->save($newDnRecord)) {
           throw new RuntimeException(_txt('er.db.save'));
         }
