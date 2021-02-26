@@ -1418,6 +1418,45 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
     }
     
+    // (5) How to handle missing required attributes is a bit of a tricky mess.
+    // If we send a record without a required attribute, the LDAP server will
+    // complain about an object class violation. But we don't really have a good
+    // mechanism for reporting the missing attribute. (PE can add some logging.)
+    // And it's not clear that we should send a partial record instead of a full
+    // record. Complicating things is CO-2092, where (eg) voPosixAccountGidNumber
+    // is required for voPosixGroup, but not all groups will have this attribute,
+    // and those that don't shouldn't be provisioned into voPosixGroup.
+    
+    // So for now (as of v3.3.2) we do the following: if a required objectclass
+    // is missing a required attribute, we do nothing, and let the LDAP server
+    // throw at object class violation. If an optional objectclass is missing
+    // a required attribute, we delete the objectclass. For now, we don't
+    // delete any attributes (since they may be part of a different objectclass,
+    // and if we leave any invalid attributes in place the server will complain),
+    // but we'll probably need to revisit this at some point.
+    
+    foreach($supportedAttributes as $oc => $cfg) {
+      if(!$cfg['objectclass']['required']) {
+        // Objectclass is not required...
+        
+        foreach($cfg['attributes'] as $attr => $acfg) {
+          if($acfg['required']) {
+            // But this attribute is...
+            
+            if(empty($attributes[$attr])) {
+              // ... and it's not set, so remove the it from the list of objectclasses
+              
+              $k = array_search($oc, $attributes['objectclass']);
+              
+              if($k !== false) {
+                unset($attributes['objectclass'][$k]);
+              }
+            }
+          }
+        }
+      }
+    }
+    
     return $attributes;
   }
   
