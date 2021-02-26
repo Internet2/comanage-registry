@@ -79,8 +79,8 @@
     top: -1px;
   }
   #user-panel {
-    width: 400px;
-    min-width: 0;
+    min-width: 400px;
+    max-width: unset;
   }
   #user-panel-user-info {
     border-top: none;
