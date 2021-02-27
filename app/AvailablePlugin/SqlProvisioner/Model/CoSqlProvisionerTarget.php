@@ -572,7 +572,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
         $parentids[] = $provisioningData['CoPerson']['id'];
       }
       
-      if(!empty($parentids)) {
+      if(!empty($parentids) && !empty($records)) {
         foreach($records as $d) {
           $Model->clear();
           

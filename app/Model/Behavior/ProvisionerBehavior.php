@@ -838,7 +838,7 @@ class ProvisionerBehavior extends ModelBehavior {
         if($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
            || ($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueOnErrorMode
                && $error)) {
-          // Queue the job. The job will be processed by ProvisionerJob, and the
+          // Queue the job. The job will be processed by ProvisionJob, and the
           // job infrastructure will handle retrying if it fails (again).
           
           $retry = (!empty($target['CoProvisioningTarget']['retry_interval'])
@@ -849,7 +849,7 @@ class ProvisionerBehavior extends ModelBehavior {
           // already one in the queue, eg if two changes are made in quick succession.
           // To keep the noise down, we'll ignore these errors.
           $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'], 
-                                      'ProvisionerJob.Provisioner',
+                                      'CoreJob.Provision',
                                       $provisioningData[ $model->name ]['id'],
                                       $model->name,
                                       _txt(($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
@@ -1362,11 +1362,13 @@ class ProvisionerBehavior extends ModelBehavior {
     // coPersonModel above does not filter out email list memberships where
     // the associated group membership is empty.
 
-    foreach($coPersonData['CoGroupMember'] as &$membership) {
-      if(empty($membership['member'])) {
-        $membership['CoGroup']['EmailListAdmin'] = array();
-        $membership['CoGroup']['EmailListMember'] = array();
-        $membership['CoGroup']['EmailListModerator'] = array();
+    if(!empty($coPersonData['CoGroupMember'])) {
+      foreach($coPersonData['CoGroupMember'] as &$membership) {
+        if(empty($membership['member'])) {
+          $membership['CoGroup']['EmailListAdmin'] = array();
+          $membership['CoGroup']['EmailListMember'] = array();
+          $membership['CoGroup']['EmailListModerator'] = array();
+        }
       }
     }
 

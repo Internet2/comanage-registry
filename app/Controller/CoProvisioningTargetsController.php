@@ -387,7 +387,7 @@ class CoProvisioningTargetsController extends StandardController {
     
     try {
       $jobid = $this->CoJob->register($this->cur_co['Co']['id'],
-                                      'Provisioner',
+                                      'CoreJob.Provision',
                                       null,
                                       "",
                                       // Update with CO-1729
