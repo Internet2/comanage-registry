@@ -249,16 +249,15 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
       throw new RuntimeException(_txt('er.envsource.sorid', array($cfg['EnvSource']['env_identifier_sorid'])));
     }
     
-    // selectEnrollee hasn't run yet so we can't pull the target CO Person from the
-    // petition, but for OISAuthenticate, it's the current user (ie: $actorCoPersonId)
-    // that we always want to link to. Actually, it isn't (CO-1619), but the enrollment
-    // flow should later correctly link the identity.
-      
+    // Do we have a CO Person already associated with this petition?
+    // We need this for Pipelines to link to the correct CO Person.
+    $petitionCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    
     $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
                                                             $sorid,
                                                             $actorCoPersonId,
                                                             $this->cur_co['Co']['id'],
-                                                            null,
+                                                            $petitionCoPersonId,
                                                             false,
                                                             $id);
     
