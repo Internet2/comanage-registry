@@ -620,6 +620,17 @@ class CoPetitionsController extends StandardController {
     }
     
     parent::beforeRender();
+
+    // Calculate the permissions for each CO Petition
+    if(isset($this->viewVars['co_petitions'])) {
+      foreach($this->viewVars['co_petitions'] as $idx => $row) {
+        if(is_array($row["CoPetition"])
+           && !empty($row["CoPetition"])) {
+          $this->viewVars['co_petitions'][$idx]['permissions'] = $this->calculatePermissions($row["CoPetition"]["co_enrollment_flow_id"],
+                                                                                             $row["CoPetition"]["id"]);
+        }
+      }
+    }
   }
   
   /**
@@ -2207,101 +2218,114 @@ class CoPetitionsController extends StandardController {
    */
   
   function isAuthorized() {
+    $p = $this->calculatePermissions($this->enrollmentFlowID(),$this->parseCoPetitionId());
+
+    $this->set('permissions', $p);
+    return $p[$this->action];
+  }
+
+  /**
+   * Calculate the CO Person's permissions for the given Enrollment Flow and Petition ID
+   *
+   * @param $enrollmentFlowId
+   * @param $petitionId
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return array Permissions
+   */
+  function calculatePermissions($enrollmentFlowId, $petitionId) {
     $roles = $this->Role->calculateCMRoles();
-    
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
-    
+
     // We determine certain permissions based on the user's role to the specified
     // petition or flow
-    
+
     $canInitiate = false;
     $isPetitioner = false;
     $isEnrollee = false;
     $isApprover = false;
-    
+
     // If an enrollment flow was specified, check the authorization for that flow
-    
-    if($this->enrollmentFlowID() != -1) {
+
+    if($enrollmentFlowId != -1) {
       $canInitiate = $roles['cmadmin']
-                     || $this->CoPetition->CoEnrollmentFlow->authorizeById($this->enrollmentFlowID(),
+                     || $this->CoPetition->CoEnrollmentFlow->authorizeById($enrollmentFlowId,
                                                                            $roles['copersonid'],
                                                                            $this->Session->read('Auth.User.username'),
                                                                            $this->Role);
     }
-    
+
     // If a petition was specified, check the authorizations for that petition
-    
-    $petitionId = $this->parseCoPetitionId();
-    
     if($petitionId) {
       // Current values from petition
       $args = array();
       $args['conditions']['CoPetition.id'] = $petitionId;
       $args['contain'] = false;
-      
+
       $pt = $this->CoPetition->find('first', $args);
-      
+
       if(!$pt) {
-        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $petitionId)), array('key' => 'error'));
+        $this->Flash->set(_txt('er.notfound', array(_txt('ct.co_petitions.1', $petitionId))), array('key' => 'error'));
         $this->redirect('/');
       }
-      
+
       $curPetitioner = $pt['CoPetition']['petitioner_co_person_id'];
       $curEnrollee = $pt['CoPetition']['enrollee_co_person_id'];
       $petitionerToken = $pt['CoPetition']['petitioner_token'];
       $enrolleeToken = $pt['CoPetition']['enrollee_token'];
-      
+
       // Select admins can also act as the petitioner
       $isPetitioner = $roles['cmadmin']
                       || $roles['coadmin']
                       || ($roles['couadmin'] && $this->Role->isCouAdminForCoPerson($roles['copersonid'], $curPetitioner))
                       || ($curPetitioner && ($curPetitioner == $roles['copersonid']))
                       || ($petitionerToken != '' && $petitionerToken == $this->parseToken());
-      
+
       // Select admins can also act as the enrollee
       $isEnrollee = $roles['cmadmin']
                     || $roles['coadmin']
                     || ($roles['couadmin'] && $this->Role->isCouAdminForCoPerson($roles['copersonid'], $curEnrollee))
                     || ($curEnrollee && ($curEnrollee == $roles['copersonid']))
                     || ($enrolleeToken != '' && $enrolleeToken == $this->parseToken());
-      
+
       $isApprover = $roles['cmadmin'] || $this->Role->isApproverForFlow($roles['copersonid'],
-                                                                        $this->enrollmentFlowID(),
+                                                                        $enrollmentFlowId,
                                                                         $petitionId);
     }
-    
+
     // Add a new CO Petition? When not restful, this is just a redirect to start
     $p['add'] = (!$this->request->is('restful') || $roles['cmadmin']);
-    
+
     // Delete an existing CO Petition?
     // For now, this is restricted to CMP and CO Admins, until we have a better policy
     $p['delete'] = $roles['cmadmin'] || $roles['coadmin'];
-    
+
     // Flag an existing CO Petition as a duplicate?
     $p['dupe'] = $isApprover;
-    
+
     // Edit an existing CO Petition?
     $p['edit'] = false;
-    
+
     // We don't allow editing at the moment, but we do allow adding comments.
     // This permission correlates to CoPetitionHistoryRecords::add
     $p['addhistory'] = ($roles['cmadmin'] || $roles['coadmin']
                         || ($canInitiate && $roles['couadmin']));
-    
+
     // Match against existing CO People? If the match policy is Advisory, we
     // allow matching to take place as long as $canInitiate is also true. (Note we don't
     // necessarily have a petition ID.)
     // Note this same permission exists in CO People
-    
+
     $p['match_policy'] = $this->CoPetition->CoEnrollmentFlow->field('match_policy',
-                                                                    array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
+                                                                    array('CoEnrollmentFlow.id' => $enrollmentFlowId));
     $p['match'] = (($roles['cmadmin'] || $canInitiate)
                    &&
                    ($p['match_policy'] == EnrollmentMatchPolicyEnum::Advisory));
-    
+
     $pool = isset($this->viewVars['pool_org_identities']) && $this->viewVars['pool_org_identities'];
-    
+
     // View all existing CO Petitions?
     // Before adjusting this, see paginationConditions(), below
     $p['index'] = ($roles['cmadmin']
@@ -2310,46 +2334,46 @@ class CoPetitionsController extends StandardController {
                    // we don't have a CO Person ID for the user (so we're in an
                    // Org Identity context, such as search by Org Identity ID)
                    || ($pool
-                       && !$roles['copersonid'] 
+                       && !$roles['copersonid']
                        && ($roles['admin'] || $roles['subadmin']))
                    || $this->Role->isApprover($roles['copersonid']));
-    
+
     // Search all existing CO Petitions?
     $p['search'] = $p['index'];
-    
+
     // Resend invitations?
     $p['resend'] = ($roles['cmadmin']
                     || $roles['coadmin']
                     || ($canInitiate && $roles['couadmin'])
                     || $isPetitioner);
-    
+
     // View an existing CO Petition? We allow the usual suspects to view a Petition, even
     // if they don't have permission to edit it. Also approvers need to be able to see the Petition.
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $isApprover);
-    
+
     if($this->action == 'index' && $p['index']) {
       // These permissions may not be exactly right, but they only apply when rendering
       // the index view
-      
+
       $p['add'] = true;  // This is really permission to run co_enrollment_flows/select
       $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
       $p['edit'] = $p['delete'];  // For now, delete and edit are restricted
       $p['resend'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
       $p['view'] = true;  // Approvers will have the petitions they can see filtered by the controller
     }
-    
+
     // View Enrollment Attribute definitions? This is for link generation only, the actual
     // authz is in CoEnrollmentAttributesController.
-    
+
     $p['viewEA'] = $roles['cmadmin'] || $roles['coadmin'];
-    
+
     // Execute the various phases involved in a CO Petition?
     // We need to know which phases are configured for certain permissions.
     $steps = null;
-    
-    if($this->enrollmentFlowID() > -1) {
-      $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($this->enrollmentFlowID());
-      
+
+    if($enrollmentFlowId > -1) {
+      $steps = $this->CoPetition->CoEnrollmentFlow->configuredSteps($enrollmentFlowId);
+
       // Initiating a Petition gets us to the point of collecting petitioner attributes
       $p['start'] = $canInitiate;
       // Once there is a petitioner attached, we restrict who can run the associated steps
@@ -2420,9 +2444,7 @@ class CoPetitionsController extends StandardController {
         $p['redirectOnConfirm'] = false;
       }
     }
-    
-    $this->set('permissions', $p);
-    return $p[$this->action];
+    return $p;
   }
   
   /**
