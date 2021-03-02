@@ -407,7 +407,7 @@ class CoInvite extends AppModel {
          $email->send();
         }
       } catch(Exception $e) {
-        throw new RuntimeException($e->getMessage());
+        throw new RuntimeException($e->getMessage() . PHP_EOL . _txt('er.ev.sent.failed', array($toEmail)));
       }
       
       // Create a history record

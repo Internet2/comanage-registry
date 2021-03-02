@@ -1014,7 +1014,7 @@ class CoNotification extends AppModel {
     }
     catch(Exception $e) {
       // Should we really abort all notifications if a send fails? Probably not...
-      throw new RuntimeException($e->getMessage());
+      throw new RuntimeException($e->getMessage() . PHP_EOL . _txt('er.nt.send-a', array($recipient)));
     }
   }
 }

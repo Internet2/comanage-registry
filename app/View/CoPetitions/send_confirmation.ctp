@@ -27,23 +27,29 @@
 ?>
 <?php
   $mail = (!empty($vv_co_invite['CoInvite']['mail']) ? $vv_co_invite['CoInvite']['mail'] : "?");
-  
-  $params = array('title' => _txt('rs.ev.sent', array($mail)));
+  if(empty($vv_co_invite['CoInvite']['invitation'])) {
+    $params = array('title' => _txt('er.ev.ver.failed'));
+  } else {
+    $params = array('title' => _txt('rs.ev.sent', array($mail)));
+  }
   print $this->element("pageTitle", $params);
 ?>
-
+<?php if(isset($vv_debug) && $vv_debug > 0): ?>
 <p>
-You are seeing this text because <b>debug</b> is true in the configuration file <b>app/Config/core.php</b>.
+  You are seeing this text because <b>debug</b> is true in the configuration file <b>app/Config/core.php</b>.
 </p>
+<?php endif; ?>
 <p>
-Email would be sent to <b><?php print $mail; ?></b> with the URL
-<br />
-<br />
-<?php 
+  <?php if(!empty($vv_co_invite['CoInvite']['invitation'])): ?>
+    Email would be sent to <b><?php print $mail; ?></b> with the URL
+  <?php endif; ?>
+  <br/>
+  <br/>
+  <?php
   if(!empty($vv_co_invite['CoInvite']['invitation'])) {
     $u = $this->Html->url(array('controller' => 'co_invites', 'action' => 'reply', $vv_co_invite['CoInvite']['invitation']), true);
-    
+
     print $this->Html->link($u, $u);
   }
-?>
+  ?>
 </p>
