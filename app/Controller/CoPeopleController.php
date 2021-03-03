@@ -809,7 +809,10 @@ class CoPeopleController extends StandardController {
     
     // Link an Org Identity to a CO Person?
     $p['link'] = $roles['cmadmin'] || $roles['coadmin'];
-    
+
+    // View auto groups
+    $p['viewautogroups'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+
     // Match against existing CO People?
     // Note this same permission exists in CO Petitions
     

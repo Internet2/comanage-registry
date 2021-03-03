@@ -33,9 +33,70 @@ class UtilsHelper extends AppHelper {
   public $helpers = array('Html');
 
   /**
+   * Parse System Group names. The ones having the prefix CO: or CO:COU:
+   *
+   * @param string $name      Group's name as stored in the COmanage Database
+   * @param string $cur_co    Current CO data
+   * @return array
+   *
+   * @since  COmanage Registry        v4.0.0
+   */
+  public function systemGroupHFormat($name, $cur_co = "") {
+    $auto_group_parts = explode(":", $name);
+    $fname_group = array();
+    // Is this a CO auto group or a CO:COU
+    if(strpos($name, "CO:COU:") === false) {
+      // This is CO auto group
+      $fname_group['key'] = 'AUTO';
+      $fname_group['name']['name'] = filter_var($cur_co["Co"]["name"], FILTER_SANITIZE_SPECIAL_CHARS) . '&nbsp;';
+      $fname_group['name']['badge'] = '<small>' . $this->badgeIt(_txt('ct.cos.1'), BadgeColorModeEnum::LightGray, false, true) . '</small>';
+      $auto_group_parts = array_slice($auto_group_parts, 1);
+    } else {
+      // This is CO:COU auto group
+      $fname_group['key'] = $auto_group_parts[2];
+      $fname_group['name']['name'] = filter_var($auto_group_parts[2], FILTER_SANITIZE_SPECIAL_CHARS) . '&nbsp;';
+      $fname_group['name']['badge'] = "<small>" . $this->badgeIt(_txt('ct.cous.1'), BadgeColorModeEnum::LightGray, false, true) . '</small>';
+      $auto_group_parts = array_slice($auto_group_parts, 3);
+    }
+
+    // XXX admins Group case
+    if(in_array('admins', $auto_group_parts)) {
+      $fname_group['name'] =
+        $fname_group['name']['name']
+        . $fname_group['name']['badge']
+        . '<small>' . $this->badgeIt(_txt('fd.el.gr.admins'), BadgeColorModeEnum::LightGray) . '</small>';
+      return $fname_group;
+    }
+
+    $fname_group['badge'] = array();
+    // Extract Badges
+    foreach($auto_group_parts as $part) {
+      if(in_array($part, array("active", "all"))) {
+        $fname_group['badge'][] = array(
+          'order' => constant('BadgeOrderEnum::' . ucfirst($part)),
+          'text' => _txt('fd.group.mem') . ' ' . ucfirst($part),
+          'color' => BadgeColorModeEnum::Gray,
+        );
+      } elseif($part !== "members") {
+        $fname_group['badge'][] = array(
+          'order' => BadgeOrderEnum::Owner,
+          'text' => ucfirst($part),
+          'color' => BadgeColorModeEnum::Blue,
+        );
+      }
+    }
+
+    $fname_group['name'] =
+      $fname_group['name']['name']
+      . $fname_group['name']['badge']
+      . '<small>' . $this->badgeIt(_txt('fd.co_group.auto'), BadgeColorModeEnum::LightGray, false, true) . '</small>';;
+    return $fname_group;
+  }
+
+  /**
    * Helper which will produce Bootstrap based Badge
    * Bootstrap v5 uses different notation, e.g. bg-success instead of badge success. So, keep everything in one place
-   * to facilitate the upgrade process
+   * to facilitate an upgrade process
    *
    * @since  COmanage Registry        v4.0.0
    * @param string $title             The title of the badge
@@ -44,7 +105,6 @@ class UtilsHelper extends AppHelper {
    *                                  Defaults to light
    * @param boolean $badge_pill       Is this a badge-pill. Defaults to false
    * @param boolean $badge_outline    Is this an outlined badge. Defaults to false
-   * @todo Make this a cell on framework migration
    *
    */
   public function badgeIt($title, $type = 'secondary', $badge_pill = false, $badge_outline = false) {

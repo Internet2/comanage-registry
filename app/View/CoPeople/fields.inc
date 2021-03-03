@@ -804,12 +804,30 @@
           <ul id="tabs-group" class="fields data-list">
             <?php
             if(isset($co_people[0]['CoGroupMember'])) {
+              // List of NON auto groups
+              $group_memberships = array();
               foreach($co_people[0]['CoGroupMember'] as $g) {
                 if($e && !$es && !$g['CoGroup']['auto']) {
                   if($g['member'] || $g['owner']) {
                     print '<li class="field-data-container centered">';
                     print '<div class="field-data">';
-                    print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
+                    if(strpos($g['CoGroup']['name'], 'CO:') !== false) {
+                      $gname = $this->Utils->systemGroupHFormat($g['CoGroup']['name'], $cur_co);
+                      print $this->Html->link(
+                        $gname['name'],
+                        array(
+                          'controller' => 'co_groups',
+                          'action' => 'edit',
+                          $g['co_group_id'],
+                          'co' => $cur_co['Co']['id'],
+                        ),
+                        array(
+                          'escape' => false,
+                        )
+                      );
+                    } else {
+                      print $this->Html->link($g['CoGroup']['name'], array('controller' => 'co_groups', 'action' => 'edit', $g['co_group_id'], 'co' => $cur_co['Co']['id']));
+                    }
                     print '</div>';
 
                     $badge_list = array();
@@ -926,37 +944,48 @@
                   }
                 } else {
                   $badge_list = array();
-                  print '<li class="field-data-container">';
-                  print '<div class="field-data field-data-alone">';
+                  $auto_group_format = $this->Utils->systemGroupHFormat($g['CoGroup']['name'], $cur_co);
                   if($g['member']) {
-                    print filter_var($g['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
-                    if(!$g['CoGroup']['auto']) {
-                      $badge_list[] = array(
-                        'order' => BadgeOrderEnum::Type,
-                        'text' => _txt('fd.group.mem'),
-                        'color' => BadgeColorModeEnum::Gray,
-                      );
+                    // Do not present Auto Groups to non CO and Platform Administrators
+                    if(!$permissions['viewautogroups'] && $g['CoGroup']['auto']) {
+                      continue;
                     }
+                    $badge_list = array_merge($badge_list, $auto_group_format['badge']);
                   }
                   if($g['owner']) {
-                    print filter_var($g['CoGroup']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
                     $badge_list[] = array(
                       'order' => BadgeOrderEnum::Owner,
                       'text' => _txt('fd.group.own'),
                       'color' => BadgeColorModeEnum::Blue,
                     );
                   }
-                  print '</div>';
-                  // Add Badge elements
-                  print '<div class="field-data data-label">';
-                  if(!empty($badge_list)) {
-                    print $this->element('badgeList', array('vv_badge_list' => $badge_list));
+                  if(!empty($group_memberships[$auto_group_format['key']])) {
+                    $badge_text = Hash::extract($group_memberships[$auto_group_format['key']]['badge'], '{n}.text');
+                    foreach($auto_group_format['badge'] as $bg) {
+                      if(!in_array($bg['text'], $badge_text)) {
+                        $group_memberships[$auto_group_format['key']]['badge'][] = $bg;
+                      }
+                    }
+                  } else {
+                    $group_memberships[$auto_group_format['key']] = $auto_group_format;
                   }
-                  print '</div>';
-                  print '</li>';
                 }
+              } // foreach($co_people[0]['CoGroupMember'] as $g)
+              // Print the Groups
+              foreach($group_memberships as $gr_membership) {
+                print '<li class="field-data-container">';
+                print '<div class="field-data field-data-alone">';
+                print $gr_membership['name'];
+                print '</div>';
+                // Add Badge elements
+                print '<div class="field-data data-label">';
+                if(!empty($gr_membership['badge'])) {
+                  print $this->element('badgeList', array('vv_badge_list' => $gr_membership['badge']));
+                }
+                print '</div>';
+                print '</li>';
               }
-            }
+            } // isset($co_people[0]['CoGroupMember'])
             ?>
           </ul><!-- tabs-group -->
         </li><!-- fields-group -->
