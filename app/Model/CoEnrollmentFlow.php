@@ -183,7 +183,8 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => array('inList',
                       array(VerificationModeEnum::Automatic,
                             VerificationModeEnum::None,
-                            VerificationModeEnum::Review)),
+                            VerificationModeEnum::Review,
+                            VerificationModeEnum::SelfReview)),
       'required' => false,
       'allowEmpty' => true
     ),
