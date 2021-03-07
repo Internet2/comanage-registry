@@ -92,18 +92,18 @@ class IdentifiersController extends MVPAController {
       $coid = $this->cur_co['Co']['id'];
     } else {
       // While the controller doesn't require_co, this method does.
-      
-      // parseCOID (via calculateImpliedCoId) will use copersonid, cogroupid, or deptid to map the coid
-      $coid = $this->parseCOID($this->request->data);
-      if(!empty($this->request->params['named']['copersonid'])) {
-        $objType = 'CoPerson';
-        $objId = filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS);
-      } elseif(!empty($this->request->params['named']['cogroupid'])) {
-        $objType = 'CoGroup';
-        $objId = filter_var($this->request->params['named']['cogroupid'],FILTER_SANITIZE_SPECIAL_CHARS);
-      } elseif(!empty($this->request->params['named']['codeptid'])) {
-        $objType = 'CoDepartment';
-        $objId = filter_var($this->request->params['named']['codeptid'],FILTER_SANITIZE_SPECIAL_CHARS);
+      $coid = $this->cur_co['Co']['id'];
+      $named_param_list = array(
+        'CoGroup' => 'cogroupid',
+        'CoPerson' => 'copersonid',
+        'CoDepartment' => 'codeptid',
+      );
+      foreach($named_param_list as $mdl => $nparam_val) {
+        if(!empty($this->request->params['named'][$nparam_val])) {
+          $objType = $mdl;
+          $objId = filter_var($this->request->params['named'][$nparam_val],FILTER_SANITIZE_SPECIAL_CHARS);
+          break;
+        }
       }
     }
 
