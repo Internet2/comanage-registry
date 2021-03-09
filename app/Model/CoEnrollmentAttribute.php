@@ -116,7 +116,7 @@ class CoEnrollmentAttribute extends AppModel {
     'hidden' => array(
       'validateRequired' => array(
         'rule' => array('boolean'),
-        'required' => true,
+        'required' => false,
         'allowEmpty' => true
       ),
       'validateHidden' => array(

@@ -70,7 +70,7 @@ class CoEnrollmentFlowsController extends StandardController {
       $this->Flash->set(_txt('rs.ef.defaults'), array('key' => 'success'));
     }
     catch(Exception $e) {
-      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      $this->Flash->set(_txt($e->getMessage()), array('key' => 'error'));
     }
     
     // redirect back to index page
