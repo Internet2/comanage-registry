@@ -317,3 +317,28 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
     }
   });
 }
+
+// CO-2077, Do not permit illogical validity dates (eg: CoPersonRole, CoGroupMember) (eg: start dates that are after end dates)
+// flashmsg          - Flash message text     (string, required)
+// errormsg          - Tooltip Error message  (string, required)
+function validate_date_input(flashmsg, errormsg) {
+  $("input[id*='ValidFrom'], input[id*='ValidThrough']").on('change', function () {
+    var $valid_from = $("input[id*='ValidFrom'");
+    let valid_from_date = $valid_from.val();
+    var $valid_through = $("input[id*='ValidThrough'");
+    let valid_through_date = $valid_through.val();
+
+    let valid_from_tmstmp = new Date(valid_from_date).getTime();
+    let valid_through_tmstmp = new Date(valid_through_date).getTime();
+    let ddiff = valid_through_tmstmp-valid_from_tmstmp;
+    if( ddiff < 0) {
+      this.setCustomValidity(errormsg);
+      generateFlash(flashmsg, "error");
+      $("input[type='submit']").prop('disabled', true);
+    } else {
+      $valid_through.get(0).setCustomValidity("");
+      $valid_from.get(0).setCustomValidity("");
+      $("input[type='submit']").prop('disabled', false);
+    }
+  });
+}

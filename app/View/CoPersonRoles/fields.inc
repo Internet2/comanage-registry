@@ -89,6 +89,8 @@
 
   <script type="text/javascript">
     $(function() {
+      validate_date_input('<?php print _txt('er.validation') ?>', '<?php print _txt('er.validation.date') ?>');
+
       // Explorer menu toggles
       $(".fieldGroupName").click(function(event) {
         event.preventDefault();

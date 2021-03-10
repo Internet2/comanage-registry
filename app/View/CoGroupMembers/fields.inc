@@ -71,6 +71,11 @@
     print $this->Form->hidden('co_person_id', array('default' => $this->request->data['CoGroupMember']['co_person_id'])). "\n";
   }
 ?>
+  <script type="text/javascript">
+    $(function() {
+      validate_date_input('<?php print _txt('er.validation') ?>', '<?php print _txt('er.validation.date') ?>');
+    });
+  </script>
 
 <ul id="<?php print $this->action; ?>_co_group_member" class="fields form-list">
   <li>
