@@ -199,17 +199,20 @@ class EmailAddressesController extends MVPAController {
     
     // Add a new Email Address?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $roles['coadmin']
+                 || ($managed && $roles['couadmin'])
                  || $selfperms['add']);
     
     // Delete an existing Email Address?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $roles['coadmin']
+                    || ($managed && $roles['couadmin'])
                     || $selfperms['delete']);
     
     // Edit an existing Email Address?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['edit']);
     
     // View all existing Email Addresses?
@@ -225,7 +228,8 @@ class EmailAddressesController extends MVPAController {
     
     // View an existing Email Address?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['view']);
     
     $this->set('permissions', $p);

@@ -225,17 +225,20 @@ class AddressesController extends MVPAController {
     
     // Add a new Address?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $roles['coadmin']
+                 || ($managed && $roles['couadmin'])
                  || $selfperms['add']);
     
     // Delete an existing Address?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $roles['coadmin']
+                    || ($managed && $roles['couadmin'])
                     || $selfperms['delete']);
     
     // Edit an existing Address?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['edit']);
     
     // View all existing Addresses?
@@ -244,7 +247,8 @@ class AddressesController extends MVPAController {
     
     // View an existing Address?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['view']);
     
     $this->set('permissions', $p);

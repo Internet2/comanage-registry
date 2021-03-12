@@ -199,17 +199,20 @@ class UrlsController extends MVPAController {
     
     // Add a new URL?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $roles['coadmin']
+                 || ($managed && $roles['couadmin'])
                  || $selfperms['add']);
     
     // Delete an existing URL?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $roles['coadmin']
+                    || ($managed && $roles['couadmin'])
                     || $selfperms['delete']);
     
     // Edit an existing URL?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['edit']);
     
     // View all existing URL?
@@ -218,7 +221,8 @@ class UrlsController extends MVPAController {
     
     // View an existing URL?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['view']);
     
     $this->set('permissions', $p);
