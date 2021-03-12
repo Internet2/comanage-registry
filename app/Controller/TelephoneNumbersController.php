@@ -201,17 +201,20 @@ class TelephoneNumbersController extends MVPAController {
     
     // Add a new Telephone Number?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $roles['coadmin']
+                 || ($managed && $roles['couadmin'])
                  || $selfperms['add']);
     
     // Delete an existing Telephone Number?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $roles['coadmin']
+                    || ($managed && $roles['couadmin'])
                     || $selfperms['delete']);
     
     // Edit an existing Telephone Number?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['edit']);
     
     // View all existing Telephone Numbers?
@@ -220,7 +223,8 @@ class TelephoneNumbersController extends MVPAController {
     
     // View an existing TelephoneNumber?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin']
+                  || ($managed && $roles['couadmin'])
                   || $selfperms['view']);
     
     $this->set('permissions', $p);
