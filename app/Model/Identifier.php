@@ -59,6 +59,7 @@ class Identifier extends AppModel {
 //  public $order = array("Identifier.identifier");
   
   public $actsAs = array('Containable',
+                         'Normalization' => array('priority' => 4),
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
   
