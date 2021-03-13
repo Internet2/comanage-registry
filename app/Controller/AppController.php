@@ -1518,8 +1518,8 @@ class AppController extends Controller {
       $orgiid = $this->request->params['named']['orgidentityid'];
     elseif(!empty($this->request->params['named']['codeptid']))
       $deptid = $this->request->params['named']['codeptid'];
-    elseif(!empty($this->request->params['named']['cogroup']))
-      $groupid = $this->request->params['named']['cogroup'];
+    elseif(!empty($this->request->params['named']['cogroupid']))
+      $groupid = $this->request->params['named']['cogroupid'];
     elseif(!empty($this->request->params['named']['orgid']))
       $orgid = $this->request->params['named']['orgid'];
     // XXX Why don't we need to check query for other parameters?
