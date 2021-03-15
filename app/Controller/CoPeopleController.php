@@ -1010,6 +1010,7 @@ class CoPeopleController extends StandardController {
     
     if(!empty($this->params['named']['Search.givenName'])
        || !empty($this->params['named']['Search.familyName'])) {
+      $pagcond['conditions']['Name.primary_name'] = true;
       $pagcond['joins'][] = array(
         'table' => 'names',
         'alias' => 'Name',
