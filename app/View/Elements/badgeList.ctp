@@ -54,7 +54,7 @@ foreach($vv_badge_list as $badge) {
     $badge_classes[] = "badge-pill";
   }
   if(!empty($badge['fa_class'])) {
-    $fa_element = '<i class="fa ' . $badge["fa_class"] .'"></i>&nbsp;';
+    $fa_element = '<i class="mr-1 fa ' . $badge["fa_class"] .'"></i>';
   }
   if(isset($badge['outline']) && $badge['outline']) {
     $badge_classes[] = "badge-outline-" . $badge['color'];

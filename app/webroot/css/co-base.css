@@ -2162,7 +2162,8 @@ code,
 }
 /*Bootstrap badge*/
 .badge {
-  font-size: 0.9em;
+  font-size: 0.95em;
+  font-weight: normal;
 }
 .badge-secondary,
 .badge-success,
@@ -2383,9 +2384,9 @@ td.indented {
 }
 /*Bootstrap*/
 .dropdown-menu {
-  text-align: center;
   font-size: 1em;
   border-radius: unset;
+  min-width: 7rem;
 }
 .dropdown-item {
   color: #06c;
@@ -2394,6 +2395,12 @@ td.indented {
 .dropdown-item:focus,
 .dropdown-item:hover {
   text-decoration: none !important;
+}
+.text-muted-cmg {
+  color: #555 !important;
+}
+.smaller {
+  font-size: smaller;
 }
 /* FOOTER */
 footer {

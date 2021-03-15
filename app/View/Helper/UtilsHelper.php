@@ -48,14 +48,14 @@ class UtilsHelper extends AppHelper {
     if(strpos($name, "CO:COU:") === false) {
       // This is CO auto group
       $fname_group['key'] = 'AUTO';
-      $fname_group['name']['name'] = filter_var($cur_co["Co"]["name"], FILTER_SANITIZE_SPECIAL_CHARS) . '&nbsp;';
-      $fname_group['name']['badge'] = '<small>' . $this->badgeIt(_txt('ct.cos.1'), BadgeColorModeEnum::LightGray, false, true) . '</small>';
+      $fname_group['name']['name'] = '<span class="mr-1">' . filter_var($cur_co["Co"]["name"], FILTER_SANITIZE_SPECIAL_CHARS) . '</span>';
+      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cos.1'), BadgeColorModeEnum::LightGray, false, true);
       $auto_group_parts = array_slice($auto_group_parts, 1);
     } else {
       // This is CO:COU auto group
       $fname_group['key'] = $auto_group_parts[2];
-      $fname_group['name']['name'] = filter_var($auto_group_parts[2], FILTER_SANITIZE_SPECIAL_CHARS) . '&nbsp;';
-      $fname_group['name']['badge'] = "<small>" . $this->badgeIt(_txt('ct.cous.1'), BadgeColorModeEnum::LightGray, false, true) . '</small>';
+      $fname_group['name']['name'] = "<span class='mr-1'>" . filter_var($auto_group_parts[2], FILTER_SANITIZE_SPECIAL_CHARS) . '</span>';
+      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cous.1'), BadgeColorModeEnum::LightGray, false, true);
       $auto_group_parts = array_slice($auto_group_parts, 3);
     }
 
@@ -64,7 +64,7 @@ class UtilsHelper extends AppHelper {
       $fname_group['name'] =
         $fname_group['name']['name']
         . $fname_group['name']['badge']
-        . '<small>' . $this->badgeIt(_txt('fd.el.gr.admins'), BadgeColorModeEnum::LightGray) . '</small>';
+        . $this->badgeIt(_txt('fd.el.gr.admins'), BadgeColorModeEnum::LightGray);
       return $fname_group;
     }
 
@@ -89,7 +89,7 @@ class UtilsHelper extends AppHelper {
     $fname_group['name'] =
       $fname_group['name']['name']
       . $fname_group['name']['badge']
-      . '<small>' . $this->badgeIt(_txt('fd.co_group.auto'), BadgeColorModeEnum::LightGray, false, true) . '</small>';;
+      . $this->badgeIt(_txt('fd.co_group.auto'), BadgeColorModeEnum::LightGray, false, true);
     return $fname_group;
   }
 

@@ -284,12 +284,12 @@
                   <div class="field-data force-wrap">
                     <?php
                       $primary_name_with_bg = $this->Utils->badgeIt(
-                        strtolower(_txt('fd.name.primary_name')),
+                        _txt('fd.name.primary_name'),
                         BadgeColorModeEnum::LightGray,
                         false,
                         true
                       );
-                      $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . "&nbsp;<small>" . $primary_name_with_bg . "</small>"
+                      $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . " " . $primary_name_with_bg
                                                : filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                       print $this->Html->link(
                         $cn,

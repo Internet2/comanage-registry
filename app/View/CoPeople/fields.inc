@@ -611,12 +611,12 @@
               <div class="field-data force-wrap <?php if($perm == PermissionEnum::ReadOnly) { print ' field-data-alone'; }; ?>">
                 <?php
                 $primary_name_with_bg = $this->Utils->badgeIt(
-                  strtolower(_txt('fd.name.primary_name')),
+                  _txt('fd.name.primary_name'),
                   BadgeColorModeEnum::LightGray,
                   false,
                   true
                 );
-                $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . "&nbsp;<small>" . $primary_name_with_bg . "</small>"
+                $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . " " . $primary_name_with_bg
                                          : filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                 if($perm == PermissionEnum::ReadWrite) {
                   print $this->Html->link(
@@ -1212,8 +1212,8 @@
                     );
                   }
                   $cou_name = (empty($r['Cou']['name']))
-                              ? '<cite class="text-muted"><i class="fa fa-caret-down"></i>&nbsp;empty</cite>'
-                              : '<i class="fa fa-caret-down"></i>&nbsp;' . filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
+                              ? '<cite class="text-muted-cmg"><i class="mr-1 fa fa-caret-down"></i>empty</cite>'
+                              : '<i class="fa fa-caret-down"></i> ' . filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS);
 
                   // COU Name Column
                   print '<li class="field-data-container centered">';
@@ -1227,7 +1227,7 @@
                     'aria-expanded' => false,
                   );
                   print $this->Html->link(
-                    $cou_name . '&nbsp;<cite class="text-muted">(' . $r['id'] . ')</cite>',
+                    $cou_name . ' <cite class="text-muted-cmg">(' . $r['id'] . ')</cite>',
                     '#collapse_link_' . md5("CoPersonRole" . $r['id']),
                     $linkparams
                   );
@@ -1366,7 +1366,7 @@
                     <?php foreach($card_role_args as $role_col => $value): ?>
                       <div>
                         <div><?php print $value; ?></div>
-                        <small class="text-muted"><cite><?php print $role_col; ?></cite></small>
+                        <span class="smaller text-muted-cmg"><cite><?php print $role_col; ?></cite></span>
                       </div>
                     <?php endforeach; ?>
                     </li>
@@ -1407,8 +1407,8 @@
               foreach($co_people[0]['CoOrgIdentityLink'] as $link) {
                 // Organization Name and Id
                 $orgid_name = empty($link['OrgIdentity']['PrimaryName'])
-                    ? '<cite class="text-muted"><i class="fa fa-caret-down"></i>&nbsp;empty</cite>'
-                    : '<i class="fa fa-caret-down"></i>&nbsp;' . filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
+                    ? '<cite class="text-muted-cmg"><i class="mr-1 fa fa-caret-down"></i>empty</cite>'
+                    : '<i class="fa fa-caret-down"></i> ' . filter_var(generateCn($link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
 
                 $identifier = array();
                 if(!empty($link['OrgIdentity']['Identifier'])) {
@@ -1434,7 +1434,7 @@
                 );
                 // Name
                 print $this->Html->link(
-                  $orgid_name . '&nbsp;<cite class="text-muted">(' .filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ')</cite>',
+                  $orgid_name . ' <cite class="text-muted-cmg">(' .filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ')</cite>',
                   '#collapse_link_' . md5("OrgIdentity" . $link['OrgIdentity']['id']),
                   $linkparams
                 );
@@ -1453,10 +1453,10 @@
                     )
                   );
                   print $this->Html->tag(
-                    'small',
-                    $ident . '&nbsp;' . $ident_badge_type,
+                    'span',
+                    $ident . ' ' . $ident_badge_type,
                     array(
-                      'class' => 'text-muted pl-2 force-wrap',
+                      'class' => 'smaller text-muted-cmg pl-2 force-wrap',
                       'escape' => false,
                     )
                   );
@@ -1572,7 +1572,9 @@
                 $card_org_args[_txt('fd.o')] = !empty($link['OrgIdentity']['o'])
                                                ? filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.status')] = !empty($link['OrgIdentity']['status'])
-                                               ? filter_var($link['OrgIdentity']['status'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                                                    ? filter_var(
+                                                        $cm_texts[ $cm_lang ]['en.status.org'][ $link['OrgIdentity']['status'] ],
+                                                        FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.affiliation')] = !empty($link['OrgIdentity']['affiliation'])
                                                ? filter_var($link['OrgIdentity']['affiliation'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.date_of_birth')] = !empty($link['OrgIdentity']['date_of_birth'])
@@ -1588,7 +1590,7 @@
                     <?php foreach($card_org_args as $org_col => $value): ?>
                       <div>
                         <div><?php print $value; ?></div>
-                        <small class="text-muted"><cite><?php print $org_col; ?></cite></small>
+                        <span class="smaller text-muted-cmg"><cite><?php print $org_col; ?></cite></span>
                       </div>
                     <?php endforeach; ?>
                   </li>
