@@ -233,7 +233,7 @@
             array(
               'controller' => 'identifiers',
               'action' => 'add',
-              'cogroup' => $co_groups[0]['CoGroup']['id']
+              'cogroupid' => $co_groups[0]['CoGroup']['id']
             ),
             array('class' => 'addbutton')
           );
