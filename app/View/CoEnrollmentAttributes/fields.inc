@@ -46,7 +46,12 @@
     switch(attrname) {
     <?php foreach(array_keys($vv_enums) as $k): ?>
       case "<?php print $k; ?>":
-        ret = new Array(<?php print '"' . join('","', array_map(function($v) { return filter_var($v, FILTER_SANITIZE_SPECIAL_CHARS); }, array_values($vv_enums[$k]))) . '"'; ?>);
+        ret = <?php
+          foreach($vv_enums[$k] as $key => $v) {
+            $vv_enums[$k][$key] = filter_var($v, FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+          print json_encode($vv_enums[$k]);
+          ?>;
         break;
     <?php endforeach; ?>
     }
@@ -137,8 +142,8 @@
       if(enums != undefined) {
         // Enumerations are defined for the attribute, so generate an appropriate select
         var options = "<option value=''></option>";
-        for(var i=0;i < enums.length;i++) {
-          options += "<option value='" + enums[i] + "'>" + enums[i] + "</option>";
+        for(let id of Object.keys(enums)) {
+          options += "<option value='" + id + "'>" + enums[id] + "</option>";
         }
         $("#def_enum_val").find('option').remove().end().append($(options));
         
@@ -434,11 +439,12 @@
   $co_enrollment_attribute_attribute = !empty($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'])
                                        ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS)
                                        : '';
-  $co_enrollment_attribute_value = !empty($co_enrollment_attributes[0]['CoEnrollmentAttribute']['value'])
-                                       ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['value'],FILTER_SANITIZE_SPECIAL_CHARS)
-                                       : '';
   print $this->Form->hidden('attribute', array('value' => $co_enrollment_attribute_attribute)) . "\n";
-  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.value', array('value' => filter_var($co_enrollment_attribute_value,FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+
+  $co_enrollment_attribute_value_def = !empty($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])
+                                       ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)
+                                       : '';
+  print $this->Form->hidden('CoEnrollmentAttributeDefault.0.value', array('value' => filter_var($co_enrollment_attribute_value_def,FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
 
   $l = 1;
 ?>

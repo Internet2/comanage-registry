@@ -1625,10 +1625,13 @@ class AppModel extends Model {
         // translated names. Note as of v2.0.0 there may not be "translated"
         // names (ie: for attribute enumerations), in which case we just want
         // the original string.
-        
+
         foreach($this->validate[$field]['content']['rule'][1] as $key) {
           if(isset($this->cm_enum_txt[$field])) {
             $ret[$key] = _txt($this->cm_enum_txt[$field], NULL, $key);
+          } elseif(isset($this->cm_attr_enum_value[$field])) {
+            $mdl->id = $key;
+            $ret[$key] = $mdl->field($this->cm_attr_enum_value[$field]);
           } else {
             $ret[$key] = $key;
           }

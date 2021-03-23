@@ -162,4 +162,10 @@ class CoDepartment extends AppModel {
     
     return $this->find('all', $args);
   }
+
+  // Enum value hints
+
+  public $cm_attr_enum_value = array(
+    'ou' => 'name'
+  );
 }
