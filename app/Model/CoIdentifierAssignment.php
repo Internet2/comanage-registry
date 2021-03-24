@@ -742,4 +742,34 @@ class CoIdentifierAssignment extends AppModel {
     
     return false;
   }
+
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function beforeSave($options = array()) {
+    if(!empty($this->data['CoIdentifierAssignment']['co_id'])
+       && (empty($this->data['CoIdentifierAssignment']['ordr'])
+           || $this->data['CoIdentifierAssignment']['ordr'] == '')) {
+      // Find the current high value and add one
+      $n = 1;
+
+      $args = array();
+      $args['fields'][] = "MAX(ordr) as m";
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $this->data['CoIdentifierAssignment']['co_id'];
+      $args['order'][] = "m";
+
+      $o = $this->find('first', $args);
+
+      if(!empty($o[0]['m'])) {
+        $n = $o[0]['m'] + 1;
+      }
+
+      $this->data['CoIdentifierAssignment']['ordr'] = $n;
+    }
+
+    return true;
+  }
 }
