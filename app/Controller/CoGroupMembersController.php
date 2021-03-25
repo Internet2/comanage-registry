@@ -547,6 +547,7 @@ class CoGroupMembersController extends StandardController {
     // Now prepare the join on the names
     if(!empty($this->params['named']['search.givenName'])
       || !empty($this->params['named']['search.familyName'])) {
+      $this->Paginator->settings['conditions']['Name.primary_name'] = true;
       $this->Paginator->settings['joins'][] = array(
         'table' => 'names',
         'alias' => 'Name',
@@ -648,7 +649,11 @@ class CoGroupMembersController extends StandardController {
       // Make sure to contain only the CoGroupMembership we're interested in
       // This doesn't appear to actually work, so we'll pull the group membership separately
       // 'CoGroupMember' => array('conditions' => array('CoGroupMember.id' => $this->gid)),
-      'PrimaryName'
+      'PrimaryName' => array(
+        'conditions' => array(
+          'PrimaryName.primary_name=true'
+        )
+      ),
     );
 
     $coPeople = $this->Paginator->paginate('CoPerson');
