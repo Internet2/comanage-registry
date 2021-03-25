@@ -200,7 +200,9 @@
         </td>
         <td>
           <?php
-            if($permissions['edit']) {
+            if($permissions['edit']
+               || (isset($p["permissions"]["approve"])
+                   && $p["permissions"]["approve"])) {
               print $this->Html->link(_txt('op.view'),
                                       array('controller' => 'co_petitions',
                                             'action' => 'view',
@@ -210,7 +212,9 @@
                                             'aria-label' => _txt('op.view-a',array($displayNameWithId)))) . "\n";
             }
 
-            if($permissions['delete']) {
+            if($permissions['delete']
+               || (isset($p["permissions"]["deny"])
+                   && $p["permissions"]["deny"])) {
               print '<button type="button" class="deletebutton" title="' . _txt('op.delete-a',array($displayNameWithId))
                 . '" onclick="javascript:js_confirm_generic(\''
                 . _txt('js.remove') . '\',\''    // dialog body text
