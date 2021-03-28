@@ -1,6 +1,6 @@
 <!--
 /**
- * COmanage Registry Certificate Authenticator Plugin Fields
+ * COmanage Registry SSH Key Authenticator Plugin Fields
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.

@@ -31,6 +31,10 @@ class SshKeysController extends SAMController {
   // Class name, used by Cake
   public $name = "SshKeys";
   
+  public $edit_contains = array();
+  
+  public $view_contains = array();
+  
   /**
    * Add an SSH Key via an uploaded key file.
    * - precondition: SSH Key uploaded
@@ -45,51 +49,55 @@ class SshKeysController extends SAMController {
 
       return;
     }
+    
+    if($this->request->is('restful')) {
+      parent::add();
+    } else {
+      // We need a CO Person ID
 
-    // We need a CO Person ID
+      $p = $this->parsePersonID();
 
-    $p = $this->parsePersonID();
+      if(!empty($p['copersonid'])) {
+        // Access the uploaded file as processed by PHP and presented by Cake
+        if(!empty($this->request->data['SshKey']['keyFile']['tmp_name'])
+           && (!isset($this->request->data['SshKey']['keyFile']['error'])
+               || !$this->request->data['SshKey']['keyFile']['error'])) {
+          try {
+            $sk = $this->SshKey->addFromKeyFile($this->request->data['SshKey']['keyFile']['tmp_name'],
+                                                $p['copersonid'],
+                                                $this->request->data['SshKey']['ssh_key_authenticator_id']);
+            $this->generateHistory('upload',
+                                   array('SshKey' => $sk),
+                                   null);
 
-    if(!empty($p['copersonid'])) {
-      // Access the uploaded file as processed by PHP and presented by Cake
-      if(!empty($this->request->data['SshKey']['keyFile']['tmp_name'])
-         && (!isset($this->request->data['SshKey']['keyFile']['error'])
-             || !$this->request->data['SshKey']['keyFile']['error'])) {
-        try {
-          $sk = $this->SshKey->addFromKeyFile($this->request->data['SshKey']['keyFile']['tmp_name'],
-                                              $p['copersonid'],
-                                              $this->request->data['SshKey']['ssh_key_authenticator_id']);
-          $this->generateHistory('upload',
-                                 array('SshKey' => $sk),
-                                 null);
+            $this->Flash->set(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), array('key' => 'success'));
 
-          $this->Flash->set(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), array('key' => 'success'));
-
-          if(!empty($this->request->params['named']['onFinish'])) {
-            $this->redirect(urldecode($this->request->params['named']['onFinish']));
-          } else {
-            $this->redirect(array(
-                              'action'          => 'index',
-                              'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
-                              'copersonid'      => $p['copersonid']
-                            ));
+            if(!empty($this->request->params['named']['onFinish'])) {
+              $this->redirect(urldecode($this->request->params['named']['onFinish']));
+            } else {
+              $this->redirect(array(
+                                'action'          => 'index',
+                                'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
+                                'copersonid'      => $p['copersonid']
+                              ));
+            }
           }
-        }
-        catch(InvalidArgumentException $e) {
-          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          catch(InvalidArgumentException $e) {
+            $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          }
+        } else {
+          $this->Flash->set(_txt('er.file.none'), array('key' => 'error'));
         }
       } else {
-        $this->Flash->set(_txt('er.file.none'), array('key' => 'error'));
+        $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
       }
-    } else {
-      $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
-    }
 
-    $this->redirect(array(
-                      'action'     => 'add',
-                      'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
-                      'copersonid' => $p['copersonid']
-                    ));
+      $this->redirect(array(
+                        'action'     => 'add',
+                        'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
+                        'copersonid' => $p['copersonid']
+                      ));
+    }
   }
 
   /**

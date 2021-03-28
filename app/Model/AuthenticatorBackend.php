@@ -54,7 +54,7 @@ abstract class AuthenticatorBackend extends AppModel {
     $authmodel = substr($authplugin, 0, -13);
     
     $args = array();
-    $args['conditions'][$authmodel.'.password_authenticator_id'] = $backendId;
+    $args['conditions'][$authmodel.'.'.Inflector::underscore($authmodel).'_authenticator_id'] = $backendId;
     $args['conditions'][$authmodel.'.co_person_id'] = $coPersonId;
     $args['contain'] = false;
 

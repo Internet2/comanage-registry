@@ -413,7 +413,7 @@ class SAMController extends StandardController {
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
     $authmodel = $req . "Authenticator";
-    $authcfg = $this->$req->$authmodel->getConfig();
+    $authcfg = $this->viewVars['vv_authenticator'];
     
     // Build a change string
     $cstr = "";

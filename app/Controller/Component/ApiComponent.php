@@ -286,9 +286,9 @@ class ApiComponent extends Component {
       if($controller->modelClass == 'Authenticator') {
         $mName = Inflector::singularize($controller->name);
         $pName = Inflector::classify($this->request->plugin);
+        $pModel = $pName . "." . $mName;
         
-        $controller->loadModel($pName.$mName);
-        $this->reqModel = $controller->$mName;
+        $this->reqModel = ClassRegistry::init($pModel);
         $this->reqModelName = Inflector::singularize($controller->name);
       } else {
         $mName = $controller->modelClass;
