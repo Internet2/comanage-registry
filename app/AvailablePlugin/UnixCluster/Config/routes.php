@@ -26,7 +26,7 @@
  */
  
 Router::mapResources(array(
-  'unix_cluster_accounts',
-  'unix_cluster_groups',
-  'unix_clusters'
+  'UnixCluster.unix_cluster_accounts',
+  'UnixCluster.unix_cluster_groups',
+  'UnixCluster.unix_clusters'
 ));
