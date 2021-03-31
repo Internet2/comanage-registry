@@ -1981,11 +1981,15 @@ class CoPetition extends AppModel {
     }
     
     // Record agreements to Terms and Conditions, if any
-    
-    if(!empty($requestData['CoTermsAndConditions'])) {
-      $tAndCMode = $this->CoEnrollmentFlow->field('t_and_c_mode',
-                                                  array('CoEnrollmentFlow.id' => $enrollmentFlowId));
-      
+    // check value of first row if it is bigger than 0
+    // 0 means that we will not take it into account
+    // CoTermsAndConditions should be always present at form even if it does not have a value for security reasons
+    if(!empty($requestData['CoTermsAndConditions']) && (empty($requestData['CoTermsAndConditions'][0]) || $requestData['CoTermsAndConditions'][0] != 0)) {
+      $tAndCMode = $this->CoEnrollmentFlow->field(
+        't_and_c_mode',
+        array('CoEnrollmentFlow.id' => $enrollmentFlowId)
+      );
+
       foreach(array_keys($requestData['CoTermsAndConditions']) as $coTAndCId) {
         try {
           // Currently, T&C is only available via a petition when authn is required.
