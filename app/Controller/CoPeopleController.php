@@ -30,7 +30,7 @@ App::uses("StandardController", "Controller");
 class CoPeopleController extends StandardController {
   public $name = "CoPeople";
   
-  public $helpers = array('Time', 'Permission', 'Utils');
+  public $helpers = array('Time', 'Permission', 'Badge', 'Menu');
   
   // When using additional models, we must also specify our own
   public $uses = array('CoPerson', 'CmpEnrollmentConfiguration');

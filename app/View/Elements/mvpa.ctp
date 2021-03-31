@@ -51,8 +51,8 @@
  $vv_dictionary = 'vv_' . $lmvpapl . '_types';
  
  $action = ($edit ? 'edit' : 'view');
- $lorder = ($edit ? MenuActionOrder::Edit : MenuActionOrder::View);
- $action_icon = ($edit ? MenuActionIcon::Edit : MenuActionIcon::View);
+ $lorder = ($edit ? $this->Menu->getMenuOrder('Edit') : $this->Menu->getMenuOrder('View'));
+ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuIcon('View'));
 ?>
 
   <li id="fields-<?php print $lmvpa; ?>" class="fieldGroup">
@@ -100,8 +100,8 @@
               // Records attached to a SourceModel are read only
               $editable = false;
               $laction = 'view';
-              $lorder = MenuActionOrder::View;
-              $action_icon = MenuActionIcon::View;
+              $lorder = $this->Menu->getMenuOrder('View');
+              $action_icon = $this->Menu->getMenuIcon('View');
             } elseif($self_service) {
               // If self service, check appropriate permissions
               $perm = $this->Permission->selfService($permissions,
@@ -113,14 +113,14 @@
                 case PermissionEnum::ReadWrite:
                   $editable = true;
                   $laction = 'edit';
-                  $lorder = MenuActionOrder::Edit;
-                  $action_icon = MenuActionIcon::Edit;
+                  $lorder = $this->Menu->getMenuOrder('Edit');
+                  $action_icon = $this->Menu->getMenuIcon('Edit');
                   break;
                 case PermissionEnum::ReadOnly:
                   $editable = false;
                   $laction = 'view';
-                  $lorder = MenuActionOrder::View;
-                  $icon = MenuActionIcon::View;
+                  $lorder = $this->Menu->getMenuOrder('View');
+                  $icon = $this->Menu->getMenuIcon('View');
                   break;
                 default:
                   // No permission, skip this entry entirely
@@ -132,15 +132,15 @@
             // Lookup the extended type friendly name, if set
             if(!empty($m['type']) && isset(${$vv_dictionary}[ $m['type'] ])) {
               $badge_list[] = array(
-                'order' => BadgeOrderEnum::Type,
+                'order' => $this->Badge->getBadgeOrder('Type'),
                 'text' => ${$vv_dictionary}[ $m['type'] ],
-                'color' => BadgeColorModeEnum::Gray,
+                'color' => $this->Badge->getBadgeColor('Light'),
               );
             } elseif (!empty($m['type'])) {
               $badge_list[] = array(
-                'order' => BadgeOrderEnum::Type,
+                'order' => $this->Badge->getBadgeOrder('Type'),
                 'text' => $m['type'],
-                'color' => BadgeColorModeEnum::Gray,
+                'color' => $this->Badge->getBadgeColor('Light'),
               );
             }
             
@@ -157,8 +157,8 @@
 
                     if($permissions['link']) {
                       $action_args['vv_actions'][] = array(
-                        'order' => MenuActionOrder::Provision,
-                        'icon' => MenuActionIcon::Provision,
+                        'order' => $this->Menu->getMenuOrder('Provision'),
+                        'icon' => $this->Menu->getMenuIcon('Provision'),
                         'url' => $this->Html->link(
                           array(
                             'controller' => 'co_provisioning_targets',
@@ -170,9 +170,9 @@
                       );
                     } else {
                       $badge_list[] = array(
-                        'order' => BadgeOrderEnum::Other,
+                        'order' => $this->Badge->getBadgeOrder('Other'),
                         'text' => $m['CoProvisioningTarget']['description'],
-                        'color' => BadgeColorModeEnum::Gray,
+                        'color' => $this->Badge->getBadgeColor('Light'),
                         'outline' => true,
                       );
                     }
@@ -184,9 +184,9 @@
             // Prepend the attribute source to the type string, if there is one
             if(!empty($m[$smodel]['id'])) {
                 $badge_list[] = array(
-                  'order' => BadgeOrderEnum::Source,
+                  'order' => $this->Badge->getBadgeOrder('Source'),
                   'text' => filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
-                  'color' => BadgeColorModeEnum::Gray,
+                  'color' => $this->Badge->getBadgeColor('Light'),
                   'outline' => true,
                 );
             }
@@ -194,9 +194,9 @@
             // Add a suspended badge, if appropriate
             if(isset($m['status']) && $m['status'] == SuspendableStatusEnum::Suspended) {
               $badge_list[] = array(
-                'order' => BadgeOrderEnum::Status,
+                'order' => $this->Badge->getBadgeOrder('Status'),
                 'text' => _txt('en.status.susp', null, SuspendableStatusEnum::Suspended),
-                'color' => BadgeColorModeEnum::Red,
+                'color' => $this->Badge->getBadgeColor('Danger'),
               );
             }
             
@@ -212,8 +212,8 @@
               );
               // Verify button
               $action_args['vv_actions'][] = array(
-                'order' => MenuActionOrder::EmailVerify,
-                'icon' => MenuActionIcon::EmailVerify,
+                'order' => $this->Menu->getMenuOrder('EmailVerify'),
+                'icon' => $this->Menu->getMenuIcon('EmailVerify'),
                 'url' => 'javascript:void(0);',
                 'label' => _txt('op.verify'),
                 'onclick' => array(
@@ -228,9 +228,9 @@
 
               // Badge email Unverified
               $badge_list[] = array(
-                'order' => BadgeOrderEnum::Status,
+                'order' => $this->Badge->getBadgeOrder('Status'),
                 'text' => _txt('fd.email_address.unverified'),
-                'color' => BadgeColorModeEnum::Yellow,
+                'color' => $this->Badge->getBadgeColor('Warning'),
               );
             }
             
@@ -262,8 +262,8 @@
               // Login identifiers link to Authentication Events
               if(isset($m['login']) && $m['login']) {
                 $action_args['vv_actions'][] = array(
-                  'order' => MenuActionOrder::AuthEvent,
-                  'icon' => MenuActionIcon::AuthEvent,
+                  'order' => $this->Menu->getMenuOrder('AuthEvent'),
+                  'icon' => $this->Menu->getMenuIcon('AuthEvent'),
                   'url' => $this->Html->url(
                     array(
                       'controller' => 'authentication_events',
@@ -302,8 +302,8 @@
               );
               // Delete button
               $action_args['vv_actions'][] = array(
-                'order' => MenuActionOrder::Delete,
-                'icon' => MenuActionIcon::Delete,
+                'order' => $this->Menu->getMenuOrder('Delete'),
+                'icon' => $this->Menu->getMenuIcon('Delete'),
                 'url' => 'javascript:void(0);',
                 'label' => _txt('op.delete'),
                 'onclick' => array(

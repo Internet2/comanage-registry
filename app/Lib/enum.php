@@ -181,30 +181,6 @@ class AuthenticatorStatusEnum
   const NotSet                 = 'NS';
 }
 
-class BadgeColorModeEnum {
-  const Green                  = "success";
-  const Red                    = "danger";
-  const Yellow                 = "warning";
-  const Blue                   = "primary";
-  const LightGray              = "secondary";
-  const Gray                   = "light";
-  const LightBlue              = "info";
-  const Black                  = "dark";
-}
-
-class BadgeOrderEnum {
-  const Status                = 1;
-  const Owner                 = 3;
-  const Member                = 5;
-  const Title                 = 7;
-  const All                   = 9;
-  const Active                = 11;
-  const Type                  = 13;
-  const SpecialType           = 15;
-  const Source                = 17;
-  const Other                 = 19;
-}
-
 class ComparisonEnum
 {
   const Contains               = 'CTS'; // Substr
@@ -419,34 +395,6 @@ class MatchStrategyEnum
   const External     = 'EX';
   const Identifier   = 'ID';
   const NoMatching   = 'NO';
-}
-
-class MenuActionOrder
-{
-  const EmailVerify   = 1;   // fa fa-envelope
-  const PrimaryName   = 2;   // fa fa-tag
-  const AuthEvent     = 3;   // fa fa-sign-in
-  const Provision     = 4;   // fa fa-forward
-  const PetitionView  = 9;   // fa fa-user-plus
-  const View          = 10;  // fa fa-eye
-  const Edit          = 12;  // fa fa-edit
-  const Relink        = 14;  // fa fa-link
-  const Unlink        = 17;  // fa fa-chain-broken
-  const Delete        = 20;  // fa fa-trash
-}
-
-class MenuActionIcon
-{
-  const EmailVerify   =  "fa fa-envelope";
-  const PrimaryName   =  "fa fa-tag";
-  const AuthEvent     =  "fa fa-sign-in";
-  const Provision     =  "fa fa-forward";
-  const PetitionView  =  "fa fa-user-plus";
-  const View          =  "fa fa-eye";
-  const Edit          =  "fa fa-edit";
-  const Relink        =  "fa fa-link";
-  const Unlink        =  "fa fa-chain-broken";
-  const Delete        =  "fa fa-trash";
 }
 
 class MessageTemplateEnum

@@ -2164,6 +2164,9 @@ code,
 .badge {
   font-size: 0.95em;
   font-weight: normal;
+  height: min-content;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .badge-secondary,
 .badge-success,

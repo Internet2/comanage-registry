@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Utils Helper
+ * COmanage Registry Badge Helper
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -28,7 +28,7 @@
 App::uses('AppHelper', 'View/Helper');
 App::import('Lib/lang.php');
 
-class UtilsHelper extends AppHelper {
+class BadgeHelper extends AppHelper {
 
   public $helpers = array('Html');
 
@@ -49,13 +49,13 @@ class UtilsHelper extends AppHelper {
       // This is CO auto group
       $fname_group['key'] = 'AUTO';
       $fname_group['name']['name'] = '<span class="mr-1">' . filter_var($cur_co["Co"]["name"], FILTER_SANITIZE_SPECIAL_CHARS) . '</span>';
-      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cos.1'), BadgeColorModeEnum::LightGray, false, true);
+      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cos.1'), $this->getBadgeColor('Secondary'), false, true);
       $auto_group_parts = array_slice($auto_group_parts, 1);
     } else {
       // This is CO:COU auto group
       $fname_group['key'] = $auto_group_parts[2];
       $fname_group['name']['name'] = "<span class='mr-1'>" . filter_var($auto_group_parts[2], FILTER_SANITIZE_SPECIAL_CHARS) . '</span>';
-      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cous.1'), BadgeColorModeEnum::LightGray, false, true);
+      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cous.1'), $this->getBadgeColor('Secondary'), false, true);
       $auto_group_parts = array_slice($auto_group_parts, 3);
     }
 
@@ -64,7 +64,7 @@ class UtilsHelper extends AppHelper {
       $fname_group['name'] =
         $fname_group['name']['name']
         . $fname_group['name']['badge']
-        . $this->badgeIt(_txt('fd.el.gr.admins'), BadgeColorModeEnum::LightGray);
+        . $this->badgeIt(_txt('fd.el.gr.admins'), $this->getBadgeColor('Secondary'));
       return $fname_group;
     }
 
@@ -73,15 +73,15 @@ class UtilsHelper extends AppHelper {
     foreach($auto_group_parts as $part) {
       if(in_array($part, array("active", "all"))) {
         $fname_group['badge'][] = array(
-          'order' => constant('BadgeOrderEnum::' . ucfirst($part)),
+          'order' => $this->getBadgeOrder(ucfirst($part)),
           'text' => _txt('fd.group.mem') . ' ' . ucfirst($part),
-          'color' => BadgeColorModeEnum::Gray,
+          'color' => $this->getBadgeColor('Light'),
         );
       } elseif($part !== "members") {
         $fname_group['badge'][] = array(
-          'order' => BadgeOrderEnum::Owner,
+          'order' => $this->getBadgeOrder('Owner'),
           'text' => ucfirst($part),
-          'color' => BadgeColorModeEnum::Blue,
+          'color' => $this->getBadgeColor('Primary'),
         );
       }
     }
@@ -89,7 +89,7 @@ class UtilsHelper extends AppHelper {
     $fname_group['name'] =
       $fname_group['name']['name']
       . $fname_group['name']['badge']
-      . $this->badgeIt(_txt('fd.co_group.auto'), BadgeColorModeEnum::LightGray, false, true);
+      . $this->badgeIt(_txt('fd.co_group.auto'), $this->getBadgeColor('Secondary'), false, true);
     return $fname_group;
   }
 
@@ -127,6 +127,62 @@ class UtilsHelper extends AppHelper {
         'escape' => false,
       )
     );
+  }
+
+  /**
+   * Get the Badge type ordering
+   *
+   * @param string $type
+   * @return int|null
+   *
+   * @since  COmanage Registry        v4.0.0
+   */
+  public function getBadgeOrder($type) {
+    if(empty($type)) {
+      return null;
+    }
+
+    $order = array(
+      'Status'      => 1,
+      'Owner'       => 3,
+      'Member'      => 5,
+      'Title'       => 7,
+      'All'         => 9,
+      'Active'      => 11,
+      'Type'        => 13,
+      'SpecialType' => 15,
+      'Source'      => 17,
+      'Other'       => 19,
+    );
+
+    return $order[$type];
+  }
+
+  /**
+   * Get the Badge Color
+   *
+   * @param string $type
+   * @return int|null
+   *
+   * @since  COmanage Registry        v4.0.0
+   */
+  public function getBadgeColor($color) {
+    if(empty($color)) {
+      return null;
+    }
+
+    $color_map = array(
+      'Success'   => 'success',
+      'Danger'    => 'danger',
+      'Warning'   => 'warning',
+      'Primary'   => 'primary',
+      'Secondary' => 'secondary',
+      'Light'     => 'light',
+      'Info'      => 'info',
+      'Dark'      => 'dark',
+    );
+
+    return $color_map[$color];
   }
 
 }

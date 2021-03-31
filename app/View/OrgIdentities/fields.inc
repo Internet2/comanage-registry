@@ -283,9 +283,9 @@
                 <li class="field-data-container">
                   <div class="field-data force-wrap">
                     <?php
-                      $primary_name_with_bg = $this->Utils->badgeIt(
+                      $primary_name_with_bg = $this->Badge->badgeIt(
                         _txt('fd.name.primary_name'),
-                        BadgeColorModeEnum::LightGray,
+                        $this->Badge->getBadgeColor('Secondary'),
                         false,
                         true
                       );
@@ -308,16 +308,16 @@
                     $badge_list = array();
                     // Name Type
                     $badge_list[] = array(
-                      'order' => BadgeOrderEnum::Type,
+                      'order' => $this->Badge->getBadgeOrder('Type'),
                       'text' => _txt('en.name.type', null, $n['type']),
-                      'color' => BadgeColorModeEnum::Gray,
+                      'color' => $this->Badge->getBadgeColor('Light'),
                     );
                     // Name Language
                     if(!empty($n['language'])) {
                       $badge_list[] = array(
-                        'order' => BadgeOrderEnum::Other,
+                        'order' => $this->Badge->getBadgeOrder('Other'),
                         'text' => _txt('en.language', null, $n['language']),
-                        'color' => BadgeColorModeEnum::Gray,
+                        'color' => $this->Badge->getBadgeColor('Light'),
                       );
                     }
                     if(!empty($badge_list)) {
@@ -336,8 +336,8 @@
                             'co' => $cur_co['Co']['id']
                           );
                           $action_name_args['vv_actions'][] = array(
-                            'order' => MenuActionOrder::Delete,
-                            'icon' => MenuActionIcon::Delete,
+                            'order' => $this->Menu->getMenuOrder('Delete'),
+                            'icon' => $this->Menu->getMenuIcon('Delete'),
                             'url' => 'javascript:void(0);',
                             'label' => _txt('op.delete'),
                             'onclick' => array(
@@ -351,8 +351,8 @@
                           );
                           // Primary Name Action Button
                           $action_name_args['vv_actions'][] = array(
-                            'order' => MenuActionOrder::PrimaryName,
-                            'icon' => MenuActionIcon::Icon,
+                            'order' => $this->Menu->getMenuOrder('PrimaryName'),
+                            'icon' => $this->Menu->getMenuIcon('Icon'),
                             'label' => _txt('op.primary'),
                             'url' => $this->Html->url(
                               array(
@@ -366,8 +366,8 @@
                         }
                         // Edit Action Button
                         $action_name_args['vv_actions'][] = array(
-                          'order' => MenuActionOrder::Edit,
-                          'icon' => MenuActionIcon::Edit,
+                          'order' => $this->Menu->getMenuOrder('Edit'),
+                          'icon' => $this->Menu->getMenuIcon('Edit'),
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
@@ -380,8 +380,8 @@
                       } else {
                         // View Action Button
                         $action_name_args['vv_actions'][] = array(
-                          'order' => MenuActionOrder::View,
-                          'icon' => MenuActionIcon::View,
+                          'order' => $this->Menu->getMenuOrder('View'),
+                          'icon' => $this->Menu->getMenuIcon('View'),
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',
@@ -701,9 +701,9 @@
                     array('vv_badge_list' =>
                       array(
                         array(
-                          'order' => BadgeOrderEnum::Other,
+                          'order' => $this->Badge->getBadgeOrder('Other'),
                           'text' => filter_var($o['CoPerson']['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS),
-                          'color' => BadgeColorModeEnum::Gray,
+                          'color' => $this->Badge->getBadgeColor('Light'),
                         )
                       )
                     )
@@ -717,8 +717,8 @@
                   // be done from CO Person Canvas, which places some restrictions on that action.
 
                   $action_coil_args['vv_actions'][] = array(
-                    'order' => MenuActionOrder::View,
-                    'icon' => MenuActionIcon::View,
+                    'order' => $this->Menu->getMenuOrder('View'),
+                    'icon' => $this->Menu->getMenuIcon('View'),
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'co_people',
@@ -748,8 +748,8 @@
                 print '<div class="field-data data-label"></div>';
 
                 $action_pcpr_args['vv_actions'][] = array(
-                  'order' => MenuActionOrder::Edit,
-                  'icon' => MenuActionIcon::Edit,
+                  'order' => $this->Menu->getMenuOrder('Edit'),
+                  'icon' => $this->Menu->getMenuIcon('Edit'),
                   'url' => $this->Html->url(
                     array(
                       'controller' => 'co_person_roles',
@@ -779,8 +779,8 @@
                   print '<div class="field-data data-label"></div>';
 
                   $action_pcgm_args['vv_actions'][] = array(
-                    'order' => MenuActionOrder::Edit,
-                    'icon' => MenuActionIcon::Edit,
+                    'order' => $this->Menu->getMenuOrder('Edit'),
+                    'icon' => $this->Menu->getMenuIcon('Edit'),
                     'url' => $this->Html->url(
                       array(
                         'controller' => 'co_group_members',
