@@ -2058,6 +2058,10 @@ class CoPetitionsController extends StandardController {
    */
   
   protected function execute_sendConfirmation($id) {
+    // Calculate and set Debug mode
+    $debug = Configure::read('debug');
+    $this->set('vv_debug', $debug);
+
     $this->CoPetition->sendConfirmation($id, $this->Session->read('Auth.User.co_person_id'));
     
     $this->CoPetition->updateStatus($id,
@@ -2065,9 +2069,7 @@ class CoPetitionsController extends StandardController {
                                     $this->Session->read('Auth.User.co_person_id'));
     
     // The step is done
-    
-    $debug = Configure::read('debug');
-    
+
     if(!$debug) {
       $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
     } else {
