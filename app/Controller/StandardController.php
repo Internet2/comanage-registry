@@ -650,6 +650,13 @@ class StandardController extends AppController {
           $this->Api->restResultHeader(500, "Other Error");
         }
       } else {
+        if(!empty($model->validationErrors)) {
+          $errors_list = array_values(Hash::flatten($model->validationErrors));
+          $errors_list = array_unique(array_values($errors_list));
+          foreach($errors_list as $error) {
+            $this->Flash->set($error, array('key' => 'error'));
+          }
+        }
         $this->Flash->set($err ?: _txt('er.fields'), array('key' => 'error'));
         
         if($req == 'CoPerson') {

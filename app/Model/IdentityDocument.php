@@ -117,14 +117,20 @@ class IdentityDocument extends AppModel {
         'rule' => array('validateTimestamp'),
         'required' => false,
         'allowEmpty' => true
-      )
+      ),
+      'precedes' => array(
+        'rule' => array('validateTimestampRange', "valid_through", "<"),
+      ),
     ),
     'valid_through' => array(
       'content' => array(
         'rule' => array('validateTimestamp'),
         'required' => false,
         'allowEmpty' => true
-      )
+      ),
+      'follows' => array(
+        'rule' => array("validateTimestampRange", "valid_from", ">"),
+      ),
     ),
     'verification_method' => array(
       'content' => array(

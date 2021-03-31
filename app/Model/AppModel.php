@@ -1540,7 +1540,57 @@ class AppModel extends Model {
     
     return true;
   }
-  
+
+  /**
+   * Evaluate the comparison between two valid Timestamp fields. This function is intended
+   * to be used as a validation rule.
+   *
+   * @param array  $check
+   * @param string $eval_field  Field to compare
+   * @param string $oper Comparison operator
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return bool True if the comparison evaluates to True. False otherwise
+   */
+  public function validateTimestampRange($check=array(), $eval_field=null, $oper=null) {
+    if(empty($check)
+       || empty($eval_field)
+       || empty($oper)) {
+      return _txt('er.validation');
+    }
+
+    foreach($check as $date) {
+      $check_timestamp = strtotime($date);
+      if($check_timestamp === false) {
+        return _txt('er.validation');
+      }
+
+      // Check the existence of the evaluation field
+      if(isset($this->data[$this->name][$eval_field])) {
+        $eval_field_timestamp = strtotime($this->data[$this->name][$eval_field]);
+      } elseif(isset($this->data[$this->alias][$eval_field])) {
+        $eval_field_timestamp = strtotime($this->data[$this->alias][$eval_field]);
+      } else {
+        return _txt('er.unknown', array($eval_field));
+      }
+
+      // Is the field a valid timestamp?
+      if($eval_field_timestamp === false) {
+        return  _txt('er.validation');
+      }
+
+      switch ($oper) {
+        case "==": return ($check_timestamp == $eval_field_timestamp) ? true : _txt('er.validation.date');
+        case "!=": return ($check_timestamp != $eval_field_timestamp) ? true : _txt('er.validation.date');
+        case ">=": return ($check_timestamp >= $eval_field_timestamp) ? true : _txt('er.validation.date');
+        case "<=": return ($check_timestamp <= $eval_field_timestamp) ? true : _txt('er.validation.date');
+        case ">":  return ($check_timestamp >  $eval_field_timestamp) ? true : _txt('er.validation.date');
+        case "<":  return ($check_timestamp <  $eval_field_timestamp) ? true : _txt('er.validation.date');
+        default: return _txt('er.validation.date');
+      }
+    }
+  }
+
   /**
    * Generate an array mapping the valid enums for a field to their language-specific
    * strings, in a form suitable for an HTML select.

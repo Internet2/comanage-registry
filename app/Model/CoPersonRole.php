@@ -134,14 +134,20 @@ class CoPersonRole extends AppModel {
         'rule' => array('validateTimestamp'),
         'required' => false,
         'allowEmpty' => true
-      )
+      ),
+      'precedes' => array(
+        'rule' => array('validateTimestampRange', "valid_through", "<"),
+      ),
     ),
     'valid_through' => array(
       'content' => array(
         'rule' => array('validateTimestamp'),
         'required' => false,
         'allowEmpty' => true
-      )
+      ),
+      'follows' => array(
+        'rule' => array("validateTimestampRange", "valid_from", ">"),
+      ),
     ),
     'ordr' => array(
       'rule' => 'numeric',

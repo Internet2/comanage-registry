@@ -52,6 +52,11 @@
   }
 
 ?>
+  <script type="text/javascript">
+    $(function() {
+      validate_date_input('<?php print _txt('er.validation') ?>', '<?php print _txt('er.validation.date') ?>');
+    });
+  </script>
 <?php if($cur_co['Co']['id'] == 1): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>

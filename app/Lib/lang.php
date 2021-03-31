@@ -1147,7 +1147,8 @@ original notification at
   'er.unknown' =>     'Unknown value "%1$s"',
   'er.url' =>         'Please supply a valid URL. Include "http://" (or similar) for off-site links.',
   'er.validation' =>  'Validation failed',
-  
+  'er.validation.date' =>  '"Valid From" date MUST precede "Valid Through" date',
+
   'et.default' =>     'There are no Extended Types currently defined for this attribute. The default types are currently in use. When you create a new Extended Type, the default types will automatically be added to this list.',
 
   // Fields. Field names should match data model names to facilitate various auto-rendering.

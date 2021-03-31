@@ -95,6 +95,9 @@
   function js_local_onload() {
     enum_update_gadgets(false);
   }
+  $(function() {
+    validate_date_input('<?php print _txt('er.validation') ?>', '<?php print _txt('er.validation.date') ?>');
+  });
 </script>
 <ul id="<?php print $this->action; ?>_identity_documents" class="fields form-list">
   <li>
