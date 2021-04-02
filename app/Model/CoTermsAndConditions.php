@@ -149,7 +149,6 @@ class CoTermsAndConditions extends AppModel {
     
     $args = array();
     $args['conditions']['CoTAndCAgreement.co_person_id'] = $copersonid;
-    $args['order'] = array('CoTAndCAgreement.agreement_time DESC');
     $args['contain'][] = 'CoTermsAndConditions';
     
     $agreements = $this->CoTAndCAgreement->find('all', $args);
@@ -220,36 +219,6 @@ class CoTermsAndConditions extends AppModel {
     }
 
     return true;
-  }
-
-  /**
-   * Get all active Terms&Conditions for a CO and its COUs or for a specific COU
-   *
-   * @param  Integer CO identifier
-   * @param  Integer COU identifier
-   * @return Array   An array of active Terms&Conditions
-   */
-
-  public function getTermsAndConditionsByCouId($co_id, $cou_id) {
-    $args = array();
-    $args['conditions']['Co.id'] = $co_id;
-    $args['contain'] = array('CoTermsAndConditions');
-    $args['contain']['CoTermsAndConditions']['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
-    $args['contain']['CoTermsAndConditions']['conditions']['AND'][] = 'CoTermsAndConditions.co_terms_and_conditions_id IS NULL';
-    $args['contain']['CoTermsAndConditions']['conditions']['AND'][] = 'CoTermsAndConditions.deleted IS NOT true';
-    $cous = $this->Co->find("all", $args);
-
-    // Get Generic TermsAndConditions and per cou
-    $cousWithActiveTerms = array();
-
-    foreach( $cous[0]['CoTermsAndConditions'] as $row ) {
-        // if $cou_id not null then this is a default COU and not modifiable for the specific CO Petition
-        // so we don't need all COUs T&C
-        if(empty($cou_id) || $row['cou_id'] == NULL || $cou_id == $row['cou_id']) {
-          $cousWithActiveTerms[$row['cou_id']][] = $row;
-        }
-    }
-    return $cousWithActiveTerms;
   }
 
   /**
