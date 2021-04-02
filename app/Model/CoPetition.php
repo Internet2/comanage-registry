@@ -1984,7 +1984,7 @@ class CoPetition extends AppModel {
     // check value of first row if it is bigger than 0
     // 0 means that we will not take it into account
     // CoTermsAndConditions should be always present at form even if it does not have a value for security reasons
-    if(!empty($requestData['CoTermsAndConditions']) && (empty($requestData['CoTermsAndConditions'][0]) || $requestData['CoTermsAndConditions'][0] != 0)) {
+    if(!empty($requestData['CoTermsAndConditions']) && (!isset($requestData['CoTermsAndConditions'][0]) || $requestData['CoTermsAndConditions'][0] != 0)) {
       $tAndCMode = $this->CoEnrollmentFlow->field(
         't_and_c_mode',
         array('CoEnrollmentFlow.id' => $enrollmentFlowId)
