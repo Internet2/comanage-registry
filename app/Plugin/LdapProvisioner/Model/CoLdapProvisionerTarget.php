@@ -252,6 +252,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // Note we don't need to check for inactive status where relevant since
     // ProvisionerBehavior will remove those from the data we get.
     
+    // Iterate across objectclasses, looking for those that are required or enabled.
+    // While we're doing this, build a list of enabled attributes for crosschecking later.
+    $enabledAttributes = array();
+    
     foreach(array_keys($supportedAttributes) as $oc) {
       // First see if this objectclass is handled by a plugin
       if(!empty($supportedAttributes[$oc]['plugin'])) {
@@ -321,10 +325,6 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         
         $groupMembers = $this->CoLdapProvisionerDn->CoGroup->CoGroupMember->find('all', $args);
       }
-      
-      // Iterate across objectclasses, looking for those that are required or enabled.
-      // While we're doing this, build a list of enabled attributes for crosschecking later.
-      $enabledAttributes = array();
       
       if($supportedAttributes[$oc]['objectclass']['required']
          || (isset($coProvisioningTargetData['CoLdapProvisionerTarget']['oc_' . strtolower($oc)])
