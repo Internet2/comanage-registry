@@ -388,6 +388,9 @@
     display: grid;
     grid-template-columns: 1fr 5fr;
   }
+  body.petitionerAttributes .modelbox.hidden {
+    display: none;
+  }
   /* DASHBOARDS and WIDGETS */
   /* Service Portal */
   .co-services {
