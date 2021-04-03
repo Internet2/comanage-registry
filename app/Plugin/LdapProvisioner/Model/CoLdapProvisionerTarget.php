@@ -1455,7 +1455,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           if($acfg['required']) {
             // But this attribute is...
             
-            if(empty($attributes[$attr])) {
+            // Use the same attribute check as above to account for attribute options
+            if(!array_filter($attributes, 
+                             function ($k) use ($attr, $attributes, $modify) {
+                               // CO-1914 On modify of multivalued attribute, this could be an empty array
+                               // indicating no value to emit
+                               return (strpos($k, $attr) === 0  && (!$modify || !empty($attributes[$k])));
+                             },
+                             ARRAY_FILTER_USE_KEY)) {
               // ... and it's not set, so remove the it from the list of objectclasses
               
               $k = array_search($oc, $attributes['objectclass']);
