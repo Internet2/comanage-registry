@@ -1036,6 +1036,17 @@ class StandardController extends AppController {
             $this->Api->restResultHeader(500, "Other Error (Model Not Found)");
             return;
           }
+        } elseif(!empty($model->validate['cluster_id']) && !empty($this->params['url']['clusterid'])) {
+          $args = array();
+          $args['conditions']['Cluster.id'] = $this->params['url']['clusterid'];
+          $args['contain'] = false;
+          
+          if(!$model->Cluster->find('count', $args)) {
+            $this->Api->restResultHeader(404, "Cluster Unknown");
+            return;
+          }
+          
+          $params['conditions'] = array($req.'.cluster_id' => $this->params['url']['clusterid']);
         }
         
         // We don't ever need associated models
