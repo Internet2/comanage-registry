@@ -36,9 +36,16 @@ $cm_file_source_texts['en_US'] = array(
   'ct.file_sources.1'  => 'File Organizational Identity Source',
   'ct.file_sources.pl' => 'File Organizational Identity Sources',
   
+  // Enumeration language texts
+  'pl.filesource.en.format' => array(
+    FileSourceFormat::CSV1  => "CSV v1 (legacy)",
+    FileSourceFormat::CSV2  => "CSV v2",
+  ),
+
   // Error messages
-  'er.filesource.copy' => 'Failed to copy "%1$s" to "%2$s"',
-  'er.filesource.read' => 'Cannot open source file "%1$s" for reading',
+  'er.filesource.copy'          => 'Failed to copy "%1$s" to "%2$s"',
+  'er.filesource.header'        => 'Could not parse configuration header',
+  'er.filesource.read'          => 'Cannot open source file "%1$s" for reading',
   'er.filesource.threshold'     => '%1$s of %2$s records changed (%3$s %%, including new records), exceeding threshold of %4$s %% - processing canceled',
   'er.filesource.threshold.cfg' => 'Warning Threshold requires Archive Directory',
   
@@ -46,6 +53,7 @@ $cm_file_source_texts['en_US'] = array(
   'pl.filesource.archivedir'       => 'Archive Directory',
   'pl.filesource.archivedir.desc'  => 'If specified, a limited number of prior copies of the source file will be stored here.',
   'pl.filesource.filepath'         => 'File Path',
+  'pl.filesource.format'           => 'File Format',
   'pl.filesource.info'             => 'The specified file must be readable before this configuration can be saved.',
   'pl.filesource.threshold_warn'          => 'Warning Threshold',
   'pl.filesource.threshold_warn.desc'     => 'If the number of changed records exceeds the specified percentage, a warning will be generated and processing will stop (requires <i>Archive Directory</i>)',

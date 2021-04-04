@@ -50,6 +50,13 @@ class FileSource extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'format' => array(
+      'rule' => array('inList',
+                      array(FileSourceFormat::CSV1,
+                            FileSourceFormat::CSV2)),
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'archivedir' => array(
       'rule' => 'notBlank',
       'required' => false,

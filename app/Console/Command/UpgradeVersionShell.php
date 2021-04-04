@@ -533,5 +533,25 @@ class UpgradeVersionShell extends AppShell {
     // Update CoMessageTemplate format column
     $this->out(_txt('sh.ug.400.messagetemplate.format'));
     $this->CoMessageTemplate->_ug400();
+    
+    // 4.0.0 adds multiple types of File Sources, however the FileSource
+    // plugin might not be enabled.
+    
+    if(CakePlugin::loaded('FileSource')) {
+      // We can't add models to $uses since they may not exist
+      $this->loadModel('FileSource.FileSource');
+      
+      // All existing Password Authenticators have a password_source of Self Select
+      $this->out(_txt('sh.ug.400.filesource'));
+      
+      $this->FileSource->updateAll(
+        array(
+          'FileSource.format' => "'C1'"  // Wacky updateAll syntax
+        ),
+        array(
+          'FileSource.format' => null
+        )
+      );
+    }
   }
 }

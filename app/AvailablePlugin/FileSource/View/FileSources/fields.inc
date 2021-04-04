@@ -78,6 +78,35 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('format', _txt('pl.filesource.format')) : _txt('pl.filesource.format')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        
+        $attrs = array();
+        $attrs['value'] = (isset($file_sources[0]['FileSource']['format']) ? $file_sources[0]['FileSource']['format'] : "");
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('format',
+                                    $cm_texts[ $cm_lang ]['pl.filesource.en.format'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('format')) {
+            print $this->Form->error('format');
+          }
+        } else {
+          print _txt('pl.filesource.en.format', null, filter_var($file_sources[0]['FileSource']['format'],FILTER_SANITIZE_SPECIAL_CHARS));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print _txt('pl.filesource.archivedir'); ?>
       </div>
       <div class="field-desc"><?php print _txt('pl.filesource.archivedir.desc'); ?></div>

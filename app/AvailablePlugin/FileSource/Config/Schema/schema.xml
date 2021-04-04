@@ -38,6 +38,7 @@
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
     <field name="filepath" type="C" size="256" />
+    <field name="format" type="C" size="2" />
     <field name="archivedir" type="C" size="256" />
     <field name="threshold_warn" type="I" />
     <!-- we can use forcesyncorgsources instead of threshold_override, though this requires shell access

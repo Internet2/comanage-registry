@@ -26,9 +26,13 @@
  */
 
 App::uses("OrgIdentitySourceBackend", "Model");
+App::uses("FileSourceBackendCSV", "FileSource.Model");
 
 class FileSourceBackend extends OrgIdentitySourceBackend {
   public $name = "FileSourceBackend";
+  
+  // Backend model, once loaded
+  protected $FSBackend = null;
   
   /**
    * Obtain a list of records changed since $lastStart, through $curStart.
@@ -181,6 +185,29 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
   }
   
   /**
+   * Obtain a FileSource Backend according to the configuration.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return FileSourceBackend File Source Backend
+   */
+  
+  protected function getFSBackend() {
+    if(!$this->FSBackend) {
+      switch($this->pluginCfg['format']) {
+        case FileSourceFormat::CSV1:
+        case FileSourceFormat::CSV2:
+          $this->FSBackend = new FileSourceBackendCSV($this->pluginCfg);
+          break;
+        default:
+          throw new LogicException('NOT IMPLEMENTED');
+          break;
+      }
+    }
+    
+    return $this->FSBackend;
+  }
+  
+  /**
    * Generate the set of attributes for the IdentitySource that can be used to map
    * to group memberships. The returned array should be of the form key => label,
    * where key is meaningful to the IdentitySource (eg: a number or a field name)
@@ -193,10 +220,9 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function groupableAttributes() {
-    return array(
-      '16' => _txt('fd.title'),
-      '17' => _txt('fd.o')
-    );
+    $FSBackend = $this->getFSBackend();
+    
+    return $FSBackend->groupableAttributes();
   }
   
   /**
@@ -222,18 +248,9 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function resultToGroups($raw) {
-    // We basically just return the decoded raw record, which will be a superset of groupable attributes.
-    // No real need to filter that down.
+    $FSBackend = $this->getFSBackend();
     
-    $ret = array();
-    
-    $attrs = json_decode($raw, true);
-    
-    foreach($attrs as $k => $v) {
-      $ret[$k][] = array('value' => $v);
-    }
-    
-    return $ret;
+    return $FSBackend->resultToGroups($raw);
   }
   
   /**
@@ -245,157 +262,9 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   protected function resultToOrgIdentity($result) {
-    $orgdata = array();
-    $orgdata['OrgIdentity'] = array();
+    $FSBackend = $this->getFSBackend();
     
-    if(!empty($result[22])) {
-      // We don't currently sanity check the value passed, if it's bad the save will fail
-      $orgdata['OrgIdentity']['affiliation'] = $result[22];
-    } else {
-      // Until we have some rules, everyone is a member
-      $orgdata['OrgIdentity']['affiliation'] = AffiliationEnum::Member;
-    }
-    
-    if(!empty($result[17]))
-      $orgdata['OrgIdentity']['o'] = $result[17];
-    if(!empty($result[16]))
-      $orgdata['OrgIdentity']['title'] = $result[16];
-    
-    $orgdata['Name'] = array();
-    
-    if(!empty($result[3]))
-      $orgdata['Name'][0]['given'] = $result[3];
-    if(!empty($result[5]))
-      $orgdata['Name'][0]['family'] = $result[5];
-    $orgdata['Name'][0]['primary_name'] = true;
-    $orgdata['Name'][0]['type'] = NameEnum::Official;
-    
-    $orgdata['EmailAddress'] = array();
-    
-    if(!empty($result[12])) {
-      $orgdata['EmailAddress'][0]['mail'] = $result[12];
-      $orgdata['EmailAddress'][0]['type'] = EmailAddressEnum::Official;
-      $orgdata['EmailAddress'][0]['verified'] = true;
-    }
-    
-    $orgdata['Address'] = array();
-    
-    if(!empty($result[6])) {
-      $orgdata['Address'][0]['street'] = $result[6];
-      if(!empty($result[7]))
-        $orgdata['Address'][0]['locality'] = $result[7];
-      if(!empty($result[9]))
-        $orgdata['Address'][0]['state'] = $result[9];
-      if(!empty($result[10]))
-        $orgdata['Address'][0]['postal_code'] = $result[10];
-      if(!empty($result[11]))
-        $orgdata['Address'][0]['country'] = $result[11];
-      $orgdata['Address'][0]['type'] = ContactEnum::Home;
-    }
-    
-    $orgdata['TelephoneNumber'] = array();
-    
-    if(!empty($result[13])) {
-      $orgdata['TelephoneNumber'][0]['number'] = $result[13];
-      
-      if(!empty($result[14])) {
-        $orgdata['TelephoneNumber'][0]['country_code'] = $result[14];
-      }
-      $orgdata['TelephoneNumber'][0]['type'] = ContactEnum::Office;
-    }
-    
-    // Collect some identifiers
-    /* As of Registry v3.3.0, we no longer need to explicitly do this
-    if(!empty($result[0])) {
-      $orgdata['Identifier'][] = array(
-        'identifier' => $result[0],
-        'login'      => false,
-        'status'     => StatusEnum::Active,
-        'type'       => IdentifierEnum::SORID
-      );
-    }*/
-    
-    if(!empty($result[15])) {
-      $orgdata['Identifier'][] = array(
-        'identifier' => $result[15],
-        'login'      => false,
-        'status'     => StatusEnum::Active,
-        'type'       => IdentifierEnum::National
-      );
-    }
-    
-    if(!empty($result[18])) {
-      $orgdata['Identifier'][] = array(
-        'identifier' => $result[18],
-        'login'      => false,
-        'status'     => StatusEnum::Active,
-        'type'       => IdentifierEnum::Reference
-      );
-    }
-    
-    if(!empty($result[23])) {
-      // This field allows a semi-colon separated lists of identifiers of the form
-      // identifiertype[+login]:identifier
-      // where identifiertype is a non-extended type, since Org Identities don't
-      // currently support extended types (CO-530).
-      
-      $ids = explode(';', $result[23]);
-      
-      foreach($ids as $id) {
-        $i = explode(':', $id, 2);
-        
-        $login = false;
-        $idtype = $i[0];
-        
-        if(strlen($i[0]) > 6) {
-          $p = strpos($i[0], "+login", -6);
-          
-          if($p) {
-            $login = true;
-            $idtype = substr($i[0], 0, $p);
-          }
-        }
-        
-        $orgdata['Identifier'][] = array(
-          'identifier' => $i[1],
-          'login'      => $login,
-          'status'     => StatusEnum::Active,
-          'type'       => $idtype
-        );
-      }
-    }
-    
-    if(!empty($result[19]))
-      $orgdata['OrgIdentity']['valid_from'] = strftime("%F %T", strtotime($result[19]));
-    
-    if(!empty($result[20]))
-      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", strtotime($result[20]));
-    
-    if(!empty($result[21])) {
-      $orgdata['Url'][] = array(
-        'url'        => $result[21],
-        'type'       => UrlEnum::Personal
-      );
-    }
-    
-    if(!empty($result[24])) {
-      $orgdata['OrgIdentity']['date_of_birth'] = $result[24];
-    }
-    
-    if(!empty($result[25])) {
-      $ahas = json_decode($result[25], true);
-      
-      $orgdata['AdHocAttribute'] = array();
-      
-      foreach($ahas as $tag => $value) {
-        $orgdata['AdHocAttribute'][] = array(
-          'tag' => $tag,
-          'value' => $value
-        );
-      }
-    }
-    
-    return $orgdata;
+    return $FSBackend->resultToOrgIdentity($result);
   }
   
   /**
@@ -417,6 +286,10 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     
     if(empty($results)) {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
+    }
+    
+    if(count($results) > 1) {
+      throw new OverflowException(_txt('er.id.unk-a', array($id)));
     }
     
     $ret['raw'] = json_encode($results[0]);
@@ -460,20 +333,24 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function searchableAttributes() {
-    return array(
-      // Currently these keys correlate to fakenamegenerator header labels, but there's
-      // no particular reason to keep that model
-      'SORID'            => 'SORID', // XXX I18n if we keep this
-      'GivenName'        => _txt('fd.name.given'),
-      'Surname'          => _txt('fd.name.family'),
+    // With CSV2, we can have multiple names, etc, so we use pseudo-keys to
+    // define search attributes, then decipher them in searchFile.
+    
+    $attrs = array(
+      // The label "SORID" is used by retrieve()
+      'SORID'            => _txt('en.identifier.type', null, IdentifierEnum::SORID),
+      'Given'            => _txt('fd.name.given'),
+      'Family'           => _txt('fd.name.family'),
       // We need to use 'mail' because OrgIdentitySource::searchAllByEmail uses it
-      // we may want to mandate standard attribute names
-      'mail'     => _txt('fd.email_address.mail')
+      // we may want to mandate standard attribute names...
+      'mail'             => _txt('fd.email_address.mail')
     );
+    
+    return $attrs;
   }
-
+  
   /**
-   * Search a CSV file.
+   * Search the file.
    *
    * @since  COmanage Registry v2.0.0
    * @param  Array $attributes Attributes to query (ie: searchableAttributes()), or null to obtain a list of all SORIDs
@@ -482,37 +359,8 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
    */
   
   protected function searchFile($attributes=null) {
-    $ret = array();
+    $FSBackend = $this->getFSBackend();
     
-    $handle = fopen($this->pluginCfg['filepath'], "r");
-    
-    if(!$handle) {
-      throw new RuntimeException(_txt('er.filesource.read', array($this->pluginCfg['filepath'])));
-    }
-    
-    while(($data = fgetcsv($handle)) !== false) {
-      // For each row, see if any provided search key matches a specified field. In our current
-      // test format, we check
-      //  givenname = [3], familyname = [5], email = [12]
-      
-      if(!$attributes) {
-        // Just store the SORID (row key)
-        $ret[] = $data[0];
-      } else {
-        if((!empty($attributes['SORID']) && ($data[0]==$attributes['SORID']))
-           ||
-           (!empty($attributes['GivenName']) && stristr($data[3], $attributes['GivenName']) !== false)
-           ||
-           (!empty($attributes['Surname']) && stristr($data[5], $attributes['Surname']) !== false)
-           ||
-           (!empty($attributes['mail']) && stristr($data[12], $attributes['mail']) !== false)) {
-          $ret[] = $data;
-        }
-      }
-    }
-    
-    fclose($handle);
-    
-    return $ret;
+    return $FSBackend->searchFile($attributes);
   }
 }
