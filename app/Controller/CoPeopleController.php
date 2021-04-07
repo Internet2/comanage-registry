@@ -30,7 +30,7 @@ App::uses("StandardController", "Controller");
 class CoPeopleController extends StandardController {
   public $name = "CoPeople";
   
-  public $helpers = array('Time', 'Permission');
+  public $helpers = array('Time', 'Permission', 'Badge', 'Menu');
   
   // When using additional models, we must also specify our own
   public $uses = array('CoPerson', 'CmpEnrollmentConfiguration');
@@ -809,7 +809,10 @@ class CoPeopleController extends StandardController {
     
     // Link an Org Identity to a CO Person?
     $p['link'] = $roles['cmadmin'] || $roles['coadmin'];
-    
+
+    // View auto groups
+    $p['viewautogroups'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+
     // Match against existing CO People?
     // Note this same permission exists in CO Petitions
     

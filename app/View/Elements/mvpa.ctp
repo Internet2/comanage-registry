@@ -51,6 +51,8 @@
  $vv_dictionary = 'vv_' . $lmvpapl . '_types';
  
  $action = ($edit ? 'edit' : 'view');
+ $lorder = ($edit ? $this->Menu->getMenuOrder('Edit') : $this->Menu->getMenuOrder('View'));
+ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuIcon('View'));
 ?>
 
   <li id="fields-<?php print $lmvpa; ?>" class="fieldGroup">
@@ -86,13 +88,20 @@
             $editable = ($action == 'edit');
             $removetxt = _txt('js.remove');
             $displaystr = (!empty($mvpa_field) ? $m[$mvpa_field] : "");
-            $typestr = !empty($m['type']) ? $m['type'] : null;
             $laction = $action;
-            
+            // Store the action list
+            $action_args = array();
+            $action_args['vv_attr_mdl'] = $mvpa_model;
+            $action_args['vv_attr_id'] = $m["id"];
+            // Store the Bagde list
+            $badge_list = array();
+
             if(!empty($m[$smodel]['id'])) {
               // Records attached to a SourceModel are read only
               $editable = false;
               $laction = 'view';
+              $lorder = $this->Menu->getMenuOrder('View');
+              $action_icon = $this->Menu->getMenuIcon('View');
             } elseif($self_service) {
               // If self service, check appropriate permissions
               $perm = $this->Permission->selfService($permissions,
@@ -104,10 +113,14 @@
                 case PermissionEnum::ReadWrite:
                   $editable = true;
                   $laction = 'edit';
+                  $lorder = $this->Menu->getMenuOrder('Edit');
+                  $action_icon = $this->Menu->getMenuIcon('Edit');
                   break;
                 case PermissionEnum::ReadOnly:
                   $editable = false;
                   $laction = 'view';
+                  $lorder = $this->Menu->getMenuOrder('View');
+                  $icon = $this->Menu->getMenuIcon('View');
                   break;
                 default:
                   // No permission, skip this entry entirely
@@ -115,10 +128,20 @@
                   break;
               }
             }
-            
+
             // Lookup the extended type friendly name, if set
             if(!empty($m['type']) && isset(${$vv_dictionary}[ $m['type'] ])) {
-              $typestr = ${$vv_dictionary}[ $m['type'] ];
+              $badge_list[] = array(
+                'order' => $this->Badge->getBadgeOrder('Type'),
+                'text' => ${$vv_dictionary}[ $m['type'] ],
+                'color' => $this->Badge->getBadgeColor('Light'),
+              );
+            } elseif (!empty($m['type'])) {
+              $badge_list[] = array(
+                'order' => $this->Badge->getBadgeOrder('Type'),
+                'text' => $m['type'],
+                'color' => $this->Badge->getBadgeColor('Light'),
+              );
             }
             
             // Adjust text strings for identifiers associated with provisioning targets specially
@@ -133,12 +156,25 @@
                     // means something else).
 
                     if($permissions['link']) {
-                      $typestr = $this->Html->link($m['CoProvisioningTarget']['description'],
-                                                   array('controller' => 'co_provisioning_targets',
-                                                         'action' => 'edit',
-                                                         $m['CoProvisioningTarget']['id']));
+                      $action_args['vv_actions'][] = array(
+                        'order' => $this->Menu->getMenuOrder('Provision'),
+                        'icon' => $this->Menu->getMenuIcon('Provision'),
+                        'url' => $this->Html->link(
+                          array(
+                            'controller' => 'co_provisioning_targets',
+                            'action' => 'edit',
+                            $m['CoProvisioningTarget']['id'],
+                            )
+                        ),
+                        'label' => $m['CoProvisioningTarget']['description'],
+                      );
                     } else {
-                      $typestr = $m['CoProvisioningTarget']['description'];
+                      $badge_list[] = array(
+                        'order' => $this->Badge->getBadgeOrder('Other'),
+                        'text' => $m['CoProvisioningTarget']['description'],
+                        'color' => $this->Badge->getBadgeColor('Light'),
+                        'outline' => true,
+                      );
                     }
                   }
                 }
@@ -147,19 +183,55 @@
             
             // Prepend the attribute source to the type string, if there is one
             if(!empty($m[$smodel]['id'])) {
-              $typestr = maybeAppend(filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
-                                     ", ",
-                                     $typestr);
+                $badge_list[] = array(
+                  'order' => $this->Badge->getBadgeOrder('Source'),
+                  'text' => filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
+                  'color' => $this->Badge->getBadgeColor('Light'),
+                  'outline' => true,
+                );
             }
             
-            // Add a suspended flag to the type string, if appropriate
+            // Add a suspended badge, if appropriate
             if(isset($m['status']) && $m['status'] == SuspendableStatusEnum::Suspended) {
-              $typestr = maybeAppend($typestr, ", ", _txt('en.status.susp', null, SuspendableStatusEnum::Suspended));
+              $badge_list[] = array(
+                'order' => $this->Badge->getBadgeOrder('Status'),
+                'text' => _txt('en.status.susp', null, SuspendableStatusEnum::Suspended),
+                'color' => $this->Badge->getBadgeColor('Danger'),
+              );
             }
             
             // If this is an Email Address and is verified, add that to the type string
-            if($mvpa_model == 'EmailAddress' && isset($m['verified'])) {
-              $typestr = maybeAppend($typestr, ", ", ($m['verified'] ? _txt('fd.email_address.verified') : _txt('fd.email_address.unverified')));
+            if($mvpa_model === 'EmailAddress'
+               && isset($m['verified'])
+               && !$m['verified']) {
+              // Action
+              $dg_url = array(
+                'controller' => 'co_invites',
+                'action' => 'verifyEmailAddress',
+                'email_address_id' => $m['id'],
+              );
+              // Verify button
+              $action_args['vv_actions'][] = array(
+                'order' => $this->Menu->getMenuOrder('EmailVerify'),
+                'icon' => $this->Menu->getMenuIcon('EmailVerify'),
+                'url' => 'javascript:void(0);',
+                'label' => _txt('op.verify'),
+                'onclick' => array(
+                  'dg_bd_txt' => _txt('js.confirm.verify'),
+                  'dg_url' => $this->Html->url($dg_url),
+                  'dg_conf_btn' => _txt('op.verify'),
+                  'dg_cancel_btn' => _txt('op.cancel'),
+                  'dg_title' => _txt('op.verify'),
+                  'db_bd_txt_repl_str' => filter_var(_jtxt($m['mail']), FILTER_SANITIZE_STRING),
+                ),
+              );
+
+              // Badge email Unverified
+              $badge_list[] = array(
+                'order' => $this->Badge->getBadgeOrder('Status'),
+                'text' => _txt('fd.email_address.unverified'),
+                'color' => $this->Badge->getBadgeColor('Warning'),
+              );
             }
             
             // If $mvpa_format is a defined function, use that to render the display string
@@ -168,7 +240,7 @@
             }
 
             print '<li class="field-data-container">';
-            print '<div class="field-data">';
+            print '<div class="field-data force-wrap">';
             if (($mvpa_model == 'Identifier') && !$permissions['identifiers'] ) {
               print $displaystr;
             } else {
@@ -178,58 +250,76 @@
                                             'action' => $laction,
                                             $m['id']));
             }
-            
-            if(!empty($typestr)) {
-              print "&nbsp;(" . $typestr . ")\n";
+            print '</div>';
+            print '<div class="field-data data-label">';
+            if(!empty($badge_list)) {
+              print $this->element('badgeList', array('vv_badge_list' => $badge_list));
             }
             print '</div>';
             print '<div class="field-actions">';
-            
             // Render specific buttons
             if($mvpa_model == 'Identifier') {
               // Login identifiers link to Authentication Events
               if(isset($m['login']) && $m['login']) {
-                print $this->Html->link(_txt('ct.authentication_events.pl'),
-                                        array('controller' => 'authentication_events',
-                                              'action' => 'index',
-                                              'identifier' => rawurlencode($m['identifier'])),
-                                        array('class' => 'notebutton'));
+                $action_args['vv_actions'][] = array(
+                  'order' => $this->Menu->getMenuOrder('AuthEvent'),
+                  'icon' => $this->Menu->getMenuIcon('AuthEvent'),
+                  'url' => $this->Html->url(
+                    array(
+                      'controller' => 'authentication_events',
+                      'action' => 'index',
+                      'identifier' => rawurlencode($m['identifier']),
+                    )
+                  ),
+                  'label' => _txt('ct.authentication_events.pl'),
+                );
               }
             }
             
             if (($mvpa_model != 'Identifier') || 
                (($mvpa_model == 'Identifier') && $permissions['identifiers'])) {
               // This renders the View or Edit button, as appropriate
-              print $this->Html->link(_txt('op.'.$laction),
-                                      array(
-                                        'controller' => $lmvpapl,
-                                        'action' => $laction,
-                                        $m['id']),
-                                      array('class' => $laction.'button')) . "\n";
+              $action_args['vv_actions'][] = array(
+                'order' => $lorder,
+                'icon' => $action_icon,
+                'url' => $this->Html->url(
+                  array(
+                    'controller' => $lmvpapl,
+                    'action' => $laction,
+                    $m['id'])
+                ),
+                'label' => _txt('op.'.$laction),
+              );
             }
             
             // Possibly render a delete button
             if($laction == 'edit' && $editable) {
               // XXX we already checked for $permissions['edit'], but not ['delete']... should we?
-              print '<a class="deletebutton" title="' . _txt('op.delete')
-                . '" onclick="javascript:js_confirm_generic(\''
-                . $removetxt . '\',\''    // dialog body text
-                . $this->Html->url(              // dialog confirm URL
-                  array(
-                    'controller' => $lmvpapl,
-                    'action' => 'delete',
-                    $m['id']
-                  )
-                ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
-                . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
-                . filter_var(_jtxt($displaystr),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\']);">'
-                . _txt('op.delete')
-                . '</a>';
+              $dg_url = array(
+                'controller' => $lmvpapl,
+                'action' => 'delete',
+                $m['id'],
+              );
+              // Delete button
+              $action_args['vv_actions'][] = array(
+                'order' => $this->Menu->getMenuOrder('Delete'),
+                'icon' => $this->Menu->getMenuIcon('Delete'),
+                'url' => 'javascript:void(0);',
+                'label' => _txt('op.delete'),
+                'onclick' => array(
+                  'dg_bd_txt' => $removetxt,
+                  'dg_url' => $this->Html->url($dg_url),
+                  'dg_conf_btn' => _txt('op.remove'),
+                  'dg_cancel_btn' => _txt('op.cancel'),
+                  'dg_title' => _txt('op.remove'),
+                  'db_bd_txt_repl_str' => filter_var(_jtxt($displaystr),FILTER_SANITIZE_STRING),
+                ),
+              );
             }
-            
+
+            if(!empty($action_args['vv_actions'])) {
+              print $this->element('menuAction', $action_args);
+            }
             print '</div>';
             print '</li>';
           }

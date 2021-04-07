@@ -67,6 +67,7 @@
       print $this->Html->css('bootstrap/bootstrap-4.5.3-dist/css/bootstrap.min.css') . "\n    ";
       print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
+      print $this->Html->css('co-color') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
 
@@ -81,7 +82,7 @@
       /* only JQuery and Bootstrap here - other scripts at bottom. Note that until
          jQueryUI is deprecated, it must be loaded after Bootstrap.  */
       print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
-      print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.min.js') . "\n    ";
+      print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
     ?>
 
