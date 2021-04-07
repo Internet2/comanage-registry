@@ -538,7 +538,15 @@ class StandardController extends AppController {
         
         return;
       }
-      
+
+      // Complete the request with the `status` field if it is of type PUT
+      // Usefull for asychronous single-field Requests
+      if($req === 'CoPerson'
+         && empty($this->request->data[$req]["status"])
+         && !empty($curdata[$req]["status"])) {
+        $this->request->data[$req]["status"] = $curdata[$req]["status"];
+      }
+
       $data = $this->request->data;
       
       if(!isset($this->request->data[$req]['id'])) {
@@ -633,6 +641,14 @@ class StandardController extends AppController {
 
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(200, "OK");
+      } elseif ($this->request->is('ajax')) {
+        // Return the new data
+        $this->layout = null;
+        $this->autoRender = false;
+        $this->response->type('json');
+        $this->response->statusCode(201);
+        $this->response->body(json_encode(array(0 => $data)));
+        return $this->response;
       } else {
         // Redirect to index view
         

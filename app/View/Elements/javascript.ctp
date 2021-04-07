@@ -538,6 +538,35 @@
     ?>
   });
 
+  // Date fields used around the framework and their formats
+  const $dateFieldsNFormats = {
+    'modified': 'ddd MMM DD HH:mm:ss YYYY',
+    'created': 'ddd MMM DD HH:mm:ss YYYY',
+    'date_of_birth': 'YYYY-mm-dd'
+  }
+
+  // Update the Change Log view block after an Ajax call
+  // data                - data response       (array, required)
+  // vmodel              - Model updated       (string, required)
+  function changelog_update(data, vmodel) {
+    //Update Changelog DOM
+    $dateFields = Object.keys($dateFieldsNFormats);
+    $.each(data[0][vmodel], (column, value) => {
+      if(column == 'deleted') {
+        value = (value) ? '<?php print  _txt('fd.yes');?>' : '<?php print  _txt('fd.no');?>';
+      }
+      ccol = capitalize(column);
+      ccolfound = $.inArray(column, $dateFields);
+      if(ccolfound > -1 && ccolfound !== false) {
+        unform_date = moment.utc(value).toDate()
+        date_offset = unform_date.getTimezoneOffset();
+        user_tz = jstz.determine().name();
+        value = moment(unform_date).format($dateFieldsNFormats[column]) + " " + user_tz;
+      }
+      $('#' + vmodel + ccol + 'Changelog').text(value);
+    });
+  }
+
   // Define default text for confirm dialog
   var defaultConfirmOk = "<?php print _txt('op.ok'); ?>";
   var defaultConfirmCancel = "<?php print _txt('op.cancel'); ?>";

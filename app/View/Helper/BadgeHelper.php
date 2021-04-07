@@ -30,7 +30,7 @@ App::import('Lib/lang.php');
 
 class BadgeHelper extends AppHelper {
 
-  public $helpers = array('Html');
+  public $helpers = array('Html', 'Time');
 
   /**
    * Parse System Group names. The ones having the prefix CO: or CO:COU:
@@ -105,10 +105,25 @@ class BadgeHelper extends AppHelper {
    *                                  Defaults to light
    * @param boolean $badge_pill       Is this a badge-pill. Defaults to false
    * @param boolean $badge_outline    Is this an outlined badge. Defaults to false
+   * @param string  $badge_fa         Provide Fonts Awesome Icon to prepend
+   * @param string  $badge_fa_class   Provide extra class(es) for <i> element
+   * @param string  $badge_class      Provide extra class(es) for <span> element
    *
    */
-  public function badgeIt($title, $type = 'secondary', $badge_pill = false, $badge_outline = false) {
+  public function badgeIt(
+    $title,
+    $type = 'secondary',
+    $badge_pill = false,
+    $badge_outline = false,
+    $badge_fa = null,
+    $badge_fa_class = null,
+    $badge_class = null
+  ) {
     $badge_classes = array();
+
+    if(!is_null($badge_class)) {
+      $badge_classes[] = $badge_class;
+    }
 
     if($badge_pill) {
       $badge_classes[] = "badge-pill";
@@ -117,6 +132,12 @@ class BadgeHelper extends AppHelper {
       $badge_classes[] = "badge-outline-" . $type;
     } else {
       $badge_classes[] = "badge-" . $type;
+    }
+    if(!empty($badge_fa)) {
+      if(!empty($badge_fa_class)) {
+        $badge_fa = $badge_fa . ' ' . $badge_fa_class;
+      }
+      $title = '<i class="mr-1 ' . $badge_fa .'"></i>' . $title;
     }
 
     return $this->Html->tag(
@@ -183,6 +204,90 @@ class BadgeHelper extends AppHelper {
     );
 
     return $color_map[$color];
+  }
+
+
+  /**
+   * Get the Badge Icon per action
+   *
+   * @param string  $action
+   * @return string|null
+   *
+   * @since  COmanage Registry        v4.0.0
+   */
+  public function getBadgeIcon($action) {
+    if(empty($action)) {
+      return null;
+    }
+
+    $icon = array(
+      'Edit'        =>  'fa fa-pencil',
+    );
+
+    return $icon[$action];
+  }
+
+
+  /**
+   * @param $ob
+   * @param $vv_tz
+   * @return array
+   */
+  public function calculateStatusNBadge($ob, $vv_tz) {
+    // Set default color
+    $statusClass = $this->getBadgeColor('Light');
+    // Set ordering
+    $bgOrder = $this->getBadgeOrder('Other');
+
+    if($ob['status'] == StatusEnum::Suspended
+      || $ob['status'] == StatusEnum::Expired
+      || $ob['status'] == StatusEnum::Deleted) {
+      // Style status for suspended, expired, deleted
+      $bgOrder = $this->getBadgeOrder('Status');
+      $statusClass = $this->getBadgeColor('Danger'); // reddish
+    } elseif($ob['status'] != StatusEnum::Active) {
+      // Style status if otherwise not active
+      $bgOrder = $this->getBadgeOrder('Status');
+      $statusClass = $this->getBadgeColor('Warning'); // yellowish
+    }
+    // Independent of status, set the style based on dates if needed:
+    $validThroughDate = !empty($ob['valid_through']) ? $this->Time->format($ob['valid_through'], "%F", false, $vv_tz) : false;
+    $validFromDate = !empty($ob['valid_from']) ? $this->Time->format($ob['valid_from'], "%F", false, $vv_tz) : false;
+
+    if ($validThroughDate && $this->Time->isPast($validThroughDate)) {
+      // valid through date exists and is in the past
+      $bgOrder = $this->getBadgeOrder('Status');
+      $statusClass = $this->getBadgeColor('Danger'); // reddish
+    } elseif ($validFromDate && $this->Time->isFuture($validFromDate)) {
+      // valid from date is in the future
+      $bgOrder = $this->getBadgeOrder('Status');
+      $statusClass = $this->getBadgeColor('Warning'); // yellowish
+    }
+    $status = !empty($ob['status']) ? _txt('en.status', null, $ob['status']) : '-';
+
+    return array($status, $statusClass, $bgOrder);
+  }
+
+  /**
+   * @return array
+   */
+  public function statusBadgeColorMap() {
+    global $cm_lang, $cm_texts;
+
+    $mapper = array();
+    foreach($cm_texts[$cm_lang]['en.status'] as $scode => $status) {
+      $mapper[$status] = $this->getBadgeColor('Light');
+      if($scode == StatusEnum::Suspended
+        || $scode == StatusEnum::Expired
+        || $scode == StatusEnum::Deleted) {
+        // Style status for suspended, expired, deleted
+        $mapper[$status] = $this->getBadgeColor('Danger'); // reddish
+      } elseif($scode != StatusEnum::Active) {
+        // Style status if otherwise not active
+        $mapper[$status] = $this->getBadgeColor('Warning'); // yellowish
+      }
+    }
+    return $mapper;
   }
 
 }
