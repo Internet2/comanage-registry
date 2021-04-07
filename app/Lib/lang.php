@@ -1897,6 +1897,7 @@ original notification at
   'js.auth.reset'     =>  'Please confirm resetting \x22{0}\x22 for {1}.',
   'js.auth.unlock'    =>  'Please confirm unlocking \x22{0}\x22 for {1}.',
   'js.ois.inventory'  =>  'Are you sure you wish to retrieve the full inventory from this backend? This may be slow and result in a large page load.',
+  'js.reload'         =>  'Please Reload!',
   'js.remove'         =>  'Are you sure you wish to remove \x22{0}\x22?  This action cannot be undone.',
   'js.remove.id.prov' =>  'The identifier \x22{0}\x22 was created by the provisioning target, and removing it may cause operational problems. Are you sure you wish to remove it? This action cannot be undone.',
   'js.remove.member'  =>  'Are you sure you wish to remove this member from group \x22{0}\x22?  This action cannot be undone.',

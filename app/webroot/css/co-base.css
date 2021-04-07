@@ -43,7 +43,7 @@ h1,h2,h3,h4,h5 {
 }
 h1 {
   font-size: 2em;
-  margin: 0;
+  margin: 0 0.25em 0 0;
 }
 h1.loginMsg {
   font-size: 1.8em;
@@ -68,7 +68,7 @@ h3 {
   margin: 0;
 }
 a {
-  color: #06c; /* passes accessibility contrast checks against white down to #eee */
+  color: #06c; /* passes accessibility contrast checks against white down to var(--cmg-gray-2);*/
   text-decoration: none;
 }
 #main a:active,
@@ -241,7 +241,7 @@ body.logged-in #user-menu {
   z-index: 200;
   color: #222;
   background-color: #f8f8f8;
-  border: 1px solid #eee;
+  border: 1px solid var(--cmg-gray-2);
   padding: 1em;
   min-width: calc(100vw - 50px);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
@@ -282,7 +282,7 @@ body.logged-in #user-menu {
 }
 #user-panel .co-profile-button:hover,
 #user-panel .co-profile-button:focus {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 #user-panel .co-profile-button .material-icons {
   vertical-align: middle;
@@ -603,8 +603,31 @@ body.co_people.canvas .titleNavContainer {
   justify-content: space-between;
   margin: 0 0 0.5em;
 }
+.inline-edit-form {
+  padding: 0.3em;
+  margin: 0.25em 0 0 0.1em;
+  background-color: #F5F5F5;
+  border: 1px dashed #bbb;
+  font-size: 0.9em;
+}
 .pageTitle {
   padding-bottom: 0.25em;
+}
+.pageTitle .status {
+  position: relative;;
+}
+.pageTitle .status-edit-link {
+  text-decoration: none !important;
+  color: unset;
+}
+.pageTitle span.badge {
+  font-size: 1.6em;
+}
+.pageTitle {
+  display: flex;
+  align-items: center;
+  margin: 0.25em 0;
+  flex-wrap: wrap;
 }
 .pageTitle .deleted,
 .pageTitle .archived {
@@ -793,7 +816,7 @@ body.co_people.canvas .titleNavContainer {
   cursor: pointer;
 }
 #fpCoList .co-row:hover {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 /* CONFIGURATION PAGE */
 #configuration-menu {
@@ -910,7 +933,7 @@ body.view .modelbox-data {
 }
 .modelbox textarea {
   background-color: white;
-  border: 1px solid #eee;
+  border: 1px solid var(--cmg-gray-2);
 }
 /* MATCHABLE INFO BOX */
 .co-info-matchable {
@@ -1199,7 +1222,7 @@ body.co_petitions .ui-dialog {
 #peopleAlphabet li.selected a,
 #peopleAlphabet li.selected a:hover{
   background-color: #888;
-  color: #eee;
+  color: var(--cmg-gray-2);
 }
 #peopleAlphabet a:hover {
   background-color: #aed9f9;
@@ -1514,14 +1537,14 @@ a.ui-button:visited,
   background-color: #f5f5f5;
 }
 .top-search-active-filters-remove button:hover {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 /* top filter form, similar to top search */
 .top-filter {
   clear: both;
   margin: 0.5em 0;
   padding: 0.25em 0.5em;
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 .top-filter .filters {
   position: relative;
@@ -1567,7 +1590,7 @@ a.ui-button:visited,
   padding: 0.75em 1.25em 1.25em 1.25em;
   min-height: 130px;
   min-width: 90%;
-  border: 1px solid #eee;
+  border: 1px solid var(--cmg-gray-2);
 }
 .co-card.is-member {
   border-bottom: 1px solid #06c;
@@ -1776,7 +1799,7 @@ ul.fields.data-list li {
   margin-left: 1em;
 }
 .explorerContainer #changeLog .fieldGroupNameCl {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cmg-gray-2);
 }
 .explorerContainer #changeLog .additionalinfo {
   padding: 5px;
@@ -1806,7 +1829,7 @@ ul.fields.data-list li {
   background-color: #f5f5f5;
 }
 #groupMembers tr:nth-child(even) td {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 /* FORMS */
 label {
@@ -1835,7 +1858,7 @@ ul.form-list li {
   list-style: none;
 }
 ul.form-list li:nth-child(even) {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 ul.form-list li.fields-submit {
   background-color: unset;
@@ -1877,8 +1900,11 @@ ul.form-list input[type="password"]:focus {
   background-color: #ffd;
 }
 ul.form-list select {
-  display: inline-block;
+  display: block;
   font-size: 0.9em;
+}
+.inline-edit-formul .form-list select {
+  display: inline-block;
 }
 ul.form-list li.fields-submit .required {
   font-style: italic;
@@ -2100,6 +2126,15 @@ tr.highlight td:first-child {
 .vtop {
   vertical-align: top !important;
 }
+.vmiddle {
+  vertical-align: middle !important;
+}
+.disabled {
+  pointer-events: none;
+  /* for "disabled" effect */
+  opacity: 0.5;
+  background: #CCC;
+}
 .warn-level-a,
 .warn-level-a td {
   background-color: var(--cmg-warn-yellow);
@@ -2150,7 +2185,7 @@ a.desc::before {
 }
 .co-grid .co-row,
 .co-grid .row {
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--cmg-gray-2);
   align-items: center;
 }
 .co-grid .co-row:nth-child(even),
@@ -2171,6 +2206,24 @@ code,
   height: min-content;
   margin-top: auto;
   margin-bottom: auto;
+  position: relative;
+}
+/* Box with Icon on the right */
+.inline-edit .badge i.fa::before {
+  transform: scale(0.8);
+}
+.inline-edit .badge i.fa {
+  position: absolute;
+  right: -1em;
+  top: -1px;                /*We need to absorb the empty space from Badge border*/
+  height: calc(100% + 2px); /*We need to absorb the empty space from Badge border*/
+  justify-content: center;
+  align-items: center;
+  width: 1em;
+  border-radius: 0 0.25em 0.25em 0;
+  display: inline-flex;
+  background: rgb(238,238,238); /* #eeeeee Chrome Mobile does not recognize var() function :( */
+  color: var(--cmg-gray-secondary);
 }
 .badge-secondary,
 .badge-success,
@@ -2224,8 +2277,8 @@ code,
 table {
   width: 100%;
   border-collapse: collapse;
-  border-left: 1px solid #eee;
-  border-right: 1px solid #eee;
+  border-left: 1px solid var(--cmg-gray-2);
+  border-right: 1px solid var(--cmg-gray-2);
 }
 .table-container {
   overflow: auto;
@@ -2273,7 +2326,7 @@ th.actionButtons {
    0 used for autoincrementing line counters;
    Use table.common-table for newer CSS approach to zebra stripes. */
 .line0 {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 table.common-table tr:nth-child(odd) td,
 .line1 {
@@ -2281,7 +2334,7 @@ table.common-table tr:nth-child(odd) td,
 }
 table.common-table tr:nth-child(even) td,
 .line2 {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
 }
 td.indented {
   border-left: 3em solid #fff;
@@ -2352,6 +2405,44 @@ td.indented {
 .co-loading-mini span:nth-child(3) {
   animation-delay: 0.4s;
 }
+/* Inline ::after spinner*/
+@-webkit-keyframes inline-loader {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+@keyframes inline-loader {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+.inline-loader:after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  top: 0.9em;
+  right: -2em;
+  width: 1.8em;
+  height: 1.8em;
+  vertical-align: middle;
+  background-color: #9FC6E2;
+  border-radius: 50%;
+  opacity: 0;
+  -webkit-animation: inline-loader .75s linear infinite;
+  animation: inline-loader .75s linear infinite;
+}
 /*#main { XXX - need to check this
   overflow-x: auto; /* allow side scrolling on mobile * /
 }*/
@@ -2364,13 +2455,13 @@ td.indented {
   padding: 0.5em 1.5em;
 }
 .btn-primary,
-.btn-primary:focus,
 .btn-primary:active {
   background-color: var(--cmg-blue-primary);
   color: white;
   border-color: var(--cmg-blue-primary);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
+.btn-primary:focus,
 .btn-primary:hover {
   background-color: black;
   color: white !important;
@@ -2382,12 +2473,19 @@ td.indented {
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
 }
 .btn-default:hover {
-  background-color: #eee;
+  background-color: var(--cmg-gray-2);
   text-decoration: underline;
 }
 .btn-secondary {
   background-color: #c33; /* red */
   color: white;
+}
+.btn-warning {
+  background-color: var(--cmg-infobox-yellow);
+  border-color: var(--cmg-infobox-yellow);
+}
+.btn-sz9 {
+  font-size: 0.9em;
 }
 /*Bootstrap*/
 .dropdown-menu {

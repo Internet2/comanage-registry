@@ -317,6 +317,8 @@
 
     <!-- Get timezone detection -->
     <?php print $this->Html->script('jstimezonedetect/jstz.min.js'); ?>
+    <!--  Import Date/Time handler  -->
+    <?php print $this->Html->script('luxon/luxon.min.js'); ?>
     <script type="text/javascript">
       // Determines the time zone of the browser client
       var tz = jstz.determine();

@@ -351,3 +351,15 @@ function validate_date_input(flashmsg, errormsg) {
     }
   });
 }
+
+// Capitalize the first letter of a Word or a String
+// str           - Word/String to capitalize (string, required)
+// delimiter     - Delimiter                 (string, optional)
+function capitalize(str, delimiter = '') {
+  delimiter = (delimiter == '') ? '_' : delimiter;
+  str_arr = str.split(delimiter);
+  for(i=0; i< str_arr.length; i++) {
+    str_arr[i] = str_arr[i].charAt(0).toUpperCase() + str_arr[i].slice(1);
+  }
+  return str_arr.join('');
+}

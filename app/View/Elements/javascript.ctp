@@ -569,6 +569,40 @@
     ?>
   });
 
+  // Date fields used around the framework and their formats
+  const $dateFieldsNFormats = {
+    'modified': 'EEE LLL d HH:mm:ss yyyy',
+    'created': 'EEE LLL d HH:mm:ss yyyy',
+    'date_of_birth': 'yyyy-LL-dd'
+  }
+
+  // Update the Change Log view block after an Ajax call
+  // data                - data response       (array, required)
+  // vmodel              - Model updated       (string, required)
+  function changelog_update(data, vmodel) {
+    //Update Changelog DOM
+    $dateFields = Object.keys($dateFieldsNFormats);
+    $.each(data[0][vmodel], (column, value) => {
+      if(column == 'deleted') {
+        value = (value) ? '<?php print  _txt('fd.yes');?>' : '<?php print  _txt('fd.no');?>';
+      }
+      ccol = capitalize(column);
+      ccolfound = $.inArray(column, $dateFields);
+      if(ccolfound > -1 && ccolfound !== false) {
+        // Browser's timezone
+        user_tz = jstz.determine().name();
+        // Timezone we use to store data in the database
+        db_tz = '<?php print date_default_timezone_get(); ?>';
+        dObj = luxon.DateTime;
+        // Convert whatever timezone to UTC
+        unform_date = dObj.fromSQL(value, {zone: db_tz}).toUTC();
+        // Set users timezone and Format
+        value = unform_date.setZone(user_tz).toFormat($dateFieldsNFormats[column]) + " " + user_tz;
+      }
+      $('#' + vmodel + ccol + 'Changelog').text(value);
+    });
+  }
+
   // Observers list
   var observer = new Array();
   // Options for the Dropdown Action Menu Observer
