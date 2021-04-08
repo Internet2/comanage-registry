@@ -39,14 +39,15 @@
 ?>
   
 <script type="text/javascript">
-  var tandcs = <?php echo json_encode($vv_terms_and_conditions); ?>;
+  var tandcs = <?php print (!empty($vv_terms_and_conditions)) ? json_encode($vv_terms_and_conditions) : json_encode(array()); ?>;
   function updateTermsAndConditions(terms_and_conditions) {
 
-    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent ||
-                $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): ?>
+    <?php if(!empty($vv_tandc_mode)
+             && ($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent
+                 || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent)): ?>
     //first delete the previous t&c
     $("#co_petition_tandc").parent().remove();
-    <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
+    <?php if(!empty($vv_tandc_mode) && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
     $("input[type=submit]").attr("disabled", true);
     <?php endif;?>
 
@@ -703,7 +704,7 @@
     </div><!-- modelbox -->
   <?php endforeach; // foreach ($coea_model as $m => $coe_attributes): ?>
   <?php
-  if(!empty($defaultTermsAndConditions)) {
+  if(!empty($defaultTermsAndConditions) && !empty($vv_terms_and_conditions)) {
     unset($terms_and_conditions);
     if(array_key_exists($defaultTermsAndConditions, $vv_terms_and_conditions) && !empty($vv_terms_and_conditions[$defaultTermsAndConditions])) {
       // Set COU T&C
