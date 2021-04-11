@@ -154,11 +154,3 @@
 </div>
 
 <?php print $this->element("pagination"); ?>
-
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('a.lightbox').magnificPopup({
-      type:'iframe'
-    });
-  });
-</script>
