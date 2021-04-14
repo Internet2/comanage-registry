@@ -53,6 +53,12 @@ class CoGroupMembersController extends StandardController {
     'CoGroup',
     'CoPerson' => 'PrimaryName'
   );
+
+  // We need nested table information to render nested group names
+  public $select_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
+  );
   
   // We need to track the group ID under certain circumstances to enable performRedirect
   private $gid = null;
@@ -621,26 +627,35 @@ class CoGroupMembersController extends StandardController {
     $args = array();
     $args['conditions']['CoGroupMember.co_person_id'] = $coPids;
     $args['conditions']['CoGroupMember.co_group_id'] = $this->gid;
-    $args['contain'] = false;
+    $args['contain'] = array('CoGroupNesting' => 'CoGroup');
     
     $coGroupMembers = $this->CoGroupMember->find('all', $args);
     $coGroupRoles = array();
-    
-    // Make one pass through to facilitate rendering
+
+    // Make one pass through group members to facilitate rendering
     foreach($coGroupMembers as $m) {
       if(isset($m['CoGroupMember']['member']) && $m['CoGroupMember']['member']) {
-        $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ] = $m['CoGroupMember']['id'];
+        $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ]['co_group_member_id'] = $m['CoGroupMember']['id'];
+        $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ]['valid_from'] = $m['CoGroupMember']['valid_from'];
+        $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ]['valid_through'] = $m['CoGroupMember']['valid_through'];
+
+        // gather nested group information if present
+        if (!empty($m['CoGroupNesting']['id'])) {
+          $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ]['co_group_nesting_id'] = $m['CoGroupNesting']['id'];
+          $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ]['co_group_nesting_group_id'] = $m['CoGroupNesting']['co_group_id'];
+          $coGroupRoles['members'][ $m['CoGroupMember']['co_person_id'] ]['co_group_nesting_name'] = $m['CoGroupNesting']['CoGroup']['name'];
+        }
+
       }
       
       if(isset($m['CoGroupMember']['owner']) && $m['CoGroupMember']['owner']) {
         $coGroupRoles['owners'][ $m['CoGroupMember']['co_person_id'] ] = $m['CoGroupMember']['id'];
       }
     }
-    
+
     $this->set('co_group_roles', $coGroupRoles);
-    
+
     // Also find the Group so that its details like name can be rendered
-    
     $args = array();
     $args['conditions']['CoGroup.id'] = $this->gid;
     $args['contain'] = array('Co');

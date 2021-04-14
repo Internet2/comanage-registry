@@ -104,6 +104,16 @@
   }
   $this->Html->addCrumb($crumbTxt);
 
+  // Index the nested groups for rendering purposes
+  $nGroups = array();
+
+  if(!empty($co_groups[0]['CoGroupNesting'])) {
+    foreach($co_groups[0]['CoGroupNesting'] as $n) {
+      // We filter_var here since these names are probably going to be printed
+      $nGroups[ $n['id'] ] = filter_var($n['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+  }
+
   $l = 1;
 ?>
 
@@ -145,8 +155,8 @@
       <thead>
         <tr>
           <th><?php print _txt('fd.name'); ?></th>
-          <th><?php print _txt('fd.co_people.status'); ?></th>
           <th><?php print _txt('fd.roles'); ?></th>
+          <th><?php print _txt('fd.co_people.status'); ?></th>
           <?php if($e): ?>
             <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
             <?php $tableCols = 4; ?>
@@ -169,13 +179,6 @@
                   $g['CoPerson']['id']));
             } else {
               print filter_var(generateCn($g['CoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS);
-            }
-            print '</td>';
-
-            // Member's CO Person status
-            print '<td>';
-            if(!empty($g['CoPerson']['status'])) {
-              print _txt('en.status', null, $g['CoPerson']['status']);
             }
             print '</td>';
 
@@ -206,6 +209,13 @@
               print " (" . _txt('fd.inactive') . ")";
             }
 
+            print '</td>';
+
+            // Member's CO Person status
+            print '<td>';
+            if(!empty($g['CoPerson']['status'])) {
+              print _txt('en.status', null, $g['CoPerson']['status']);
+            }
             print '</td>';
 
             if($e) {

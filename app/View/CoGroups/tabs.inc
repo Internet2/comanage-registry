@@ -44,83 +44,6 @@
 
   <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs">
     <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <?php
-          // Group memberships
-          if ($this->action == 'members') {
-            print '<span class="nav-link active">' . _txt('me.members') . '</span>';
-          } else {
-            print $this->Html->link(
-              _txt('me.members'),
-              array(
-                'controller' => 'co_groups',
-                'action' => 'members',
-                $groupId
-              ),
-              array('class' => 'nav-link')
-            );
-          }
-        ?>
-      </li>
-
-      <li class="nav-item">
-        <?php
-          // Nested groups
-          if ($this->action == 'nest') {
-            print '<span class="nav-link active">' . _txt('ct.co_group_nestings.pl') . '</span>';
-          } else {
-            print $this->Html->link(
-              _txt('ct.co_group_nestings.pl'),
-              array(
-                'controller' => 'co_groups',
-                'action' => 'nest',
-                $groupId
-              ),
-              array('class' => 'nav-link')
-            );
-          }
-        ?>
-      </li>
-
-      <li class="nav-item">
-        <?php
-          // Provisioned services
-          if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))) {
-            if ($this->action == 'provision') {
-              print '<span class="nav-link active">' . _txt('op.prov.view') . '</span>';
-            } else {
-              print $this->Html->link(
-                _txt('op.prov.view'),
-                array(
-                  'controller' => 'co_groups',
-                  'action' => 'provision',
-                  $groupId
-                ),
-                array('class' => 'nav-link')
-              );
-            }
-          }
-        ?>
-      </li>
-
-      <li class="nav-item">
-        <?php
-          // Email lists
-          if ($this->action == 'email_lists') {
-            print '<span class="nav-link active">' . _txt('ct.co_email_lists.pl') . '</span>';
-          } else {
-            print $this->Html->link(
-              _txt('ct.co_email_lists.pl'),
-              array(
-                'controller' => 'co_groups',
-                'action' => 'email_lists',
-                $groupId
-              ),
-              array('class' => 'nav-link')
-            );
-          }
-        ?>
-      </li>
 
       <li class="nav-item">
         <?php
@@ -152,6 +75,106 @@
           }
         ?>
       </li>
+
+      <?php if($permissions['select'] || $permissions['members']): ?>
+        <li class="nav-item">
+          <?php
+            // Group memberships
+            if ($this->action == 'members') {
+              print '<span class="nav-link active">' . _txt('me.members') . '</span>';
+            } else {
+              if ($e) { // Only select members if the group may be edited
+                print $this->Html->link(
+                  _txt('me.members'),
+                  array('controller' => 'co_group_members',
+                    'action' => 'select',
+                    'cogroup:' . $groupId,
+                    'search.members:1',
+                    'search.owners:1'
+                  ),
+                  array('class' => 'nav-link')
+                );
+              } else {
+                print $this->Html->link(
+                  _txt('me.members'),
+                  array(
+                    'controller' => 'co_groups',
+                    'action' => 'members',
+                    $groupId
+                  ),
+                  array('class' => 'nav-link')
+                );
+              }
+            }
+          ?>
+        </li>
+      <?php endif; ?>
+
+      <?php if($permissions['nest']): ?>
+        <li class="nav-item">
+          <?php
+            // Nested groups
+            if ($this->action == 'nest') {
+              print '<span class="nav-link active">' . _txt('ct.co_group_nestings.pl') . '</span>';
+            } else {
+              print $this->Html->link(
+                _txt('ct.co_group_nestings.pl'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'nest',
+                  $groupId
+                ),
+                array('class' => 'nav-link')
+              );
+            }
+          ?>
+        </li>
+      <?php endif; ?>
+
+      <?php if($permissions['provision']): ?>
+        <li class="nav-item">
+          <?php
+            // Provisioned services
+            if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))) {
+              if ($this->action == 'provision') {
+                print '<span class="nav-link active">' . _txt('op.prov.view') . '</span>';
+              } else {
+                print $this->Html->link(
+                  _txt('op.prov.view'),
+                  array(
+                    'controller' => 'co_groups',
+                    'action' => 'provision',
+                    $groupId
+                  ),
+                  array('class' => 'nav-link')
+                );
+              }
+            }
+          ?>
+        </li>
+      <?php endif; ?>
+
+      <?php if($permissions['edit_email_lists'] || $permissions['email_lists']): ?>
+        <li class="nav-item">
+          <?php
+            // Email lists
+            if ($this->action == 'email_lists') {
+              print '<span class="nav-link active">' . _txt('ct.co_email_lists.pl') . '</span>';
+            } else {
+              print $this->Html->link(
+                _txt('ct.co_email_lists.pl'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'email_lists',
+                  $groupId
+                ),
+                array('class' => 'nav-link')
+              );
+            }
+          ?>
+        </li>
+      <?php endif; ?>
+
     </ul>
   </nav>
 

@@ -1868,6 +1868,8 @@ original notification at
   'in.co_group.email_lists' => 'Group Email Lists',
   'in.co_group.ids.none'   => 'No group identifiers',
   'in.co_group.members.none' => 'No group members',
+  'in.co_group.people.none' => 'The CO has no People yet. Add some People to the CO before managing group memberships.',
+  'in.co_group.people.none_filters' => 'There are no people records for the currently applied filters. Please clear the filters and try again.',
   'in.co_group.props'  => 'Group Properties',
   'in.co_group.source.none' => 'No source groups',
   'in.co_group.target.none' => 'No target groups',

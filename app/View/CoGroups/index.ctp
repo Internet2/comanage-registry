@@ -364,10 +364,18 @@
               }
             }
 
-            if($e || $v) {
+            if($e) {
               print $this->Html->link($c['CoGroup']['name'],
-                                      array('controller' => 'co_groups',
-                                            'action' => 'members', $c['CoGroup']['id']));
+                array('controller' => 'co_groups',
+                  'action' => 'edit',
+                  $c['CoGroup']['id']
+                ));
+            } else if($v) {
+              print $this->Html->link($c['CoGroup']['name'],
+                array('controller' => 'co_groups',
+                  'action'     => 'view',
+                  $c['CoGroup']['id']
+                ));
             } else {
               print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -428,20 +436,31 @@
               }
             } else {
               if($e) {
+                print $this->Html->link(_txt('me.members'),
+                                        array('controller' => 'co_group_members',
+                                          'action'     => 'select',
+                                          'cogroup:' . $c['CoGroup']['id'],
+                                          'search.members:1',
+                                          'search.owners:1'),
+                                        array('class' => 'comparebutton'));
                 print $this->Html->link(_txt('op.edit'),
                                         array('controller' => 'co_groups',
-                                              'action' => 'members',
+                                              'action' => 'edit',
                                               $c['CoGroup']['id']),
-                                        array('class' => 'editbutton'))
-                . "\n";
+                                        array('class' => 'editbutton'));
               }
               elseif($v) {
+                print $this->Html->link(_txt('me.members'),
+                                        array('controller' => 'co_groups',
+                                          'action'     => 'members',
+                                          $c['CoGroup']['id']),
+                                        array('class' => 'comparebutton'));
+
                 print $this->Html->link(_txt('op.view'),
                                         array('controller' => 'co_groups',
-                                              'action'     => 'members',
+                                              'action'     => 'view',
                                               $c['CoGroup']['id']),
-                                        array('class'      => 'viewbutton'))
-                      . "\n";
+                                        array('class'      => 'viewbutton'));
               }
 
               if($d) {

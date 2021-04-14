@@ -1357,6 +1357,9 @@ body.co_petitions .ui-dialog {
   text-align: right;
   margin: 0 30px 0 0;
 }
+#co_people .form-group {
+  margin-bottom: 0;
+}
 /* people index jquery ui overrides */
 #co_people .person-panel {
   border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
@@ -1832,9 +1835,16 @@ ul.fields.data-list li {
 #group-add-member-clear-button {
   padding: 0.5em;
 }
+#group-add-member-info {
+  display: none; /* for now (v4.0) - maybe a tooltip in future */
+}
 /* FORMS */
 label {
   cursor: pointer;
+}
+.form-group.disabled label,
+.form-group.disabled input {
+  cursor: default;
 }
 #coPersonExplorer.personExplorer,
 #coOrgIdExplorer.personExplorer,
@@ -2397,6 +2407,13 @@ td.indented {
   font-size: 1.2em;
   padding: 0.5em 1.5em;
 }
+.btn:focus {
+  border: 1px dotted black;
+}
+.btn.btn-sm {
+  font-size: 0.9em;
+  margin: -0.5em 0 0 0.1em;
+}
 .btn-primary,
 .btn-primary:focus,
 .btn-primary:active {
@@ -2412,6 +2429,16 @@ td.indented {
   background-color: black;
   color: white !important;
   text-decoration: none !important;
+}
+.btn:focus {
+  border: 1px dotted white;
+}
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #0c75c0;
+  border-color: #0c75c0;
+  opacity: 0.4;
 }
 .btn-default,
 .btn-default:active {

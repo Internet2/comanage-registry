@@ -539,9 +539,9 @@ class CoGroupsController extends StandardController {
 
     // Viewing members, email lists, and nested groups is available to all group members.
     // Access to specific actions is controlled in the view.
-    $p['members'] = $p['member'];
-    $p['email_lists'] = $p['member'];
-    $p['nest'] =  $p['member'];
+    $p['members'] = $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
+    $p['email_lists'] = $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
+    $p['nest'] =  $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
 
     // Edit email lists?
     // This aligns with CoEmailLists::isAuthorized

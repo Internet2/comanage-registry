@@ -30,6 +30,38 @@
 
   <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs">
     <ul class="nav nav-tabs">
+
+      <li class="nav-item">
+        <?php
+          // Properties
+          if ($this->action == 'edit' || $this->action == 'view') {
+            print '<span class="nav-link active">' . _txt('me.properties') . '</span>';
+          } else {
+            if ($permissions['edit']) {
+              print $this->Html->link(
+                _txt('me.properties'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'edit',
+                  $co_group['CoGroup']['id']
+                ),
+                array('class' => 'nav-link')
+              );
+            } else {
+              print $this->Html->link(
+                _txt('me.properties'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'view',
+                  $co_group['CoGroup']['id']
+                ),
+                array('class' => 'nav-link')
+              );
+            }
+          }
+        ?>
+      </li>
+
       <li class="nav-item">
         <?php
           // Group memberships
@@ -94,36 +126,6 @@
         ?>
       </li>
 
-      <li class="nav-item">
-        <?php
-          // Properties
-          if ($this->action == 'edit' || $this->action == 'view') {
-            print '<span class="nav-link active">' . _txt('me.properties') . '</span>';
-          } else {
-            if ($permissions['edit']) {
-              print $this->Html->link(
-                _txt('me.properties'),
-                array(
-                  'controller' => 'co_groups',
-                  'action' => 'edit',
-                  $co_group['CoGroup']['id']
-                ),
-                array('class' => 'nav-link')
-              );
-            } else {
-              print $this->Html->link(
-                _txt('me.properties'),
-                array(
-                  'controller' => 'co_groups',
-                  'action' => 'view',
-                  $co_group['CoGroup']['id']
-                ),
-                array('class' => 'nav-link')
-              );
-            }
-          }
-        ?>
-      </li>
     </ul>
   </nav>
 

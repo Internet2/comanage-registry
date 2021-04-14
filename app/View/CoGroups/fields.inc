@@ -29,7 +29,7 @@
   $dok = false;
   $e = false;
   $v = false;
-
+  
   if(($this->action == "add" && $permissions['add'])
      || ($this->action == "edit" && $permissions['edit'])
      || (($this->action == 'add' || $this->action == 'edit')
@@ -140,7 +140,7 @@
   <?php endif; // group_type ?>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('name', _txt('fd.name')) . ' <span class="required">*</span>' : _txt('fd.name')); ?>
+      <div class="field-title"><?php print ($e ? $this->Form->label('name', _txt('fd.name')) . ' <span class="required">*</span>' : _txt('fd.name')); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('name', array('class' => 'focusFirst')) : filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -148,7 +148,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+      <div class="field-title"><?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('description') : filter_var($co_groups[0]['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
@@ -156,20 +156,7 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print _txt('fd.open'); ?>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-      <?php
-        if ($e) {
-          print $this->Form->label('open',_txt('fd.open'));
-        }
-      ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?>
+      <div class="field-title"><?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?></div>
     </div>
     <div class="field-info">
       <?php
@@ -189,6 +176,33 @@
           }
         } else {
           print _txt('en.status', null, $co_groups[0]['CoGroup']['status']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.open'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('open') : ($co_groups[0]['CoGroup']['open'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      <?php
+        if ($e) {
+          print $this->Form->label('open',_txt('fd.open'));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.co_group.nesting_mode_all'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.co_group.nesting_mode_all.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('nesting_mode_all') : ($co_groups[0]['CoGroup']['nesting_mode_all'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+      <?php
+        if ($e) {
+          print $this->Form->label('nesting_mode_all',_txt('fd.co_group.nesting_mode_all'));
         }
       ?>
     </div>
@@ -287,12 +301,12 @@
 
                 print '<td class="actions">';
                 print $this->Html->link(_txt('op.edit'),
-                  array('controller' => 'identifiers',
-                    'action' => 'edit',
-                    $id['id']),
-                  array('class' => 'editbutton'));
-
-                if ($permissions['delete']) {
+                                        array('controller' => 'identifiers',
+                                              'action' => 'edit',
+                                              $id['id']),
+                                        array('class' => 'editbutton'));
+              
+                if($permissions['delete']) {
                   print '<a class="deletebutton" title="' . _txt('op.delete')
                     . '" onclick="javascript:js_confirm_generic(\''
                     . _txt('js.remove') . '\',\''    // dialog body text
@@ -307,12 +321,12 @@
                     . _txt('op.remove') . '\',\''    // dialog confirm button
                     . _txt('op.cancel') . '\',\''    // dialog cancel button
                     . _txt('op.remove') . '\',[\''   // dialog title
-                    . filter_var(_jtxt($id['identifier']), FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                    . filter_var(_jtxt($id['identifier']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                     . '\']);">'
                     . _txt('op.delete')
                     . '</a>';
                 }
-
+            
                 print "</td>";
               }
               print "</tr>";

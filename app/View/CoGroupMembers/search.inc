@@ -50,6 +50,8 @@ global $cm_lang, $cm_texts;
         !empty($this->request->params['named']['search.status'])     ||
         !empty($this->request->params['named']['search.members'])    ||
         !empty($this->request->params['named']['search.owners'])):?>
+        
+        <?php $hasFilters = true; ?>
 
         <span id="top-search-active-filters">
           <?php if (!empty($this->request->params['named']['search.givenName'])): ?>
