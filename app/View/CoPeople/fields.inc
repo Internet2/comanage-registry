@@ -343,6 +343,10 @@
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
   var observer = new Array();
+  var resize_observer = new Array();
+  let hide_overide = false;
+  var $status_hash = <?php print json_encode($cm_texts[$cm_lang]['en.status']); ?>;
+  var $badgecls_status_hash = <?php print json_encode($this->Badge->statusBadgeColorMap()); ?>;
 
   function js_confirm_autogenerate() {
     // Open the dialog to confirm autogeneration of identifiers
@@ -379,7 +383,152 @@
     observer[element].observe(element,options);
   }
 
+  function add_resize_observer(element) {
+    resize_observer[element] = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        let width = 0;
+        if(entry.contentBoxSize) {
+          // Firefox implements `contentBoxSize` as a single content rect, rather than an array
+          const contentBoxSize = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0] : entry.contentBoxSize;
+          width = contentBoxSize.inlineSize;
+        } else {
+          width = entry.contentRect.width;
+        }
+        if(width < 768) {
+          $(".pageTitle .status-edit-link i.fa").show();
+        } else {
+          if(hide_overide == false) {
+            $(".pageTitle .status-edit-link i.fa").hide();
+          }
+        }
+      }
+    });
+
+    resize_observer[element].observe(element);
+  }
+
+  function inline_edit(is_on) {
+    if(is_on) {
+      $('.pageTitle .status-edit-link').hide();
+      $('.pageTitle .inline-edit-form').show();
+    } else {
+      $('.pageTitle .status-edit-link').show();
+      $('.pageTitle .inline-edit-form').hide();
+    }
+  }
+
+  function update_field(ok_btn, options) {
+    var $form = $(ok_btn).parent('form');
+    let jqxhr = $.ajax({
+      cache: false,
+      type: $form.attr('method'),
+      url: $form.attr('action'),
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        $parentdiv = $form.parent('div');
+        $parentdiv.addClass('disabled').addClass('inline-loader');
+      },
+      data: $form.serialize(),
+    });
+
+    jqxhr.done((data, textStatus, xhr) => {
+      inline_edit(false);
+      let vmodel = options['model'];
+      let vfield = options['field'];
+      let vstatus = $status_hash[data[0][vmodel][vfield]];
+      let vstatus_code = data[0][vmodel][vfield];
+      $form.parent('div').removeClass('disabled').removeClass('inline-loader');
+      // Badge Text
+      $badge = $('.status-edit-link .badge');
+      // debugger;
+      $badge.contents().filter(function() {
+        return this.nodeType == Node.TEXT_NODE;
+      })[0].nodeValue = vstatus;
+
+      // Update Badge color
+      // Badge Color
+      badgeClass = $badgecls_status_hash[vstatus];
+      // todo: Move this into a separate function
+      $.each($badge.attr('class').split(' '), (idx, className) => {
+        if(className.match (/\bbadge-\S+/g)) {
+          $badge.removeClass(className);
+          classComponents = className.split('-');
+          classComponents[classComponents.length-1] = badgeClass;
+          if(vstatus_code == 'A'
+             && classComponents.length < 3) {
+            classComponents[classComponents.length-1] = 'outline';
+            classComponents.push(badgeClass);
+          } else if(vstatus_code != 'A'
+                    && classComponents.length > 2) {
+            classComponents.pop();
+            classComponents[classComponents.length-1] = badgeClass;
+          }
+          badgeClassNew = classComponents.join('-');
+          $badge.addClass(badgeClassNew);
+        }
+      })
+      // Update the Changelog
+      changelog_update(data,vmodel);
+      // Notify the user
+      let cn = data[0]['PrimaryName']['given'] + " " + data[0]['PrimaryName']['family'];
+      generateFlash('"' + cn + '" ' + vfield + ' Updated.', textStatus);
+    });
+
+    // todo: fix 403 error.
+    jqxhr.fail((xhr, textStatus, error) => {
+      // Show an error message
+      // HTML Text
+      let err_msg = $.parseHTML(xhr.responseText)[0].innerHTML;
+      // JSON text
+      try{
+        //try to parse JSON
+        encodedJson = $.parseJSON(xhr.responseText);
+        err_msg = encodedJson.msg;
+      }catch(error){
+        // Plain text
+        err_msg = xhr.responseText;
+      }
+
+      if(err_msg != null) {
+        error = error + ': ' + err_msg;
+      }
+      inline_edit(false);
+      $form.parent('div').removeClass('disabled');
+      generateFlash(error, textStatus);
+    });
+  }
+
   $(function() {
+    $(".pageTitle .status-edit-link").focusin(() => {
+      if(window.outerWidth > 768) {
+        hide_overide = true;
+        $(".pageTitle .status-edit-link i.fa").show();
+      }
+    });
+    $(".pageTitle .status-edit-link").focusout(() => {
+      if(window.outerWidth > 768) {
+        $(".pageTitle .status-edit-link i.fa").hide();
+        hide_overide = false;
+      }
+    });
+    $(".pageTitle .status-edit-link").mouseenter(() => {
+      if(window.outerWidth > 768) {
+        hide_overide = true;
+        $(".pageTitle .status-edit-link i.fa").show();
+      }
+    });
+    $(".pageTitle .status-edit-link").mouseleave(() => {
+      if(window.outerWidth > 768) {
+        $(".pageTitle .status-edit-link i.fa").hide();
+        hide_overide = false;
+      }
+    });
+
+    // Handle title badge
+    $('#comanage-wrapper').each((key, elem) => {
+      add_resize_observer(elem);
+    });
+
     // Handle action menus
     $('.field-actions .dropdown-menu').each( (key, elem) => {
       add_observer(elem, 'li', 'highlight');
@@ -466,7 +615,7 @@
             );
             $linkparams = array(
               'class'  => 'addbutton',
-              //'escape' => false
+              'escape' => false
             );
 
             print $this->Html->link(_txt('op.add'),
@@ -614,9 +763,11 @@
                   _txt('fd.name.primary_name'),
                   $this->Badge->getBadgeColor('Secondary'),
                   false,
-                  true
+                  true,
+                  null, null,
+                  'ml-1'
                 );
-                $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . "&nbsp" . $primary_name_with_bg
+                $cn = $n['primary_name'] ? filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS) . $primary_name_with_bg
                                          : filter_var(generateCn($n),FILTER_SANITIZE_SPECIAL_CHARS);
                 if($perm == PermissionEnum::ReadWrite) {
                   print $this->Html->link(
@@ -993,59 +1144,20 @@
         <!-- Person attributes form -->
         <li id="fields-coperson" class="fieldGroup">
           <?php
-            print $this->Form->create('CoPerson', array('url' => array('action'=>'edit','id'=>'CoPersonEditAttributesForm')));
-            print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
+            print $this->Form->create('CoPerson',
+              array(
+                'url' => array(
+                  'action'=>'edit',
+                  'id'=>'CoPersonEditAttributesForm',
+                  $co_people[0]['CoPerson']['id'],
+                )));
+            print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). PHP_EOL;
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('fd.attrs.cop'); ?>
           </a>
           <ul  id="tabs-coperson" class="fields form-list">
-            <li>
-              <div class="field-name vtop">
-                <label for="CoPersonStatusAgain"><?php print _txt('fd.status'); ?></label>
-              </div>
-              <div class="field-info">
-                <?php
-                  if($e && $permissions['edit']
-                     && !$permissions['editself']) {
-                    global $cm_lang, $cm_texts;
-
-                    $attrs = array();
-                    $attrs['value'] = $co_people[0]['CoPerson']['status'];
-                    $attrs['empty'] = false;
-                    $attrs['id'] = 'CoPersonStatusAgain';
-
-                    print $this->Form->select('CoPerson.status',
-                                              $cm_texts[ $cm_lang ]['en.status'],
-                                              $attrs);
-
-                    if($this->Form->isFieldError('CoPerson.status')) {
-                      print $this->Form->error('CoPerson.status');
-                    }
-                  } else {
-                    if(!empty($co_people[0]['CoPerson']['status'])) {
-                      print _txt('en.status', null, $co_people[0]['CoPerson']['status']);
-
-                      if($e) {
-                        // Self service... we need to include current status so the form saves
-                        print $this->Form->hidden('CoPerson.status');
-                      }
-                    }
-                  }
-                ?>
-                <?php if($e && $permissions['edit']
-                         && !$permissions['editself']
-                         &&
-                         ($co_people[0]['CoPerson']['status'] == StatusEnum::PendingApproval
-                          || $co_people[0]['CoPerson']['status'] == StatusEnum::PendingConfirmation)): ?>
-                  <div class="field-desc">
-                    <span class="ui-icon ui-icon-info co-info"></span>
-                    <?php print _txt('fd.status.change'); ?>
-                  </div>
-                <?php endif; ?>
-              </div>
-            </li>
             <li class="modelbox-data">
               <div class="field-name">
                 <?php print $this->Form->label('CoPerson.date_of_birth', _txt('fd.date_of_birth')); ?>
@@ -1155,41 +1267,14 @@
                 $rcnt = 1;
                 foreach($co_people[0]['CoPersonRole'] as $r) {
                   $badge_list_role = array();
-                  // Set the status styling
-                  $statusClass = $this->Badge->getBadgeColor('Light');
-                  // Set ordering
-                  $bgOrder = $this->Badge->getBadgeOrder('Other');
                   // Store the action list
                   $action_args = array();
                   $action_args['vv_attr_mdl'] = "CoPersonRole";
                   $action_args['vv_attr_id'] = $r["id"];
 
-                  if($r['status'] == StatusEnum::Suspended
-                    || $r['status'] == StatusEnum::Expired
-                    || $r['status'] == StatusEnum::Deleted) {
-                    // Style status for suspended, expired, deleted
-                    $bgOrder = $this->Badge->getBadgeOrder('Status');
-                    $statusClass = $this->Badge->getBadgeColor('Danger'); // reddish
-                  } elseif($r['status'] != StatusEnum::Active) {
-                    // Style status if otherwise not active
-                    $bgOrder = $this->Badge->getBadgeOrder('Status');
-                    $statusClass = $this->Badge->getBadgeColor('Warning'); // yellowish
-                  }
-                  // Independent of status, set the style based on dates if needed:
-                  $validThroughDate = !empty($r['valid_through']) ? $this->Time->format($r['valid_through'], "%F", false, $vv_tz) : false;
-                  $validFromDate = !empty($r['valid_from']) ? $this->Time->format($r['valid_from'], "%F", false, $vv_tz) : false;
+                  // Calculate the badge color,text and status
+                  list($status, $statusClass, $bgOrder) = $this->Badge->calculateStatusNBadge($r, $vv_tz);
 
-                  if ($validThroughDate && $this->Time->isPast($validThroughDate)) {
-                    // valid through date exists and is in the past
-                    $bgOrder = $this->Badge->getBadgeOrder('Status');
-                    $statusClass = $this->Badge->getBadgeColor('Danger'); // reddish
-                  } elseif ($validFromDate && $this->Time->isFuture($validFromDate)) {
-                    // valid from date is in the future
-                    $bgOrder = $this->Badge->getBadgeOrder('Status');
-                    $statusClass = $this->Badge->getBadgeColor('Warning'); // yellowish
-                  }
-
-                  $status = !empty($r['status']) ? _txt('en.status', null, $r['status']) : '-';
                   if($r['status'] != StatusEnum::Active) {
                     $badge_list_role[] = array(
                       'order' => $bgOrder,

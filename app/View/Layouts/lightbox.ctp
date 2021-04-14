@@ -63,6 +63,9 @@
 
     <!-- Get timezone detection -->
     <?php print $this->Html->script('jstimezonedetect/jstz.min.js'); ?>
+    <!--  Import Date/Time handler  -->
+    <?php print $this->Html->script('moment/moment-with-locales.min.js'); ?>
+    <?php print $this->Html->script('moment/moment-timezone-with-data-10-year-range.min.js'); ?>
     <script type="text/javascript">
       // Determines the time zone of the browser client
       var tz = jstz.determine();

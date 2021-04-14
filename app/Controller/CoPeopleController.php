@@ -252,6 +252,7 @@ class CoPeopleController extends StandardController {
     // This is pretty similar to the standard view or edit methods.
     
     if(!$this->request->is('restful') && $this->request->is('get')) {
+      $this->set('vv_title_status_bg', true);
       $this->edit($id);
     }
   }

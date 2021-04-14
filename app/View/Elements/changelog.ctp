@@ -54,7 +54,7 @@
             <th>
               <?php print _txt('fd.deleted'); ?>
             </th>
-            <td>
+            <td id="<?php print $req . 'DeletedChangelog'; ?>">
               <?php print (${$modelpl}[0][$req]['deleted'] ? _txt('fd.yes') : _txt('fd.no')); ?>
             </td>
           </tr>
@@ -62,7 +62,7 @@
             <th>
               <?php print _txt('fd.revision'); ?>
             </th>
-            <td>
+            <td id="<?php print $req . 'RevisionChangelog'; ?>">
               <?php
                 print ${$modelpl}[0][$req]['revision'];
 
@@ -82,7 +82,7 @@
             <th>
               <?php print _txt('fd.modified'); ?>
             </th>
-            <td>
+            <td id="<?php print $req . 'ModifiedChangelog'; ?>">
               <?php
               print $this->Time->format(${$modelpl}[0][$req]['modified'], "%c $vv_tz", false, $vv_tz);
               ?>
@@ -92,7 +92,7 @@
             <th>
               <?php print _txt('fd.actor'); ?>
             </th>
-            <td>
+            <td id="<?php print $req . 'ActorIdentifierChangelog'; ?>">
               <?php
               if(!empty(${$modelpl}[0][$req]['actor_identifier'])) {
                 print filter_var(${$modelpl}[0][$req]['actor_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
