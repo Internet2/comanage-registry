@@ -277,6 +277,20 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
       }
     }
     
+    // Make sure we have a Primary Name
+    $primaryNameSet = false;
+    
+    foreach($orgdata['Name'] as $n) {
+      if(isset($n['primary_name']) && $n['primary_name']) {
+        $primaryNameSet = true;
+        break;
+      }
+    }
+    
+    if(!$primaryNameSet) {
+      $orgdata['Name'][0]['primary_name'] = true;
+    }
+    
     // Process AdHoc Attributes
     
     if(!empty($this->fieldCfg['AdHocAttribute'])) {
