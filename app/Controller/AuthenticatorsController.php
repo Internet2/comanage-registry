@@ -71,6 +71,22 @@ class AuthenticatorsController extends SAuthController {
     }
     
     $this->set('plugins', $plugins);
+    
+    // Provide a list of message templates
+    $args = array();
+    $args['conditions']['co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['context'] = array(
+      MessageTemplateEnum::Authenticator
+    );
+    $args['fields'] = array(
+      'CoMessageTemplate.id',
+      'CoMessageTemplate.description',
+      'CoMessageTemplate.context'
+    );
+
+    $this->set('vv_message_templates',
+               $this->Authenticator->CoMessageTemplate->find('list', $args));
   }
   
   /**

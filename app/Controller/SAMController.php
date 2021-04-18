@@ -311,11 +311,15 @@ class SAMController extends StandardController {
       $p['manage'] = ($roles['cmadmin']
                       || $roles['coadmin']
                       || $managed
-                      || ($self && !$locked));
+                      || ($self && !$locked)
+                      // If there is no CO Person specified, manage() will
+                      // issue a redirect
+                      || (!$coPersonId && !empty($this->Session->read('Auth.User.co_person_id'))));
       
       // Reset a given CO Person's Authenticators?
       // Corresponds to AuthenticatorsController
       // Unclear if this should be self service, so for now it isn't
+      // Note PasswordAuthenticator implements its own self service reset at /ssr
       $p['reset'] = ($roles['cmadmin']
                      || $roles['coadmin']
                      || $managed);
@@ -532,6 +536,23 @@ class SAMController extends StandardController {
     $plugin = $this->viewVars['vv_authenticator']['Authenticator']['plugin'];
     $this->Authenticator->$plugin->setConfig($this->viewVars['vv_authenticator']);        
     
+    if(empty($this->viewVars['vv_co_person']['CoPerson']['id'])
+       && !isset($this->request->params['named']['copetitionid'])) {
+      // If we don't have a CO Person ID, figure out who we're authenticated
+      // as and redirect to that user (unless we're in a petition).
+      
+      $coPersonId = $this->Session->read('Auth.User.co_person_id');
+      
+      if(!empty($coPersonId)) {
+        $this->redirect(array(
+          'authenticatorid' => $this->viewVars['vv_authenticator']['Authenticator']['id'],
+          'copersonid'      => $coPersonId
+        ));
+      } else {
+        throw new RuntimeException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
+      }
+    }
+    
     // Pull current data, if any
     $this->set('vv_current',
                $this->Authenticator->$plugin->current($this->viewVars['vv_authenticator']['Authenticator']['id'],
@@ -558,7 +579,12 @@ class SAMController extends StandardController {
                                                      $this->Session->read('Auth.User.co_person_id'));
         
         if(!isset($this->request->params['named']['copetitionid'])) {
-          $this->Authenticator->provision($this->request->params['named']['copersonid']);
+          $this->Authenticator->provision($this->viewVars['vv_co_person']['CoPerson']['id']);
+          
+          if(!empty($this->viewVars['vv_co_person']['CoPerson']['id'])) {
+            // Trigger change notification, if configured
+            $this->Authenticator->$plugin->notify($this->viewVars['vv_co_person']['CoPerson']['id']);
+          }
         }
         
         $this->Flash->set($msg, array('key' => 'success'));

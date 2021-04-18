@@ -51,6 +51,13 @@ $cm_password_authenticator_texts['en_US'] = array(
   'er.passwordauthenticator.len.max'   => 'Password cannot be more than %1$s characters',
   'er.passwordauthenticator.len.min'   => 'Password must be at least %1$s characters',
   'er.passwordauthenticator.source'    => 'Password Authenticator is not configured for source type %1$s',
+  'er.passwordauthenticator.ssr.cfg'   => 'Configuration not supported for Self Service Reset',
+  'er.passwordauthenticator.ssr.inactive'   => 'CO Person is not active and Authenticator cannot be reset',
+  'er.passwordauthenticator.ssr.locked'     => 'Authenticator is locked and cannot be reset',
+  'er.passwordauthenticator.ssr.multiple'   => 'Could not resolve a single CO Person for "%1$s"',
+  'er.passwordauthenticator.ssr.notfound'   => 'No verified email address was found for "%1$s"',
+  'er.passwordauthenticator.token.expired'  => 'Reset token expired',
+  'er.passwordauthenticator.token.notfound' => 'Reset token not found',
   
   // Plugin texts
   'pl.passwordauthenticator.hash.crypt'     => 'Store as Crypt',
@@ -74,6 +81,20 @@ $cm_password_authenticator_texts['en_US'] = array(
   'pl.passwordauthenticator.password_source' => 'Password Source',
   'pl.passwordauthenticator.reset'          => 'Password "%1$s" Reset',
   'pl.passwordauthenticator.saved'          => 'Password "%1$s" Set',
+  'pl.passwordauthenticator.ssr'            => 'Enable Self Service Reset',
+  'pl.passwordauthenticator.ssr.desc'       => 'Allow self service reset via single use tokens sent to a verified email address',
+  'pl.passwordauthenticator.ssr.for'        => 'Select a new password for %1$s.',
+  'pl.passwordauthenticator.ssr.hr.sent'    => 'Password reset request sent to "%1$s"',
+  'pl.passwordauthenticator.ssr.info'       => 'Enter a verified email address or registered identifier to proceed.</p>If you still know your password, click <a href="%1$s">here</a> to directly select a new password.',
+  'pl.passwordauthenticator.ssr.mt.desc'    => 'Message template used for email to send reset instructions to',
+  'pl.passwordauthenticator.ssr.q'          => 'Email Address or Identifier',
+  'pl.passwordauthenticator.ssr.redirect'   => 'Redirect on Self Service Reset',
+  'pl.passwordauthenticator.ssr.redirect.desc' => 'URL to redirect to on successful self service reset',
+  'pl.passwordauthenticator.ssr.sent'       => 'An email with further instructions has been sent to the address on record',
+  'pl.passwordauthenticator.ssr.url'        => 'Self Service Reset Initiation URL',
+  'pl.passwordauthenticator.ssr.validity'   => 'Self Service Reset Token Validity',
+  'pl.passwordauthenticator.ssr.validity.desc' => 'Time in minutes the reset token is valid for',
   'pl.passwordauthenticator.token.confirm'  => 'Are you sure you wish to generate a new token?',
-  'pl.passwordauthenticator.token.gen'      => 'Generate Token'
+  'pl.passwordauthenticator.token.gen'      => 'Generate Token',
+  'pl.passwordauthenticator.token.ssr'      => 'Self Service Password Reset'
 );

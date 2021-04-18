@@ -2351,6 +2351,9 @@
     <field name="description" type="C" size="256" />
     <field name="plugin" type="C" size="32" />
     <field name="status" type="C" size="2" />
+    <field name="co_message_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

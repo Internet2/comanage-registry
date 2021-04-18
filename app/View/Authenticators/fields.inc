@@ -119,6 +119,35 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.au.mt'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.au.mt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (!empty($authenticators[0]['Authenticator']['co_message_template_id'])
+                          ? $authenticators[0]['Authenticator']['co_message_template_id']
+                          : null);
+        $attrs['empty'] = true;
+        
+        if($e) {
+          print $this->Form->select('co_message_template_id',
+            (!empty($vv_message_templates[MessageTemplateEnum::Authenticator])
+                    ? $vv_message_templates[MessageTemplateEnum::Authenticator]
+                    : array()),
+            $attrs);
+          
+          if($this->Form->isFieldError('co_message_template_id')) {
+            print $this->Form->error('co_message_template_id');
+          }
+        }
+      ?>
+    </div>
+  </li>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

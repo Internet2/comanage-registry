@@ -37,7 +37,8 @@ class Authenticator extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
-    "Co"
+    "Co",
+    "CoMessageTemplate"
   );
   
   public $hasMany = array(
@@ -81,7 +82,12 @@ class Authenticator extends AppModel {
         )
       ),
       'required' => true
-    )
+    ),
+    'co_message_template_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+			'allowEmpty' => true
+		)
   );
   
   public $_targetid = null;

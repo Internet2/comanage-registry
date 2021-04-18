@@ -31,6 +31,51 @@ class PasswordAuthenticatorsController extends SAuthController {
   // Class name, used by Cake
   public $name = "PasswordAuthenticators";
   
+  public $edit_contains = array();
+  
+  public $view_contains = array();
+  
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request->params
+   * - postcondition: $cous may be set.
+   * - postcondition: $co_groups may be set.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  function beforeRender() {
+    parent::beforeRender();
+    
+    // Provide a list of message templates
+    $args = array();
+    $args['conditions']['co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['context'] = array(
+      MessageTemplateEnum::Authenticator
+    );
+    $args['fields'] = array(
+      'CoMessageTemplate.id',
+      'CoMessageTemplate.description',
+      'CoMessageTemplate.context'
+    );
+
+    $this->set('vv_message_templates',
+               $this->PasswordAuthenticator->CoMessageTemplate->find('list', $args));
+    
+    if(!empty($this->viewVars['password_authenticators'])) {
+      // Construct the SSR initiation URL
+      $url = array(
+        'plugin'          => 'password_authenticator',
+        'controller'      => 'passwords',
+        'action'          => 'ssr',
+        'authenticatorid' => $this->viewVars['password_authenticators'][0]['PasswordAuthenticator']['authenticator_id']
+      );
+      
+      $this->set('vv_ssr_initiation_url', Router::url($url, true));
+    }
+  }
+  
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions

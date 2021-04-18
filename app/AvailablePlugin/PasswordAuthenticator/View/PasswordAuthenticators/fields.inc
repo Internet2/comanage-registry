@@ -50,16 +50,33 @@
       $("#PasswordAuthenticatorMinLength").closest("li").hide('fade');
       $("#crypt_checkbox").show('fade');
       $("#crypt_text").hide('fade');
+      $("#PasswordAuthenticatorEnableSsr").closest("li").hide('fade');
     } else if(source == "<?php print PasswordAuthPasswordSourceEnum::External; ?>") {
       $("#PasswordAuthenticatorMaxLength").closest("li").hide('fade');
       $("#PasswordAuthenticatorMinLength").closest("li").hide('fade');
       $("#crypt_checkbox").show('fade');
       $("#crypt_text").hide('fade');
+      $("#PasswordAuthenticatorEnableSsr").closest("li").hide('fade');
     } else {
       $("#PasswordAuthenticatorMaxLength").closest("li").show('fade');
       $("#PasswordAuthenticatorMinLength").closest("li").show('fade');
       $("#crypt_checkbox").hide('fade');
       $("#crypt_text").show('fade');
+      $("#PasswordAuthenticatorEnableSsr").closest("li").show('fade');
+    }
+    
+    var ssr = document.getElementById('PasswordAuthenticatorEnableSsr').checked;
+    
+    if(ssr && source == "<?php print PasswordAuthPasswordSourceEnum::SelfSelect; ?>") {
+      $("#ssr-url").show('fade');
+      $("#PasswordAuthenticatorRedirectOnSuccessSsr").closest("li").show('fade');
+      $("#PasswordAuthenticatorSsrValidity").closest("li").show('fade');
+      $("#PasswordAuthenticatorCoMessageTemplateId").closest("li").show('fade');
+    } else {
+      $("#ssr-url").hide('fade');
+      $("#PasswordAuthenticatorRedirectOnSuccessSsr").closest("li").hide('fade')
+      $("#PasswordAuthenticatorSsrValidity").closest("li").hide('fade');
+      $("#PasswordAuthenticatorCoMessageTemplateId").closest("li").hide('fade');;
     }
   }
   
@@ -148,6 +165,74 @@
     </div>
     <div class="field-info">
       <?php if($e) print $this->Form->input('format_plaintext'); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.ssr'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.ssr.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if($e) print $this->Form->input('enable_ssr', array('onChange' => 'fields_update_gadgets()')); ?>
+    </div>
+  </li>
+  <li id="ssr-url">
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.ssr.url'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if(!empty($vv_ssr_initiation_url)) print $this->Html->link($vv_ssr_initiation_url, $vv_ssr_initiation_url); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.ssr.validity'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.ssr.validity.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('ssr_validity', array('default' => 10)) : filter_var($password_authenticators[0]['PasswordAuthenticator']['ssr_validity'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('ct.co_message_templates.1'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.ssr.mt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs = array();
+        $attrs['value'] = (!empty($password_authenticators[0]['PasswordAuthenticator']['co_message_template_id'])
+                          ? $password_authenticators[0]['PasswordAuthenticator']['co_message_template_id']
+                          : null);
+        // This should be true, but since we don't validate based on multiple
+        // fields yet (required only if SSR is enabled) this will prevent an
+        // empty value
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('co_message_template_id',
+            (!empty($vv_message_templates[MessageTemplateEnum::Authenticator])
+                    ? $vv_message_templates[MessageTemplateEnum::Authenticator]
+                    : array()),
+            $attrs);
+          
+          if($this->Form->isFieldError('co_message_template_id')) {
+            print $this->Form->error('co_message_template_id');
+          }
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.ssr.redirect'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.ssr.redirect.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('redirect_on_success_ssr') : filter_var($password_authenticators[0]['PasswordAuthenticator']['redirect_on_success_ssr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if($e): ?>

@@ -40,6 +40,7 @@ class CoMessageTemplate extends AppModel {
   );
   
   public $hasMany = array(
+    "Authenticator",
     // "Expiration" makes the label too long
     "CoExpActNotifyMessageTemplate" => array(
       'className' => 'CoExpirationPolicy',
@@ -84,10 +85,12 @@ class CoMessageTemplate extends AppModel {
       'allowEmpty' => false
     ),
     'context' => array(
-      'rule' => array('inList', array(MessageTemplateEnum::EnrollmentApproval,
+      'rule' => array('inList', array(MessageTemplateEnum::Authenticator,
+                                      MessageTemplateEnum::EnrollmentApproval,
                                       MessageTemplateEnum::EnrollmentFinalization,
                                       MessageTemplateEnum::EnrollmentVerification,
-                                      MessageTemplateEnum::ExpirationNotification)),
+                                      MessageTemplateEnum::ExpirationNotification,
+                                      MessageTemplateEnum::Plugin)),
       'required' => true
     ),
     'cc' => array(

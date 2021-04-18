@@ -39,16 +39,19 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 	
   // Document foreign keys
   public $cmPluginHasMany = array(
-    "CoPerson" => array("Password")
+    "CoPerson" => array("Password"),
+    "CoMessageTemplate" => array("PasswordAuthenticator")
 	);
 	
 	// Association rules from this model to other models
 	public $belongsTo = array(
-		"Authenticator"
+		"Authenticator",
+    "CoMessageTemplate"
 	);
 	
 	public $hasMany = array(
-		"PasswordAuthenticator.Password"
+		"PasswordAuthenticator.Password",
+    "PasswordAuthenticator.PasswordResetToken"
 	);
 	
   // Default display field for cake generated views
@@ -90,6 +93,28 @@ class PasswordAuthenticator extends AuthenticatorBackend {
     ),
     'format_sha1_ldap' => array(
       'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'enable_ssr' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+		'ssr_validity' => array(
+      'rule' => 'numeric',
+			'required' => true,
+			'allowEmpty' => false
+		),
+    // XXX This should be required if enable_ssr is true, but for now we don't
+    // have a conditional validation rule
+    'co_message_template_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+			'allowEmpty' => true
+		),
+    'redirect_on_success_ssr' => array(
+      'rule' => array('url', true),
       'required' => false,
       'allowEmpty' => true
     )
@@ -138,6 +163,44 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 	 */
 	
 	public function manage($data, $actorCoPersonId) {
+    if(!empty($data['Password']['token'])) {
+      // Me're here from a Self Service Password Reset operation (ssr), which
+      // means all we have are the token and the new password. First, we'll need
+      // to pull our own configuration, by looking up the token. We're not
+      // going to validate the token yet, we'll do that later in the transaction
+      // so we can invalidate it.
+      
+      $args = array();
+      $args['conditions']['PasswordResetToken.token'] = $data['Password']['token'];
+      $args['contain'] = array('PasswordAuthenticator' => 'Authenticator');
+      
+      $token = $this->PasswordResetToken->find('first', $args);
+      
+      if(empty($token)) {
+        throw new InvalidArgumentException(_txt('er.passwordauthenticator.token.notfound'));
+      }
+      
+      // We can set our configuration based on $token, though note the containable
+      // result will be a slightly different structure than we normally get so
+      // we have to fix that here.
+      
+      $this->pluginCfg['PasswordAuthenticator'] = $token['PasswordAuthenticator'];
+      $this->pluginCfg['Authenticator'] = $token['PasswordAuthenticator']['Authenticator'];
+      unset($this->pluginCfg['PasswordAuthenticator']['Authenticator']);
+      
+      // We only support SSR for self selected passwords
+      if($this->pluginCfg['PasswordAuthenticator']['password_source'] != PasswordAuthPasswordSourceEnum::SelfSelect) {
+        throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssr.cfg'));
+      }
+      
+      // Stuff additional info we need into $data
+      $data['Password']['co_person_id'] = $token['PasswordResetToken']['co_person_id'];
+      $data['Password']['password_authenticator_id'] = $this->pluginCfg['PasswordAuthenticator']['id'];
+      
+      // Force the $actorCoPersonId to be the CO Person ID associated with the token.
+      $actorCoPersonId = $token['PasswordResetToken']['co_person_id'];
+    }
+    
 		$minlen = $this->pluginCfg['PasswordAuthenticator']['min_length'] ?: 8;
 		$maxlen = $this->pluginCfg['PasswordAuthenticator']['max_length'] ?: 64;
 		
@@ -164,10 +227,15 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
     }
 		
-		// First see if there are any existing records
 		$this->_begin();
-		
-    if($this->pluginCfg['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
+    
+    if(!empty($data['Password']['token'])) {
+      // If we have a token, validate it before processing anything
+      
+      // This will throw InvalidArgumentException on error
+      $this->PasswordResetToken->validateToken($data['Password']['token'], true);
+    } elseif($this->pluginCfg['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
+      // If there is an existing password make sure it was provided and matches
   		$args = array();
   		$args['conditions']['Password.password_authenticator_id'] = $data['Password']['password_authenticator_id'];
   		$args['conditions']['Password.co_person_id'] = $data['Password']['co_person_id'];
@@ -181,6 +249,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   			// The current password is required for self selected passwords
   			
   			if(!password_verify($data['Password']['passwordc'], $currec['Password']['password'])) {
+          $this->_rollback();
   				throw new InvalidArgumentException(_txt('er.passwordauthenticator.current'));
   			}
   		}
@@ -219,8 +288,8 @@ class PasswordAuthenticator extends AuthenticatorBackend {
     }
     
     if($this->pluginCfg['PasswordAuthenticator']['format_sha1_ldap']) {
-      // Salted SHA1 isn't really a great algorithm (and our salt generation)
-      // could probably be better, but OpenLDAP doesn't support a better option
+      // Salted SHA1 isn't really a great algorithm (and our salt generation
+      // could probably be better), but OpenLDAP doesn't support a better option
       // out of the box.
       
       $salt = substr(bin2hex(random_bytes(8)),0,4);

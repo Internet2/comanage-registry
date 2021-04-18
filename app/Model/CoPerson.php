@@ -54,6 +54,7 @@ class CoPerson extends AppModel {
   );
   
   public $hasMany = array(
+    "AuthenticatorStatus",
     // A person can have one or more groups
     "CoGroupMember" => array('dependent' => true),
     // It's OK to delete notifications where this Person is the subject, but that's it.

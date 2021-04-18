@@ -678,11 +678,15 @@ original notification at
   ),
 
   // Message Template Contexts
-  'en.mt.context' =>       array(MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
-                                 MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
-                                 MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
-                                 MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification'),
-
+  'en.mt.context' =>       array(
+    MessageTemplateEnum::Authenticator          => 'Authenticator',
+    MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
+    MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
+    MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
+    MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification',
+    MessageTemplateEnum::Plugin                 => 'Plugin'
+  ),
+  
   // Message Template Contexts
   'en.mt.format' =>       array(MessageFormatEnum::Plaintext        => 'Plain Text',
                                 MessageFormatEnum::PlaintextAndHTML => 'Plain Text and HTML',
@@ -1197,6 +1201,8 @@ original notification at
   'fd.attrs.org' =>   'Organizational Attributes',
   'fd.attrs.match' => 'Match Attributes',
   'fd.attrs.pet' =>   'Petition Attributes',
+  'fd.au.mt' =>       'Change Message Template',
+  'fd.au.mt.desc' =>  'If set, when an authenticator is updated the associated CO Person will be sent a message using this template',
   'fd.automatic' =>   'Automatic',
   'fd.bcc' =>         'BCC',
   'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
