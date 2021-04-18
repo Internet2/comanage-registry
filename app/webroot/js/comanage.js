@@ -328,6 +328,12 @@ function validate_date_input(flashmsg, errormsg) {
     var $valid_through = $("input[id*='ValidThrough'");
     let valid_through_date = $valid_through.val();
 
+    // In case any of the two is empty return success
+    if((!valid_from_date || valid_from_date.length === 0 )
+        || (!valid_through_date || valid_through_date.length === 0 )) {
+      return;
+    }
+
     let valid_from_tmstmp = new Date(valid_from_date).getTime();
     let valid_through_tmstmp = new Date(valid_through_date).getTime();
     let ddiff = valid_through_tmstmp-valid_from_tmstmp;
