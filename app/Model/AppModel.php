@@ -1550,7 +1550,7 @@ class AppModel extends Model {
    * @param string $oper Comparison operator
    *
    * @since  COmanage Registry v4.0.0
-   * @return bool True if the comparison evaluates to True. False otherwise
+   * @return bool True if the comparison evaluates to True OR the field is empty. False otherwise
    */
   public function validateTimestampRange($check=array(), $eval_field=null, $oper=null) {
     if(empty($check)
@@ -1560,6 +1560,10 @@ class AppModel extends Model {
     }
 
     foreach($check as $date) {
+      // Empty fields represent infinity. Always validate to true
+      if(empty($date)) {
+        return true;
+      }
       $check_timestamp = strtotime($date);
       if($check_timestamp === false) {
         return _txt('er.validation');
@@ -1567,9 +1571,17 @@ class AppModel extends Model {
 
       // Check the existence of the evaluation field
       if(isset($this->data[$this->name][$eval_field])) {
-        $eval_field_timestamp = strtotime($this->data[$this->name][$eval_field]);
+        $eval_field = $this->data[$this->name][$eval_field];
+        if(empty($eval_field)) {
+          return true;
+        }
+        $eval_field_timestamp = strtotime($eval_field);
       } elseif(isset($this->data[$this->alias][$eval_field])) {
-        $eval_field_timestamp = strtotime($this->data[$this->alias][$eval_field]);
+        $eval_field = $this->data[$this->alias][$eval_field];
+        if(empty($eval_field)) {
+          return true;
+        }
+        $eval_field_timestamp = strtotime($eval_field);
       } else {
         return _txt('er.unknown', array($eval_field));
       }

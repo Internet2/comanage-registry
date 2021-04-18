@@ -29,6 +29,16 @@
 
 <script type="text/javascript">
   $(function() {
+    // Restore fields
+    $("input[id*='ValidFrom'], input[id*='ValidThrough']").focusin(function() {
+      var $valid_from = $("input[id*='ValidFrom'");
+      var $valid_through = $("input[id*='ValidThrough'");
+
+      $valid_through.get(0).setCustomValidity("");
+      $valid_from.get(0).setCustomValidity("");
+      $("input[type='submit']").prop('disabled', false);
+    });
+
     $('#user-panel-toggle,#user-notifications,#global-search').on('click', function() {
       if($(window).width() < 768) {
         if ($('#navigation-drawer').is(':visible')) {
