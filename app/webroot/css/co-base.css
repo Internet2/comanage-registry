@@ -1007,11 +1007,16 @@ body.petitionerAttributes td {
 }
 .filters-box {
   background-color: #f5f5f5;
-  border: 1px solid #a0c6e3;
+  border: 1px solid #ddd;
   clear: both;
   margin: 1em 0;
   min-height: 2.2em;
-  padding: 0 0.5em 0.5em;
+  padding: 0 1em 0.5em;
+}
+.filters-box legend {
+  font-size: 1.3em;
+  width: auto;
+  margin-bottom: 0.2em;
 }
 .filters-box .checkbox {
   display: inline-block;
@@ -1028,8 +1033,6 @@ body.petitionerAttributes td {
 .filters-box .submit-button {
   float: right;
   font-size: 0.9em;
-  height: 28px;
-  line-height: 28px;
   margin: -4px 0 0 0;
   width: 80px;
 }
@@ -2148,6 +2151,7 @@ a.desc::before {
 .co-grid .co-row,
 .co-grid .row {
   border-top: 1px solid #eee;
+  align-items: center;
 }
 .co-grid .co-row:nth-child(even),
 .co-grid .row:nth-child(even) {

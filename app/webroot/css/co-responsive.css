@@ -264,6 +264,7 @@
     display: block;
     top: unset;
     z-index: unset;
+    width: 180px;
     min-width: 180px;
     min-height: calc(100vh - 160px);
   }
@@ -539,6 +540,7 @@
 /* Medium devices (desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
   #navigation-drawer {
+    width: 200px;
     min-width: 200px;
   }
   #content.with-sidebar {
@@ -567,6 +569,7 @@
 /* Extra large devices (desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
   #navigation-drawer {
+    width: 240px;
     min-width: 240px;
   }
   #co_people .person-info-inner {
