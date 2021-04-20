@@ -28,7 +28,12 @@
 class CoGroupMember extends AppModel {
   // Define class name for cake
   public $name = "CoGroupMember";
-  
+
+  // All Nested Membership syncing
+  // CO-1885, using a class parameter as flag, since delete 
+  // function does not accept parameters like the save one
+  public $syncNested = true;
+
   // Current schema version for API
   public $version = "1.0";
   
@@ -834,7 +839,10 @@ class CoGroupMember extends AppModel {
     //     AND !$sourceMember
     //     AND member of all non-negated source groups for target
     //     AND not a member of any source group for target where Nesting/Negate = true
-    
+    if($this->syncNested === false) {
+      return;
+    }
+
     $shouldBe = false;      // Should $coPerson be a member of $targetGroup?
     $all = false;           // Is $targetGroup configured for nesting all mode?
     $negated = false;       // $coPersonId is ineligible for $targetGroup due to any negative membership

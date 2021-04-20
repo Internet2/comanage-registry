@@ -320,6 +320,9 @@ class CoPerson extends AppModel {
               'conditions' => array('id' => $record[$Model->alias][$Model->primaryKey])
             ));
             if (isset(current($currentRecord)['deleted']) && current($currentRecord)['deleted'] != true) {
+              if(isset($Model->syncNested)) {
+                $Model->syncNested = false;
+              }
               $Model->delete($record[$Model->alias][$Model->primaryKey]);
             }
 					}
