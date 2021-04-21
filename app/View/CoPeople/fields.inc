@@ -342,7 +342,6 @@
 
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
-  var observer = new Array();
 
   function js_confirm_autogenerate() {
     // Open the dialog to confirm autogeneration of identifiers
@@ -350,54 +349,7 @@
     $('#autogenerate-dialog').dialog('open');
   }
 
-  // Options for the observer (which mutations to observe)
-  let options = {
-    attributes: true,
-    attributeFilter: ['class']
-  };
-
-  function add_observer(element, target_element, modify_class) {
-    observer[element] = new MutationObserver((mutationList) => {
-      // Use traditional 'for loops' for IE 11
-      for(const mutation of mutationList) {
-        if (mutation.type === 'attributes') {
-          bs_dropdown = mutation.target.parentNode;
-          if($(bs_dropdown).hasClass('show')) {
-            if(target_element === 'tr') {
-              $(bs_dropdown).closest(target_element).prev(target_element).addClass(target_element + '-' + modify_class);
-            }
-            $(bs_dropdown).closest(target_element).addClass(modify_class);
-          } else {
-            if(target_element === 'tr') {
-              $(bs_dropdown).closest(target_element).prev(target_element).removeClass(target_element + '-' + modify_class);
-            }
-            $(bs_dropdown).closest(target_element).removeClass(modify_class);
-          }
-        }
-      }
-    });
-    observer[element].observe(element,options);
-  }
-
   $(function() {
-    // Handle action menus
-    $('.field-actions .dropdown-menu').each( (key, elem) => {
-      add_observer(elem, 'li', 'highlight');
-    });
-
-    $('.td-field-actions .dropdown-menu').each( (key, elem) => {
-      add_observer(elem, 'tr', 'highlight');
-    });
-
-    // Handle caret up/down toggle
-    $('li.field-data-container').on('shown.bs.collapse', function () {
-      $(this).find('.field-data > a i').removeClass('fa-caret-down').addClass('fa-caret-up');
-    })
-
-    $('li.field-data-container').on('hidden.bs.collapse', function () {
-      $(this).find('.field-data > a i').removeClass('fa-caret-up').addClass('fa-caret-down');
-    })
-
     // Enable collapse effect on the entire row, except Action fraction
     $('.field-data-container div.field-data').on('click', function() {
       $(this).parent('li.field-data-container').find('.collapse').collapse('toggle');

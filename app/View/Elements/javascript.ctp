@@ -39,6 +39,27 @@
       $("input[type='submit']").prop('disabled', false);
     });
 
+    // Lightbox
+    $('a.lightbox').magnificPopup({
+      type:'iframe'
+    });
+
+    // Handle Action Menu Observers
+    $('.field-actions .dropdown-menu').each( (key, elem) => {
+      add_observer(elem, 'li', 'highlight');
+    });
+    $('.td-field-actions .dropdown-menu').each( (key, elem) => {
+      add_observer(elem, 'tr', 'highlight');
+    });
+
+    // Handle caret up/down toggle
+    $('li.field-data-container').on('shown.bs.collapse', function () {
+      $(this).find('.field-data > a i').removeClass('fa-caret-down').addClass('fa-caret-up');
+    })
+    $('li.field-data-container').on('hidden.bs.collapse', function () {
+      $(this).find('.field-data > a i').removeClass('fa-caret-up').addClass('fa-caret-down');
+    })
+
     $('#user-panel-toggle,#user-notifications,#global-search').on('click', function() {
       if($(window).width() < 768) {
         if ($('#navigation-drawer').is(':visible')) {
@@ -548,9 +569,43 @@
     ?>
   });
 
+  // Observers list
+  var observer = new Array();
+  // Options for the Dropdown Action Menu Observer
+  const options = {
+    attributes: true,
+    attributeFilter: ['class']
+  };
+
+  // Mutation observer handler for Dropdown action menus
+  // element              - Parent element containing target     (string, required)
+  // target_element       - DOM element to observe               (string, required)
+  // modify_class         - Class name apended to targte_element (string, required)
+  function add_observer(element, target_element, modify_class) {
+    observer[element] = new MutationObserver((mutationList) => {
+      // Use traditional 'for loops' for IE 11
+      for(const mutation of mutationList) {
+        if (mutation.type === 'attributes') {
+          bs_dropdown = mutation.target.parentNode;
+          if($(bs_dropdown).hasClass('show')) {
+            if(target_element === 'tr') {
+              $(bs_dropdown).closest(target_element).prev(target_element).addClass(target_element + '-' + modify_class);
+            }
+            $(bs_dropdown).closest(target_element).addClass(modify_class);
+          } else {
+            if(target_element === 'tr') {
+              $(bs_dropdown).closest(target_element).prev(target_element).removeClass(target_element + '-' + modify_class);
+            }
+            $(bs_dropdown).closest(target_element).removeClass(modify_class);
+          }
+        }
+      }
+    });
+    observer[element].observe(element,options);
+  }
+
   // Define default text for confirm dialog
   var defaultConfirmOk = "<?php print _txt('op.ok'); ?>";
   var defaultConfirmCancel = "<?php print _txt('op.cancel'); ?>";
   var defaultConfirmTitle = "<?php print _txt('op.confirm'); ?>";
-
 </script>

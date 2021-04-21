@@ -30,7 +30,7 @@
      class="field-actions-menu dropdown dropleft">
   <?php
   $linkparams = array(
-    'id' => 'org-action-menu-content_' . md5($vv_attr_mdl . $vv_attr_id),
+    'id' => 'action-menu-content_' . md5($vv_attr_mdl . $vv_attr_id),
     'class' => 'fa fa-cog coAddEditButtons',
     'escape' => false,
     'data-toggle' => 'dropdown',
@@ -49,11 +49,11 @@
     return $item1['order'] < $item2['order'] ? -1 : 1;
   });
   ?>
-  <ul id="org-action-list_<?php print  md5($vv_attr_mdl . $vv_attr_id); ?>"
+  <ul id="action-list_<?php print  md5($vv_attr_mdl . $vv_attr_id); ?>"
       class="dropdown-menu">
     <?php foreach($vv_actions as $action): ?>
       <?php if(empty($action['onclick'])): ?>
-        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="displaySpinner()">
+        <a class="dropdown-item spin" href="<?php print $action['url']; ?>">
           <?php if(!empty($action['icon'])): ?>
           <i class="<?php print $action['icon']; ?>"></i>
           <?php endif; ?>
@@ -70,7 +70,7 @@
           . $action['onclick']['db_bd_txt_repl_str']             // dialog body text replacement strings
           . '\']);';
       ?>
-        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
+        <a class="dropdown-item spin" href="<?php print $action['url']; ?>">
           <?php if(!empty($action['icon'])): ?>
             <i class="<?php print $action['icon']; ?>"></i>
           <?php endif; ?>

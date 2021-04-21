@@ -265,8 +265,11 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
 
         // Handle the submit button
         $btn = $("#btnSubmit");
-        $btn.html(submit_btn_txt_sending);
-        $btn.prepend("<i class='fa fa-spinner fa-spin'></i> ");
+        let btn_payload = "<span class='spinner-grow spinner-grow-sm' role='status' aria-hidden='true'></span><span class='sr-only'>"
+        + submit_btn_txt_sending
+        + "</span> "
+        + submit_btn_txt_sending;
+        $btn.html(btn_payload);
         $btn.button("disable");
 
         let jqxhr = $.ajax({
