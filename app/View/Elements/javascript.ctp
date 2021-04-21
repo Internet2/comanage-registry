@@ -572,7 +572,7 @@
   // Observers list
   var observer = new Array();
   // Options for the Dropdown Action Menu Observer
-  const options = {
+  const cmActionMenuOptions = {
     attributes: true,
     attributeFilter: ['class']
   };
@@ -601,7 +601,7 @@
         }
       }
     });
-    observer[element].observe(element,options);
+    observer[element].observe(element,cmActionMenuOptions);
   }
 
   // Define default text for confirm dialog

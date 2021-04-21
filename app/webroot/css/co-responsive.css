@@ -258,6 +258,7 @@
   }
   #main {
     flex-basis: 100%;
+    padding-bottom: 66px; /* offset for footer logo height */
   }
   #navigation-drawer {
     position: static;
@@ -266,7 +267,7 @@
     z-index: unset;
     width: 180px;
     min-width: 180px;
-    min-height: calc(100vh - 160px);
+    min-height: calc(100vh - 94px); /* offset for header height */
   }
   /* menu drawer half-closed styles */
   #navigation-drawer.half-closed {
@@ -509,27 +510,29 @@
     column-gap: 20px;
   }
   /* FOOTER */
-  footer {
-    display: flex;
-    justify-content: space-between;
+  #co-footer,
+  body.co_petitions.petitionerAttributes.logged-out #co-footer {
+    position: static;
+    float: right;
     padding: 0;
-  }
-  #footer-drawer {
-    background-color: #fafafa;
-    width: 180px;
-    border-right: 1px solid #ddd;
-  }
-  #footer-drawer.half-closed {
-    width: 50px;
+    margin-top: -66px;
+    right: unset;
+    bottom: unset;
+    left: unset;
+    transform: unset;
   }
   .poweredByComanage {
+    display: inline-block;
     padding: 1em 2em 2em 0;
   }
-  body.logged-out footer,
-  body.redirect footer {
+  body.logged-out #co-footer,
+  body.redirect #co-footer,
+  body.pages #co-footer {
     position: fixed;
-    display: block;
+    float: none;
     right: 0;
+    bottom: 0;
+    margin: 0;
     left: unset;
     transform: unset;
   }
@@ -559,9 +562,6 @@
   #right-sidebar #menu {
     padding-left: 1em;
   }
-  #footer-drawer {
-    width: 200px;
-  }
 }
 
 /* EXTRA LARGE */
@@ -574,14 +574,5 @@
   }
   #co_people .person-info-inner {
     width: 550px;
-  }
-  #footer-drawer {
-    width: 240px;
-  }
-}
-
-@media only screen and (min-width: 1708px) {
-  #footer-drawer.half-closed {
-    width: 51px;
   }
 }

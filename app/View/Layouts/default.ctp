@@ -240,60 +240,60 @@
         ?>
         <main id="main" class="<?php print $mainCssClasses; ?>">
 
-        <?php
-          // display the view content
-          if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
-            print '<div id="content" class="with-sidebar">';
-          } else {
-            print '<div id="content">';
-          }
-          print '<div id="content-inner">';
+          <?php
+            // display the view content
+            if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
+              print '<div id="content" class="with-sidebar">';
+            } else {
+              print '<div id="content">';
+            }
+            print '<div id="content-inner">';
 
-          // insert breadcrumbs on all but the homepage
-          if( $vv_ui_mode === EnrollmentFlowUIMode::Full
-              && $this->request->here !== $this->request->webroot) {
-            print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
-          }
-
-          // insert the anchor that is the target of accessible "skip to content" link
-          print '<a id="content-start"></a>';
-
-          // insert the page internal content
-          print $this->fetch('content');
-          print '</div>'; // end #content-inner
-
-          if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
-            print '<div id="right-sidebar">';
-
-            // insert the sidebar buttons if they exist
-            $sidebarButtons = $this->get('sidebarButtons');
-            if (!empty($sidebarButtons)) {
-              print $this->element('sidebarButtons');
+            // insert breadcrumbs on all but the homepage
+            if( $vv_ui_mode === EnrollmentFlowUIMode::Full
+                && $this->request->here !== $this->request->webroot) {
+              print '<div id="breadcrumbs">' . $this->Html->getCrumbs(' &gt; ', _txt('bc.home')) . "</div>";
             }
 
-            // display enrollment flow steps when they exist
-            $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
-            if (!empty($enrollmentFlowSteps)) {
-              print $this->element('enrollmentFlowSteps');
+            // insert the anchor that is the target of accessible "skip to content" link
+            print '<a id="content-start"></a>';
+
+            // insert the page internal content
+            print $this->fetch('content');
+            print '</div>'; // end #content-inner
+
+            if(!empty($sidebarButtons) || !empty($enrollmentFlowSteps)) {
+              print '<div id="right-sidebar">';
+
+              // insert the sidebar buttons if they exist
+              $sidebarButtons = $this->get('sidebarButtons');
+              if (!empty($sidebarButtons)) {
+                print $this->element('sidebarButtons');
+              }
+
+              // display enrollment flow steps when they exist
+              $enrollmentFlowSteps = $this->get('enrollmentFlowSteps');
+              if (!empty($enrollmentFlowSteps)) {
+                print $this->element('enrollmentFlowSteps');
+              }
+              print "</div>"; // end #right-sidebar
+              print "</div>"; // end #content
             }
-            print "</div>"; // end #right-sidebar
-            print "</div>"; // end #content
-          }
-        ?>
+          ?>
 
-        <!-- Include custom footer -->
-        <?php if(!empty($vv_theme_footer)): ?>
-          <footer id="customFooter">
-            <?php print $vv_theme_footer; ?>
-          </footer>
-        <?php endif; ?>
+          <!-- Include custom footer -->
+          <?php if(!empty($vv_theme_footer)): ?>
+            <footer id="customFooter">
+              <?php print $vv_theme_footer; ?>
+            </footer>
+          <?php endif; ?>
 
-        <?php if(Configure::read('debug') > 0): ?>
-          <div id="debug">
-            <?php print $this->element('sql_dump'); ?>
-          </div>
-        <?php endif; ?>
-      </main>
+          <?php if(Configure::read('debug') > 0): ?>
+            <div id="debug">
+              <?php print $this->element('sql_dump'); ?>
+            </div>
+          <?php endif; ?>
+        </main>
       </div>
 
       <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>

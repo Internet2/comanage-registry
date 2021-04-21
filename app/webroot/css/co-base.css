@@ -2411,18 +2411,14 @@ td.indented {
   font-size: smaller;
 }
 /* FOOTER */
-footer {
+#co-footer {
   text-align: center;
   padding: 2em;
 }
-body.logged-out footer,
-body.redirect footer {
+body.logged-out #co-footer,
+body.redirect #co-footer {
   position: fixed;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-}
-body.logged-out #footer-drawer,
-body.redirect #footer-drawer {
-  display: none;
 }

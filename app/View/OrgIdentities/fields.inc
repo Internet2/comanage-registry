@@ -102,35 +102,6 @@
 
   });
 
-  // Options for the observer (which mutations to observe)
-  let options = {
-    attributes: true,
-    attributeFilter: ['class']
-  };
-
-  function add_observer(element, target_element, modify_class) {
-    observer[element] = new MutationObserver((mutationList) => {
-      // Use traditional 'for loops' for IE 11
-      for(const mutation of mutationList) {
-        if (mutation.type === 'attributes') {
-          bs_dropdown = mutation.target.parentNode;
-          if($(bs_dropdown).hasClass('show')) {
-            if(target_element === 'tr') {
-              $(bs_dropdown).closest(target_element).prev(target_element).addClass(target_element + '-' + modify_class);
-            }
-            $(bs_dropdown).closest(target_element).addClass(modify_class);
-          } else {
-            if(target_element === 'tr') {
-              $(bs_dropdown).closest(target_element).prev(target_element).removeClass(target_element + '-' + modify_class);
-            }
-            $(bs_dropdown).closest(target_element).removeClass(modify_class);
-          }
-        }
-      }
-    });
-    observer[element].observe(element,options);
-  }
-
   function js_local_onload() {
     enum_update_gadgets(false);
   }

@@ -204,6 +204,13 @@
           </div>
         </div>
 
+        <!-- Include custom footer -->
+        <?php if(!empty($vv_theme_footer)): ?>
+          <footer id="customFooter">
+            <?php print $vv_theme_footer; ?>
+          </footer>
+        <?php endif; ?>
+
         <?php if(Configure::read('debug') > 0): ?>
           <div id="debug">
             <?php print $this->element('sql_dump'); ?>
@@ -214,13 +221,6 @@
       <?php if(!isset($vv_theme_hide_footer_logo) || !$vv_theme_hide_footer_logo): ?>
         <footer id="co-footer">
           <?php print $this->element('footer'); ?>
-        </footer>
-      <?php endif; ?>
-
-      <!-- Include custom footer -->
-      <?php if(!empty($vv_theme_footer)): ?>
-        <footer id="customFooter">
-          <?php print $vv_theme_footer; ?>
         </footer>
       <?php endif; ?>
 
