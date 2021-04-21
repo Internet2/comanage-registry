@@ -26,74 +26,92 @@
    */
 ?>
 
-<?php if($this->action == 'add'
-      || $this->action == 'view'): ?>
+<?php if($this->action == 'add'): ?>
 
   <?php
   $groupId = $vv_current_group;
   ?>
 
-  <div id="cm-group-subnav-tabs" class="cm-subnav-tabs mdl-tabs">
-    <nav class="mdl-tabs__tab-bar">
-      <?php
+  <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs">
+    <ul class="nav nav-tabs">
 
-        // Manage group memberships
-        print $this->Html->link(
-          _txt('me.members'),
-          array(
-            'controller' => 'co_group_members',
-            'action'     => 'select',
-            'cogroup'    => $groupId
-          ),
-          array('class' => 'mdl-tabs__tab')
-        );
+      <li class="nav-item">
+        <?php
+          // Properties
+          print $this->Html->link(
+            _txt('me.properties'),
+            array(
+              'controller' => 'co_groups',
+              'action' => 'edit',
+              $groupId
+            ),
+            array('class' => 'nav-link')
+          );
+        ?>
+      </li>
 
-        // Nested groups
-        print $this->Html->link(
-          _txt('ct.co_group_nestings.pl'),
-          array(
-            'controller' => 'co_groups',
-            'action' => 'nest',
-            $groupId
-          ),
-          array('class' => 'mdl-tabs__tab selected')
-        );
+      <li class="nav-item">
+        <?php
+          // Group memberships
+          print $this->Html->link(
+            _txt('me.members'),
+            array('controller' => 'co_group_members',
+              'action' => 'select',
+              'cogroup:' . $groupId,
+              'search.members:1',
+              'search.owners:1'
+            ),
+            array('class' => 'nav-link')
+          );
+        ?>
+      </li>
 
-        // Provisioned services
-        print $this->Html->link(
-          _txt('op.prov.view'),
-          array(
-            'controller' => 'co_groups',
-            'action' => 'provision',
-            $groupId
-          ),
-          array('class' => 'mdl-tabs__tab')
-        );
+      <li class="nav-item">
+        <?php
+          // Nested groups
+          print $this->Html->link(
+            _txt('ct.co_group_nestings.pl'),
+            array(
+              'controller' => 'co_groups',
+              'action' => 'nest',
+              $groupId
+            ),
+            array('class' => 'nav-link active')
+          );
+        ?>
+      </li>
 
-        // Email lists
-        print $this->Html->link(
-          _txt('ct.co_email_lists.pl'),
-          array(
-            'controller' => 'co_groups',
-            'action' => 'email_lists',
-            $groupId
-          ),
-          array('class' => 'mdl-tabs__tab')
-        );
+      <li class="nav-item">
+        <?php
+          // Provisioned services
+          print $this->Html->link(
+            _txt('op.prov.view'),
+            array(
+              'controller' => 'co_groups',
+              'action' => 'provision',
+              $groupId
+            ),
+            array('class' => 'nav-link')
+          );
+        ?>
+      </li>
 
-        // Properties
-        print $this->Html->link(
-          _txt('me.properties'),
-          array(
-            'controller' => 'co_groups',
-            'action' => 'edit',
-            $groupId
-          ),
-          array('class' => 'mdl-tabs__tab')
-        );
+      <li class="nav-item">
+        <?php
+          // Email lists
+          print $this->Html->link(
+            _txt('ct.co_email_lists.pl'),
+            array(
+              'controller' => 'co_groups',
+              'action' => 'email_lists',
+              $groupId
+            ),
+            array('class' => 'nav-link')
+          );
+        ?>
+      </li>
 
-      ?>
-    </nav>
-  </div>
+    </ul>
+  </nav>
 
 <?php endif; ?>

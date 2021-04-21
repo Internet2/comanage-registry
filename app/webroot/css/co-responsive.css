@@ -615,9 +615,12 @@
     float: right;
     margin-top: -3em;
   }
+  main.drawer-half-closed #group-add-member {
+    width: 500px;
+  }
 }
 
-@media only screen and (min-width: 1700px) {
+@media only screen and (min-width: 1350px) {
   #group-add-member {
     width: 500px;
   }
