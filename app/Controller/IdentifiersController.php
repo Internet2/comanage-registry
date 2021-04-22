@@ -291,6 +291,7 @@ class IdentifiersController extends MVPAController {
     // the identifier passed in the URL, otherwise we lookup based on the record ID.
     
     $managed = false;
+    $self = false;
     
     if(!empty($roles['copersonid'])) {
       switch($this->action) {
@@ -318,9 +319,18 @@ class IdentifiersController extends MVPAController {
           if(!empty($identifier['Identifier']['co_person_id'])) {
             $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                               $identifier['Identifier']['co_person_id']);
+            if($identifier['Identifier']['co_person_id'] == $roles['copersonid']) {
+              $self = true;
+            }
           } elseif(!empty($identifier['Identifier']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $identifier['Identifier']['org_identity_id']);
+            if(!empty($roles['orgidentities'])) {
+              $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+              if(in_array($identifier['Identifier']['org_identity_id'], $org_ids)) {
+                $self = true;
+              }
+            }
           }
         }
         break;
@@ -356,7 +366,8 @@ class IdentifiersController extends MVPAController {
     
     // View an existing Identifier?
     $p['view'] = ($roles['cmadmin']
-                  || $roles['coadmin'] 
+                  || $roles['coadmin']
+                  || $self
                   || ($managed && $roles['couadmin']));
     
     $this->set('permissions', $p);

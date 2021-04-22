@@ -160,6 +160,12 @@ class EmailAddressesController extends MVPAController {
           } elseif(!empty($emailaddress['EmailAddress']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $emailaddress['EmailAddress']['org_identity_id']);
+            if(!empty($roles['orgidentities'])) {
+              $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+              if(in_array($emailaddress['EmailAddress']['org_identity_id'], $org_ids)) {
+                $self = true;
+              }
+            }
           }
         }
         break;

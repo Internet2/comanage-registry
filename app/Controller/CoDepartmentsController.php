@@ -149,6 +149,7 @@ class CoDepartmentsController extends StandardController {
     // View identifiers? This correlates with IdentifiersController
     $p['identifiers'] = ($roles['cmadmin']
                          || $roles['coadmin']
+                         || $self
                          || ($managed && $roles['couadmin']));
 
     $this->set('permissions', $p);
