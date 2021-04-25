@@ -180,6 +180,7 @@
   ul.form-list .field-info {
     display: inline-block;
     width: 65%;
+    overflow-wrap: anywhere;
   }
   ul.form-list .field-info-flex {
     display: inline-flex;
@@ -260,6 +261,9 @@
 /**************************************************************************************************************/
 /* Medium devices (tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+  .mfp-ajax-holder .mfp-content {
+    width: 60em;
+  }
   /* CONTENT LAYOUT */
   #main-wrapper {
     display: flex;
