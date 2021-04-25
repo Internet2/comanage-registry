@@ -2301,7 +2301,7 @@ td.indented {
 #co-loading {
   display: none; /* revealed by JavaScript */
   position: fixed;
-  z-index: 100;
+  z-index: 1100;
   top: 50%;
   left: 50%;
   width: 120px;
@@ -2421,4 +2421,8 @@ body.redirect #co-footer {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+}
+.spinner-grow-sm {
+  width: 0.8em;
+  height: 0.8em;
 }

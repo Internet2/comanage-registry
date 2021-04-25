@@ -33,66 +33,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <!-- <?php
-    // Include version number, but only if logged in
-    if($this->Session->check('Auth.User')) {
-      print chop(file_get_contents(APP . "Config/VERSION"));
-    }
-    ?> -->
     <title><?php print _txt('coordinate') . ': ' . filter_var($title_for_layout,FILTER_SANITIZE_STRING)?></title>
-    <?php print $this->Html->charset(); ?>
-    <?php print $this->Html->meta('favicon.ico','/favicon.ico',array('type' => 'icon')); ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-
-    <!-- Load CSS -->
-    <?php
-    print $this->Html->css('jquery/jquery-ui-1.12.1.custom/jquery-ui.min') . "\n    ";
-    print $this->Html->css('bootstrap/bootstrap-4.5.3-dist/css/bootstrap.min.css') . "\n    ";
-    print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
-    print $this->Html->css('co-color') . "\n    ";
-    print $this->Html->css('co-base');
-    print $this->Html->css('co-responsive');
-    print $this->Html->css('co-lightbox');
-    ?>
-
-    <!-- Load JavaScript -->
-    <?php
-    print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
-    print $this->Html->script('jquery/jquery-ui-1.12.1.custom/jquery-ui.min.js') . "\n    ";
-    ?>
-
-    <!-- Get timezone detection -->
-    <?php print $this->Html->script('jstimezonedetect/jstz.min.js'); ?>
-    <script type="text/javascript">
-      // Determines the time zone of the browser client
-      var tz = jstz.determine();
-      // This won't be available for the first delivered page, but after that the
-      // server side should see it and process it
-      document.cookie = "cm_registry_tz_auto=" + tz.name() + "; path=/; SameSite=Strict";
-    </script>
-
-
-    <?php if($this->here != $this->Html->url('/') .'pages/eds/index'):
-      // Don't load the following scripts when loading the Shib EDS. ?>
-      <!-- noty scripts -->
-      <?php
-      print $this->Html->script('jquery/noty/jquery.noty.js');
-      print $this->Html->script('jquery/noty/layouts/topCenter.js');
-      print $this->Html->script('jquery/noty/themes/comanage.js');
-      ?>
-      <!-- COmanage JavaScript library and onload scripts -->
-      <?php
-      print $this->Html->script('comanage.js');
-      print $this->element('javascript');
-      ?>
-    <?php endif // !eds ?>
-
-      <!-- Include external files and scripts -->
-      <?php
-      print $this->fetch('meta');
-      print $this->fetch('css');
-      print $this->fetch('script');
-      ?>
   </head>
 
   <?php
@@ -102,7 +43,7 @@
     $bodyClasses = $controller_stripped . ' ' .$action_stripped;
   ?>
 
-  <body class="<?php print $bodyClasses ?>" onload="js_onload_call_hooks()">
+  <body class="<?php print $bodyClasses ?>">
 
     <div id="lightboxContent">
       <?php
@@ -110,11 +51,5 @@
         print $this->fetch('content');
       ?>
     </div>
-
-    <?php if(Configure::read('debug') > 0): ?>
-      <div>
-        <?php print $this->element('sql_dump'); ?>
-      </div>
-    <?php endif; ?>
   </body>
 </html>

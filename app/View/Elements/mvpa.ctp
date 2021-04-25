@@ -248,7 +248,8 @@
               print $this->Html->link($displaystr,
                                       array('controller' => $lmvpapl,
                                             'action' => $laction,
-                                            $m['id']));
+                                            $m['id']),
+                                      array('class' => ($laction == 'view') ? 'lightbox' : ''));
             }
             print '</div>';
             print '<div class="field-data data-label">';
@@ -282,6 +283,7 @@
               $action_args['vv_actions'][] = array(
                 'order' => $lorder,
                 'icon' => $action_icon,
+                'lightbox' => (($laction === "view") ? true : false),
                 'url' => $this->Html->url(
                   array(
                     'controller' => $lmvpapl,
