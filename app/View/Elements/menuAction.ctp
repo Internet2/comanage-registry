@@ -70,7 +70,7 @@
           . $action['onclick']['db_bd_txt_repl_str']             // dialog body text replacement strings
           . '\']);';
       ?>
-        <a class="dropdown-item spin" href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
+        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
           <?php if(!empty($action['icon'])): ?>
             <i class="<?php print $action['icon']; ?>"></i>
           <?php endif; ?>
