@@ -225,7 +225,8 @@ class CoExtendedTypesController extends StandardController {
       }
     }
     
-    if($curdata['CoExtendedType']['attribute'] == 'Name.type'
+    if(!empty($curdata['CoExtendedType'])
+       && $curdata['CoExtendedType']['attribute'] == 'Name.type'
        && $curdata['CoExtendedType']['name'] == NameEnum::Official
        && $reqdata['CoExtendedType']['name'] != NameEnum::Official) {
       // NameEnum::official cannot be renamed (CO-955)
