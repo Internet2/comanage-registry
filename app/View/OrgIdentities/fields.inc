@@ -78,15 +78,8 @@
 ?>
 
 <script type="text/javascript">
-  var observer = new Array();
-
   $(function() {
     validate_date_input('<?php print _txt('er.validation') ?>', '<?php print _txt('er.validation.date') ?>');
-
-    // Handle action menus
-    $('.field-actions .dropdown-menu').each( (key, elem) => {
-      add_observer(elem, 'li', 'highlight');
-    });
 
     // Explorer menu toggles
     $(".fieldGroupName").click(function(event) {
