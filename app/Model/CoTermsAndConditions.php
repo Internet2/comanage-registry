@@ -166,13 +166,13 @@ class CoTermsAndConditions extends AppModel {
         if($a['CoTermsAndConditions']['id'] == $tid) {
           // Agreement is to the current T&C
           $tandc[$i]['CoTAndCAgreement'] = $a['CoTAndCAgreement'];
+          $tandc[$i]['CoTermsAndConditions'] = $a['CoTermsAndConditions'];
           break;
         } elseif($a['CoTermsAndConditions']['co_terms_and_conditions_id'] == $tid) {
           // Agreement is to a previous version of the current T&C,
-          // which for now at least is considered sufficient
           $tandc[$i]['CoTAndCAgreement'] = $a['CoTAndCAgreement'];
-          // Replace with the version actually agreed to
-          $tandc[$i]['CoTermsAndConditions'] = $a['CoTermsAndConditions'];
+          // Store the currentCoTermsAndConditions
+          $tandc[$i]['CurrentCoTermsandConditions'] = $tandc[$i]['CoTermsAndConditions'];
           break;
         }
       }
