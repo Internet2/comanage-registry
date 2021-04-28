@@ -181,16 +181,16 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     if($deletePerson) {
-      $this->deletePerson($coProvisioningTargetData['CoCrowdProvisionerTarget']['co_provisioning_target_id'],
-                          $coProvisioningTargetData['CoCrowdProvisionerTarget']['username_type'],
+      $this->deletePerson($coProvisioningTargetData['CoApiProvisionerTarget']['co_provisioning_target_id'],
+                          $coProvisioningTargetData['CoApiProvisionerTarget']['username_type'],
                           $provisioningData['CoPerson']['id'],
                           $provisioningData['Identifier']);
     }
 
     if($syncGroup) {
-      $this->syncGroup($coProvisioningTargetData['CoCrowdProvisionerTarget']['co_provisioning_target_id'],
+      $this->syncGroup($coProvisioningTargetData['CoApiProvisionerTarget']['co_provisioning_target_id'],
                        $provisioningData['CoGroup'],
-                       $coProvisioningTargetData['CoCrowdProvisionerTarget']['username_type']);
+                       $coProvisioningTargetData['CoApiProvisionerTarget']['username_type']);
     }
     
     if($syncPerson) {
