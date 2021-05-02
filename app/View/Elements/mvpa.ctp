@@ -261,6 +261,14 @@
             if($mvpa_model == 'Identifier') {
               // Login identifiers link to Authentication Events
               if(isset($m['login']) && $m['login']) {
+                // base64 encoding can generate some HTML special characters.
+                // We could urlencode, but that creates various confusion with different
+                // parts of the web transaction possibly urldecoding prematurely, so
+                // instead we substitute the problematic characters with others. See
+                // discussion in CO-1667 and https://stackoverflow.com/questions/1374753/passing-base64-encoded-strings-in-url
+                $ident = str_replace( array("+", "/", "="),
+                                      array(".", "_", "-"),
+                                      base64_encode($m['identifier']));
                 $action_args['vv_actions'][] = array(
                   'order' => $this->Menu->getMenuOrder('AuthEvent'),
                   'icon' => $this->Menu->getMenuIcon('AuthEvent'),
@@ -268,7 +276,7 @@
                     array(
                       'controller' => 'authentication_events',
                       'action' => 'index',
-                      'identifier' => rawurlencode($m['identifier']),
+                      'identifier' => $ident,
                     )
                   ),
                   'label' => _txt('ct.authentication_events.pl'),

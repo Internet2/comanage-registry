@@ -72,11 +72,22 @@ class AuthenticationEventsController extends StandardController {
       
       $u = $this->Session->read('Auth.User.username');
       
-      if(!empty($this->request->params['named']['identifier']) && !empty($u)
-         && $u == $this->request->params['named']['identifier']) {
-        $self = true;
+      if(!empty($this->request->params['named']['identifier'])
+         && !empty($u)) {
+        // base64 encoding can generate some HTML special characters.
+        // We could urlencode, but that creates various confusion with different
+        // parts of the web transaction possibly urldecoding prematurely, so
+        // instead we substitute the problematic characters with others. See
+        // discussion in CO-1667 and https://stackoverflow.com/questions/1374753/passing-base64-encoded-strings-in-url
+        $ident = base64_decode( str_replace(array(".", "_", "-"),
+                                // This mapping is the same as the one used by the YUI library.
+                                // RFC 4648 base64url is another option, but strangely doesn't
+                                // map the padding character (=).
+                                array("+", "/", "="),
+                                $this->request->params['named']['identifier']) );
+        $self = ($u === $ident);
       }
-      
+
       $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
       
       // Authentication events only apply to Org Identities, so if org identities are
@@ -142,7 +153,13 @@ class AuthenticationEventsController extends StandardController {
     $pagcond = array();
     
     if(!empty($this->request->params['named']['identifier'])) {
-      $pagcond['conditions']['AuthenticationEvent.authenticated_identifier'] = $this->request->params['named']['identifier'];
+      $ident = base64_decode( str_replace(array(".", "_", "-"),
+                              // This mapping is the same as the one used by the YUI library.
+                              // RFC 4648 base64url is another option, but strangely doesn't
+                              // map the padding character (=).
+                              array("+", "/", "="),
+                              $this->request->params['named']['identifier']) );
+      $pagcond['conditions']['AuthenticationEvent.authenticated_identifier'] = $ident;
     }
     
     return $pagcond;
