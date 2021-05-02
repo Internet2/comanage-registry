@@ -345,6 +345,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
     if(!empty($data['Password']['token']) && !empty($data['Password']['co_person_id'])) {
       $this->Authenticator->provision($data['Password']['co_person_id']);
     }
+    
+    // We also need to manually trigger notification for much the same reason.
+    $this->notify($data['Password']['co_person_id']);
 		
 		return $comment;
 	}
