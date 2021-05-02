@@ -234,7 +234,7 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
     $identifierType = $coProvisioningTarget['identifier_type'];
     $identifier = null;
     
-    $ids = Hash::extract($provisioningData['Identifier'], '{n}[type='.$identifierType.']');
+    $ids = Hash::extract($identifiers, '{n}[type='.$identifierType.']');
 
     if(empty($ids)) {
       throw new RuntimeException(_txt('er.apiprovisioner.id.none', array($identifierType)));
