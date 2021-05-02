@@ -315,6 +315,8 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       );
     }
 		
+    // saveMany() won't trigger provisioning, but in general the calling code
+    // (SAMController) will (but see more below)
 		if(!$this->Password->saveMany($pData)) {
 			$this->_rollback();
 			throw new RuntimeException(_txt('er.db.save-a', array('Password')));
@@ -334,6 +336,15 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 																 $comment);
 		
 		$this->_commit();
+    
+    // SSR needs to trigger provisioning, but the calling code (PasswordsController)
+    // doesn't have access to the CO Person ID, so we need to figure out that we
+    // need to provision here. We do this after commit to mimic when SAMController
+    // would trigger provisioning.
+    
+    if(!empty($data['Password']['token']) && !empty($data['Password']['co_person_id'])) {
+      $this->Authenticator->provision($data['Password']['co_person_id']);
+    }
 		
 		return $comment;
 	}
