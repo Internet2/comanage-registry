@@ -46,6 +46,9 @@
 .mfp-content #lightboxContent table {
   margin-top: 1em;
 }
+.mfp-content #lightboxContent .field-info {
+  overflow-wrap: anywhere !important;
+}
 .mfp-content .fieldGroupNameCl {
   display: flex;
   align-items: center;

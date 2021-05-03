@@ -123,17 +123,17 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
   // Cancel button
   dbuttons.push({
     text: cxlbutton,
-    id: "btnConfirmGenericCxl",
+    id: "btn-confirm-generic-cxl",
     click: function () {$(this).dialog("close");}
   });
   // Confirm button
   dbuttons.push({
     text: confbutton,
-    id: "btnConfirmGenericConf",
+    id: "btn-confirm-generic-conf",
     click: function () {
       // Handle the submit button
-      loadUiDialogSpinner($("#btnConfirmGenericConf"));
-      // loadButtonSpinner($("#btnConfirmGenericConf"), confirmbtxt);
+      loadUiDialogSpinner($("#btn-confirm-generic-conf"));
+      // loadButtonSpinner($("#btn-confirm-generic-conf"), confirmbtxt);
       // Redirect to action
       window.location = forwardUrl;
     }
@@ -294,7 +294,7 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
     title: title_txt,
     buttons: [{
       text: submit_btn_txt,
-      id: "btnSubmit",
+      id: "btn-form-generic-submit",
       click: function () {
         let dialog_input = $(this).find('input[id="form-dialog-text"]').val();
         let $data = {};
@@ -302,8 +302,8 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
 
         // Handle the submit button
         // Handle the submit button
-        // loadButtonSpinner($("#btnSubmit"), submit_btn_txt_sending);
-        loadUiDialogSpinner($("#btnSubmit"));
+        // loadButtonSpinner($("#btn-form-generic-submit"), submit_btn_txt_sending);
+        loadUiDialogSpinner($("#btn-form-generic-submit"));
 
         let jqxhr = $.ajax({
           cache: false,
@@ -343,7 +343,7 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
       },
     }, {
       text: cancel_btn_txt,
-      id: "btnCancel",
+      id: "btn-form-generic-cxl",
       click: function () {
         $(this).dialog('close');
       },
