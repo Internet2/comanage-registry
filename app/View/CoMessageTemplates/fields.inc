@@ -99,9 +99,9 @@
   function enable_disable_sub_btn(value) {
     if (value == undefined
       || value === "") {
-      $('.ui-dialog #btnSubmit').button("disable");
+      $('.ui-dialog #btn-form-generic-submit').button("disable");
     } else {
-      $('.ui-dialog #btnSubmit').button("enable");
+      $('.ui-dialog #btn-form-generic-submit').button("enable");
     }
   }
 

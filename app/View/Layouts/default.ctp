@@ -307,10 +307,7 @@
     <?php
       print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
       print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
-      if ($this->controller = 'history_records') {
-        // Until used more broadly, limit loading of Magnific Popup
-        print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js') . "\n    ";
-      }
+      print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js') . "\n    ";
       print $this->Html->script('comanage.js') . "\n    ";
     ?>
 
