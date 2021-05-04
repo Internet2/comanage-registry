@@ -88,6 +88,19 @@ class CousController extends StandardController {
     }
     
     parent::beforeRender();
+
+    if(!$this->request->is('restful')
+       && $this->action == 'index') {
+      // Get the full list of COUs
+      $cous_all = $this->Cou->allCous($this->cur_co["Co"]["id"]);
+      asort($cous_all, SORT_STRING);
+      // `Any` option will return all COUs with a parent
+      // `None` option will return all COUs with parent equal to null
+      $vv_cou_list[_txt('op.select.opt.any')] = _txt('op.select.opt.any');
+      $vv_cou_list[_txt('op.select.opt.none')] = _txt('op.select.opt.none');
+      $vv_cou_list[_txt('fd.cou.list')] = $cous_all;
+      $this->set('vv_cou_list', $vv_cou_list);
+    }
   }
 
   /**
@@ -229,6 +242,69 @@ class CousController extends StandardController {
   }
 
   /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $ret = array();
+
+    // COU Name
+    $cou_name = isset($this->request->params['named']['search.couName']) ? $this->request->params['named']['search.couName'] : "";
+    // COU Description
+    $cou_description = isset($this->request->params['named']['search.couDesc']) ? $this->request->params['named']['search.couDesc'] : "";
+    // Parent COU
+    $parent_couid = isset($this->request->params['named']['search.parentCou']) ? $this->request->params['named']['search.parentCou'] : "";
+
+    $ret['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
+    if(!empty($cou_name)) {
+      $ret['conditions']['Cou.name LIKE'] = "%$cou_name%";
+    }
+    if(!empty($cou_description)) {
+      $ret['conditions']['Cou.description iLIKE'] = "%{$cou_description}%";
+    }
+    if(!empty($parent_couid)) {
+      if($parent_couid == _txt('op.select.opt.any')) {
+        $ret['conditions'][] = 'Cou.parent_id IS NOT NULL';
+      } elseif($parent_couid == _txt('op.select.opt.none')) {
+        $ret['conditions'][] = 'Cou.parent_id IS NULL';
+      } else {
+        $ret['conditions']['Cou.parent_id'] = $parent_couid;
+      }
+    }
+    if(isset($this->view_contains)) {
+      $ret['contain'] = $this->view_contains;
+    }
+
+    return $ret;
+  }
+
+  /**
+   * Insert search parameters into URL for index.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function search() {
+    $url['action'] = 'index';
+    $url['co'] = $this->cur_co['Co']['id'];
+
+    // build a URL will all the search elements in it
+    // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
+    foreach($this->data['search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['search.'.$field] = $value;
+      }
+    }
+
+    // redirect the user to the url
+    $this->redirect($url, null, true);
+  }
+
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -256,7 +332,8 @@ class CousController extends StandardController {
     
     // View all existing COUs?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
+    $p['search'] = $p['index'];
+
     // View an existing COU?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
