@@ -115,7 +115,8 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
       case ProvisioningActionEnum::CoGroupAdded:
       case ProvisioningActionEnum::CoGroupUpdated:
       case ProvisioningActionEnum::CoGroupReprovisionRequested:
-        $syncGroup = true;
+        // We don't currently support groups
+        //$syncGroup = true;
         break;
       case ProvisioningActionEnum::CoGroupDeleted:
         $deleteGroup = true;
@@ -181,8 +182,7 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     if($deletePerson) {
-      $this->deletePerson($coProvisioningTargetData['CoApiProvisionerTarget']['co_provisioning_target_id'],
-                          $coProvisioningTargetData['CoApiProvisionerTarget']['username_type'],
+      $this->deletePerson($coProvisioningTargetData['CoApiProvisionerTarget'],
                           $provisioningData['CoPerson']['id'],
                           $provisioningData['Identifier']);
     }
@@ -190,7 +190,7 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
     if($syncGroup) {
       $this->syncGroup($coProvisioningTargetData['CoApiProvisionerTarget']['co_provisioning_target_id'],
                        $provisioningData['CoGroup'],
-                       $coProvisioningTargetData['CoApiProvisionerTarget']['username_type']);
+                       $coProvisioningTargetData['CoApiProvisionerTarget']['identifier_type']);
     }
     
     if($syncPerson) {
@@ -216,22 +216,20 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
    * Delete a CO Person.
    * 
    * @since  COmanage Registry v4.0.0
-   * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
-   * @param  IdentifierEnum   $usernameType           Username type
+   * @param  array            $coApiProvisionerTarget CoApiProvisioningTarget
    * @param  Integer          $coPersonId             CoPerson ID
    * @param  Array            $identifiers            Array of person's identifiers
    * @return boolean          true
    * @throws RuntimeException
    */
   
-  protected function deletePerson($coProvisioningTargetId,
-                                  $usernameType,
+  protected function deletePerson($coApiProvisionerTarget,
                                   $coPersonId,
                                   $identifiers) {
     // Find the identifier of the requested identifier type
     // Note similar logic in deletePerson
     
-    $identifierType = $coProvisioningTarget['identifier_type'];
+    $identifierType = $coApiProvisionerTarget['identifier_type'];
     $identifier = null;
     
     $ids = Hash::extract($identifiers, '{n}[type='.$identifierType.']');
@@ -255,7 +253,7 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
       )
     );
     
-    switch($coProvisioningTarget['mode']) {
+    switch($coApiProvisionerTarget['mode']) {
       case ApiProvisionerModeEnum::POST:
         $response = $this->Http->post("/", json_encode($message));
         break;
