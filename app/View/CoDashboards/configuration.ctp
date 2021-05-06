@@ -241,7 +241,11 @@
           $args['action'] = $cfg['action'];
           $args['co'] = $menuCoId;
 
-          print $this->Html->link($label, $args);
+          $opts = array(
+            'class' => 'spin',
+          );
+
+          print $this->Html->link($label, $args, $opts);
           print "</li>";
         }
       }
