@@ -77,4 +77,15 @@ abstract class FileSourceBackendImpl {
    */
   
   abstract public function searchFile($attributes=null);
+  
+  /**
+   * Set the plugin configuration for this backend.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  Array $cfg Array of configuration information, as returned by find()
+   */
+  
+  public function setConfig($pluginCfg) {
+    $this->pluginCfg = $pluginCfg;
+  }
 }

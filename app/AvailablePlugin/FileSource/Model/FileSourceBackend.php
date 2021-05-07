@@ -363,4 +363,21 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     
     return $FSBackend->searchFile($attributes);
   }
+  
+  /**
+   * Set the plugin configuration for this backend.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  Array $cfg Array of configuration information, as returned by find()
+   */
+  
+  public function setConfig($cfg) {
+    // We want the parent behavior
+    parent::setConfig($cfg);
+    
+    // But then we also need to pass the updated configuration to our backend
+    $Backend = $this->getFSBackend();
+    
+    $Backend->setConfig($cfg);
+  }
 }
