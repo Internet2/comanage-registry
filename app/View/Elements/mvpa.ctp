@@ -120,7 +120,7 @@
                   $editable = false;
                   $laction = 'view';
                   $lorder = $this->Menu->getMenuOrder('View');
-                  $icon = $this->Menu->getMenuIcon('View');
+                  $action_icon = $this->Menu->getMenuIcon('View');
                   break;
                 default:
                   // No permission, skip this entry entirely

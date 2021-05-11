@@ -64,7 +64,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link(_txt('me.population'), $args);
+        print $this->Html->link(_txt('me.population'), $args, array('class' => 'spin'));
 
         print "</li>";
 
@@ -78,7 +78,7 @@ if(!empty($vv_enrollment_flow_cos)) {
             $args['co'] = $menuCoId;
             $args['Search.couid'] = $couid;
 
-            print $this->Html->link(_txt('me.population.cou', array($couname)), $args);
+            print $this->Html->link(_txt('me.population.cou', array($couname)), $args, array('class' => 'spin'));
     
             print "</li>";
 
@@ -98,7 +98,7 @@ if(!empty($vv_enrollment_flow_cos)) {
           }
 
           print '<li>';
-          print $this->Html->link(_txt('ct.org_identities.pl'), $args);
+          print $this->Html->link(_txt('ct.org_identities.pl'), $args, array('class' => 'spin'));
   
           print "</li>";
         }
@@ -113,7 +113,7 @@ if(!empty($vv_enrollment_flow_cos)) {
             $args['action'] = 'select';
             $args['co'] = $menuCoId;
 
-            print $this->Html->link(_txt('op.enroll'), $args);
+            print $this->Html->link(_txt('op.enroll'), $args, array('class' => 'spin'));
     
             print "</li>";
           }
@@ -130,7 +130,7 @@ if(!empty($vv_enrollment_flow_cos)) {
             $args['search.status'][] = StatusEnum::PendingApproval;
             $args['search.status'][] = StatusEnum::PendingConfirmation;
 
-            print $this->Html->link(_txt('ct.co_petitions.pl'), $args);
+            print $this->Html->link(_txt('ct.co_petitions.pl'), $args, array('class' => 'spin'));
     
             print "</li>";
           }
@@ -144,7 +144,7 @@ if(!empty($vv_enrollment_flow_cos)) {
             $args['action'] = 'find';
             $args['co'] = $menuCoId;
 
-            print $this->Html->link(_txt('op.inv'), $args);
+            print $this->Html->link(_txt('op.inv'), $args, array('class' => 'spin'));
     
             print "</li>";
           }
@@ -155,7 +155,7 @@ if(!empty($vv_enrollment_flow_cos)) {
 
           foreach($pluginLinks as $plabel => $pcfg) {
             print '<li>';
-            print $this->Html->link($plabel, $pcfg['url']);
+            print $this->Html->link($plabel, $pcfg['url'], array('class' => 'spin'));
     
             print '</li>';
           }
@@ -181,7 +181,7 @@ if(!empty($vv_enrollment_flow_cos)) {
           $args['action'] = 'index';
           $args['co'] = $menuCoId;
 
-          print $this->Html->link($linkContent, $args, array('escape' => false,));
+          print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
           print "</li>";
 
@@ -204,7 +204,7 @@ if(!empty($vv_enrollment_flow_cos)) {
           $args['controller'] = 'co_groups';
           $args['action'] = 'index';
           $args['co'] = $menuCoId;
-          print $this->Html->link(_txt('ct.co_all_groups'), $args);
+          print $this->Html->link(_txt('ct.co_all_groups'), $args, array('class' => 'spin'));
   
           print "</li>";
 
@@ -237,7 +237,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false,));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
         print "</li>";
       }
@@ -256,7 +256,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false,));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
         print "</li>";
       }
@@ -275,7 +275,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false,));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
         print "</li>";
       }
@@ -319,10 +319,10 @@ if(!empty($vv_enrollment_flow_cos)) {
             if($sCouId == -1) {
               // CO Portal
               $args['co'] = $menuCoId;
-              print $this->Html->link($cur_co['Co']['name'], $args);
+              print $this->Html->link($cur_co['Co']['name'], $args, array('class' => 'spin'));
             } else {
               $args['cou'] = $sCouId;
-              print $this->Html->link($menuContent['cous'][$sCouId], $args);
+              print $this->Html->link($menuContent['cous'][$sCouId], $args, array('class' => 'spin'));
             }
     
     
@@ -350,7 +350,7 @@ if(!empty($vv_enrollment_flow_cos)) {
           } else {
             $args['co'] = $menuCoId;
           }
-          print $this->Html->link($linkContent, $args, array('escape' => false));
+          print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
   
           print "</li>";
         }
@@ -370,7 +370,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false,));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
         print "</li>";
       }
@@ -389,7 +389,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false,));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
         print "</li>";
       }
@@ -409,7 +409,7 @@ if(!empty($vv_enrollment_flow_cos)) {
               '</em><span class="menuTitle">' . $plabel .
               '</span>';
 
-            print $this->Html->link($linkContent, $pcfg['url'], array('escape' => false,));
+            print $this->Html->link($linkContent, $pcfg['url'], array('escape' => false, 'class' => 'spin'));
 
             print "</li>";
             $itemIndex++;
@@ -431,7 +431,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['action'] = 'configuration';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false,));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
 
         print "</li>";
       }
@@ -455,7 +455,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['controller'] = 'attribute_enumerations';
         $args['action'] = 'index';
 
-        print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args);
+        print $this->Html->link(_txt('ct.attribute_enumerations.pl'), $args, array('class' => 'spin'));
 
         print '</li>';
       } // pool_org_identities
@@ -466,7 +466,7 @@ if(!empty($vv_enrollment_flow_cos)) {
       $args['controller'] = 'cmp_enrollment_configurations';
       $args['action'] = 'select';
 
-      print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args);
+      print $this->Html->link(_txt('ct.cmp_enrollment_configurations.pl'), $args, array('class' => 'spin'));
       print '</li>';
 
       print '<li>';
@@ -475,7 +475,7 @@ if(!empty($vv_enrollment_flow_cos)) {
       $args['controller'] = 'cos';
       $args['action'] = 'index';
 
-      print $this->Html->link(_txt('ct.cos.pl'), $args);
+      print $this->Html->link(_txt('ct.cos.pl'), $args, array('class' => 'spin'));
       print '</li>';
 
       print '<li>';
@@ -484,7 +484,7 @@ if(!empty($vv_enrollment_flow_cos)) {
       $args['controller'] = 'navigation_links';
       $args['action'] = 'index';
 
-      print $this->Html->link(_txt('ct.navigation_links.pl'), $args);
+      print $this->Html->link(_txt('ct.navigation_links.pl'), $args, array('class' => 'spin'));
       print '</li>';
 
       if($pool_org_identities) {
@@ -495,7 +495,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         $args['controller'] = 'org_identity_sources';
         $args['action'] = 'index';
 
-        print $this->Html->link(_txt('ct.org_identity_sources.pl'), $args);
+        print $this->Html->link(_txt('ct.org_identity_sources.pl'), $args, array('class' => 'spin'));
 
         print '</li>';
       } // pool_org_identities
@@ -506,7 +506,7 @@ if(!empty($vv_enrollment_flow_cos)) {
         
         foreach($pluginLinks as $plabel => $pcfg) {
           print '<li>';
-          print $this->Html->link($plabel, $pcfg['url']);
+          print $this->Html->link($plabel, $pcfg['url'], array('class' => 'spin'));
   
           print '</li>';
         }
@@ -533,7 +533,7 @@ if(!empty($vv_enrollment_flow_cos)) {
       $linkContent = '<em class="material-icons" aria-hidden="true">transfer_within_a_station</em><span class="menuTitle">' . _txt('me.collaborations') .
         '</span>';
 
-      print $this->Html->link($linkContent, '/', array('escape' => false,));
+      print $this->Html->link($linkContent, '/', array('escape' => false, 'class' => 'spin'));
 
       print "</li>";
     }

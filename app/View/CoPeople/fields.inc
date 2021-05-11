@@ -1372,7 +1372,20 @@
                     }
                   }
                 }
-                $ident_login = (!empty($identifier)) ? $this->Badge->getBadgeColor('Primary') : $this->Badge->getBadgeColor('Danger');
+                if(!empty($identifier)) {
+                  $badge_list_org[] = array(
+                    'order' => $this->Badge->getBadgeOrder('Status'),
+                    'text' => _txt('op.login'),
+                    'color' => $this->Badge->getBadgeColor('Primary'),
+                  );
+                }
+                if(!empty($link["OrgIdentity"]["affiliation"])) {
+                  $badge_list_org[] = array(
+                    'order' => $this->Badge->getBadgeOrder('Title'),
+                    'text' => ucfirst(filter_var($link["OrgIdentity"]["affiliation"], FILTER_SANITIZE_SPECIAL_CHARS)),
+                    'color' => $this->Badge->getBadgeColor('Light'),
+                  );
+                }
 
                 print '<li class="field-data-container centered">';
                 print '<div class="field-data flex-column">';
@@ -1414,19 +1427,11 @@
                   );
                 }
                 print '</div>';
-                // Status
+                // Status/Affiliation
                 print '<div class="field-data data-label">';
-                print $this->element('badgeList',
-                  array(
-                    'vv_badge_list' =>
-                      array(
-                        array(
-                          'text' => "Login",
-                          'color' => $ident_login,
-                        ),
-                      )
-                  )
-                );
+                if(!empty($badge_list_org)) {
+                  print $this->element('badgeList', array('vv_badge_list' => $badge_list_org));
+                }
                 print '</div>';
                 // Actions
 
