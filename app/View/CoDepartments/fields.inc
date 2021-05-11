@@ -63,6 +63,17 @@
   }
 
   $(function() {
+    // Explorer menu toggles
+    $(".fieldGroupName").click(function(event) {
+      event.preventDefault();
+      $(this).next(".fields").slideToggle("fast");
+      // toggle the +/- icon:
+      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
+        $(this).find(".material-icons").text("add_box");
+      } else {
+        $(this).find(".material-icons").text("indeterminate_check_box");
+      }
+    });
     // Autogenerate dialog
     $("#autogenerate-dialog").dialog({
       autoOpen: false,
