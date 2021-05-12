@@ -774,7 +774,7 @@
   <?php
     // Render conclusion text for new petitions
     if(!empty($vv_conclusion_text)) {
-      print '<div class="modelbox">' . $vv_conclusion_text . "</div>";
+      print '<div class="modelbox d-flex">' . $vv_conclusion_text . "</div>";
     }
   ?>
 
