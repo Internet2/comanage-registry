@@ -77,17 +77,21 @@
         $attrs = array();
         $attrs['value'] = (isset($cos) ? $cos[0]['Co']['status'] : TemplateableStatusEnum::Active);
         $attrs['empty'] = false;
-        
+        // Do not enlinst the inTrash option
+        if($this->action !== 'view') {
+          unset($cm_texts[$cm_lang]['en.status.disposable'][TemplateableStatusEnum::InTrash]);
+        }
+
         if($e) {
           print $this->Form->select('status',
-                                    $cm_texts[ $cm_lang ]['en.status.temp'],
+                                    $cm_texts[ $cm_lang ]['en.status.disposable'],
                                     $attrs);
           
           if($this->Form->isFieldError('status')) {
             print $this->Form->error('status');
           }
         } else {
-          print _txt('en.status.temp', null, $cos[0]['Co']['status']);
+          print _txt('en.status.disposable', null, $cos[0]['Co']['status']);
         }
       ?>
     </div>

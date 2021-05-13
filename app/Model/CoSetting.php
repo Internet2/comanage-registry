@@ -94,6 +94,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'garbage_collection_interval' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'permitted_fields_name' => array(
       'rule' => '/.*/',
       'required' => false,
@@ -168,6 +173,7 @@ class CoSetting extends AppModel {
     'enable_nsf_demo'            => false,
     'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
     'invitation_validity'        => DEF_INV_VALIDITY,
+    'garbage_collection_interval'  => DEF_GARBAGE_COLLECT_INTERVAL,
     'permitted_fields_name'      => PermittedNameFieldsEnum::HGMFS,
     'required_fields_addr'       => RequiredAddressFieldsEnum::Street,
     'required_fields_name'       => RequiredNameFieldsEnum::Given,
@@ -232,7 +238,19 @@ class CoSetting extends AppModel {
   public function getGroupValiditySyncWindow($coId) {
     return $this->lookupValue($coId, 'group_validity_sync_window');
   }
-  
+
+  /**
+   * Determine the current configuration for CO Garbage Collection time delay window.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId CO ID
+   * @return integer Garbage Collection delay window in minutes
+   */
+
+  public function getGarbageCollectionWindow($coId) {
+    return $this->lookupValue($coId, 'garbage_collection_interval');
+  }
+
   /**
    * Get the invitation validity for the specified CO.
    *
@@ -454,5 +472,32 @@ class CoSetting extends AppModel {
 
   public function emptyCouEnabled($coId) {
     return (boolean)$this->lookupValue($coId, 'enable_empty_cou');
+  }
+
+  /**
+   * Perform CoSetting model upgrade steps for version 4.0.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function _ug400() {
+    // Temporarily unbind all relations
+    $this->unbindModel(
+      array(
+        'belongsTo' => array(
+          "Co",
+          "SponsorCoGroup",
+          "CoPipeline",
+          "CoDashboard",
+          "CoTheme"
+        ),
+      )
+    );
+
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    $this->updateAll(
+      array('CoSetting.garbage_collection_interval'=> 1440)
+    );
   }
 }

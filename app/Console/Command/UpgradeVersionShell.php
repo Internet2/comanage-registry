@@ -534,6 +534,10 @@ class UpgradeVersionShell extends AppShell {
     // Update CoMessageTemplate format column
     $this->out(_txt('sh.ug.400.messagetemplate.format'));
     $this->CoMessageTemplate->_ug400();
+
+    // Update CoSettings Garbage Collector interval
+    $this->out(_txt('sh.ug.400.garbage.collector.interval'));
+    $this->CoSetting->_ug400();
     
     // 4.0.0 adds multiple types of File Sources, however the FileSource
     // plugin might not be enabled.
