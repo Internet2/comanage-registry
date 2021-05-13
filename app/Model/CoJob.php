@@ -129,6 +129,13 @@ class CoJob extends AppModel {
       'allowEmpty' => true
     )
   );
+
+
+  // Enum type hints
+
+  public $cm_enum_types = array(
+    'status' => 'JobStatusEnum'
+  );
   
   /**
    * Request a job to be canceled. This flags the job as canceled, but it is up to the Job itself
@@ -163,7 +170,7 @@ class CoJob extends AppModel {
     
     return $this->finish($id, _txt('rs.jb.cxld.by', array($actor)), JobStatusEnum::Canceled);
   }
-  
+
   /**
    * Determine if a job has been canceled.
    *
@@ -172,17 +179,36 @@ class CoJob extends AppModel {
    * @return Boolean True on success
    * @throws InvalidArgumentException
    */
-  
+
   public function canceled($id) {
     $curStatus = $this->field('status', array('CoJob.id' => $id));
-    
+
     if(!$curStatus) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
     }
-    
+
     return ($curStatus == JobStatusEnum::Canceled);
   }
-  
+
+  /**
+   * Determine if a job failed.
+   *
+   * @since  COmanage Registry  v4.0.0
+   * @param  Integer $id    Job ID
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   */
+
+  public function failed($id) {
+    $curStatus = $this->field('status', array('CoJob.id' => $id));
+
+    if(!$curStatus) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
+    }
+
+    return ($curStatus == JobStatusEnum::Failed);
+  }
+
   /**
    * Update a job as completed.
    *
@@ -293,6 +319,29 @@ class CoJob extends AppModel {
     } else {
       return strtotime($job['CoJob']['start_time']);
     }
+  }
+
+  /**
+   * Get Jobs Queued by type
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  Integer     $coId       CO ID
+   * @param  string      $jobType    Job Type
+   * @param  Integer     $jobTypeFk  Foreign key suitable for $jobType (eg: cm_org_identity_sources:id)
+   * @return array                   List of Jobs matching the Job Type
+   */
+
+  public function jobsQueuedByType($coId, $jobType, $jobTypeFk=null) {
+    $args = array();
+    $args['conditions']['CoJob.co_id'] = $coId;
+    $args['conditions']['CoJob.job_type'] = $jobType;
+    $args['conditions']['CoJob.job_type_fk'] = $jobTypeFk;
+    $args['conditions']['CoJob.status'] = JobStatusEnum::Queued;
+    $args['contain'] = false;
+
+    $jobs = $this->find('all', $args);
+
+    return (empty($jobs)) ? array() : $jobs;
   }
   
   /**
