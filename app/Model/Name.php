@@ -310,7 +310,7 @@ class Name extends AppModel {
       }
     }
     
-    return true;
+    return parent::beforeValidate($options);
   }
   
   /**

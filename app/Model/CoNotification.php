@@ -96,9 +96,12 @@ class CoNotification extends AppModel {
       'allowEmpty' => true
     ),
     'resolver_co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'action' => array(
       'rule' => array('maxLength', 4),

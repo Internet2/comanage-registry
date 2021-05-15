@@ -198,6 +198,8 @@ class OrgIdentity extends AppModel {
    */
   
   public function beforeSave($options = array()) {    
+    parent::beforeSave($options);
+    
     // Possibly convert the requested timestamps to UTC from browser time.
     // Do this before the strtotime/time calls below, both of which use UTC.
     
@@ -220,6 +222,8 @@ class OrgIdentity extends AppModel {
         $this->data['OrgIdentity']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
       }
     }
+    
+    return true;
   }
   
   /**

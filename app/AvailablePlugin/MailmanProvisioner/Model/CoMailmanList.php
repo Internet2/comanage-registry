@@ -48,8 +48,11 @@ class CoMailmanList extends AppModel {
       'required' => true
     ),
     'co_email_list_id' => array(
-      'rule' => 'numeric',
-      'required' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'mailman_list_identifier' => array(
       'rule' => 'notBlank',

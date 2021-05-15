@@ -56,9 +56,12 @@ class CoService extends AppModel {
       'allowEmpty' => false
     ),
     'cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'name' => array(
       'rule' => array('validateInput'),
@@ -77,14 +80,20 @@ class CoService extends AppModel {
       // XXX this should put up an alphanumeric error message rather than "this field cannot be left blank"
     ),
     'co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'cluster_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'service_url' => array(
       // We can't set this to 'url' because url validation doesn't understand ssh:
@@ -127,9 +136,12 @@ class CoService extends AppModel {
       'allowEmpty' => true
     ),
     'authenticator_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'status' => array(
       'rule' => array('inList', array(SuspendableStatusEnum::Active,

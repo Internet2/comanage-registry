@@ -49,8 +49,11 @@ class SalesforceSource extends AppModel {
       'allowEmpty' => false
     ),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'search_contacts' => array(
       'rule' => 'boolean'

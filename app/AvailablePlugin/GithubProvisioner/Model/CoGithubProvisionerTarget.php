@@ -63,7 +63,10 @@ class CoGithubProvisionerTarget extends CoProvisionerPluginTarget {
       'rule' => array('maxlength', 80)
     ),
     'client_id' => array(
-      'rule' => 'notBlank'
+      'content' => array(
+        'rule' => 'notBlank',
+        'unfreeze' => 'yes'
+      )
     ),
     'client_secret' => array(
       'rule' => 'notBlank'

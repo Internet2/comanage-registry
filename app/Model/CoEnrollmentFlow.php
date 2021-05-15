@@ -123,14 +123,20 @@ class CoEnrollmentFlow extends AppModel {
                             EnrollmentAuthzEnum::None))
     ),
     'authz_cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'authz_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'my_identity_shortcut' => array(
       'rule' => 'boolean'
@@ -149,9 +155,12 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => array('boolean')
     ),
     'approver_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'verify_email' => array(
       // deprecated
@@ -178,9 +187,12 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'notification_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'notify_from' => array(
       'rule' => 'email',
@@ -198,17 +210,23 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'verification_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'notify_on_approval' => array(
       'rule' => array('boolean')
     ),
     'approval_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'approval_subject' => array(
       'rule' => 'notBlank',
@@ -221,17 +239,23 @@ class CoEnrollmentFlow extends AppModel {
       'allowEmpty' => true
     ),
     'denial_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'notify_on_finalize' => array(
       'rule' => array('boolean')
     ),
     'finalization_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'introduction_text' => array(
       'rule' => 'notBlank',

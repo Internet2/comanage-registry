@@ -63,9 +63,12 @@ class CoIdentifierValidator extends AppModel {
       'allowEmpty' => false
     ),
     'co_extended_type_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false,
+        'unfreeze' => 'CO'
+      )
     ),
     'status' => array(
       'rule' => array('inList', array(SuspendableStatusEnum::Active,

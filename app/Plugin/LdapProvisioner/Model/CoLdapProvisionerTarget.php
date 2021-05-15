@@ -165,6 +165,14 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     ),
     'oc_voposixgroup' => array(
       'rule' => 'boolean'
+    ),
+    'cluster_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

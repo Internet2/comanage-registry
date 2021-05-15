@@ -56,9 +56,12 @@ class ApiSource extends AppModel {
       'allowEmpty' => false
     ),
     'api_user_id' => array(
-      'rule' => 'notBlank',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

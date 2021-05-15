@@ -79,9 +79,12 @@ class CoGroupOisMapping extends AppModel {
       'allowEmpty' => false
     ),
     'co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

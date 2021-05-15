@@ -950,6 +950,8 @@ original notification at
   'er.field.hidden.req' => 'A hidden field must have a default value',
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.fields.api' =>  'Invalid fields: %1$s',
+  'er.fields.api.co' => '"%1$s" may not be moved to another CO',
+  'er.fields.api.frozen' => '"%1$s" is frozen and may not be changed',
   'er.file.none' =>   'No file specified',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
   'er.file.write' =>  'Unable to open "%1$s" for writing',

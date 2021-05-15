@@ -155,7 +155,7 @@ class ApiUser extends AppModel {
       $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
     }
 
-    return true;
+    return parent::beforeValidate($options);
   }
 
   /**

@@ -53,10 +53,19 @@ class CoOrgIdentityLink extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'co_person_id' => array(
-      'rule' => 'numeric'
+      'content' => array(
+        'rule' => 'numeric',
+// We don't specifically unfreeze either attribute here, since other checks
+// prevent reassignment of links over the API. (The link must be deleted and
+// recreated.)
+//        'unfreeze' => 'CO'
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric'
+      'content' => array(
+        'rule' => 'numeric',
+//        'unfreeze' => 'CO'
+      )
     )
   );
   
