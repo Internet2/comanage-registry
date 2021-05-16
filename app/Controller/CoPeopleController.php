@@ -720,7 +720,7 @@ class CoPeopleController extends StandardController {
     
     // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
     $p['assign'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // Access the canvas for a CO Person? (Basically 'view' but with links)
     $p['canvas'] = ($roles['cmadmin']
@@ -851,11 +851,11 @@ class CoPeopleController extends StandardController {
     
     // View notifications where CO person is subject?
     $p['notifications-subject'] = ($roles['cmadmin']
-                                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                                   || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // View petitions?
     $p['petitions'] = ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']
