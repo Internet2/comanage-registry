@@ -1657,4 +1657,33 @@ class AppModel extends Model {
     }
     return $status;
   }
+
+  /**
+   * Refactor the validationErrors table by changing the "rule name" messages to the default er.field.recheck.
+   *
+   * @since COmanage Registry v4.0.0
+   * @param array $validate           Model's validate array
+   * @param array $validation_errors  Model's validationErrors
+   * @return array                    Model's validationErrors refactored
+   */
+  public function filterValidationErrors($validate, $validation_errors) {
+    $failed_fields = array_keys($validation_errors);
+    foreach($failed_fields as $field) {
+      if(empty($validate[$field])) {
+        continue;
+      }
+      $field_validate_rule_names = array_keys($validate[$field]);
+      foreach($field_validate_rule_names as $rule_name) {
+        $found_key = array_search($rule_name, $validation_errors[$field]);
+        if($found_key !== false) {
+          $validation_errors[$field][$found_key] = _txt('er.field.recheck', array($field));
+        }
+      }
+    }
+
+    $validation_errors = array_filter($validation_errors);
+
+    return $validation_errors;
+  }
+
 }

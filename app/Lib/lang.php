@@ -1014,6 +1014,7 @@ original notification at
   'er.et.inuse.ef' => 'The extended type "%1$s" is in use by at least one Enrollment Flow (as an attribute or default value) within this CO and cannot be removed.',
   'er.ev.ver.failed' =>  'Email Verification request failed. Please contact support for further assistance.',
   'er.ev.sent.failed' => 'Email verification request sent to %1$s failed',
+  'er.field.recheck' => 'Please recheck "%1$s"',
   'er.field.req' =>   'This field is required',
   'er.field.hidden.req' => 'A hidden field must have a default value',
   'er.fields' =>      'Please recheck the highlighted fields',
