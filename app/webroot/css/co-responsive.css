@@ -417,7 +417,8 @@
   .modelbox {
     margin: 0 0 1em 1em;
   }
-  body.petitionerAttributes .modelbox {
+  body.petitionerAttributes .modelbox,
+  body.co_people.invite .modelbox {
     margin: 0 0.5em 1.5em 0;
     display: grid;
     grid-template-columns: 1fr 5fr;
