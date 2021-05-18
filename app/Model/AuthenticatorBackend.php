@@ -191,7 +191,6 @@ abstract class AuthenticatorBackend extends AppModel {
     // Construct subject and body
 
     $msgSubject = processTemplate($mt['CoMessageTemplate']['message_subject'], $substitutions);
-    $msgBody = processTemplate($mt['CoMessageTemplate']['message_body'], $substitutions);
     $format = $mt['CoMessageTemplate']['format'];
 
     // We don't try/catch, but instead let any exceptions bubble up.
@@ -212,36 +211,24 @@ abstract class AuthenticatorBackend extends AppModel {
       $email->bcc(explode(',', $mt['CoMessageTemplate']['bcc']));
     }
     
-    if($format === MessageFormatEnum::PlaintextAndHTML
-       && is_array($msgBody)) {
-      $viewVariables = array(
-        MessageFormatEnum::Plaintext  => $msgBody[MessageFormatEnum::Plaintext],
-        MessageFormatEnum::HTML => $msgBody[MessageFormatEnum::HTML],
-      );
-      $msgBody = $msgBody[MessageFormatEnum::Plaintext];
-    } elseif($format === MessageFormatEnum::HTML
-             && is_array($msgBody)) {
-      $viewVariables = array(
-        MessageFormatEnum::HTML => $msgBody[MessageFormatEnum::HTML],
-      );
-      $msgBody = $msgBody[MessageFormatEnum::HTML];
-    } else {
-      if(is_array($msgBody)) {
-        $viewVariables = array(
-          MessageFormatEnum::Plaintext => $msgBody[MessageFormatEnum::Plaintext],
-        );
-        $msgBody = $msgBody[MessageFormatEnum::Plaintext];
-      } else {
-        $viewVariables = array(
-          MessageFormatEnum::Plaintext => $msgBody,
-        );
-      }
+    $msgBody = array();
+    
+    if($format != MessageFormatEnum::Plaintext
+       && !empty($mt['CoMessageTemplate']['message_body_html'])) {
+      $msgBody[MessageFormatEnum::HTML] = processTemplate($mt['CoMessageTemplate']['message_body_html'], $substitutions);
+    }
+    if($format != MessageFormatEnum::HTML
+       && !empty($mt['CoMessageTemplate']['message_body'])) {
+      $msgBody[MessageFormatEnum::Plaintext] = processTemplate($mt['CoMessageTemplate']['message_body'], $substitutions);
+    }
+    if(empty($msgBody[MessageFormatEnum::Plaintext])) {
+      $msgBody[MessageFormatEnum::Plaintext] = "unknown message";
     }
     
     $email->template('custom', 'basic')
       ->emailFormat($format)
       ->to($recipients)
-      ->viewVars($viewVariables)
+      ->viewVars($msgBody)
       ->subject($msgSubject);
     $email->send();
     
