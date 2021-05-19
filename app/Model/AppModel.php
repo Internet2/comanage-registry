@@ -253,7 +253,30 @@ class AppModel extends Model {
                 $key = substr($field, 0, strlen($field)-3);
                 $model = Inflector::classify($key);
                 
-                $currentCo = $this->$model->findCoForRecord($current[$this->alias][$field]);
+                if(!isset($this->$model)) {
+                  // We have an aliased foreign key (eg: notification_co_group_id)
+                  // that we need to map via $belongsTo.
+                  
+                  if(!empty($this->belongsTo)) {
+                    // We need to walk the array to find the foreign key
+                    
+                    foreach($this->belongsTo as $label => $config) {
+                      if(!empty($config['foreignKey'])
+                         && $config['foreignKey'] == $field) {
+                        $model = $label;
+                      }
+                    }
+                  }
+                  
+                  // If we fail to find the key, $this->$model will be null and
+                  // we'll throw a stack trace below. Not ideal, but it's a
+                  // programmer error to not have the relation properly defined.
+                }
+                
+                // $current[$field] might be empty if the value was optional,
+                // so determine the CO based on the actual record (which is
+                // probably) the right way to do it anyway.
+                $currentCo = $this->findCoForRecord($this->data[$this->alias]['id']);
                 $newCo = $this->$model->findCoForRecord($this->data[$this->alias][$field]);
                 
                 if($currentCo !== $newCo) {
@@ -264,7 +287,7 @@ class AppModel extends Model {
               } elseif($this->validate[$field]['content']['unfreeze'] == 'yes') {
                 // This should only be used when a field is named foo_id for some
                 // reason, but is not actually a foreign key
-                $frozen = true;
+                $frozen = false;
               }
             }
             
