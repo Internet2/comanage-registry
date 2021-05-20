@@ -157,8 +157,10 @@ class Cou extends AppModel {
    */
   
   public function allCous($coId, $format="hash") {
+    $args = array();
     $args['conditions']['Cou.co_id'] = $coId;
     $args['order'] = 'Cou.name ASC';
+    $args['contain'] = false;
     
     $cous = $this->find("list", $args);
     
