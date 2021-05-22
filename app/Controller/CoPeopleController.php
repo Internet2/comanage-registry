@@ -713,6 +713,28 @@ class CoPeopleController extends StandardController {
                                                         $this->request->params['pass'][0]);
     }
     
+    // Is this a petitioner for an in-progress Petition? Only do this check if
+    // we don't have a valid copersonid.
+    
+    $petitioner = false;
+    
+    if(empty($roles['copersonid'])
+       && !empty($this->request->params['named']['petitionid'])
+       && !empty($this->request->params['named']['token'])) {
+      $args = array();
+      $args['conditions']['CoPetitionPetitioner.id'] = $this->request->params['named']['petitionid'];
+      $args['contain'] = array('CoEnrollmentFlow');
+      
+      $petition = $this->CoPerson->CoPetitionPetitioner->find('first', $args);
+      
+      if(!empty($petition['CoPetitionPetitioner']['petitioner_token'])
+         && $petition['CoPetitionPetitioner']['petitioner_token'] === $this->request->params['named']['token']
+         // Make sure this Petition permits person find
+         && $petition['CoEnrollmentFlow']['enable_person_find']) {
+        $petitioner = true;
+      }
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -763,7 +785,7 @@ class CoPeopleController extends StandardController {
     // "Find" a CO Person (for use in People Finder API calls)
     // XXX we'll need more flexible permissions for regular CO Person searches
     // (ie: for group member picking, but maybe that's an RFE as part of CCWG-9?)
-    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'];
+    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'] || $petitioner;
     
     // View identifiers? This correlates with IdentifiersController
     $p['identifiers'] = ($roles['cmadmin']

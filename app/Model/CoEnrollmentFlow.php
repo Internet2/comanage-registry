@@ -151,6 +151,9 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'enable_person_find' => array(
+      'rule' => array('boolean')
+    ),
     'approval_required' => array(
       'rule' => array('boolean')
     ),

@@ -1259,6 +1259,8 @@ original notification at
   'fd.ef.eds.prefer.desc' => 'List of entity Ids to always show ("prefer") via the EDS, one per line, maximum of 3',
   'fd.ef.efn'      => 'From Address For Notifications',
   'fd.ef.efn.desc' => 'Email address notifications will come from',
+  'fd.ef.enable_person_find' => 'Enable People Picker for Self Service',
+  'fd.ef.enable_person_find.desc' => 'Enable people picker for self service enrollments, see <a href"https://spaces.at.internet2.edu/display/COmanage/Sponsors">Sponsors</a> for privacy considerations',
   'fd.ef.env'      => 'Enable Environment Attribute Retrieval',
   'fd.ef.env.desc' => 'Examine the server environment for authoritative organizational identity attributes',
   'fd.ef.epx' =>      'Early Provisioning Executable',
