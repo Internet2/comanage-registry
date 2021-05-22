@@ -625,6 +625,10 @@ class CoPeopleController extends StandardController {
     // We need to check if we're being asked to do a match via the REST API, and
     // if so dispatch it. Otherwise, just invoke the standard behavior.
     if($this->request->is('restful')
+       // There's a fine distinction (probably too fine) between "view by identifier"
+       // and "match", distinguishable only by the query parameter. These APIs
+       // should probably get merged at some point (CO-1053, etc).
+       && !in_array('search_identifier', $requestKeys)
        && sizeof($requestKeys)>0) {
       $this->match();
     } else {

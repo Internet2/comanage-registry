@@ -752,6 +752,7 @@ class StandardController extends AppController {
         $args['joins'][0]['alias'] = 'Identifier';
         $args['joins'][0]['type'] = 'INNER';
         $args['joins'][0]['conditions'][0] = $req . '.id=Identifier.' . $modelid;
+        $args['contain'] = false;
         
         $t = $model->find('all', $args);
         
