@@ -222,8 +222,21 @@ class StandardController extends AppController {
       
       $this->set('vv_servers', $this->Server->find('list', $args));
     }
-    
+
+    // Include Search Block
+    $this->set('vv_search_fields', $this->searchConfig($this->action));
+
     parent::beforeRender();
+  }
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  function searchConfig($action) {
+    return array();
   }
 
   /**
@@ -1303,7 +1316,15 @@ class StandardController extends AppController {
   
   function search() {
     // the page we will redirect to
-    $url['action'] = 'index';
+    if(isset($this->data['RedirectAction']["select"])) {
+      $url['action'] = 'select';
+    } elseif(isset($this ->data['RedirectAction']["index"])) {
+      $url['action'] = 'index';
+    } else {
+      // XXX We need this for backward compatibility.
+      // XXX Remove as soon as we apply the new Search element across the framework
+      $url['action'] = 'index';
+    }
     
     // CoPeople uses "Search", but should use "search" like CoPetition (CO-906)
     

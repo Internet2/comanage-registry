@@ -59,10 +59,15 @@
 
   print $this->element("pageTitleAndButtons", $params);
 
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
+  }
+
 ?>
 
 <div class="table-container">
-  <table id="cous">
+  <table id="co_enrollment_flows">
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>

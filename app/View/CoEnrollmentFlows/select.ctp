@@ -36,19 +36,10 @@
 
   print $this->element("pageTitleAndButtons", $params);
 
-?>
-
-<div class="listControl"></div>
-<?php // Load the top search bar
-if(!empty($this->plugin)) {
-  $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoEnrollmentFlows/search.inc";
-  if(file_exists($fileLocation))
-    include($fileLocation);
-} else {
-  $fileLocation = APP . "View/CoEnrollmentFlows/search.inc";
-  if(file_exists($fileLocation))
-    include($fileLocation);
-}
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
+  }
 ?>
 
 <div id="co_enrollment_flows" class="co-grid co-grid-with-header container">

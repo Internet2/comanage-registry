@@ -76,6 +76,45 @@ class CoEnrollmentFlowsController extends StandardController {
     // redirect back to index page
     $this->performRedirect();
   }
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'select') {                    // Select
+      return array(
+               'search.eofName' => array(
+                 'label' => _txt('fd.name'),
+                 'type' => 'text',
+               )
+             );
+    }
+    else if($action == 'index') {                   // Index
+      return array(
+               'search.eofName' => array(
+                 'label' => _txt('fd.name'),
+                 'type'  => 'text',
+               ),
+               'search.eofStatus' => array(
+                 'enum'    => 'en.status.temp',
+                 'type'    => 'select',
+                 'label'   => _txt('fd.status'),
+                 'empty'   => _txt('op.select.all'),
+                 'options' => _txt('en.status.temp'),
+               ),
+               'search.eofAuthz' => array(
+                 'enum'    => 'en.enrollment.authz',
+                 'type'    => 'select',
+                 'label'   => _txt('fd.ef.authz'),
+                 'empty'   => _txt('op.select.all'),
+                 'options' => _txt('en.enrollment.authz'),
+               ),
+             );
+    }
+  }
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -350,27 +389,38 @@ class CoEnrollmentFlowsController extends StandardController {
     $this->set('co_enrollment_flows', $authedFlows);
   }
 
-
-    /**
-   * Insert search parameters into URL for index.
-   * - postcondition: Redirect generated
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
-   * @since  COmanage Registry v3.3
+   * @since  COmanage Registry v4.0.0
+   * @return Array An array suitable for use in $this->paginate
    */
-  
-  public function search() {
-    $url['action'] = 'select';
-    
-    // build a URL will all the search elements in it
-    // the resulting URL will be
-    // example.com/registry/co_people/select/co:2?search.givenName:albert/search.familyName:einstein
-    foreach($this->data['search'] as $field=>$value){
-      if(!empty($value)) {
-        $url['search.'.$field] = trim($value);
-      }
+
+  public function paginationConditions() {
+    $ret = array();
+
+    // Enrollment Flow Name Name
+    $eof_name = isset($this->request->params['named']['search.eofName']) ? $this->request->params['named']['search.eofName'] : "";
+    // Enrollment Flow Status
+    $eof_status = isset($this->request->params['named']['search.eofStatus']) ? $this->request->params['named']['search.eofStatus'] : "";
+    // Enrollment Flow Authorization
+    $eof_authz = isset($this->request->params['named']['search.eofAuthz']) ? $this->request->params['named']['search.eofAuthz'] : "";
+
+    $ret['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
+    if(!empty($eof_name)) {
+      $eof_name = strtolower($eof_name);
+      $ret['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%$eof_name%";
     }
-    $url['co'] = $this->cur_co['Co']['id'];
-    // redirect the user to the url
-    $this->redirect($url, null, true);
+    if(!empty($eof_status)) {
+      $ret['conditions']['CoEnrollmentFlow.status'] = $eof_status;
+    }
+    if(!empty($eof_authz)) {
+      $ret['conditions']['CoEnrollmentFlow.authz_level'] = $eof_authz;
+    }
+    if(isset($this->view_contains)) {
+      $ret['contain'] = $this->view_contains;
+    }
+
+    return $ret;
   }
 }
