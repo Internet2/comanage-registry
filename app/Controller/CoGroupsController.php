@@ -414,7 +414,7 @@ class CoGroupsController extends StandardController {
     // exactly the right permission here, but we probably don't want to allow
     // $managed either, so maybe this is an OK compromise.
     $p['assign'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // Delete an existing Group?
     $p['delete'] = (!$readonly && ($roles['cmadmin'] || $managed));

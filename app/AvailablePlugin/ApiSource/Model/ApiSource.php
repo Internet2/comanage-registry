@@ -71,14 +71,20 @@ class ApiSource extends AppModel {
       'allowEmpty' => false
     ),
     'api_user_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'kafka_server_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'kafka_groupid' => array(
       'rule' => array('validateInput'),

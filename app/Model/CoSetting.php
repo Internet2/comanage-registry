@@ -128,14 +128,20 @@ class CoSetting extends AppModel {
       'allowEmpty' => true
     ),
     'sponsor_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'default_co_pipeline_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'elect_strategy_primary_name' => array(
       'rule' => array('inList',

@@ -137,14 +137,20 @@ class CoPipeline extends AppModel {
       'allowEmpty' => true
     ),
     'sync_cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'sync_replace_cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'sync_status_on_delete' => array(
       'rule' => array('inList', array(StatusEnum::Deleted,
@@ -155,9 +161,12 @@ class CoPipeline extends AppModel {
       'allowEmpty' => true
     ),
     'co_enrollment_flow_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

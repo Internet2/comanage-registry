@@ -62,9 +62,12 @@ class CoTermsAndConditions extends AppModel {
       'message' => 'Either URL or Content must be set for this T&C'
     ),
     'cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'status' => array(
       'rule' => array('inList', array(SuspendableStatusEnum::Active,

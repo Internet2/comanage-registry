@@ -124,6 +124,14 @@
       }
     }
     
+    // Update the People Picker tickbox, which only needs to be made available
+    // for unregistered petitioners
+    if(authz == '<?php print EnrollmentAuthzEnum::None; ?>' || authz == '<?php print EnrollmentAuthzEnum::AuthUser; ?>') {
+      $("#CoEnrollmentFlowEnablePersonFind").closest("li").show('fade');
+    } else {
+      $("#CoEnrollmentFlowEnablePersonFind").closest("li").hide('fade');
+    }
+    
     tandc_update_gadgets();
   }
   
@@ -386,6 +394,20 @@
           print _txt('en.enrollment.match', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy']);
         }
       ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('enable_person_find', _txt('fd.ef.enable_person_find')) : _txt('fd.ef.enable_person_find')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.enable_person_find.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('enable_person_find') . 
+                     $this->Form->label('enable_person_find', _txt('fd.ef.enable_person_find'))
+                   : ($co_enrollment_flows[0]['CoEnrollmentFlow']['enable_person_find'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
     </div>
   </li>
   <li>

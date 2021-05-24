@@ -229,7 +229,20 @@
     })
     
     $("#sponsors").autocomplete({
-      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
+      source: "<?php
+        // We inject the Petition ID and token into the request in case we need
+        // autocomplete for new enrollees (unregistered users)
+        $sponsorurl = array(
+          'controller' => 'co_people',
+          'action' => 'find',
+          'co' => $cur_co['Co']['id'],
+          'mode' => PeoplePickerModeEnum::Sponsor,
+          'petitionid' => $vv_co_petition_id,
+          'token' => $vv_petition_token
+        );
+        
+        print $this->Html->url($sponsorurl);
+      ?>",
       minLength: 3,
       select: function(event, ui) {
         $("#sponsors").val(ui.item.label);

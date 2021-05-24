@@ -30,4 +30,9 @@ if(!empty($invalid_fields)) {
                           "Version" => "1.0",
                           "Id" => $vv_id,
                           "InvalidFields" => $invalid_fields)) . "\n";
+} elseif(!empty($vv_error)) {
+  print json_encode(array("ResponseType" => "ErrorResponse",
+                          "Version" => "1.0",
+                          "Id" => $vv_id,
+                          "Error" => $vv_error)) . "\n";
 }

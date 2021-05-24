@@ -49,9 +49,12 @@ class CoGrouperProvisionerGroup extends AppModel {
       'message' => 'A CO Grouper Provisioning Target ID must be provided'
     ),
     'co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'message' => 'A CO Group ID must be provided'
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'message' => 'A CO Group ID must be provided',
+        'unfreeze' => 'CO'
+      )
     ),
     'stem' => array(
       'rule' => 'notBlank'

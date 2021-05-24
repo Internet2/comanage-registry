@@ -107,44 +107,68 @@ class CoPetition extends AppModel {
       'allowEmpty' => true
     ),
     'cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'enrollee_org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'enrollee_co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'enrollee_co_person_role_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'petitioner_co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'sponsor_co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'approver_co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'co_invite_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'status' => array(
       'rule' => array('inList', array(PetitionStatusEnum::Active,

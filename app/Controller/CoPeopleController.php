@@ -625,6 +625,10 @@ class CoPeopleController extends StandardController {
     // We need to check if we're being asked to do a match via the REST API, and
     // if so dispatch it. Otherwise, just invoke the standard behavior.
     if($this->request->is('restful')
+       // There's a fine distinction (probably too fine) between "view by identifier"
+       // and "match", distinguishable only by the query parameter. These APIs
+       // should probably get merged at some point (CO-1053, etc).
+       && !in_array('search_identifier', $requestKeys)
        && sizeof($requestKeys)>0) {
       $this->match();
     } else {
@@ -709,6 +713,28 @@ class CoPeopleController extends StandardController {
                                                         $this->request->params['pass'][0]);
     }
     
+    // Is this a petitioner for an in-progress Petition? Only do this check if
+    // we don't have a valid copersonid.
+    
+    $petitioner = false;
+    
+    if(empty($roles['copersonid'])
+       && !empty($this->request->params['named']['petitionid'])
+       && !empty($this->request->params['named']['token'])) {
+      $args = array();
+      $args['conditions']['CoPetitionPetitioner.id'] = $this->request->params['named']['petitionid'];
+      $args['contain'] = array('CoEnrollmentFlow');
+      
+      $petition = $this->CoPerson->CoPetitionPetitioner->find('first', $args);
+      
+      if(!empty($petition['CoPetitionPetitioner']['petitioner_token'])
+         && $petition['CoPetitionPetitioner']['petitioner_token'] === $this->request->params['named']['token']
+         // Make sure this Petition permits person find
+         && $petition['CoEnrollmentFlow']['enable_person_find']) {
+        $petitioner = true;
+      }
+    }
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -720,7 +746,7 @@ class CoPeopleController extends StandardController {
     
     // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
     $p['assign'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                    || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // Access the canvas for a CO Person? (Basically 'view' but with links)
     $p['canvas'] = ($roles['cmadmin']
@@ -759,7 +785,7 @@ class CoPeopleController extends StandardController {
     // "Find" a CO Person (for use in People Finder API calls)
     // XXX we'll need more flexible permissions for regular CO Person searches
     // (ie: for group member picking, but maybe that's an RFE as part of CCWG-9?)
-    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'];
+    $p['find'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'] || $roles['comember'] || $petitioner;
     
     // Manage Identity Documents
     $p['iddocuments'] = ($roles['cmadmin']
@@ -859,11 +885,11 @@ class CoPeopleController extends StandardController {
     
     // View notifications where CO person is subject?
     $p['notifications-subject'] = ($roles['cmadmin']
-                                   || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                                   || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // View petitions?
     $p['petitions'] = ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']

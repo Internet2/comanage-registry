@@ -215,7 +215,7 @@ class Address extends AppModel {
       }
     }
     
-    return true;
+    return parent::beforeValidate($options);
   }
   
   /**

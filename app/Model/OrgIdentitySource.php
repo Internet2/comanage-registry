@@ -135,7 +135,8 @@ class OrgIdentitySource extends AppModel {
       'content' => array(
         'rule' => 'numeric',
         'required' => false,
-        'allowEmpty' => true
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
       )
     ),
     'hash_source_record' => array(

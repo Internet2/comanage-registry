@@ -262,17 +262,17 @@ class CoNsfDemographicsController extends StandardController {
     
     // Add a new NSF Demographic Record?
     $p['add'] = ($roles['cmadmin']
-                 || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                 || $roles['coadmin'] || ($managed && $roles['couadmin'])
                  || $self);
     
     // Delete an existing NSF Demographic Record?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $roles['coadmin'] || ($managed && $roles['couadmin'])
                     || $self);
     
     // Edit an existing NSF Demographic Record?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin'] || ($managed && $roles['couadmin'])
                   || $self);
     
     // View all existing NSF Demographic Records?
@@ -280,7 +280,7 @@ class CoNsfDemographicsController extends StandardController {
     
     // View an existing NSF Demographic Record?
     $p['view'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                  || $roles['coadmin'] || ($managed && $roles['couadmin'])
                   || $self);
     
     $this->set('permissions', $p);

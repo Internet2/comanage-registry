@@ -290,7 +290,7 @@ class CoInvitesController extends AppController {
     // Send an invite? (HTML only)
     
     $p['send'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                  || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // Request verification of an email address?
     // This needs to correlate with EmailAddressesController

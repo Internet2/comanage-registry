@@ -225,23 +225,19 @@ class CoOrgIdentityLinksController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new Person Source?
-    $p['add'] = ($roles['cmadmin']
-                 || ($managed && $roles['coadmin']));
+    $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing Person Source?
-    $p['delete'] = ($roles['cmadmin']
-                    || ($managed && $roles['coadmin']));
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Edit an existing Person Source?
-    $p['edit'] = ($roles['cmadmin']
-                  || ($managed && $roles['coadmin']));
+    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View all existing Person Sources?
     $p['index'] = $roles['cmadmin'];
-          
+    
     // View an existing Person Source?
-    $p['view'] = ($roles['cmadmin']
-                  || ($managed && $roles['coadmin']));
+    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

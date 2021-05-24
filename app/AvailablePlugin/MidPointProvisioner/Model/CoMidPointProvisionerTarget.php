@@ -54,8 +54,11 @@ class CoMidPointProvisionerTarget extends CoProvisionerPluginTarget {
       'message' => 'A CO Provisioning Target ID must be provided'
     ),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
 

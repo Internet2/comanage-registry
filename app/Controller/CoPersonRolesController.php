@@ -625,13 +625,11 @@ class CoPersonRolesController extends StandardController {
     
     // Delete an existing CO Person Role?
     $p['delete'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                    || ($roles['coadmin'] && $roles['apiuser']));
+                    || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // Edit an existing CO Person Role?
     $p['edit'] = ($roles['cmadmin']
-                  || ($managed && ($roles['coadmin'] || $roles['couadmin']))
-                  || ($roles['coadmin'] && $roles['apiuser'])
+                  || $roles['coadmin'] || ($managed && $roles['couadmin'])
                   || $self);
 
     // Are we trying to edit our own record? 

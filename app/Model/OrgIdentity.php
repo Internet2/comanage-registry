@@ -254,6 +254,8 @@ class OrgIdentity extends AppModel {
         $this->data['OrgIdentity']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
       }
     }
+    
+    return true;
   }
   
   /**

@@ -822,6 +822,7 @@
     </field>
     <field name="my_identity_shortcut" type="L" />
     <field name="match_policy" type="C" size="2" />
+    <field name="enable_person_find" type="L" />
     <field name="approval_required" type="L" />
     <field name="approver_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>

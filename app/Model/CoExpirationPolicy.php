@@ -76,9 +76,12 @@ class CoExpirationPolicy extends AppModel {
       'allowEmpty' => false
     ),
     'cond_cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'cond_affiliation' => array(
       'content' => array(
@@ -96,12 +99,12 @@ class CoExpirationPolicy extends AppModel {
         'allowEmpty' => true
       )
     ),
-    'cond_before_expirty' => array(
+    'cond_before_expiry' => array(
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
     ),
-    'cond_after_expirty' => array(
+    'cond_after_expiry' => array(
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
@@ -157,9 +160,12 @@ class CoExpirationPolicy extends AppModel {
       'allowEmpty' => true
     ),
     'act_cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'act_notify_co_admin' => array(
       'rule' => 'boolean',
@@ -172,9 +178,12 @@ class CoExpirationPolicy extends AppModel {
       'allowEmpty' => true
     ),
     'act_notify_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'act_notify_co_person' => array(
       'rule' => 'boolean',
@@ -197,9 +206,12 @@ class CoExpirationPolicy extends AppModel {
       'allowEmpty' => true
     ),
     'act_notification_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'act_status' => array(
       'content' => array(

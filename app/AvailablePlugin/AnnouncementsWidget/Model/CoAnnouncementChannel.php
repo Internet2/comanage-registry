@@ -75,14 +75,20 @@ class CoAnnouncementChannel extends AppModel {
       'allowEmpty' => false
     ),
     'author_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false,
+        'unfreeze' => 'CO'
+      )
     ),
     'reader_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'register_notifications' => array(
       'rule' => 'boolean',

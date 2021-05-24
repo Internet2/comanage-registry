@@ -54,8 +54,11 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => true
     ),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

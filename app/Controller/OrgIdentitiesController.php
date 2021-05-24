@@ -556,12 +556,12 @@ class OrgIdentitiesController extends StandardController {
       
       // Delete an existing Org Identity?
       $p['delete'] = ($roles['cmadmin']
-                      || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                      || $roles['coadmin'] || ($managed && $roles['couadmin']));
       
       // Edit an existing Org Identity?
       $p['edit'] = !$readOnly
                    && ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || $roles['coadmin'] || ($managed && $roles['couadmin']));
       
       // Find an Org Identity to add to a CO?
       $p['find'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
@@ -573,7 +573,7 @@ class OrgIdentitiesController extends StandardController {
       
       // View history? This correlates with HistoryRecordsController
       $p['history'] = ($roles['cmadmin']
-                       || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                       || $roles['coadmin'] || ($managed && $roles['couadmin']));
       
       // View all existing Org Identity?
       $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
@@ -596,7 +596,7 @@ class OrgIdentitiesController extends StandardController {
       
       // View petitions?
       $p['petitions'] = ($roles['cmadmin']
-                         || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                         || $roles['coadmin'] || ($managed && $roles['couadmin']));
       
       // Run a pipeline? This correlates with CoPipelinesController
       // For now, this is only available to CMP and CO admins
@@ -604,12 +604,12 @@ class OrgIdentitiesController extends StandardController {
       
       // View an existing Org Identity?
       $p['view'] = ($roles['cmadmin']
-                    || ($managed && ($roles['coadmin'] || $roles['couadmin']))
+                    || $roles['coadmin'] || ($managed && $roles['couadmin'])
                     || $self);
       
       // View a Org Identity Source Record? (Matches OrgIdentitySourceRecordsController)
       $p['viewsource'] = ($roles['cmadmin']
-                          || ($managed && ($roles['coadmin'] || $roles['couadmin'])));
+                          || $roles['coadmin'] || ($managed && $roles['couadmin']));
     }
     
     $this->set('permissions', $p);

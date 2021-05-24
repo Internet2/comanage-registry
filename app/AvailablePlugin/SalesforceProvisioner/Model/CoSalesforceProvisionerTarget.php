@@ -51,8 +51,11 @@ class CoSalesforceProvisionerTarget extends CoProvisionerPluginTarget {
       'required' => true
     ),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'instance_url' => array(
       'rule' => array('url', true),

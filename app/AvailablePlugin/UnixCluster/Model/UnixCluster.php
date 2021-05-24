@@ -168,9 +168,12 @@ class UnixCluster extends ClusterInterface {
       )
     ),
     'default_co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     )
 	);
 	

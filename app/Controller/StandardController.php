@@ -512,6 +512,9 @@ class StandardController extends AppController {
           // Pass them to the view
           $this->set('vv_id', $id);
           $this->set('invalid_fields', $invalidFields);
+        } else {
+          // We don't do this anywhere else, but we should, at least in API v2
+          $this->set('vv_error', $e->getMessage());
         }
         
         $this->Api->restResultHeader($e->getCode(), $e->getMessage());
@@ -775,6 +778,7 @@ class StandardController extends AppController {
         $args['joins'][0]['alias'] = 'Identifier';
         $args['joins'][0]['type'] = 'INNER';
         $args['joins'][0]['conditions'][0] = $req . '.id=Identifier.' . $modelid;
+        $args['contain'] = false;
         
         $t = $model->find('all', $args);
         

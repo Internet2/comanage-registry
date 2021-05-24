@@ -48,8 +48,11 @@ class OrcidSource extends AppModel {
       'required' => true,
     ),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

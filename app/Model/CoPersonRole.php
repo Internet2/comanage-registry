@@ -86,14 +86,16 @@ class CoPersonRole extends AppModel {
       'content' => array(
         'rule' => array('numeric'),
         'required' => true,
-        'message' => 'A CO Person ID must be provided'
+        'message' => 'A CO Person ID must be provided',
+        'unfreeze' => 'CO'
       )
     ),
     'cou_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,
-        'allowEmpty' => true
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
       )
     ),
     'title' => array(
@@ -176,7 +178,8 @@ class CoPersonRole extends AppModel {
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,
-        'allowEmpty' => true
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
       )
     ),
     'source_org_identity_id' => array(
