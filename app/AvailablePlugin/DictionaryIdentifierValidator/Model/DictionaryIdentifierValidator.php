@@ -53,9 +53,12 @@ class DictionaryIdentifierValidator extends AppModel {
       'allowEmpty' => false
     ),
     'dictionary_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false,
+        'unfreeze' => 'CO'
+      )
     ),
     'mode' => array(
       'rule' => array('inList', array(ComparisonEnum::ContainsInsensitive,

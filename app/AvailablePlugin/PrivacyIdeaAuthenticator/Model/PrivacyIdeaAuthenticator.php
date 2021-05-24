@@ -71,14 +71,20 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
 			'allowEmpty' => false
 		),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-			'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+  			'allowEmpty' => false,
+        'unfreeze' => 'CO'
+      )
 		),
     'validation_server_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-			'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+  			'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
 		),
     'realm' => array(
       'rule' => array('validateInput'),

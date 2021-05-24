@@ -62,7 +62,8 @@ class AttributeEnumeration extends AppModel {
       'content' => array(
         'rule' => 'numeric',
         'required' => true,
-        'allowEmpty' => false
+        'allowEmpty' => false,
+        'unfreeze' => 'CO'
       )
     ),
     'allow_other' => array(

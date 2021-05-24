@@ -89,9 +89,12 @@ class MeemEnroller extends AppModel {
       'allowEmpty' => true
     ),
     'mfa_exempt_co_group_id' => array(
-      'rule' => array('numeric'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'mfa_initial_exemption' => array(
       'rule' => array('numeric'),
@@ -99,9 +102,12 @@ class MeemEnroller extends AppModel {
       'allowEmpty' => true
     ),
     'mfa_co_enrollment_flow_id' => array(
-      'rule' => array('numeric'),
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'enable_reminder_page' => array(
       'rule' => array('boolean'),
@@ -114,9 +120,12 @@ class MeemEnroller extends AppModel {
       'allowEmpty' => true
     ),
     'api_user_id' => array(
-      'rule' => 'notBlank',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     )
   );
   

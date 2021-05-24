@@ -53,9 +53,12 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
       'allowEmpty' => false
     ),
     'server_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false,
+        'unfreeze' => 'CO'
+      )
     ),
     'identifier_type' => array(
       'content' => array(
