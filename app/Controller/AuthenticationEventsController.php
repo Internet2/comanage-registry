@@ -46,6 +46,27 @@ class AuthenticationEventsController extends StandardController {
   
   public $requires_co = false;
   public $requires_person = false;
+
+  /**
+   * Decode the identifier passed as a named parameter.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  String $encodedIdentifier the encoded identifier
+   * @return String decoded identifier
+   */
+  private function decodeNamedIdentifier($encodedIdentifier) {
+    // base64 encoding can generate some HTML special characters.
+    // We could urlencode, but that creates various confusion with different
+    // parts of the web transaction possibly urldecoding prematurely, so
+    // instead we substitute the problematic characters with others. See
+    // discussion in CO-1667 and https://stackoverflow.com/questions/1374753/passing-base64-encoded-strings-in-url
+    return base64_decode(str_replace(array(".", "_", "-"),
+                                     // This mapping is the same as the one used by the YUI library.
+                                     // RFC 4648 base64url is another option, but strangely doesn't
+                                     // map the padding character (=).
+                                     array("+", "/", "="),
+                                     $encodedIdentifier));
+  }
   
   /**
    * Authorization for this Controller, called by Auth component
@@ -67,25 +88,14 @@ class AuthenticationEventsController extends StandardController {
     $self = false;
     
     if(!empty($this->request->params['named']['identifier'])) {
+      $decodedIdentifier = $this->decodeNamedIdentifier($this->request->params['named']['identifier']);
+
       // For index views, we need to make sure the viewer has permission to see
       // records associated with the requested person.
       
       $u = $this->Session->read('Auth.User.username');
-      
-      if(!empty($this->request->params['named']['identifier'])
-         && !empty($u)) {
-        // base64 encoding can generate some HTML special characters.
-        // We could urlencode, but that creates various confusion with different
-        // parts of the web transaction possibly urldecoding prematurely, so
-        // instead we substitute the problematic characters with others. See
-        // discussion in CO-1667 and https://stackoverflow.com/questions/1374753/passing-base64-encoded-strings-in-url
-        $ident = base64_decode( str_replace(array(".", "_", "-"),
-                                // This mapping is the same as the one used by the YUI library.
-                                // RFC 4648 base64url is another option, but strangely doesn't
-                                // map the padding character (=).
-                                array("+", "/", "="),
-                                $this->request->params['named']['identifier']) );
-        $self = ($u === $ident);
+      if(!empty($u)) {
+        $self = ($u === $decodedIdentifier);
       }
 
       $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
@@ -106,7 +116,7 @@ class AuthenticationEventsController extends StandardController {
         
         // Next, get the Org Identities associated with the requested identifier
         $args = array();
-        $args['conditions']['Identifier.identifier'] = $this->request->params['named']['identifier'];
+        $args['conditions']['Identifier.identifier'] = $decodedIdentifier;
         $args['conditions']['Identifier.login'] = true;
         $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
         $args['conditions'][] = 'Identifier.org_identity_id IS NOT NULL';
@@ -153,13 +163,8 @@ class AuthenticationEventsController extends StandardController {
     $pagcond = array();
     
     if(!empty($this->request->params['named']['identifier'])) {
-      $ident = base64_decode( str_replace(array(".", "_", "-"),
-                              // This mapping is the same as the one used by the YUI library.
-                              // RFC 4648 base64url is another option, but strangely doesn't
-                              // map the padding character (=).
-                              array("+", "/", "="),
-                              $this->request->params['named']['identifier']) );
-      $pagcond['conditions']['AuthenticationEvent.authenticated_identifier'] = $ident;
+      $decodedIdentifier = $this->decodeNamedIdentifier($this->request->params['named']['identifier']);
+      $pagcond['conditions']['AuthenticationEvent.authenticated_identifier'] = $decodedIdentifier;
     }
     
     return $pagcond;
