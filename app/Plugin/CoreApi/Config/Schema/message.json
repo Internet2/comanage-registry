@@ -1,0 +1,646 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "$id": "https://github.com/Internet2/comanage-registry/tree/4.0.0/app/Plugin/CoreApi/Config/Schema/message.json",
+  "title": "COmanage Core API Message Format",
+  "description": "COmanage Core API Message Format",
+  
+  "definitions": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "COmanage identifier for this object",
+          "type": "integer",
+          "readOnly": true
+        },
+        "actor_identifier": {
+          "description": "The identifier for the actor who last modified this object",
+          "type": "string",
+          "readOnly": true
+        },
+        "created": {
+          "description": "When this object was originally created",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "deleted": {
+          "description": "Whether this object has been deleted",
+          "type": "boolean",
+          "readOnly": true
+        },
+        "modified": {
+          "description": "When this object was last modified",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "revision": {
+          "description": "The revision number for this object",
+          "type": "integer",
+          "minimum": 0,
+          "readOnly": true
+        }
+      },
+      "patternProperties": {
+        "^source_.*_id$": {
+          "description": "The source for this record, if created via Pipeline",
+          "type": "integer",
+          "readOnly": true
+        },
+        "_id$": {
+          "description": "Object parent key, for ChangelogBehavior",
+          "type": "integer",
+          "readOnly": true
+        }
+      },
+      "required": [ "id" ],
+      "additionalProperties": false
+    }
+  },
+  
+  "type": "object",
+  "properties": {
+    "CoPerson": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "co_id": {
+          "description": "CO ID for this CO Person",
+          "type": "integer",
+          "readOnly": true
+        },
+        "date_of_birth": {
+          "description": "CO Person date of birth",
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "description": "CO Person status",
+          "type": "string"
+        },
+        "timezone": {
+          "description": "Preferred timezone of this CO Person, for UI purposes",
+          "type": "string"
+        }
+      },
+      "required": [ "co_id", "status" ],
+      "additionalProperties": false
+    },
+    "CoGroupMember": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_group_id": {
+            "description": "CO Group ID for this membership",
+            "type": "integer",
+            "readOnly": true
+          },
+          "member": {
+            "description": "If this CO Person is a member of this group",
+            "type": "boolean"
+          },
+          "owner": {
+            "description": "If this CO Person is an owner of this group",
+            "type": "boolean"
+          },
+          "co_group_nesting_id": {
+            "description": "CO Group Nesting that created this membership, if set",
+            "type": "integer",
+            "readOnly": true
+          }
+        },
+        "required": [ "co_group_id" ],
+        "additionalProperties": false
+      }
+    },
+    "CoPersonRole": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "cou_id": {
+            "description": "COU for this Role",
+            "type": "integer"
+          },
+          "title": {
+            "description": "Title for this Role",
+            "type": "string"
+          },
+          "o": {
+            "description": "Organization for this Role",
+            "type": "string"
+          },
+          "ou": {
+            "description": "Department for this Role",
+            "type": "string"
+          },
+          "valid_from": {
+            "description": "Valid from time for this Role",
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_through": {
+            "description": "Valid through time for this Role",
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "description": "CO Person Role status",
+            "type": "string"
+          },
+          "sponsor_co_person_id": {
+            "description": "CO Person ID of the sponsor for this Role",
+            "type": "integer"
+          },
+          "affiliation": {
+            "description": "CO Person Role affiliation",
+            "type": "string"
+          },
+          "ordr": {
+            "description": "Order of this Role, relative to other roles for this person",
+            "type": "integer"
+          },
+          "Address": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "meta": {
+                  "$ref": "#/definitions/meta"
+                },
+                "country": {
+                  "description": "Country for this Address",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Description of this Address",
+                  "type": "string"
+                },
+                "language": {
+                  "description": "Language encoding of this Address",
+                  "type": "string"
+                },
+                "locality": {
+                  "description": "Locality (eg: city) of this Address",
+                  "type": "string"
+                },
+                "postal_code": {
+                  "description": "Postal code of this Address",
+                  "type": "string"
+                },
+                "room": {
+                  "description": "Room associated with this Address",
+                  "type": "string"
+                },
+                "state": {
+                  "description": "State of this Address",
+                  "type": "string"
+                },
+                "street": {
+                  "description": "Street of this Address",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "Type of this Address",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "AdHocAttribute": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "meta": {
+                  "$ref": "#/definitions/meta"
+                },
+                "tag": {
+                  "description": "Tag for this Ad Hoc Attribute",
+                  "type": "string"
+                },
+                "value": {
+                  "description": "Value of this Ad Hoc Attribute",
+                  "type": "string"
+                }
+              },
+              "required": [ "tag" ],
+              "additionalProperties": false
+            }
+          },
+          "TelephoneNumber": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "meta": {
+                  "$ref": "#/definitions/meta"
+                },
+                "country_code": {
+                  "description": "Country code for this Telephone Number",
+                  "type": "string"
+                },
+                "area_code": {
+                  "description": "Area code for this Telephone Number",
+                  "type": "string"
+                },
+                "number": {
+                  "description": "Number for this Telephone Number",
+                  "type": "string"
+                },
+                "extension": {
+                  "description": "Extension for this Telephone Number",
+                  "type": "string"
+                },
+                "description": {
+                  "description": "Description of this Telephone Number",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "Type of this Telephone Number",
+                  "type": "string"
+                }
+              },
+              "required": [ "number" ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [ "affiliation", "status" ],
+        "additionalProperties": false
+      }
+    },
+    "EmailAddress": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "mail": {
+            "description": "An email address for this person",
+            "type": "string",
+            "format": "email"
+          },
+          "type": {
+            "description": "The type of Email Address",
+            "type": "string"
+          },
+          "verified": {
+            "description": "Whether this Email Address has been verified",
+            "type": "boolean"
+          }
+        },
+        "required": [ "mail" ],
+        "additionalProperties": false
+      }
+    },
+    "Identifier": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "identifier": {
+            "description": "A identifier for the person",
+            "type": "string"
+          },
+          "login": {
+            "description": "Whether this Identifier can be used to login to Registry",
+            "type": "boolean"
+          },
+          "status": {
+            "description": "Identifier status",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of Identifier",
+            "type": "string"
+          }
+        },
+        "required": [ "identifier" ],
+        "additionalProperties": false
+      }
+    },
+    "Name": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "family": {
+            "description": "The family or surname",
+            "type": "string"
+          },
+          "formatted": {
+            "description": "The fully formatted name",
+            "type": "string"
+          },
+          "given": {
+            "description": "The given or first name",
+            "type": "string"
+          },
+          "language": {
+            "description": "The language encoding for this Name",
+            "type": "string"
+          },
+          "middle": {
+            "description": "The middle name",
+            "type": "string"
+          },
+          "prefix": {
+            "description": "The honorific or prefix for the Name",
+            "type": "string"
+          },
+          "primary_name": {
+            "description": "Whether this is the primary Name",
+            "type": "boolean"
+          },
+          "suffix": {
+            "description": "The suffix for this Name",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of Name",
+            "type": "string"
+          }
+        },
+        "required": [ "given" ],
+        "additionalProperties": false
+      }
+    },
+    "Url": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "description": {
+            "description": "Description of this URL",
+            "type": "string"
+          },
+          "url": {
+            "description": "A URL",
+            "type": "string",
+            "format": "uri"
+          },
+          "type": {
+            "description": "The type of URL",
+            "type": "string"
+          }
+        },
+        "required": [ "url" ],
+        "additionalProperties": false
+      }
+    },
+    "OrgIdentity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_id": {
+            "description": "CO for this Org Identity",
+            "type": "integer"
+          },
+          "title": {
+            "description": "Title for this Org Identity",
+            "type": "string"
+          },
+          "o": {
+            "description": "Organization for this Org Identity",
+            "type": "string"
+          },
+          "ou": {
+            "description": "Department for this Org Identity",
+            "type": "string"
+          },
+          "valid_from": {
+            "description": "Valid from time for this Org Identity",
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_through": {
+            "description": "Valid through time for this Org Identity",
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "description": "Org Identity status",
+            "type": "string"
+          },
+          "affiliation": {
+            "description": "Org Identity affiliation",
+            "type": "string"
+          },
+          "date_of_birth": {
+            "description": "Org Identity date of birth",
+            "type": "string",
+            "format": "date"
+          },
+          "Address": {
+            "$ref": "#/properties/CoPersonRole/items/properties/Address"
+          },
+          "AdHocAttribute": {
+            "$ref": "#/properties/CoPersonRole/items/properties/AdHocAttribute"
+          },
+          "EmailAddress": {
+            "$ref": "#/properties/EmailAddress"
+          },
+          "Identifier": {
+            "$ref": "#/properties/Identifier"
+          },
+          "Name": {
+            "$ref": "#/properties/Name"
+          },
+          "TelephoneNumber": {
+            "$ref": "#/properties/CoPersonRole/items/properties/TelephoneNumber"
+          },
+          "Url": {
+            "$ref": "#/properties/Url"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  "Certificate": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "description": {
+          "description": "Description of this Certificate",
+          "type": "string"
+        },
+        "subject_dn": {
+          "description": "Subject DN of this Certificate",
+          "type": "string"
+        },
+        "issuer_in": {
+          "description": "Issuer DN of this Certificate",
+          "type": "string"
+        },
+        "valid_from": {
+          "description": "Valid from time for this Certificate",
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_through": {
+          "description": "Valid through time for this Certificate",
+          "type": "string",
+          "format": "date-time"
+        },
+        "certificate_authenticator_id": {
+          "description": "Certificate Authenticator ID associated with this Certificate",
+          "type": "integer",
+          "readOnly": true
+        }
+      },
+      "required": [ "subject_dn" ],
+      "additionalProperties": false
+    }
+  },
+  "Password": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "password": {
+          "description": "Password",
+          "type": "string"
+        },
+        "password_type": {
+          "description": "Password (hash) type",
+          "type": "string"
+        },
+        "password_authenticator_id": {
+          "description": "Password Authenticator ID associated with this Password",
+          "type": "integer",
+          "readOnly": true
+        }
+      },
+      "required": [ "password", "password_type "],
+      "additionalProperties": false
+    }
+  },
+  "SshKey": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "comment": {
+          "description": "Comment for this SSH Key",
+          "type": "string"
+        },
+        "type": {
+          "description": "SSH Key type",
+          "type": "string"
+        },
+        "skey": {
+          "description": "SSH Key",
+          "type": "string"
+        },
+        "ssh_key_authenticator_id": {
+          "description": "SSH Key Authenticator ID associated with this SSH Key",
+          "type": "integer",
+          "readOnly": true
+        }
+      },
+      "required": [ "type", "skey" ],
+      "additionalProperties": false
+    }
+  },
+  "UnixClusterAccount": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "meta": {
+          "$ref": "#/definitions/meta"
+        },
+        "sync_mode": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "status": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "username": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "uid": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "gecos": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "login_shell": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "home_directory": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "primary_co_group_id": {
+          "description": "Sync Mode for this Unix Cluster Account",
+          "type": "string"
+        },
+        "valid_from": {
+          "description": "Valid from time for this Unix Cluster Account",
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_through": {
+          "description": "Valid through time for this Unix Cluster Account",
+          "type": "string",
+          "format": "date-time"
+        },
+        "unix_cluster_id": {
+          "description": "Unix Cluster ID associated with this Unix Cluster Account",
+          "type": "integer",
+          "readOnly": true
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "required": [ "CoPerson" ]
+}

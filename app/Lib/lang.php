@@ -313,6 +313,7 @@ original notification at
     ActionEnum::CoPersonAddedPipeline       => 'CO Person Created (Pipeline)',
     ActionEnum::CoPersonDeletedManual       => 'CO Person Deleted (Manual)',
     ActionEnum::CoPersonDeletedPetition     => 'CO Person Deleted (Petition)',
+    ActionEnum::CoPersonEditedApi           => 'CO Person Edited (API)',
     ActionEnum::CoPersonEditedManual        => 'CO Person Edited',
     ActionEnum::CoPersonEditedPetition      => 'CO Person Edited (Petition)',
     ActionEnum::CoPersonEditedPipeline      => 'CO Person Edited (Pipeline)',
@@ -2372,7 +2373,12 @@ $cm_texts_orig = $cm_texts;
 function _txt($key, $vars=null, $index=null)
 {
   global $cm_lang, $cm_texts;
-
+  
+  if(!isset($cm_texts[$cm_lang][$key])) {
+    // No entry found, just return the key itself (similar to __())
+    return $key;
+  }
+  
   // XXX need to figure out how to pass arbitrary # of args to sprintf
   
   $s = (isset($index) ? $cm_texts[ $cm_lang ][$key][$index] : $cm_texts[ $cm_lang ][$key]);

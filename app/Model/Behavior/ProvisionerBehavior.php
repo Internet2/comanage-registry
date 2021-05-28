@@ -1165,108 +1165,15 @@ class ProvisionerBehavior extends ModelBehavior {
       return array();
     }
     
-    // Because Authenticators are handled via plugins (which might not be configured)
-    // we need to handle them specially. Pull the set of authenticators and then
-    // pull their model data. Note we assume FooAuthenticator, where Foo is the
-    // corresponding model.
+    // Merge in Authenticator data, obtained via plugins
+    $coPersonData = array_merge($coPersonData, 
+                                $coPersonModel->Co->Authenticator->marshallProvisioningData($coPersonData['CoPerson']['co_id'],
+                                                                                            $coPersonData['CoPerson']['id']));
     
-    $authplugins = preg_grep('/.*Authenticator$/', CakePlugin::loaded());
-    
-    foreach($authplugins as $authplugin) {
-      // $authplugin = (eg) PasswordAuthenticator
-      // $authmodel = (eg) Password
-      $authmodel = substr($authplugin, 0, -13);
-      
-      // A plugin can be multiply instantiated, so first find those. Note we have
-      // to manually bind the association.
-      $coPersonModel->Co->Authenticator->bindModel(array('hasOne' => array($authplugin.'.'.$authplugin => array('dependent' => true))));
-      
-      $args = array();
-      $args['conditions']['Authenticator.co_id'] = $coPersonData['CoPerson']['co_id'];
-      $args['conditions']['Authenticator.plugin'] = $authplugin;
-      $args['conditions']['Authenticator.status'] = SuspendableStatusEnum::Active;
-      $args['contain'] = $authplugin;
-      
-      $authenticators = $coPersonModel->Co->Authenticator->find('all', $args);
-      
-      // For each instantiation, request the current() data if the authenticator
-      // is not locked
-      
-      foreach($authenticators as $a) {
-        // Is this Authenticator locked? Note this only examines default lock
-        // behavior. Plugins can override this. If they do so and do not write
-        // an AuthenticatorStatus record, then their data will be provisioned
-        // (if returned by current()).
-        $args = array(
-          'AuthenticatorStatus.authenticator_id' => $a['Authenticator']['id'],
-          'AuthenticatorStatus.co_person_id' => $coPersonId
-        );
-        
-        $locked = $coPersonModel->Co->Authenticator->AuthenticatorStatus->field('locked', $args);
-        
-        if(!$locked) {
-          // Ask the plugin for the current data associated with the Authenticator
-          try {
-            $objects = $coPersonModel->Co->Authenticator->$authplugin->current($a['Authenticator']['id'],
-                                                                               $a[$authplugin]['id'],
-                                                                               $coPersonId);
-            
-            if(!empty($objects)) {
-              // We'll have an array of the form 0.Password.data, but we need to
-              // store it as Password.0.data. Note we can have multiple types of
-              // records if the Authenticator supports more than one.
-              
-              foreach($objects as $o) {
-                foreach(array_keys($o) as $k) {
-                  $coPersonData[$k][] = $o[$k];
-                }
-              }
-            }
-          }
-          catch(Exception $e) {
-            // We'll get a RuntimeException if the plugin doesn't implement
-            // current(), but it's not clear what to do with it, so we just
-            // ignore the error and keep trying. In PE, we should log this.
-          }
-        }
-      }
-    }
-    
-    // Pulling Cluster information works similarly, but not identically, to Authenticators
-    
-    $clusterplugins = preg_grep('/.*Cluster$/', CakePlugin::loaded());
-    
-    foreach($clusterplugins as $clusterplugin) {
-      // We use $cmPluginHasMany to determine which models to provision.
-      $clustermodel = $clusterplugin;
-      
-      $Cluster = ClassRegistry::init($clusterplugin.'.'.$clustermodel);
-      
-      if(!empty($Cluster->cmPluginHasMany['CoPerson'])) {
-        foreach($Cluster->cmPluginHasMany['CoPerson'] as $clustersubmodel) {
-          $coPersonModel->bindModel(array('hasMany' => array($clusterplugin.'.'.$clustersubmodel => array('dependent' => true))));
-          
-          $args = array();
-          $args['conditions'][$clustersubmodel.'.co_person_id'] = $coPersonId;
-          $args['conditions'][$clustersubmodel.'.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
-          $args['conditions']['AND'][] = array(
-            'OR' => array(
-              $clustersubmodel.'.valid_from IS NULL',
-              $clustersubmodel.'.valid_from < ' => date('Y-m-d H:i:s', time())
-            )
-          );
-          $args['conditions']['AND'][] = array(
-            'OR' => array(
-              $clustersubmodel.'.valid_through IS NULL',
-              $clustersubmodel.'.valid_through > ' => date('Y-m-d H:i:s', time())
-            )
-          );
-          $args['contain'] = array($clustermodel => array('Cluster'));
-          
-          $coPersonData[$clustersubmodel] = $coPersonModel->$clustersubmodel->find('all', $args);
-        }
-      }
-    }
+    // Merge in Cluster data, obtained via plugins
+    $coPersonData = array_merge($coPersonData, 
+                                $coPersonModel->Co->Cluster->marshallProvisioningData($coPersonData['CoPerson']['co_id'],
+                                                                                      $coPersonData['CoPerson']['id']));
     
     // At the moment, if a CO Person is not active we remove their Role Records
     // (even if those are active) and group memberships, but leave the rest of the

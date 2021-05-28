@@ -61,6 +61,7 @@ class ActionEnum
   const CoPersonAddedPipeline           = 'ACPL';
   const CoPersonDeletedManual           = 'DCPM';
   const CoPersonDeletedPetition         = 'DCPP';
+  const CoPersonEditedApi               = 'ECPA';
   const CoPersonEditedManual            = 'ECPM';
   const CoPersonEditedPetition          = 'ECPP';
   const CoPersonEditedPipeline          = 'ECPL';

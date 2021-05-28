@@ -74,6 +74,26 @@ class ApiController extends Controller {
     $this->RequestHandler->renderAs($this, 'json');
     $this->layout = 'ApiSource.json';
     
+    // This should be provided by routes.php
+    if(empty($this->request->params['coid'])) {
+      $this->set('results', array('error' => _txt('er.co.specify')));
+      $this->Api->restResultHeader(404);
+      return;
+    }
+    
+    $args = array();
+    $args['conditions']['Co.id'] = $this->request->params['coid'];
+    $args['conditions']['Co.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $co = $this->Co->find('first', $args);
+    
+    if(empty($co)) {
+      $this->set('results', array('error' => _txt('er.co.unk-a', array($this->request->params['coid']))));
+      $this->Api->restResultHeader(404);
+      return;
+    }
+    
     // Check authentication
     
     // We need to map the request to an ApiSource configuration so we know which

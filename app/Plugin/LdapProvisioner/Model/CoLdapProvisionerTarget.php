@@ -1115,59 +1115,59 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 // all clusters will be written. For posixAccount, only the
                 // requested cluster is written, and attribute options are not used.
                 
-                // For wacky Cake data model reasons (see construction in ProvisionerBehavior), this is correct
-                // $provisioningData['UnixClusterAccount'][0]['UnixClusterAccount']['foo']
-                foreach($provisioningData['UnixClusterAccount'] as $ua) {
-                  $lsattr = $lattr;
-                  
-                  if($oc == 'voPosixAccount'
-                     || ($coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'] 
-                         == $ua['UnixCluster']['cluster_id'])) {
-                    if($attropts && $oc == 'voPosixAccount') {
-                      // Map cluster to short label via CO Service.
-                      $label = $this->CoProvisioningTarget
-                                    ->Co
-                                    ->CoService
-                                    ->mapClusterToLabel($provisioningData['Co']['id'],
-                                                        $ua['UnixCluster']['cluster_id']);
-                      
-                      if($label) {
-                        $lsattr = $lattr . ";scope-" . $label;
-                      }
-                    }
+                if(!empty($provisioningData['UnixClusterAccount'])) {
+                  foreach($provisioningData['UnixClusterAccount'] as $ua) {
+                    $lsattr = $lattr;
                     
-                    // A switch within a switch...
-                    switch($attr) {
-                      case 'gecos':
-                      case 'voPosixAccountGecos':
-                        $attributes[$lsattr] = $ua['UnixClusterAccount']['gecos'];
-                        break;
-                      case 'gidNumber':
-                      case 'voPosixAccountGidNumber':
-                        // Find the Identifier of primary_co_group_id
-                        $gidIdentifier = Hash::extract($provisioningData['CoGroupMember'], '{n}.CoGroup[id='.$ua['UnixClusterAccount']['primary_co_group_id'].'].Identifier.{n}[type='.$ua['UnixCluster']['gid_type'].']');
-                        if(!empty($gidIdentifier)) {
-                          $attributes[$lsattr] = $gidIdentifier[0]['identifier'];
+                    if($oc == 'voPosixAccount'
+                       || ($coProvisioningTargetData['CoLdapProvisionerTarget']['cluster_id'] 
+                           == $ua['UnixCluster']['cluster_id'])) {
+                      if($attropts && $oc == 'voPosixAccount') {
+                        // Map cluster to short label via CO Service.
+                        $label = $this->CoProvisioningTarget
+                                      ->Co
+                                      ->CoService
+                                      ->mapClusterToLabel($provisioningData['Co']['id'],
+                                                          $ua['UnixCluster']['cluster_id']);
+                        
+                        if($label) {
+                          $lsattr = $lattr . ";scope-" . $label;
                         }
-                        break;
-                      case 'homeDirectory':
-                      case 'voPosixAccountHomeDirectory':
-                        $attributes[$lsattr] = $ua['UnixClusterAccount']['home_directory'];
-                        break;
-                      case 'uidNumber':
-                      case 'voPosixAccountUidNumber':
-                        $attributes[$lsattr] = $ua['UnixClusterAccount']['uid'];
-                        break;
-                      case 'loginShell':
-                      case 'voPosixAccountLoginShell':
-                        $attributes[$lsattr] = $ua['UnixClusterAccount']['login_shell'];
+                      }
+                      
+                      // A switch within a switch...
+                      switch($attr) {
+                        case 'gecos':
+                        case 'voPosixAccountGecos':
+                          $attributes[$lsattr] = $ua['gecos'];
+                          break;
+                        case 'gidNumber':
+                        case 'voPosixAccountGidNumber':
+                          // Find the Identifier of primary_co_group_id
+                          $gidIdentifier = Hash::extract($provisioningData['CoGroupMember'], '{n}.CoGroup[id='.$ua['primary_co_group_id'].'].Identifier.{n}[type='.$ua['UnixCluster']['gid_type'].']');
+                          if(!empty($gidIdentifier)) {
+                            $attributes[$lsattr] = $gidIdentifier[0]['identifier'];
+                          }
+                          break;
+                        case 'homeDirectory':
+                        case 'voPosixAccountHomeDirectory':
+                          $attributes[$lsattr] = $ua['home_directory'];
+                          break;
+                        case 'uidNumber':
+                        case 'voPosixAccountUidNumber':
+                          $attributes[$lsattr] = $ua['uid'];
+                          break;
+                        case 'loginShell':
+                        case 'voPosixAccountLoginShell':
+                          $attributes[$lsattr] = $ua['login_shell'];
+                          break;
+                      }
+                      
+                      // If attribute options are not enabled, do not emit more than
+                      // one record to avoid interleaving different accounts.
+                      if(!$attropts)
                         break;
                     }
-                    
-                    // If attribute options are not enabled, do not emit more than
-                    // one record to avoid interleaving different accounts.
-                    if(!$attropts)
-                      break;
                   }
                 }
                 break;

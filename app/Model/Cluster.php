@@ -197,6 +197,89 @@ class Cluster extends AppModel {
   }
   
   /**
+   * Marshall all Cluster data for a CO Person.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId       CO ID
+   * @param  integer $coPersonId CO Person ID
+   * @return array               Cluster data
+   */
+  
+  public function marshallProvisioningData($coId, $coPersonId, $contain=true) {
+    // Pull the set of authenticators and then pull their model data. This is
+    // similar, but not identical, to Authenticator.
+    
+    $ret = array();
+    
+    $clusterplugins = preg_grep('/.*Cluster$/', CakePlugin::loaded());
+    
+    foreach($clusterplugins as $clusterplugin) {
+      // We use $cmPluginHasMany to determine which models to provision.
+      $clustermodel = $clusterplugin;
+      
+      $Cluster = ClassRegistry::init($clusterplugin.'.'.$clustermodel);
+      
+      if(!empty($Cluster->cmPluginHasMany['CoPerson'])) {
+        foreach($Cluster->cmPluginHasMany['CoPerson'] as $clustersubmodel) {
+          $this->Co->CoPerson->bindModel(array('hasMany' => array($clusterplugin.'.'.$clustersubmodel => array('dependent' => true))));
+          
+          $args = array();
+          $args['conditions'][$clustersubmodel.'.co_person_id'] = $coPersonId;
+          $args['conditions'][$clustersubmodel.'.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+          $args['conditions']['AND'][] = array(
+            'OR' => array(
+              $clustersubmodel.'.valid_from IS NULL',
+              $clustersubmodel.'.valid_from < ' => date('Y-m-d H:i:s', time())
+            )
+          );
+          $args['conditions']['AND'][] = array(
+            'OR' => array(
+              $clustersubmodel.'.valid_through IS NULL',
+              $clustersubmodel.'.valid_through > ' => date('Y-m-d H:i:s', time())
+            )
+          );
+          // We always contain Cluster because we need to check the status of the
+          // plugin, but we might unset it later so as not to return it
+          $args['contain'] = array($clustermodel => array('Cluster'));
+          
+          $objects = $this->Co->CoPerson->$clustersubmodel->find('all', $args);
+          
+          if(!empty($objects)) {
+            // We'll have an array of the form 0.UnixClusterAccount.data and
+            // possibly 0.UnixCluster.data (find all format), but we need to
+            // return it as UnixClusterAccount.0.data and possibly
+            // UnixClusterAccount.UnixCluster.data (find first format, as used
+            // by ProvisionerBehavior and CoreApi).
+            
+            foreach($objects as $o) {
+              // Make sure the cluster is active
+              if(!empty($o[$clustermodel]['Cluster']['status'])
+                 && $o[$clustermodel]['Cluster']['status'] == SuspendableStatusEnum::Active) {
+                $newo = $o[$clustersubmodel];
+                
+                if($contain) {
+                  $newo[$clustermodel] = $o[$clustermodel];
+                }
+                
+                $ret[$clustersubmodel][] = $newo;
+              }
+            }
+          }
+          
+          if(!isset($ret[$clustersubmodel])) {
+            // Make sure we at least return an empty set to indicate model
+            // availability
+            
+            $ret[$clustersubmodel] = array();
+          }
+        }
+      }
+    }
+    
+    return $ret;
+  }
+  
+  /**
    * Obtain Cluster status for a CO Person.
    *
    * @since  COmanage Registry v3.3.0

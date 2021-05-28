@@ -78,21 +78,6 @@ class SshKeyAuthenticator extends AuthenticatorBackend {
   }
   
   /**
-   * Obtain current data suitable for passing to manage().
-   *
-   * @since  COmanage Registry v3.3.0
-   * @param  integer $id         Authenticator ID
-   * @param  integer $backendId  Authenticator Backend ID
-   * @param  integer $coPersonId CO Person ID
-   * @return Array As returned by find
-   * @throws RuntimeException
-   */
-  
-  public function current($id, $backendId, $coPersonId) {
-    throw new RuntimeException('NOT IMPLEMENTED');
-  }
-  
-  /**
    * Manage Authenticator data, as submitted from the view.
    *
    * @since  COmanage Registry v3.3.0

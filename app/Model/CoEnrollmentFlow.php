@@ -393,7 +393,7 @@ class CoEnrollmentFlow extends AppModel {
       
       if(!$this->find('count', $args)) {
         if(!$this->saveAssociated($t)) {
-          throw new RuntimeException('er.db.save');
+          throw new RuntimeException(_txt('er.db.save-a', array('CoEnrollmentFlow::addDefaults')));
         }
       }
     }
