@@ -35,7 +35,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("CoProvisioningTarget");
+  public $belongsTo = array(
+    "CoProvisioningTarget",
+    "Cluster"
+  );
   
   public $hasMany = array(
     "CoLdapProvisionerDn" => array(
