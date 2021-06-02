@@ -86,9 +86,8 @@ class CousController extends StandardController {
       $this->set('parent_options', $options);
       }
     }
-    
-    parent::beforeRender();
 
+    // XXX This block should execute before its parent. The parent needs the $vv_cou_list
     if(!$this->request->is('restful')
        && $this->action == 'index') {
       // Get the full list of COUs
@@ -101,7 +100,37 @@ class CousController extends StandardController {
       $vv_cou_list[_txt('fd.cou.list')] = $cous_all;
       $this->set('vv_cou_list', $vv_cou_list);
     }
+    
+    parent::beforeRender();
   }
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.couName' => array(
+          'label' => _txt('fd.name'),
+          'type'  => 'text',
+        ),
+        'search.couDesc' => array(
+          'type'    => 'text',
+          'label'   => _txt('fd.description'),
+        ),
+        'search.parentCou' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.parent'),
+          'empty'   => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_cou_list'],
+        ),
+      );
+    }
+  }
+
 
   /**
    * Perform any dependency checks required prior to a delete operation.
@@ -254,7 +283,7 @@ class CousController extends StandardController {
     // COU Name
     $cou_name = isset($this->request->params['named']['search.couName']) ? $this->request->params['named']['search.couName'] : "";
     // COU Description
-    $cou_description = isset($this->request->params['named']['search.couDesc']) ? $this->request->params['named']['search.couDesc'] : "";
+    $cou_description = isset($this->request->params['named']['search.couDesc']) ? strtolower($this->request->params['named']['search.couDesc']) : "";
     // Parent COU
     $parent_couid = isset($this->request->params['named']['search.parentCou']) ? $this->request->params['named']['search.parentCou'] : "";
 
@@ -263,7 +292,7 @@ class CousController extends StandardController {
       $ret['conditions']['Cou.name LIKE'] = "%$cou_name%";
     }
     if(!empty($cou_description)) {
-      $ret['conditions']['Cou.description iLIKE'] = "%{$cou_description}%";
+      $ret['conditions']['LOWER(Cou.description) LIKE'] = "%{$cou_description}%";
     }
     if(!empty($parent_couid)) {
       if($parent_couid == _txt('op.select.opt.any')) {
@@ -279,29 +308,6 @@ class CousController extends StandardController {
     }
 
     return $ret;
-  }
-
-  /**
-   * Insert search parameters into URL for index.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v4.0.0
-   */
-
-  public function search() {
-    $url['action'] = 'index';
-    $url['co'] = $this->cur_co['Co']['id'];
-
-    // build a URL will all the search elements in it
-    // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
-    foreach($this->data['search'] as $field=>$value){
-      if(!empty($value)) {
-        $url['search.'.$field] = $value;
-      }
-    }
-
-    // redirect the user to the url
-    $this->redirect($url, null, true);
   }
 
   /**
