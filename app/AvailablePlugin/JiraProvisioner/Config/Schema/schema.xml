@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Jira Provisioner Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="co_jira_provisioner_targets">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_provisioning_target_id" type="I">
+      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
+    </field>
+    <field name="server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
+    <field name="username_type" type="C" size="64" />
+    <field name="query_by_username" type="L" />
+    <field name="provision_co_group_id" type="I">
+        <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="email_address_type" type="C" size="64" />
+    <field name="display_name_type" type="C" size="64" />
+    <field name="deactivate" type="L" />
+    <field name="group_type" type="C" size="64" />
+    <field name="group_name" type="L" />
+    <field name="remove_unknown" type="L" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_jira_provisioner_targets_i1">
+      <col>co_provisioning_target_id</col>
+      <unique />
+    </index>
+  </table>
+</schema>
