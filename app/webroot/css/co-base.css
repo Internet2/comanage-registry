@@ -2422,3 +2422,53 @@ body.redirect #co-footer {
   left: 50%;
   transform: translateX(-50%);
 }
+
+
+/* Fast lane filtering block*/
+#filter-block-qaxsbar {
+  display: flex;
+  border-bottom: unset !important;
+}
+.qaxsbar-col-name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #555;
+  font-size: 1.2em;
+  font-weight: bolder;
+  color: white;
+  padding: 0.5em
+}
+#filter-block-qaxsbar {
+  margin: 0;
+  border-top: 1px solid #ddd;
+  border-bottom: 2px solid #ccc;
+  font-size: 0.9em;
+}
+#filter-block-qaxsbar ul {
+  display: flex;
+  flex-flow: row wrap;
+  background-color: #eee;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+#filter-block-qaxsbar li {
+  display: inline-flex;
+  align-items: center;
+  overflow-wrap: anywhere;
+  margin: 0;
+  padding: 0.5em 1em;
+  background-color: #f5f5f5;
+}
+#filter-block-qaxsbar li,
+#filter-block-qaxsbar a {
+  color: #666;
+}
+#filter-block-qaxsbar li:nth-child(odd) {
+  background-color: #e5e5e5;
+}
+#filter-block-qaxsbar li label {
+  margin-top: auto;
+  margin-bottom: auto;
+}

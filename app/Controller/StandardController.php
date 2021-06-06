@@ -232,6 +232,27 @@ class StandardController extends AppController {
   /**
    * Search Block fields configuration
    *
+   * @example
+   *    if($action == 'index') {
+   *      return array(
+   *        'search.status' => array(
+   *          'label' => _txt('fd.status'),
+   *          'type' => 'select',
+   *          'empty'   => _txt('op.select.all'),
+   *          'options' => _txt('en.status.pt'),
+   *        ),
+   *        'search.sponsor' => array(
+   *          'label' => _txt('fd.sponsor'),
+   *          'type' => 'text',
+   *        ),
+   *        'qaxsbar' => array(
+   *          'label' => _txt('fd.status') . ":",
+   *          'type' => 'checkbox',
+   *          'enum' => _txt('en.status.pt'),
+   *          'field' => 'status',    // This is multivalue. e.g. search.status[0] = PA,search.status[0] = PC
+   *        ),
+   *      );
+   *    }
    * @since  COmanage Registry v4.0.0
    */
 

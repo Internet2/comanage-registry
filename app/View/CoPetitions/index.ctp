@@ -50,51 +50,38 @@
   );
 
   $params['topLinks'][] =  $this->Html->link(
-    _txt('op.view.pending'),
+    _txt('op.view.pending.approval'),
     array(
       'controller'    => 'co_petitions',
       'action'        => 'index',
       'co'            => $cur_co['Co']['id'],
       'sort'          => 'CoPetition.created',
       'direction'     => 'desc',
-      'search.status' => array(
-        StatusEnum::PendingApproval,
-        StatusEnum::PendingConfirmation
-      )
+      'search.status' => StatusEnum::PendingApproval
+    ),
+    array('class' => 'searchbutton')
+  );
+
+  $params['topLinks'][] =  $this->Html->link(
+    _txt('op.view.pending.confirmation'),
+    array(
+      'controller'    => 'co_petitions',
+      'action'        => 'index',
+      'co'            => $cur_co['Co']['id'],
+      'sort'          => 'CoPetition.created',
+      'direction'     => 'desc',
+      'search.status' => StatusEnum::PendingConfirmation,
     ),
     array('class' => 'searchbutton')
   );
 
   print $this->element("pageTitleAndButtons", $params);
-?>
 
-<fieldset id="statusFilters" class="filters-box">
-  <legend><?php print _txt('fd.status.filters'); ?></legend>
-  <?php
-  print $this->Form->create('CoPetition', array('url' => array('action'=>'search')));
-  print $this->Form->hidden('CoPetition.co_id', array('default' => $cur_co['Co']['id'])). "\n";
-  print $this->Form->submit(_txt('op.filter'));
-
-  // Build array of options based on model validation
-  $searchOptions = $cm_texts[ $cm_lang ]['en.status.pt'];
-
-  // Build array to check off actively used filters on the page
-  $selected = array();
-
-  if(isset($this->passedArgs['search.status'])) {
-    $selected = $this->passedArgs['search.status'];
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
   }
-
-  // Collect parameters and print checkboxes
-  $formParams = array('options'  => $searchOptions,
-    'multiple' => 'checkbox',
-    'label'    => false,
-    'selected' => $selected);
-
-  print $this->Form->input('search.status', $formParams);
-  print $this->Form->end();
-  ?>
-</fieldset>
+?>
 
 <div class="table-container">
   <table id="co_people">
