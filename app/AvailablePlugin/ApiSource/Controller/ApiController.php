@@ -68,6 +68,7 @@ class ApiController extends Controller {
     
     // Need to explicitly load the model, using $uses confuses things
     $this->loadModel('ApiSource.ApiSource');
+    $this->loadModel('Co');
     $this->loadModel('OrgIdentitySource');
     
     // We want json views in responses

@@ -271,6 +271,18 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
       }
     }
     
+    // Note this is an object, not an array
+    if(!empty($attrs['sorAttributes']['adhoc'])) {
+      foreach($attrs['sorAttributes']['adhoc'] as $a) {
+        if(!empty($a['tag']) && isset($a['value'])) {
+          $orgdata['AdHocAttribute'][] = array(
+            'tag'   => $a['tag'],
+            'value' => $a['value']
+          );
+        }
+      }
+    }
+    
     return $orgdata;
   }
   
