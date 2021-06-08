@@ -27,16 +27,19 @@
 
 // Globals
 global $cm_lang, $cm_texts;
+// Get a pointer to our model
+$model = $this->name;
+$req = Inflector::singularize($model);
 
 ?>
 
 <div id="coEnrollmentFlow<?php print ucfirst($this->action); ?>Search" class="top-search">
   <?php
-  print $this->Form->create('CoEnrollmentFlows', array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
+  print $this->Form->create($req, array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
 
-  if($permissions['select'] && $this->action == 'select') {
+  if(isset($permissions['select']) && $permissions['select'] && $this->action == 'select') {
     print $this->Form->hidden('RedirectAction.select', array('default' => 'true')). PHP_EOL;
-  } elseif($permissions['index'] && $this->action == 'index') {
+  } elseif(isset($permissions['index']) && $permissions['index'] && $this->action == 'index') {
     print $this->Form->hidden('RedirectAction.index', array('default' => 'true')). PHP_EOL;
   }
 
@@ -68,11 +71,35 @@ global $cm_lang, $cm_texts;
                <span class="top-search-active-filter-value">
                  <?php
                  $value = $params;
+                 // Get user friendly name from an Enumerator Class
+                 // XXX How should we handle dynamic Enumerator lists?
                  if(isset($vv_search_fields[$key]['enum'])
-                   && isset($cm_texts[ $cm_lang ][$vv_search_fields[$key]['enum']][$params])) {
+                    && isset($cm_texts[ $cm_lang ][$vv_search_fields[$key]['enum']][$params])) {
                    $value = $cm_texts[ $cm_lang ][$vv_search_fields[$key]['enum']][$params];
+                   print filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+                   continue;
                  }
-                 print filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+                 // Get user friendly name from the dropdown Select List
+                 // XXX Currently we do not have a use case where the grouping name would create a namespace
+                 if (isset($vv_search_fields[$key]['options'])) {
+                   // Outside of any groups
+                   if (isset($vv_search_fields[$key]['options'][$value])) {
+                     print filter_var($vv_search_fields[$key]['options'][$value], FILTER_SANITIZE_SPECIAL_CHARS);
+                     continue;
+                   } else {
+                     // Inside a group
+                     foreach(array_keys($vv_search_fields[$key]['options']) as $optgroup) {
+                       if( is_array($vv_search_fields[$key]['options'][$optgroup])
+                           && isset($vv_search_fields[$key]['options'][$optgroup][$value]) ) {
+                         print filter_var($vv_search_fields[$key]['options'][$optgroup][$value], FILTER_SANITIZE_SPECIAL_CHARS);
+                         print $this->Html->tag('span','(' . $optgroup . ')', array('class' => 'ml-1') );
+                         break;
+                       }
+                     }
+                   }
+                 } else {
+                   print filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+                 }
                  ?>
                </span>
             </button>
