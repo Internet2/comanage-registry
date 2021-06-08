@@ -72,11 +72,11 @@ class AuthenticationEventsController extends StandardController {
       
       $u = $this->Session->read('Auth.User.username');
       
-      if(!empty($this->request->params['named']['identifier']) && !empty($u)
-         && $u == $this->request->params['named']['identifier']) {
-        $self = true;
+      if(!empty($this->request->params['named']['identifier'])
+         && !empty($u)) {
+        $self = ($u === cmg_urldecode($this->request->params['named']['identifier']) );
       }
-      
+
       $pool = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
       
       // Authentication events only apply to Org Identities, so if org identities are
@@ -142,7 +142,7 @@ class AuthenticationEventsController extends StandardController {
     $pagcond = array();
     
     if(!empty($this->request->params['named']['identifier'])) {
-      $pagcond['conditions']['AuthenticationEvent.authenticated_identifier'] = $this->request->params['named']['identifier'];
+      $pagcond['conditions']['AuthenticationEvent.authenticated_identifier'] = cmg_urldecode($this->request->params['named']['identifier']);
     }
     
     return $pagcond;

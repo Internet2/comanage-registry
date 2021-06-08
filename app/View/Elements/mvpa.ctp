@@ -268,7 +268,7 @@
                     array(
                       'controller' => 'authentication_events',
                       'action' => 'index',
-                      'identifier' => rawurlencode($m['identifier']),
+                      'identifier' => cmg_urlencode($m['identifier']),
                     )
                   ),
                   'label' => _txt('ct.authentication_events.pl'),
