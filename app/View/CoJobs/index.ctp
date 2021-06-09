@@ -32,6 +32,15 @@
   $params = array();
   $params['title'] = $title_for_layout;
   print $this->element("pageTitleAndButtons", $params);
+
+// Load the top search form
+if(isset($permissions['search'])
+   && $permissions['search']) {
+  $fileLocation = APP . "View/CoJobs/search.inc";
+  if(file_exists($fileLocation)) {
+    include($fileLocation);
+  }
+}
 ?>
 
 <div class="table-container">
