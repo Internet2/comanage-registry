@@ -928,7 +928,12 @@ class StandardController extends AppController {
           }
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
-        } elseif(!empty($this->params['url']['organizationid'])) {
+        } elseif(isset($this->params['url']['organizationid'])) {
+          if(empty($this->params['url']['organizationid'])) {
+            $this->Api->restResultHeader(400, "Organization Not Specified");
+            return;
+          }
+          
           $args = array();
           $args['conditions'][$model->name . '.organization_id'] = $this->params['url']['organizationid'];
           $args['contain'] = false;
