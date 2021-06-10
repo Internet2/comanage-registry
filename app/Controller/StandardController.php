@@ -226,7 +226,8 @@ class StandardController extends AppController {
     // Apply the rule only when the validateExtendedType function is used as a custom rule
     $model = $this->modelClass;
     if(!empty($this->$model->validate['type']['content']['rule'])
-       && array_search('validateExtendedType', $this->$model->validate['type']['content']['rule'], true) !== null) {
+       && array_search('validateExtendedType', $this->$model->validate['type']['content']['rule'], true) !== null
+       && !empty($this->cur_co['Co']['id'])) {
       $vrule = $this->$model->validate['type']['content']['rule'];
       $vrule[1]['coid'] = $this->cur_co['Co']['id'];
       $this->$model->validator()->getField('type')->getRule('content')->rule = $vrule;
@@ -789,7 +790,12 @@ class StandardController extends AppController {
                // (But we need to fall through to the other logic if copersonid is not specified, hack hack.)
                || ($req == 'CoPersonRole'
                    && !empty($this->params['url']['copersonid']))) {
-        if(!empty($this->params['url']['codeptid'])) {
+        if(isset($this->params['url']['codeptid'])) {
+          if(empty($this->params['url']['codeptid'])) {
+            $this->Api->restResultHeader(400, "CO Department Not Specified");
+            return;
+          }
+          
           $args = array();
           $args['conditions'][$model->name . '.co_department_id'] = $this->params['url']['codeptid'];
           $args['contain'] = false;
@@ -814,7 +820,12 @@ class StandardController extends AppController {
           }
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
-        } elseif(!empty($this->params['url']['cogroupid'])) {
+        } elseif(isset($this->params['url']['cogroupid'])) {
+          if(empty($this->params['url']['cogroupid'])) {
+            $this->Api->restResultHeader(400, "CO Group Not Specified");
+            return;
+          }
+          
           $args = array();
           $args['conditions'][$model->name . '.co_group_id'] = $this->params['url']['cogroupid'];
           $args['contain'] = false;
@@ -839,7 +850,12 @@ class StandardController extends AppController {
           }
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
-        } elseif(!empty($this->params['url']['copersonid'])) {
+        } elseif(isset($this->params['url']['copersonid'])) {
+          if(empty($this->params['url']['copersonid'])) {
+            $this->Api->restResultHeader(400, "CO Person Not Specified");
+            return;
+          }
+          
           $args = array();
           $args['conditions'][$model->name . '.co_person_id'] = $this->params['url']['copersonid'];
           $args['contain'] = false;
@@ -864,7 +880,12 @@ class StandardController extends AppController {
           }
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
-        } elseif(!empty($this->params['url']['copersonroleid'])) {
+        } elseif(isset($this->params['url']['copersonroleid'])) {
+          if(empty($this->params['url']['copersonroleid'])) {
+            $this->Api->restResultHeader(400, "CO Person Role Not Specified");
+            return;
+          }
+          
           $args = array();
           $args['conditions'][$model->name . '.co_person_role_id'] = $this->params['url']['copersonroleid'];
           $args['contain'] = false;
@@ -889,7 +910,12 @@ class StandardController extends AppController {
           }
           
           $this->set($modelpl, $this->Api->convertRestResponse($t));
-        } elseif(!empty($this->params['url']['orgidentityid'])) {
+        } elseif(isset($this->params['url']['orgidentityid'])) {
+          if(empty($this->params['url']['orgidentityid'])) {
+            $this->Api->restResultHeader(400, "Org Identity Not Specified");
+            return;
+          }
+          
           $args = array();
           $args['conditions'][$model->name . '.org_identity_id'] = $this->params['url']['orgidentityid'];
           $args['contain'] = false;
