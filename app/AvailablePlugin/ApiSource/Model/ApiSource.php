@@ -264,6 +264,11 @@ class ApiSource extends AppModel {
         $json = json_decode($message->payload, true);
         
         if(empty($json)) {
+          // XXX It might be useful to store/log $message->payload somewhere
+          // for diagnostic purposes, but we don't really have a good place to
+          // store it, so for now we'll just log it.
+          $this->log(_txt('er.apisource.kafka.json', array($message->offset)));
+          $this->log($message->payload);
           throw new Exception(_txt('er.apisource.kafka.json', array($message->offset)));
         }
         
