@@ -1259,6 +1259,9 @@ class StandardController extends AppController {
       
       $this->set('redirect', $redirect);
       $this->redirect($redirect);
+    } elseif(isset($this->viewVars['cv_redirect'])) {
+      // we are passing in a specific redirect (overriding the default redirect to 'index')
+      $this->redirect($this->viewVars['cv_redirect']);
     } elseif(isset($this->cur_co)) {
       $this->redirect(array('action' => 'index', 'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
     } else {
