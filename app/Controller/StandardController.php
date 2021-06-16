@@ -192,6 +192,163 @@ class StandardController extends AppController {
   }
   
   /**
+   * Perform any dependency checks required prior to a write (add/edit) operation.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.1
+   * @param  Array Request data
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteDependencies($reqdata, $curdata = null) {
+    return true;
+  }
+
+  /**
+   * Record history associated with an action. Note that, for now, failure to
+   * record history DOES NOT roll back the original request. This may change
+   * in a future release.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  function recordHistory($action, $newdata, $olddata=null) {
+    // This function handles the framework of recording history.
+    
+    try {
+      $this->generateHistory($action, $newdata, $olddata);
+    }
+    catch(Exception $e) {
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(500, "Other Error: " . $e->getMessage());
+      } else {
+        $this->Flash->set($e->getMessage(), array('key' => 'information'));
+      }
+      
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * Generate history records for a transaction. This method is intended to be
+   * overridden by model-specific controllers, and will be called from within a
+   * try{} block so that HistoryRecord->record() may be called without worrying
+   * about catching exceptions.
+   *
+   * @since  COmanage Registry v0.7
+   * @param  String Controller action causing the change
+   * @param  Array Data provided as part of the action (for add/edit)
+   * @param  Array Previous data (for delete/edit)
+   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
+   */
+  
+  public function generateHistory($action, $newdata, $olddata) {
+    return true;
+  }
+  
+  /**
+   * Perform any followups following a write operation.  Note that if this
+   * method fails, it must return a warning or REST response, but that the
+   * overall transaction is still considered a success (add/edit is not
+   * rolled back).
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.1
+   * @param  Array Request data
+   * @param  Array Current data
+   * @param  Array Original request data (unmodified by callbacks)
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
+    return true;      
+  }
+  
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.1
+   */
+  
+  function performRedirect() {
+    if($this->requires_person) {
+      if(empty($this->viewVars['redirect'])) {
+        // $redirect doesn't seem to be set when deleting a name, so set it if missing
+        $this->checkPersonID('set');
+      }
+      
+      $redirect = $this->viewVars['redirect'];
+      
+      $this->set('redirect', $redirect);
+      $this->redirect($redirect);
+    } elseif(isset($this->viewVars['cv_redirect'])) {
+      // we are passing in a specific redirect (overriding the default redirect to 'index')
+      $this->redirect($this->viewVars['cv_redirect']);
+    } elseif(isset($this->cur_co)) {
+      $this->redirect(array('action' => 'index', 'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
+    } else {
+      $this->redirect(array('action' => 'index'));
+    }
+  }
+  
+  /**
+   * Generate a display key to be used in messages such as "Item Added".
+   *
+   * @since  COmanage Registry v0.1
+   * @param  Array A cached object (eg: from prior to a delete)
+   * @return string A string to be included for display.
+   */
+  
+  function generateDisplayKey($c = null) {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+    
+    if(isset($c[$req][$model->displayField])) {
+      return $c[$req][$model->displayField];
+    } elseif(isset($this->request->data[$model->displayField])) {
+      return $this->request->data[$model->displayField];
+    } elseif(isset($this->request->data[$req][$model->displayField])) {
+      return $this->request->data[$req][$model->displayField];
+    } elseif(strchr($model->displayField, '.')) {
+      // Display field is of the form Model.field
+      
+      $m = explode('.', $model->displayField, 2);
+      
+      if(!empty($c[ $m[0] ][ $m[1] ])) {
+        return $c[ $m[0] ][ $m[1] ];
+      } elseif(!empty($this->request->data[ $m[0] ][ $m[1] ])) {
+        return $this->request->data[ $m[0] ][ $m[1] ];
+      }
+    } else {
+      return "(?)";
+    }
+  }
+  
+  /**
+   * Regenerate a form after validation/save fails.
+   * This method is intended to be overridden.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.4
+   */
+  
+  function regenerateForm() {
+    // For most cases, we want the default Cake behavior, which is to render the
+    // same view that the form was submitted to.
+    
+    return true;
+  }
+  
+  /**
    * Callback after controller methods are invoked but before views are rendered.
    *
    * @since  COmanage Registry v0.9.4
@@ -228,7 +385,7 @@ class StandardController extends AppController {
 
     parent::beforeRender();
   }
-
+  
   /**
    * Search Block fields configuration
    *
@@ -238,7 +395,7 @@ class StandardController extends AppController {
   function searchConfig($action) {
     return array();
   }
-
+  
   /**
    * Callback before other controller methods are invoked or views are rendered.
    *
@@ -256,52 +413,6 @@ class StandardController extends AppController {
       $vrule[1]['coid'] = $this->cur_co['Co']['id'];
       $this->$model->validator()->getField('type')->getRule('content')->rule = $vrule;
     }
-  }
-  
-  /**
-   * Perform any dependency checks required prior to a delete operation.
-   * This method is intended to be overridden by model-specific controllers.
-   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
-   *
-   * @since  COmanage Registry v0.1
-   * @param  Array Current data
-   * @return boolean true if dependency checks succeed, false otherwise.
-   */
-  
-  function checkDeleteDependencies($curdata) {
-    return true;
-  }
-  
-  /**
-   * Perform any dependency checks required prior to a write (add/edit) operation.
-   * This method is intended to be overridden by model-specific controllers.
-   *
-   * @since  COmanage Registry v0.1
-   * @param  Array Request data
-   * @param  Array Current data
-   * @return boolean true if dependency checks succeed, false otherwise.
-   */
-  
-  function checkWriteDependencies($reqdata, $curdata = null) {
-    return true;
-  }
-  
-  /**
-   * Perform any followups following a write operation.  Note that if this
-   * method fails, it must return a warning or REST response, but that the
-   * overall transaction is still considered a success (add/edit is not
-   * rolled back).
-   * This method is intended to be overridden by model-specific controllers.
-   *
-   * @since  COmanage Registry v0.1
-   * @param  Array Request data
-   * @param  Array Current data
-   * @param  Array Original request data (unmodified by callbacks)
-   * @return boolean true if dependency checks succeed, false otherwise.
-   */
-  
-  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    return true;      
   }
   
   /**
@@ -414,6 +525,20 @@ class StandardController extends AppController {
     }
   }
   
+  /**
+   * Perform any dependency checks required prior to a delete operation.
+   * This method is intended to be overridden by model-specific controllers.
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since  COmanage Registry v0.1
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+  
+  function checkDeleteDependencies($curdata) {
+    return true;
+  }
+
   /**
    * Update a Standard Object.
    * - precondition: Model specific attributes in $this->request->data (optional)
@@ -699,56 +824,18 @@ class StandardController extends AppController {
       }
     }
   }
-  
+
   /**
-   * Generate a display key to be used in messages such as "Item Added".
+   * Modify order of items via drag/drop; essentially like the index page plus an AJAX call
    *
-   * @since  COmanage Registry v0.1
-   * @param  Array A cached object (eg: from prior to a delete)
-   * @return string A string to be included for display.
+   * @since  COmanage Registry v0.8.2
    */
   
-  function generateDisplayKey($c = null) {
-    // Get a pointer to our model
-    $req = $this->modelClass;
-    $model = $this->$req;
-    
-    if(isset($c[$req][$model->displayField])) {
-      return $c[$req][$model->displayField];
-    } elseif(isset($this->request->data[$model->displayField])) {
-      return $this->request->data[$model->displayField];
-    } elseif(isset($this->request->data[$req][$model->displayField])) {
-      return $this->request->data[$req][$model->displayField];
-    } elseif(strchr($model->displayField, '.')) {
-      // Display field is of the form Model.field
-      
-      $m = explode('.', $model->displayField, 2);
-      
-      if(!empty($c[ $m[0] ][ $m[1] ])) {
-        return $c[ $m[0] ][ $m[1] ];
-      } elseif(!empty($this->request->data[ $m[0] ][ $m[1] ])) {
-        return $this->request->data[ $m[0] ][ $m[1] ];
-      }
-    } else {
-      return "(?)";
-    }
-  }
-  
-  /**
-   * Generate history records for a transaction. This method is intended to be
-   * overridden by model-specific controllers, and will be called from within a
-   * try{} block so that HistoryRecord->record() may be called without worrying
-   * about catching exceptions.
-   *
-   * @since  COmanage Registry v0.7
-   * @param  String Controller action causing the change
-   * @param  Array Data provided as part of the action (for add/edit)
-   * @param  Array Previous data (for delete/edit)
-   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
-   */
-  
-  public function generateHistory($action, $newdata, $olddata) {
-    return true;
+  function order() {
+    // Show more for ordering
+    $this->paginate['limit'] = 200;
+
+    $this->index();
   }
   
   /**
@@ -1140,53 +1227,6 @@ class StandardController extends AppController {
   }
   
   /**
-   * Modify order of items via drag/drop; essentially like the index page plus an AJAX call
-   *
-   * @since  COmanage Registry v0.8.2
-   */
-  
-  function order() {
-    // Show more for ordering
-    $this->paginate['limit'] = 200;
-
-    $this->index();
-  }
-
-  /**
-   * Save changes to the ordering made via drag/drop; called via AJAX.
-   * - postcondition: Database modified
-   *
-   * @since  COmanage Registry v0.8.2
-   */
-
-  public function reorder() {
-    // Get a pointer to our model
-    $req = $this->modelClass;
-    $model = $this->$req;
-
-    if($this->request->is('restful')) {
-      // Reformat the serialized order into Cake format for saving
-      $data = array();
-      
-      foreach($this->data[$req.'Id'] as $key => $value) {
-        $data[] = array(
-          'id'   => $value,
-          'ordr' => $key+1
-        );
-      }
-      
-      if($model->saveMany($data, array('fieldList' => array('ordr')))) {
-        $this->Api->restResultHeader(200, "OK");
-      } else {
-        $this->Api->restResultHeader(500, "Database Save Failed");
-      }
-      
-      // Make sure the response goes out
-      $this->response->send();
-    }
-  }
-
-  /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v0.1
@@ -1226,6 +1266,40 @@ class StandardController extends AppController {
   }
   
   /**
+   * Save changes to the ordering made via drag/drop; called via AJAX.
+   * - postcondition: Database modified
+   *
+   * @since  COmanage Registry v0.8.2
+   */
+
+  public function reorder() {
+    // Get a pointer to our model
+    $req = $this->modelClass;
+    $model = $this->$req;
+
+    if($this->request->is('restful')) {
+      // Reformat the serialized order into Cake format for saving
+      $data = array();
+      
+      foreach($this->data[$req.'Id'] as $key => $value) {
+        $data[] = array(
+          'id'   => $value,
+          'ordr' => $key+1
+        );
+      }
+      
+      if($model->saveMany($data, array('fieldList' => array('ordr')))) {
+        $this->Api->restResultHeader(200, "OK");
+      } else {
+        $this->Api->restResultHeader(500, "Database Save Failed");
+      }
+      
+      // Make sure the response goes out
+      $this->response->send();
+    }
+  }
+  
+  /**
    * Determine the join conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v0.9.2
@@ -1234,80 +1308,6 @@ class StandardController extends AppController {
   
   public function paginationJoins() {
     return null;
-  }
-  
-  /**
-   * Perform a redirect back to the controller's default view.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v0.1
-   */
-  
-  function performRedirect() {
-    if($this->requires_person) {
-      if(empty($this->viewVars['redirect'])) {
-        // $redirect doesn't seem to be set when deleting a name, so set it if missing
-        $this->checkPersonID('set');
-      }
-      
-      $redirect = $this->viewVars['redirect'];
-      
-      $this->set('redirect', $redirect);
-      $this->redirect($redirect);
-    } elseif(isset($this->viewVars['vv_redirect'])) {
-      // we are passing in a specific override
-      $this->redirect($this->viewVars['vv_redirect']);
-    } elseif(isset($this->cur_co)) {
-      $this->redirect(array('action' => 'index', 'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
-    } else {
-      $this->redirect(array('action' => 'index'));
-    }
-  }
-  
-  /**
-   * Record history associated with an action. Note that, for now, failure to
-   * record history DOES NOT roll back the original request. This may change
-   * in a future release.
-   *
-   * @since  COmanage Registry v0.7
-   * @param  String Controller action causing the change
-   * @param  Array Data provided as part of the action (for add/edit)
-   * @param  Array Previous data (for delete/edit)
-   * @return boolean Whether the function completed successfully (which does not necessarily imply history was recorded)
-   */
-  
-  function recordHistory($action, $newdata, $olddata=null) {
-    // This function handles the framework of recording history.
-    
-    try {
-      $this->generateHistory($action, $newdata, $olddata);
-    }
-    catch(Exception $e) {
-      if($this->request->is('restful')) {
-        $this->Api->restResultHeader(500, "Other Error: " . $e->getMessage());
-      } else {
-        $this->Flash->set($e->getMessage(), array('key' => 'information'));
-      }
-      
-      return false;
-    }
-    
-    return true;
-  }
-  
-  /**
-   * Regenerate a form after validation/save fails.
-   * This method is intended to be overridden.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v0.4
-   */
-  
-  function regenerateForm() {
-    // For most cases, we want the default Cake behavior, which is to render the
-    // same view that the form was submitted to.
-    
-    return true;
   }
 
   /**

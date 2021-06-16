@@ -229,7 +229,7 @@ class CoGroupsController extends StandardController {
     
     if(!$this->request->is('restful') && $this->action == 'add') {
       $cos = $this->Session->read('Auth.User.cos');
-      $this->set('vv_redirect', array('action' => 'edit', $this->CoGroup->id));
+      $this->set('cv_redirect', array('action' => 'edit', $this->CoGroup->id));
       
       // Member of current CO? (Platform admin wouldn't be)
       if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id'])) {
@@ -630,62 +630,6 @@ class CoGroupsController extends StandardController {
   }
 
   /**
-   * Determine the conditions for pagination of the index view, when rendered via the UI.
-   *
-   * @since  COmanage Registry v3.3
-   * @return Array An array suitable for use in $this->paginate
-   */
-
-  public function paginationConditions() {
-    $pagcond = array();
-
-    // Use server side pagination
-
-    if($this->requires_co) {
-      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
-    }
-
-    // Filter by group name
-    if(!empty($this->params['named']['search.groupName'])) {
-      $searchterm = strtolower($this->params['named']['search.groupName']);
-      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
-    }
-
-    // Filter by group description
-    if(!empty($this->params['named']['search.groupDesc'])) {
-      $searchterm = strtolower($this->params['named']['search.groupDesc']);
-      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
-    }
-
-    // Filter by status
-    if(!empty($this->params['named']['search.status'])) {
-      $searchterm = $this->params['named']['search.status'];
-      $pagcond['conditions']['CoGroup.status'] = $searchterm;
-    }
-
-    // Filter by openness
-    if(!empty($this->params['named']['search.open'])) {
-      $searchterm = $this->params['named']['search.open'];
-      $pagcond['conditions']['CoGroup.open'] = $searchterm;
-    }
-
-    // Filter by management type (automatic / manual)
-    if(!empty($this->params['named']['search.auto'])) {
-      $searchterm = $this->params['named']['search.auto'];
-      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
-    }
-
-    // Filter by group type
-    if(!empty($this->params['named']['search.group_type'])) {
-      $searchterm = $this->params['named']['search.group_type'];
-      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
-    }
-
-    return $pagcond;
-  }
-
-
-  /**
    * Obtain groups available for a CO Person to join.
    * - precondition: $this->request->params holds copersonid XXX we don't do anything with this yet
    * - postcondition: $co_groups set (HTML)
@@ -740,6 +684,61 @@ class CoGroupsController extends StandardController {
     $this->Paginator->settings = $this->paginate;
     $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
   }      
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v3.3
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $pagcond = array();
+
+    // Use server side pagination
+
+    if($this->requires_co) {
+      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Filter by group name
+    if(!empty($this->params['named']['search.groupName'])) {
+      $searchterm = strtolower($this->params['named']['search.groupName']);
+      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by group description
+    if(!empty($this->params['named']['search.groupDesc'])) {
+      $searchterm = strtolower($this->params['named']['search.groupDesc']);
+      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+    }
+
+    // Filter by status
+    if(!empty($this->params['named']['search.status'])) {
+      $searchterm = $this->params['named']['search.status'];
+      $pagcond['conditions']['CoGroup.status'] = $searchterm;
+    }
+
+    // Filter by openness
+    if(!empty($this->params['named']['search.open'])) {
+      $searchterm = $this->params['named']['search.open'];
+      $pagcond['conditions']['CoGroup.open'] = $searchterm;
+    }
+
+    // Filter by management type (automatic / manual)
+    if(!empty($this->params['named']['search.auto'])) {
+      $searchterm = $this->params['named']['search.auto'];
+      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+    }
+
+    // Filter by group type
+    if(!empty($this->params['named']['search.group_type'])) {
+      $searchterm = $this->params['named']['search.group_type'];
+      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+    }
+
+    return $pagcond;
+  }
   
   /**
    * Retrieve a CO Group.
