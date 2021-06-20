@@ -1669,17 +1669,42 @@ class AppModel extends Model {
 
       // Check the existence of the evaluation field
       if(isset($this->data[$this->name][$eval_field])) {
-        $eval_field = $this->data[$this->name][$eval_field];
-        if(empty($eval_field)) {
+        $eval_field_value = $this->data[$this->name][$eval_field];
+        if(empty($eval_field_value)) {
           return true;
         }
-        $eval_field_timestamp = strtotime($eval_field);
+        $eval_field_timestamp = strtotime($eval_field_value);
       } elseif(isset($this->data[$this->alias][$eval_field])) {
-        $eval_field = $this->data[$this->alias][$eval_field];
-        if(empty($eval_field)) {
+        $eval_field_value = $this->data[$this->alias][$eval_field];
+        if(empty($eval_field_value)) {
           return true;
         }
-        $eval_field_timestamp = strtotime($eval_field);
+        $eval_field_timestamp = strtotime($eval_field_value);
+      } elseif (isset($this->data[$this->alias]['id'])
+                && empty($this->data[$this->alias][$eval_field])) {  // Fix for saveField operation with validateion option enabled
+        $id = $this->data[$this->alias]['id'];
+        $this->id = $id;
+        $eval_field_value = $this->field($eval_field);
+
+        if(empty($eval_field_value)) {
+          return true;
+        }
+
+        $eval_field_timestamp = strtotime($eval_field_value);
+      } elseif (isset($this->data[$this->name]['id'])
+                && empty($this->data[$this->name][$eval_field])) {  // Fix for saveField operation with validateion option enabled
+        $id = $this->data[$this->name]['id'];
+        $this->id = $id;
+        $eval_field_value = $this->field($eval_field);
+
+        if(empty($eval_field_value)) {
+          return true;
+        }
+
+        $eval_field_timestamp = strtotime($eval_field_value);
+      } elseif(empty($this->data[$this->name][$eval_field]) // OrgIdentitySource case were date fields could be absent
+               && empty($this->data[$this->alias][$eval_field])) {
+        return true;
       } else {
         return _txt('er.unknown', array($eval_field));
       }
