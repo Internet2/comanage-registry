@@ -738,11 +738,23 @@ body.co_people.canvas .titleNavContainer {
 /* DASHBOARDS */
 #dashboard-tabs {
   clear: both;
-  margin: 0 0 2em;
+  margin: 1em 0;
 }
 #dashboard-desc {
   clear: both;
   margin-top: 1em;
+}
+#dashboard-tabs .nav-link {
+  text-transform: uppercase;
+  padding: 1em 1.5em;
+  font-size: 1.2em;
+  opacity: 0.8;
+}
+#dashboard-tabs .nav-link.active {
+  background-color: #f8f8f8;
+  border: 1px solid #f2f2f2;
+  border-bottom: none;
+  border-radius: 0;
 }
 .mini-spinner {
   position: relative;
@@ -793,6 +805,10 @@ body.co_people.canvas .titleNavContainer {
   padding: 1em;
   text-align: center;
   width: 240px;
+}
+#redirect-spinner {
+  padding: 1em 1em 2em;
+  position: relative;
 }
 /* SELECT CO */
 #fpCoList .co-row {
