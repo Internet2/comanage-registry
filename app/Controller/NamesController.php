@@ -304,6 +304,12 @@ class NamesController extends MVPAController {
           } elseif(!empty($name['Name']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $name['Name']['org_identity_id']);
+            if(!empty($roles['orgidentities'])) {
+              $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+              if(in_array($name['Name']['org_identity_id'], $org_ids)) {
+                $self = true;
+              }
+            }
           }
         }
         break;

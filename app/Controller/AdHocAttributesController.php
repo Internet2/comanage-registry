@@ -148,6 +148,12 @@ class AdHocAttributesController extends MVPAController {
           } elseif(!empty($aha['AdHocAttribute']['org_identity_id'])) {
             $managed = $this->Role->isCoOrCouAdminForOrgidentity($roles['copersonid'],
                                                                  $aha['AdHocAttribute']['org_identity_id']);
+            if(!empty($roles['orgidentities'])) {
+              $org_ids = Hash::extract($roles, 'orgidentities.{n}.org_id');
+              if(in_array($aha['AdHocAttribute']['org_identity_id'], $org_ids)) {
+                $self = true;
+              }
+            }
           }
         }
         break;
