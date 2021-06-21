@@ -755,9 +755,9 @@ class CoPersonRolesController extends StandardController {
               
               $this->Flash->set($res, array('key' => 'success'));
               
-              // Update history, once for old and once for new
-              
               try {
+                // Update history, once for old and once for new
+                
                 // Original
                 $this->CoPersonRole->HistoryRecord->record($copr['CoPersonRole']['co_person_id'],
                                                            $copr['CoPersonRole']['id'],
@@ -773,6 +773,12 @@ class CoPersonRolesController extends StandardController {
                                                            $this->Session->read('Auth.User.co_person_id'),
                                                            ActionEnum::CoPersonRoleRelinked,
                                                            $res);
+                
+                // The saveField will recalculate person status for the new
+                // CO Person, but not for the CO Person where the role was moved
+                // from. So we manually recalculate person status here.
+                
+                $this->CoPersonRole->CoPerson->recalculateStatus($copr['CoPersonRole']['co_person_id']);
               }
               catch(Exception $e) {
                 $this->Flash->set($e->getMessage(), array('key' => 'error'));

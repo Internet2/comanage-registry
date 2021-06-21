@@ -240,10 +240,13 @@ class CoGroupMember extends AppModel {
     // CO Group Member update for that group, which will then call afterSave
     // again.)
     
-    if(!empty($this->data['CoGroupMember']['co_group_id'])
-       && !empty($this->data['CoGroupMember']['co_person_id'])) {
+    // Make a copy of $this->data because we'll lose it after the first nested save
+    $groupMember = $this->data['CoGroupMember'];
+    
+    if(!empty($groupMember['co_group_id'])
+       && !empty($groupMember['co_person_id'])) {
       $args = array();
-      $args['conditions']['CoGroupNesting.co_group_id'] = $this->data['CoGroupMember']['co_group_id'];
+      $args['conditions']['CoGroupNesting.co_group_id'] = $groupMember['co_group_id'];
       $args['contain'][] = 'TargetCoGroup';
       
       $nestings = $this->CoGroupNesting->find('all', $args);
@@ -252,8 +255,8 @@ class CoGroupMember extends AppModel {
         foreach($nestings as $n) {
           $this->syncNestedMembership($n['TargetCoGroup'],
                                       $n['CoGroupNesting']['id'],
-                                      $this->data['CoGroupMember']['co_person_id'],
-                                      $this->data['CoGroupMember']['member']);
+                                      $groupMember['co_person_id'],
+                                      $groupMember['member']);
         }
       }
     }

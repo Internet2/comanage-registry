@@ -55,10 +55,10 @@ class CoOrgIdentityLink extends AppModel {
     'co_person_id' => array(
       'content' => array(
         'rule' => 'numeric',
-// We don't specifically unfreeze either attribute here, since other checks
-// prevent reassignment of links over the API. (The link must be deleted and
-// recreated.)
-//        'unfreeze' => 'CO'
+// Note that over the API the link must be deleted and recreated (there are
+// other checks to prevent reassignment of links), but via the UI we do permit
+// a guided reassignment of an org identity to a different CO Person.
+        'unfreeze' => 'CO'
       )
     ),
     'org_identity_id' => array(

@@ -1838,7 +1838,7 @@ class OrgIdentitySource extends AppModel {
         // This can be a direct key for an OrgIdentity field, or a nested array
         // for a related model
         
-        if(is_array($content[0])) {
+        if(!empty($content[0]) && is_array($content[0])) {
           foreach($content[0] as $key2 => $content2) {
             $err .= $key1 . ":" . $key2 . ",";
           }
