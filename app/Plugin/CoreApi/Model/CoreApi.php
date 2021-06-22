@@ -151,6 +151,16 @@ class CoreApi extends AppModel {
            // id will be empty for a new related model of (eg) CoPersonRole;
            // we just want to skip over those
            && !in_array($m['id'], $seenIds)) {
+          if($modelName == 'CoGroupMember') {
+            // As a special case, skip automatic groups
+            
+            $auto = $this->Co->CoGroup->field('auto', array('CoGroup.id' => $m['co_group_id']));
+            
+            if($auto) {
+              continue;
+            }
+          }
+          
           // We have to use the flag hack to disable provisioning because Cake 2
           // doesn't support options passed to delete()
           $model->_provision = false;
@@ -195,8 +205,28 @@ class CoreApi extends AppModel {
       } elseif(gettype($v) == 'array') {
         // Skip related data
         continue;
-      } elseif(in_array($k, array('actor_identifier', 'created', 'deleted', 'id', 'modified', 'revision', $mfk))) {
-        // Skip metadata that might have been included in the record
+      } elseif(in_array($k, array('actor_identifier',
+                                  'created',
+                                  'deleted',
+                                  'id',
+                                  'modified',
+                                  'revision',
+                                  // MVPA keys
+                                  'co_department_id',
+                                  'co_person_id',
+                                  'org_identity_id',
+                                  'organization_id',
+                                  'source_ad_hoc_attribute_id',
+                                  'source_address_id',
+                                  'source_email_address_id',
+                                  'source_identifier_id',
+                                  'source_name_id',
+                                  'source_org_identity_id',
+                                  'source_telephone_number_id',
+                                  $mfk))) {
+        // Skip metadata that might have been included in the record, along
+        // with mvpa foreign keys which are frozen, and will be re-inserted by
+        // upsertRecord().
       } else {
         // Just copy the value
         $ret[$k] = $v;
@@ -244,9 +274,30 @@ class CoreApi extends AppModel {
               $f = $this->filterMetadataOutbound(array($k => $v), $k);
               $newa[$k] = $f[$k];
             }
-          } elseif(in_array($k, array('actor_identifier', 'created', 'deleted', 'id', 'modified', 'revision', $mfk))) {
+          } elseif(in_array($k, array('actor_identifier',
+                                      'co_provisioning_target_id',
+                                      'created',
+                                      'deleted',
+                                      'id',
+                                      'modified',
+                                      'revision',
+                                      'source_ad_hoc_attribute_id',
+                                      'source_address_id',
+                                      'source_email_address_id',
+                                      'source_identifier_id',
+                                      'source_name_id',
+                                      'source_org_identity_id',
+                                      'source_telephone_number_id',
+                                      $mfk))
+                   || ($modelName != 'CoGroupMember' && $k == 'co_group_id')) {
             // Move the value to metadata
             $newa['meta'][$k] = $v;
+          } elseif(in_array($k, array('co_department_id',
+                                      'co_person_id',
+                                      'org_identity_id',
+                                      'organization_id'))) {
+            // These are parent keys for MVPAs, which are either implied by the
+            // parent object or null, so we skip them
           } else {
             // Just copy the value
             $newa[$k] = $v;
@@ -531,7 +582,18 @@ class CoreApi extends AppModel {
     // update (to prevent rekeying a record via update).
     $filteredIn[$modelName][$parentKey] = $parentValue;
     
-    if(!empty($filteredIn[$modelName]['id'])) {
+    if($modelName == 'CoPerson') {
+      // This currently only supports update, not creation of a new CO Person
+      // Filter the current record, then restore the record id.
+      $filteredCurrent[$modelName] = $this->filterMetadataInbound($currentSet[0], $modelName);
+      $filteredCurrent[$modelName]['id'] = $coPersonId;
+      
+      // Require $id to be the ID we looked up, not what was provided in the
+      // request metadata
+      $filteredIn[$modelName]['id'] = $coPersonId;
+      
+      // Diff the array to see if we should save
+    } elseif(!empty($filteredIn[$modelName]['id'])) {
       // Update
       $id = $filteredIn[$modelName]['id'];
       
@@ -547,17 +609,10 @@ class CoreApi extends AppModel {
       // Filter the current record, then restore the record id.
       $filteredCurrent[$modelName] = $this->filterMetadataInbound($current[0], $modelName);
       $filteredCurrent[$modelName]['id'] = $id;
-      
-      // Diff the array to see if we should save
-      $cstr = $model->changesToString($filteredIn, $filteredCurrent);
     } else {
       // Add
       
-      if($modelName == 'CoPerson') {
-        // We don't currently support CoPerson add, which would need a different
-        // (POST) URL anyway
-        throw new RuntimeException('CoPerson Add NOT IMPLEMENTED');
-      }
+      // There is no current record to compare against
     }
     
     // Diff the arrays to see if we should save, which we always will on add
@@ -639,7 +694,8 @@ class CoreApi extends AppModel {
     $dbc->begin();
     
     if(empty($reqData)) {
-      // This probably means JSON failed to parse
+      // This probably means JSON failed to parse, or that the Content-Type
+      // header is NOT application/json
       throw new InvalidArgumentException(_txt('er.coreapi.json'));
     }
 
@@ -680,6 +736,14 @@ class CoreApi extends AppModel {
 
         if(!empty($reqData[$model])) {
           foreach($reqData[$model] as $m) {
+            if(!empty($m['meta']['id'])) {
+              // Skip read-only Org Identities
+              if($this->Co->OrgIdentity->readOnly($m['meta']['id'])) {
+                $seenRecords[$model][ $m['meta']['id'] ] = $m;
+                continue;
+              }
+            }
+            
             $recordId = $this->upsertRecord($current['CoPerson']['id'], 
                                             $this->Co->$model,
                                             $m,
@@ -720,6 +784,17 @@ class CoreApi extends AppModel {
         
         if(!empty($reqData[$model])) {
           foreach($reqData[$model] as $m) {
+            if($model == 'CoGroupMember') {
+              // As a special case, skip automatic groups (this check should
+              // really be done on the model...)
+              
+              $auto = $this->Co->CoGroup->field('auto', array('CoGroup.id' => $m['co_group_id']));
+              
+              if($auto) {
+                continue;
+              }
+            }
+            
             $recordId = $this->upsertRecord($current['CoPerson']['id'], 
                                             $this->Co->CoPerson->$model,
                                             $m,
@@ -768,6 +843,13 @@ class CoreApi extends AppModel {
         
         if(!empty($seenRecords[$parentModel])) {
           foreach($seenRecords[$parentModel] as $id => $seen) {
+            if($parentModel == 'OrgIdentity') {
+              // Skip read-only Org Identities
+              if($this->Co->OrgIdentity->readOnly($id)) {
+                continue;
+              }
+            }
+            
             foreach($relatedModels as $model) {
               // While there can be multiple associated models across multiple roles,
               // $current will have them attached to each role. Thus we can track
