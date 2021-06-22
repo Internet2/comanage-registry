@@ -240,7 +240,10 @@ class ApiSource extends AppModel {
                                                                         $cfg['ApiSource']['kafka_topic']);
     
     for($i = 0;$i < $max;$i++) {
-      if($CoJob->canceled($CoJob->id)) { return false; }
+      if($CoJob->canceled($CoJob->id)) {
+        $KafkaConsumer->close();
+        return false;
+      }
       
       // Parameter is timeout in milliseconds
       $message = $KafkaConsumer->consume(5000);
@@ -254,6 +257,7 @@ class ApiSource extends AppModel {
         break;
       } elseif($message->err != RD_KAFKA_RESP_ERR_NO_ERROR) {
         // Throw an error that will bubble up the stack
+        $KafkaConsumer->close();
         throw new RuntimeException($message->errstr());
       }
       
@@ -269,6 +273,7 @@ class ApiSource extends AppModel {
           // store it, so for now we'll just log it.
           $this->log(_txt('er.apisource.kafka.json', array($message->offset)));
           $this->log($message->payload);
+          $KafkaConsumer->close();
           throw new Exception(_txt('er.apisource.kafka.json', array($message->offset)));
         }
         
@@ -278,6 +283,7 @@ class ApiSource extends AppModel {
                       'sor' => $cfg['ApiSource']['sor_label'])
                 as $a => $v) {
           if(empty($json['meta'][$a]) || $json['meta'][$a] != $v) {
+            $KafkaConsumer->close();
             throw new Exception(_txt('er.apisource.kafka.meta', array($a,
                                                                       $message->offset,
                                                                       !empty($json['meta'][$a]) ? $json['meta'][$a] : "",
@@ -287,6 +293,7 @@ class ApiSource extends AppModel {
         
         // Find SORID
         if(empty($json['meta']['sorid'])) {
+          $KafkaConsumer->close();
           throw new Exception(_txt('er.apisource.kafka.sorid', array($message->offset)));
         }
         
@@ -320,6 +327,8 @@ class ApiSource extends AppModel {
         $CoJob->setPercentComplete($CoJob->id, $pctDone);
       }
     }
+    
+    $KafkaConsumer->close();
     
     $CoJob->finish($CoJob->id,
                    _txt('pl.apisource.job.poll.finish', array(($success + $failed), $success, $failed)));
