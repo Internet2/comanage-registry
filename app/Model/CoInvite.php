@@ -74,6 +74,11 @@ class CoInvite extends AppModel {
       'rule' => '/.*/',  // The 'date' rule is too constraining
       'required' => false,
       'allowEmpty' => true
+    ),
+    'skip_invite' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -292,7 +297,8 @@ class CoInvite extends AppModel {
                        $cc=null,
                        $bcc=null,
                        $subs=array(),
-                       $format=MessageFormatEnum::Plaintext) {
+                       $format=MessageFormatEnum::Plaintext,
+                       $skip_invite=false) {
     // Toss any prior invitations for $coPersonId to $toEmail
     
     try {
@@ -310,6 +316,7 @@ class CoInvite extends AppModel {
     $invite['CoInvite']['co_person_id'] = $coPersonId;
     $invite['CoInvite']['invitation'] = Security::generateAuthKey();
     $invite['CoInvite']['mail'] = $toEmail;
+    $invite['CoInvite']['skip_invite'] = $skip_invite;
     // XXX date format may not be portable
     $invite['CoInvite']['expires'] = date('Y-m-d H:i:s', strtotime('+' . ($expiry ? $expiry : DEF_INV_VALIDITY) . ' minutes'));
     if($emailAddressID) {
@@ -319,6 +326,9 @@ class CoInvite extends AppModel {
     $this->create($invite);
     
     if($this->save()) {
+      if($skip_invite) {
+        return $this->id;
+      }
       // Try to send the invite
       
       // Set up and send the invitation via email
