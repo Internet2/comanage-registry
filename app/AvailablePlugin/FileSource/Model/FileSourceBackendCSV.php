@@ -251,7 +251,7 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
     
     // Walk through MVPAs by type
     
-    foreach(array('Name', 'Address', 'EmailAddress', 'TelephoneNumber', 'Url') as $model) {
+    foreach(array('Name', 'Address', 'EmailAddress', 'Identifier', 'TelephoneNumber', 'Url') as $model) {
       $orgdata[$model] = array();
       
       if(!empty($this->fieldCfg[$model])) {
@@ -274,7 +274,19 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
             }
             
             if($model == 'Identifier') {
-              // XXX check for +login
+              // Check if this is a login identifier, which is denoted by
+              // adding "+login" to the attribute declaration
+              $n['login'] = false;
+              $n['status'] = StatusEnum::Active;
+              
+              if(strlen($type) > 6) {
+                $p = strpos($type, "+login", -6);
+
+                if($p) {
+                  $n['login'] = true;
+                  $n['type'] = substr($type, 0, $p);
+                }
+              }
             }
             
             $orgdata[$model][] = $n;
