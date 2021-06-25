@@ -55,7 +55,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 	);
 	
   // Default display field for cake generated views
-  public $displayField = "description";
+  public $displayField = "password_source";
 	
   // Validation rules for table elements
   public $validate = array(

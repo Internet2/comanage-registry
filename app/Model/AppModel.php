@@ -496,17 +496,28 @@ class AppModel extends Model {
         }
       }
       
-      // Finally, render the change string based on the attributes found above.
-      // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
-      // was populated, so as to avoid noise when a related object is added or
-      // deleted.
-      
-      if(isset($newval) && !isset($oldval)) {
-        $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
-      } elseif(!isset($newval) && isset($oldval)) {
-        $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
-      } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
-        $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
+      // As a special case, if the field name is "password" mask the values
+      if($attr == 'password') {
+        if(isset($newval) && !isset($oldval)) {
+          $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . "(new)";
+        } elseif(!isset($newval) && isset($oldval)) {
+          $changes[] = $ftxt . ": (old)" . (isset($newdata) ? " > " . _txt('fd.null') : "");
+        } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+          $changes[] = $ftxt . ": (old) > (new)";
+        }
+      } else {
+        // Finally, render the change string based on the attributes found above.
+        // Notate going to or from NULL only if $newdata or $olddata (as appropriate)
+        // was populated, so as to avoid noise when a related object is added or
+        // deleted.
+        
+        if(isset($newval) && !isset($oldval)) {
+          $changes[] = $ftxt . ": " . (isset($olddata) ? _txt('fd.null') . " > " : "") . $newval;
+        } elseif(!isset($newval) && isset($oldval)) {
+          $changes[] = $ftxt . ": " . $oldval . (isset($newdata) ? " > " . _txt('fd.null') : "");
+        } elseif(isset($newval) && isset($oldval) && ($newval != $oldval)) {
+          $changes[] = $ftxt . ": " . $oldval . " > " . $newval;
+        }
       }
     }
     

@@ -625,6 +625,10 @@ class CoreApi extends AppModel {
       // For EmailAddress, we accept the verified flag as is (other models will ignore it)
       $model->save($filteredIn, array("provision" => false, "trustVerified" => true));
       
+      if(!empty($model->validationErrors)) {
+        throw new RuntimeException(_txt('er.fields.api', array(implode(",", array_keys($model->validationErrors)))));
+      }
+      
       if(!$id) {
         // Added, so grab the ID to return it
         $id = $model->id;

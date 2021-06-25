@@ -52,7 +52,7 @@ class SshKeyAuthenticator extends AuthenticatorBackend {
   );
   
   // Default display field for cake generated views
-  public $displayField = "description";
+  public $displayField = "authenticator_id";
   
   // Validation rules for table elements
   public $validate = array(
