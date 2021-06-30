@@ -53,7 +53,8 @@
       class="dropdown-menu">
     <?php foreach($vv_actions as $action): ?>
       <?php if(empty($action['onclick'])): ?>
-        <a class="dropdown-item spin" href="<?php print $action['url']; ?>">
+        <?php $lightbox = (isset($action['lightbox']) && $action['lightbox']) ? " lightbox" : "";  ?>
+        <a class="dropdown-item spin<?php print $lightbox; ?>" href="<?php print $action['url']; ?>">
           <?php if(!empty($action['icon'])): ?>
           <i class="<?php print $action['icon']; ?>"></i>
           <?php endif; ?>

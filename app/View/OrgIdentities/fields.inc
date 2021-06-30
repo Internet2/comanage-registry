@@ -346,6 +346,7 @@
                         $action_name_args['vv_actions'][] = array(
                           'order' => $this->Menu->getMenuOrder('View'),
                           'icon' => $this->Menu->getMenuIcon('View'),
+                          'lightbox' => true,
                           'url' => $this->Html->url(
                             array(
                               'controller' => 'names',

@@ -28,19 +28,28 @@
    Place only overrides and lightbox specific styles here.
    This is used for layouts exposed via Magnific Popup plugin. */
 
-body {
+/*Lightbo - Magnific Pop up*/
+/* content at start */
+.mfp-content {
   background-color: white;
 }
-#lightboxContent {
+.mfp-content #lightboxContent {
   margin: 3em 4em;
 }
-h1 {
+.mfp-content #lightboxContent h1 {
   font-size: 1.4em;
 }
-h2 {
+.mfp-content #lightboxContent h2 {
   font-size: 1.2em;
   margin-bottom: 1.5em;
 }
-table {
+.mfp-content #lightboxContent table {
   margin-top: 1em;
+}
+.mfp-content #lightboxContent .field-info {
+  overflow-wrap: anywhere !important;
+}
+.mfp-content .fieldGroupNameCl {
+  display: flex;
+  align-items: center;
 }
