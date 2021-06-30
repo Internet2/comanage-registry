@@ -63,6 +63,11 @@ class CoGroupsController extends StandardController {
     'EmailListModerator',
     'Identifier'
   );
+
+  public $nest_contains = array(
+    'CoGroupNesting' => array('CoGroup'),
+    'SourceCoGroupNesting' => array('TargetCoGroup'),
+  );
   
   /**
    * Callback to set relevant tab to open when redirecting to another page
@@ -74,7 +79,7 @@ class CoGroupsController extends StandardController {
    */
 
   function beforeFilter() {
-    $this->redirectTab = 'group';
+    $this->redirectTab = 'group'; // XXX legacy? remove?
 
     parent::beforeFilter();
   }
@@ -276,6 +281,68 @@ class CoGroupsController extends StandardController {
     // Invoke the StandardController edit
     parent::edit($id);
   }
+
+  /**
+   * List group members for a CO Group.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function members($id) {
+    if(!$this->request->is('restful') && $this->request->is('get')) {
+      // Retrieve the set of all group members for group with ID $id.
+      // Specify containable behavior to get necessary relations.
+      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
+    }
+    // Invoke the StandardController based on permissions to edit the group
+    if($this->viewVars['permissions']['edit']) {
+      parent::edit($id);
+    } else {
+      parent::view($id);
+    }
+  }
+
+  /**
+   * List group nestings for a CO Group.
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function nest($id) {
+    // Invoke the StandardController based on permissions to edit the group
+    if($this->viewVars['permissions']['edit']) {
+      parent::edit($id);
+    } else {
+      parent::view($id);
+    }
+  }
+
+  /**
+   * Show the Email Lists for a group
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function email_lists($id) {
+    // Invoke the StandardController based on permissions to edit the group
+    if($this->viewVars['permissions']['edit']) {
+      parent::edit($id);
+    } else {
+      parent::view($id);
+    }
+  }
   
   /**
    * Generate history records for a transaction. This method is intended to be
@@ -381,7 +448,7 @@ class CoGroupsController extends StandardController {
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
       }
-      
+
       if(!empty($this->request->params['named']['copersonid'])) {
         $managedp = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
                                                       $this->request->params['named']['copersonid']);
@@ -428,10 +495,15 @@ class CoGroupsController extends StandardController {
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     $p['search'] = $p['index'];
-    
+
     // Nest a Group within another Group?
     // This aligns with CoGroupNestingsController::isAuthorized
-    $p['nest'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['buildnest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+
+    // Edit or View Identifiers?
+    // This aligns with IdentifiersController::isAuthorized
+    $p['editids'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['viewids'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Reconcile memberships in a members group?
     $p['reconcile'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -463,7 +535,17 @@ class CoGroupsController extends StandardController {
     
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
-    
+
+    // Viewing members, email lists, and nested groups is available to all group members.
+    // Access to specific actions is controlled in the view.
+    $p['members'] = $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
+    $p['email_lists'] = $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
+    $p['nest'] =  $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
+
+    // Edit email lists?
+    // This aligns with CoEmailLists::isAuthorized
+    $p['edit_email_lists'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     if($this->action == 'view'
        && isset($this->request->params['pass'][0])) {
       // Adjust permissions for members and open groups
@@ -524,9 +606,17 @@ class CoGroupsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('co_group', $this->CoGroup->find('first', $args));
+      if($this->viewVars['permissions']['edit']) {
+        $titleText = 'op.edit-a';
+      } else {
+        $titleText = 'op.view-a';
+      }
       $this->set('title_for_layout',
-                 _txt('fd.prov.status.for',
-                      array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        _txt($titleText,
+          array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
+      $this->set('vv_subtitle',
+        _txt('fd.prov.status.for',
+          array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
     }
   }
   
@@ -624,65 +714,12 @@ class CoGroupsController extends StandardController {
       }
     }
 
+    // Set this use-once session variable to TRUE to let pagination know we came from the search and not from elsewhere.
+    $this->Session->write('Ui.CoGroups.Search.active', true);
+
     // redirect the user to the url
     $this->redirect($url, null, true);
   }
-
-  /**
-   * Determine the conditions for pagination of the index view, when rendered via the UI.
-   *
-   * @since  COmanage Registry v3.3
-   * @return Array An array suitable for use in $this->paginate
-   */
-
-  public function paginationConditions() {
-    $pagcond = array();
-
-    // Use server side pagination
-
-    if($this->requires_co) {
-      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
-    }
-
-    // Filter by group name
-    if(!empty($this->params['named']['search.groupName'])) {
-      $searchterm = strtolower($this->params['named']['search.groupName']);
-      $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
-    }
-
-    // Filter by group description
-    if(!empty($this->params['named']['search.groupDesc'])) {
-      $searchterm = strtolower($this->params['named']['search.groupDesc']);
-      $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
-    }
-
-    // Filter by status
-    if(!empty($this->params['named']['search.status'])) {
-      $searchterm = $this->params['named']['search.status'];
-      $pagcond['conditions']['CoGroup.status'] = $searchterm;
-    }
-
-    // Filter by openness
-    if(!empty($this->params['named']['search.open'])) {
-      $searchterm = $this->params['named']['search.open'];
-      $pagcond['conditions']['CoGroup.open'] = $searchterm;
-    }
-
-    // Filter by management type (automatic / manual)
-    if(!empty($this->params['named']['search.auto'])) {
-      $searchterm = $this->params['named']['search.auto'];
-      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
-    }
-
-    // Filter by group type
-    if(!empty($this->params['named']['search.group_type'])) {
-      $searchterm = $this->params['named']['search.group_type'];
-      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
-    }
-
-    return $pagcond;
-  }
-
 
   /**
    * Obtain groups available for a CO Person to join.
@@ -739,6 +776,145 @@ class CoGroupsController extends StandardController {
     $this->Paginator->settings = $this->paginate;
     $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
   }      
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v3.3
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $pagcond = array();
+
+    // Use server side pagination
+    if($this->requires_co) {
+      $pagcond['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+    }
+
+    // Track if the form has any terms
+    $searchHasTerms = false;
+
+    // If we came from the form, use only the passed form parameters, clearing out session variables
+    // if fields are empty. This allows users to explicitly set empty values in the form fields.
+    // The 'Ui.CoGroups.Search.active' session variable only exists if terms were explicitly passed from
+    // the search form (it is deleted after use).
+    if($this->Session->consume('Ui.CoGroups.Search.active')) {
+
+      // Filter by group name
+      if(!empty($this->params['named']['search.groupName'])) {
+        $searchterm = strtolower($this->params['named']['search.groupName']);
+        $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+        $this->Session->write('Ui.CoGroups.Search.name', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.name');
+      }
+
+      // Filter by group description
+      if(!empty($this->params['named']['search.groupDesc'])) {
+        $searchterm = strtolower($this->params['named']['search.groupDesc']);
+        $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+        $this->Session->write('Ui.CoGroups.Search.desc', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.desc');
+      }
+
+      // Filter by status
+      if(!empty($this->params['named']['search.status'])) {
+        $searchterm = $this->params['named']['search.status'];
+        $pagcond['conditions']['CoGroup.status'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.status', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.status');
+      }
+
+      // Filter by openness
+      if(!empty($this->params['named']['search.open'])) {
+        $searchterm = $this->params['named']['search.open'];
+        $pagcond['conditions']['CoGroup.open'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.open', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.open');
+      }
+
+      // Filter by management type (automatic / manual)
+      if(!empty($this->params['named']['search.auto'])) {
+        $searchterm = $this->params['named']['search.auto'];
+        $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.auto', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.auto');
+      }
+
+      // Filter by group type
+      if(!empty($this->params['named']['search.group_type'])) {
+        $searchterm = $this->params['named']['search.group_type'];
+        $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+        $this->Session->write('Ui.CoGroups.Search.type', $searchterm);
+        $searchHasTerms = true;
+      } else {
+        $this->Session->delete('Ui.CoGroups.Search.type');
+      }
+
+      // The whole form is empty? Throw away the top-level Session array too (should it exist).
+      if(!$searchHasTerms) {
+        $this->Session->delete('Ui.CoGroups.Search');
+      }
+
+    // Else we didn't come from the form but from elsewhere;
+    // use the saved session variables to restore the search state
+    } else {
+
+      // Filter by group name
+      if ($this->Session->check('Ui.CoGroups.Search.name')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.name');
+        $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+        $searchHasTerms = true;
+      }
+
+      // Filter by group description
+      if ($this->Session->check('Ui.CoGroups.Search.desc')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.desc');
+        $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
+        $searchHasTerms = true;
+      }
+
+      // Filter by status
+      if ($this->Session->check('Ui.CoGroups.Search.status')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.status');
+        $pagcond['conditions']['CoGroup.status'] = $searchterm;
+        $searchHasTerms = true;
+      }
+
+      // Filter by openness
+      if ($this->Session->check('Ui.CoGroups.Search.open')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.open');
+        $pagcond['conditions']['CoGroup.open'] = $searchterm;
+        $searchHasTerms = true;
+      }
+
+      // Filter by management type (automatic / manual)
+      if ($this->Session->check('Ui.CoGroups.Search.auto')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.auto');
+        $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+        $searchHasTerms = true;
+      }
+
+      // Filter by group type
+      if ($this->Session->check('Ui.CoGroups.Search.type')) {
+        $searchterm = $this->Session->read('Ui.CoGroups.Search.type');
+        $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+        $searchHasTerms = true;
+      }
+    }
+
+    return $pagcond;
+  }
   
   /**
    * Retrieve a CO Group.

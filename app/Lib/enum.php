@@ -499,6 +499,7 @@ class OrgIdentityStatusEnum
 class PeoplePickerModeEnum
 {
   const Sponsor   = 'S';
+  const CoPerson  = 'CP';
 }
 
 class PermissionEnum

@@ -82,19 +82,6 @@ if($permissions['reconcile']) {
   );
 }
 
-if($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id'])) {
-  // Provisioning status
-  $params['topLinks'][] = $this->Html->link(
-    _txt('op.prov.view'),
-    array(
-      'controller' => 'co_groups',
-      'action'     => 'provision',
-      $co_groups[0]['CoGroup']['id']
-    ),
-    array('class' => 'runbutton')
-  );
-}
-
 if($permissions['history'] && !empty($co_groups[0]['CoGroup']['id'])) {
   // View history
   $params['topLinks'][] = $this->Html->link(

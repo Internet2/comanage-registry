@@ -63,6 +63,9 @@ h2 {
   font-size: 2em;
   margin: 0;
 }
+h2.subtitle {
+  clear: both;
+}
 h3 {
   font-size: 1.6em;
   margin: 0;
@@ -716,6 +719,21 @@ body.co_people.canvas .titleNavContainer {
   position: relative;
   top: -2px;
   height: 33px;
+}
+/* SUBNAVIGATION TABS */
+.cm-subnav-tabs {
+  clear: both;
+  margin: 0 0 1.5em;
+  padding: 1em 0 0;
+}
+.cm-subnav-tabs .nav-link {
+  text-transform: uppercase;
+  padding: 1em 1.5em;
+  font-size: 1.1em;
+}
+.cm-subnav-tabs + form > .form-list,
+.cm-subnav-tabs + .top-search {
+  margin-top: 0;
 }
 /* DASHBOARDS */
 #dashboard-tabs {
@@ -1808,6 +1826,17 @@ ul.fields.data-list li {
 #groupMembers tr:nth-child(even) td {
   background-color: #eee;
 }
+#group-add-member-name {
+  font-weight: 600;
+  font-size: 1.4em;
+  margin-right: 0.25em;
+}
+#group-add-member-clear-button {
+  padding: 0.5em;
+}
+#group-add-member-info {
+  display: none; /* for now (v4.0) - maybe a tooltip in future */
+}
 /* FORMS */
 label {
   cursor: pointer;
@@ -2363,6 +2392,13 @@ td.indented {
   font-size: 1.2em;
   padding: 0.5em 1.5em;
 }
+.btn:focus {
+  border: 1px dotted black;
+}
+.btn.btn-sm {
+  font-size: 0.9em;
+  margin: -0.5em 0 0 0.1em;
+}
 .btn-primary,
 .btn-primary:focus,
 .btn-primary:active {
@@ -2375,6 +2411,16 @@ td.indented {
   background-color: black;
   color: white !important;
   text-decoration: none !important;
+}
+.btn:focus {
+  border: 1px dotted white;
+}
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #0c75c0;
+  border-color: #0c75c0;
+  opacity: 0.4;
 }
 .btn-default,
 .btn-default:focus,
@@ -2409,6 +2455,10 @@ td.indented {
 }
 .smaller {
   font-size: smaller;
+}
+.form-check-input:disabled ~ .form-check-label,
+.form-check-input[disabled] ~ .form-check-label {
+  color: var(--cmg-gray-disabled);
 }
 /* FOOTER */
 #co-footer {

@@ -25,7 +25,13 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-  print $this->element("pageTitle", array('title' => filter_var($title_for_layout, FILTER_SANITIZE_SPECIAL_CHARS)));
+  // Get a pointer to our model
+  $model = $this->name;
+
+  print $this->element("pageTitleAndButtons", array('title' => filter_var($title_for_layout, FILTER_SANITIZE_SPECIAL_CHARS)));
+  if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
+    include(APP . "View/" . $model . "/tabs.inc");
+  }
   
   // REST API Provisioning Request Type
   $requestType = "Unknown";
@@ -45,17 +51,16 @@
       'action' => 'canvas',
       $co_person['CoPerson']['id']);
     $this->Html->addCrumb(generateCn($co_person['PrimaryName']), $args);
-    
+    $this->Html->addCrumb(_txt('op.prov.view'));
     $requestType = 'CoPersonProvisioning';
   } elseif(!empty($co_group)) {
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
-    
-    $args = array(
-      'controller' => 'co_groups',
-      'action' => 'edit',
-      $co_group['CoGroup']['id']
-    );
-    $this->Html->addCrumb($co_group['CoGroup']['name'], $args);
+    if($permissions['edit']) {
+      $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_groups.1')));
+    } else {
+      $crumbTxt = _txt('op.view-a', array(_txt('ct.co_groups.1')));
+    }
+    $this->Html->addCrumb($crumbTxt);
     
     $requestType = 'CoGroupProvisioning';
   } elseif(!empty($co_email_list)) {
@@ -78,10 +83,9 @@
       $co_service['CoService']['id']
     );
     $this->Html->addCrumb($co_service['CoService']['name'], $args);
-
+    $this->Html->addCrumb(_txt('op.prov.view'));
     $requestType = 'CoServiceProvisioning';
   }
-  $this->Html->addCrumb(_txt('op.prov.view'));
 ?>
 <script type="text/javascript">
   <!-- /* JS specific to these fields */ -->
@@ -185,6 +189,10 @@
     });
   });
 </script>
+
+<?php if(!empty($vv_subtitle)): ?>
+  <h2 class="subtitle"><?php print filter_var($vv_subtitle, FILTER_SANITIZE_SPECIAL_CHARS); ?></h2>
+<?php endif; ?>
 
 <div class="table-container">
   <table id="provisioning_status">
@@ -317,3 +325,6 @@
 <div id="result-dialog" class="co-dialog" title="<?php print _txt('op.prov'); ?>">
   <p><?php print _txt('rs.prov.ok'); ?></p>
 </div>
+
+<?php
+  print $this->element("changelog");
