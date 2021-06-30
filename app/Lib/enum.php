@@ -779,17 +779,20 @@ class TemplateableStatusEnum
   const Active              = 'A';
   const Suspended           = 'S';
   const Template            = 'T';
-  
+  const InTrash             = 'TR';
+
   public static $from_api = array(
     'Active'    => TemplateableStatusEnum::Active,
     'Suspended' => TemplateableStatusEnum::Suspended,
-    'Template'  => TemplateableStatusEnum::Template
+    'Template'  => TemplateableStatusEnum::Template,
+    'InTrash'   => TemplateableStatusEnum::InTrash
   );
 
   public static $to_api = array(
     TemplateableStatusEnum::Active    => 'Active',
     TemplateableStatusEnum::Suspended => 'Suspended',
-    TemplateableStatusEnum::Template  => 'Template'
+    TemplateableStatusEnum::Template  => 'Template',
+    TemplateableStatusEnum::InTrash   => 'InTrash'
   );
 }
 

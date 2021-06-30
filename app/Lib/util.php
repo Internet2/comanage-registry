@@ -35,6 +35,9 @@ define("DEF_INV_VALIDITY", 1440);
 // Default window for reprovisioning on group validity change
 define("DEF_GROUP_SYNC_WINDOW", 1440);
 
+// Default window for Garbage Collection
+define("DEF_GARBAGE_COLLECT_INTERVAL", 1440);
+
 /**
  * Find an attribute within an array, specifically intended for working with
  * Enrollment Flow Attributes.

@@ -42,15 +42,19 @@
         'controller' => 'cos',
         'action' => 'add'
       ),
-      array('class' => 'addbutton')
+      array('class' => 'addbutton spin')
     );
   }
+
+  // Extract status of all COs to a list
+  $cos_status = Hash::extract($cos, '{n}.Co.status');
 
   print $this->element("pageTitleAndButtons", $params);
 
 ?>
 
-<div class="table-container">
+
+  <div class="table-container">
   <table id="cos">
     <thead>
       <tr>
@@ -64,14 +68,26 @@
     <tbody>
       <?php $i = 0; ?>
       <?php foreach ($cos as $c): ?>
-      <tr class="line<?php print ($i % 2)+1; ?>">
+      <?php
+      $statusClass = "";
+        if($c['Co']['status'] == TemplateableStatusEnum::InTrash) {
+          // Style status for Pending Removal
+          $statusClass = " warn-level-a"; // reddish-pink
+        } elseif($c['Co']['status'] == TemplateableStatusEnum::Suspended) {
+          // Style status for Suspended
+          $statusClass = " warn-level-b"; // yellowish
+        }
+      ?>
+      <tr class="line<?php print (($i % 2)+1) . $statusClass;?>">
         <td>
           <?php
             print $this->Html->link(
               $c['Co']['name'],
               array(
                 'controller' => 'cos',
-                'action' => (($permissions['edit'] && $c['Co']['name'] != 'COmanage')
+                'action' => (($permissions['edit']
+                              && $c['Co']['name'] != 'COmanage'
+                              && $c['Co']['status'] !== TemplateableStatusEnum::InTrash)
                              ? 'edit'
                              : ($permissions['view'] ? 'view' : '')),
                 $c['Co']['id']
@@ -81,56 +97,76 @@
         </td>
         <td><?php print filter_var($c['Co']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
-          <?php print _txt('en.status.temp', null, $c['Co']['status']); ?>
+          <?php
+          print _txt('en.status.disposable', null, $c['Co']['status']);
+          if($c['Co']['status'] == TemplateableStatusEnum::InTrash) {
+            print '<span class="required ml-1">*</span>';
+          }
+          ?>
         </td>
         <td>
           <?php
             if($c['Co']['name'] != 'COmanage') {
-              if($permissions['edit']) {
-                print $this->Html->link(
-                  _txt('op.edit'),
-                  array(
-                    'controller' => 'cos',
-                    'action' => 'edit',
-                    $c['Co']['id']
-                  ),
-                  array('class' => 'editbutton')
-                ) . "\n";
-              }
-              
-// XXX should this (and CoEnrollmentFlow::duplicate) use js_confirm_generic?
-              if($permissions['duplicate']) {
-                print $this->Html->link(
-                  _txt('op.dupe'),
-                  array(
-                    'controller' => 'cos',
-                    'action' => 'duplicate',
-                    $c['Co']['id']
-                  ),
-                  array('class' => 'copybutton')
-                ) . "\n";
-              }
+              if($c['Co']['status'] === TemplateableStatusEnum::InTrash) {
+                if($permissions['edit']) {
+                  print $this->Html->link(
+                      _txt('op.restore'),
+                      array(
+                        'controller' => 'cos',
+                        'action' => 'restore',
+                        $c['Co']['id']
+                      ),
+                      array('class' => 'restorebutton spin')
+                    ) . PHP_EOL;
+                }
+              } else {
+                if($permissions['edit']) {
+                  print $this->Html->link(
+                      _txt('op.edit'),
+                      array(
+                        'controller' => 'cos',
+                        'action' => 'edit',
+                        $c['Co']['id']
+                      ),
+                      array('class' => 'editbutton spin')
+                    ) . PHP_EOL;
+                }
 
-              if($permissions['delete']) {
-                print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                  . '" onclick="javascript:js_confirm_generic(\''
-                  . _txt('js.remove') . '\',\''    // dialog body text
-                  . $this->Html->url(              // dialog confirm URL
-                    array(
-                      'controller' => 'cos',
-                      'action' => 'delete',
-                      $c['Co']['id']
-                    )
-                  ) . '\',\''
-                  . _txt('op.remove') . '\',\''    // dialog confirm button
-                  . _txt('op.cancel') . '\',\''    // dialog cancel button
-                  . _txt('op.remove') . '\',[\''   // dialog title
-                  . filter_var(_jtxt($c['Co']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                  . '\']);">'
-                  . _txt('op.delete')
-                  . '</button>';
-              }
-            }
+                // XXX should this (and CoEnrollmentFlow::duplicate) use js_confirm_generic?
+                // XXX Should this become a background job as well?
+                if($permissions['duplicate']) {
+                  print $this->Html->link(
+                      _txt('op.dupe'),
+                      array(
+                        'controller' => 'cos',
+                        'action' => 'duplicate',
+                        $c['Co']['id']
+                      ),
+                      array('class' => 'copybutton spin')
+                    ) . PHP_EOL;
+                }
+
+                if($permissions['delete']) {
+                  print '<button type="button" class="trashbutton" title="' . _txt('op.trash')
+                    . '" onclick="javascript:js_confirm_generic(\''
+                    . _txt('js.intrash') . '\',\''   // dialog body text
+                    . $this->Html->url(              // dialog confirm URL
+                      array(
+                        'controller' => 'cos',
+                        'action' => 'deleteasync',
+                        $c['Co']['id']
+                      )
+                    ) . '\',\''
+                    . _txt('op.move') . '\',\''          // dialog confirm button
+                    . _txt('op.cancel') . '\',\''        // dialog cancel button
+                    . _txt('js.move.trash') . '\',[\''   // dialog title
+                    . filter_var(_jtxt($c['Co']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
+                    . '\']);">'
+                    . _txt('op.trash')
+                    . '</button>';
+                }
+              } // in Trash
+            } // Platform CO
           ?>
           <?php ; ?>
         </td>
@@ -141,5 +177,10 @@
   </table>
 </div>
 
-<?php
-  print $this->element("pagination");
+<?php  print $this->element("pagination"); ?>
+<!-- Render only if at least one CO is in Pending Removal-->
+<?php if(in_array(TemplateableStatusEnum::InTrash, $cos_status)): ?>
+<span class="d-block required mt-2">
+  <?php print _txt('fd.tobe.deleted'); ?>
+</span>
+<?php endif; ?>

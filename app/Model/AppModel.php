@@ -921,6 +921,50 @@ class AppModel extends Model {
     
     return $ret;
   }
+
+  /**
+   * Get MVPA Model attributes for CO/COU Administrators or members
+   *
+   * @param int|null $couid   The ID of the COU
+   * @param bool     $admin   Fetch only the admininstrators data
+   * @return false|array
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+  public function findGroupMembersNAdminsMVPA($coid, $couid=null, $admin=true) {
+    // Get a pointer to our model
+    $mdl_name = $this->name;
+    // Get the available Columns from the Schema
+    $mdl_columns = array_keys($this->schema());
+
+    if(!in_array('co_person_id', $mdl_columns)) {
+      return false;
+    }
+
+    $args = array();
+    $args['joins'][0]['table']         = 'co_group_members';
+    $args['joins'][0]['alias']         = 'CoGroupMember';
+    $args['joins'][0]['type']          = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoGroupMember.co_person_id=' . $mdl_name . '.co_person_id';
+    $args['joins'][1]['table']         = 'co_groups';
+    $args['joins'][1]['alias']         = 'CoGroup';
+    $args['joins'][1]['type']          = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
+    $args['conditions']['CoGroup.co_id'] = $coid;
+    if(!is_null($couid)) {
+      $args['conditions']['CoGroup.cou_id'] = $couid;
+    }
+    if($admin) {
+      $args['conditions']['CoGroup.group_type'] = GroupEnum::Admins;
+    } else {
+      $args['conditions']['CoGroup.group_type'] = GroupEnum::ActiveMembers;
+    }
+    $args['conditions']['CoGroupMember.member'] = true;
+    $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+
+    return $this->find('all', $args);
+  }
   
   /**
    * Obtain the CO ID for a record.
