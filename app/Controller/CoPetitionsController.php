@@ -406,6 +406,28 @@ class CoPetitionsController extends StandardController {
       // Set the enrollment flow ID to make it easier to carry forward through failed submissions
       $this->set('co_enrollment_flow_id', $enrollmentFlowID);
       $this->set('vv_co_petition_id', $this->parseCoPetitionId());
+
+      // XXX This block should execute before its parent. The parent needs the $vv_cou_list
+      if(!$this->request->is('restful')
+        && $this->action == 'index') {
+        // Get the full list of COUs
+        $cous_all = $this->CoPetition
+                         ->Co
+                         ->Cou->allCous($this->cur_co["Co"]["id"]);
+        asort($cous_all, SORT_STRING);
+        // `Any` option will return all COUs with a parent
+        // `None` option will return all COUs with parent equal to null
+        $vv_cou_list[_txt('op.select.opt.any')] = _txt('op.select.opt.any');
+        $vv_cou_list[_txt('op.select.opt.none')] = _txt('op.select.opt.none');
+        $vv_cou_list[_txt('fd.cou.list')] = $cous_all;
+        $this->set('vv_cou_list', $vv_cou_list);
+
+        // Return all Enrollment Flow names
+        $this->set('vv_enrollment_flows_list', $this->CoPetition
+                                                    ->CoEnrollmentFlow
+                                                    ->enrollmentFlowList( $this->cur_co['Co']['id'] ) );
+      }
+
       
       if(in_array($this->action, array('petitionerAttributes', 'view'))) {
         $defaultValues = array();
@@ -638,7 +660,55 @@ class CoPetitionsController extends StandardController {
       }
     }
   }
-  
+
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.enrollee' => array(
+          'label' => _txt('fd.enrollee'),
+          'type' => 'text',
+        ),
+        'search.enrollmentFlow' => array(
+          'type' => 'select',
+          'label' => _txt('ct.co_enrollment_flows.1'),
+          'empty' => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_enrollment_flows_list'],
+        ),
+        'search.cou' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.cou'),
+          'empty'   => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_cou_list'],
+        ),
+        'search.petitioner' => array(
+          'label' => _txt('fd.petitioner'),
+          'type' => 'text',
+        ),
+        'search.status' => array(
+          'label' => _txt('fd.status'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.pt'),
+        ),
+        'search.sponsor' => array(
+          'label' => _txt('fd.sponsor'),
+          'type' => 'text',
+        ),
+        'search.approver' => array(
+          'label' => _txt('fd.approver'),
+          'type' => 'text',
+        ),
+      );
+    }
+  }
+
   /**
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
@@ -2455,7 +2525,7 @@ class CoPetitionsController extends StandardController {
     // This is not actually called. dispatch() will render the next_step view
     // when starting a new step... no need to explicitly route via this action.
   }
-  
+
   /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
@@ -2477,10 +2547,47 @@ class CoPetitionsController extends StandardController {
       $searchterm = $this->params['named']['search.status'];
       $pagcond['conditions']['CoPetition.status'] = $searchterm;
     }
+
+    // Filter by Enrollment Flow
+    if(!empty($this->request->params['named']['search.enrollmentFlow'])) {
+      $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $this->request->params['named']['search.enrollmentFlow'];
+    }
+
+    // Filter by COU
+    if(!empty($this->request->params['named']['search.cou'])) {
+      $cou_name = $this->request->params['named']['search.cou'];
+      if($cou_name == _txt('op.select.opt.any')) {
+        $pagcond['conditions'][] = 'CoPetition.cou_id IS NOT NULL';
+      } elseif($cou_name == _txt('op.select.opt.none')) {
+        $pagcond['conditions'][] = 'CoPetition.cou_id IS NULL';
+      } else {
+        $pagcond['conditions']['CoPetition.cou_id'] = $cou_name;
+      }
+    }
     
     // Filter by CO Person ID
     if(!empty($this->params['named']['search.copersonid'])) {
       $pagcond['conditions']['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
+    }
+
+    // CO Person mappings
+    $coperson_alias_mapping = array(
+      'search.enrollee' => 'EnrolleePrimaryName',
+      'search.petitioner' => 'PetitionerPrimaryName',
+      'search.sponsor' => 'SponsorPrimaryName',
+      'search.approver' => 'ApproverPrimaryName',
+    );
+
+    // Filter by Name
+    foreach($coperson_alias_mapping as $search_field => $class) {
+      if(!empty($this->params['named'][$search_field]) ) {
+        $pagcond['conditions']['AND'][] = array(
+          'OR' => array(
+            'LOWER('. $class . '.family) LIKE' => '%' . strtolower($this->params['named'][$search_field]) . '%',
+            'LOWER('. $class . '.given) LIKE' => '%' . strtolower($this->params['named'][$search_field]) . '%',
+          )
+        );
+      }
     }
     
     // Filter by Org Identity ID

@@ -127,8 +127,7 @@ if(!empty($vv_enrollment_flow_cos)) {
             $args['co'] = $menuCoId;
             $args['sort'] = 'CoPetition.created';
             $args['direction'] = 'desc';
-            $args['search.status'][] = StatusEnum::PendingApproval;
-            $args['search.status'][] = StatusEnum::PendingConfirmation;
+            $args['search.status'] = StatusEnum::PendingApproval;
 
             print $this->Html->link(_txt('ct.co_petitions.pl'), $args, array('class' => 'spin'));
     

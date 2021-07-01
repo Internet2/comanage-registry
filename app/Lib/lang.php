@@ -1885,6 +1885,7 @@ original notification at
   //'me.alpha' => array('a','ä','b','c'),
   'me.alpha'       => range('a','z'),
   'me.alpha.label' => 'filter people by first letter of family name',
+  'me.filter.field' => 'filter by %1$s',
   
   // Job related messages
   'jb.ois.sync.full.finish' => 'Sync of new org identities from source complete',
@@ -2121,7 +2122,8 @@ original notification at
   'op.view' =>        'View',
   'op.view.all' =>    'View All',
   'op.view.current' => 'View Current',
-  'op.view.pending' => 'View Pending',
+  'op.view.pending.approval' => 'View Pending Approval',
+  'op.view.pending.confirmation' => 'View Pending Confirmation',
   'op.view.source' => 'View Source',
   'op.view-a' =>      'View %1$s',
   'op.view-f' =>      'View %1$s for %2$s',

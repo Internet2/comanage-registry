@@ -29,13 +29,17 @@
 global $cm_lang, $cm_texts;
 // Get a pointer to our model
 $model = $this->name;
+$controller = Inflector::tableize($model);
 $req = Inflector::singularize($model);
+
+print $this->Form->create($req, array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
+// List of search fields
+$search_fields = array_keys($vv_search_fields);
 
 ?>
 
-<div id="coEnrollmentFlow<?php print ucfirst($this->action); ?>Search" class="top-search">
+<div id="<?php print $req . ucfirst($this->action); ?>Search" class="top-search">
   <?php
-  print $this->Form->create($req, array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
 
   if(isset($permissions['select']) && $permissions['select'] && $this->action == 'select') {
     print $this->Form->hidden('RedirectAction.select', array('default' => 'true')). PHP_EOL;
@@ -53,7 +57,7 @@ $req = Inflector::singularize($model);
   }
 
   ?>
-  <fieldset>
+  <fieldset onclick="event.stopPropagation();">
     <legend id="top-search-toggle">
       <em class="material-icons">search</em>
       <?php print _txt('op.filter');?>
@@ -62,9 +66,12 @@ $req = Inflector::singularize($model);
         <span id="top-search-active-filters">
           <?php foreach($search_params as $key => $params): ?>
             <?php
-            // Construct aria-controls string
-            $key_fields = explode('.', $key);
-            $aria_controls = $key_fields[0] . ucfirst($key_fields[1]);
+              if(!in_array($key, $search_fields)) {
+                continue;
+              }
+              // Construct aria-controls string
+              $key_fields = explode('.', $key);
+              $aria_controls = $key_fields[0] . ucfirst($key_fields[1]);
             ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
                <span class="top-search-active-filter-title"><?php print $vv_search_fields[$key]['label']; ?></span>
@@ -85,7 +92,6 @@ $req = Inflector::singularize($model);
                    // Outside of any groups
                    if (isset($vv_search_fields[$key]['options'][$value])) {
                      print filter_var($vv_search_fields[$key]['options'][$value], FILTER_SANITIZE_SPECIAL_CHARS);
-                     continue;
                    } else {
                      // Inside a group
                      foreach(array_keys($vv_search_fields[$key]['options']) as $optgroup) {
@@ -104,7 +110,7 @@ $req = Inflector::singularize($model);
                </span>
             </button>
           <?php endforeach; ?>
-         <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear">
+         <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear" onclick="event.stopPropagation()">
             <?php print _txt('op.clear.filters.pl');?>
          </button>
         </span>
@@ -117,10 +123,14 @@ $req = Inflector::singularize($model);
       $i = 0;
       $field_subgroup_columns = array();
       foreach($vv_search_fields as $key => $options) {
+        if(strpos($key, 'search') === false) {
+          continue;
+        }
         $formParams = array(
           'label' => $options['label'],
           'type' => !empty($options['type']) ? $options['type'] : 'text',
-          'value' => (!empty($this->request->params['named'][$key]) ? $this->request->params['named'][$key] : '')
+          'value' => (!empty($this->request->params['named'][$key]) ? $this->request->params['named'][$key] : ''),
+          'required' => false,
         );
         if(isset($options['empty'])) {
           $formParams['empty'] = $options['empty'];
@@ -166,6 +176,51 @@ $req = Inflector::singularize($model);
       </div>
     </div>
   </fieldset>
-
-  <?php print $this->Form->end();?>
 </div>
+
+  <?php if(!empty($vv_search_fields['qaxsbar'])): ?>
+<div id="filter-block-qaxsbar" class="listControl" aria-label="<?php print _txt('me.filter.field', array($vv_search_fields['qaxsbar']['label'])); ?>">
+  <span class="qaxsbar-col-name"><?php print $vv_search_fields['qaxsbar']['label']; ?></span>
+  <ul>
+    <?php
+    $args = array();
+    $args['controller'] = $controller;
+    $args['action'] = $this->action;
+    if($this->action == 'index') {
+      $args['co'] = $cur_co['Co']['id'];
+    } else if(!empty($this->request->params['pass'][0])) {
+      $args[] = $this->request->params['pass'][0];
+    }
+    // Merge (propagate) all prior search criteria, except status and page
+    $args = array_merge($args, $this->request->params['named']);
+    unset($args['search.' . $vv_search_fields['qaxsbar']['field']], $args['page']);
+    $field_search = array();
+    $field_search_key = 'search.' . $vv_search_fields['qaxsbar']['field'];
+    if(!empty($this->request->params['named'][$field_search_key])
+       && is_array($this->request->params['named'][$field_search_key]) ) {
+      $field_search = $this->request->params['named']['search.' . $vv_search_fields['qaxsbar']['field']];
+    }
+    $index = 0;
+    foreach($vv_search_fields['qaxsbar']['enum'] as $code => $enum_val) {
+      $selected = in_array($code, $field_search, true) ? true : false;
+      $args = array(
+        'label' => $enum_val,
+        'type' => $vv_search_fields['qaxsbar']['type'],
+        'class' => 'mr-2',
+        'label' => $enum_val,
+        'value' => $code,
+        'div' => false,
+      );
+      if($vv_search_fields['qaxsbar']['type'] === 'checkbox') {
+        $args['checked'] = $selected;
+      }
+      print '<li class="field-values">';
+      print $this->Form->input('search.' . $vv_search_fields['qaxsbar']['field'] . '.' . $index, $args);
+      print '</li>';
+      $index++;
+    }
+    ?>
+  </ul>
+</div>
+  <?php endif; ?>
+  <?php print $this->Form->end();?>

@@ -836,6 +836,26 @@ class CoEnrollmentFlow extends AppModel {
     
     return $this->find('all', $args);
   }
+
+  /**
+   * Fetch all Enrollment Flows
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  Integer $coId CO ID to constrain search to
+   * @return Array Array elements
+   */
+
+  public function enrollmentFlowList($coId) {
+
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
+    $args['conditions']['NOT']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Template;
+    $args['order'] = array('CoEnrollmentFlow.name');
+    $args['fields'] = array('CoEnrollmentFlow.id', 'CoEnrollmentFlow.name');
+    $args['contain'] = false;
+
+    return $this->find('list', $args);
+  }
   
   /**
    * Generate a template for an Account Linking based enrollment flow.

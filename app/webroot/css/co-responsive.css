@@ -69,6 +69,14 @@
     padding-right: 0.5em !important;
     padding-left: 0.5em !important;
   }
+  /* Filter block */
+  #filter-block-qaxsbar li {
+    overflow-wrap: unset;
+    flex: 1;
+  }
+  #filter-block-qaxsbar ul {
+    justify-content: center;
+  }
 }
 
 /* PHONE LANDSCAPE */
@@ -412,6 +420,14 @@
   /* PERSON and ORGID CANVAS*/
   .personExplorer ul ul {
     margin-left: 1em;
+  }
+  /* Filter Block*/
+  #filter-block-qaxsbar li {
+    overflow-wrap: wrap;
+    flex: unset;
+  }
+  #filter-block-qaxsbar ul {
+    justify-content: unset;
   }
   /* PETITION ATTRIBUTES */
   .modelbox {
