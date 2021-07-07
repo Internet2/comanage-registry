@@ -645,15 +645,18 @@ class CoreApi extends AppModel {
         $saveOptions['trustVerified'] = true;
       }
       
-      if($modelName == 'Identifier') {
+      if($modelName == 'Identifier'
+         || $modelName == 'UnixClusterAccount'
+         || $modelName == 'UnixClusterGroup') {
         // Some clients might not want to track the meta id, in which case they'll
         // submit every record as "new" each time they send an update. This mostly
         // works (albeit noisily, since every record is added and deleted), but
-        // because we process adds before deletes it fails for Identifier, which
-        // has a uniqueness check. Processing deletes before adds is somewhat
-        // complicated because of how we track $seenRecords, so as a workaround
-        // we disable availability checking by turning safeties off. This isn't
-        // ideal, but it seems to be the least bad option for the moment.
+        // because we process adds before deletes it fails for Identifier and
+        // the UnixCluster models, which have uniqueness checks. Processing
+        // deletes before adds is somewhat complicated because of how we track
+        // $seenRecords, so as a workaround we disable availability checking by
+        // turning safeties off. This isn't ideal, but it seems to be the least
+        // bad option short of a significant rewrite.
         $saveOptions['safeties'] = 'off';
       }
       

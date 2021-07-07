@@ -171,6 +171,10 @@ class UnixClusterAccount extends AppModel {
    */
 
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     if(!empty($this->data['UnixClusterAccount'])) {
       // The username and uid can not already be in use within this cluster
       

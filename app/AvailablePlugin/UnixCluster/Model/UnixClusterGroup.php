@@ -101,6 +101,10 @@ class UnixClusterGroup extends AppModel {
    */
 
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+    
     if(!empty($this->data['UnixClusterGroup'])) {
       // The group cannot already be attached to the unix cluster
       $args = array();
