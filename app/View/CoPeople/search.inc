@@ -54,48 +54,48 @@ global $cm_lang, $cm_texts;
       <em class="material-icons">search</em>
       <?php print _txt('op.filter');?>
 
-      <?php if(!empty($this->request->params['named']['Search.givenName'])  ||
-        !empty($this->request->params['named']['Search.familyName']) ||
-        !empty($this->request->params['named']['Search.mail'])       ||
-        !empty($this->request->params['named']['Search.identifier']) ||
-        !empty($this->request->params['named']['Search.status'])     ||
-        !empty($this->request->params['named']['Search.couid'])):?>
+      <?php if(!empty($this->request->params['named']['search.givenName'])  ||
+        !empty($this->request->params['named']['search.familyName']) ||
+        !empty($this->request->params['named']['search.mail'])       ||
+        !empty($this->request->params['named']['search.identifier']) ||
+        !empty($this->request->params['named']['search.status'])     ||
+        !empty($this->request->params['named']['search.couid'])):?>
 
         <span id="top-search-active-filters">
-          <?php if (!empty($this->request->params['named']['Search.givenName'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchGivenName" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.givenName'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchGivenName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.given'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.givenName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.givenName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if (!empty($this->request->params['named']['Search.familyName'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchFamilyName" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.familyName'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchFamilyName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name.family'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.familyName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.familyName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if (!empty($this->request->params['named']['Search.mail'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchMail" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.mail'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchMail" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.email_address.mail'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.mail'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if (!empty($this->request->params['named']['Search.identifier'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchIdentifier" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.identifier'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchIdentifier" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.identifier.identifier'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['Search.identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if (!empty($this->request->params['named']['Search.status'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchStatus" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.status'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchStatus" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['Search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if (!empty($this->request->params['named']['Search.couid'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="SearchCouid" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.couid'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchCouid" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.cou'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_cous[$this->request->params['named']['Search.couid']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_cous[$this->request->params['named']['search.couid']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
           <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear">
@@ -114,22 +114,22 @@ global $cm_lang, $cm_texts;
       $args['placeholder'] = _txt('fd.name.given');
       $args['aria-label'] = _txt('fd.name.given');
       // XXX shouldn't these fields be sanitized?
-      $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
-      print $this->Form->input('Search.givenName',$args);
+      $args['value'] = !empty($this->request->params['named']['search.givenName']) ? $this->request->params['named']['search.givenName'] : '';
+      print $this->Form->input('search.givenName',$args);
 
       $args = array();
       $args['label'] = _txt('fd.name.family');
       $args['placeholder'] = _txt('fd.name.family');
       $args['aria-label'] = _txt('fd.name.family');
-      $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
-      print $this->Form->input('Search.familyName',$args);
+      $args['value'] = !empty($this->request->params['named']['search.familyName']) ? $this->request->params['named']['search.familyName'] : '';
+      print $this->Form->input('search.familyName',$args);
 
       $args = array();
       $args['label'] = _txt('fd.email_address.mail');
       $args['placeholder'] = _txt('fd.email_address.mail');
       $args['aria-label'] = _txt('fd.email_address.mail');
-      $args['value'] = !empty($this->request->params['named']['Search.mail']) ? $this->request->params['named']['Search.mail'] : '';
-      print $this->Form->input('Search.mail', $args);
+      $args['value'] = !empty($this->request->params['named']['search.mail']) ? $this->request->params['named']['search.mail'] : '';
+      print $this->Form->input('search.mail', $args);
       ?>
       </div>
 
@@ -139,18 +139,19 @@ global $cm_lang, $cm_texts;
       $args['label'] = _txt('fd.identifier.identifier');
       $args['placeholder'] = _txt('fd.identifier.identifier');
       $args['aria-label'] = _txt('fd.identifier.identifier');
-      $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
-      print $this->Form->input('Search.identifier', $args);
+      $args['value'] = !empty($this->request->params['named']['search.identifier']) ? $this->request->params['named']['search.identifier'] : '';
+      print $this->Form->input('search.identifier', $args);
 
       $formParams = array('options' => $vv_statuses,
         'type'    => 'select',
         'empty'   => ' ',
+        'required' => false,
         'label'   => _txt('fd.status'),
         'aria-label'   => _txt('fd.status'),
         'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
-        'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
+        'value'   => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
 
-      print $this->Form->input('Search.status', $formParams);
+      print $this->Form->input('search.status', $formParams);
 
       if (!empty($vv_cous)) {
         $formParams = array('options' => $vv_cous,
@@ -159,9 +160,9 @@ global $cm_lang, $cm_texts;
           'label' => _txt('fd.cou'),
           'aria-label' => _txt('fd.cou'),
           'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
-          'value' => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
+          'value' => (!empty($this->request->params['named']['search.couid']) ? $this->request->params['named']['search.couid'] : ''));
 
-        print $this->Form->input('Search.couid', $formParams);
+        print $this->Form->input('search.couid', $formParams);
       }
       ?>
       </div>

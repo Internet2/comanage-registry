@@ -1378,19 +1378,11 @@ class StandardController extends AppController {
       $url['action'] = 'index';
     }
     
-    // CoPeople uses "Search", but should use "search" like CoPetition (CO-906)
-    
     // build a URL will all the search elements in it
     // the resulting URL will be 
-    // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
-    if(isset($this->data['Search'])) {
-      foreach ($this->data['Search'] as $field=>$value){
-        if(!empty($value)) {
-          $url['Search.'.$field] = $value; 
-        }
-      }
-    } elseif(isset($this->data['search'])) {
-      foreach ($this->data['search'] as $field=>$value){
+    // example.com/registry/co_people/index/search.givenName:albert/search.familyName:einstein
+    if(isset($this->data['search'])) {
+      foreach ($this->data['search'] as $field => $value){
         if(!empty($value)) {
           $url['search.'.$field] = $value; 
         }

@@ -138,17 +138,17 @@ if(isset($permissions['search']) && $permissions['search'] ) {
       
       // Merge (propagate) all prior search criteria, except familyNameStart and page
       $args = array_merge($args, $this->request->params['named']);
-      unset($args['Search.familyNameStart']);
+      unset($args['search.familyNameStart']);
       unset($args['page']);
       
       $alphaSearch = '';
 
-      if(!empty($this->request->params['named']['Search.familyNameStart'])) {
-        $alphaSearch = $this->request->params['named']['Search.familyNameStart'];
+      if(!empty($this->request->params['named']['search.familyNameStart'])) {
+        $alphaSearch = $this->request->params['named']['search.familyNameStart'];
       }
 
       foreach(_txt('me.alpha') as $i) {
-        $args['Search.familyNameStart'] = $i;
+        $args['search.familyNameStart'] = $i;
         $alphaStyle = ' class="spin"';
         if ($alphaSearch == $i) {
           $alphaStyle = ' class="selected spin"';

@@ -64,8 +64,8 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.name.given');
-            $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
-            print $this->Form->input('Search.givenName',$args);
+            $args['value'] = !empty($this->request->params['named']['search.givenName']) ? $this->request->params['named']['search.givenName'] : '';
+            print $this->Form->input('search.givenName',$args);
           ?>
         </td>
       </tr>
@@ -74,8 +74,8 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.name.family');
-            $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
-            print $this->Form->input('Search.familyName',$args);
+            $args['value'] = !empty($this->request->params['named']['search.familyName']) ? $this->request->params['named']['search.familyName'] : '';
+            print $this->Form->input('search.familyName',$args);
           ?>
         </td>
       </tr>
@@ -84,8 +84,8 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.identifier.identifier');
-            $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
-            print $this->Form->input('Search.identifier', $args);
+            $args['value'] = !empty($this->request->params['named']['search.identifier']) ? $this->request->params['named']['search.identifier'] : '';
+            print $this->Form->input('search.identifier', $args);
           ?>
         </td>
       </tr>
@@ -94,8 +94,8 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.o');
-            $args['value'] = !empty($this->request->params['named']['Search.organization']) ? $this->request->params['named']['Search.organization'] : '';
-            print $this->Form->input('Search.organization',$args);
+            $args['value'] = !empty($this->request->params['named']['search.organization']) ? $this->request->params['named']['search.organization'] : '';
+            print $this->Form->input('search.organization',$args);
           ?>
         </td>
       </tr>
@@ -104,8 +104,8 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.ou');
-            $args['value'] = !empty($this->request->params['named']['Search.department']) ? $this->request->params['named']['Search.department'] : '';
-            print $this->Form->input('Search.department',$args);
+            $args['value'] = !empty($this->request->params['named']['search.department']) ? $this->request->params['named']['search.department'] : '';
+            print $this->Form->input('search.department',$args);
           ?>
         </td>
       </tr>
@@ -114,8 +114,8 @@ global $cm_lang, $cm_texts;
           <?php
             $args = array();
             $args['label'] = _txt('fd.title');
-            $args['value'] = !empty($this->request->params['named']['Search.title']) ? $this->request->params['named']['Search.title'] : '';
-            print $this->Form->input('Search.title',$args);
+            $args['value'] = !empty($this->request->params['named']['search.title']) ? $this->request->params['named']['search.title'] : '';
+            print $this->Form->input('search.title',$args);
           ?>
         </td>
       </tr>
@@ -127,8 +127,8 @@ global $cm_lang, $cm_texts;
                                 'type'    => 'select',
                                 'empty'   => '',
                                 'label'   => _txt('fd.affiliation'),
-                                'value'   => (!empty($this->request->params['named']['Search.affiliation']) ? $this->request->params['named']['Search.affiliation'] : ''));
-            print $this->Form->input('Search.affiliation', $formParams);
+                                'value'   => (!empty($this->request->params['named']['search.affiliation']) ? $this->request->params['named']['search.affiliation'] : ''));
+            print $this->Form->input('search.affiliation', $formParams);
           ?>
         </td>
       </tr>

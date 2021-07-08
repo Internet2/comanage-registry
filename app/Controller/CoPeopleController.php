@@ -1025,20 +1025,20 @@ class CoPeopleController extends StandardController {
     // works on PrimaryName so that the results match the index list.
     
     // Filter by Given name
-    if(!empty($this->params['named']['Search.givenName'])) {
-      $searchterm = strtolower($this->params['named']['Search.givenName']);
+    if(!empty($this->params['named']['search.givenName'])) {
+      $searchterm = strtolower($this->params['named']['search.givenName']);
       // We set up LOWER() indices on these columns (CO-1006)
       $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
     }
     
     // Filter by Family name
-    if(!empty($this->params['named']['Search.familyName'])) {
-      $searchterm = strtolower($this->params['named']['Search.familyName']);
+    if(!empty($this->params['named']['search.familyName'])) {
+      $searchterm = strtolower($this->params['named']['search.familyName']);
       $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
     }
     
-    if(!empty($this->params['named']['Search.givenName'])
-       || !empty($this->params['named']['Search.familyName'])) {
+    if(!empty($this->params['named']['search.givenName'])
+       || !empty($this->params['named']['search.familyName'])) {
       $pagcond['conditions']['Name.primary_name'] = true;
       $pagcond['joins'][] = array(
         'table' => 'names',
@@ -1051,14 +1051,14 @@ class CoPeopleController extends StandardController {
     }
     
     // Filter by start of Primary Family name (starts with searchterm)
-    if(!empty($this->params['named']['Search.familyNameStart'])) {
-      $searchterm = strtolower($this->params['named']['Search.familyNameStart']);
+    if(!empty($this->params['named']['search.familyNameStart'])) {
+      $searchterm = strtolower($this->params['named']['search.familyNameStart']);
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
     
     // Filter by email address
-    if(!empty($this->params['named']['Search.mail'])) {
-      $searchterm = strtolower($this->params['named']['Search.mail']);
+    if(!empty($this->params['named']['search.mail'])) {
+      $searchterm = strtolower($this->params['named']['search.mail']);
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
       $pagcond['joins'][] = array(
         'table' => 'email_addresses',
@@ -1073,8 +1073,8 @@ class CoPeopleController extends StandardController {
     }
     
     // Filter by identifier
-    if(!empty($this->params['named']['Search.identifier'])) {
-      $searchterm = strtolower($this->params['named']['Search.identifier']);
+    if(!empty($this->params['named']['search.identifier'])) {
+      $searchterm = strtolower($this->params['named']['search.identifier']);
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
       $pagcond['joins'][] = array(
         'table' => 'identifiers',
@@ -1093,13 +1093,13 @@ class CoPeopleController extends StandardController {
     }
     
     // Filter by status
-    if(!empty($this->params['named']['Search.status'])) {
-      $searchterm = $this->params['named']['Search.status'];
+    if(!empty($this->params['named']['search.status'])) {
+      $searchterm = $this->params['named']['search.status'];
       $pagcond['conditions']['CoPerson.status'] = $searchterm;
     }
     
     // Filter by COU
-    if(!empty($this->params['named']['Search.couid'])) {
+    if(!empty($this->params['named']['search.couid'])) {
       // If a CO Person has more than one role, this search will cause them go show up once
       // per role in the results (select co_people.id,co_person_roles.id where co_person_role.cou_id=#
       // will generate one row per co_person_role_id). In order to fix this, we can use
@@ -1110,7 +1110,7 @@ class CoPeopleController extends StandardController {
       // This produces the correct results, however Cake then goes into an infinite loop
       // trying to pull some related data for the results. So for now, we just leave duplicates
       // in the search results.
-      $pagcond['conditions']['CoPersonRole.cou_id'] = $this->params['named']['Search.couid'];
+      $pagcond['conditions']['CoPersonRole.cou_id'] = $this->params['named']['search.couid'];
       $pagcond['joins'][] = array(
         'table' => 'co_person_roles',
         'alias' => 'CoPersonRole',
@@ -1312,10 +1312,10 @@ class CoPeopleController extends StandardController {
     }
     
     // Append the URL with all the search elements; the resulting URL will be similar to
-    // example.com/registry/co_people/index/Search.givenName:albert/Search.familyName:einstein
-    foreach($this->data['Search'] as $field=>$value){
+    // example.com/registry/co_people/index/search.givenName:albert/search.familyName:einstein
+    foreach($this->data['search'] as $field=>$value){
       if(!empty($value)) {
-        $url['Search.'.$field] = $value; 
+        $url['search.'.$field] = $value;
       }
     }
     
