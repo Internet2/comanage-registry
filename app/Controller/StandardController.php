@@ -29,8 +29,11 @@ class StandardController extends AppController {
   // Placeholder, will get set by index()
   public $paginate = array();
 
-  // Used for activating tabs on pages; will hold name of tab or NULL
+  // XXX Deprecated. Used for activating tabs on pages; will hold name of tab or NULL
   public $redirectTab = NULL;
+
+  // Used in the performRedirect() function to pass in a specific redirect from a controller
+  public $redirectTarget = NULL;
 
   // Deleting certain records requires forcing a hard delete so that changelog
   // behavior is skipped
@@ -1306,6 +1309,9 @@ class StandardController extends AppController {
       
       $this->set('redirect', $redirect);
       $this->redirect($redirect);
+    } elseif(!empty($this->redirectTarget)) {
+      // we are passing in a specific redirect (overriding the default redirect to 'index')
+      $this->redirect($this->redirectTarget);
     } elseif(isset($this->cur_co)) {
       $this->redirect(array('action' => 'index', 'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));
     } else {
