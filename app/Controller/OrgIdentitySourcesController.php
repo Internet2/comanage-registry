@@ -441,7 +441,7 @@ class OrgIdentitySourcesController extends StandardController {
       
       foreach($this->request->data['Search'] as $field => $value) {
         if(!empty($value)) {
-          $url['Search.'.$field] = $value; 
+          $url['search.'.$field] = $value;
         }
       }
       
@@ -451,9 +451,9 @@ class OrgIdentitySourcesController extends StandardController {
       
       // We don't really need this, except that if the last parameter has a dot in it
       // (eg: an email address), Cake will parse the new URL as having an extension.
-      // eg: /query/23/Search.email=foo@bar.com => request with extension type "com"
+      // eg: /query/23/search.email=foo@bar.com => request with extension type "com"
       // By ensuring the last parameter is this, the search parameter will not be munged.
-      // eg: /query/23/Search.email=foo@bar.com/op=search
+      // eg: /query/23/search.email=foo@bar.com/op=search
       $url['op'] = 'search';
       
       // redirect to the new url
@@ -480,8 +480,8 @@ class OrgIdentitySourcesController extends StandardController {
     $searchQuery = array();
     
     foreach($this->request->params['named'] as $k => $v) {
-      // Search terms are of the form Search.field, we want "field"
-      if(strncmp($k, "Search.", 7)==0) {
+      // Search terms are of the form search.field, we want "field"
+      if(strncmp($k, "search.", 7)==0) {
         $qk = explode('.', $k, 2);
         
         $searchQuery[ $qk[1] ] = $v;

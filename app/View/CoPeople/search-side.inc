@@ -42,20 +42,20 @@ global $cm_lang, $cm_texts;
     $args = array();
     $args['label'] = _txt('fd.name.given');
     $args['placeholder'] = _txt('fd.name.given');
-    $args['value'] = !empty($this->request->params['named']['Search.givenName']) ? $this->request->params['named']['Search.givenName'] : '';
-    print $this->Form->input('Search.givenName',$args);
+    $args['value'] = !empty($this->request->params['named']['search.givenName']) ? $this->request->params['named']['search.givenName'] : '';
+    print $this->Form->input('search.givenName',$args);
 
     $args = array();
     $args['label'] = _txt('fd.name.family');
     $args['placeholder'] = _txt('fd.name.family');
-    $args['value'] = !empty($this->request->params['named']['Search.familyName']) ? $this->request->params['named']['Search.familyName'] : '';
-    print $this->Form->input('Search.familyName',$args);
+    $args['value'] = !empty($this->request->params['named']['search.familyName']) ? $this->request->params['named']['search.familyName'] : '';
+    print $this->Form->input('search.familyName',$args);
 
     $args = array();
     $args['label'] = _txt('fd.identifier.identifier');
     $args['placeholder'] = _txt('fd.identifier.identifier');
-    $args['value'] = !empty($this->request->params['named']['Search.identifier']) ? $this->request->params['named']['Search.identifier'] : '';
-    print $this->Form->input('Search.identifier', $args);
+    $args['value'] = !empty($this->request->params['named']['search.identifier']) ? $this->request->params['named']['search.identifier'] : '';
+    print $this->Form->input('search.identifier', $args);
 
     // This needs to pull StatusEnum values based on the model (CO-1007)
     $statusOptions = array(StatusEnum::Active,
@@ -77,17 +77,17 @@ global $cm_lang, $cm_texts;
                         'type'    => 'select',
                         'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
                         'label'   => _txt('fd.status'),
-                        'value'   => (!empty($this->request->params['named']['Search.status']) ? $this->request->params['named']['Search.status'] : ''));
+                        'value'   => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
 
-    print $this->Form->input('Search.status', $formParams);
+    print $this->Form->input('search.status', $formParams);
     if(!empty($vv_cous)) {
       $formParams = array('options' => $vv_cous,
         'type' => 'select',
         'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
         'label' => _txt('fd.cou'),
-        'value' => (!empty($this->request->params['named']['Search.couid']) ? $this->request->params['named']['Search.couid'] : ''));
+        'value' => (!empty($this->request->params['named']['search.couid']) ? $this->request->params['named']['search.couid'] : ''));
 
-      print $this->Form->input('Search.couid', $formParams);
+      print $this->Form->input('search.couid', $formParams);
     } // cous
 
     //$this->Form->submit(_txt('op.search'));
