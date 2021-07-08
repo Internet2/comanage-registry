@@ -526,12 +526,30 @@
     <field name="username" type="C" size="128" />
     <field name="password" type="C" size="80" />
     <field name="sor_label" type="C" size="40" />
-    <field name="is_comanage_match" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
     <index name="match_servers_i1">
       <col>server_id</col>
+    </index>
+  </table>
+  
+  <table name="match_server_attributes">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="match_server_id" type="I">
+      <constraint>REFERENCES cm_match_servers(id)</constraint>
+    </field>
+    <field name="attribute" type="C" size="80" />
+    <field name="type" type="C" size="32" />
+    <field name="required" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="match_servers_i1">
+      <col>match_server_id</col>
     </index>
   </table>
   

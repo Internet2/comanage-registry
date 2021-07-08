@@ -93,30 +93,6 @@
       <?php print ($e ? $this->Form->input('sor_label') : filter_var($match_servers[0]['MatchServer']['sor_label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <li>
-    <div class="field-name">
-      <?php print _txt('fd.attrs.match'); ?>
-    </div>
-    <div class="field-info">
-      <?php print _txt('fd.name') . '/' . _txt('fd.name.primary_name'); ?></br>
-      <?php print _txt('fd.date_of_birth'); ?></br>
-      <?php print _txt('fd.identifier.identifier') . '/' . _txt('en.identifier.type', null, IdentifierEnum::National); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name vtop">
-      <div class="field-title">
-        <?php print _txt('fd.server.match.is_comanage_match'); ?>
-      </div>
-      <div class="field-desc"><?php print _txt('fd.server.match.is_comanage_match.desc'); ?></div>
-    </div>
-    <div class="field-info checkbox">
-      <?php print ($e
-                   ? $this->Form->input('is_comanage_match') .
-                     $this->Form->label('is_comanage_match', _txt('fd.server.match.is_comanage_match'))
-                   : ($co_enrollment_flows[0]['MatchServer']['is_comanage_match'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
-    </div>
-  </li>
   <?php if($e): ?>
   <li class="fields-submit">
     <div class="field-name">

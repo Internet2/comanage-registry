@@ -308,6 +308,7 @@ class Co extends AppModel {
         'CoGroupOisMapping' => 'OrgIdentitySource',
         'CoGroupNesting' => 'CoGroup',
         'HttpServer' => 'Server',
+        'MatchServer' => 'Server',
         'Oauth2Server' => 'Server',
         'SqlServer' => 'Server',
       ) as $m => $parentm) {

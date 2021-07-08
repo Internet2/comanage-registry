@@ -37,6 +37,8 @@ class MatchServer extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array("Server");
   
+  public $hasMany = array("MatchServerAttribute");
+  
   // Default display field for cake generated views
   public $displayField = "serverurl";
   
@@ -70,12 +72,7 @@ class MatchServer extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
-    ),
-    'is_comanage_match' => array(
-      'rule' => 'boolean',
-      'required' => true,
-      'allowEmpty' => false
-    ),
+    )
   );
   
   /**
@@ -97,6 +94,103 @@ class MatchServer extends AppModel {
    */
   
   /**
+   * Assemble attributes from an Org Identity into a format suitable for wire
+   * transfer.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  array $matchAttributes Match Attribute configuration
+   * @param  array $orgIdentity     Org Identity
+   * @return array                  Array of data suitable for conversion to JSON
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+
+  protected function assembleRequestAttributes($matchAttributes, $orgIdentity) {
+    $matchRequest = array();
+    
+    $supportedAttrs = $this->MatchServerAttribute->supportedAttributes();
+    
+    foreach($matchAttributes as $mattr) {
+      if($mattr['required'] == RequiredEnum::NotPermitted)
+        continue;
+      
+      $found = false;
+      
+      // This is the key used by supportedAttributes(), which is also the value
+      // stored in the database for 'attribute' by the form
+      $attrKey = $mattr['attribute'];
+      
+      // $model = (eg) EmailAddress
+      $model = $supportedAttrs[$attrKey]['model'];
+      // $wire = (eg) emailAddresses
+      $wire = $supportedAttrs[$attrKey]['wire'];
+      
+      if(isset($supportedAttrs[$attrKey]['attribute'])) {
+        // This is a singleton value on OrgIdentity, eg "date_of_birth"
+
+        // XXX date_of_birth is expected to be YYYY-MM-DD but we don't currently try to reformat it...
+        
+        if(!empty($orgIdentity['OrgIdentity'][ $supportedAttrs[$attrKey]['attribute'] ])) {
+          $matchRequest['sorAttributes'][$wire] = $orgIdentity['OrgIdentity'][ $supportedAttrs[$attrKey]['attribute'] ];
+          $found = true;
+        }
+      } elseif(isset($supportedAttrs[$attrKey]['attributes'])) {
+        // This is an MVPA, eg "emailAddress"
+        
+        // When assembling attributes from MVPAs, we include all available attributes.
+        // The Match server can ignore the ones it doesn't care about.
+        
+        // We don't try to reformat the attribute (strip spaces, slashes, etc) since
+        // the match engine should be configured to treat the attribute appropriately
+        // (eg: alphanumeric).
+        
+        // $type = (eg) official (as configured for this Match Server instance)
+        $type = $mattr['type'];
+        
+        $obj = Hash::extract($orgIdentity[$model], '{n}[type='.$type.']');
+        
+        if(!empty($obj)) {
+          foreach($obj as $o) {
+            // Assemble the record
+            $attrs = array(
+              'type' => $type
+            );
+            
+            foreach($supportedAttrs[$attrKey]['attributes'] as $ra => $ad) {
+              // $ra = Registry Attribute, $ad = Attribute Dictionary attribute
+              // We use isset() rather than !empty() to avoid issues with
+              // "blank" values, including 0
+              if(isset($o[$ra])) {
+                $attrs[$ad] = $o[$ra];
+              }
+            }
+            
+            // Make sure we have something other than type to work with
+            if(count(array_keys($attrs)) > 1) {
+              $matchRequest['sorAttributes'][$wire][] = $attrs;
+              $found = true;
+            }
+          }
+        }
+      } else {
+        throw new LogicException('NOT IMPLEMENTED: ' . $attrKey);
+      }
+      
+      if(!$found && $mattr['required'] == RequiredEnum::Required) {
+        throw new InvalidArgumentException(_txt('er.match.attr.req', array($mattr['attribute'], $mattr['id'])));
+      }
+    }
+    
+    if(empty($matchRequest)) {
+      // We didn't find any attributes, so throw an error
+      
+      throw new RuntimeException(_txt('er.match.attr.none'));
+    }
+    
+    return $matchRequest;
+  }
+  
+  /**
    * Perform an ID Match Reference Identifier or Update Attributes Request.
    *
    * @since  COmanage Registry v3.3.0
@@ -115,7 +209,7 @@ class MatchServer extends AppModel {
     $args['conditions']['Server.id'] = $serverId;
     // Make sure server configuration is still active
     $args['conditions']['Server.status'] = SuspendableStatusEnum::Active;
-    $args['contain'] = array('MatchServer');
+    $args['contain'] = array('MatchServer' => array('MatchServerAttribute'));
     
     $srvr = $this->Server->find('first', $args);
     
@@ -127,7 +221,8 @@ class MatchServer extends AppModel {
     $args = array();
     $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
     $args['contain'] = array(
-      'PrimaryName',
+      'EmailAddress',
+      'Name',
       'Identifier'
     );
     
@@ -136,53 +231,17 @@ class MatchServer extends AppModel {
     if(empty($orgIdentity)) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.org_identities.1'), $orgIdentityId)));
     }
-
+    
+    // Find an SOR ID in the Org Identity
+    $sorId = Hash::extract($orgIdentity['Identifier'], '{n}[type='.IdentifierEnum::SORID.']');
+    
+    if(empty($sorId)) {
+      throw new InvalidArgumentException(_txt('er.match.attr.sorid'));
+    }
+    
     // Assemble a match request using the attributes in the Org Identity record
-    // XXX this should be configurable, but for now we'll just send a fixed record
-    
-    $matchRequest = array(
-      'sorAttributes' => array(
-        'names' => array(
-          0 => array(
-            'type' => 'official',
-            'given' => $orgIdentity['PrimaryName']['given'],
-            'family' => $orgIdentity['PrimaryName']['family']
-          )
-        )
-      )
-    );
-    
-    if(!empty($orgIdentity['OrgIdentity']['date_of_birth'])) {
-      // XXX this is expected to be YYYY-MM-DD but we don't currently try to reformat it...
-      $matchRequest['sorAttributes']['dateOfBirth'] = $orgIdentity['OrgIdentity']['date_of_birth'];
-    }
-    
-    $nationalId = null;
-    $sorId = null;
-    
-    foreach($orgIdentity['Identifier'] as $id) {
-      if($id['type'] == IdentifierEnum::National) {
-        $nationalId = $id['identifier'];
-      } elseif($id['type'] == IdentifierEnum::SORID) {
-        $sorId = $id['identifier'];
-      }
-    }
-  
-    if(!$sorId) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.identifiers.1'), _txt('en.identifier.type', null, IdentifierEnum::SORID))));
-    }
-    
-    if($nationalId) {
-      // We don't try to reformat the identifier (strip spaces, slashes, etc) since
-      // the match engine should be configured to treat the attribute appropriately
-      // (eg: alphanumeric).
-      $matchRequest['sorAttributes']['identifiers'] = array(
-        0 => array(
-          'type' => IdentifierEnum::National,
-          'identifier' => $nationalId
-        )
-      );
-    }
+    // Let any exceptions bubble up
+    $matchRequest = $this->assembleRequestAttributes($srvr['MatchServer']['MatchServerAttribute'], $orgIdentity);
     
     $Http = new CoHttpClient();
     
@@ -198,7 +257,7 @@ class MatchServer extends AppModel {
       $srvr['MatchServer']['password']
     );
     
-    $url = "/people/" . urlencode($srvr['MatchServer']['sor_label']) . "/" . urlencode($sorId);
+    $url = "/people/" . urlencode($srvr['MatchServer']['sor_label']) . "/" . urlencode($sorId[0]['identifier']);
     
     if($action == 'request') {
       // Before we submit the PUT, we do a GET (Request Current Values) to see
@@ -218,9 +277,9 @@ class MatchServer extends AppModel {
       if($response->code == 200) {
         $body = json_decode($response->body);
         
-        if(!empty($body->referenceId)) {
+        if(!empty($body->meta->referenceId)) {
           // The pending match has been resolved
-          return $body->referenceId;
+          return $body->meta->referenceId;
         }
       }
     }
