@@ -1262,7 +1262,7 @@ class StandardController extends AppController {
       
       $this->set('redirect', $redirect);
       $this->redirect($redirect);
-    } elseif(isset($this->redirectTarget)) {
+    } elseif(!empty($this->redirectTarget)) {
       // we are passing in a specific redirect (overriding the default redirect to 'index')
       $this->redirect($this->redirectTarget);
     } elseif(isset($this->cur_co)) {
