@@ -1318,6 +1318,9 @@ class CoPeopleController extends StandardController {
         $url['search.'.$field] = $value;
       }
     }
+
+    // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
+    $url['op'] = 'search';
     
     // redirect the user to the url
     $this->redirect($url, null, true);
