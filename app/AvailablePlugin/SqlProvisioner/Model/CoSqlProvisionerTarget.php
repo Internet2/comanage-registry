@@ -39,7 +39,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("CoProvisioningTarget");
+  public $belongsTo = array("CoProvisioningTarget", "Server");
   
   // Default display field for cake generated views
   public $displayField = "server_id";
