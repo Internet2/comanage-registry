@@ -161,6 +161,28 @@ class CoreApi extends AppModel {
             }
           }
           
+          if($modelName == 'OrgIdentity') {
+            // We have to manually remove the CoOrgIdentityLink. While we don't
+            // want provisioning to run, we do want ChangelogBehavior, so we
+            // find the record ID before manually deleting.
+            
+            $args = array();
+            $args['conditions']['CoOrgIdentityLink.co_person_id'] = $coPersonId;
+            $args['conditions']['CoOrgIdentityLink.org_identity_id'] = $m['id'];
+            $args['contain'] = false;
+            
+            // There should only one link
+            $links = $model->CoOrgIdentityLink->find('first', $args);
+            
+            if(!empty($links)) {
+              $model->CoOrgIdentityLink->_provision = false;
+              
+              $model->CoOrgIdentityLink->delete($links['CoOrgIdentityLink']['id']);
+              
+              $model->CoOrgIdentityLink->_provision = true;
+            }
+          }
+          
           // We have to use the flag hack to disable provisioning because Cake 2
           // doesn't support options passed to delete()
           $model->_provision = false;
