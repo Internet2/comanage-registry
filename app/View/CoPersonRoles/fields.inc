@@ -209,6 +209,7 @@
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
                     $attrs['empty'] = $vv_allow_empty_cou;
+                    $attrs['class'] = 'focusFirst';
 
                     if($e && !$es) {
                       print $this->Form->select('cou_id',
@@ -241,11 +242,14 @@
               <div class="field-info">
                 <?php
                   global $cm_lang, $cm_texts;
-                  $attrs = array();
                   $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['affiliation'])
                     ? $co_person_roles[0]['CoPersonRole']['affiliation']
                     : AffiliationEnum::Member);
                   $attrs['empty'] = false;
+            
+                  if(empty($permissions['cous'])):
+                    $attrs = array('class' => 'focusFirst');
+                  endif;
 
                   if($e && !$es) {
                     print $this->Form->select('affiliation',
@@ -345,11 +349,35 @@
               </div>
               <div class="field-info">
                 <?php
-                  $args = array(
-                    'column' => 'title',
-                    'editable' => ($e && !$es)
-                  );
-                  print $this->element('enumerableField', $args);
+                  if($e && !$es) {
+                    if(!empty($vv_enums_title)) {
+                      // Attribute enumerations defined
+
+                      if(!empty($co_person_roles[0]['CoPersonRole']['title'])
+                        && !array_search($co_person_roles[0]['CoPersonRole']['title'], $vv_enums_title)) {
+                        print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
+
+                        print '<div class="field-desc">
+                                 <span class="ui-icon ui-icon-info co-info"></span>
+                                 <em>' . _txt('er.ae.val.inv') . '</em>
+                               </div>';
+                      }
+
+                      $attrs = array();
+                      $attrs['empty'] = true;
+
+                      print $this->Form->select('title', $vv_enums_title, $attrs);
+
+                      if($this->Form->isFieldError('title')) {
+                        print $this->Form->error('title');
+                      }
+                    } else {
+                      // No attribute enumerations defined
+                      print $this->Form->input('title', array('size' => 60));
+                    }
+                  } else {
+                    print filter_var($co_person_roles[0]['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS);
+                  }
                 ?>
               </div>
             </li>
