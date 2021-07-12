@@ -595,10 +595,23 @@ class ProvisionerBehavior extends ModelBehavior {
       $pAction = ProvisioningActionEnum::CoGroupDeleted;
     }
     
+    // Ideally, we'd have used containable to pull CoProvisioningTargetFilter
+    // with $coProvisionerTarget, but the latter is ChangelogBehavior-enabled
+    // while the former isn't, which results in issues pulling archived records
+    // that shouldn't be pulled. So we check for filters here.
+    
+    $args = array();
+    $args['conditions']['CoProvisioningTargetFilter.co_provisioning_target_id'] = $coProvisioningTarget['CoProvisioningTarget']['id'];
+    $args['order'] = 'CoProvisioningTargetFilter.ordr ASC';
+    $args['contain'] = array('DataFilter');
+    
+    $CPTFilter = ClassRegistry::init('CoProvisioningTargetFilter');
+    $filters = $CPTFilter->find('all', $args);
+    
     // Pass the provisioning data through any configured data filters.
     // The parent call should have ordered the filters already (via containable).
-    if(!empty($coProvisioningTarget['CoProvisioningTargetFilter'])) {
-      foreach($coProvisioningTarget['CoProvisioningTargetFilter'] as $filter) {
+    if(!empty($filters)) {
+      foreach($filters as $filter) {
         if(!empty($filter['DataFilter']) 
            && $filter['DataFilter']['status'] == SuspendableStatusEnum::Active) {
           $pluginModelName = $filter['DataFilter']['plugin'] . "." . $filter['DataFilter']['plugin'];
@@ -795,10 +808,7 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       $args['order'] = array('CoProvisioningTarget.ordr ASC');
     }
-    $args['contain'] = array('CoProvisioningTargetFilter' => array(
-      'DataFilter',
-      'order' => 'CoProvisioningTargetFilter.ordr ASC'
-    ));
+    $args['contain'] = false;
     
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
     
@@ -938,14 +948,7 @@ class ProvisionerBehavior extends ModelBehavior {
       
       $args = array();
       $args['conditions']['CoProvisioningTarget.id'] = $coProvisioningTargetId;
-      // beforeFilter may have bound all the plugins (depending on how we were called),
-      // so this find will pull the related models as well. However, to reduce the number
-      // of database queries should a large number of plugins be installed, we'll use
-      // containable behavior and make a second call for the plugin we want.
-      $args['contain'] = array('CoProvisioningTargetFilter' => array(
-        'DataFilter',
-        'order' => 'CoProvisioningTargetFilter.ordr ASC'
-      ));
+      $args['contain'] = false;
       
       // Currently, CoPerson and CoGroup are the only models that calls manualProvision, so we know
       // how to find CoProvisioningTarget
