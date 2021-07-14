@@ -279,13 +279,11 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
               $n['login'] = false;
               $n['status'] = StatusEnum::Active;
               
-              if(strlen($type) > 6) {
-                $p = strpos($type, "+login", -6);
+              if(strlen($type) > 6
+                 && substr($i[0], strlen($i[0])-6, 6)=="+login") {
 
-                if($p) {
-                  $n['login'] = true;
-                  $n['type'] = substr($type, 0, $p);
-                }
+                $n['login'] = true;
+                $n['type'] = substr($type, 0, strlen($i[0])-6);
               }
             }
             
