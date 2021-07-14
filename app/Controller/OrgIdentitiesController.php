@@ -649,8 +649,17 @@ class OrgIdentitiesController extends StandardController {
 
     // Filter by Organization
     if(!empty($this->params['named']['search.organization'])) {
-      $searchterm = strtolower($this->params['named']['search.organization']);
-      $pagcond['conditions']['LOWER(OrgIdentity.o) LIKE'] = "%$searchterm%";
+      // XXX CO-2171
+      // XXX Temporary solution which will be removed in v5.0.0
+      $searchterm = $this->params['named']['search.organization'];
+      $dbc = $this->OrgIdentity->getDataSource();
+      if ($dbc->config['datasource'] === 'Database/Postgres') {
+        $pagcond['conditions']['OrgIdentity.o iLIKE'] = "%$searchterm%";
+      } else {
+        // XXX In MySQL, SQL patterns are case-insensitive by default
+        // Note that SQLite LIKE operator is case-insensitive. It means "A" LIKE "a" is true.
+        $pagcond['conditions']['OrgIdentity.o LIKE'] = "%$searchterm%";
+      }
     }
 
     // Filter by Department
