@@ -36,6 +36,9 @@ print $this->Form->create($req, array('type' => 'post','url' => array('action'=>
 // List of search fields
 $search_fields = array_keys($vv_search_fields);
 
+// Boolean to distinguish between search filters and sort parameters
+$hasActiveFilters = false;
+
 ?>
 
 <div id="<?php print $req . ucfirst($this->action); ?>Search" class="top-search">
@@ -72,6 +75,9 @@ $search_fields = array_keys($vv_search_fields);
               // Construct aria-controls string
               $key_fields = explode('.', $key);
               $aria_controls = $key_fields[0] . ucfirst($key_fields[1]);
+
+              // We have named filters - not just a sort.
+              $hasActiveFilters = true;
             ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
                <span class="top-search-active-filter-title"><?php print $vv_search_fields[$key]['label']; ?></span>
@@ -110,9 +116,11 @@ $search_fields = array_keys($vv_search_fields);
                </span>
             </button>
           <?php endforeach; ?>
-         <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear" onclick="event.stopPropagation()">
-            <?php print _txt('op.clear.filters.pl');?>
-         </button>
+          <?php if($hasActiveFilters): ?>
+             <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear" onclick="event.stopPropagation()">
+                <?php print _txt('op.clear.filters.pl');?>
+             </button>
+          <?php endif; ?>
         </span>
       <?php endif; ?>
       <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
