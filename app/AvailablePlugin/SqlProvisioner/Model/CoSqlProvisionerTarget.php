@@ -436,6 +436,12 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       'ds'    => 'targetdb'
     ));
     
+    $GModel = new Model(array(
+      'table' => 'sp_co_group_members',
+      'name'  => 'SpCoGroupMember',
+      'ds'    => 'targetdb'
+    ));
+    
     // Instantiate the core (source) model and pull the records associated with this CO ID
     $SrcModel = ClassRegistry::init($this->parentModels['CoGroup']['source']);
     
@@ -453,6 +459,16 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       
       // Remove any deleted records (those remaining in the reference table
       // that were not in $records)
+      
+      // As a bit of an edge case (CO-2173), if the server is not in Automatic
+      // mode and any Groups were deleted, those Group Memberships will still
+      // be present, and this delete will fail due to foreign keys still pointing
+      // here. Clear those out first.
+      
+      $GModel->deleteAll(array(
+        'NOT' => array('co_group_id' => Hash::extract($records, '{n}.'.$this->parentModels['CoGroup']['source'].'.id'))
+      ),
+      false);
       
       $Model->deleteAll(array(
         'NOT' => array('id' => Hash::extract($records, '{n}.'.$this->parentModels['CoGroup']['source'].'.id'))
