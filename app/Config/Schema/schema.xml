@@ -3030,4 +3030,34 @@
       <col>data_filter_id</col>
     </index>
   </table>
+  
+  <!-- "preferences" may not be 100% correct, but it inflects better than "state" -->
+  <table name="application_preferences">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <!-- we don't use key because it is reserved by mysql -->
+    <field name="tag" type="C" size="128" />
+    <field name="value" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="application_preference_id" type="I">
+      <constraint>REFERENCES cm_application_preferences(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="application_preferences_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="application_preferences_i2">
+      <col>application_preferences_id</col>
+    </index>
+  </table>
 </schema>

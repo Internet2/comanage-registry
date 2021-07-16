@@ -54,6 +54,7 @@ class CoPerson extends AppModel {
   );
   
   public $hasMany = array(
+    "ApplicationPreference",
     "AuthenticatorStatus",
     // A person can have one or more groups
     "CoGroupMember" => array('dependent' => true),
