@@ -87,6 +87,11 @@ class CmpEnrollmentConfiguration extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'app_base' => array(
+      'rule' => 'notBlank',
+      'required' => true,
+      'message' => 'The webroot location must be provided'
+    ),
   );
   
   /**
@@ -108,6 +113,7 @@ class CmpEnrollmentConfiguration extends AppModel {
       'pool_org_identities' => $pool,
       'status'              => StatusEnum::Active,
       'redirect_on_logout'  => null,
+      'app_base'            => '/registry/',
     );
     
     if($this->save($ef)) {
@@ -136,7 +142,27 @@ class CmpEnrollmentConfiguration extends AppModel {
 
 
   /**
-   * Get the Logoute Redirect URL specified in the Platform CO.
+   * Get the App.base location
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return string App.base location
+   */
+
+  public function getAppBase() {
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['fields'] = array('CmpEnrollmentConfiguration.app_base');
+    $args['contain'] = false;
+
+    $cmp = $this->find('first', $args);
+
+    return $cmp["CmpEnrollmentConfiguration"]["app_base"];
+  }
+
+
+  /**
+   * Get the Logout Redirect URL specified in the Platform CO.
    *
    * @since  COmanage Registry v4.0.0
    * @return string Logout Redirect URL
