@@ -1168,6 +1168,20 @@ class ProvisionerBehavior extends ModelBehavior {
       return array();
     }
     
+    if(!in_array($coPersonData['CoPerson']['status'], $this->personStatuses)) {
+      // As per https://spaces.at.internet2.edu/display/COmanage/CO+Person+and+Person+Role+Status
+      // we don't provision data for many statuses. We return a skeletal record
+      // to facilitate deprovisioning.
+      
+      return array(
+        'CoPerson' => array(
+          'co_id' => $coPersonData['CoPerson']['co_id'],
+          'id' => $coPersonId,
+          'status' => $coPersonData['CoPerson']['status']
+        )
+      );
+    }
+    
     // Merge in Authenticator data, obtained via plugins
     $coPersonData = array_merge($coPersonData, 
                                 $coPersonModel->Co->Authenticator->marshallProvisioningData($coPersonData['CoPerson']['co_id'],
@@ -1506,6 +1520,12 @@ class ProvisionerBehavior extends ModelBehavior {
             $paction = ProvisioningActionEnum::CoPersonUnexpired;
           }
         }
+      }
+      
+      if(!in_array($pdata['CoPerson']['status'], $this->personStatuses)) {
+        // Convert to a delete operation in case we're downgrading a record
+        // from a provisioned status to a non-provisioned status
+        $paction = ProvisioningActionEnum::CoPersonDeleted;
       }
       
       // Invoke all provisioning plugins

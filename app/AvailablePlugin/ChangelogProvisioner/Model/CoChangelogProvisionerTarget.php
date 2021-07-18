@@ -83,7 +83,9 @@ class CoChangelogProvisionerTarget extends CoProvisionerPluginTarget {
       throw new RuntimeException(_txt('er.changelogprovisioner.logfile.lock', array($changeLog)));
     }
     
-    fwrite($log, json_encode($provisioningData) . "\n");
+    if(!empty($provisioningData)) {
+      fwrite($log, json_encode($provisioningData) . "\n");
+    }
     
     // Release the lock and close the file
     flock($log, LOCK_UN);
