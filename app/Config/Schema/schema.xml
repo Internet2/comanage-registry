@@ -548,7 +548,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="match_servers_i1">
+    <index name="match_server_attributes_i1">
       <col>match_server_id</col>
     </index>
   </table>
