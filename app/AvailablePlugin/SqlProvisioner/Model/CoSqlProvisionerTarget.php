@@ -29,7 +29,7 @@ App::uses("CoProvisionerPluginTarget", "Model");
 
 // App::import doesn't handle this correctly
 require(APP . '/Vendor/adodb5/adodb.inc.php');
-require(APP . '/Vendor/adodb5/adodb-xmlschema03.inc.php');
+require_once(APP . '/Vendor/adodb5/adodb-xmlschema03.inc.php');
 
 class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   // Define class name for cake
