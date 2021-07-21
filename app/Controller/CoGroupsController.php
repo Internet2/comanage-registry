@@ -229,6 +229,7 @@ class CoGroupsController extends StandardController {
     
     if(!$this->request->is('restful') && $this->action == 'add') {
       $cos = $this->Session->read('Auth.User.cos');
+      $this->redirectTarget = array('action' => 'edit', $this->CoGroup->id);
       
       // Member of current CO? (Platform admin wouldn't be)
       if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id'])) {
