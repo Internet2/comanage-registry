@@ -333,8 +333,15 @@ class UsersController extends AppController {
         
         // Update Org Identities associated with an Enrollment Source, if configured.
         // Note we're performing CO specific work here, even though we're not in a CO context yet.
-        
+
         $this->OrgIdentitySource->syncByIdentifier($u);
+
+        // Update App.base if CMP admin just logged in
+        if($this->Role->identifierIsCmpAdmin($u)) {
+          $cmp = $this->CmpEnrollmentConfiguration->findDefault();
+          $this->CmpEnrollmentConfiguration->id = $cmp["CmpEnrollmentConfiguration"]["id"];
+          $this->CmpEnrollmentConfiguration->saveField('app_base', $this->webroot);
+        }
         
         $this->redirect($this->Auth->redirectUrl());
       } else {
