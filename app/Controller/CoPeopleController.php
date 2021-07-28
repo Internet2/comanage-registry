@@ -78,7 +78,48 @@ class CoPeopleController extends StandardController {
     'PrimaryName',
     'Url'
   );
-  
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.givenName' => array(
+          'label' => _txt('fd.name.given'),
+          'type' => 'text',
+        ),
+        'search.familyName' => array(
+          'label' => _txt('fd.name.family'),
+          'type' => 'text',
+        ),
+        'search.mail' => array(
+          'label' => _txt('fd.email_address.mail'),
+          'type' => 'text',
+        ),
+        'search.identifier' => array(
+          'label' => _txt('fd.identifier.identifier'),
+          'type' => 'text',
+        ),
+        'search.status' => array(
+          'label' => _txt('fd.status'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status'),
+        ),
+        'search.cou' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.cou'),
+          'empty'   => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_cous'],
+        ),
+      );
+    }
+  }
+
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $pool_org_identities set
@@ -147,7 +188,11 @@ class CoPeopleController extends StandardController {
       $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
       
       // List of current COUs
-      $this->set('vv_cous', $this->CoPerson->Co->Cou->allCous($this->cur_co['Co']['id']));
+      $cous_all = $this->CoPerson->Co->Cou->allCous($this->cur_co['Co']['id']);
+      asort($cous_all, SORT_STRING);
+      // `Any` option will return all COUs with a parent
+      // `None` option will return all COUs with parent equal to null
+      $this->set('vv_cous', $cous_all);
       
       // Are any authenticators defined for this CO?
       
@@ -1025,66 +1070,58 @@ class CoPeopleController extends StandardController {
     // works on PrimaryName so that the results match the index list.
     
     // Filter by Given name
-    if(!empty($this->params['named']['search.givenName'])) {
-      $searchterm = strtolower($this->params['named']['search.givenName']);
+    if(!empty($this->request->params['named']['search.givenName'])) {
+      $searchterm = strtolower($this->request->params['named']['search.givenName']);
       // We set up LOWER() indices on these columns (CO-1006)
       $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
     }
     
     // Filter by Family name
-    if(!empty($this->params['named']['search.familyName'])) {
-      $searchterm = strtolower($this->params['named']['search.familyName']);
+    if(!empty($this->request->params['named']['search.familyName'])) {
+      $searchterm = strtolower($this->request->params['named']['search.familyName']);
       $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
     }
-    
-    if(!empty($this->params['named']['search.givenName'])
-       || !empty($this->params['named']['search.familyName'])) {
+
+    $jcnt = 0;
+    if(!empty($this->request->params['named']['search.givenName'])
+       || !empty($this->request->params['named']['search.familyName'])) {
       $pagcond['conditions']['Name.primary_name'] = true;
-      $pagcond['joins'][] = array(
-        'table' => 'names',
-        'alias' => 'Name',
-        'type' => 'INNER',
-        'conditions' => array(
-          'Name.co_person_id=CoPerson.id' 
-        )
-      );
+      $pagcond['joins'][$jcnt]['table'] = 'names';
+      $pagcond['joins'][$jcnt]['alias'] = 'Name';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'Name.co_person_id=CoPerson.id';
+      $jcnt++;
     }
     
     // Filter by start of Primary Family name (starts with searchterm)
-    if(!empty($this->params['named']['search.familyNameStart'])) {
-      $searchterm = strtolower($this->params['named']['search.familyNameStart']);
+    if(!empty($this->request->params['named']['search.familyNameStart'])) {
+      $searchterm = strtolower($this->request->params['named']['search.familyNameStart']);
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
     
     // Filter by email address
-    if(!empty($this->params['named']['search.mail'])) {
-      $searchterm = strtolower($this->params['named']['search.mail']);
+    if(!empty($this->request->params['named']['search.mail'])) {
+      $searchterm = strtolower($this->request->params['named']['search.mail']);
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
-      $pagcond['joins'][] = array(
-        'table' => 'email_addresses',
-        'alias' => 'EmailAddress',
-        'type' => 'INNER',
-        'conditions' => array(
-          'EmailAddress.co_person_id=CoPerson.id' 
-        )
-      );
-      
+      $pagcond['joins'][$jcnt]['table'] = 'email_addresses';
+      $pagcond['joins'][$jcnt]['alias'] = 'EmailAddress';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'EmailAddress.co_person_id=CoPerson.id';
+      $jcnt++;
+
       // See also the note below about searching org identities for identifiers.
     }
     
     // Filter by identifier
-    if(!empty($this->params['named']['search.identifier'])) {
-      $searchterm = strtolower($this->params['named']['search.identifier']);
+    if(!empty($this->request->params['named']['search.identifier'])) {
+      $searchterm = strtolower($this->request->params['named']['search.identifier']);
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
-      $pagcond['joins'][] = array(
-        'table' => 'identifiers',
-        'alias' => 'Identifier',
-        'type' => 'INNER',
-        'conditions' => array(
-          'Identifier.co_person_id=CoPerson.id' 
-        )
-      );
-      
+      $pagcond['joins'][$jcnt]['table'] = 'identifiers';
+      $pagcond['joins'][$jcnt]['alias'] = 'Identifier';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
+      $jcnt++;
+
       // We also want to search on identifiers attached to org identities.
       // This requires a fairly complicated join that doesn't quite work right
       // and that Cake doesn't really support in our current model configuration.
@@ -1093,13 +1130,13 @@ class CoPeopleController extends StandardController {
     }
     
     // Filter by status
-    if(!empty($this->params['named']['search.status'])) {
-      $searchterm = $this->params['named']['search.status'];
+    if(!empty($this->request->params['named']['search.status'])) {
+      $searchterm = $this->request->params['named']['search.status'];
       $pagcond['conditions']['CoPerson.status'] = $searchterm;
     }
     
     // Filter by COU
-    if(!empty($this->params['named']['search.couid'])) {
+    if(!empty($this->request->params['named']['search.cou'])) {
       // If a CO Person has more than one role, this search will cause them go show up once
       // per role in the results (select co_people.id,co_person_roles.id where co_person_role.cou_id=#
       // will generate one row per co_person_role_id). In order to fix this, we can use
@@ -1110,15 +1147,12 @@ class CoPeopleController extends StandardController {
       // This produces the correct results, however Cake then goes into an infinite loop
       // trying to pull some related data for the results. So for now, we just leave duplicates
       // in the search results.
-      $pagcond['conditions']['CoPersonRole.cou_id'] = $this->params['named']['search.couid'];
-      $pagcond['joins'][] = array(
-        'table' => 'co_person_roles',
-        'alias' => 'CoPersonRole',
-        'type' => 'INNER',
-        'conditions' => array(
-          'CoPersonRole.co_person_id=CoPerson.id' 
-        )
-      );
+      $pagcond['joins'][$jcnt]['table'] = 'co_person_roles';
+      $pagcond['joins'][$jcnt]['alias'] = 'CoPersonRole';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
+      $pagcond['conditions']['CoPersonRole.cou_id'] = $this->request->params['named']['search.cou'];
+      $jcnt++;
     }
     
     // We need to manually add this in for some reason. (It should have been

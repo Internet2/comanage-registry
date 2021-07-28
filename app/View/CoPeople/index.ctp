@@ -106,17 +106,10 @@
   </ul>
 </div>
 
-<?php // Load the top search bar
-if(isset($permissions['search']) && $permissions['search'] ) {
-  if(!empty($this->plugin)) {
-    $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoPeople/search.inc";
-    if(file_exists($fileLocation))
-      include($fileLocation);
-  } else {
-    $fileLocation = APP . "View/CoPeople/search.inc";
-    if(file_exists($fileLocation))
-      include($fileLocation);
-  }
+<?php
+// Search Block
+if(!empty($vv_search_fields)) {
+  print $this->element('search', array('vv_search_fields' => $vv_search_fields));
 }
 ?>
 
