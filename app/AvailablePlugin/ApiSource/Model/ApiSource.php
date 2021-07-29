@@ -248,12 +248,20 @@ class ApiSource extends AppModel {
       // Parameter is timeout in milliseconds
       $message = $KafkaConsumer->consume(5000);
       
+      // Kafka's handling of EOFs and timeouts can be a bit confusing, see eg
+      // https://github.com/confluentinc/confluent-kafka-python/issues/283
       if($message->err == RD_KAFKA_RESP_ERR__PARTITION_EOF) {
-        // Simply break, nothing else to do
+        // If we see an EOF, we basically ignore it since it just means this
+        // message was EOF at some point (which doesn't seem like useful
+        // information in any way...). We'll try consuming again until we time
+        // out...
+        continue;
+      } elseif($message->err == RD_KAFKA_RESP_ERR__TIMED_OUT) {
+        // This is not a bad timeout, it just means "topic is empty".
+        // We'll stop the job here.
         $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                            null,
                                            _txt('pl.apisource.job.poll.eof'));
-        
         break;
       } elseif($message->err != RD_KAFKA_RESP_ERR_NO_ERROR) {
         // Throw an error that will bubble up the stack

@@ -376,6 +376,25 @@
         ?>
       </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php
+        print ($e ? $this->Form->label('app_base', _txt('fd.ef.app.base')) : _txt('fd.ef.app.base'));
+        ?>
+      </div>
+      <div class="field-desc"><?php
+        print _txt('fd.ef.app.base.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      if ($e) {
+        print $this->Form->hidden('app_base', array('value' => $this->webroot));
+      }
+      print filter_var($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['app_base'], FILTER_SANITIZE_SPECIAL_CHARS);
+      ?>
+    </div>
+  </li>
 
   <?php if($e): ?>
     <li class="fields-submit">

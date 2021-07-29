@@ -26,7 +26,7 @@
  */
 
 class NotificationShell extends AppShell {
-  var $uses = array('Co', 'CoGroup', 'CoNotification', 'CoPerson');
+  var $uses = array('Co', 'CoGroup', 'CoNotification', 'CoPerson', 'CmpEnrollmentConfiguration');
   
   public function getOptionParser() {
     $parser = parent::getOptionParser();
@@ -87,6 +87,10 @@ class NotificationShell extends AppShell {
   }
   
   public function main() {
+    // Set App.base configuration
+    $app_base = $this->CmpEnrollmentConfiguration->getAppBase();
+    Configure::write('App.base', $app_base);
+
     // First try to find the CO ID
     
     $args = array();

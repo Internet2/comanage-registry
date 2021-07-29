@@ -28,6 +28,7 @@
 class JobShell extends AppShell {
   var $uses = array('Co',
                     'CoJob',
+                    'CmpEnrollmentConfiguration',
                     'Lock');
   
   /**
@@ -226,6 +227,10 @@ class JobShell extends AppShell {
   
   function main() {
     // Run background / scheduled tasks.
+
+    // Set App.base configuration
+    $app_base = $this->CmpEnrollmentConfiguration->getAppBase();
+    Configure::write('App.base', $app_base);
     
     // We need to run this in getOptionParser since that runs before main()
     //_bootstrap_plugin_txt();
