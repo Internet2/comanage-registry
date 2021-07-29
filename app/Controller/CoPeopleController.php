@@ -80,6 +80,23 @@ class CoPeopleController extends StandardController {
   );
 
   /**
+   * Alphabet Search Bar configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function alphabetSearchConfig($action)
+  {
+    if($action == 'index') {
+      return array(
+        'search.familyNameStart' => array(
+          'label' => _txt('me.alpha.label'),
+        ),
+      );
+    }
+  }
+
+  /**
    * Search Block fields configuration
    *
    * @since  COmanage Registry v4.0.0
@@ -88,29 +105,29 @@ class CoPeopleController extends StandardController {
   public function searchConfig($action) {
     if($action == 'index') {                   // Index
       return array(
-        'search.givenName' => array(
+        'search.givenName' => array(             // 1st row, left column
           'label' => _txt('fd.name.given'),
           'type' => 'text',
         ),
-        'search.familyName' => array(
-          'label' => _txt('fd.name.family'),
-          'type' => 'text',
-        ),
-        'search.mail' => array(
-          'label' => _txt('fd.email_address.mail'),
-          'type' => 'text',
-        ),
-        'search.identifier' => array(
+        'search.identifier' => array(            // 1st row, right column
           'label' => _txt('fd.identifier.identifier'),
           'type' => 'text',
         ),
-        'search.status' => array(
+        'search.familyName' => array(            // 2nd row, left column
+          'label' => _txt('fd.name.family'),
+          'type' => 'text',
+        ),
+        'search.status' => array(                // 2nd row, right column
           'label' => _txt('fd.status'),
           'type' => 'select',
           'empty'   => _txt('op.select.all'),
           'options' => _txt('en.status'),
         ),
-        'search.cou' => array(
+        'search.mail' => array(                  // 3rd row, left column
+          'label' => _txt('fd.email_address.mail'),
+          'type' => 'text',
+        ),
+        'search.cou' => array(                  // 3rd row, right column
           'type'    => 'select',
           'label'   => _txt('fd.cou'),
           'empty'   => _txt('op.select.all'),
@@ -1152,7 +1169,6 @@ class CoPeopleController extends StandardController {
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
       $pagcond['joins'][$jcnt]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
       $pagcond['conditions']['CoPersonRole.cou_id'] = $this->request->params['named']['search.cou'];
-      $jcnt++;
     }
     
     // We need to manually add this in for some reason. (It should have been

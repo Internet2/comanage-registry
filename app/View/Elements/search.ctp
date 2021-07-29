@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CoEnrollmentFlow Search
+ * COmanage Registry Search Element
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -28,9 +28,9 @@
 // Globals
 global $cm_lang, $cm_texts;
 // Get a pointer to our model
-$model = $this->name;
-$controller = Inflector::tableize($model);
-$req = Inflector::singularize($model);
+$controller = $this->name;
+$req = Inflector::singularize($controller);
+$controller_route_name = Inflector::underscore($controller);
 
 print $this->Form->create($req, array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
 // List of search fields
@@ -192,7 +192,7 @@ $hasActiveFilters = false;
   <ul>
     <?php
     $args = array();
-    $args['controller'] = $controller;
+    $args['controller'] = $controller_route_name;
     $args['action'] = $this->action;
     if($this->action == 'index') {
       $args['co'] = $cur_co['Co']['id'];

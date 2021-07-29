@@ -111,52 +111,11 @@
 if(!empty($vv_search_fields)) {
   print $this->element('search', array('vv_search_fields' => $vv_search_fields));
 }
+// Alphabet Search quick access bar
+if(!empty($vv_alphabet_search)) {
+  print $this->element('alphabetSearch', array('vv_alphabet_search_config' => $vv_alphabet_search));
+}
 ?>
-
-<div id="peopleAlphabet" class="listControl" aria-label="<?php print _txt('me.alpha.label'); ?>">
-  <ul>
-    <?php
-      $args = array();
-      $args['controller'] = 'co_people';
-      $args['action'] = $this->action;
-      
-      if($this->action == 'index') {
-        $args['co'] = $cur_co['Co']['id'];
-      } else {
-        // A link/relink operation is in progress
-        if(!empty($this->request->params['pass'][0])) {
-          $args[] = $this->request->params['pass'][0];
-        }
-      }
-      
-      // Merge (propagate) all prior search criteria, except familyNameStart and page
-      $args = array_merge($args, $this->request->params['named']);
-      unset($args['search.familyNameStart']);
-      unset($args['page']);
-      
-      $alphaSearch = '';
-
-      if(!empty($this->request->params['named']['search.familyNameStart'])) {
-        $alphaSearch = $this->request->params['named']['search.familyNameStart'];
-      }
-
-      foreach(_txt('me.alpha') as $i) {
-        $args['search.familyNameStart'] = $i;
-        $alphaStyle = ' class="spin"';
-        if ($alphaSearch == $i) {
-          $alphaStyle = ' class="selected spin"';
-        }
-        print '<li' . $alphaStyle . '>' . $this->html->link($i,$args) . '</li>';
-      }
-    ?>
-    <li class="spin">
-      <a href="javascript:clearSearch(document.getElementById('CoPersonSearchForm'));"
-         title="<?php print _txt('op.clear.search'); ?>">
-        <em class="material-icons">block</em>
-      </a>
-    </li>
-  </ul>
-</div>
 
 <div class="table-container">
   <table id="co-people-index" class="common-table">
