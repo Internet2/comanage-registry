@@ -2931,6 +2931,7 @@
     <field name="disable_expiration" type="L" />
     <field name="disable_ois_sync" type="L" />
     <field name="group_validity_sync_window" type="I" />
+    <field name="garbage_collection_window" type="I" />
     <field name="enable_normalization" type="L" />
     <field name="enable_empty_cou" type="L" />
     <field name="invitation_validity" type="I" />

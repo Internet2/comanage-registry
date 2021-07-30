@@ -94,6 +94,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'garbage_collection_interval' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'permitted_fields_name' => array(
       'rule' => '/.*/',
       'required' => false,
@@ -168,6 +173,7 @@ class CoSetting extends AppModel {
     'enable_nsf_demo'            => false,
     'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
     'invitation_validity'        => DEF_INV_VALIDITY,
+    'garbage_collection_interval'  => DEF_GARBAGE_COLLECT_INTERVAL,
     'permitted_fields_name'      => PermittedNameFieldsEnum::HGMFS,
     'required_fields_addr'       => RequiredAddressFieldsEnum::Street,
     'required_fields_name'       => RequiredNameFieldsEnum::Given,
@@ -232,7 +238,19 @@ class CoSetting extends AppModel {
   public function getGroupValiditySyncWindow($coId) {
     return $this->lookupValue($coId, 'group_validity_sync_window');
   }
-  
+
+  /**
+   * Determine the current configuration for CO Garbage Collection time delay window.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId CO ID
+   * @return integer Garbage Collection delay window in minutes
+   */
+
+  public function getGarbageCollectionWindow($coId) {
+    return $this->lookupValue($coId, 'garbage_collection_interval');
+  }
+
   /**
    * Get the invitation validity for the specified CO.
    *
@@ -454,5 +472,59 @@ class CoSetting extends AppModel {
 
   public function emptyCouEnabled($coId) {
     return (boolean)$this->lookupValue($coId, 'enable_empty_cou');
+  }
+
+  /**
+   * Perform CoSetting model upgrade steps for version 4.0.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function _ug400() {
+    // Register the GarbageCollector
+    $Co = ClassRegistry::init('Co');
+    $args = array();
+    $args['conditions']['Co.name'] = 'COmanage';
+    $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
+    $args['fields'] = array('Co.id');
+    $args['contain'] = false;
+
+    $cmp = $Co->find('first', $args);
+    $cmp_id = $cmp['Co']['id'];
+
+    // We will need a requeue Interval, this will be the same as the queue one.
+    $jobid = $Co->CoJob->register(
+      $cmp_id,                                                // $coId
+      'CoreJob.GarbageCollector',                             // $jobType
+      null,                                                   // $jobTypeFk
+      "",                                                     // $jobMode
+      _txt('rs.jb.started.web', array(__FUNCTION__ , -1)),    // $summary
+      true,                                                   // $queued
+      false,                                                  // $concurrent
+      array(                                                  // $params
+        'object_type' => 'Co',
+      ),
+      0,                                                      // $delay (in seconds)
+      1440                                                    // $requeueInterval (in seconds)
+    );
+
+    // Temporarily unbind all relations
+    $this->unbindModel(
+      array(
+        'belongsTo' => array(
+          "Co",
+          "SponsorCoGroup",
+          "CoPipeline",
+          "CoDashboard",
+          "CoTheme"
+        ),
+      )
+    );
+
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    $this->updateAll(
+      array('CoSetting.garbage_collection_interval'=> 1440)
+    );
   }
 }
