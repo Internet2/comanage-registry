@@ -2035,7 +2035,7 @@ original notification at
   'op.inv.resend.confirm' => 'Are you sure you wish to resend an invitation to %1$s? Any previous invitation will be invalidated.',
   'op.inv.send' =>    'Send Invite',
   'op.inventory.view' => 'View Inventory',
-  'op.job.schedule'   => 'Job Schedule',
+  'op.job.schedule'   => 'Schedule Job',
   'op.last' =>        'Last',
   'op.link' =>        'Link',
   'op.link.confirm' => 'Are you sure you wish to proceed?',
