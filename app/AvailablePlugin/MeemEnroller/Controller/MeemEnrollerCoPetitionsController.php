@@ -92,7 +92,7 @@ class MeemEnrollerCoPetitionsController extends CoPetitionsController {
     }
     
     $idpId = (!empty($cfg['MeemEnroller']['env_idp']) ? getenv($cfg['MeemEnroller']['env_idp']) : null);
-    $didMfa = (!empty($cfg['MeemEnroller']['env_mfa']) ? getenv($cfg['MeemEnroller']['env_mfa'] === 'yes') : false);
+    $didMfa = (!empty($cfg['MeemEnroller']['env_mfa']) ? (getenv($cfg['MeemEnroller']['env_mfa']) === 'yes') : false);
     
     if(!empty($cfg['MeemEnroller']['env_idp']) && !$idpId) {
       throw new RuntimeException(_txt('er.meemenroller.env_idp', array($cfg['MeemEnroller']['env_idp'])));
