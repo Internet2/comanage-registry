@@ -82,7 +82,54 @@ class CoSettingsController extends StandardController {
     
     $this->redirect(array('action' => 'edit', $settingId));
   }
-  
+
+  public function job($id) {
+    $this->Co = ClassRegistry::init('Co');
+    // Get the delay interval from Platform Settings
+    $plfm_id = $this->CoSetting->field('co_id', array('CoSetting.id' => $id));
+    $interval = $this->CoSetting->getGarbageCollectionWindow($plfm_id);
+    // Actor username
+    $username_identifier = $this->Session->read('Auth.User.username');
+    // Actor Id
+    $person_id = $this->Co->CoPerson->idForIdentifier($plfm_id, $username_identifier);
+    // Queue a CO Delete Job
+    try {
+      // We will need a requeue Interval, this will be the same as the queue one.
+      $jobid = $this->Co->CoJob->register(
+        $plfm_id,                         // $coId
+        'CoreJob.GarbageCollector',       // $jobType
+        null,                             // $jobTypeFk
+        "",                               // $jobMode
+        _txt('rs.jb.started.web', array($username_identifier, $person_id)), // $summary
+        true,                             // $queued
+        false,                            // $concurrent
+        array(                            // $params
+          'object_type' => 'Co',
+        ),
+        0,                                // $delay (in seconds)
+        $interval                         // $requeueInterval (in seconds)
+      );
+
+      $this->Flash->set(_txt('rs.jb.registered', array($jobid)), array('key' => 'success'));
+
+      // Issue a redirect to the job
+      $this->redirect(array(
+        'controller' => 'co_jobs',
+        'action' => 'view',
+        $jobid
+      ));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+
+      $this->redirect(array(
+        'controller' => 'co_settings',
+        'action' => 'edit',
+        $id
+      ));
+    }
+  }
+
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
@@ -123,6 +170,16 @@ class CoSettingsController extends StandardController {
       $args['order'] = array('CoDashboard.name ASC');
       
       $this->set('vv_co_dashboards', $this->Co->CoDashboard->find("list", $args));
+
+      // Pull Jobs scheduled for Platform CO
+      $co_name = $this->Co->field('name', array('id' => $this->cur_co['Co']['id']));
+      if($co_name === "COmanage") {
+        $this->set(
+          'vv_jobs_queued',
+          $this->Co->CoJob->jobsQueuedByType($this->cur_co['Co']['id'], "CoreJob.GarbageCollector")
+        );
+      }
+
     }
     
     parent::beforeRender();
@@ -220,7 +277,7 @@ class CoSettingsController extends StandardController {
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Edit CO Settings?
-    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['job'] = $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

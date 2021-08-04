@@ -62,7 +62,8 @@ class CoreJob extends CoJobBackend {
       'IdAssign' => _txt('pl.idassignerjob.job'),
       'Provision' => _txt('pl.provisionerjob.job'),
       'Sync' => _txt('pl.syncjob.job'),
-      'ValidateGroupMember' => _txt('pl.groupvalidityjob.job')
+      'ValidateGroupMember' => _txt('pl.groupvalidityjob.job'),
+      'GarbageCollector' => _txt('pl.garbagecollectorjob.job')
     );
   }
 }

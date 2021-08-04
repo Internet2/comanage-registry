@@ -313,6 +313,13 @@
       text: true
     });
 
+    $(".trashbutton").button({
+      icons: {
+        primary: 'ui-icon-trash'
+      },
+      text: true
+    });
+
     $(".editbutton").button(
       {  classes: {
       "ui-button": "highlight"
@@ -361,6 +368,13 @@
     $(".lockbutton").button({
       icons: {
         primary: 'ui-icon-locked'
+      },
+      text: true
+    });
+
+    $(".schedulebutton").button({
+      icons: {
+        primary: ' ui-icon-clock'
       },
       text: true
     });
@@ -469,6 +483,13 @@
     $(".viewbutton").button({
       icons: {
         primary: 'ui-icon-extlink'
+      },
+      text: true
+    });
+
+    $(".restorebutton").button({
+      icons: {
+        primary: 'ui-icon-arrowrefresh-1-e'
       },
       text: true
     });

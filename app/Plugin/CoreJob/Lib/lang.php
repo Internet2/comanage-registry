@@ -39,7 +39,10 @@ $cm_core_job_texts['en_US'] = array(
   'er.bulkjob.action.unknown' => 'Unknown action "%1$s"',
   'er.bulkjob.record.co'   => 'Record %1$s is not in CO %2$s',
   'er.bulkjob.recordType'  => 'Action "%1$s" does not support record type "%2$s"',
-  
+  'er.garbagecollectorjob.object_type.invalid' => 'No "%1$s" Object qualifies for Garbage Collection.',
+  'er.garbagecollectorjob.object_type.unknown' => 'Object Type "%1$s" is not supported',
+
+
   // Plugin texts
   'pl.bulkjob.arg.action'  => 'Bulk task action',
   'pl.bulkjob.arg.actionArgs' => 'Bulk task action specific arguments',
@@ -50,6 +53,16 @@ $cm_core_job_texts['en_US'] = array(
   'pl.bulkjob.updateStatus.done' => 'BulkJob updated %1$s status to %2$s',
   'pl.expirationjob.done'  => 'Expiration Finished',
   'pl.expirationjob.job'   => 'Run Expirations',
+  'pl.garbagecollectorjob.arg.object_type' => 'Model Name',
+  'pl.garbagecollectorjob.body'     => '(@COMMENT)
+
+For more information, see the Job review at
+
+(@SOURCE_URL)',
+  'pl.garbagecollectorjob.done' => 'Garbage collected',
+  'pl.garbagecollectorjob.job' => 'Garbage Collector',
+  'pl.garbagecollectorjob.none' => 'No Garbage to Collect',
+  'pl.garbagecollectorjob.start'  => 'Collecting the Garbage',
   'pl.groupvalidityjob.done' => 'Reprovisioning Finished',
   'pl.groupvalidityjob.job' => 'Process Group Validity',
   'pl.idassignerjob.arg.object_type' => 'Object Type to assign identifiers for',

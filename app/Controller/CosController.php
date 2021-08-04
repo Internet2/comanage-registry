@@ -195,7 +195,15 @@ class CosController extends StandardController {
   
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
-    
+
+    $readonly = false;
+
+
+    if(!empty($this->request->params['pass'][0])) {
+      $readonly = $this->Co->readonly(filter_var($this->request->params['pass'][0], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK));
+    }
+
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -205,14 +213,17 @@ class CosController extends StandardController {
     $p['add'] = $roles['cmadmin'];
     
     // Delete an existing CO?
-    $p['delete'] = $roles['cmadmin'];
+    $p['deleteasync'] = $p['delete'] = (!$readonly && $roles['cmadmin']);
     
     // Duplicate an existing CO?
     $p['duplicate'] = $roles['cmadmin'];
     
     // Edit an existing CO?
-    $p['edit'] = $roles['cmadmin'];
-    
+    $p['edit'] = (!$readonly && $roles['cmadmin']);
+
+    // Restore and CO marked as Garbage
+    $p['restore'] = ($readonly && $roles['cmadmin']);
+
     // View all existing COs?
     $p['index'] = $roles['cmadmin'];
     
@@ -297,6 +308,50 @@ class CosController extends StandardController {
                  'co' => $this->data['Co']['co']);
 
       $this->redirect(array_merge($r, $this->Session->read('co-select.args')));
+    }
+  }
+
+  /**
+   * Restore the state of the CO to active
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function restore($id) {
+    $this->Co->id = $id;
+    $this->Co->saveField('status', TemplateableStatusEnum::Active);
+    $coName = $this->Co->field('name', array('Co.id' => $id));
+    $this->Flash->set(_txt('rs.updated', array(filter_var($coName,FILTER_SANITIZE_SPECIAL_CHARS))), array('key' => 'success'));
+
+    // Issue a redirect to COs index
+    $this->performRedirect();
+  }
+
+
+  /**
+   * Schedule CO delete
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function deleteasync($id) {
+    try {
+      // Find the Job ID
+      // Pull Jobs scheduled for Platform CO
+      $comanage_coid = $this->Co->field("id", array("name" => "COmanage"));
+      $jobs = $this->Co->CoJob->jobsQueuedByType($comanage_coid, "CoreJob.GarbageCollector");
+      if(!empty($jobs)) {
+        $this->Co->id = $id;
+        $this->Co->saveField('status', TemplateableStatusEnum::InTrash);
+        $this->Flash->set(_txt('rs.jb.registered', array($jobs[0]['CoJob']['id'])), array('key' => 'success'));
+      } else {
+        $this->Flash->set( _txt('rs.jb.no', array("CoreJob.GarbageCollector") ), array('key' => 'error'));
+      }
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+    } finally {
+      $this->performRedirect();
     }
   }
 }
