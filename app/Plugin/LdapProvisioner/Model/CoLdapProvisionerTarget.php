@@ -887,6 +887,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     }
                   }
                 }
+
+                if(!$attropts && empty($attributes[$attr]) && !$modify) {
+                  // This is the same as the approach using $found, but without an extra variable
+                  unset($attributes[$attr]);
+                }
                 break;
               // Attributes from models attached to CO Person Role
               case 'facsimileTelephoneNumber':
