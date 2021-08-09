@@ -228,6 +228,8 @@ class StandardController extends AppController {
 
     // Include Search Block
     $this->set('vv_search_fields', $this->searchConfig($this->action));
+    // Include alphabet Search bar
+    $this->set('vv_alphabet_search', $this->alphabetSearchConfig($this->action));
 
     parent::beforeRender();
   }
@@ -260,6 +262,24 @@ class StandardController extends AppController {
    */
 
   function searchConfig($action) {
+    return array();
+  }
+
+  /**
+   * Alphabet Search Bar configuration
+   *
+   * @example
+   *    if($action == 'index') {
+   *      return array(
+   *        'search.familyNameStart' => array(
+   *          'label' => _txt('me.alpha.label'),
+   *        ),
+   *      );
+   *    }
+   * @since  COmanage Registry v4.0.0
+   */
+
+  function alphabetSearchConfig($action) {
     return array();
   }
 
