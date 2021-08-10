@@ -94,6 +94,16 @@ Router::mapResources(array(
 ));
 Router::parseExtensions();
 
+// ApplicationPreferences uses non-standard REST routes
+Router::connect(
+	'/application_preferences/:tag',
+	array('controller' => 'application_preferences', 'action' => 'retrieve', '[method]' => 'GET')
+);
+Router::connect(
+	'/application_preferences/:tag',
+	array('controller' => 'application_preferences', 'action' => 'store', '[method]' => 'PUT')
+);
+
 /**
  * Load the CakePHP default routes. Remove this if you do not want to use
  * the built-in default routes.
