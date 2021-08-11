@@ -453,7 +453,8 @@ class CoGroupMembersController extends StandardController {
     $p['updateGroup'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // Search / filter a list of members in the select list?
-    $p['search'] = !$readOnly && ($roles['cmadmin'] || $managed);
+    // We need co member so group owners can search for purposes of adding members
+    $p['search'] = !$readOnly && ($roles['cmadmin'] || $managed || $roles['comember']);
     
     // View members of a group?
     $p['view'] = ($roles['cmadmin'] || $managed || $member);
