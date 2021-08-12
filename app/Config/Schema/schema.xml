@@ -2952,6 +2952,7 @@
     <field name="co_theme_id" type="I">
       <constraint>REFERENCES cm_co_themes(id)</constraint>
     </field>
+    <field name="global_search_limit" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

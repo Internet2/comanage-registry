@@ -555,12 +555,13 @@ class CoPersonRole extends AppModel {
    * Perform a keyword search.
    *
    * @since  COmanage Registry v3.1.0
-   * @param  Integer $coId CO ID to constrain search to
-   * @param  String  $q    String to search for
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
    * @return Array Array of search results, as from find('all)
    */
   
-  public function search($coId, $q) {
+  public function search($coId, $q, $limit) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
     
@@ -579,6 +580,7 @@ class CoPersonRole extends AppModel {
     
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('CoPersonRole.title');
+    $args['limit'] = $limit;
     $args['contain']['CoPerson'] = 'PrimaryName';
     
     return $this->find('all', $args);

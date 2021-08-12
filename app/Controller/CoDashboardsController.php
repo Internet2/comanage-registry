@@ -297,9 +297,12 @@ class CoDashboardsController extends StandardController {
     $roles = array();
     $models = array();
     
+    // Obtain our search limit
+    $searchLimit = $this->Co->CoSetting->field('global_search_limit', array('CoSetting.co_id' => $this->cur_co['Co']['id']));
+
     if(!empty($this->request->query['q'])) {
       /* To add a new backend to search:
-       * (1) Implement $model->search($id, $q)
+       * (1) Implement $model->search($id, $q, $limit)
        * (2) Add the model here, and define which roles can query it
        * (3) Add the model to $uses, above
        * (4) Add the model to View/CoDashboards/search.ctp
@@ -403,7 +406,13 @@ class CoDashboardsController extends StandardController {
           $smodel = preg_replace('/.*\./', '', $m);
           
           $results[$m] = $this->$smodel->search($this->cur_co['Co']['id'],
-                                                $this->request->query['q']);
+                                                $this->request->query['q'],
+                                                $searchLimit);
+          
+          if(count($results[$m]) >= $searchLimit) {
+            $this->Flash->set(_txt('rs.search.limit', array($smodel, $searchLimit)),
+                              array('key' => 'information'));
+          }
         }
       }
     }

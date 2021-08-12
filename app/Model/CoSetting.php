@@ -19,7 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * @link          http://www.internet2.edu/comanage COmanage Project
+ * @link          https://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
@@ -162,6 +162,16 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'global_search_limit' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      ),
+      'value' => array(
+        'rule' => array('comparison', '>', 0)
+      )
+    )
   );
   
   // Default values for each setting
@@ -183,6 +193,7 @@ class CoSetting extends AppModel {
     'enable_empty_cou'           => false,
     'theme_stacking'             => SuspendableStatusEnum::Suspended,
     'co_theme_id'                => null,
+    'global_search_limit'        => DEF_GLOBAL_SEARCH_LIMIT
   );
   
   /**
@@ -213,6 +224,18 @@ class CoSetting extends AppModel {
     return $this->id;
   }
   
+  /**
+   * Determine if Empty COUs are enabled for the specified CO.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+
+  public function emptyCouEnabled($coId) {
+    return (boolean)$this->lookupValue($coId, 'enable_empty_cou');
+  }
+
   /**
    * Determine if Expirations are enabled for the specified CO.
    *
@@ -249,6 +272,18 @@ class CoSetting extends AppModel {
 
   public function getGarbageCollectionWindow($coId) {
     return $this->lookupValue($coId, 'garbage_collection_interval');
+  }
+  
+  /**
+   * Obtain the global search limit.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId CO ID
+   * @return integer       Global search limit
+   */
+  
+  public function getGlobalSearchLimit($coId) {
+    return $this->lookupValue($coId, 'global_search_limit');
   }
 
   /**
@@ -341,18 +376,6 @@ class CoSetting extends AppModel {
     return $this->lookupValue($coId, 'sponsor_eligibility');
   }
 
-  /**
-   * Get Theme Stacking mode.
-   *
-   * @since  COmanage Registry v4.0.0
-   * @param  integer $coId CO ID
-   * @return SuspendableStatusEnum Theme Stacking Mode
-   */
-
-  public function themeStackingEnabled($coId) {
-    return $this->lookupValue($coId, 'theme_stacking');
-  }
-  
   /**
    * Get sponsor eligibility group. The results of this call are only valid if
    * sponsor eligibility mode is SponsorEligibilityEnum::CoGroupMember.
@@ -463,17 +486,17 @@ class CoSetting extends AppModel {
   }
 
   /**
-   * Determine if Empty COUs are enabled for the specified CO.
+   * Get Theme Stacking mode.
    *
-   * @since  COmanage Registry v3.3.0
+   * @since  COmanage Registry v4.0.0
    * @param  integer $coId CO ID
-   * @return boolean True if enabled, false otherwise
+   * @return SuspendableStatusEnum Theme Stacking Mode
    */
 
-  public function emptyCouEnabled($coId) {
-    return (boolean)$this->lookupValue($coId, 'enable_empty_cou');
+  public function themeStackingEnabled($coId) {
+    return $this->lookupValue($coId, 'theme_stacking');
   }
-
+  
   /**
    * Perform CoSetting model upgrade steps for version 4.0.0.
    * This function should only be called by UpgradeVersionShell.

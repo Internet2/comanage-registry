@@ -146,7 +146,7 @@ class PasswordResetToken extends AppModel {
     foreach(array('EmailAddress', 'Identifier') as $model) {
       // Note this search will match _unverified_ email addresses, but we only
       // want to match verified email addresses. We'll filter those below.
-      $matches = $this->CoPerson->$model->search($coId, $q);
+      $matches = $this->CoPerson->$model->search($coId, $q, 25);
       
       if(!empty($matches)) {
         foreach($matches as $m) {

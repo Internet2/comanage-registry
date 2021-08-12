@@ -38,6 +38,9 @@ define("DEF_GROUP_SYNC_WINDOW", 1440);
 // Default window for Garbage Collection
 define("DEF_GARBAGE_COLLECT_INTERVAL", 1440);
 
+// Default global search limit
+define("DEF_GLOBAL_SEARCH_LIMIT", 500);
+
 /**
  * Find an attribute within an array, specifically intended for working with
  * Enrollment Flow Attributes.
