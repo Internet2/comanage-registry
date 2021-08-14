@@ -75,41 +75,27 @@
     $('.focusFirst').focus();
 
     // DESKTOP MENU DRAWER BEHAVIOR
-    // Check the drawer half-closed cookie on first load and set the drawer state appropriately
-    if (Cookies.get("desktop-drawer-state") == "half-closed") {
-      $("#navigation-drawer,#footer-drawer").addClass("half-closed");
-      $("#main").addClass("drawer-half-closed");
-    } else {
-      // Preserve the state of the most recently selected menu item if it is expandable (a "menuTop" item)
-      // (we only use this behavior when the the drawer is fully-open)
-      var mainMenuSelectedParentId = Cookies.get("main-menu-selected-parent-id");
-      if(mainMenuSelectedParentId != undefined && mainMenuSelectedParentId != "") {
-        $("#" + mainMenuSelectedParentId).addClass("active");
-        $("#" + mainMenuSelectedParentId + " > a.menuTop").attr("aria-expanded","true");
-        $("#" + mainMenuSelectedParentId + " > ul").addClass("in");
-      }
-    }
 
     // Hamburger menu-drawer toggle
     $('#co-hamburger').click(function () {
       if($(window).width() < 768) {
         // Mobile mode
-        $("#navigation-drawer,#footer-drawer").removeClass("half-closed").toggle();
+        $("#navigation-drawer").removeClass("half-closed").toggle();
       } else {
         // Desktop mode
         if ($("#navigation-drawer").hasClass("half-closed")) {
-          $("#navigation-drawer,#footer-drawer").removeClass("half-closed");
+          $("#navigation-drawer").removeClass("half-closed");
           $("#main").removeClass("drawer-half-closed");
-          // set a cookie to hold drawer half-open state between requests
-          Cookies.set("desktop-drawer-state", "open");
+          // save user's application preference for drawer state
+          setApplicationPreference("uiDrawerState",{"value":"open"});
         } else {
-          $("#navigation-drawer,#footer-drawer").addClass("half-closed");
+          $("#navigation-drawer").addClass("half-closed");
           $("#main").addClass("drawer-half-closed");
           // ensure all the sub-menus collapse when half-closing the menu
           $("#navigation .metismenu li ul").removeClass("in");
           $("#navigation .metismenu li").removeClass("active");
-          // set a cookie to hold drawer half-open state between requests
-          Cookies.set("desktop-drawer-state", "half-closed");
+          // save user's application preference for drawer state
+          setApplicationPreference("uiDrawerState",{"value":"half-closed"});
         }
       }
     });
@@ -126,16 +112,22 @@
 
     // Desktop half-closed drawer behavior & expandable menu items
     $('#navigation-drawer a.menuTop').click(function () {
-      if (Cookies.get("desktop-drawer-state") == "half-closed") {
-        $("#navigation-drawer").toggleClass("half-closed");
+      // widen the menu while a.menuTop is expanded so we can see the menu items
+      if ($("#navigation-drawer").hasClass("half-closed")) {
+        $("#navigation-drawer").removeClass("half-closed").addClass("intermediate-open");
+      } else {
+        // close it back down if we're in the intermediate state and we close a.menuTop
+        if ($("#navigation-drawer").hasClass("intermediate-open")) {
+          $("#navigation-drawer").removeClass("intermediate-open").addClass("half-closed");
+        }
       }
 
-      // Save the ID of the most recently expanded menuTop item for use on reload
+      // Save the ID of the most recently expanded menuTop item in a Application Preference 
       if ($(this).attr("aria-expanded") == "true") {
         var parentId = $(this).parent().attr("id");
-        Cookies.set("main-menu-selected-parent-id", parentId);
+        setApplicationPreference("uiMainMenuSelectedParentId",{"value":parentId});
       } else {
-        Cookies.set("main-menu-selected-parent-id", "");
+        setApplicationPreference("uiMainMenuSelectedParentId",{"value":null});
       }
     });
 

@@ -51,6 +51,37 @@ function generateFlash(text, type) {
   });
 }
 
+// Set an application preference
+// tag     - name of preference to save (string, required)
+// value   - value to save (json in the form of {"value":"something"} or {"value":null} to unset)
+function setApplicationPreference(tag,value) {
+  var apUrl = "/registry/application_preferences/" + tag;
+  var jsonData = value;
+  $.ajax({
+    url: apUrl,
+    type: 'PUT',
+    data: jsonData,
+    success: function(data) {
+      // console.log("PUT " + tag + ": " + JSON.stringify(jsonData));
+    }
+  });
+}
+
+// Get an application preference and do something with it
+// tag     - name of preference to retrieve (string, required)
+// fn      - named function that will handle the data
+function getApplicationPreference(tag,fn) {
+  var apUrl = "/registry/application_preferences/" + tag;
+  $.ajax({
+    url: apUrl,
+    type: 'GET',
+    success: function(data) {
+      // console.log("GET " + tag + ": " + JSON.stringify(data));
+      fn(data);
+    }
+  });
+}
+
 // Generate a loading animation by revealing a persistent hidden div with CSS animation.
 // An element's onclick action will trigger this to appear if it has the class "spin" class on an element.
 // (See View/Elements/javascript.ctp)

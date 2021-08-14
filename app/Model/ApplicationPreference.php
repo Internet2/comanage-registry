@@ -95,6 +95,27 @@ class ApplicationPreference extends AppModel {
     
     return null;
   }
+
+  /**
+   * Retrieve all Application Preferences for a user.
+   * @param  int    $coPersonId CO Person ID
+   * @return array|null        Array of values if found, null otherwise
+   */
+
+  public function retrieveAll($coPersonId) {
+    $args = array();
+    $args['conditions']['ApplicationPreference.co_person_id'] = $coPersonId;
+    $args['fields'] = array('tag', 'value');
+    $args['contain'] = false;
+
+    $prefs = $this->find('all', $args);
+
+    if(!empty($prefs)) {
+      return $prefs;
+    }
+
+    return null;
+  }
   
   /**
    * Store an Application Preference.

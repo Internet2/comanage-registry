@@ -39,6 +39,14 @@ if(!empty($vv_enrollment_flow_cos)) {
   // Convert the list of COs with enrollment flows defined into a more useful format
   $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 }
+
+// Determine if we have an expanded menu selected but do not expand a menu if the menu drawer is half-closed.
+// Currently this is used only for the two expandable menus in the Main Menu (People and Platform).
+$selectedMenu = "";
+$currentMenu = "";
+if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $vv_app_prefs['uiDrawerState'] != 'half-closed') {
+  $selectedMenu = filter_var($vv_app_prefs['uiMainMenuSelectedParentId'],FILTER_SANITIZE_STRING);
+}
 ?>
 
 <ul id="main-menu" class="metismenu">
@@ -49,14 +57,15 @@ if(!empty($vv_enrollment_flow_cos)) {
       $menuCoId = $cur_co['Co']['id'];
 
       // People Menu
+      $currentMenu = 'peopleMenu';
       if(isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
-        print '<li id="peopleMenu" class="co-expandable-menu-item">';
-        print '<a class="menuTop" aria-expanded="false" href="#">';
+        print '<li id="peopleMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
+        print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">person</em>';
         print '<span class="menuTitle">' . _txt('me.people') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
         print '</a>';
-        print '<ul aria-expanded="false" class="collapse">';
+        print '<ul aria-expanded="false" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
         print '<li>';
         $args = array();
         $args['plugin'] = null;
@@ -438,14 +447,15 @@ if(!empty($vv_enrollment_flow_cos)) {
     // END Configuration Menu
 
     // Platform Menu
+    $currentMenu = "platformMenu";
     if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']) {
-      print '<li id="platformMenu" class="co-expandable-menu-item">';
-      print '<a href="#" class="menuTop" aria-expanded="false">';
+      print '<li id="platformMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
+      print '<a href="#" class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '">';
       print '<em class="material-icons" aria-hidden="true">build</em>';
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
       print '<span class="fa arrow fa-fw"></span>';
       print '</a>';
-      print '<ul aria-expanded="false" class="collapse">';
+      print '<ul aria-expanded="false" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
       
       if($pool_org_identities) {
         print '<li>';
