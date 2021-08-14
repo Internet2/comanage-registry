@@ -1031,7 +1031,7 @@ class AppController extends Controller {
 
   /**
    * Get a user's Application Preferences
-   * - postcondition: Application Preferences variable set if Auth.User.co_person_id exists
+   * - postcondition: Application Preferences variable set
    * @since  COmanage Registry v3.3.0
    */
   protected function getAppPrefs() {

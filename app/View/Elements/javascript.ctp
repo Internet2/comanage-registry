@@ -122,7 +122,7 @@
         }
       }
 
-      // Save the ID of the most recently expanded menuTop item in a Application Preference 
+      // Save the ID of the most recently expanded menuTop item in an Application Preference
       if ($(this).attr("aria-expanded") == "true") {
         var parentId = $(this).parent().attr("id");
         setApplicationPreference("uiMainMenuSelectedParentId",{"value":parentId});
