@@ -34,6 +34,7 @@ class Name extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
+                         'Linkable.Linkable',
                          'Normalization' => array('priority' => 4),
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
@@ -352,12 +353,23 @@ class Name extends AppModel {
       
       $args['conditions']['CoPerson.co_id'] = $coId;
       $args['order'] = array('Name.family', 'Name.given', 'Name.middle');
-      $args['contain']['CoPerson'] = 'CoPersonRole';
+      // We use linkable rather than containable because the former can generate
+      // a JOIN, which dramatically reduces the number of queries vs containable
+      $args['link']['CoPerson'] = array('CoPersonRole');
       $args['limit'] = $limit - count($ret);
       
       $ret += $this->find('all', $args);
     }
 
+    // Since we use linkable instead of containable, CoPersonRole
+    // is nested at the wrong level
+    for($i = 0;$i < count($ret);$i++) {
+      if(isset($ret[$i]['CoPersonRole'])) {
+        $ret[$i]['CoPerson']['CoPersonRole'][] = $ret[$i]['CoPersonRole'];
+        unset($ret[$i]['CoPersonRole']);
+      }
+    }
+    
     return $ret;
   }
 }

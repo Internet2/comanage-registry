@@ -505,6 +505,9 @@ class CoSetting extends AppModel {
    */
 
   public function _ug400() {
+    // Register Garbage Collector Job
+    $this->out(_txt('sh.ug.400.garbage.collector.register'));
+    
     // Register the GarbageCollector
     $Co = ClassRegistry::init('Co');
     $args = array();
@@ -529,7 +532,7 @@ class CoSetting extends AppModel {
         'object_type' => 'Co',
       ),
       0,                                                      // $delay (in seconds)
-      1440                                                    // $requeueInterval (in seconds)
+      DEF_GARBAGE_COLLECT_INTERVAL                            // $requeueInterval (in seconds)
     );
 
     // Temporarily unbind all relations
@@ -545,9 +548,19 @@ class CoSetting extends AppModel {
       )
     );
 
+    // Update CoSettings Garbage Collector interval
+    $this->out(_txt('sh.ug.400.garbage.collector.interval'));
+    
     // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
     $this->updateAll(
-      array('CoSetting.garbage_collection_interval'=> 1440)
+      array('CoSetting.garbage_collection_interval'=> DEF_GARBAGE_COLLECT_INTERVAL)
+    );
+    
+    // Set a default search limit
+    $this->out(_txt('sh.ug.400.global_search_limit'));
+    
+    $this->updateAll(
+      array('CoSetting.global_search_limit'=> DEF_GLOBAL_SEARCH_LIMIT)
     );
   }
 }
