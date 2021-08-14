@@ -60,25 +60,7 @@ function setApplicationPreference(tag,value) {
   $.ajax({
     url: apUrl,
     type: 'PUT',
-    data: jsonData,
-    success: function(data) {
-      // console.log("PUT " + tag + ": " + JSON.stringify(jsonData));
-    }
-  });
-}
-
-// Get an application preference and do something with it
-// tag     - name of preference to retrieve (string, required)
-// fn      - named function that will handle the data
-function getApplicationPreference(tag,fn) {
-  var apUrl = "/registry/application_preferences/" + tag;
-  $.ajax({
-    url: apUrl,
-    type: 'GET',
-    success: function(data) {
-      // console.log("GET " + tag + ": " + JSON.stringify(data));
-      fn(data);
-    }
+    data: jsonData
   });
 }
 
