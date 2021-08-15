@@ -1164,19 +1164,19 @@ body.co_petitions .ui-dialog {
   display: none; /* hide on mobile */
 }
 /* Alpha search  */
-#peopleAlphabet {
+.searchAlphabet {
   margin: 0;
   border-top: 1px solid #ddd;
   border-bottom: 2px solid #ccc;
   font-size: 0.9em;
 }
-#peopleAlphabet ul {
+.searchAlphabet ul {
   display: table;
   width: 100%;
   margin: 0;
   padding: 0;
 }
-#peopleAlphabet li {
+.searchAlphabet li {
   display: table-cell;
   width: 3.6%;
   margin: 0;
@@ -1184,10 +1184,10 @@ body.co_petitions .ui-dialog {
   background-color: #f5f5f5;
   text-align: center;
 }
-#peopleAlphabet li:nth-child(odd) {
+.searchAlphabet li:nth-child(odd) {
   background-color: #e5e5e5;
 }
-#peopleAlphabet a {
+.searchAlphabet a {
   display: inline-block;
   text-decoration: none;
   margin: 0;
@@ -1196,12 +1196,12 @@ body.co_petitions .ui-dialog {
   padding: 4px 0;
   color: #666;
 }
-#peopleAlphabet li.selected a,
-#peopleAlphabet li.selected a:hover{
+.searchAlphabet li.selected a,
+.searchAlphabet li.selected a:hover{
   background-color: #888;
   color: #eee;
 }
-#peopleAlphabet a:hover {
+.searchAlphabet a:hover {
   background-color: #aed9f9;
   color: #333;
   text-decoration: none;
