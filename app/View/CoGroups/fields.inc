@@ -259,7 +259,7 @@
       <tr>
         <th><?php print _txt('fd.name'); ?></th>
         <th><?php print _txt('fd.type'); ?></th>
-        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+        <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
     <tbody>
@@ -362,7 +362,7 @@
             <?php print _txt('fd.co_group.'.$k.'.pl'); ?> -
             <em><?php print _txt('fd.co_group.'.$k.'.desc', array(filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_STRING))); ?></em>
           </th>
-          <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+          <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
         </tr>
       </thead>
       <tbody>
@@ -422,7 +422,7 @@
         <th><?php print _txt('fd.name'); ?></th>
         <th><?php print _txt('fd.status'); ?></th>
         <th><?php print _txt('fd.type'); ?></th>
-        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+        <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
     <tbody>
@@ -522,7 +522,7 @@
         <th><?php print _txt('fd.name'); ?></th>
         <th><?php print _txt('fd.co_people.status'); ?></th>
         <th><?php print _txt('fd.roles'); ?></th>
-        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+        <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
     <tbody>

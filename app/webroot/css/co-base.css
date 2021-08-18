@@ -2261,8 +2261,11 @@ th a:hover,
   color: #ff3;
   text-decoration: none !important;
 }
-th.actionButtons {
+th.thinActionButtonsCol {
   width: 180px;
+}
+th.order {
+  width: 80px;
 }
 tr td:first-child {
   padding-left: 1em;

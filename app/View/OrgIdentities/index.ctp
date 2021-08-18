@@ -93,7 +93,7 @@ if(!empty($vv_alphabet_search)) {
       <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
       <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-      <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+      <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
     </tr>
     </thead>
 

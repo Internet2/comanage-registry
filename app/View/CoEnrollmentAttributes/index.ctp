@@ -87,7 +87,7 @@
       <tr>
         <th><?php print $this->Paginator->sort('label', _txt('fd.ea.label')); ?></th>
         <th><?php print $this->Paginator->sort('attribute', _txt('fd.attribute')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.ea.order')); ?></th>
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.ea.order')); ?></th>
         <th><?php print $this->Paginator->sort('required', _txt('fd.required')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
