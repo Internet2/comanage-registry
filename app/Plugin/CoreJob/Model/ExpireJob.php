@@ -50,7 +50,7 @@ class ExpireJob extends CoJobBackend {
     }
     
     try {
-      $this->CoExpirationPolicy->executePolicies($coId, $CoJob->id);
+      $CoExpirationPolicy->executePolicies($coId, $CoJob->id);
       
       $CoJob->finish($CoJob->id, _txt('pl.expirationjob.done'));
     }
