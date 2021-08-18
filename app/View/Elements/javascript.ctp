@@ -167,12 +167,6 @@
       }
     });
 
-    // Add behaviors for Main Menu search filters when present
-    $('#main-menu-co-groups-link').click(function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      $('#main-menu-co-groups-search-form').submit();
-    });
     // END DESKTOP MENU DRAWER BEHAVIOR
 
     // USER MENU BEHAVIORS
