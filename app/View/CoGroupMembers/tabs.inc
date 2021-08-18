@@ -88,12 +88,10 @@
         ?>
       </li>
 
-      <li class="nav-item">
-        <?php
-          // Provisioned services
-          if ($this->action == 'provision') {
-            print '<span class="nav-link active">' . _txt('op.prov.view') . '</span>';
-          } else {
+      <?php if($permissions['provision']): ?>
+        <li class="nav-item">
+          <?php
+            // Provisioned services
             print $this->Html->link(
               _txt('op.prov.view'),
               array(
@@ -103,9 +101,9 @@
               ),
               array('class' => 'nav-link')
             );
-          }
-        ?>
-      </li>
+          ?>
+        </li>
+      <?php endif; ?>
 
       <li class="nav-item">
         <?php

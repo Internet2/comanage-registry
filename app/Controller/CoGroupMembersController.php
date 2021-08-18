@@ -456,6 +456,9 @@ class CoGroupMembersController extends StandardController {
 
     // Add member by ID
     $p['addMemberById'] = !$readOnly && ($roles['cmadmin'] || $managed);
+
+    // (Re)provision an existing CO Group? This permission grants access to the Provisioned Services tab
+    $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Search / filter a list of members in the select list?
     // We need co member so group owners can search for purposes of adding members

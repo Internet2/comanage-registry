@@ -76,14 +76,14 @@
         ?>
       </li>
 
-      <?php if($permissions['select'] || $permissions['members']): ?>
+      <?php if($permissions['edit_members'] || $permissions['members']): ?>
         <li class="nav-item">
           <?php
             // Group memberships
             if ($this->action == 'members') {
               print '<span class="nav-link active">' . _txt('me.members') . '</span>';
             } else {
-              if ($e) { // Only select members if the group may be edited
+              if ($permissions['edit_members']) {
                 print $this->Html->link(
                   _txt('me.members'),
                   array('controller' => 'co_group_members',
