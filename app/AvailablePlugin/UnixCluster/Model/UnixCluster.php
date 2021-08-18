@@ -46,7 +46,11 @@ class UnixCluster extends ClusterInterface {
 	
 	// Association rules from this model to other models
 	public $belongsTo = array(
-		"Cluster"
+		"Cluster",
+    "DefaultCoGroup" => array(
+      'className' => 'CoGroup',
+      'foreignKey' => 'default_co_group_id'
+    )
 	);
 	
 	public $hasMany = array(
