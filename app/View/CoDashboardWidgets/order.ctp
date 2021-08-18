@@ -108,7 +108,7 @@
   <table id="dashboard_widgets">
     <thead>
       <tr>
-        <th><?php print _txt('fd.order'); ?></th>
+        <th class="order"><?php print _txt('fd.order'); ?></th>
         <th><?php print _txt('fd.desc'); ?></th>
         <th><?php print _txt('fd.plugin'); ?></th>
       </tr>
