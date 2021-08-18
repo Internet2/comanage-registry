@@ -45,50 +45,47 @@
       <em class="material-icons">search</em>
       <?php print _txt('op.filter');?>
 
-      <?php
-        // Note: if we test simply for Ui.CoGroups.Search, we have to manage that array explicitly even if it's empty.
-        // It simplifies the code elsewhere to test explicitly for each element at the top of this code block.
-      ?>
-      <?php if($this->Session->check('Ui.CoGroups.Search.name') ||
-               $this->Session->check('Ui.CoGroups.Search.desc') ||
-               $this->Session->check('Ui.CoGroups.Search.status') ||
-               $this->Session->check('Ui.CoGroups.Search.open') ||
-               $this->Session->check('Ui.CoGroups.Search.auto') ||
-               $this->Session->check('Ui.CoGroups.Search.type')): ?>
+      <?php if(!empty($this->request->params['named']['search.groupName'])  ||
+        !empty($this->request->params['named']['search.groupDesc']) ||
+        !empty($this->request->params['named']['search.status'])       ||
+        !empty($this->request->params['named']['search.open']) ||
+        !empty($this->request->params['named']['search.auto'])     ||
+        !empty($this->request->params['named']['search.groupType'])):?>
+
         <span id="top-search-active-filters">
-          <?php if ($this->Session->check('Ui.CoGroups.Search.name')): ?>
+          <?php if (!empty($this->request->params['named']['search.groupName'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchGroupName" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.name'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($this->Session->read('Ui.CoGroups.Search.name'),FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.groupName'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if ($this->Session->check('Ui.CoGroups.Search.desc')): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="searchGroupDesc" title="<?php print _txt('op.clear.filters.1');?>">
+          <?php if (!empty($this->request->params['named']['search.groupDesc'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searcGrouphDesc" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.description'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($this->Session->read('Ui.CoGroups.Search.desc'),FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($this->request->params['named']['search.groupDesc'],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if ($this->Session->check('Ui.CoGroups.Search.status')): ?>
+          <?php if (!empty($this->request->params['named']['search.status'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchStatus" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->Session->read('Ui.CoGroups.Search.status')],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if ($this->Session->check('Ui.CoGroups.Search.open')): ?>
+          <?php if (!empty($this->request->params['named']['search.open'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchOpen" title="<?php print _txt('op.clear.filters.1');?>">
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_status_open[$this->Session->read('Ui.CoGroups.Search.open')],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_status_open[$this->request->params['named']['search.open']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if ($this->Session->check('Ui.CoGroups.Search.auto')): ?>
+          <?php if (!empty($this->request->params['named']['search.auto'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchAuto" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.automatic'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_status_bool[$this->Session->read('Ui.CoGroups.Search.auto')],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_status_bool[$this->request->params['named']['search.auto']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if ($this->Session->check('Ui.CoGroups.Search.type')): ?>
+          <?php if (!empty($this->request->params['named']['search.groupType'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchGroupType" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.type'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_group_type[$this->Session->read('Ui.CoGroups.Search.type')],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_group_type[$this->request->params['named']['search.groupType']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
           <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear">
@@ -106,12 +103,12 @@
         <?php
           // Name:
           $formParams = array('label'   => _txt('fd.name'),
-            'value'   => ($this->Session->check('Ui.CoGroups.Search.name') ? $this->Session->read('Ui.CoGroups.Search.name') : ''));
+            'value'   => (!empty($this->request->params['named']['search.groupName']) ? $this->request->params['named']['search.groupName'] : ''));
           print $this->Form->input('search.groupName', $formParams);
 
           // Description:
           $formParams = array('label'   => _txt('fd.description'),
-            'value'   => ($this->Session->check('Ui.CoGroups.Search.desc') ? $this->Session->read('Ui.CoGroups.Search.desc') : ''));
+            'value'   => (!empty($this->request->params['named']['search.groupDesc']) ? $this->request->params['named']['search.groupDesc'] : ''));
           print $this->Form->input('search.groupDesc', $formParams);
 
           // Status:
@@ -119,7 +116,7 @@
             'type'    => 'select',
             'label'   => _txt('fd.status'),
             'empty'   => _txt('op.select.all'),
-            'value'   => ($this->Session->check('Ui.CoGroups.Search.status') ? $this->Session->read('Ui.CoGroups.Search.status') : ''));
+            'value'   => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
           print $this->Form->input('search.status', $formParams);
         ?>
       </div>
@@ -131,7 +128,7 @@
             'type'    => 'select',
             'label'   => _txt('fd.open'),
             'empty'   => _txt('op.select.all'),
-            'value'   => ($this->Session->check('Ui.CoGroups.Search.open') ? $this->Session->read('Ui.CoGroups.Search.open') : ''));
+            'value'   => (!empty($this->request->params['named']['search.open']) ? $this->request->params['named']['search.open'] : ''));
           print $this->Form->input('search.open', $formParams);
 
           // Managed automatically / manually
@@ -139,7 +136,7 @@
             'type'    => 'select',
             'label'   => _txt('fd.automatic'),
             'empty'   => _txt('op.select.all'),
-            'value'   => ($this->Session->check('Ui.CoGroups.Search.auto') ? $this->Session->read('Ui.CoGroups.Search.auto') : ''));
+            'value'   => (!empty($this->request->params['named']['search.auto']) ? $this->request->params['named']['search.auto'] : ''));
           print $this->Form->input('search.auto', $formParams);
 
           // Group type
@@ -147,8 +144,8 @@
             'type'    => 'select',
             'label'   => _txt('fd.type'),
             'empty'   => _txt('op.select.all'),
-            'value'   => ($this->Session->check('Ui.CoGroups.Search.type') ? $this->Session->read('Ui.CoGroups.Search.type') : ''));
-          print $this->Form->input('search.group_type', $formParams);
+            'value'   => (!empty($this->request->params['named']['search.groupType']) ? $this->request->params['named']['search.groupType'] : ''));
+          print $this->Form->input('search.groupType', $formParams);
         ?>
       </div>
       </div>  
@@ -165,7 +162,7 @@
           $args['id'] = 'top-search-clear';
           $args['class'] = 'clear-button spin btn btn-default';
           $args['aria-label'] = _txt('op.clear');
-          $args['onclick'] = "clearTopSearch(this.form,'Ui.CoGroups.Search');";
+          $args['onclick'] = 'clearTopSearch(this.form)';
           $args['type'] = 'button';
           print $this->Form->button(_txt('op.clear'),$args);
         ?>

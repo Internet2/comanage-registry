@@ -264,8 +264,7 @@ function limitPage(pageLimit,recordCount,currentPage,currentPath,currentAction) 
 
 // Clear the top search form for numerous index views (people, orgids, groups)
 // formObj         - form object                      (DOM form obj, required)
-// sessionKey      - session key for removal          (String, optional)
-function clearTopSearch(formObj,sessionKey) {
+function clearTopSearch(formObj) {
   for (var i=0; i<formObj.elements.length; i++) {
     t = formObj.elements[i].type;
     if(t == "text" || t == "select-one") {
@@ -275,21 +274,7 @@ function clearTopSearch(formObj,sessionKey) {
       formObj.elements[i].checked = false;
     }
   }
-  // Check sessionKey to allow for backwards compatibility
-  if (sessionKey != undefined && sessionKey != "") {
-    $.ajax({
-      type: 'GET',
-      url: '/registry/session_xhr/manage/delete/' + sessionKey
-    }).done(function() {
-      formObj.submit();
-    }).fail(function(){
-    });
-
-  } else {
-    formObj.submit();
-  }
-
-
+  formObj.submit();
 }
 
 // Generate a dialog box with input form.  On confirmation, post to <url>.
