@@ -511,7 +511,7 @@ class CoSetting extends AppModel {
     // Register the GarbageCollector
     $Co = ClassRegistry::init('Co');
     $args = array();
-    $args['conditions']['Co.name'] = 'COmanage';
+    $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
     $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
     $args['fields'] = array('Co.id');
     $args['contain'] = false;

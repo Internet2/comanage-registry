@@ -29,6 +29,7 @@
 global $group_sep;
 $group_sep = ":";
 
+define("DEF_COMANAGE_CO_NAME", "COmanage");
 // Default invitation validity, in minutes (used in various places, should probably be moved elsewhere)
 define("DEF_INV_VALIDITY", 1440);
 

@@ -86,7 +86,7 @@
               array(
                 'controller' => 'cos',
                 'action' => (($permissions['edit']
-                              && $c['Co']['name'] != 'COmanage'
+                              && $c['Co']['name'] != DEF_COMANAGE_CO_NAME
                               && $c['Co']['status'] !== TemplateableStatusEnum::InTrash)
                              ? 'edit'
                              : ($permissions['view'] ? 'view' : '')),
@@ -106,7 +106,7 @@
         </td>
         <td>
           <?php
-            if($c['Co']['name'] != 'COmanage') {
+            if($c['Co']['name'] != DEF_COMANAGE_CO_NAME) {
               if($c['Co']['status'] === TemplateableStatusEnum::InTrash) {
                 if($permissions['edit']) {
                   print $this->Html->link(

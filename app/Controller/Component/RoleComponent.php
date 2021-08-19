@@ -765,7 +765,7 @@ class RoleComponent extends Component {
       $args['joins'][0]['alias'] = 'Co';
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoPerson.co_id=Co.id';
-      $args['conditions']['Co.name'] = 'COmanage';
+      $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
       $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
       $args['conditions']['CoPerson.id'] = $coPersonIds;
       $args['contain'] = false;

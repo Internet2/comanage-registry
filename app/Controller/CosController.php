@@ -63,7 +63,7 @@ class CosController extends StandardController {
 
     $name = $this->Co->field('name');
 
-    if($name == "COmanage") {
+    if($name == DEF_COMANAGE_CO_NAME) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "Cannot Remove COmanage CO");
       } else {
@@ -90,7 +90,7 @@ class CosController extends StandardController {
     if(isset($curdata)) {
       // Changes to COmanage CO are not permitted
       
-      if($curdata['Co']['name'] == "COmanage") {
+      if($curdata['Co']['name'] == DEF_COMANAGE_CO_NAME) {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(403, "Cannot Edit COmanage CO");
         } else {
@@ -338,7 +338,7 @@ class CosController extends StandardController {
     try {
       // Find the Job ID
       // Pull Jobs scheduled for Platform CO
-      $comanage_coid = $this->Co->field("id", array("name" => "COmanage"));
+      $comanage_coid = $this->Co->field("id", array("name" => DEF_COMANAGE_CO_NAME));
       $jobs = $this->Co->CoJob->jobsQueuedByType($comanage_coid, "CoreJob.GarbageCollector");
       if(!empty($jobs)) {
         $this->Co->id = $id;

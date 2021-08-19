@@ -448,7 +448,7 @@
         }
       ?>
     </div>
-    <?php if( $cur_co["Co"]["name"] !== 'COmanage'): ?>
+    <?php if( $cur_co["Co"]["name"] !== DEF_COMANAGE_CO_NAME): ?>
     <ul class="field-children">
       <li class="co-theme-stacking">
           <div class="field-name">
@@ -489,7 +489,7 @@
                    : filter_var($co_settings[0]['CoSetting']['global_search_limit'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
-  <?php if( $cur_co["Co"]["name"] === 'COmanage'): ?>
+  <?php if( $cur_co["Co"]["name"] === DEF_COMANAGE_CO_NAME): ?>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print _txt('fd.garbage.collect');?></div>
