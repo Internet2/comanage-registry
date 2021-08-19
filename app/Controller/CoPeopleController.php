@@ -525,7 +525,7 @@ class CoPeopleController extends StandardController {
       
       // Note EmailAddress and Identifier don't support substring search
       foreach(array('Name', 'EmailAddress', 'Identifier') as $m) {
-        $hits = $this->CoPerson->$m->search($this->cur_co['Co']['id'], $this->request->query['term']);
+        $hits = $this->CoPerson->$m->search($this->cur_co['Co']['id'], $this->request->query['term'], 25);
         
         $coPersonIds = array_merge($coPersonIds, Hash::extract($hits, '{n}.CoPerson.id'));
       }
