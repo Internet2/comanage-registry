@@ -19,7 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * @link          http://www.internet2.edu/comanage COmanage Project
+ * @link          https://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
@@ -30,204 +30,12 @@
   
   $l = 1;
   
-  // Are there T&C to agree to?
-  $tandc = !empty($vv_terms_and_conditions);
-  
   // Track the names of the matching fields and emit them later
   $givenNameAttr = "";
   $familyNameAttr = "";
 ?>
-  
 <script type="text/javascript">
-  var tandcs = <?php print (!empty($vv_terms_and_conditions)) ? json_encode($vv_terms_and_conditions) : json_encode(array()); ?>;
-  function updateTermsAndConditions(terms_and_conditions) {
-
-    <?php if(!empty($vv_tandc_mode)
-             && ($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent
-                 || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent)): ?>
-    //first delete the previous t&c
-    $("#co_petition_tandc").parent().remove();
-    <?php if(!empty($vv_tandc_mode) && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
-    $("input[type=submit]").attr("disabled", true);
-    <?php endif;?>
-
-    if(terms_and_conditions === undefined && tandcs[""] !== undefined) {
-      terms_and_conditions = tandcs[""]; // Get the CO T&C
-    }
-    // if suspended T&C for COU or if there is no T&C for COU and General T&C is suspended
-    else if(terms_and_conditions === undefined && tandcs[""] === undefined) {
-      // Enable form's submit button
-      $("input[type=submit]").removeAttr('disabled');
-      // Put a dummy T&C field otherwise will get a security error that field does not exist at POST Request.
-      $($(".modelbox").last()).before("<div class=\"ui-widget modelbox hidden\">"
-        + "<ul id=\"co_petition_tandc\">"
-        + '<li><?php
-          print $this->Form->checkbox("CoTermsAndConditions.0", array('hidden' => true, 'default' => '0'));
-          ?>'
-        + "</li>"
-        + "</ul>"
-        + "</div>");
-      return;
-    }
-
-    var  tandc_content = '<div class="ui-widget modelbox">'
-+      '<div class="tc-title">'
-+        '<strong><?php print _txt('op.tc.agree'); ?></strong><br />'
-+        '<?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>'
-+        '<span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>'
-+        '<?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): ?>'
-+        '<span class="descr"><?php print _txt('fd.tc.agree.impl'); ?></span>'
-+        '<?php endif; // vv_tandc_mode ?>'
-+      '</div>';
-
-    tandc_content += '<ul id="co_petition_tandc">'
-    l = 0
-
-    terms_and_conditions.forEach(function (t) {
-      tandc_content += '<li class="line' + l % 2 + '">'
-        + '<strong>' + t['description'] + '</strong><br/>'
-        + '<button class="checkbutton ui-button ui-corner-all ui-widget" type="button" onClick="open_tandc(\'' + t['description'].replace(/'/g, "\\'") + '\', \''
-        + t['url'].replace(/'/g, "\\'") + '\', \'' + t['id'] + '\'' + ')">'
-        + '<span class="ui-button-icon ui-icon ui-icon-circle-check"></span><span class="ui-button-icon-space"> </span>'
-        + '<?php print _txt('op.tc.review');?>'
-        + '</button>'
-
-      tandc_checkbox = '<?php $fieldName = "CoTermsAndConditions.dummy";
-        $args = array();
-        // Note that if authorization is set to "None", this will be empty
-        // and the Controller will received the value "on" instead.
-        $args['value'] = $this->Session->read('Auth.User.username');
-        $args['disabled'] = true; // without this implied consent doesnt work, is being removed
-        if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent) {
-          // Explicit consent, render a checkbox
-          $args['onClick'] = "maybe_enable_submit()";
-        } elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent) {
-          // Implicit consent, render as hidden fields instead
-          $args['checked'] = true;
-          $args['onClick'] = "return false";
-        }
-        print '&nbsp;<span class="tc-checkbox-and-label">'; // whitespace needed to be exactly the same with that one loaded first time
-        print $this->Form->checkbox($fieldName, $args);
-        print $this->Form->label($fieldName, _txt('op.tc.agree.i'));
-        print '</span>';
-        ?>';
-      <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent):?> // remove disabled for this case
-      tandc_checkbox = tandc_checkbox.replaceAll(/disabled="disabled"/gi, '');
-      <?php endif;?>
-      tandc_content += tandc_checkbox.replaceAll(/dummy/gi, t['id']);
-      l++;
-      tandc_content += '</li>'
-    })
-    tandc_content += '</ul>'
-    $($(".modelbox").last()).before(tandc_content)
-    <?php endif;?>
-    return;
-  }
-
-  var tandcids = new Array(
-    <?php
-      // Use PHP to dynamically generate a list of T&C IDs into a Javascript array
-      if(!empty($vv_terms_and_conditions)) {
-        $i = 0;
-        foreach($vv_terms_and_conditions as $tacs_per_cou) {
-          foreach ($tacs_per_cou as $tac) {
-              if ($i > 0){ print ",";} else { $i++; }
-              print '"' . $tac['id'] . '"';
-          }
-        }
-      }
-    ?>
-  );
-  
-  function open_tandc(title, tandcUrl, id) {
-    // Set title
-    $("div#dialog-review").dialog("option", "title", title);
-    
-    // Set up buttons
-    $("div#dialog-review").dialog("option",
-                                  "buttons",
-                                  {
-                                    "<?php print _txt('op.ok'); ?>": function() {
-                                      $(this).dialog("close");
-                                    }
-                                  });
-
-    // Open dialog
-    $("#dialog-review").dialog("open");
-
-    // Load T&C into iframe
-    $("#tandc_content").attr("src", tandcUrl);
-
-    <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
-    // Enable the checkbox
-    document.getElementById('CoTermsAndConditions' + id).disabled = false;
-    <?php endif; // explicit consent ?>
-  }
-  
-  function maybe_enable_submit() {
-    // If all checkboxes are enabled, enable submit
-    
-    var allagreed = 1;
-    
-    <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
-    for(var i = 0; i < tandcids.length; i++) {
-      // Search for every tid if exists at this CoPetition Form and if it is checked
-      if(document.getElementById('CoTermsAndConditions' + tandcids[i]) !== null && !document.getElementById('CoTermsAndConditions' + tandcids[i]).checked) {
-        allagreed = 0;
-      }
-    }
-    <?php endif; // explicit consent ?>
-    
-    if(allagreed) {
-      $(":submit").removeAttr('disabled');
-    } else {
-      // Reset disabled in case "I Agree" was unchecked or on initial form rendering
-      $(":submit").attr('disabled', true);
-    }
-  }
-  
-<?php if($tandc): ?>
-  function js_local_onload()
-  {
-    // Local (to this view) initializations
-    
-    <?php if($tandc && $vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
-    // Disable checkboxes until individual T&C are reviewed
-    for(var i = 0; i < tandcids.length; i++) {
-      // If the box is already ticked (eg: if the form re-renders), make sure it remains enabled
-      if(document.getElementById('CoTermsAndConditions' + tandcids[i]) !== null && !document.getElementById('CoTermsAndConditions' + tandcids[i]).checked) {
-        document.getElementById('CoTermsAndConditions' + tandcids[i]).disabled = true;
-      }
-    }
-    <?php endif; // explicit consent ?>
-    
-    // Disable submit button until all T&C are agreed to
-    maybe_enable_submit();
-    //$(":submit").attr('disabled', true);
-  }
-<?php endif; ?>
-  
   $(function() {
-    // If select element for COU exists
-    if($("#EnrolleeCoPersonRoleCouId") !== undefined) {
-      $("#EnrolleeCoPersonRoleCouId").change(function(){
-        updateTermsAndConditions(tandcs[$(this).val()]);
-      })
-    }
-    $("#dialog-review").dialog({
-      autoOpen: false,
-      modal: true,
-      draggable: true,
-      resizable: true,
-      width: document.documentElement.clientWidth * 0.8,
-      height: document.documentElement.clientHeight * 0.8,
-      buttons: {
-        "<?php print _txt('op.ok'); ?>": function() {
-          $(this).dialog("close");
-        }
-      }
-    })
-    
     $("#sponsors").autocomplete({
       source: "<?php
         // We inject the Petition ID and token into the request in case we need
@@ -421,10 +229,6 @@
             $ruleType = $ea['validate']['content']['rule'][0];
           }
 
-          // If there is a default COU
-          if($ea['model'] == 'EnrolleeCoPersonRole' && $ea['field'] == 'cou_id' && isset($ea['default'])) {
-            $defaultTermsAndConditions = $ea['default'];
-          }
           // XXX need to retrieve current values for edit and view
 
           if($e) {
@@ -716,73 +520,6 @@
       <span class="clearfix"></span>
     </div><!-- modelbox -->
   <?php endforeach; // foreach ($coea_model as $m => $coe_attributes): ?>
-  <?php
-  if(!empty($defaultTermsAndConditions) && !empty($vv_terms_and_conditions)) {
-    unset($terms_and_conditions);
-    if(array_key_exists($defaultTermsAndConditions, $vv_terms_and_conditions) && !empty($vv_terms_and_conditions[$defaultTermsAndConditions])) {
-      // Set COU T&C
-      $terms_and_conditions[$defaultTermsAndConditions] = $vv_terms_and_conditions[$defaultTermsAndConditions];
-    }
-    elseif(!empty($vv_terms_and_conditions[""])) { // if CO T&C is not suspended
-      // Set CO T&C(s)
-      $terms_and_conditions[$defaultTermsAndConditions] = $vv_terms_and_conditions[""];
-    }
-    $vv_terms_and_conditions = $terms_and_conditions[$defaultTermsAndConditions];
-  }
-  else if(!empty($vv_terms_and_conditions)){
-    // SET CO T&C(s)
-    $vv_terms_and_conditions = $vv_terms_and_conditions[""];
-  }
-  ?>
-
-  <?php if(!empty($vv_terms_and_conditions)): ?>
-    <?php if($this->action == 'view'): ?>
-    <div class="modelbox">
-      <div class="box-title">
-        <?php print _txt('ct.co_terms_and_conditions.1'); ?>
-      </div>
-      <div class="box-data">
-        <?php
-          // We link to T&C because T&C are not considered part of the petition.
-
-          print $this->Html->link(_txt('op.tc.review.pt'),
-                                  array('controller' => 'co_terms_and_conditions',
-                                        'action' => 'review',
-                                        'copersonid' => $co_petitions[0]['CoPetition']['enrollee_co_person_id'],
-                                        'co' => $co_petitions[0]['CoPetition']['co_id']),
-                                  array('class' => 'linkbutton'));
-        ?>
-      </div>
-    </div>
-    <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent
-                 || $vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): // action == view ?>
-    <div class="ui-widget modelbox">
-      <div class="tc-title">
-        <strong><?php print _txt('op.tc.agree'); ?></strong><br />
-        <?php if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent): ?>
-        <span class="descr"><?php print _txt('fd.tc.agree.desc'); ?></span>
-        <?php elseif($vv_tandc_mode == TAndCEnrollmentModeEnum::ImpliedConsent): ?>
-        <span class="descr"><?php print _txt('fd.tc.agree.impl'); ?></span>
-        <?php endif; // vv_tandc_mode ?>
-      </div>
-      <ul id="co_petition_tandc">
-        <?php foreach($vv_terms_and_conditions as $t): ?>
-          <li class="line<?php print ($l % 2); $l++; ?>">
-              <?php print $this->element('termsAndConditionsItem', array("t" => $t));?>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-    </div>
-    <?php endif; // action == view ?>
-  <?php else: // we must create an empty field for T&C otherwise cakePHP security won't let us send data for T&C on the fly ?>
-    <div class="ui-widget modelbox hidden">
-        <ul id="co_petition_tandc">
-            <li>
-              <?php print $this->Form->checkbox("CoTermsAndConditions.0", array('hidden' => true, 'default' => '0')); ?>
-            </li>
-        </ul>
-    </div>
-  <?php endif; // T&C ?>
   
   <?php
     // Render conclusion text for new petitions
@@ -834,11 +571,6 @@
     </li>
   </ul>
 <?php endif; // action == view ?>
-
-<div id="dialog-review" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  <iframe id="tandc_content" title="<?php print _txt('ct.co_terms_and_conditions.1'); ?>">
-  </iframe>
-</div>
 
 <script type="text/javascript">
   givenNameAttr = <?php print '"' . $givenNameAttr . '"'; ?>;

@@ -89,6 +89,95 @@ class CoTermsAndConditions extends AppModel {
   );
   
   /**
+   * Actions to take after a save operation is executed.
+   *
+   * @since  COmanage Registry v3.2.0
+   */
+
+  public function afterSave($created, $options = array()) {
+
+    // if we created a new T&C and added a URL pointing to our T&C body,
+    // we need to re-save the model with the newly created model id
+    if($created && !empty($this->data['CoTermsAndConditions']['body'])) {
+      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
+                             "controller" => "CoTermsAndConditions",
+                             "action" => "display",
+                             $this->data['CoTermsAndConditions']['id']
+                           ), true);
+      $this->save();
+    }
+
+    return true;
+  }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v3.1.0
+   */
+
+  public function beforeSave($options = array()) {
+
+    if (!empty($this->data['CoTermsAndConditions']['co_id'])
+      && empty($this->data['CoTermsAndConditions']['ordr'])) {
+      // In order to deterministically order TandCs, assign an order.
+      // Find the current high value and add one
+      $n = 1;
+
+      $args = array();
+      $args['fields'][] = "MAX(ordr) as m";
+      $args['conditions']['CoTermsAndConditions.co_id'] = $this->data['CoTermsAndConditions']['co_id'];
+      $args['order'][] = "m";
+
+      $o = $this->find('first', $args);
+
+      if (!empty($o[0]['m'])) {
+        $n = $o[0]['m'] + 1;
+      }
+
+      $this->data['CoTermsAndConditions']['ordr'] = $n;
+    }
+
+    // if we have a body for our T&C, override any URL with a local
+    // URL to display said body
+    if (!empty($this->data['CoTermsAndConditions']['body'])) {
+      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
+                             "controller" => "CoTermsAndConditions",
+                             "action" => "display",
+                             $this->data['CoTermsAndConditions']['id']
+                           ), true);
+    }
+
+    return true;
+  }
+
+  /**
+   * Get all active Terms&Conditions for a CO and its COUs or for a specific COU
+   *
+   * @param  int   CO identifier
+   * @param  int   COU identifier
+   * @return array An array of active Terms&Conditions
+   */
+
+  public function getTermsAndConditionsByCouId($coId, $couId=null) {
+    $args = array();
+    $args['conditions']['CoTermsAndConditions.co_id'] = $coId;
+    if($couId) {
+      $args['conditions']['OR'] = array(
+        array('CoTermsAndConditions.cou_id' => $couId),
+        array('CoTermsAndConditions.cou_id' => null)
+      );
+    } else {
+      $args['conditions']['CoTermsAndConditions.cou_id'] = null;
+    }
+    $args['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
+    $args['order'] = array('CoTermsAndConditions.ordr' => 'asc');
+    $args['contain'] = false;
+    
+    return $this->find('all', $args);
+  }
+  
+  /**
    * Obtain the set of pending (un-agreed-to) T&C for a CO Person
    *
    * @since  COmanage Registry v0.9.1
@@ -183,98 +272,4 @@ class CoTermsAndConditions extends AppModel {
     
     return $tandc;
   }
-
-  /**
-   * Actions to take before a save operation is executed.
-   *
-   * @since  COmanage Registry v3.1.0
-   */
-
-  public function beforeSave($options = array()) {
-
-    if (!empty($this->data['CoTermsAndConditions']['co_id'])
-      && empty($this->data['CoTermsAndConditions']['ordr'])) {
-      // In order to deterministically order TandCs, assign an order.
-      // Find the current high value and add one
-      $n = 1;
-
-      $args = array();
-      $args['fields'][] = "MAX(ordr) as m";
-      $args['conditions']['CoTermsAndConditions.co_id'] = $this->data['CoTermsAndConditions']['co_id'];
-      $args['order'][] = "m";
-
-      $o = $this->find('first', $args);
-
-      if (!empty($o[0]['m'])) {
-        $n = $o[0]['m'] + 1;
-      }
-
-      $this->data['CoTermsAndConditions']['ordr'] = $n;
-    }
-
-    // if we have a body for our T&C, override any URL with a local
-    // URL to display said body
-    if (!empty($this->data['CoTermsAndConditions']['body'])) {
-      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
-                             "controller" => "CoTermsAndConditions",
-                             "action" => "display",
-                             $this->data['CoTermsAndConditions']['id']
-                           ), true);
-    }
-
-    return true;
-  }
-
-  /**
-   * Get all active Terms&Conditions for a CO and its COUs or for a specific COU
-   *
-   * @param  Integer CO identifier
-   * @param  Integer COU identifier
-   * @return Array   An array of active Terms&Conditions
-   */
-
-  public function getTermsAndConditionsByCouId($co_id, $cou_id) {
-    $args = array();
-    $args['conditions']['Co.id'] = $co_id;
-    $args['contain'] = array('CoTermsAndConditions');
-    $args['contain']['CoTermsAndConditions']['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
-    $args['contain']['CoTermsAndConditions']['conditions']['AND'][] = 'CoTermsAndConditions.co_terms_and_conditions_id IS NULL';
-    $args['contain']['CoTermsAndConditions']['conditions']['AND'][] = 'CoTermsAndConditions.deleted IS NOT true';
-    $cous = $this->Co->find("all", $args);
-
-    // Get Generic TermsAndConditions and per cou
-    $cousWithActiveTerms = array();
-
-    foreach( $cous[0]['CoTermsAndConditions'] as $row ) {
-        // if $cou_id not null then this is a default COU and not modifiable for the specific CO Petition
-        // so we don't need all COUs T&C
-        if(empty($cou_id) || $row['cou_id'] == NULL || $cou_id == $row['cou_id']) {
-          $cousWithActiveTerms[$row['cou_id']][] = $row;
-        }
-    }
-    return $cousWithActiveTerms;
-  }
-
-  /**
-   * Actions to take after a save operation is executed.
-   *
-   * @since  COmanage Registry v3.2.0
-   */
-
-  public function afterSave($created, $options = array()) {
-
-    // if we created a new T&C and added a URL pointing to our T&C body,
-    // we need to re-save the model with the newly created model id
-    if($created && !empty($this->data['CoTermsAndConditions']['body'])) {
-      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
-                             "controller" => "CoTermsAndConditions",
-                             "action" => "display",
-                             $this->data['CoTermsAndConditions']['id']
-                           ), true);
-      $this->save();
-    }
-
-    return true;
-  }
-  
 }

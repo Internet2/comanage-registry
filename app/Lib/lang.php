@@ -239,6 +239,7 @@ $cm_texts['en_US'] = array(
   'ef.step.sendApproverNotification' => 'Request Approval',
   'ef.step.sendConfirmation'         => 'Request Email Address Confirmation',
   'ef.step.start'                    => 'Start',
+  'ef.step.tandcAgreement'           => 'Agree to Terms and Conditions',
   'ef.step.waitForApproval'          => 'Wait For Approval',
   'ef.step.waitForConfirmation'      => 'Wait For Confirmation',
   

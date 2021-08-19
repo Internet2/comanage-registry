@@ -10,9 +10,9 @@
 
   $fieldName = "CoTermsAndConditions." . $t['id'];
   $args = array();
-  // Note that if authorization is set to "None", this will be empty
-  // and the Controller will received the value "on" instead.
-  $args['value'] = $this->Session->read('Auth.User.username');
+  // By default, this would be "on". For now (as of v4.0.0) the actual value
+  // doesn't matter.
+  $args['value'] = _txt('fd.tc.agree.yes');
 
   if($vv_tandc_mode == TAndCEnrollmentModeEnum::ExplicitConsent) {
     // Explicit consent, render a checkbox

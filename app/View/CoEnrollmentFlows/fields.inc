@@ -88,8 +88,6 @@
     } else {
       $("#CoEnrollmentFlowInvitationValidity").closest("ul.field-children").hide('fade');
     }
-    
-    tandc_update_gadgets();
   }
   
   function authz_update_gadgets() {
@@ -131,8 +129,6 @@
     } else {
       $("#CoEnrollmentFlowEnablePersonFind").closest("li").hide('fade');
     }
-    
-    tandc_update_gadgets();
   }
   
   function fields_update_gadgets() {
@@ -200,20 +196,6 @@
       $("#clusters").hide('fade');
     }
     <?php endif; // $vv_clusters ?>
-  }
-  
-  function tandc_update_gadgets() {
-    // T&C require some form of authentication
-    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
-    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
-    var authz = document.getElementById('CoEnrollmentFlowAuthzLevel').value;
-    
-    if((confirm != '<?php print VerificationModeEnum::None; ?>' && authn)
-       || authz != '<?php print EnrollmentAuthzEnum::None ?>') {
-      $("#CoEnrollmentFlowTAndCMode").closest("li").show('fade');
-    } else {
-      $("#CoEnrollmentFlowTAndCMode").closest("li").hide('fade');
-    }
   }
   
   function js_local_onload() {
@@ -823,6 +805,7 @@
                    : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['conclusion_text'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <?php if($vv_tandc_count > 0): ?>
   <li>
     <div class="field-name">
       <div class="field-title">
@@ -854,6 +837,7 @@
       ?>
     </div>
   </li>
+  <?php endif; // vv_tandc_count ?>
   <li>
     <div class="field-name">
       <div class="field-title">
