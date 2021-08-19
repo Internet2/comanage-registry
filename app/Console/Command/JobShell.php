@@ -28,6 +28,7 @@
 class JobShell extends AppShell {
   var $uses = array('Co',
                     'CoJob',
+                    'CoLocalization',
                     'CmpEnrollmentConfiguration',
                     'Lock');
   
@@ -250,7 +251,10 @@ class JobShell extends AppShell {
       }
       
       $this->out(_txt('sh.job.lock.obt', array($lockid)), 1, Shell::NORMAL);
-      
+
+      // Load localizations
+      $this->CoLocalization->load($this->params['coid']);
+
       // Pull all jobs where status is queued and whose start time isn't deferred.
       // We do this in a loop rather than pull all at once for two reasons:
       // (1) to work with very large queues (this is effectively keyset pagination
