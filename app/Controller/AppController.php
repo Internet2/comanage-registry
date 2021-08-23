@@ -284,7 +284,7 @@ class AppController extends Controller {
           // There might be a CO object under another object (eg: CoOrgIdentityLink),
           // but it's easier if we just explicitly load the model
           
-          $this->loadModel('Co');
+          $this->Co = ClassRegistry::init('Co');
         }
         
         $args = array();
@@ -295,50 +295,10 @@ class AppController extends Controller {
         
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
-          
-          // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
-          
-          global $cm_texts;
-          global $cm_lang;
-          
-          $this->loadModel('CoLocalization');
 
-          // Load Platform text. Dynamic texts configured in COmanage CO
-          // Continuously we will replace any occurrence of dynamic texts with the global ones
+          // Load Localizations
+          $this->Co->CoLocalization->load($this->cur_co['Co']['id']);
 
-          $args = array();
-          $args['joins'][0]['table'] = 'cos';
-          $args['joins'][0]['alias'] = 'Co';
-          $args['joins'][0]['type'] = 'INNER';
-          $args['joins'][0]['conditions'][0] = 'CoLocalization.co_id=Co.id';
-          $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
-          $args['conditions']['Co.status'] = StatusEnum::Active;
-          $args['conditions']['CoLocalization.language'] = $cm_lang;
-          $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
-          $args['contain'] = false;
-
-          $ls_cm = $this->CoLocalization->find('list', $args);
-          unset($args);
-
-          // First load the Platform localization variables
-          if(!empty($ls_cm)) {
-            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls_cm);
-          }
-          
-          $args = array();
-          $args['conditions']['CoLocalization.co_id'] = $coid;
-          $args['conditions']['CoLocalization.language'] = $cm_lang;
-          $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
-          $args['contain'] = false;
-
-          $ls_co = $this->CoLocalization->find('list', $args);
-
-          // Replace all default texts with the ones configured in CO level
-          if(!empty($ls_co)) {
-            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls_co);
-          }
-          unset($args);
-          
           // Perform a bit of a sanity check before we get any further
           try {
             $this->verifyRequestedId();
