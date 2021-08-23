@@ -34,6 +34,7 @@ class CoPersonRole extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
+                         'Linkable.Linkable',
                          'Normalization' => array('priority' => 4),
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
@@ -555,12 +556,13 @@ class CoPersonRole extends AppModel {
    * Perform a keyword search.
    *
    * @since  COmanage Registry v3.1.0
-   * @param  Integer $coId CO ID to constrain search to
-   * @param  String  $q    String to search for
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
    * @return Array Array of search results, as from find('all)
    */
   
-  public function search($coId, $q) {
+  public function search($coId, $q, $limit) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
     
@@ -579,8 +581,19 @@ class CoPersonRole extends AppModel {
     
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('CoPersonRole.title');
-    $args['contain']['CoPerson'] = 'PrimaryName';
+    $args['limit'] = $limit;
+    $args['link']['CoPerson'] = array('Name' => array('conditions' => array('primary_name' => true)));
     
-    return $this->find('all', $args);
+    $ret = $this->find('all', $args);
+    
+    // Since we use linkable instead of containable, Name is nested at the wrong level
+    for($i = 0;$i < count($ret);$i++) {
+      if(isset($ret[$i]['Name'])) {
+        $ret[$i]['CoPerson']['PrimaryName'] = $ret[$i]['Name'];
+        unset($ret[$i]['Name']);
+      }
+    }
+    
+    return $ret;
   }
 }

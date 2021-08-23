@@ -173,7 +173,7 @@ class CoSettingsController extends StandardController {
 
       // Pull Jobs scheduled for Platform CO
       $co_name = $this->Co->field('name', array('id' => $this->cur_co['Co']['id']));
-      if($co_name === "COmanage") {
+      if($co_name === DEF_COMANAGE_CO_NAME) {
         $this->set(
           'vv_jobs_queued',
           $this->Co->CoJob->jobsQueuedByType($this->cur_co['Co']['id'], "CoreJob.GarbageCollector")

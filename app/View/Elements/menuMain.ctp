@@ -76,7 +76,8 @@ if(!empty($vv_enrollment_flow_cos)) {
             $args['controller'] = 'co_people';
             $args['action'] = 'index';
             $args['co'] = $menuCoId;
-            $args['Search.couid'] = $couid;
+            $args['search.cou'] = $couid;
+            $args['op'] = 'search';
 
             print $this->Html->link(_txt('me.population.cou', array($couname)), $args, array('class' => 'spin'));
     

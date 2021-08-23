@@ -29,6 +29,7 @@
 global $group_sep;
 $group_sep = ":";
 
+define("DEF_COMANAGE_CO_NAME", "COmanage");
 // Default invitation validity, in minutes (used in various places, should probably be moved elsewhere)
 define("DEF_INV_VALIDITY", 1440);
 
@@ -37,6 +38,9 @@ define("DEF_GROUP_SYNC_WINDOW", 1440);
 
 // Default window for Garbage Collection
 define("DEF_GARBAGE_COLLECT_INTERVAL", 1440);
+
+// Default global search limit
+define("DEF_GLOBAL_SEARCH_LIMIT", 500);
 
 /**
  * Find an attribute within an array, specifically intended for working with

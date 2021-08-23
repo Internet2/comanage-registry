@@ -27,16 +27,6 @@
 ?>
 
 <script>
-  function clearSearch(formObj) {
-    for (var i=0; i<formObj.elements.length; i++) {
-      t = formObj.elements[i].type;
-      if(t == "text" || t == "select-one") {
-        formObj.elements[i].value = "";
-      }
-    }
-    formObj.submit();
-  }
-
   $(function() {
     $( ".clearButton").button();
   });

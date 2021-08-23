@@ -311,7 +311,7 @@ class AppController extends Controller {
           $args['joins'][0]['alias'] = 'Co';
           $args['joins'][0]['type'] = 'INNER';
           $args['joins'][0]['conditions'][0] = 'CoLocalization.co_id=Co.id';
-          $args['conditions']['Co.name'] = 'COmanage';
+          $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
           $args['conditions']['Co.status'] = StatusEnum::Active;
           $args['conditions']['CoLocalization.language'] = $cm_lang;
           $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
@@ -974,7 +974,7 @@ class AppController extends Controller {
       $args['joins'][0]['alias'] = 'Co';
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoSetting.co_id=Co.id';
-      $args['conditions']['Co.name'] = 'COmanage';
+      $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
       $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
       $args['contain'][] = 'CoTheme';
 

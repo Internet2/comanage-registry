@@ -50,12 +50,12 @@
 
   print $this->element("pageTitleAndButtons", $params);
 ?>
-<?php if($cur_co['Co']['id'] == 1): ?>
+<?php if($cur_co['Co']['name'] == DEF_COMANAGE_CO_NAME): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
   <?php print _txt('in.api.cmp'); ?>
 </div>
-<?php endif; // co_id == 1 ?>
+<?php endif; // co name == DEF_COMANAGE_CO_NAME ?>
 
 <div class="table-container">
   <table id="api_users">

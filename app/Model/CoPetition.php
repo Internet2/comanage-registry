@@ -1279,6 +1279,78 @@ class CoPetition extends AppModel {
   }
   
   /**
+   * Record agreements to Terms and Conditions.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  int    $id         CO Petition ID
+   * @param  array  $tandc      Array of T&C IDs as keys, values ignored
+   * @param  string $authUserId Authenticated identifier string
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  
+  public function recordTandC($id, $tandc, $authUserId) {
+    // Record agreements to Terms and Conditions.
+    
+    if(!empty($tandc)) {
+      // We need some metadata
+      
+      $coPersonId = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+      $enrollmentFlowId = $this->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+      
+      $tAndCMode = $this->CoEnrollmentFlow->field(
+        't_and_c_mode',
+        array('CoEnrollmentFlow.id' => $enrollmentFlowId)
+      );
+      
+      // Because of how the form is submitted, we expect $tandc to be an
+      // array where the keys are the T&C ID and the value is whatever
+      // Cake decides to send as the string for a checkbox, typically "on".
+      
+      foreach(array_keys($tandc) as $coTAndCId) {
+        try {
+          $this->Co->CoTermsAndConditions->CoTAndCAgreement->record($coTAndCId,
+                                                                    $coPersonId,
+                                                                    $coPersonId,
+                                                                    $authUserId,
+                                                                    false);
+          
+          // Also create a Petition History Record of the agreement
+          
+          $tcenum = null;
+          $tccomment = "";
+          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
+                                                           array('CoTermsAndConditions.id' => $coTAndCId))
+                  . " (" . $coTAndCId . ")";
+          
+          switch($tAndCMode) {
+            case TAndCEnrollmentModeEnum::ExplicitConsent:
+              $tcenum = PetitionActionEnum::TCExplicitAgreement;
+              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
+              break;
+            case TAndCEnrollmentModeEnum::ImpliedConsent:
+              $tcenum = PetitionActionEnum::TCImpliedAgreement;
+              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
+              break;
+            default:
+              throw new InvalidArgumentException("Unknown Terms and Conditions Mode: $tAndCMode");
+              break;
+          }
+          
+          $this->CoPetitionHistoryRecord->record($id,
+                                                 $coPersonId,
+                                                 $tcenum,
+                                                 $tccomment);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save-a', array('CoTermsAndConditions (CoPetition)')));
+        }
+      }
+    }
+  }
+  
+  /**
    * Relink a Petition and the associated CO Person to an already existing Org Identity.
    * This function should be called from within a transaction.
    *
@@ -2004,61 +2076,6 @@ class CoPetition extends AppModel {
       throw new RuntimeException(_txt('er.db.save-a', array('CoPetitionHistoryRecord')));
     }
     
-    // Record agreements to Terms and Conditions, if any
-    // check value of first row if it is bigger than 0
-    // 0 means that we will not take it into account
-    // CoTermsAndConditions should be always present at form even if it does not have a value for security reasons
-    if(!empty($requestData['CoTermsAndConditions']) && (!isset($requestData['CoTermsAndConditions'][0]) || $requestData['CoTermsAndConditions'][0] != 0)) {
-      $tAndCMode = $this->CoEnrollmentFlow->field(
-        't_and_c_mode',
-        array('CoEnrollmentFlow.id' => $enrollmentFlowId)
-      );
-
-      foreach(array_keys($requestData['CoTermsAndConditions']) as $coTAndCId) {
-        try {
-          // Currently, T&C is only available via a petition when authn is required.
-          // The array value should be the authenticated identifier as set by the view.
-          
-          $this->Co->CoTermsAndConditions->CoTAndCAgreement->record($coTAndCId,
-                                                                    $coPersonId,
-                                                                    $coPersonId,
-                                                                    $requestData['CoTermsAndConditions'][$coTAndCId],
-                                                                    false);
-          
-          // Also create a Petition History Record of the agreement
-          
-          $tcenum = null;
-          $tccomment = "";
-          $tcdesc = $this->Co->CoTermsAndConditions->field('description',
-                                                           array('CoTermsAndConditions.id' => $coTAndCId))
-                  . " (" . $coTAndCId . ")";
-          
-          switch($tAndCMode) {
-            case TAndCEnrollmentModeEnum::ExplicitConsent:
-              $tcenum = PetitionActionEnum::TCExplicitAgreement;
-              $tccomment = _txt('rs.pt.tc.explicit', array($tcdesc));
-              break;
-            case TAndCEnrollmentModeEnum::ImpliedConsent:
-              $tcenum = PetitionActionEnum::TCImpliedAgreement;
-              $tccomment = _txt('rs.pt.tc.implied', array($tcdesc));
-              break;
-            default:
-              throw new InvalidArgumentException("Unknown Terms and Conditions Mode: $tAndCMode");
-              break;
-          }
-          
-          $this->CoPetitionHistoryRecord->record($id,
-                                                 $petitionerId,
-                                                 $tcenum,
-                                                 $tccomment);
-        }
-        catch(Exception $e) {
-          $dbc->rollback();
-          throw new RuntimeException(_txt('er.db.save-a', array('CoTermsAndConditions')));
-        }
-      }
-    }
-
     if($createLink && $coPersonId) {
       // If we created a new CO Person, check to see if we also created any
       // Org Identities via Org Identity (Enrollment) Sources. If so, create

@@ -193,6 +193,14 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_clusters', $this->CoEnrollmentFlow->Co->Cluster->find('list', $args));
+      
+      // Determine if there are any T&C configured
+      $args = array();
+      $args['conditions']['CoTermsAndConditions.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoTermsAndConditions.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      $this->set('vv_tandc_count', $this->CoEnrollmentFlow->Co->CoTermsAndConditions->find('count', $args));
     }
     
     parent::beforeRender();

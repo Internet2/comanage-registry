@@ -127,6 +127,22 @@ class CoTermsAndConditionsController extends StandardController {
   }
   
   /**
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: $plugins set
+   *
+   * @since  COmanage Registry v4.0.0
+   * @throws InvalidArgumentException
+   */
+
+  function beforeFilter() {
+    // A raw view of the T&C content is always allowed
+    
+    $this->Auth->allow('display');
+    
+    parent::beforeFilter();
+  }
+  
+  /**
    * Callback after controller methods are invoked but before views are rendered.
    * - precondition: Request Handler component has set $this->request->params
    * - postcondition: $cous may be set.
@@ -196,7 +212,7 @@ class CoTermsAndConditionsController extends StandardController {
     $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     // A raw view of the T&C content is always allowed
-    $p['display']=true;
+    $p['display'] = true;
 
     $this->set('permissions', $p);
     return $p[$this->action];

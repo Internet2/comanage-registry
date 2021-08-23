@@ -34,6 +34,7 @@ class Name extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
+                         'Linkable.Linkable',
                          'Normalization' => array('priority' => 4),
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
@@ -317,31 +318,58 @@ class Name extends AppModel {
    * Perform a keyword search.
    *
    * @since  COmanage Registry v3.1.0
-   * @param  Integer $coId CO ID to constrain search to
-   * @param  String  $q    String to search for
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
    * @return Array Array of search results, as from find('all)
    */
   
-  public function search($coId, $q) {
+  public function search($coId, $q, $limit) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
     
-    $args = array();
+    $ret = array();
     
-    foreach($tokens as $t) {
-      $args['conditions']['AND'][] = array(
-        'OR' => array(
-          'LOWER(Name.given) LIKE' => '%' . strtolower($t) . '%',
-          'LOWER(Name.middle) LIKE' => '%' . strtolower($t) . '%',
-          'LOWER(Name.family) LIKE' => '%' . strtolower($t) . '%',
-        )
-      );
+    // We take two loops through, the first time we only do a prefix search
+    // (foo%). If that doesn't reach the search limit, we'll do an infix search
+    // the second time around.
+    
+    // While this will return duplicate records, CoDashboardsController::search
+    // will filter them while collating results. It will, however, throw off
+    // the limit calculation.
+    
+    for($i = 0;$i < 2;$i++) {
+      $args = array();
+      
+      foreach($tokens as $t) {
+        $args['conditions']['AND'][] = array(
+          'OR' => array(
+            'LOWER(Name.given) LIKE' => ($i == 1 ? '%' : '') . strtolower($t) . '%',
+            'LOWER(Name.middle) LIKE' => ($i == 1 ? '%' : '') . strtolower($t) . '%',
+            'LOWER(Name.family) LIKE' => ($i == 1 ? '%' : '') . strtolower($t) . '%',
+          )
+        );
+      }
+      
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['order'] = array('Name.family', 'Name.given', 'Name.middle');
+      // We use linkable rather than containable because the former can generate
+      // a JOIN, which dramatically reduces the number of queries vs containable
+      $args['link']['CoPerson'] = array('CoPersonRole');
+      $args['limit'] = $limit - count($ret);
+      
+      $ret += $this->find('all', $args);
+    }
+
+    // Since we use linkable instead of containable, CoPersonRole
+    // is nested at the wrong level
+    for($i = 0;$i < count($ret);$i++) {
+      if(isset($ret[$i]['CoPersonRole'])) {
+        $ret[$i]['CoPerson']['CoPersonRole'][] = $ret[$i]['CoPersonRole'];
+        unset($ret[$i]['CoPersonRole']);
+      }
     }
     
-    $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['order'] = array('Name.family', 'Name.given', 'Name.middle');
-    $args['contain']['CoPerson'] = 'CoPersonRole';
-    
-    return $this->find('all', $args);
+    return $ret;
   }
 }

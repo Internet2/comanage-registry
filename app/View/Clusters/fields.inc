@@ -148,3 +148,4 @@
   <?php endif; ?>  
 </ul>
 <?php endif; /* plugins */
+  print $this->element('changelog');

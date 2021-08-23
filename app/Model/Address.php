@@ -34,6 +34,7 @@ class Address extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
+                         'Linkable.Linkable',
                          'Normalization' => array('priority' => 4),
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
@@ -222,20 +223,17 @@ class Address extends AppModel {
    * Perform a keyword search.
    *
    * @since  COmanage Registry v3.1.0
-   * @param  Integer $coId CO ID to constrain search to
-   * @param  String  $q    String to search for
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
    * @return Array Array of search results, as from find('all)
    */
   
-  public function search($coId, $q) {
+  public function search($coId, $q, $limit) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
     
     $args = array();
-    $args['joins'][1]['table'] = 'co_people';
-    $args['joins'][1]['alias'] = 'CoPerson';
-    $args['joins'][1]['type'] = 'INNER';
-    $args['joins'][1]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
     
     foreach($tokens as $t) {
       $args['conditions']['AND'][] = array(
@@ -248,9 +246,21 @@ class Address extends AppModel {
     $args['conditions']['LOWER(Address.street) LIKE'] = '%' . strtolower($q) . '%';
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('Address.street');
-    $args['contain']['CoPersonRole']['CoPerson'] = 'PrimaryName';
+    $args['limit'] = $limit;
+    $args['contain'] = false;
+    $args['link']['CoPersonRole']['CoPerson'] = array('Name' => array('conditions' => array('primary_name' => true)));
     
-    return $this->find('all', $args);
+    $ret = $this->find('all', $args);
+    
+    // As a result of the above machinations, we have to move Name and rename it
+    for($i = 0;$i < count($ret);$i++) {
+      if(isset($ret[$i]['Name'])) {
+        $ret[$i]['CoPersonRole']['CoPerson']['PrimaryName'] = $ret[$i]['Name'];
+        unset($ret[$i]['Name']);
+      }
+    }
+    
+    return $ret;
   }
   
   /**

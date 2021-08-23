@@ -239,6 +239,7 @@ $cm_texts['en_US'] = array(
   'ef.step.sendApproverNotification' => 'Request Approval',
   'ef.step.sendConfirmation'         => 'Request Email Address Confirmation',
   'ef.step.start'                    => 'Start',
+  'ef.step.tandcAgreement'           => 'Agree to Terms and Conditions',
   'ef.step.waitForApproval'          => 'Wait For Approval',
   'ef.step.waitForConfirmation'      => 'Wait For Confirmation',
   
@@ -1684,6 +1685,8 @@ original notification at
   'fd.roles' =>       'Roles',
   'fd.room' =>        'Room',
   'fd.search.all' =>  'Search All Fields',
+  'fd.search.limit.global' => 'Global Search Limit',
+  'fd.search.limit.global.desc' => 'For global search, the maximum number of records to return (per record type)',
   'fd.searchbase' =>  'Search Base',
   'fd.server' =>      'Server',
   'fd.server.hostname' => 'Hostname',
@@ -2273,6 +2276,7 @@ original notification at
   'rs.pt.tc.explicit' => 'Explicit agreement to Terms and Conditions "%1$s"',
   'rs.pt.tc.implied' => 'Implied agreement to Terms and Conditions "%1$s"',
   'rs.search.1' =>    'Exact match for "%1$s" found (%2$s)',
+  'rs.search.limit' => '%1$s search limit of %2$s reached, try narrowing your search',
   'rs.search.none' => 'No results found',
   'rs.search.noquery' => 'No search query was submitted.  Please enter a search query above.',
   'rs.server.oauth2.token.ok' => 'Access Token Obtained',
@@ -2384,6 +2388,7 @@ original notification at
   'sh.ug.400.filesource' => 'Updating File Sources',
   'sh.ug.400.garbage.collector.interval' => 'Updating CoSetting Garbage Collection Interval',
   'sh.ug.400.garbage.collector.register' => 'Register GarbageCollector Job',
+  'sh.ug.400.global_search_limit' => 'Setting default global search limit',
   'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
   'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'

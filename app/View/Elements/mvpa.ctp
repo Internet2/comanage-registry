@@ -202,6 +202,7 @@
             
             // If this is an Email Address and is verified, add that to the type string
             if($mvpa_model === 'EmailAddress'
+               && $permissions['edit']
                && isset($m['verified'])
                && !$m['verified']) {
               // Action

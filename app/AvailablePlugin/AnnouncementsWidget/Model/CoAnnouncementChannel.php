@@ -106,12 +106,13 @@ class CoAnnouncementChannel extends AppModel {
    * Perform a keyword search.
    *
    * @since  COmanage Registry v3.2.0
-   * @param  Integer $coId CO ID to constrain search to
-   * @param  String  $q    String to search for
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
    * @return Array Array of search results, as from find('all)
    */
 
-  public function search($coId, $q) {
+  public function search($coId, $q, $limit) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
 
@@ -127,6 +128,7 @@ class CoAnnouncementChannel extends AppModel {
 
     $args['conditions']['CoAnnouncementChannel.co_id'] = $coId;
     $args['order'] = array('CoAnnouncementChannel.name');
+    $args['limit'] = $limit;
     $args['contain'] = false;
 
     return $this->find('all', $args);

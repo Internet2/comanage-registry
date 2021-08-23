@@ -81,7 +81,78 @@ class OrgIdentitiesController extends StandardController {
     'TelephoneNumber',
     'Url'
   );
-  
+
+  /**
+   * Alphabet Search Bar configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function alphabetSearchConfig($action)
+  {
+    if($action == 'index') {
+      return array(
+        'search.familyNameStart' => array(
+          'label' => _txt('me.alpha.label'),
+        ),
+      );
+    }
+  }
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.givenName' => array(              // 1st row, left column
+          'label' => _txt('fd.name.given'),
+          'type' => 'text',
+        ),
+        'search.organization' => array(          // 1st row, right column
+          'label' => _txt('fd.o'),
+          'type' => 'text',
+        ),
+        'search.familyName' => array(           // 2nd row, left column
+          'label' => _txt('fd.name.family'),
+          'type' => 'text',
+        ),
+        'search.orgIdentitySource' => array(    // 2nd row, right column
+          'label' => _txt('ct.org_identity_sources.1'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_org_id_sources'],
+        ),
+        'search.mail' => array(                // 3rd row, left column
+          'label' => _txt('fd.email_address.mail'),
+          'type' => 'text',
+        ),
+        'search.department' => array(          // 3rd row, right column
+          'label' => _txt('fd.ou'),
+          'type' => 'text',
+        ),
+        'search.identifier' => array(          // 4th row, left column
+          'label' => _txt('fd.identifier.identifier'),
+          'type' => 'text',
+        ),
+        'search.affiliation' => array(         // 4th row, right column
+          'label' => _txt('fd.affiliation'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.org_identity.affiliation'),
+        ),
+        'search.title' => array(              // 5th row, left column
+          'label' => _txt('fd.title'),
+          'type' => 'text',
+        ),
+      );
+    }
+  }
+
+
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: requires_co possibly set
@@ -636,22 +707,28 @@ class OrgIdentitiesController extends StandardController {
     }
 
     // Filter by given name
-    if(!empty($this->params['named']['search.givenName'])) {
-      $searchterm = strtolower($this->params['named']['search.givenName']);
+    if(!empty($this->request->params['named']['search.givenName'])) {
+      $searchterm = strtolower($this->request->params['named']['search.givenName']);
       $pagcond['conditions']['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
-    if(!empty($this->params['named']['search.familyName'])) {
-      $searchterm = strtolower($this->params['named']['search.familyName']);
+    if(!empty($this->request->params['named']['search.familyName'])) {
+      $searchterm = strtolower($this->request->params['named']['search.familyName']);
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
     }
 
+    // Filter by start of Primary Family name (starts with searchterm)
+    if(!empty($this->request->params['named']['search.familyNameStart'])) {
+      $searchterm = strtolower($this->request->params['named']['search.familyNameStart']);
+      $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
+    }
+
     // Filter by Organization
-    if(!empty($this->params['named']['search.organization'])) {
+    if(!empty($this->request->params['named']['search.organization'])) {
       // XXX CO-2171
       // XXX Temporary solution which will be removed in v5.0.0
-      $searchterm = $this->params['named']['search.organization'];
+      $searchterm = $this->request->params['named']['search.organization'];
       $dbc = $this->OrgIdentity->getDataSource();
       if ($dbc->config['datasource'] === 'Database/Postgres') {
         $pagcond['conditions']['OrgIdentity.o iLIKE'] = "%$searchterm%";
@@ -663,55 +740,49 @@ class OrgIdentitiesController extends StandardController {
     }
 
     // Filter by Department
-    if(!empty($this->params['named']['search.department'])) {
-      $searchterm = strtolower($this->params['named']['search.department']);
+    if(!empty($this->request->params['named']['search.department'])) {
+      $searchterm = strtolower($this->request->params['named']['search.department']);
       $pagcond['conditions']['LOWER(OrgIdentity.ou) LIKE'] = "%$searchterm%";
     }
 
     // Filter by title
-    if(!empty($this->params['named']['search.title'])) {
-      $searchterm = strtolower($this->params['named']['search.title']);
+    if(!empty($this->request->params['named']['search.title'])) {
+      $searchterm = strtolower($this->request->params['named']['search.title']);
       $pagcond['conditions']['LOWER(OrgIdentity.title) LIKE'] = "%$searchterm%";
     }
 
     // Filter by affiliation
-    if(!empty($this->params['named']['search.affiliation'])) {
-      $searchterm = strtolower($this->params['named']['search.affiliation']);
+    if(!empty($this->request->params['named']['search.affiliation'])) {
+      $searchterm = strtolower($this->request->params['named']['search.affiliation']);
       $pagcond['conditions']['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
-    
+
+    $jcnt = 0;
     // Filter by email address
-    if(!empty($this->params['named']['search.mail'])) {
-      $searchterm = strtolower($this->params['named']['search.mail']);
+    if(!empty($this->request->params['named']['search.mail'])) {
+      $searchterm = strtolower($this->request->params['named']['search.mail']);
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
-      $pagcond['joins'][] = array(
-        'table' => 'email_addresses',
-        'alias' => 'EmailAddress',
-        'type' => 'INNER',
-        'conditions' => array(
-          'EmailAddress.org_identity_id=OrgIdentity.id' 
-        )
-      );
+      $pagcond['joins'][$jcnt]['table'] = 'email_addresses';
+      $pagcond['joins'][$jcnt]['alias'] = 'EmailAddress';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'EmailAddress.org_identity_id=OrgIdentity.id';
+      $jcnt++;
     }
     
     // Filter by identifier
-    if(!empty($this->params['named']['search.identifier'])) {
-      $searchterm = strtolower($this->params['named']['search.identifier']);
+    if(!empty($this->request->params['named']['search.identifier'])) {
+      $searchterm = strtolower($this->request->params['named']['search.identifier']);
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
-      $pagcond['joins'][] = array(
-        'table' => 'identifiers',
-        'alias' => 'Identifier',
-        'type' => 'INNER',
-        'conditions' => array(
-          'Identifier.org_identity_id=OrgIdentity.id' 
-        )
-      );
+      $pagcond['joins'][$jcnt]['table'] = 'identifiers';
+      $pagcond['joins'][$jcnt]['alias'] = 'Identifier';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
     }
     
     // Filter by org identity source
-    if(!empty($this->params['named']['search.orgIdentitySource'])) {
+    if(!empty($this->request->params['named']['search.orgIdentitySource'])) {
       // Cake will auto-join the table
-      $pagcond['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->params['named']['search.orgIdentitySource'];
+      $pagcond['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
     }
     
     return $pagcond;

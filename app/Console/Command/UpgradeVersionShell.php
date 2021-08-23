@@ -537,10 +537,7 @@ class UpgradeVersionShell extends AppShell {
     $this->out(_txt('sh.ug.400.messagetemplate.format'));
     $this->CoMessageTemplate->_ug400();
 
-    // Update CoSettings Garbage Collector interval
-    $this->out(_txt('sh.ug.400.garbage.collector.interval'));
-    // Register Garbage Collector Job
-    $this->out(_txt('sh.ug.400.garbage.collector.register'));
+    // Set various new defaults
     $this->CoSetting->_ug400();
 
     // 4.0.0 adds multiple types of File Sources, however the FileSource
@@ -563,4 +560,8 @@ class UpgradeVersionShell extends AppShell {
       );
     }
   }
+  
+  // We should eventually do something like
+  //  upgradeShell::populate_default_values("FileSource", "file_sources", "format", "C1")
+  // rather than copying/pasting updateAll syntax
 }

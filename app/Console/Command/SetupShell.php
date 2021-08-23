@@ -150,7 +150,7 @@
 
       $co = array(
         'Co' => array(
-          'name'        => 'COmanage',
+          'name'        => DEF_COMANAGE_CO_NAME,
           'description' => _txt('co.cm.desc'),
           'status'      => StatusEnum::Active
         )

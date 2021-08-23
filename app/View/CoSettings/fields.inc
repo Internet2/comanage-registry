@@ -448,7 +448,7 @@
         }
       ?>
     </div>
-    <?php if( $cur_co["Co"]["name"] !== 'COmanage'): ?>
+    <?php if( $cur_co["Co"]["name"] !== DEF_COMANAGE_CO_NAME): ?>
     <ul class="field-children">
       <li class="co-theme-stacking">
           <div class="field-name">
@@ -477,7 +477,19 @@
     </ul>
     <?php endif; ?>
   </li>
-  <?php if( $cur_co["Co"]["name"] === 'COmanage'): ?>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print $this->Form->label('global_search_limit',_txt('fd.search.limit.global'),array('class' => 'fieldTitle'));?></div>
+      <div class="field-desc"><?php print _txt('fd.search.limit.global.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('global_search_limit',
+                                        array('default' => DEF_GLOBAL_SEARCH_LIMIT))
+                   : filter_var($co_settings[0]['CoSetting']['global_search_limit'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <?php if( $cur_co["Co"]["name"] === DEF_COMANAGE_CO_NAME): ?>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print _txt('fd.garbage.collect');?></div>
@@ -526,7 +538,7 @@
       </li>
     </ul>
   </li>
-  <?php endif; ?>
+<?php endif; // COmanage ?>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

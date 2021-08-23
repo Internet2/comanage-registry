@@ -630,6 +630,14 @@ class CoEnrollmentFlow extends AppModel {
       $ret['checkEligibility']['role'] = EnrollmentRole::Petitioner;
     }
     
+    if(!empty($ef['CoEnrollmentFlow']['t_and_c_mode'])
+       && $ef['CoEnrollmentFlow']['t_and_c_mode'] != TAndCEnrollmentModeEnum::Ignore) {
+      $ret['tandcAgreement']['enabled'] = RequiredEnum::Required;
+      $ret['tandcAgreement']['role'] = $ret['checkEligibility']['role'];
+    } else {
+      $ret['tandcAgreement']['enabled'] = RequiredEnum::NotPermitted;
+    }
+    
     $ret['sendConfirmation']['role'] = EnrollmentRole::Petitioner;
     $ret['waitForConfirmation']['role'] = EnrollmentRole::Petitioner;
     $ret['processConfirmation']['role'] = EnrollmentRole::Enrollee;
@@ -813,12 +821,13 @@ class CoEnrollmentFlow extends AppModel {
    * Perform a keyword search.
    *
    * @since  COmanage Registry v3.1.0
-   * @param  Integer $coId CO ID to constrain search to
-   * @param  String  $q    String to search for
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
    * @return Array Array of search results, as from find('all)
    */
   
-  public function search($coId, $q) {
+  public function search($coId, $q, $limit) {
     // Tokenize $q on spaces
     $tokens = explode(" ", $q);
     
@@ -832,6 +841,7 @@ class CoEnrollmentFlow extends AppModel {
     }
     $args['conditions']['CoEnrollmentFlow.co_id'] = $coId;
     $args['order'] = array('CoEnrollmentFlow.name');
+    $args['limit'] = $limit;
     $args['contain'] = false;
     
     return $this->find('all', $args);
