@@ -1900,7 +1900,7 @@ class CoPetition extends AppModel {
       }
       
       // Save the CO Person Data
-      
+
       if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false,
                                                                 "atomic" => true,
                                                                 "provision" => false))) {
@@ -2464,7 +2464,8 @@ class CoPetition extends AppModel {
     // Org Identities).
     
     $toEmail = null;
-    
+    $coPersonEmail = false;
+
     if(!empty($pt['EnrolleeOrgIdentity']['EmailAddress'])
        // If there's an OrgIdentitySourceRecord we can't write to any 
        // associated EmailAddress, so skip this OrgIdentity
@@ -2486,30 +2487,53 @@ class CoPetition extends AppModel {
           if(!$ea['verified']) {
             // Use this address
             $toEmail = $ea;
+            $coPersonEmail = true;
             break;
           }
         }
       }
     }
-    
-    if(!$toEmail) {
-      throw new RuntimeException(_txt('er.pt.mail',
-                                      array(generateCn($pt['EnrolleeCoPerson']['PrimaryName']))));
-    }
-    
+
     // Now we need some info from the enrollment flow
-    
+
     $args = array();
     $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
     $args['contain'] = array('Co', 'CoEnrollmentFlowVerMessageTemplate');
-    
+
     $ef = $this->CoEnrollmentFlow->find('first', $args);
-    
+
     if(!$ef) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'),
-                                                                   $pt['CoPetition']['co_enrollment_flow_id'])));
+        $pt['CoPetition']['co_enrollment_flow_id'])));
     }
-    
+
+    // XXX if OrgIdentity Email matches the CO Person Email consider the latter as Verified
+    $skip_invite = false;
+    $email_verification_mode = $this->CoEnrollmentFlow
+                                    ->field('email_verification_mode', array('CoEnrollmentFlow.id' => $pt['CoPetition']['co_enrollment_flow_id']));
+    if($email_verification_mode === VerificationModeEnum::SkipIfVerified
+       && $coPersonEmail) {
+      // XXX CO-1952_CO-2096 query the OrgIdentity for the email found for save.
+      // If this is verified then make the one for the CO Person verified as well.
+      $args = array();
+      $args['conditions']['EmailAddress.org_identity_id'] = $pt['CoPetition']['enrollee_org_identity_id'];
+      $args['conditions']['EmailAddress.mail'] = $toEmail;
+      $args['conditions']['EmailAddress.verified'] = true;
+      $args['fields'] = array('EmailAddress.id', 'EmailAddress.mail');
+      $args['contain'] = false;
+
+      $org_mail_list = $this->EnrolleeOrgIdentity->EmailAddress->find('list', $args);
+      if(!empty($org_mail_list)) {
+        $skip_invite = true;
+      }
+    }
+
+    // Should we proceed with Email Confirmation or not?
+    if(!$toEmail) {
+      throw new RuntimeException(_txt('er.pt.mail',
+        array(generateCn($pt['EnrolleeCoPerson']['PrimaryName']))));
+    }
+
     // Pull the message components from the template (as of v2.0.0) or configuration
     // (now deprecated), if either is set.
     
@@ -2559,7 +2583,8 @@ class CoPetition extends AppModel {
                                         $cc,
                                         $bcc,
                                         $subs,
-                                        $format);
+                                        $format,
+                                        $skip_invite);
     
     // Add the invite ID to the petition record
     

@@ -554,9 +554,10 @@ original notification at
   ),
   
   'en.enrollment.verification' => array(
-    VerificationModeEnum::Automatic => 'Automatic',
-    VerificationModeEnum::None      => 'None',
-    VerificationModeEnum::Review    => 'Review'
+    VerificationModeEnum::Automatic       => 'Automatic',
+    VerificationModeEnum::Review          => 'Review',
+    VerificationModeEnum::SkipIfVerified  => 'Skip If Verified',
+    VerificationModeEnum::None            => 'None',
   ),
   
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',

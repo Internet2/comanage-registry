@@ -977,7 +977,9 @@ class CoPetitionsController extends StandardController {
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
-            
+            if(!empty($e->queryString)) {
+              $this->log(__METHOD__ . "::queryString: " . $e->queryString, LOG_ERROR);
+            }
             // Log the error into the petition history
             $this->CoPetition
                  ->CoPetitionHistoryRecord
@@ -2089,26 +2091,35 @@ class CoPetitionsController extends StandardController {
     $this->set('vv_debug', $debug);
 
     $this->CoPetition->sendConfirmation($id, $this->Session->read('Auth.User.co_person_id'));
-    
-    $this->CoPetition->updateStatus($id,
-                                    PetitionStatusEnum::PendingConfirmation, 
-                                    $this->Session->read('Auth.User.co_person_id'));
-    
-    // The step is done
 
-    if(!$debug) {
+    // A Petition can only go to Confirmed if it was previously PendingConfirmation
+    // Mimics SendConfirmation step if applicable
+    $this->CoPetition->updateStatus($id,
+                                    PetitionStatusEnum::PendingConfirmation,
+                                    $this->Session->read('Auth.User.co_person_id'));
+
+    // Get Invite and Enrollment Flow for this Petition
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'] = array('CoInvite', 'CoEnrollmentFlow');
+    $ef = $this->CoPetition->find('first', $args);
+
+    // The step is done
+    if($ef["CoEnrollmentFlow"]["email_verification_mode"] === VerificationModeEnum::SkipIfVerified
+       && $ef["CoInvite"]["skip_invite"]) {
+      $confirm_url = array(
+        'plugin'     => null,
+        'controller' => 'co_invites',
+        'action'     => 'authconfirm',
+        $ef['CoInvite']['invitation']
+      );
+      $this->redirect($confirm_url);
+    } elseif(!$debug) {
       $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
     } else {
       // We need to populate the view var to render the debug link
-      $coInviteId = $this->CoPetition->field('co_invite_id',
-                                             array('CoPetition.id' => $id));
-      
-      if($coInviteId) {
-        $args = array();
-        $args['conditions']['CoInvite.id'] = $coInviteId;
-        $args['contain'] = false;
-        
-        $this->set('vv_co_invite', $this->CoPetition->CoInvite->find('first', $args));
+      if(!empty($ef["CoInvite"]["id"])) {
+        $this->set('vv_co_invite', array('CoInvite' => $ef["CoInvite"]));
       }
     }
   }

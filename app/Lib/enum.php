@@ -808,9 +808,10 @@ class UrlEnum {
 
 class VerificationModeEnum
 {
-  const Automatic = 'A';
-  const Review    = 'R';
-  const None      = 'X';
+  const Automatic       = 'A';
+  const Review          = 'R';
+  const SkipIfVerified  = 'V';
+  const None            = 'X';
 }
 
 class VisibilityEnum
