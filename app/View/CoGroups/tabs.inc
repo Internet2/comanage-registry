@@ -131,24 +131,22 @@
         </li>
       <?php endif; ?>
 
-      <?php if($permissions['provision']): ?>
+      <?php if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))): ?>
         <li class="nav-item">
           <?php
             // Provisioned services
-            if($this->action == 'provision' || ($permissions['provision'] && !empty($co_groups[0]['CoGroup']['id']))) {
-              if ($this->action == 'provision') {
-                print '<span class="nav-link active">' . _txt('op.prov.view') . '</span>';
-              } else {
-                print $this->Html->link(
-                  _txt('op.prov.view'),
-                  array(
-                    'controller' => 'co_groups',
-                    'action' => 'provision',
-                    $groupId
-                  ),
-                  array('class' => 'nav-link')
-                );
-              }
+            if ($this->action == 'provision') {
+              print '<span class="nav-link active">' . _txt('op.prov.view') . '</span>';
+            } else {
+              print $this->Html->link(
+                _txt('op.prov.view'),
+                array(
+                  'controller' => 'co_groups',
+                  'action' => 'provision',
+                  $groupId
+                ),
+                array('class' => 'nav-link')
+              );
             }
           ?>
         </li>
