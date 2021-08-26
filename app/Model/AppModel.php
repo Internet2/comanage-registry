@@ -1516,7 +1516,7 @@ class AppModel extends Model {
   }
   
   /**
-   * Determine is a given value is valid for an Attribute Enumeration.
+   * Determine if a given value is valid for an Attribute Enumeration.
    *
    * @since  COmanage Registry v4.0.0
    * @param  integer $coId      CO ID
@@ -1532,6 +1532,49 @@ class AppModel extends Model {
     $AttributeEnumeration->isValid($coId, $attribute, $value);
     
     return true;
+  }
+
+  /**
+   * Try to normalize a given Attribute Enumeration
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, in Model.attribute form
+   * @param  string  $value     Value to normalize
+   * @return string             The normalized value
+   */
+
+  public function normalizeEnumeration($coId, $attribute, $value) {
+    // First, see if there is an enumeration defined for $coId + $attribute.
+
+    $args = array();
+    $args['conditions']['AttributeEnumeration.co_id'] = $coId;
+    $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+
+    $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
+    $attrEnum = $AttributeEnumeration->find('first', $args);
+
+    if(empty($attrEnum['AttributeEnumeration']['dictionary_id'])) {
+      // If there is no dictionary attached to the Attribute Enumeration
+      // configuration then load the normalizer
+      $this->Behaviors->load('Normalization');
+
+      // We need to restructure the data to fit what Normalizers expect
+      $data = array();
+
+      $a = explode('.', $attribute, 2);
+      $data[ $a[0] ][ $a[1] ] = $value;
+      $newdata = $this->normalize($data, $coId);
+
+      $this->Behaviors->unload('Normalization');
+
+      // Now that we have a result, return it back into the record we want to save
+      return $newdata[ $a[0] ][ $a[1] ];
+    }
+    // Return the initial value
+    return $value;
   }
   
   /**

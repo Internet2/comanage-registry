@@ -35,7 +35,7 @@ class CoPersonRole extends AppModel {
   // Add behaviors
   public $actsAs = array('Containable',
                          'Linkable.Linkable',
-                         'Normalization' => array('priority' => 4),
+                         // 'Normalization' => array('priority' => 4), // Comment out Normalization in order to address CO-2017
                          'Provisioner',
                          'Changelog' => array('priority' => 5));
   
@@ -328,7 +328,7 @@ class CoPersonRole extends AppModel {
 
       $this->cachedData = $this->find('first', $args);
     }
-    
+
     // Verify the Attribute Enumeration values for issuing_authority, if any.
     // Because the logic is more complicated than the Cake 2 validation framework
     // can handle, we do it here where we (generally) have full access to the record.
@@ -347,9 +347,14 @@ class CoPersonRole extends AppModel {
     if($coId) {
       foreach(array('o', 'ou', 'title') as $a) {
         if(!empty($this->data[$this->alias][$a])) {
+          // Validate Enumeration
           $this->validateEnumeration($coId,
                                      'CoPersonRole.'.$a, 
                                      $this->data[$this->alias][$a]);
+          // Normalize Enumeration
+          $this->data[$this->alias][$a] = $this->normalizeEnumeration($coId,
+                                                                      'CoPersonRole.'.$a,
+                                                                      $this->data[$this->alias][$a]);
         }
       }
     }
