@@ -31,7 +31,7 @@ $mname = (!empty($modelName) ? $modelName : Inflector::singularize($this->name))
 $tname = Inflector::tableize($this->name);
 ?>
 <?php if($editable): ?>
-  <div id="<?php print $column; ?>-enumeration" style="display:none">
+  <div id="<?php print $column; ?>-enumeration" style="display:none" class="mb-1">
     <select id="<?php print $column; ?>-select" onchange='enum_set_value("<?php print $mname . Inflector::camelize($column); ?>", "<?php print $column; ?>");'>
     </select>
   </div>
