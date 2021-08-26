@@ -42,7 +42,7 @@
         <!-- XXX Following needs to be I18N'd, and also render a full name, if index view sticks around -->
         <th><?php print $this->Paginator->sort('OrgIdentity.PrimaryName.family', 'Org Identity'); ?></th>
         <th><?php print $this->Paginator->sort('CoPersonRole.PrimaryName.family', 'CO Person Role'); ?></th>
-        <th><?php print _txt('fd.actions'); ?></th>
+        <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
     

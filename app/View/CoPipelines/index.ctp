@@ -58,7 +58,7 @@
       <tr>
         <th><?php print $this->Paginator->sort('name', _txt('fd.key')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
-        <th><?php print _txt('fd.actions'); ?></th>
+        <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
 

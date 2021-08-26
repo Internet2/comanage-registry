@@ -1241,9 +1241,10 @@ body.co_petitions .ui-dialog {
 #co-people-index .actions {
   padding: 0.5em 1em 1em;
 }
-/* PEOPLE LISTING - ACCORDIANS (legacy) */
+/* PEOPLE LISTING - CO PETITIONS and ACCORDIANS (legacy) */
 #co_people {
   clear: both;
+  table-layout: auto; /* override fixed table layout */
 }
 #co_people > .co-person {
   margin: 0;
@@ -2226,6 +2227,7 @@ table {
   border-collapse: collapse;
   border-left: 1px solid #eee;
   border-right: 1px solid #eee;
+  table-layout: fixed;
 }
 .table-container {
   overflow: auto;
@@ -2240,6 +2242,9 @@ th, td {
   border-right: 2px solid #fff;
   border-bottom: 2px solid #fff;
   font-weight: normal;
+}
+td {
+  overflow-wrap: break-word;
 }
 table.common-table td {
   padding: 0.25em 0.25em 0.25em 0.5em;
@@ -2256,6 +2261,12 @@ th a:hover,
   color: #ff3;
   text-decoration: none !important;
 }
+th.thinActionButtonsCol {
+  width: 180px;
+}
+th.order {
+  width: 80px;
+}
 tr td:first-child {
   padding-left: 1em;
 }
@@ -2265,9 +2276,6 @@ tr td:last-child {
 }
 tr.noborder td {
   border: none;
-}
-th.actionButtons {
-  width:70px;
 }
 /* legacy zebra stripes for rows;
    0 used for autoincrementing line counters;

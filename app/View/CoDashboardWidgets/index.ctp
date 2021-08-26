@@ -86,7 +86,7 @@
       <tr>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
         <th><?php print $this->Paginator->sort('plugin', _txt('fd.plugin')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>

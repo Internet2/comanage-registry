@@ -88,7 +88,7 @@
   <!-- XXX this is sorting by ID, but rendering by name -->
         <th><?php print $this->Paginator->sort('org_identity_source_id', _txt('ct.org_identity_sources.1')); ?></th>
         <th><?php print $this->Paginator->sort('org_identity_mode', _txt('fd.ef.orgid')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>

@@ -94,7 +94,7 @@
       <tr>
         <th><?php print $this->Paginator->sort('value', _txt('fd.value')); ?></th>
         <th><?php print $this->Paginator->sort('code', _txt('fd.code')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.ordr')); ?></th>
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.ordr')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
