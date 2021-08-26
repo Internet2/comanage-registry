@@ -1654,6 +1654,10 @@ body.co_people .addbutton {
   border: none;
   background: none;
 }
+body.canvas .ui-dialog,
+body.org_identities .ui-dialog {
+  z-index: 2000;
+}
 /* DATA LISTS */
 /*** ul.data-list is the main structure for representing data
      in which the field value is to the left, and actions on that
@@ -2309,7 +2313,7 @@ td.indented {
 #co-loading {
   display: none; /* revealed by JavaScript */
   position: fixed;
-  z-index: 100;
+  z-index: 1100;
   top: 50%;
   left: 50%;
   width: 120px;
@@ -2432,8 +2436,10 @@ body.redirect #co-footer {
   left: 50%;
   transform: translateX(-50%);
 }
-
-
+.spinner-grow-sm {
+  width: 0.8em;
+  height: 0.8em;
+}
 /* Fast lane filtering block*/
 #filter-block-qaxsbar {
   display: flex;

@@ -123,16 +123,29 @@ class AppController extends Controller {
     // XXX CO-351 Placeholder
     $this->Session->write('Config.language', 'eng');
     Configure::write('Config.language', $this->Session->read('Config.language'));
+
+    // CSRF token should expire along with the Session. This is the default in CAKEPHP 3.7.x+
+    // https://book.cakephp.org/3/en/controllers/middleware.html#csrf-middleware
+    // https://github.com/cakephp/cakephp/issues/13532
+    // - expiry, How long the CSRF token should last. Defaults to browser session.
+    // XXX CO-2135
+    $this->Security->csrfUseOnce = false;
     
     // Tell the Auth module to call the controller's isAuthorized() function.
     $this->Auth->authorize = array('Controller');
     
     // Set the redirect and error message for auth failures. Note that we can generate
     // a stack trace instead of a redirect by setting unauthorizedRedirect to false.
-    $this->Auth->unauthorizedRedirect = "/";
-    $this->Auth->authError = _txt('er.permission');
-    // Default flash key is 'auth', switch to 'error' so it maps to noty's default type
-    $this->Auth->flash = array('key' => 'error');
+    if($this->request->is('ajax')) {
+      // XXX CO-2135 In case of an ajax request throw an exception and return handling to the front end
+      // If set to false a ForbiddenException exception is thrown instead of redirecting.
+      $this->Auth->unauthorizedRedirect = false;
+    } else {
+      $this->Auth->unauthorizedRedirect = "/";
+      $this->Auth->authError = _txt('er.permission');
+      // Default flash key is 'auth', switch to 'error' so it maps to noty's default type
+      $this->Auth->flash = array('key' => 'error');
+    }
     
     if($this->request->is('restful')) {
       // Set up basic auth and attempt to login the API user, unless we're already

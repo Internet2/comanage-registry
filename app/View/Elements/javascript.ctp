@@ -41,7 +41,43 @@
 
     // Lightbox
     $('a.lightbox').magnificPopup({
-      type:'iframe'
+      type:'ajax',
+      preloader: true,
+      showCloseBtn: true,
+      enableEscapeKey: true,
+      closeOnBgClick: false,
+      tLoading: '',
+      callbacks: {
+        open: function() {
+          // Will fire when this exact popup is opened
+          // this - is Magnific Popup object
+          displaySpinner();
+        },
+        close: function() {
+        },
+        updateStatus: function(data) {
+          // console.log('Status changed', data);
+          // "data" is an object that has two properties:
+          // "data.status" - current status type, can be "loading", "error", "ready"
+          // "data.text" - text that will be displayed (e.g. "Loading...")
+          // you may modify this properties to change current status or its text dynamically
+          if(data.status !== 'loading') {
+            stopSpinner();
+          }
+          if(data.status == 'error') {
+            // discard and show noty
+            this.close();
+            generateFlash(data.text, data.status);
+          }
+        }
+      },
+      ajax: {
+        settings: {
+          cache: false
+        },
+        tError: 'Permission Denied' //  Error message, can contain %curr% and %total% tags if gallery is enabled
+        // tError: '<a href="%url%">View</a> load failed.' //  Error message, can contain %curr% and %total% tags if gallery is enabled
+      }
     });
 
     // Handle Action Menu Observers
