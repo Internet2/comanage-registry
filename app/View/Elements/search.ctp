@@ -79,7 +79,7 @@ $hasActiveFilters = false;
               // We have named filters - not just a sort.
               $hasActiveFilters = true;
             ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
+            <button class="top-search-active-filter deletebutton spin" type="button" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
                <span class="top-search-active-filter-title"><?php print $vv_search_fields[$key]['label']; ?></span>
                <span class="top-search-active-filter-value">
                  <?php
@@ -117,7 +117,7 @@ $hasActiveFilters = false;
             </button>
           <?php endforeach; ?>
           <?php if($hasActiveFilters): ?>
-             <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear" onclick="event.stopPropagation()">
+             <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" type="button" aria-controls="top-search-clear" onclick="event.stopPropagation()">
                 <?php print _txt('op.clear.filters.pl');?>
              </button>
           <?php endif; ?>
@@ -215,7 +215,6 @@ $hasActiveFilters = false;
         'label' => $enum_val,
         'type' => $vv_search_fields['qaxsbar']['type'],
         'class' => 'mr-2',
-        'label' => $enum_val,
         'value' => $code,
         'div' => false,
       );
