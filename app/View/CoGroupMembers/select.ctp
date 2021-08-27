@@ -46,6 +46,8 @@
   $args['controller'] = 'co_groups';
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
+  $args['search.auto'] = 'f';
+  $args['search.noadmin'] = 't';
   $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
 
   $args = array(
@@ -252,6 +254,7 @@
                   )
                 );
                 print _txt('fd.co_group_member.member.via', array($nestedGroupLink));
+                print ' (' . _txt('ct.co_group_nestings.1') . ')';
               } else {
                 // Though membership information is somewhat redundant with the checkboxes,
                 // it provides context among the nesting and inactive states as well as making

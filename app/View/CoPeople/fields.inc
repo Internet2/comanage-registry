@@ -619,7 +619,9 @@
             $linktarget = array(
               'controller' => 'co_groups',
               'action'     => 'select',
-              'copersonid' => $co_people[0]['CoPerson']['id']
+              'copersonid' => $co_people[0]['CoPerson']['id'],
+              'search.member' => 't',
+              'search.owner' => 't'
             );
             $linkparams = array('class' => 'addbutton');
             print $this->Html->link(_txt('op.manage.grm'),

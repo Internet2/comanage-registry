@@ -68,7 +68,7 @@ class CoGroupsController extends StandardController {
     'CoGroupNesting' => array('CoGroup'),
     'SourceCoGroupNesting' => array('TargetCoGroup'),
   );
-  
+
   /**
    * Callback to set relevant tab to open when redirecting to another page
    * - precondition:
@@ -232,24 +232,40 @@ class CoGroupsController extends StandardController {
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // Add the co person as owner/member of the new group, but only via HTTP
     
-    if(!$this->request->is('restful') && $this->action == 'add') {
-      $cos = $this->Session->read('Auth.User.cos');
-      $this->redirectTarget = array('action' => 'edit', $this->CoGroup->id);
-      
-      // Member of current CO? (Platform admin wouldn't be)
-      if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id'])) {
-        $a['CoGroupMember'] = array(
-          'co_group_id' => $this->CoGroup->id,
-          'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
-          'owner' => true,
-          'member' => true
-        );
-        
-        if(!$this->CoGroup->CoGroupMember->save($a)) {
-          $this->Flash->set(_txt('er.gr.init'), array('key' => 'information'));
-          return false;
+    if(!$this->request->is('restful')) {
+
+      if($this->action == 'add') {
+        $cos = $this->Session->read('Auth.User.cos');
+        $this->redirectTarget = array('action' => 'edit', $this->CoGroup->id);
+
+        // Member of current CO? (Platform admin wouldn't be)
+        if (isset($cos) && isset($cos[$this->cur_co['Co']['name']]['co_person_id'])) {
+          $a['CoGroupMember'] = array(
+            'co_group_id' => $this->CoGroup->id,
+            'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
+            'owner' => true,
+            'member' => true
+          );
+
+          if (!$this->CoGroup->CoGroupMember->save($a)) {
+            $this->Flash->set(_txt('er.gr.init'), array('key' => 'information'));
+            return false;
+          }
         }
       }
+
+      if($this->action == 'edit') {
+        // return to the index view with default filters in place after edit
+        $this->redirectTarget = array(
+          'controller' => 'co_groups',
+          'action' => 'index',
+          'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS),
+          $this->CoGroup->id,
+          'search.auto' => 'f',
+          'search.noadmin' => 't'
+        );
+      }
+
     }
     
     return true;
@@ -774,6 +790,64 @@ class CoGroupsController extends StandardController {
       $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
     }
 
+    // Exclude admin groups
+    if(!empty($this->params['named']['search.noadmin'])) {
+      $pagcond['conditions']['CoGroup.group_type <>'] = 'A';
+    }
+
+    // Filter by membership and ownership
+    // First get the CoPersonID to work against either the current user, or the user being acted on in select mode
+    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+    if($this->action == 'select') {
+      $coPersonId = filter_var($this->request->params['named']['copersonid'], FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+
+    // If both member and owner are selected, use a single join with "OR"
+    if(!empty($this->params['named']['search.member']) && !empty($this->params['named']['search.owner'])) {
+      $pagcond['joins'][] = array(
+        'table' => 'co_group_members',
+        'alias' => 'CoGroupMember',
+        'type' => 'INNER',
+        'conditions' => array(
+          "CoGroupMember.co_person_id=" . $coPersonId,
+          "CoGroupMember.co_group_id=CoGroup.id",
+          'OR' => array(
+            "CoGroupMember.member = true",
+            "CoGroupMember.owner = true"
+          )
+        )
+      );
+    } else {
+      // Otherwise filter for member and owner individually
+      // Filter by member
+      if (!empty($this->params['named']['search.member'])) {
+        $pagcond['joins'][] = array(
+          'table' => 'co_group_members',
+          'alias' => 'CoGroupMember',
+          'type' => 'INNER',
+          'conditions' => array(
+            "CoGroupMember.co_person_id=" . $coPersonId,
+            "CoGroupMember.co_group_id=CoGroup.id",
+            "CoGroupMember.member = true"
+          )
+        );
+      }
+
+      // Filter by owner
+      if (!empty($this->params['named']['search.owner'])) {
+        $pagcond['joins'][] = array(
+          'table' => 'co_group_members',
+          'alias' => 'CoGroupMember',
+          'type' => 'INNER',
+          'conditions' => array(
+            "CoGroupMember.co_person_id=" . $coPersonId,
+            "CoGroupMember.co_group_id=CoGroup.id",
+            "CoGroupMember.owner = true"
+          )
+        );
+      }
+    }
+
     return $pagcond;
   }
 
@@ -819,15 +893,12 @@ class CoGroupsController extends StandardController {
     // Pagination conditions must be pulled in explicitly because select() is not part of StandardController
     $pagcond = CoGroupsController::paginationConditions();
     $this->paginate['conditions'] = $pagcond['conditions'];
-    
-    /*$this->paginate['contain'] = array(
+    $this->paginate['joins'] = $pagcond['joins'];
+
+    $this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
-        'CoPerson' => array('PrimaryName')
-      )
-    );*/
-    $this->paginate['contain'] = array(
-      'CoGroupMember' => array('conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']), 'CoPerson' => array('PrimaryName'))
+        'CoPerson' => array('PrimaryName'))
     );
 
     $this->Paginator->settings = $this->paginate;

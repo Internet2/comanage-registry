@@ -47,10 +47,15 @@
 
       <?php if(!empty($this->request->params['named']['search.groupName'])  ||
         !empty($this->request->params['named']['search.groupDesc']) ||
-        !empty($this->request->params['named']['search.status'])       ||
-        !empty($this->request->params['named']['search.open']) ||
-        !empty($this->request->params['named']['search.auto'])     ||
-        !empty($this->request->params['named']['search.groupType'])):?>
+        !empty($this->request->params['named']['search.status'])    ||
+        !empty($this->request->params['named']['search.open'])      ||
+        !empty($this->request->params['named']['search.auto'])      ||
+        !empty($this->request->params['named']['search.group_type']) ||
+        !empty($this->request->params['named']['search.member']) ||
+        !empty($this->request->params['named']['search.owner']) ||
+        !empty($this->request->params['named']['search.noadmin'])):?>
+
+        <?php $hasFilters = true; ?>
 
         <span id="top-search-active-filters">
           <?php if (!empty($this->request->params['named']['search.groupName'])): ?>
@@ -82,10 +87,41 @@
               <span class="top-search-active-filter-value"><?php print filter_var($vv_status_bool[$this->request->params['named']['search.auto']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
-          <?php if (!empty($this->request->params['named']['search.groupType'])): ?>
+          <?php if (!empty($this->request->params['named']['search.group_type'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchGroupType" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.type'); ?></span>
-              <span class="top-search-active-filter-value"><?php print filter_var($vv_group_type[$this->request->params['named']['search.groupType']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_group_type[$this->request->params['named']['search.group_type']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </button>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['search.member'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchMember" title="<?php print _txt('op.clear.filters.1');?>">
+              <span class="top-search-active-filter-title no-value">
+                <?php
+                  if($this->action == 'select') {
+                    print _txt('fd.co_group_member.member');
+                  } else {
+                    print _txt('fd.co_group.my_memberships');
+                  }
+                ?>
+              </span>
+            </button>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['search.owner'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchOwner" title="<?php print _txt('op.clear.filters.1');?>">
+              <span class="top-search-active-filter-title no-value">
+                <?php
+                  if($this->action == 'select') {
+                    print _txt('fd.co_group_member.owner');
+                  } else {
+                    print _txt('fd.co_group.my_ownerships');
+                  }
+                ?>
+              </span>
+            </button>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['search.noadmin'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchNoadmin" title="<?php print _txt('op.clear.filters.1');?>">
+              <span class="top-search-active-filter-title no-value"><?php print _txt('fd.co_group.no_admin'); ?></span>
             </button>
           <?php endif; ?>
           <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear">
@@ -119,6 +155,18 @@
             'value'   => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
           print $this->Form->input('search.status', $formParams);
         ?>
+
+        <div class="top-search-checkboxes input">
+          <div class="top-search-checkbox-label"><?php print _txt('fd.co_group.admin'); ?></div>
+          <div class="top-search-checkbox-fields">
+            <div class="form-check form-check-inline">
+              <?php
+                print $this->Form->checkbox('search.noadmin', array('checked' => !empty($this->request->params['named']['search.noadmin']), 'class' => 'form-check-input'));
+                print $this->Form->label('search.noadmin',_txt('fd.co_group.no_admin')) . "\n";
+              ?>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="search-field-subgroup">
@@ -144,9 +192,35 @@
             'type'    => 'select',
             'label'   => _txt('fd.type'),
             'empty'   => _txt('op.select.all'),
-            'value'   => (!empty($this->request->params['named']['search.groupType']) ? $this->request->params['named']['search.groupType'] : ''));
-          print $this->Form->input('search.groupType', $formParams);
+            'value'   => (!empty($this->request->params['named']['search.group_type']) ? $this->request->params['named']['search.group_type'] : ''));
+          print $this->Form->input('search.group_type', $formParams);
         ?>
+
+        <div class="top-search-checkboxes input">
+          <div class="top-search-checkbox-label"><?php print _txt('fd.membership'); ?></div>
+          <div class="top-search-checkbox-fields">
+            <div class="form-check form-check-inline">
+              <?php
+                print $this->Form->checkbox('search.member', array('checked' => !empty($this->request->params['named']['search.member']), 'class' => 'form-check-input'));
+                if($this->action == 'select') {
+                  print $this->Form->label('search.member',_txt('fd.co_group_member.member')) . "\n";
+                } else {
+                  print $this->Form->label('search.member',_txt('fd.co_group.my_memberships')) . "\n";
+                }
+              ?>
+            </div>
+            <div class="form-check form-check-inline">
+              <?php
+                print $this->Form->checkbox('search.owner', array('checked' => !empty($this->request->params['named']['search.owner']), 'class' => 'form-check-input'));
+                if($this->action == 'select') {
+                  print $this->Form->label('search.owner',_txt('fd.co_group_member.owner')) . "\n";
+                } else {
+                  print $this->Form->label('search.owner', _txt('fd.co_group.my_ownerships')) . "\n";
+                }
+              ?>
+            </div>
+          </div>
+        </div>
       </div>
       </div>  
 

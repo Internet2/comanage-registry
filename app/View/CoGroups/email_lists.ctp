@@ -89,6 +89,8 @@
     $args['controller'] = 'co_groups';
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
+    $args['search.auto'] = 'f';
+    $args['search.noadmin'] = 't';
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   }
   if($e) {

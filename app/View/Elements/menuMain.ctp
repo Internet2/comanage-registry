@@ -181,59 +181,78 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
 
       // Groups Menu
       if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
-        if(empty(retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId))) {
-          // we have no groups plugins: make this a top-level menu item
-          print '<li id="groupMenu">';
 
-          $linkContent = '<em class="material-icons" aria-hidden="true">group</em><span class="menuTitle">' . _txt('ct.co_groups.pl') .
-            '</span>';
+        print '<li id="groupMenu" class="co-expandable-menu-item">';
 
-          $args = array();
-          $args['plugin'] = null;
-          $args['controller'] = 'co_groups';
-          $args['action'] = 'index';
-          $args['co'] = $menuCoId;
+        print '<a class="menuTop" aria-expanded="false" href="#">';
+        print '<em class="material-icons" aria-hidden="true">group</em>';
+        print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
+        print '<span class="fa arrow fa-fw"></span>';
+        print '</a>';
 
-          print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print '<ul aria-expanded="false" class="collapse">';
 
-          print "</li>";
+        // Groups (with default filtering)
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        $args['search.auto'] = 'f'; // filter out automatic groups by default
+        $args['search.noadmin'] = 't'; // exclude administration groups by default
+        print $this->Html->link(_txt('ct.co_groups.pl'), $args, array('class' => 'spin'));
+        print "</li>";
 
-        } else {
-          // we have groups plugins: make this an expandable menu item
-          print '<li id="groupMenu" class="co-expandable-menu-item">';
+        // All Groups
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        print $this->Html->link(_txt('ct.co_all_groups'), $args, array('class' => 'spin'));
+        print "</li>";
 
-          print '<a class="menuTop" aria-expanded="false" href="#">';
-          //print '<span class="fa fa-users fa-fw"></span>';
-          print '<em class="material-icons" aria-hidden="true">group</em>';
-          print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
-          print '<span class="fa arrow fa-fw"></span>';
-  
-          print '</a>';
-          print '<ul aria-expanded="false" class="collapse">';
+        // My Groups
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        $args['search.member'] = 't'; // include groups in which current user is a member
+        $args['search.owner'] = 't'; // include groups in which current user is an owner
+        print $this->Html->link(_txt('op.grm.my.groups'), $args, array('class' => 'spin'));
+        print "</li>";
 
-          print '<li>';
-          $args = array();
-          $args['plugin'] = null;
-          $args['controller'] = 'co_groups';
-          $args['action'] = 'index';
-          $args['co'] = $menuCoId;
-          print $this->Html->link(_txt('ct.co_all_groups'), $args, array('class' => 'spin'));
-  
-          print "</li>";
+        // My Memberships
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'select';
+        $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');;
+        $args['co'] = $menuCoId;
+        $args['search.member'] = 't'; 
+        $args['search.owner'] = 't'; 
+        print $this->Html->link(_txt('op.grm.my.memberships'), $args, array('class' => 'spin'));
+        print "</li>";
 
-          // Plugins
+        // Plugins
+        if(!empty(retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId))) {
           $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId);
 
-          foreach($pluginLinks as $plabel => $pcfg) {
+          foreach ($pluginLinks as $plabel => $pcfg) {
             print '<li>';
             print $this->Html->link($plabel, $pcfg['url']);
-    
             print '</li>';
           }
 
-          print "</ul>";
-          print "</li>";
         }
+
+        print "</ul>";
+        print "</li>";
       }
       // END Groups Menu
       
