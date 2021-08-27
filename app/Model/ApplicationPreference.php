@@ -98,8 +98,8 @@ class ApplicationPreference extends AppModel {
 
   /**
    * Retrieve all Application Preferences for a user.
-   * @param  int    $coPersonId CO Person ID
-   * @return array|null        Array of values if found, null otherwise
+   * @param  int $coPersonId      CO Person ID
+   * @return array                Array of values (possibly empty)
    */
 
   public function retrieveAll($coPersonId) {
