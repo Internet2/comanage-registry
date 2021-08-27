@@ -253,8 +253,10 @@
                     $co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_group_id']
                   )
                 );
+                print '<div class="group-member-via-nested">';
                 print _txt('fd.co_group_member.member.via', array($nestedGroupLink));
-                print ' (' . _txt('ct.co_group_nestings.1') . ')';
+                print ' <span class="group-member-via-nested-label">' . _txt('ct.co_group_nestings.1') . '</span>';
+                print '</div>';
               } else {
                 // Though membership information is somewhat redundant with the checkboxes,
                 // it provides context among the nesting and inactive states as well as making

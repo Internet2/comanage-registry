@@ -63,12 +63,7 @@ class CoGroupsController extends StandardController {
     'EmailListModerator',
     'Identifier'
   );
-
-  public $nest_contains = array(
-    'CoGroupNesting' => array('CoGroup'),
-    'SourceCoGroupNesting' => array('TargetCoGroup'),
-  );
-
+  
   /**
    * Callback to set relevant tab to open when redirecting to another page
    * - precondition:

@@ -1855,6 +1855,12 @@ ul.fields.data-list li {
 #group-add-member-info {
   display: none; /* for now (v4.0) - maybe a tooltip in future */
 }
+.group-member-via-nested {
+  font-style: italic;
+}
+.group-member-via-nested-label {
+  text-transform: lowercase;
+}
 /* FORMS */
 label {
   cursor: pointer;

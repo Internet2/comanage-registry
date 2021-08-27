@@ -54,12 +54,6 @@ class CoGroupMembersController extends StandardController {
     'CoPerson' => 'PrimaryName'
   );
 
-  // We need nested table information to render nested group names
-  public $select_contains = array(
-    'CoGroupNesting' => array('CoGroup'),
-    'SourceCoGroupNesting' => array('TargetCoGroup'),
-  );
-  
   // We need to track the group ID under certain circumstances to enable performRedirect
   private $gid = null;
 
