@@ -1032,7 +1032,7 @@ class AppController extends Controller {
   /**
    * Get a user's Application Preferences
    * - postcondition: Application Preferences variable set
-   * @since  COmanage Registry v3.3.0
+   * @since  COmanage Registry v4.0.0
    */
   protected function getAppPrefs() {
 
@@ -1042,19 +1042,7 @@ class AppController extends Controller {
     // Get preferences if we have an Auth.User.co_person_id
     if(!empty($coPersonId)) {
       $this->loadModel('ApplicationPreference');
-      $prefs = array(
-        'co_person_id' => $coPersonId,
-        // value is null if no preferences found
-        'preferences'  => $this->ApplicationPreference->retrieveAll($coPersonId)
-      );
-
-      // If we have data, build an associative array for easy lookups
-      if(!empty($prefs)) {
-        foreach($prefs['preferences'] as $pref) {
-          $appPrefs[$pref['ApplicationPreference']['tag']] = $pref['ApplicationPreference']['value'];
-        }
-      }
-
+      $appPrefs = $this->ApplicationPreference->retrieveAll($coPersonId);
     }
 
     $this->set('vv_app_prefs', $appPrefs);

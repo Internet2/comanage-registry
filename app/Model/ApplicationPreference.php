@@ -108,7 +108,7 @@ class ApplicationPreference extends AppModel {
     $args['fields'] = array('tag', 'value');
     $args['contain'] = false;
 
-    $prefs = $this->find('all', $args);
+    $prefs = $this->find('list', $args);
 
     if(!empty($prefs)) {
       return $prefs;
