@@ -180,17 +180,18 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
       // END People Menu
 
       // Groups Menu
+      $currentMenu = 'groupMenu';
       if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
 
-        print '<li id="groupMenu" class="co-expandable-menu-item">';
+        print '<li id="groupMenu" class="co-expandable-menu-item"' . ($selectedMenu == $currentMenu ? " active" : "") . '>';
 
-        print '<a class="menuTop" aria-expanded="false" href="#">';
+        print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">group</em>';
         print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
         print '</a>';
 
-        print '<ul aria-expanded="false" class="collapse">';
+        print '<ul aria-expanded="false" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
 
         // Groups (with default filtering)
         print '<li>';
