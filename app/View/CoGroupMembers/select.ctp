@@ -292,11 +292,13 @@
             <?php
               $disabled = false;
               $disabledClass = '';
+              $disabledAttributes = '';
               if(!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_id']) || $co_group['CoGroup']['auto']) {
                 $disabled = true;
                 $disabledClass = ' disabled';
+                $disabledAttributes = ' data-toggle="tooltip" title="' . _txt('in.co_group.members.nested_noedit') . '"';
               }
-              print '<div class="form-group form-check form-check-inline' . $disabledClass . '">';
+              print '<div class="form-group form-check form-check-inline' . $disabledClass . '"' . $disabledAttributes . '>';
               $args = array();
               $args['checked'] = $isMember;
               $args['disabled'] =  $disabled;
@@ -309,11 +311,13 @@
 
               $disabled = false;
               $disabledClass = '';
+              $disabledAttributes = '';
               if(!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_id']) || $co_group['CoGroup']['auto']) {
                 $disabled = true;
                 $disabledClass = ' disabled';
+                $disabledAttributes = ' data-toggle="tooltip" title="' . _txt('in.co_group.members.nested_noedit') . '"';
               }
-              print '<div class="form-group form-check form-check-inline' . $disabledClass . '">';
+              print '<div class="form-group form-check form-check-inline' . $disabledClass . '"' . $disabledAttributes . '>';
               $args = array();
               $args['checked'] = $isOwner;
               $args['disabled'] = $disabled;
