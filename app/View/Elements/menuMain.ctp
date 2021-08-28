@@ -69,7 +69,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         print '<span class="menuTitle">' . _txt('me.people') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
         print '</a>';
-        print '<ul aria-expanded="false" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
+        print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
         print '<li>';
         $args = array();
         $args['plugin'] = null;
@@ -183,7 +183,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
       $currentMenu = 'groupMenu';
       if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
 
-        print '<li id="groupMenu" class="co-expandable-menu-item"' . ($selectedMenu == $currentMenu ? " active" : "") . '>';
+        print '<li id="groupMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
 
         print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">group</em>';
@@ -191,7 +191,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         print '<span class="fa arrow fa-fw"></span>';
         print '</a>';
 
-        print '<ul aria-expanded="false" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
+        print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
 
         // Groups (with default filtering)
         print '<li>';
@@ -480,7 +480,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
       print '<span class="fa arrow fa-fw"></span>';
       print '</a>';
-      print '<ul aria-expanded="false" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
+      print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
       
       if($pool_org_identities) {
         print '<li>';
