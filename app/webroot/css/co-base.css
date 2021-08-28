@@ -2384,6 +2384,16 @@ td.indented {
   padding: 1em 1em 0;
   text-align: center;
 }
+.co-loading-mini-input-container {
+  position: relative;
+}
+.co-loading-mini-input-container .co-loading-mini {
+  display: none;
+  position: relative;
+  right: 38px;
+  bottom: 2px;
+  margin-right: -26px;
+}
 #co-loading span,
 #co-loading-redirect span,
 .co-loading-mini span {

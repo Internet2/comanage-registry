@@ -91,6 +91,15 @@
         $("#group-add-member-button").prop('disabled', false).focus();
         $("#group-add-member-clear-button").show();
         return false;
+      },
+      search: function (event, ui) {
+        $("#group-add-member-search-container .co-loading-mini").show();
+      },
+      focus: function (event, ui) {
+        $("#group-add-member-search-container .co-loading-mini").hide();
+      },
+      close: function (event, ui) {
+        $("#group-add-member-search-container .co-loading-mini").hide();
       }
     });
 
@@ -137,11 +146,14 @@
     $this->Form->unlockField('CoGroupMember.co_person_id');
     $this->Form->unlockField('CoGroupMember.co_person_label');
   ?>
-    <label for="group-add-member" class="col-form-label-sm"><?php print _txt('op.grm.add'); ?></label>
+  <label for="group-add-member" class="col-form-label-sm"><?php print _txt('op.grm.add'); ?></label>
+  <span class="co-loading-mini-input-container">
     <input id="group-add-member" type="text" class="form-control-sm" placeholder="<?php print _txt('op.grm.add.placeholder'); ?>"/>
-    <span id="group-add-member-name" style="display: none;"></span>
-    <button id="group-add-member-button" class="btn btn-primary btn-sm" disabled="disabled"><?php print _txt('op.add'); ?></button>
-    <button id="group-add-member-clear-button" class="btn btn-sm" style="display: none;"><?php print _txt('op.clear'); ?></button>
+    <span class="co-loading-mini"><span></span><span></span><span></span></span>
+  </span>
+  <span id="group-add-member-name" style="display: none;"></span>
+  <button id="group-add-member-button" class="btn btn-primary btn-sm" disabled="disabled"><?php print _txt('op.add'); ?></button>
+  <button id="group-add-member-clear-button" class="btn btn-sm" style="display: none;"><?php print _txt('op.clear'); ?></button>
   <?php
     print $this->Form->end();
   ?>
