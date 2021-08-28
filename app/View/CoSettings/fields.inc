@@ -504,7 +504,7 @@
             'action' => 'view',
             $vv_jobs_queued[0]["CoJob"]["id"]
           ),
-          array('class' => 'viewbutton spin lightbox')
+          array('class' => 'viewbutton spin')
         ) . PHP_EOL;
       } else {
         // If i have no active Job. If i have provide a link with the Job
