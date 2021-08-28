@@ -391,6 +391,7 @@ class AppController extends Controller {
     if(!$this->request->is('restful')) {
       $this->getTheme();
       $this->getUImode();
+      $this->getAppPrefs();
       
       if($this->Session->check('Auth.User.org_identities')) {
         $this->menuAuth();
@@ -999,6 +1000,25 @@ class AppController extends Controller {
     if(!$this->Session->check('Auth.User.name')) {
       $this->set('vv_ui_mode', EnrollmentFlowUIMode::Basic);
     }
+  }
+
+  /**
+   * Get a user's Application Preferences
+   * - postcondition: Application Preferences variable set
+   * @since  COmanage Registry v4.0.0
+   */
+  protected function getAppPrefs() {
+
+    $appPrefs = null;
+    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+
+    // Get preferences if we have an Auth.User.co_person_id
+    if(!empty($coPersonId)) {
+      $this->loadModel('ApplicationPreference');
+      $appPrefs = $this->ApplicationPreference->retrieveAll($coPersonId);
+    }
+
+    $this->set('vv_app_prefs', $appPrefs);
   }
 
   /**
