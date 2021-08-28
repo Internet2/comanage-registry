@@ -233,7 +233,7 @@
     });
 
     // Clear a specific top search filter by clicking the filter button
-    $("#top-search-toggle .top-search-active-filter").click(function(e) {
+    $("#top-search-toggle button.top-search-active-filter").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
       $(this).hide();
