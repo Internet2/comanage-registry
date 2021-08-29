@@ -1245,7 +1245,7 @@ original notification at
   'fd.co_group.auto' => 'Automatic',
   'fd.co_group.group_type' => 'Group Type',
   'fd.co_group.my_memberships' => 'Groups I\'m a member of',
-  'fd.co_group.my_ownerships' => 'Groups I own',
+  'fd.co_group.my_ownerships' => 'Groups I manage',
   'fd.co_group.nesting_mode_all' => 'Require All for Nested Memberships',
   'fd.co_group.nesting_mode_all.desc' => 'For membership in this group via nested groups, require membership in <i>all</i> Nested (Source) Groups to be a member of this group (instead of <i>any</i>)',
   'fd.co_group.no_admin' => 'Hide administrator groups',
