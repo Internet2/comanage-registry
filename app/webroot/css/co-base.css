@@ -2006,6 +2006,18 @@ ul.form-list li.field-stack textarea {
   display: inline;
   margin: 0;
 }
+.form-check.checkbox-replace-container {
+  opacity: 0.6;
+  position: relative;
+}
+.checkbox-replace-container .fa {
+  font-size: 1.3em;
+  margin-right: 6px;
+  color: #555;
+}
+.form-check-input.checkbox-replace {
+  display: none;
+}
 /* Ensure datepicker renders properly.
    We are using javascript to move it near its input field so
    that it will scroll properly on mobile devices. */

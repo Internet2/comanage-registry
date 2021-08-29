@@ -26,17 +26,6 @@
  */
 ?>
 
-<script type="text/javascript">
-  $(document).ready(function () {
-    // Display warning for changes to co people who are not active (CO683)
-    $("#co_people input[type='checkbox']").change(function() {
-      if(this.parentElement.previousElementSibling.className != 'Active')
-        generateFlash("<?php print _txt('in.groupmember.select') ?>",
-                      "information");
-    });
-  });
-</script>
-
 <?php
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -79,6 +68,21 @@
 ?>
 <script>
   $(function() {
+
+    // Display warning for changes to co people who are not active (CO683)
+    $("#co_people input[type='checkbox']").change(function() {
+      if(!$(this).hasClass('status-active')) {
+        generateFlash("<?php print _txt('in.groupmember.select') ?>", "information");
+      }
+    });
+
+    // Turn off the "disabled" checkboxes using css and javascript so that nested group members are processed.
+    // Do not apply the disabled attribute to these checkboxes (i.e. don't use disabled="disabled").
+    $(".form-check-input.checkbox-replace, .form-check-label.checkbox-replace").on('click', function(e){
+      e.preventDefault();
+      return false;
+    });
+
 
     $("#group-add-member").autocomplete({
       source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::CoPerson)); ?>",
@@ -295,48 +299,58 @@
               }
             ?>
           </td>
-          <td class = "<?php print _txt('en.status', null, $p['CoPerson']['status']); ?>">
+          <?php $statusClass = ' status-' . (str_replace(' ', '-', strtolower(_txt('en.status', null, $p['CoPerson']['status'])))); ?>
+          <td class="<?php print $statusClass ?>">
             <?php
               print _txt('en.status', null, $p['CoPerson']['status']);
             ?>
           </td>
           <td>
             <?php
-              $disabled = false;
+              // Note: do not actually disable checkboxes using $args['disabled'] = 'disabled' or Cake
+              // will also disable the hidden field - allowing the memberships/ownerships for nested groups to be
+              // temporarily stripped. Instead, hide the checkboxes in the front end with CSS and JavaScript, and
+              // send values of nested group members too. We are using font-awesome here because pure CSS
+              // replacement with a unicode check mark isn't very attractive.
               $disabledClass = '';
               $disabledAttributes = '';
+              $checkboxReplaceClass = '';
+              $checkboxReplaceBox = '';
               if(!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_id']) || $co_group['CoGroup']['auto']) {
-                $disabled = true;
-                $disabledClass = ' disabled';
+                $disabledClass = ' disabled checkbox-replace-container';
                 $disabledAttributes = ' data-toggle="tooltip" title="' . _txt('in.co_group.members.nested_noedit') . '"';
+                $checkboxReplaceClass =  ' checkbox-replace checkbox-replace-' . ($isMember ? 'checked' : 'unchecked');
+                $checkboxReplaceBox = '<i class="fa ' . ($isMember ? 'fa-check-square' : 'fa-square-o') . '"></i>';
               }
               print '<div class="form-group form-check form-check-inline' . $disabledClass . '"' . $disabledAttributes . '>';
               $args = array();
               $args['checked'] = $isMember;
-              $args['disabled'] =  $disabled;
-              $args['class'] = 'form-check-input';
+              $args['class'] = 'form-check-input ' . $statusClass . $checkboxReplaceClass;
+              print $checkboxReplaceBox;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.member',$args);
               $args = array();
-              $args['class'] = 'form-check-label';
+              $args['class'] = 'form-check-label' . $checkboxReplaceClass;
               print $this->Form->label('CoGroupMember.rows.'.$i.'.member',_txt('fd.group.mem'),$args) . "\n";
               print '</div>';
 
-              $disabled = false;
               $disabledClass = '';
               $disabledAttributes = '';
+              $checkboxReplaceClass = '';
+              $checkboxReplaceBox = '';
               if(!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_id']) || $co_group['CoGroup']['auto']) {
-                $disabled = true;
-                $disabledClass = ' disabled';
+                $disabledClass = ' disabled checkbox-replace-container';
                 $disabledAttributes = ' data-toggle="tooltip" title="' . _txt('in.co_group.members.nested_noedit') . '"';
+                $checkboxReplaceClass =  ' checkbox-replace checkbox-replace-' . ($isOwner ? 'checked' : 'unchecked');
+                $checkboxReplaceBox = '<i class="fa ' . ($isOwner ? 'fa-check-square' : 'fa-square-o') . '"></i>';
               }
               print '<div class="form-group form-check form-check-inline' . $disabledClass . '"' . $disabledAttributes . '>';
               $args = array();
               $args['checked'] = $isOwner;
-              $args['disabled'] = $disabled;
-              $args['class'] = 'form-check-input';
+              $args['class'] = 'form-check-input ' . $statusClass . $checkboxReplaceClass;
               print $this->Form->checkbox('CoGroupMember.rows.'.$i.'.owner',$args);
+              print $checkboxReplaceBox;
               $args = array();
-              $args['class'] = 'form-check-label';
+              $args['class'] = 'form-check-label' . $checkboxReplaceClass;
               print $this->Form->label('CoGroupMember.rows.'.$i.'.owner', _txt('fd.group.own'),$args) . "\n";
             ?>
             </div>
