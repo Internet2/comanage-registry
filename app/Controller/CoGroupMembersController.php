@@ -118,51 +118,6 @@ class CoGroupMembersController extends StandardController {
   }
 
   /**
-   * Perform a redirect back to the controller's default view.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v0.1
-   */
-  
-  function performRedirect() {
-    // Figure out where to redirect back to based on how we were called
-    
-    $cop = null;
-    
-    if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_person_id'])) {
-      $cop = $this->request->data['CoGroupMember']['co_person_id'];
-    } elseif($this->action == 'delete'
-             && isset($this->request->params['named']['return'])) {
-      if($this->request->params['named']['return'] == 'person'
-         && isset($this->request->params['named']['copersonid'])) {
-        $cop = $this->request->params['named']['copersonid'];
-      }
-      // else return = group
-    }
-    
-    if(isset($cop)) {
-      $params = array('controller' => 'co_people',
-                      'action'     => 'canvas',
-                      $cop
-                     );
-    } elseif(isset($this->gid)) {
-      $params = array('controller' => 'co_groups',
-                      'action'     => 'members',
-                      $this->gid,
-                      'co'         => $this->cur_co['Co']['id']
-                     );
-    } else {
-      // A perhaps not ideal default, but we shouldn't get here
-      $params = array('controller' => 'co_groups',
-                      'action'     => 'index',
-                      'co'         => $this->cur_co['Co']['id']
-                     );
-    }
-    
-    $this->redirect($params);
-  }
-
-  /**
    * Callback before other controller methods are invoked or views are rendered.
    * - precondition:
    * - postcondition: Auth component is configured 
@@ -182,6 +137,55 @@ class CoGroupMembersController extends StandardController {
       // Set the current timezone, primarily for beforeSave
       $this->CoGroupMember->setTimeZone($this->viewVars['vv_tz']);
     }
+  }
+
+  /**
+   * Determine the CO ID based on some attribute of the request.
+   * This method is intended to be overridden by model-specific controllers.
+   *
+   * @since  COmanage Registry v0.8.5
+   * @return Integer CO ID, or null if not implemented or not applicable.
+   * @throws InvalidArgumentException
+   */
+
+  protected function calculateImpliedCoId($data = null) {
+    $cogroupid = null;
+    $copersonid = null;
+
+    if(isset($this->params->named['cogroup'])) {
+      $cogroupid = $this->params->named['cogroup'];
+    } elseif(isset($this->request->data['CoGroupMember']['co_group_id'])) {
+      $cogroupid = $this->request->data['CoGroupMember']['co_group_id'];
+    } elseif(isset($this->request->data['CoGroupMember']['co_person_id'])) {
+      $copersonid = $this->request->data['CoGroupMember']['co_person_id'];
+    }
+
+    if($cogroupid) {
+      // Map CO group to CO
+
+      $coId = $this->CoGroupMember->CoGroup->field('co_id',
+        array('id' => $cogroupid));
+
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.gr.nf', array($cogroupid)));
+      }
+    } elseif($copersonid) {
+      // Map CO person to CO
+
+      $coId = $this->CoGroupMember->CoPerson->field('co_id',
+        array('id' => $copersonid));
+
+      if($coId) {
+        return $coId;
+      } else {
+        throw new InvalidArgumentException(_txt('er.cop.unk-a', array($copersonid)));
+      }
+    }
+
+    // Or try the default behavior
+    return parent::calculateImpliedCoId();
   }
   
   /**
@@ -464,7 +468,52 @@ class CoGroupMembersController extends StandardController {
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-  
+
+  /**
+   * Perform a redirect back to the controller's default view.
+   * - postcondition: Redirect generated
+   *
+   * @since  COmanage Registry v0.1
+   */
+
+  function performRedirect() {
+    // Figure out where to redirect back to based on how we were called
+
+    $cop = null;
+
+    if($this->action == 'add' && isset($this->request->data['CoGroupMember']['co_person_id'])) {
+      $cop = $this->request->data['CoGroupMember']['co_person_id'];
+    } elseif($this->action == 'delete'
+      && isset($this->request->params['named']['return'])) {
+      if($this->request->params['named']['return'] == 'person'
+        && isset($this->request->params['named']['copersonid'])) {
+        $cop = $this->request->params['named']['copersonid'];
+      }
+      // else return = group
+    }
+
+    if(isset($cop)) {
+      $params = array('controller' => 'co_people',
+        'action'     => 'canvas',
+        $cop
+      );
+    } elseif(isset($this->gid)) {
+      $params = array('controller' => 'co_groups',
+        'action'     => 'members',
+        $this->gid,
+        'co'         => $this->cur_co['Co']['id']
+      );
+    } else {
+      // A perhaps not ideal default, but we shouldn't get here
+      $params = array('controller' => 'co_groups',
+        'action'     => 'index',
+        'co'         => $this->cur_co['Co']['id']
+      );
+    }
+
+    $this->redirect($params);
+  }
+
   /**
    * Select from a list of potential new group members.
    * - precondition: $this->request->params holds cogroup
@@ -819,53 +868,5 @@ class CoGroupMembersController extends StandardController {
                                                                 generateCn($gm['CoPerson']['PrimaryName']))));
     }
   }
-  
-  /**
-   * Determine the CO ID based on some attribute of the request.
-   * This method is intended to be overridden by model-specific controllers.
-   *
-   * @since  COmanage Registry v0.8.5
-   * @return Integer CO ID, or null if not implemented or not applicable.
-   * @throws InvalidArgumentException
-   */
-  
-  protected function calculateImpliedCoId($data = null) {
-    $cogroupid = null;
-    $copersonid = null;
-    
-    if(isset($this->params->named['cogroup'])) {
-      $cogroupid = $this->params->named['cogroup'];
-    } elseif(isset($this->request->data['CoGroupMember']['co_group_id'])) {
-      $cogroupid = $this->request->data['CoGroupMember']['co_group_id'];
-    } elseif(isset($this->request->data['CoGroupMember']['co_person_id'])) {
-      $copersonid = $this->request->data['CoGroupMember']['co_person_id'];
-    }
-    
-    if($cogroupid) {
-      // Map CO group to CO
-      
-      $coId = $this->CoGroupMember->CoGroup->field('co_id',
-                                                   array('id' => $cogroupid));
-      
-      if($coId) {
-        return $coId;
-      } else {
-        throw new InvalidArgumentException(_txt('er.gr.nf', array($cogroupid)));
-      }
-    } elseif($copersonid) {
-      // Map CO person to CO
-      
-      $coId = $this->CoGroupMember->CoPerson->field('co_id',
-                                                    array('id' => $copersonid));
-      
-      if($coId) {
-        return $coId;
-      } else {
-        throw new InvalidArgumentException(_txt('er.cop.unk-a', array($copersonid)));
-      }
-    }
-    
-    // Or try the default behavior
-    return parent::calculateImpliedCoId();
-  }
+
 }
