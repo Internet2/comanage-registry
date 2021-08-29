@@ -126,7 +126,7 @@
         <thead>
           <tr>
             <th><?php print _txt('fd.name'); ?></th>
-            <?php if($e && $permissions['buildnest']): ?>
+            <?php if($e): ?>
               <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
               <?php $tableCols = 2; ?>
             <?php endif; ?>
@@ -140,7 +140,7 @@
                     // The model that we want to render, as contain'd by CoGroupNesting
                     $gnm = ($k == 'source' ? "CoGroup" : "TargetCoGroup");
 
-                    if($e && $permissions['buildnest']) {
+                    if($e) {
                       print $this->Html->link($n[$gnm]['name'],
                         array('controller' => 'co_groups',
                           'action' => $this->action,
@@ -154,7 +154,7 @@
                   ?>
                 </td>
 
-                <?php if($e && $permissions['buildnest']): ?>
+                <?php if($e): ?>
                   <td class="actions">
                     <?php
                       print '<a class="deletebutton" title="' . _txt('op.remove')

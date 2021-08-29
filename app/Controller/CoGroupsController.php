@@ -532,7 +532,12 @@ class CoGroupsController extends StandardController {
     
     $p['member'] = !empty($curlRoles['member']) ? $curlRoles['member'] : array();
     $p['owner'] = !empty($curlRoles['owner']) ? $curlRoles['owner'] : array();
-    
+
+    // Determine if the current user is a member of the group.
+    // $managed is already defined for owner.
+    $member = in_array($this->request->params['pass'][0], $p['member']);
+
+
     // (Re)provision an existing CO Group?
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
 
@@ -550,12 +555,12 @@ class CoGroupsController extends StandardController {
 
     // Viewing members, email lists, and nested groups is available to all group members.
     // Access to specific actions is controlled in the view.
-    $p['members'] = $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
-    $p['email_lists'] = $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
-    $p['nest'] =  $p['member'] || $roles['cmadmin'] || $roles['coadmin'];
+    $p['members'] = $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
+    $p['email_lists'] = $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
+    $p['nest'] =  $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
 
     // Edit Group members
-    $p['edit_members'] = $p['owner'] || $roles['cmadmin'] || $roles['coadmin'];
+    $p['edit_members'] = $roles['cmadmin'] || $roles['coadmin'] || $managed;
 
     // Edit email lists?
     // This aligns with CoEmailLists::isAuthorized

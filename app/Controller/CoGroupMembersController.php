@@ -464,6 +464,10 @@ class CoGroupMembersController extends StandardController {
     
     // View members of a group?
     $p['view'] = ($roles['cmadmin'] || $managed || $member);
+
+    // View nested group? This determines if we build links to nested groups for a user.
+    // We skip $managed because the user may have no rights to view the source group.
+    $p['viewNestedGroup'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];

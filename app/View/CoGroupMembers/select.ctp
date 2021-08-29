@@ -261,16 +261,20 @@
             <?php
               // Is this from a nested group?
               if(!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_id'])) {
-                $nestedGroupLink = $this->Html->link(
-                  $co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_name'],
-                  array(
-                    'controller' => 'co_groups',
-                    'action' => 'nest',
-                    $co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_group_id']
-                  )
-                );
+                $nestedGroup = filter_var($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_name'],
+                  FILTER_SANITIZE_SPECIAL_CHARS);
+                if($permissions['viewNestedGroup']) {
+                  $nestedGroup = $this->Html->link(
+                    $co_group_roles['members'][$p['CoPerson']['id']]['co_group_nesting_name'],
+                    array(
+                      'controller' => 'co_groups',
+                      'action' => 'nest',
+                      $co_group_roles['members'][$p['CoPerson']['id']]['co_group_nesting_group_id']
+                    )
+                  );
+                }
                 print '<div class="group-member-via-nested">';
-                print _txt('fd.co_group_member.member.via', array($nestedGroupLink));
+                print _txt('fd.co_group_member.member.via', array($nestedGroup));
                 print ' <span class="group-member-via-nested-label">' . _txt('ct.co_group_nestings.1') . '</span>';
                 print '</div>';
               } else {
