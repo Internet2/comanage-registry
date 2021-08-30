@@ -41,22 +41,29 @@ $hasActiveFilters = false;
 
 ?>
 
-<div id="<?php print $req . ucfirst($this->action); ?>Search" class="top-search">
+<div id="<?php print $req . ucfirst($this->request->action); ?>Search" class="top-search">
   <?php
 
-  if(isset($permissions['select']) && $permissions['select'] && $this->action == 'select') {
-    print $this->Form->hidden('RedirectAction.select', array('default' => 'true')). PHP_EOL;
-  } elseif(isset($permissions['index']) && $permissions['index'] && $this->action == 'index') {
-    print $this->Form->hidden('RedirectAction.index', array('default' => 'true')). PHP_EOL;
-  }
+  // Action
+  print $this->Form->hidden('RedirectAction.' . $this->request->action, array('default' => 'true')). PHP_EOL;
 
+  // Named parameters
+  // Discard op.search named param
   $search_params = array();
   if(isset($this->request->params['named'])) {
-    foreach($this->request->params['named'] as $key => $params) {
-      if(!empty($params) && $key !== 'co') {
-        $search_params[$key] = $params;
+    foreach ($this->request->params['named'] as $param => $value) {
+      if(strpos($param, 'search') === false
+         && $param !== "op") {
+        print $this->Form->hidden($this->request->action . '.named.' . $param, array('default' => filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+      } else {
+        $search_params[$param] = $value;
       }
     }
+  }
+
+  // Passed parameters
+  foreach ($this->request->params['pass'] as $idx => $value) {
+    print $this->Form->hidden($this->request->action . '.'. $idx . '.pass', array('default' => filter_var($value,FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
   }
 
   ?>
@@ -193,8 +200,8 @@ $hasActiveFilters = false;
     <?php
     $args = array();
     $args['controller'] = $controller_route_name;
-    $args['action'] = $this->action;
-    if($this->action == 'index') {
+    $args['action'] = $this->request->action;
+    if($this->request->action == 'index') {
       $args['co'] = $cur_co['Co']['id'];
     } else if(!empty($this->request->params['pass'][0])) {
       $args[] = $this->request->params['pass'][0];
