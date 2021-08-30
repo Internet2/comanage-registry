@@ -1310,6 +1310,7 @@
                 print '<div class="field-data data-label">';
                 if(!empty($badge_list_org)) {
                   print $this->element('badgeList', array('vv_badge_list' => $badge_list_org));
+                  unset($badge_list_org);
                 }
                 print '</div>';
                 // Actions
