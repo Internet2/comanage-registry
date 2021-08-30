@@ -55,7 +55,7 @@
     $requestType = 'CoPersonProvisioning';
   } elseif(!empty($co_group)) {
     $args['search.auto'] = 'f';
-    $args['search.noadmin'] = 't';
+    $args['search.noadmin'] = '1';
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
     if($permissions['edit']) {
       $crumbTxt = _txt('op.edit-a', array(_txt('ct.co_groups.1')));

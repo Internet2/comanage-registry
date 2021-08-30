@@ -129,7 +129,6 @@
           </button>
         </span>
       <?php endif; ?>
-
       <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
     </legend>
 

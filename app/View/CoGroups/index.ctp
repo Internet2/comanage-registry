@@ -50,7 +50,7 @@
         'copersonid' => $this->Session->read('Auth.User.co_person_id'),
         'co' => $cur_co['Co']['id'],
         'search.auto' => 'f',
-        'search.noadmin' => 't'
+        'search.noadmin' => '1'
       ),
       array('class' => 'runbutton')
     );

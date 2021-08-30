@@ -66,6 +66,7 @@ class CoGroupNestingsController extends StandardController {
     parent::beforeRender();
     
     // Pull the parent group
+    
     $args = array();
     $args['conditions']['CoGroup.id'] = $this->request->params['named']['cogroup'];
     $args['contain'] = false;
@@ -73,6 +74,7 @@ class CoGroupNestingsController extends StandardController {
     $this->set('vv_parent_group', $this->CoGroupNesting->CoGroup->find('first', $args));
     
     // Pull the list of available groups
+    
     $args = array();
     $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
     // While beforeSave will enforce all logic, we at least filter the current group

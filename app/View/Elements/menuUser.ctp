@@ -171,8 +171,8 @@
                     'action' => 'select',
                     'copersonid' => $co['co_person_id'],
                     'co' => $co['co_id'],
-                    'search.member' => 't',
-                    'search.owner' => 't'
+                    'search.member' => '1',
+                    'search.owner' => '1'
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groupmems'), $args,
                     array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button btn btn-default'));

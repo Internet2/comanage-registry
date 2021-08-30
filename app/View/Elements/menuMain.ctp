@@ -201,7 +201,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
         $args['search.auto'] = 'f'; // filter out automatic groups by default
-        $args['search.noadmin'] = 't'; // exclude administration groups by default
+        $args['search.noadmin'] = '1'; // exclude administration groups by default
         print $this->Html->link(_txt('ct.co_groups.pl'), $args, array('class' => 'spin'));
         print "</li>";
 
@@ -222,8 +222,8 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['controller'] = 'co_groups';
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
-        $args['search.member'] = 't'; // include groups in which current user is a member
-        $args['search.owner'] = 't'; // include groups in which current user is an owner
+        $args['search.member'] = '1'; // include groups in which current user is a member
+        $args['search.owner'] = '1'; // include groups in which current user is an owner
         print $this->Html->link(_txt('op.grm.my.groups'), $args, array('class' => 'spin'));
         print "</li>";
 
@@ -235,8 +235,8 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'select';
         $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');;
         $args['co'] = $menuCoId;
-        $args['search.member'] = 't'; 
-        $args['search.owner'] = 't'; 
+        $args['search.member'] = '1'; 
+        $args['search.owner'] = '1'; 
         print $this->Html->link(_txt('op.grm.my.memberships'), $args, array('class' => 'spin'));
         print "</li>";
 

@@ -52,6 +52,7 @@
     $v = true;
 
   // We shouldn't get here if we don't have at least read permission, but check just in case
+  
   if(!$e && !$v)
     return(false);
 

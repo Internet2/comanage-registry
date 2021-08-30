@@ -257,7 +257,7 @@ class CoGroupsController extends StandardController {
           'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS),
           $this->CoGroup->id,
           'search.auto' => 'f',
-          'search.noadmin' => 't'
+          'search.noadmin' => '1'
         );
       }
 
@@ -460,7 +460,7 @@ class CoGroupsController extends StandardController {
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
       }
-
+      
       if(!empty($this->request->params['named']['copersonid'])) {
         $managedp = $this->Role->isCoAdminForCoPerson($roles['copersonid'],
                                                       $this->request->params['named']['copersonid']);
@@ -507,7 +507,7 @@ class CoGroupsController extends StandardController {
     // View all existing Groups?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     $p['search'] = $p['index'];
-
+    
     // Nest a Group within another Group?
     // This aligns with CoGroupNestingsController::isAuthorized
     $p['buildnest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
@@ -532,7 +532,7 @@ class CoGroupsController extends StandardController {
     
     $p['member'] = !empty($curlRoles['member']) ? $curlRoles['member'] : array();
     $p['owner'] = !empty($curlRoles['owner']) ? $curlRoles['owner'] : array();
-
+    
     // Determine if the current user is a member of the group.
     // $managed is already defined for owner.
     $member = in_array($this->request->params['pass'][0], $p['member']);
@@ -552,7 +552,7 @@ class CoGroupsController extends StandardController {
     
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
-
+    
     // Viewing members, email lists, and nested groups is available to all group members.
     // Access to specific actions is controlled in the view.
     $p['members'] = $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
@@ -904,7 +904,7 @@ class CoGroupsController extends StandardController {
     $this->Paginator->settings = $this->paginate;
     $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
   }      
-
+  
   /**
    * Retrieve a CO Group.
    * - precondition: <id> must exist
