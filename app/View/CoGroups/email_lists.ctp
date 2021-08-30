@@ -90,7 +90,7 @@
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $args['search.auto'] = 'f';
-    $args['search.noadmin'] = 't';
+    $args['search.noadmin'] = '1';
     $this->Html->addCrumb(_txt('ct.co_groups.pl'), $args);
   }
   if($e) {
