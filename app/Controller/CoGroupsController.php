@@ -560,7 +560,7 @@ class CoGroupsController extends StandardController {
     $p['nest'] =  $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
 
     // Edit Group members
-    $p['edit_members'] = $roles['cmadmin'] || $roles['coadmin'] || $managed;
+    $p['edit_members'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $managed);
 
     // Edit email lists?
     // This aligns with CoEmailLists::isAuthorized
