@@ -396,7 +396,7 @@ class CoGroupMembersController extends StandardController {
     
     // Store the group ID in the controller object since performRedirect may need it
     
-    if(($this->action == 'add' || $this->action == 'updateGroup')
+    if(($this->action == 'add' || $this->action == 'updateGroup' || $this->action == 'addMemberById')
        && isset($this->request->data['CoGroupMember']['co_group_id']))
       $this->gid = filter_var($this->request->data['CoGroupMember']['co_group_id'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
     elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
@@ -793,7 +793,7 @@ class CoGroupMembersController extends StandardController {
   
   /**
    * Add a member to a group directly by CoPerson ID.
-   * - precondition: $this->request->params holds CoGroup and CoPerson
+   * - precondition: $this->request->data holds CoGroupMember
    * - postcondition: CoPerson added to a group as a member
    *
    * @since COmanage Registry v4.0
