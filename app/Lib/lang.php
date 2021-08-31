@@ -704,6 +704,12 @@ original notification at
                                  NameEnum::Official => 'Official',
                                  NameEnum::Preferred => 'Preferred'),
   
+  // Nested Group member filters
+  'en.nested.filters' => array(
+    'e'      => 'Exclude',
+    'o'      => 'Show only'
+  ),
+  
   // Navigation links
   'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
 
@@ -1579,6 +1585,7 @@ original notification at
   'fd.name.language' => 'Language',
   'fd.name.primary_name' => 'Primary',
   'fd.name.fields.req' => 'A name must consist of at least these fields:',
+  'fd.nested' => 'Nested',
   'fd.no' =>           'No',
   'fd.none' =>         'None',
   'fd.not.email.body' => 'Notification Email Body',

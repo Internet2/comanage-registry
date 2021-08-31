@@ -138,6 +138,21 @@ class CoGroupMembersController extends StandardController {
       $this->CoGroupMember->setTimeZone($this->viewVars['vv_tz']);
     }
   }
+  
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v4.0
+   */
+
+  public function beforeRender() {
+    if(!$this->request->is('restful')) {
+      global $cm_lang, $cm_texts;
+      $this->set('vv_nested_filters', $cm_texts[ $cm_lang ]['en.nested.filters']);
+    }
+
+    parent::beforeRender();
+  }
 
   /**
    * Determine the CO ID based on some attribute of the request.
@@ -612,6 +627,37 @@ class CoGroupMembersController extends StandardController {
     if(!empty($this->params['named']['search.status'])) {
       $searchterm = $this->params['named']['search.status'];
       $this->Paginator->settings['conditions']['CoPerson.status'] = $searchterm;
+    }
+
+    // Filter nested members
+    // e:exclude - exclude nested members
+    // o:only    - show only nested members
+    if(!empty($this->params['named']['search.nested'])) {
+      $searchterm = $this->params['named']['search.nested'];
+      if($searchterm == 'e') {
+        $this->Paginator->settings['joins'][] = array(
+          'table' => 'co_group_members',
+          'alias' => 'CoGM',
+          'type' => 'INNER',
+          'conditions' => array(
+            "CoGM.co_person_id=CoPerson.id",
+            "CoGM.co_group_id=" . $this->gid,
+            "CoGM.co_group_nesting_id IS NULL"
+          )
+        );
+      }
+      if($searchterm == 'o') {
+        $this->Paginator->settings['joins'][] = array(
+          'table' => 'co_group_members',
+          'alias' => 'CoGM',
+          'type' => 'INNER',
+          'conditions' => array(
+            "CoGM.co_person_id=CoPerson.id",
+            "CoGM.co_group_id=" . $this->gid,
+            "CoGM.co_group_nesting_id IS NOT NULL"
+          )
+        );
+      }
     }
 
     // Filter by members and owners

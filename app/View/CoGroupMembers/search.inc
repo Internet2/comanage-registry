@@ -48,6 +48,7 @@ global $cm_lang, $cm_texts;
         !empty($this->request->params['named']['search.mail'])       ||
         !empty($this->request->params['named']['search.identifier']) ||
         !empty($this->request->params['named']['search.status'])     ||
+        !empty($this->request->params['named']['search.nested'])     ||
         !empty($this->request->params['named']['search.members'])    ||
         !empty($this->request->params['named']['search.owners'])):?>
         
@@ -82,6 +83,12 @@ global $cm_lang, $cm_texts;
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchStatus" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.status'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </button>
+          <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['search.nested'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchStatus" title="<?php print _txt('op.clear.filters.1');?>">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.nested'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_nested_filters[$this->request->params['named']['search.nested']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.members'])): ?>
@@ -143,10 +150,21 @@ global $cm_lang, $cm_texts;
             'empty' => ' ',
             'label' => _txt('fd.status'),
             'aria-label' => _txt('fd.status'),
-            'empty' => _txt('fd.status') . ' ' . _txt('op.select.empty'),
+            'empty' => _txt('op.select.all'),
             'value' => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
           print $this->Form->input('search.status', $formParams);
         }
+
+        if (!empty($vv_nested_filters)) {
+          $formParams = array('options' => $vv_nested_filters,
+            'type' => 'select',
+            'empty' => ' ',
+            'label' => _txt('fd.nested'),
+            'aria-label' => _txt('fd.nested'),
+            'empty' => _txt('op.select.all'),
+            'value' => (!empty($this->request->params['named']['search.nested']) ? $this->request->params['named']['search.nested'] : ''));
+          print $this->Form->input('search.nested', $formParams);
+        }  
 
         ?>
 
