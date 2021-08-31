@@ -1168,6 +1168,7 @@ original notification at
   'er.ug.same' =>     'Current and target versions are the same',
   'er.ug.version' =>  'Unknown version "%1$s"',
   'er.unknown' =>     'Unknown value "%1$s"',
+  'er.unknown.def' =>  'Unknown value',
   'er.url' =>         'Please supply a valid URL. Include "http://" (or similar) for off-site links.',
   'er.validation' =>  'Validation failed',
   'er.validation.date' =>  '"Valid From" date MUST precede "Valid Through" date',
