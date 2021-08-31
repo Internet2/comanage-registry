@@ -86,7 +86,7 @@ global $cm_lang, $cm_texts;
             </button>
           <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.nested'])): ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="searchStatus" title="<?php print _txt('op.clear.filters.1');?>">
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchNested" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title"><?php print _txt('fd.nested'); ?></span>
               <span class="top-search-active-filter-value"><?php print filter_var($vv_nested_filters[$this->request->params['named']['search.nested']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
