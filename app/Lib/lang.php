@@ -2073,7 +2073,6 @@ original notification at
   'op.inv.send' =>    'Send Invite',
   'op.inventory.view' => 'View Inventory',
   'op.job.schedule'   => 'Schedule Job',
-  'op.manage.grm' =>  'Manage Group Memberships', // XXX deprecated?
   'op.menu' =>        'Menu',
   'op.msg.tpl.test' => 'Test Template',
   'op.last' =>        'Last',
