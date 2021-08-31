@@ -251,10 +251,15 @@
           ?>
           <td>
             <?php
-              print $this->Html->link(generateCn($p['PrimaryName']),
-                                      array('controller' => 'co_people',
-                                            'action' => 'canvas',
-                                            $p['CoPerson']['id']));
+              $memberName = (!empty($p['PrimaryName']) ? generateCn($p['PrimaryName']) : "(?)");
+              if($permissions['viewUserCanvas']) {
+                print $this->Html->link($memberName,
+                  array('controller' => 'co_people',
+                    'action' => 'canvas',
+                    $p['CoPerson']['id']));
+              } else {
+                print filter_var($memberName,FILTER_SANITIZE_SPECIAL_CHARS);
+              }
             ?>
           </td>
           <td>

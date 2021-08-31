@@ -468,6 +468,10 @@ class CoGroupMembersController extends StandardController {
     // View nested group? This determines if we build links to nested groups for a user.
     // We skip $managed because the user may have no rights to view the source group.
     $p['viewNestedGroup'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+
+    // View any user's canvas page? This is used when creating links to CoPerson canvas from the select view.
+    // Limit this to platform and CO admins
+    $p['viewUserCanvas'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     $this->set('permissions', $p);
     return $p[$this->action];
