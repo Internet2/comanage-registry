@@ -1340,9 +1340,8 @@ class CoPeopleController extends StandardController {
       // XXX: search now passes the action name explicitly as data['CoPerson']['currentAction'] - could use that to test
       $url['action'] = 'select';
       $url['copetitionid'] = filter_var($this->data['CoPetition']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
-      
-    } elseif($this->data['CoPerson']['currentAction'] == 'relink') {
-      
+    } elseif(!empty($this->data['CoPerson']['currentAction'])
+             && $this->data['CoPerson']['currentAction'] == 'relink') {
       // relink mode
       $url['action'] = 'relink';
       array_push($url, filter_var($this->data['Relink']['id'], FILTER_SANITIZE_SPECIAL_CHARS));
