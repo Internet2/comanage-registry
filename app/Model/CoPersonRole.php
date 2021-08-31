@@ -381,10 +381,11 @@ class CoPersonRole extends AppModel {
         $this->data[$this->alias]['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
       }
     }
-    
+
     // If the validity of the role was changed, change the status appropriately
-    
-    if(!empty($this->data[$this->alias]['status'])) {
+    // Skip calculations as part of CO-2195
+    if(!empty($this->data[$this->alias]['status'])
+       && (!isset($options['trustStatus']) || !$options['trustStatus'])) {
       if(!empty($this->data[$this->alias]['valid_from'])) {
         if(strtotime($this->data[$this->alias]['valid_from']) < time()
            && $this->data[$this->alias]['status'] == StatusEnum::Pending) {
