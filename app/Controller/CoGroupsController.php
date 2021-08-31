@@ -535,9 +535,11 @@ class CoGroupsController extends StandardController {
     
     // Determine if the current user is a member of the group.
     // $managed is already defined for owner.
-    $member = in_array($this->request->params['pass'][0], $p['member']);
-
-
+    $member = false;
+    if(!empty($this->request->params['pass'][0])) {
+      $member = in_array($this->request->params['pass'][0], $p['member']);  
+    }
+    
     // (Re)provision an existing CO Group?
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
 
