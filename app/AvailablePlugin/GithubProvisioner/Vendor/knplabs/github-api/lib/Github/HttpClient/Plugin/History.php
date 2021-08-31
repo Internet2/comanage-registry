@@ -10,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
  * A plugin to remember the last response.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @final since 2.19
  */
 class History implements Journal
 {
@@ -28,6 +29,9 @@ class History implements Journal
         return $this->lastResponse;
     }
 
+    /**
+     * @return void
+     */
     public function addSuccess(RequestInterface $request, ResponseInterface $response)
     {
         $this->lastResponse = $response;

@@ -36,7 +36,7 @@ class Apps extends AbstractApi
 
         $this->configurePreviewHeader();
 
-        return $this->post('/app/installations/'.rawurlencode($installationId).'/access_tokens', $parameters);
+        return $this->post('/app/installations/'.$installationId.'/access_tokens', $parameters);
     }
 
     /**
@@ -51,6 +51,85 @@ class Apps extends AbstractApi
         $this->configurePreviewHeader();
 
         return $this->get('/app/installations');
+    }
+
+    /**
+     * Get an installation of the application.
+     *
+     * @link https://developer.github.com/v3/apps/#get-an-installation
+     *
+     * @param int $installationId An integration installation id
+     *
+     * @return array
+     */
+    public function getInstallation($installationId)
+    {
+        $this->configurePreviewHeader();
+
+        return $this->get('/app/installations/'.$installationId);
+    }
+
+    /**
+     * Get an installation of the application for an organization.
+     *
+     * @link https://developer.github.com/v3/apps/#get-an-organization-installation
+     *
+     * @param string $org An organization
+     *
+     * @return array
+     */
+    public function getInstallationForOrganization($org)
+    {
+        $this->configurePreviewHeader();
+
+        return $this->get('/org/'.rawurldecode($org).'/installation');
+    }
+
+    /**
+     * Get an installation of the application for a repository.
+     *
+     * @link https://developer.github.com/v3/apps/#get-a-repository-installation
+     *
+     * @param string $owner the owner of a repository
+     * @param string $repo  the name of the repository
+     *
+     * @return array
+     */
+    public function getInstallationForRepo($owner, $repo)
+    {
+        $this->configurePreviewHeader();
+
+        return $this->get('/repos/'.rawurldecode($owner).'/'.rawurldecode($repo).'/installation');
+    }
+
+    /**
+     * Get an installation of the application for a user.
+     *
+     * @link https://developer.github.com/v3/apps/#get-a-user-installation
+     *
+     * @param string $username
+     *
+     * @return array
+     */
+    public function getInstallationForUser($username)
+    {
+        $this->configurePreviewHeader();
+
+        return $this->get('/users/'.rawurldecode($username).'/installation');
+    }
+
+    /**
+     * Delete an installation of the application.
+     *
+     * @link https://developer.github.com/v3/apps/#delete-an-installation
+     *
+     * @param int $installationId An integration installation id
+     */
+    public function removeInstallation($installationId)
+    {
+        $this->configurePreviewHeader();
+
+        $this->delete('/app/installations/'.$installationId);
     }
 
     /**
@@ -88,7 +167,7 @@ class Apps extends AbstractApi
     {
         $this->configurePreviewHeader();
 
-        return $this->put('/installations/'.rawurlencode($installationId).'/repositories/'.rawurlencode($repositoryId));
+        return $this->put('/installations/'.$installationId.'/repositories/'.$repositoryId);
     }
 
     /**
@@ -105,6 +184,6 @@ class Apps extends AbstractApi
     {
         $this->configurePreviewHeader();
 
-        return $this->delete('/installations/'.rawurlencode($installationId).'/repositories/'.rawurlencode($repositoryId));
+        return $this->delete('/installations/'.$installationId.'/repositories/'.$repositoryId);
     }
 }
