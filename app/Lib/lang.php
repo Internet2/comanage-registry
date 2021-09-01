@@ -706,8 +706,8 @@ original notification at
   
   // Nested Group member filters
   'en.nested.filters' => array(
-    'e'      => 'Exclude',
-    'o'      => 'Show only'
+    'd'      => 'Show direct members only',
+    'i'      => 'Show indirect members only'
   ),
   
   // Navigation links
