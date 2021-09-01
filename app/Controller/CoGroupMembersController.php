@@ -629,97 +629,50 @@ class CoGroupMembersController extends StandardController {
       $this->Paginator->settings['conditions']['CoPerson.status'] = $searchterm;
     }
 
-    // Filter nested members
-    // d:direct   - Show direct members
-    // i:indirect - show indirect members
-    // We limit this lookup to members and owners only
-    if(!empty($this->params['named']['search.nested'])) {
-      $searchterm = $this->params['named']['search.nested'];
-      if($searchterm == 'd') {
-        $this->Paginator->settings['joins'][] = array(
-          'table' => 'co_group_members',
-          'alias' => 'CoGM',
-          'type' => 'INNER',
-          'conditions' => array(
-            "CoGM.co_person_id=CoPerson.id",
-            "CoGM.co_group_id=" . $this->gid,
-            "CoGM.co_group_nesting_id IS NULL",
-            'OR' => array(
-              "CoGM.member = true",
-              "CoGM.owner = true"
-            )
-          )
-        );
-      }
-      if($searchterm == 'i') {
-        $this->Paginator->settings['joins'][] = array(
-          'table' => 'co_group_members',
-          'alias' => 'CoGM',
-          'type' => 'INNER',
-          'conditions' => array(
-            "CoGM.co_person_id=CoPerson.id",
-            "CoGM.co_group_id=" . $this->gid,
-            "CoGM.co_group_nesting_id IS NOT NULL",
-            'OR' => array(
-              "CoGM.member = true",
-              "CoGM.owner = true"
-            )
-          )
-        );
-      }
-    }
-
-    // Filter by members and owners
-    // Note that if the nested filter is in place, we can skip these joins completely
-    // because the nested filter already enforces membership or ownership.
-    if(empty($this->params['named']['search.nested'])) {
-
-      // If both member and owner are selected, use a single join with "OR"
-      if (!empty($this->params['named']['search.members']) && !empty($this->params['named']['search.owners'])) {
-        $this->Paginator->settings['joins'][] = array(
-          'table' => 'co_group_members',
-          'alias' => 'CoGroupMember',
-          'type' => 'INNER',
-          'conditions' => array(
-            "CoGroupMember.co_person_id=CoPerson.id",
-            "CoGroupMember.co_group_id=" . $this->gid,
-            'OR' => array(
-              "CoGroupMember.member = true",
-              "CoGroupMember.owner = true"
-            )
-          )
-        );
-      } else {
-        // Otherwise filter for members and owners individually
-        // Filter by membership
-        if (!empty($this->params['named']['search.members'])) {
-          $this->Paginator->settings['joins'][] = array(
-            'table' => 'co_group_members',
-            'alias' => 'CoGroupMember',
-            'type' => 'INNER',
-            'conditions' => array(
-              "CoGroupMember.co_person_id=CoPerson.id",
-              "CoGroupMember.co_group_id=" . $this->gid,
-              "CoGroupMember.member = true"
-            )
-          );
+    // Filter by members, owners, and nested (direct/indirect) membership
+    if((!empty($this->params['named']['search.members']) || 
+        !empty($this->params['named']['search.owners'])  || 
+        !empty($this->params['named']['search.nested']))) {
+      
+      $conds = array();
+      $conds[] = "CoGroupMember.co_person_id=CoPerson.id";
+      $conds[] = "CoGroupMember.co_group_id=" . $this->gid;
+      if(!empty($this->params['named']['search.nested'])) {
+        $searchterm = $this->params['named']['search.nested'];
+        // d:direct   - Show direct members
+        // i:indirect - show indirect members
+        if ($searchterm == 'd') {
+          $conds[] = "CoGroupMember.co_group_nesting_id IS NULL";
         }
-
-        // Filter by ownership
-        if (!empty($this->params['named']['search.owners'])) {
-          $this->Paginator->settings['joins'][] = array(
-            'table' => 'co_group_members',
-            'alias' => 'CoGroupMember',
-            'type' => 'INNER',
-            'conditions' => array(
-              "CoGroupMember.co_person_id=CoPerson.id",
-              "CoGroupMember.co_group_id=" . $this->gid,
-              "CoGroupMember.owner = true"
-            )
-          );
+        if ($searchterm == 'i') {
+          $conds[] = "CoGroupMember.co_group_nesting_id IS NOT NULL";
         }
+      }  
+      // When filtering by nested but not by member/owner, include both members and owners by default.
+      // When not filtering by nested, but both member and owner are selected, include both.
+      // In both cases, use a single join with "OR". 
+      if(((empty($this->params['named']['search.members']) && empty($this->params['named']['search.owners'])) && 
+          !empty($this->params['named']['search.nested'])) || 
+        (!empty($this->params['named']['search.members']) && !empty($this->params['named']['search.owners']))) {
+        $conds['OR'] = array();
+        $conds['OR'][] = "CoGroupMember.member = true";
+        $conds['OR'][] = "CoGroupMember.owner = true";
+      } elseif(!empty($this->params['named']['search.owners'])) {
+        // Only the "owner" filter is selected - note that this will (quite rightly) be a null set
+        // if indirect membership is also selected
+        $conds[] = "CoGroupMember.owner = true";
+      } else {  
+        // Only the "member" filter is selected 
+        $conds[] = "CoGroupMember.member = true";
       }
-    }  
+      
+      $this->Paginator->settings['joins'][] = array(
+        'table' => 'co_group_members',
+        'alias' => 'CoGroupMember',
+        'type' => 'INNER',
+        'conditions' => $conds
+      );
+    } 
     
     $this->Paginator->settings['contain'] = array(
       // Make sure to contain only the CoGroupMembership we're interested in
