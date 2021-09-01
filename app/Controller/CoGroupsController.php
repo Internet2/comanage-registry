@@ -794,7 +794,7 @@ class CoGroupsController extends StandardController {
 
     // Exclude admin groups
     if(!empty($this->params['named']['search.noadmin'])) {
-      $pagcond['conditions']['CoGroup.group_type <>'] = 'A';
+      $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Admins;
     }
 
     // Filter by membership and ownership
