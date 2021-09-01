@@ -439,7 +439,7 @@ class OrgIdentitySourcesController extends StandardController {
       $url = array();
       $url['action'] = 'query/' . $id;
       
-      foreach($this->request->data['Search'] as $field => $value) {
+      foreach($this->request->data['search'] as $field => $value) {
         if(!empty($value)) {
           $url['search.'.$field] = $value;
         }

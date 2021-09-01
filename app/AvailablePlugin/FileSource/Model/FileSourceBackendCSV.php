@@ -273,20 +273,6 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
               $n['verified'] = true;
             }
             
-            if($model == 'Identifier') {
-              // Check if this is a login identifier, which is denoted by
-              // adding "+login" to the attribute declaration
-              $n['login'] = false;
-              $n['status'] = StatusEnum::Active;
-              
-              if(strlen($type) > 6
-                 && substr($i[0], strlen($i[0])-6, 6)=="+login") {
-
-                $n['login'] = true;
-                $n['type'] = substr($type, 0, strlen($i[0])-6);
-              }
-            }
-            
             $orgdata[$model][] = $n;
           }
         }
