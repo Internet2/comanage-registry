@@ -65,21 +65,6 @@ class CoGroupsController extends StandardController {
   );
   
   /**
-   * Callback to set relevant tab to open when redirecting to another page
-   * - precondition:
-   * - postcondition: Auth component is configured
-   * - postcondition:
-   *
-   * @since  COmanage Registry v0.8
-   */
-
-  function beforeFilter() {
-    $this->redirectTab = 'group'; // XXX legacy? remove?
-
-    parent::beforeFilter();
-  }
-
-  /**
    * Callback after controller methods are invoked but before views are rendered.
    *
    * @since  COmanage Registry v0.9.4
@@ -233,8 +218,8 @@ class CoGroupsController extends StandardController {
         $cos = $this->Session->read('Auth.User.cos');
         $this->redirectTarget = array('action' => 'edit', $this->CoGroup->id);
 
-        // Member of current CO? (Platform admin wouldn't be)
-        if (isset($cos) && isset($cos[$this->cur_co['Co']['name']]['co_person_id'])) {
+        // Member of current CO?
+        if (isset($cos[$this->cur_co['Co']['name']]['co_person_id'])) {
           $a['CoGroupMember'] = array(
             'co_group_id' => $this->CoGroup->id,
             'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
@@ -255,7 +240,6 @@ class CoGroupsController extends StandardController {
           'controller' => 'co_groups',
           'action' => 'index',
           'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS),
-          $this->CoGroup->id,
           'search.auto' => 'f',
           'search.noadmin' => '1'
         );

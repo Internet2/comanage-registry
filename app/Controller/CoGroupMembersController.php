@@ -639,12 +639,10 @@ class CoGroupMembersController extends StandardController {
       $conds[] = "CoGroupMember.co_group_id=" . $this->gid;
       if(!empty($this->params['named']['search.nested'])) {
         $searchterm = $this->params['named']['search.nested'];
-        // d:direct   - Show direct members
-        // i:indirect - show indirect members
-        if ($searchterm == 'd') {
+        if ($searchterm == NestedEnum::Direct) {
           $conds[] = "CoGroupMember.co_group_nesting_id IS NULL";
         }
-        if ($searchterm == 'i') {
+        if ($searchterm == NestedEnum::Indirect) {
           $conds[] = "CoGroupMember.co_group_nesting_id IS NOT NULL";
         }
       }  
@@ -821,7 +819,6 @@ class CoGroupMembersController extends StandardController {
       $gnm = $this->request->data['CoGroupMember']['co_group_name'];
       $pid = $this->request->data['CoGroupMember']['co_person_id'];
       $plb = $this->request->data['CoGroupMember']['co_person_label'];
-      //$rid = $this->Session->read('Auth.User.co_person_id'); // used in setMembership()
       try {
         if($this->CoGroupMember->isMember($gid,$pid)) {
           // CoPerson is already a member
@@ -829,8 +826,6 @@ class CoGroupMembersController extends StandardController {
         } else {
           // Add CoPerson to the group
           $this->CoGroupMember->addByGroupName($pid,$gnm);
-          // XXX This is likely the better choice - needs RoleComponent (the first parameter)
-          // $this->CoGroupMember->setMembership(null,$gid,$pid,true,false,$rid);
           $this->Flash->set(_txt('rs.grm.added-d',array($plb,$gnm)), array('key' => 'success'));
         }
       }

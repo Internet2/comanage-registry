@@ -705,10 +705,8 @@ original notification at
                                  NameEnum::Preferred => 'Preferred'),
   
   // Nested Group member filters
-  'en.nested.filters' => array(
-    'd'      => 'Show direct members only',
-    'i'      => 'Show indirect members only'
-  ),
+  'en.nested.filters' => array(NestedEnum::Direct => 'Show direct members only',
+                               NestedEnum::Indirect => 'Show indirect members only'),
   
   // Navigation links
   'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),

@@ -62,7 +62,7 @@
 <?php
   /* Group Add Member Search
    * The following javascript is used to look up a CoPerson using the #group-add-member field that immediately follows it.
-   * Note that the co_people/find mode "CoPerson" (CP) will simply bypass filters and perform a lookup against
+   * Note that the co_people/find mode "All" (AL) will simply bypass filters and perform a lookup against
    * all CoPerson records.
    */
 ?>
@@ -85,7 +85,7 @@
 
 
     $("#group-add-member").autocomplete({
-      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::CoPerson)); ?>",
+      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::All)); ?>",
       minLength: 3,
       select: function (event, ui) {
         $("#group-add-member").hide();
