@@ -40,8 +40,6 @@
     <field name="provision_co_group_id" type="I">
         <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
-    <field name="email_address_type" type="C" size="64" />
-    <field name="display_name_type" type="C" size="64" />
     <field name="deactivate" type="L" />
     <field name="group_type" type="C" size="64" />
     <field name="group_name" type="L" />
