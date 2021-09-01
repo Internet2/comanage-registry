@@ -193,7 +193,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
 
         print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
 
-        // Groups (with default filtering)
+        // Regular Groups (with default filtering)
         print '<li>';
         $args = array();
         $args['plugin'] = null;
@@ -202,7 +202,18 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['co'] = $menuCoId;
         $args['search.auto'] = 'f'; // filter out automatic groups by default
         $args['search.noadmin'] = '1'; // exclude administration groups by default
-        print $this->Html->link(_txt('ct.co_groups.pl'), $args, array('class' => 'spin'));
+        print $this->Html->link(_txt('op.grm.regular'), $args, array('class' => 'spin'));
+        print "</li>";
+
+        // System Groups (automatic groups)
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        $args['search.auto'] = 't'; // show only automatic groups
+        print $this->Html->link(_txt('op.grm.system'), $args, array('class' => 'spin'));
         print "</li>";
 
         // All Groups
@@ -215,30 +226,47 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         print $this->Html->link(_txt('ct.co_all_groups'), $args, array('class' => 'spin'));
         print "</li>";
 
-        // My Groups
-        print '<li>';
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_groups';
-        $args['action'] = 'index';
-        $args['co'] = $menuCoId;
-        $args['search.member'] = '1'; // include groups in which current user is a member
-        $args['search.owner'] = '1'; // include groups in which current user is an owner
-        print $this->Html->link(_txt('op.grm.my.groups'), $args, array('class' => 'spin'));
-        print "</li>";
+        // Display My Groups and My Memberships only to members with an active status in the CO and at
+        // least one CoPersonRole. Determine this by investigating the $menuContent. This is identical 
+        // to the constraints placed on menuUser for "My Profile" and "My Group Memberships" links.
+        if(isset($cur_co)) {
+          foreach ($menuContent['cos'] as $co) {
+            if ($co['co_id'] == $cur_co['Co']['id']) {
+              if(isset($co['co_person']['status'])
+                 && ($co['co_person']['status'] == StatusEnum::Active 
+                     || $co['co_person']['status'] == StatusEnum::GracePeriod)
+                 && !empty($co['co_person']['CoPersonRole'])) {
 
-        // My Memberships
-        print '<li>';
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_groups';
-        $args['action'] = 'select';
-        $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');;
-        $args['co'] = $menuCoId;
-        $args['search.member'] = '1'; 
-        $args['search.owner'] = '1'; 
-        print $this->Html->link(_txt('op.grm.my.memberships'), $args, array('class' => 'spin'));
-        print "</li>";
+                // My Groups
+                print '<li>';
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'co_groups';
+                $args['action'] = 'index';
+                $args['co'] = $menuCoId;
+                $args['search.member'] = '1'; // include groups in which current user is a member
+                $args['search.owner'] = '1'; // include groups in which current user is an owner
+                print $this->Html->link(_txt('op.grm.my.groups'), $args, array('class' => 'spin'));
+                print "</li>";
+
+                // My Memberships
+                print '<li>';
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'co_groups';
+                $args['action'] = 'select';
+                $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');;
+                $args['co'] = $menuCoId;
+                $args['search.member'] = '1';
+                $args['search.owner'] = '1';
+                print $this->Html->link(_txt('op.grm.my.memberships'), $args, array('class' => 'spin'));
+                print "</li>";   
+                
+              }
+            }
+          }
+        }
+        
 
         // Plugins
         if(!empty(retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId))) {
