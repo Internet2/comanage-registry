@@ -44,7 +44,11 @@ if(!empty($vv_enrollment_flow_cos)) {
 // Currently this is used only for the two expandable menus in the Main Menu (People and Platform).
 $selectedMenu = "";
 $currentMenu = "";
-if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $vv_app_prefs['uiDrawerState'] != 'half-closed') {
+$drawerState = "open";
+if(!empty($vv_app_prefs['uiDrawerState'])) {
+  $drawerState = filter_var($vv_app_prefs['uiDrawerState'],FILTER_SANITIZE_STRING);
+}
+if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-closed') {
   $selectedMenu = filter_var($vv_app_prefs['uiMainMenuSelectedParentId'],FILTER_SANITIZE_STRING);
 }
 ?>
