@@ -396,6 +396,7 @@
   }
   #top-search-submit.tss-rebalance {
     margin-top: -3.5em;
+    position: relative;
   }
   /* PEOPLE LISTING */
   /* Reset table for desktop */
