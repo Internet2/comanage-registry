@@ -496,8 +496,11 @@ class CoGroupsController extends StandardController {
       $member = in_array($this->request->params['pass'][0], $p['member']);  
     }
     
-    // (Re)provision an existing CO Group?
+    // View provisioning? This permission grants access to the Provisioned Services tab
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    
+    // (Re)provision an exsiting CO Group? This pemrmission grants access to the "Provision" buttons.
+    $p['do_provisioning'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     // Select from a list of potential Groups to join?
     $p['select'] = ($roles['cmadmin'] || $roles['coadmin']

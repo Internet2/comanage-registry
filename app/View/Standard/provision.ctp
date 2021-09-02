@@ -291,21 +291,28 @@
               $c['CoProvisioningTarget']['id']
             );
 
+            $printActionButtons = true;
+            
             if(!empty($co_person)) {
               $url['copersonid'] = $co_person['CoPerson']['id'] . ".json";
             } elseif(!empty($co_group)) {
               $url['cogroupid'] = $co_group['CoGroup']['id'] . ".json";
+              if(!$permissions['do_provisioning']) {
+                $printActionButtons = false; 
+              }
             } elseif(!empty($co_email_list)) {
               $url['coemaillistid'] = $co_email_list['CoEmailList']['id'] . ".json";
             } elseif(!empty($co_service)) {
               $url['coserviceid'] = $co_service['CoService']['id'] . ".json";
             }
 
-            print '<a class="provisionbutton"
+            if($printActionButtons) {
+              print '<a class="provisionbutton"
                       title="' . _txt('op.prov') . '"
                       onclick="javascript:js_confirm_provision(\'' .
-                        $this->Html->url($url)
-                      . '\');">' . _txt('op.prov') . "</a>\n";
+                $this->Html->url($url)
+                . '\');">' . _txt('op.prov') . "</a>\n";
+            }
           ?>
         </td>
       </tr>

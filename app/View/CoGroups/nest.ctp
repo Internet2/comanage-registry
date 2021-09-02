@@ -129,7 +129,7 @@
           <tr>
             <th><?php print _txt('fd.name'); ?></th>
             <?php if($e): ?>
-              <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+              <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
               <?php $tableCols = 2; ?>
             <?php endif; ?>
           </tr>

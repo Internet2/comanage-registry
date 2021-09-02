@@ -271,7 +271,7 @@
             && !$co_groups[0]['CoGroup']['auto']
             && $permissions['edit']
           ): ?>
-            <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+            <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
             <?php $tableCols = 3; ?>
           <?php endif; ?>
         </tr>
