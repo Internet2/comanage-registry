@@ -2238,6 +2238,9 @@ table {
   border-right: 1px solid #eee;
   table-layout: fixed;
 }
+table.cake-sql-log {
+  table-layout: auto;
+}
 .table-container {
   overflow: auto;
   clear: both;
