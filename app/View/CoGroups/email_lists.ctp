@@ -173,5 +173,3 @@
   </table>
 </div>
 
-<?php
-  print $this->element("changelog");

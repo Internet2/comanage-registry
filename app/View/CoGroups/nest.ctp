@@ -189,5 +189,3 @@
     <?php endforeach; // $k, $m ?>
   </div>
 </div>
-<?php
-  print $this->element("changelog");

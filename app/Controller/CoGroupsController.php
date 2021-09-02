@@ -251,34 +251,6 @@ class CoGroupsController extends StandardController {
   }
 
   /**
-   * Update a CO Group.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - precondition: <id> must exist
-   * - postcondition: On GET, $<object>s set (HTML)
-   * - postcondition: On POST success, object updated
-   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On POST error, $invalid_fields set (REST)
-   *
-   * @since  COmanage Registry v0.1
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-  
-  function edit($id) {
-    // Mostly, we want the standard behavior.  However, we need to retrieve the
-    // set of members when rendering the edit form.
-    
-    if(!$this->request->is('restful') && $this->request->is('get')) {
-      // Retrieve the set of all group members for group with ID $id.
-      // Specify containable behavior to get necessary relations.
-      
-      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
-    }
-    
-    // Invoke the StandardController edit
-    parent::edit($id);
-  }
-
-  /**
    * List group members for a CO Group.
    * - precondition: Model specific attributes in $this->request->data (optional)
    * - precondition: <id> must exist
