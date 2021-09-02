@@ -298,13 +298,12 @@
               }
 
               // Warn if membership is invalid
-              // XXX Use badge after introduced by PR-178 / CO-2054
               if((!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_from'])
                   && strtotime($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_from']) >= time())
                 ||
                 (!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_through'])
                   && strtotime($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_through']) < time())) {
-                print " (" . _txt('fd.inactive') . ")";
+                print ' <span class="mr-1 badge badge-warning">' . _txt('fd.inactive') . '</span>';
               }
             ?>
           </td>
