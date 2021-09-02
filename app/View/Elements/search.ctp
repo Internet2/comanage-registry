@@ -161,19 +161,22 @@ $hasActiveFilters = false;
       <?php if(sizeof($field_subgroup_columns) == 1): ?>
         <div><?php print current(current($field_subgroup_columns)); ?></div>
       <?php else: ?>
-        <div class="search-field-subgroup">
-          <?php foreach($field_subgroup_columns[0] as $field_name => $finput): ?>
-            <?php print $finput; ?>
-          <?php endforeach; ?>
-        </div>
-        <div class="search-field-subgroup">
-          <?php foreach($field_subgroup_columns[1] as $field_name => $finput): ?>
-            <?php print $finput; ?>
-          <?php endforeach; ?>
+        <div id="top-search-fields-subgroups">
+          <div class="search-field-subgroup">
+            <?php foreach($field_subgroup_columns[0] as $field_name => $finput): ?>
+              <?php print $finput; ?>
+            <?php endforeach; ?>
+          </div>
+          <div class="search-field-subgroup">
+            <?php foreach($field_subgroup_columns[1] as $field_name => $finput): ?>
+              <?php print $finput; ?>
+            <?php endforeach; ?>
+          </div>
         </div>
       <?php endif; ?>
-
-      <div class="topSearchSubmit">
+      
+      <?php $rebalanceColumns = ($i > 1) && ($i % 2 != 0) ? ' class="tss-rebalance"' : ''; ?>
+      <div id="top-search-submit"<?php print $rebalanceColumns ?>>
         <?php
         $args = array();
         // search button (submit)

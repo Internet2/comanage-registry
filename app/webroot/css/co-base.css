@@ -1438,6 +1438,11 @@ a.ui-button:visited,
   display: none;
   padding: 0.25em 0.5em;
 }
+#top-search-submit {
+  float: right;
+  width: 200px;
+  margin-bottom: 0.75em;
+}
 .top-search input[type=text],
 .top-search select,
 .side-search input[type=text],

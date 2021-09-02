@@ -387,15 +387,15 @@
   #peopleToggle {
     display: block;
   }
-  .top-search .search-field-subgroup {
-    float: left;
-    width: 49%;
+  /* Top search / filters */
+  #top-search-fields-subgroups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1em;
+    padding: 0 0.5em;
   }
-  .search-field-subgroup:nth-child(1) {
-    margin-right: 0.5em;
-  }
-  .top-search #top-search-fields .clear-button {
-    float: right;
+  #top-search-submit.tss-rebalance {
+    margin-top: -3.5em;
   }
   /* PEOPLE LISTING */
   /* Reset table for desktop */

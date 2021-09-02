@@ -97,6 +97,7 @@
     </legend>
 
     <div id="top-search-fields">
+      <div id="top-search-fields-subgroups">
       <div class="search-field-subgroup">
         <?php
           // Name:
@@ -146,8 +147,9 @@
           print $this->Form->input('search.groupType', $formParams);
         ?>
       </div>
+      </div>  
 
-      <div class="top-search-submit">
+      <div id="top-search-submit">
         <?php
           $args = array();
           // search button (submit)
