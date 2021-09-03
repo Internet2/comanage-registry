@@ -86,7 +86,8 @@
               if ($permissions['edit_members']) {
                 print $this->Html->link(
                   _txt('me.members'),
-                  array('controller' => 'co_group_members',
+                  array(
+                    'controller' => 'co_group_members',
                     'action' => 'select',
                     'cogroup:' . $groupId,
                     'search.members:1',
@@ -98,9 +99,9 @@
                 print $this->Html->link(
                   _txt('me.members'),
                   array(
-                    'controller' => 'co_groups',
-                    'action' => 'members',
-                    $groupId
+                    'controller' => 'co_group_members',
+                    'action' => 'index',
+                    'cogroup:' . $groupId
                   ),
                   array('class' => 'nav-link')
                 );

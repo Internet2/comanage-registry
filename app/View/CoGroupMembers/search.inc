@@ -37,6 +37,8 @@ global $cm_lang, $cm_texts;
     if(!empty($this->request->params['named']['cogroup'])) {
       print $this->Form->hidden('cogroup', array('default' => $this->request->params['named']['cogroup'])) . "\n";
     }
+    // Action
+    print $this->Form->hidden('RedirectAction', array('default' => $this->request->action));
   ?>
   <fieldset>
     <legend id="top-search-toggle">

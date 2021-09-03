@@ -26,7 +26,8 @@
    */
 ?>
 
-<?php if($this->action == 'select'): ?>
+<?php if($this->action == 'select' || 
+         $this->action == 'index'): ?>
 
   <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs">
     <ul class="nav nav-tabs">

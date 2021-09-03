@@ -496,9 +496,9 @@
                 }
                 elseif($v) {
                   print $this->Html->link(_txt('me.members'),
-                                          array('controller' => 'co_groups',
-                                            'action'     => 'members',
-                                            $c['CoGroup']['id']),
+                                          array('controller' => 'co_group_members',
+                                            'action'     => 'index',
+                                            'cogroup:' . $c['CoGroup']['id']),
                                           array('class' => 'comparebutton'));
 
                   print $this->Html->link(_txt('op.view'),

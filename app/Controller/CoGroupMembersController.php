@@ -56,6 +56,9 @@ class CoGroupMembersController extends StandardController {
   
   // We need to track the group ID under certain circumstances to enable performRedirect
   private $gid = null;
+  
+  // Determined during isAuthorized() and used for applying restrictions on rest operations 
+  private $isCmpCoAdmin = false;
 
   /**
    * Add one or more CO Group Members.
@@ -365,7 +368,7 @@ class CoGroupMembersController extends StandardController {
   }
 
   /**
-   * Obtain all CO Group Members.
+   * Obtain / list all CO Group Members.
    * - postcondition: $<object>s set on success (REST or HTML), using pagination (HTML only)
    * - postcondition: HTTP status returned (REST)
    * - postcondition: Session flash message updated (HTML) on suitable error
@@ -374,7 +377,7 @@ class CoGroupMembersController extends StandardController {
    */
   
   function index() {
-    if($this->request->is('restful') && !empty($this->params['url']['cogroupid'])) {
+    if($this->request->is('restful') && !empty($this->params['url']['cogroupid']) && $this->isCmpCoAdmin) {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
       
@@ -393,7 +396,8 @@ class CoGroupMembersController extends StandardController {
         return;
       }
     } else {
-      parent::index();
+      // Render the member list to the browser
+      $this->listMembers();
     }
   }
   
@@ -417,7 +421,7 @@ class CoGroupMembersController extends StandardController {
     elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
            && isset($this->request->params['pass'][0]))
       $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
-    elseif($this->action == 'select' && isset($this->request->params['named']['cogroup']))
+    elseif(($this->action == 'select' || $this->action == 'index') && isset($this->request->params['named']['cogroup']))
       $this->gid = filter_var($this->request->params['named']['cogroup'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
     
     $managed = false;
@@ -441,6 +445,9 @@ class CoGroupMembersController extends StandardController {
     // Is this specified group read only?
     $readOnly = ($this->gid ? $this->CoGroupMember->CoGroup->readOnly($this->gid) : false);
     
+    // If this user is an CMP or CO admin, make this known to the controller:
+    $this->isCmpCoAdmin = ($roles['cmadmin'] || $roles['coadmin']);
+    
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -455,8 +462,7 @@ class CoGroupMembersController extends StandardController {
     $p['edit'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // View a list of members of a group?
-    // This is for REST
-    $p['index'] = ($this->request->is('restful') && ($roles['cmadmin'] || $roles['coadmin']));
+    $p['index'] = ($roles['cmadmin'] || $managed || $member);
     
     // Select from a list of potential members to add?
     $p['select'] = !$readOnly && ($roles['cmadmin'] || $managed);
@@ -475,7 +481,7 @@ class CoGroupMembersController extends StandardController {
     
     // Search / filter a list of members in the select list?
     // We need co member so group owners can search for purposes of adding members
-    $p['search'] = !$readOnly && ($roles['cmadmin'] || $managed || $roles['comember']);
+    $p['search'] = $roles['cmadmin'] || $managed || $roles['comember'];
     
     // View members of a group?
     $p['view'] = ($roles['cmadmin'] || $managed || $member);
@@ -548,12 +554,26 @@ class CoGroupMembersController extends StandardController {
    */
   
   function select() {
-    // Start by using paginate to pull the set of group members.
+    // Render the member select list to the browser
+    $this->listMembers();
+  }
 
+  /**
+   * Generate a list of Group Members for select() and index() views
+   * - precondition: $this->request->params holds cogroup
+   * - postcondition: $co_people set with potential new members (in Select mode)
+   * - postcondition: Session flash message updated on error (HTML)
+   *
+   * @since  COmanage Registry v4.0
+   */
+  protected function listMembers() {
+    
+    // No group ID?
     if(!$this->gid) {
       throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_groups.1'))));
     }
-    
+
+    // Start by using paginate to pull the set of group members.
     $this->Paginator->settings = $this->paginate;
     $this->Paginator->settings['joins'][0] = array(
       'table'      => 'co_groups',
@@ -630,48 +650,57 @@ class CoGroupMembersController extends StandardController {
     }
 
     // Filter by members, owners, and nested (direct/indirect) membership
-    if((!empty($this->params['named']['search.members']) || 
-        !empty($this->params['named']['search.owners'])  || 
+    // index() view always limits its output to members and owners
+    // select() view does not
+    if(($this->action == 'index' ||
+        !empty($this->params['named']['search.members']) ||
+        !empty($this->params['named']['search.owners'])  ||
         !empty($this->params['named']['search.nested']))) {
+
+      $args = array();
+      $args[] = "CoGroupMember.co_person_id=CoPerson.id";
+      $args[] = "CoGroupMember.co_group_id=" . $this->gid;
       
-      $conds = array();
-      $conds[] = "CoGroupMember.co_person_id=CoPerson.id";
-      $conds[] = "CoGroupMember.co_group_id=" . $this->gid;
+      // Include nested filters?
       if(!empty($this->params['named']['search.nested'])) {
         $searchterm = $this->params['named']['search.nested'];
         if ($searchterm == NestedEnum::Direct) {
-          $conds[] = "CoGroupMember.co_group_nesting_id IS NULL";
+          $args[] = "CoGroupMember.co_group_nesting_id IS NULL";
         }
         if ($searchterm == NestedEnum::Indirect) {
-          $conds[] = "CoGroupMember.co_group_nesting_id IS NOT NULL";
+          $args[] = "CoGroupMember.co_group_nesting_id IS NOT NULL";
         }
-      }  
-      // When filtering by nested but not by member/owner, include both members and owners by default.
-      // When not filtering by nested, but both member and owner are selected, include both.
-      // In both cases, use a single join with "OR". 
-      if(((empty($this->params['named']['search.members']) && empty($this->params['named']['search.owners'])) && 
-          !empty($this->params['named']['search.nested'])) || 
-        (!empty($this->params['named']['search.members']) && !empty($this->params['named']['search.owners']))) {
-        $conds['OR'] = array();
-        $conds['OR'][] = "CoGroupMember.member = true";
-        $conds['OR'][] = "CoGroupMember.owner = true";
-      } elseif(!empty($this->params['named']['search.owners'])) {
-        // Only the "owner" filter is selected - note that this will (quite rightly) be a null set
-        // if indirect membership is also selected
-        $conds[] = "CoGroupMember.owner = true";
-      } else {  
-        // Only the "member" filter is selected 
-        $conds[] = "CoGroupMember.member = true";
       }
       
+      // Include member/owner filters?
+      if(!empty($this->params['named']['search.owners']) && empty($this->params['named']['search.members'])) {
+        // The "owner" filter is directly selected, but not "member" - show only owners.
+        // Note that this will (quite rightly) be a null set if indirect nested membership is also selected
+        $args[] = "CoGroupMember.owner = true";
+      } elseif(!empty($this->params['named']['search.members']) && empty($this->params['named']['search.owners'])) {
+        // The "member" filter is selected, but not "owner" - show only members. 
+        $args[] = "CoGroupMember.member = true";
+      } elseif($this->action == 'index' || 
+              (!empty($this->params['named']['search.members']) && !empty($this->params['named']['search.owners'])) ||
+              ((empty($this->params['named']['search.members']) && empty($this->params['named']['search.owners'])) &&
+                  !empty($this->params['named']['search.nested']))) {
+        // Always limit to members and owners if:
+        // - we're in the index() view or
+        // - both member and owner filters are selected or
+        // - neither member nor owner filters are selected but the nesting filter is
+        $args['OR'] = array();
+        $args['OR'][] = "CoGroupMember.member = true";
+        $args['OR'][] = "CoGroupMember.owner = true";
+      }
+
       $this->Paginator->settings['joins'][] = array(
         'table' => 'co_group_members',
         'alias' => 'CoGroupMember',
         'type' => 'INNER',
-        'conditions' => $conds
+        'conditions' => $args
       );
-    } 
-    
+    }
+
     $this->Paginator->settings['contain'] = array(
       // Make sure to contain only the CoGroupMembership we're interested in
       // This doesn't appear to actually work, so we'll pull the group membership separately
@@ -851,7 +880,12 @@ class CoGroupMembersController extends StandardController {
    */
 
   public function search() {
-    $url['action'] = 'select';
+    $action = filter_var($this->request->data['CoGroupMember']['RedirectAction'],FILTER_SANITIZE_SPECIAL_CHARS);
+    if($action == 'select') {
+      $url['action'] = 'select';  
+    } else {
+      $url['action'] = 'index';
+    }
     $url['cogroup'] = $this->request->data['CoGroupMember']['cogroup'];
 
     // Append the URL with all the search elements; the resulting URL will be similar to

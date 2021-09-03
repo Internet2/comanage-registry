@@ -251,30 +251,6 @@ class CoGroupsController extends StandardController {
   }
 
   /**
-   * List group members for a CO Group.
-   * - precondition: Model specific attributes in $this->request->data (optional)
-   * - precondition: <id> must exist
-   * - postcondition: On GET, $<object>s set (HTML)
-   *
-   * @since  COmanage Registry v4.0.0
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-
-  function members($id) {
-    if(!$this->request->is('restful') && $this->request->is('get')) {
-      // Retrieve the set of all group members for group with ID $id.
-      // Specify containable behavior to get necessary relations.
-      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
-    }
-    // Invoke the StandardController based on permissions to edit the group
-    if($this->viewVars['permissions']['edit']) {
-      parent::edit($id);
-    } else {
-      parent::view($id);
-    }
-  }
-
-  /**
    * List group nestings for a CO Group.
    * - precondition: Model specific attributes in $this->request->data (optional)
    * - precondition: <id> must exist
