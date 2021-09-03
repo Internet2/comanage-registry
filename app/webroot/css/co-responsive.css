@@ -380,6 +380,9 @@
     margin-top: -1.5em;
     padding-bottom: 0.5em;
   }
+  .co-info-topbox + #sorter {
+    margin-top: 0;
+  }
   /* Listing controls */
   .listControl li {
     margin-left: 0.5em;
