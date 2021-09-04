@@ -216,6 +216,7 @@
         $(".cm-inline-editable-field").removeClass('active');
       }
     });
+    // END USER MENU BEHAVIOR
 
     // Toggle the top search filter box
     $("#top-search-toggle, #top-search-toggle button.cm-toggle").click(function(e) {

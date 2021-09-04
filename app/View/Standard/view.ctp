@@ -78,6 +78,9 @@
   }
 
   print $this->element("pageTitleAndButtons", $params);
+  if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
+    include(APP . "View/" . $model . "/tabs.inc");
+  }
 ?>
 <?php if(!empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['description'])): ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">

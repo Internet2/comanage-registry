@@ -63,6 +63,9 @@ h2 {
   font-size: 2em;
   margin: 0;
 }
+h2.subtitle {
+  clear: both;
+}
 h3 {
   font-size: 1.6em;
   margin: 0;
@@ -717,6 +720,21 @@ body.co_people.canvas .titleNavContainer {
   top: -2px;
   height: 33px;
 }
+/* SUBNAVIGATION TABS */
+.cm-subnav-tabs {
+  clear: both;
+  margin: 0 0 1.5em;
+  padding: 1em 0 0;
+}
+.cm-subnav-tabs .nav-link {
+  text-transform: uppercase;
+  padding: 1em 1.5em;
+  font-size: 1.1em;
+}
+.cm-subnav-tabs + form > .form-list,
+.cm-subnav-tabs + .top-search {
+  margin-top: 0;
+}
 /* DASHBOARDS */
 #dashboard-tabs {
   clear: both;
@@ -787,6 +805,10 @@ body.co_people.canvas .titleNavContainer {
   padding: 1em;
   text-align: center;
   width: 240px;
+}
+#redirect-spinner {
+  padding: 1em 1em 2em;
+  position: relative;
 }
 /* SELECT CO */
 #fpCoList .co-row {
@@ -1351,6 +1373,10 @@ body.co_petitions .ui-dialog {
   text-align: right;
   margin: 0 30px 0 0;
 }
+#co_people .form-group,
+#co_groups .form-group {
+  margin-bottom: 0;
+}
 /* people index jquery ui overrides */
 #co_people .person-panel {
   border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
@@ -1818,9 +1844,30 @@ ul.fields.data-list li {
 #groupMembers tr:nth-child(even) td {
   background-color: #eee;
 }
+#group-add-member-name {
+  font-weight: 600;
+  font-size: 1.4em;
+  margin-right: 0.25em;
+}
+#group-add-member-clear-button {
+  padding: 0.5em;
+}
+#group-add-member-info {
+  display: none; /* for now (v4.0) - maybe a tooltip in future */
+}
+.group-member-via-nested {
+  font-style: italic;
+}
+.group-member-via-nested-label {
+  text-transform: lowercase;
+}
 /* FORMS */
 label {
   cursor: pointer;
+}
+.form-group.disabled label,
+.form-group.disabled input {
+  cursor: default;
 }
 #coPersonExplorer.personExplorer,
 #coOrgIdExplorer.personExplorer,
@@ -1958,6 +2005,18 @@ ul.form-list li.field-stack textarea {
 .checkbox .subfield label {
   display: inline;
   margin: 0;
+}
+.form-check.checkbox-replace-container {
+  opacity: 0.6;
+  position: relative;
+}
+.checkbox-replace-container .fa {
+  font-size: 1.3em;
+  margin-right: 6px;
+  color: #555;
+}
+.form-check-input.checkbox-replace {
+  display: none;
 }
 /* Ensure datepicker renders properly.
    We are using javascript to move it near its input field so
@@ -2337,6 +2396,16 @@ td.indented {
   padding: 1em 1em 0;
   text-align: center;
 }
+.co-loading-mini-input-container {
+  position: relative;
+}
+.co-loading-mini-input-container .co-loading-mini {
+  display: none;
+  position: relative;
+  right: 38px;
+  bottom: 2px;
+  margin-right: -26px;
+}
 #co-loading span,
 #co-loading-redirect span,
 .co-loading-mini span {
@@ -2383,6 +2452,13 @@ td.indented {
   font-size: 1.2em;
   padding: 0.5em 1.5em;
 }
+.btn:focus {
+  border: 1px dotted black;
+}
+.btn.btn-sm {
+  font-size: 0.9em;
+  margin: -0.5em 0 0 0.1em;
+}
 .btn-primary,
 .btn-primary:focus,
 .btn-primary:active {
@@ -2398,6 +2474,16 @@ td.indented {
   background-color: black;
   color: white !important;
   text-decoration: none !important;
+}
+.btn:focus {
+  border: 1px dotted white;
+}
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #0c75c0;
+  border-color: #0c75c0;
+  opacity: 0.4;
 }
 .btn-default,
 .btn-default:active {

@@ -54,6 +54,9 @@
     }
   }
   print $this->element("pageTitleAndButtons", $params);
+  if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
+    include(APP . "View/" . $model . "/tabs.inc");
+  }
 
   $submit_label = _txt('op.save');
   print $this->Form->create($req,

@@ -37,6 +37,8 @@ global $cm_lang, $cm_texts;
     if(!empty($this->request->params['named']['cogroup'])) {
       print $this->Form->hidden('cogroup', array('default' => $this->request->params['named']['cogroup'])) . "\n";
     }
+    // Action
+    print $this->Form->hidden('RedirectAction', array('default' => $this->request->action));
   ?>
   <fieldset>
     <legend id="top-search-toggle">
@@ -48,8 +50,11 @@ global $cm_lang, $cm_texts;
         !empty($this->request->params['named']['search.mail'])       ||
         !empty($this->request->params['named']['search.identifier']) ||
         !empty($this->request->params['named']['search.status'])     ||
+        !empty($this->request->params['named']['search.nested'])     ||
         !empty($this->request->params['named']['search.members'])    ||
         !empty($this->request->params['named']['search.owners'])):?>
+        
+        <?php $hasFilters = true; ?>
 
         <span id="top-search-active-filters">
           <?php if (!empty($this->request->params['named']['search.givenName'])): ?>
@@ -82,6 +87,12 @@ global $cm_lang, $cm_texts;
               <span class="top-search-active-filter-value"><?php print filter_var($vv_statuses[$this->request->params['named']['search.status']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
             </button>
           <?php endif; ?>
+          <?php if (!empty($this->request->params['named']['search.nested'])): ?>
+            <button class="top-search-active-filter deletebutton spin" aria-controls="searchNested" title="<?php print _txt('op.clear.filters.1');?>">
+              <span class="top-search-active-filter-title"><?php print _txt('fd.nested'); ?></span>
+              <span class="top-search-active-filter-value"><?php print filter_var($vv_nested_filters[$this->request->params['named']['search.nested']],FILTER_SANITIZE_SPECIAL_CHARS); ?></span>
+            </button>
+          <?php endif; ?>
           <?php if (!empty($this->request->params['named']['search.members'])): ?>
             <button class="top-search-active-filter deletebutton spin" aria-controls="searchMembers" title="<?php print _txt('op.clear.filters.1');?>">
               <span class="top-search-active-filter-title no-value"><?php print _txt('fd.members'); ?></span>
@@ -101,65 +112,86 @@ global $cm_lang, $cm_texts;
     </legend>
 
     <div id="top-search-fields">
-      <div class="search-field-subgroup">
-      <?php
-      $args = array();
-      $args['label'] = _txt('fd.name.given');
-      $args['placeholder'] = _txt('fd.name.given');
-      $args['aria-label'] = _txt('fd.name.given');
-      $args['value'] = !empty($this->request->params['named']['search.givenName']) ? $this->request->params['named']['search.givenName'] : '';
-      print $this->Form->input('search.givenName',$args);
-
-      $args = array();
-      $args['label'] = _txt('fd.name.family');
-      $args['placeholder'] = _txt('fd.name.family');
-      $args['aria-label'] = _txt('fd.name.family');
-      $args['value'] = !empty($this->request->params['named']['search.familyName']) ? $this->request->params['named']['search.familyName'] : '';
-      print $this->Form->input('search.familyName',$args);
-
-      $args = array();
-      $args['label'] = _txt('fd.email_address.mail');
-      $args['placeholder'] = _txt('fd.email_address.mail');
-      $args['aria-label'] = _txt('fd.email_address.mail');
-      $args['value'] = !empty($this->request->params['named']['search.mail']) ? $this->request->params['named']['search.mail'] : '';
-      print $this->Form->input('search.mail', $args);
-      ?>
-      </div>
-
-      <div class="search-field-subgroup">
-        <?php
-        $args = array();
-        $args['label'] = _txt('fd.identifier.identifier');
-        $args['placeholder'] = _txt('fd.identifier.identifier');
-        $args['aria-label'] = _txt('fd.identifier.identifier');
-        $args['value'] = !empty($this->request->params['named']['search.identifier']) ? $this->request->params['named']['search.identifier'] : '';
-        print $this->Form->input('search.identifier', $args);
-
-        if (!empty($vv_statuses)) {
-          $formParams = array('options' => $vv_statuses,
-            'type' => 'select',
-            'empty' => ' ',
-            'label' => _txt('fd.status'),
-            'aria-label' => _txt('fd.status'),
-            'empty' => _txt('fd.status') . ' ' . _txt('op.select.empty'),
-            'value' => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
-          print $this->Form->input('search.status', $formParams);
-        }
-
-        ?>
-
-        <div class="top-search-checkboxes">
-          <div class="top-search-checkbox-label"><?php print _txt('fd.membership'); ?></div>
+      <div id="top-search-fields-subgroups">
+        <div class="search-field-subgroup">
           <?php
-          print $this->Form->checkbox('search.members', array('checked' => !empty($this->request->params['named']['search.members'])));
-          print $this->Form->label('search.members',_txt('fd.members')) . "\n";
-          print $this->Form->checkbox('search.owners', array('checked' => !empty($this->request->params['named']['search.owners'])));
-          print $this->Form->label('search.owners', _txt('fd.owners')) . "\n";
+          $args = array();
+          $args['label'] = _txt('fd.name.given');
+          $args['placeholder'] = _txt('fd.name.given');
+          $args['aria-label'] = _txt('fd.name.given');
+          $args['value'] = !empty($this->request->params['named']['search.givenName']) ? $this->request->params['named']['search.givenName'] : '';
+          print $this->Form->input('search.givenName',$args);
+    
+          $args = array();
+          $args['label'] = _txt('fd.name.family');
+          $args['placeholder'] = _txt('fd.name.family');
+          $args['aria-label'] = _txt('fd.name.family');
+          $args['value'] = !empty($this->request->params['named']['search.familyName']) ? $this->request->params['named']['search.familyName'] : '';
+          print $this->Form->input('search.familyName',$args);
+    
+          $args = array();
+          $args['label'] = _txt('fd.email_address.mail');
+          $args['placeholder'] = _txt('fd.email_address.mail');
+          $args['aria-label'] = _txt('fd.email_address.mail');
+          $args['value'] = !empty($this->request->params['named']['search.mail']) ? $this->request->params['named']['search.mail'] : '';
+          print $this->Form->input('search.mail', $args);
+          ?>
+
+          <div class="top-search-checkboxes input">
+            <div class="top-search-checkbox-label"><?php print _txt('fd.membership'); ?></div>
+            <div class="top-search-checkbox-fields">
+              <div class="form-check form-check-inline">
+                <?php
+                  print $this->Form->checkbox('search.members', array('checked' => !empty($this->request->params['named']['search.members']), 'class' => 'form-check-input'));
+                  print $this->Form->label('search.members',_txt('fd.members')) . "\n";
+                ?>
+              </div>
+              <div class="form-check form-check-inline">
+                <?php
+                  print $this->Form->checkbox('search.owners', array('checked' => !empty($this->request->params['named']['search.owners']), 'class' => 'form-check-input'));
+                  print $this->Form->label('search.owners', _txt('fd.owners')) . "\n";
+                ?>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="search-field-subgroup">
+          <?php
+          $args = array();
+          $args['label'] = _txt('fd.identifier.identifier');
+          $args['placeholder'] = _txt('fd.identifier.identifier');
+          $args['aria-label'] = _txt('fd.identifier.identifier');
+          $args['value'] = !empty($this->request->params['named']['search.identifier']) ? $this->request->params['named']['search.identifier'] : '';
+          print $this->Form->input('search.identifier', $args);
+  
+          if (!empty($vv_statuses)) {
+            $formParams = array('options' => $vv_statuses,
+              'type' => 'select',
+              'empty' => ' ',
+              'label' => _txt('fd.status'),
+              'aria-label' => _txt('fd.status'),
+              'empty' => _txt('op.select.all'),
+              'value' => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
+            print $this->Form->input('search.status', $formParams);
+          }
+  
+          if (!empty($vv_nested_filters)) {
+            $formParams = array('options' => $vv_nested_filters,
+              'type' => 'select',
+              'empty' => ' ',
+              'label' => _txt('fd.nested'),
+              'aria-label' => _txt('fd.nested'),
+              'empty' => _txt('op.select.all'),
+              'value' => (!empty($this->request->params['named']['search.nested']) ? $this->request->params['named']['search.nested'] : ''));
+            print $this->Form->input('search.nested', $formParams);
+          }  
+  
           ?>
         </div>
-      </div>
+      </div>  
 
-      <div class="top-search-submit">
+      <div id="top-search-submit" class="tss-rebalance">
         <?php
         $args = array();
         // search button (submit)

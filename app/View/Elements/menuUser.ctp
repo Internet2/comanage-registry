@@ -161,7 +161,7 @@
                     array('escape' => false, 'id' => 'co-profile-link', 'class' => 'co-profile-button co-raised-button btn btn-default'));
                 }
 
-                // Groups
+                // Group Memberships
                 // Show the groups link too, if permissions allow
                 if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']
                    && !empty($co['co_person_id'])) {
@@ -170,9 +170,11 @@
                     'controller' => 'co_groups',
                     'action' => 'select',
                     'copersonid' => $co['co_person_id'],
-                    'co' => $co['co_id']
+                    'co' => $co['co_id'],
+                    'search.member' => '1',
+                    'search.owner' => '1'
                   );
-                  print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groups'), $args,
+                  print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groupmems'), $args,
                     array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button btn btn-default'));
                 }
 

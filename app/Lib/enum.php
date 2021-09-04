@@ -424,6 +424,12 @@ class NameEnum
   const Preferred = 'preferred';
 }
 
+class NestedEnum
+{
+  const Direct   = 'D';
+  const Indirect = 'I';
+}
+  
 class NotificationStatusEnum
 {
   const Acknowledged          = 'A';
@@ -499,6 +505,7 @@ class OrgIdentityStatusEnum
 class PeoplePickerModeEnum
 {
   const Sponsor   = 'S';
+  const All       = 'AL';
 }
 
 class PermissionEnum
