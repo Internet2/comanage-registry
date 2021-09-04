@@ -40,6 +40,52 @@ class CoSqlProvisionerTargetsController extends SPTController {
   );
   
   /**
+   * Reapply the Target Database Schema.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $id CoSqlProvisionerTarget ID
+   */
+  
+  public function reapply($id) {
+    try {
+      $serverId = $this->CoSqlProvisionerTarget->field('server_id', array('CoSqlProvisionerTarget.id' => $id));
+      
+      if(!$serverId) {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_sql_provisioner_targets.1'), $id)));
+      }
+      
+      $this->CoSqlProvisionerTarget->applySchema($serverId);
+      
+      $this->Flash->set(_txt('pl.sqlprovisioner.reapply.ok'), array('key' => 'success'));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
+   * Resync all Reference Data, including CO Groups.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $id CoSqlProvisionerTarget ID
+   */
+  
+  public function resync($id) {
+    try {
+      $this->CoSqlProvisionerTarget->syncAllReferenceData($this->cur_co['Co']['id'], true);
+      
+      $this->Flash->set(_txt('pl.sqlprovisioner.resync.ok'), array('key' => 'success'));
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+    }
+    
+    $this->performRedirect();
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -64,6 +110,12 @@ class CoSqlProvisionerTargetsController extends SPTController {
     
     // View all existing CO SQL Provisioning Targets?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Reapply the target schema?
+    $p['reapply'] = ($roles['cmadmin'] || $roles['coadmin']);
+    
+    // Resync the reference data?
+    $p['resync'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View an existing CO SQL Provisioning Target?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
