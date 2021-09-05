@@ -45,7 +45,7 @@
               'action' => 'edit',
               $groupId
             ),
-            array('class' => 'nav-link')
+            array('class' => 'nav-link spin')
           );
         ?>
       </li>
@@ -61,7 +61,7 @@
               'search.members:1',
               'search.owners:1'
             ),
-            array('class' => 'nav-link')
+            array('class' => 'nav-link spin')
           );
         ?>
       </li>
@@ -91,7 +91,7 @@
               'action' => 'provision',
               $groupId
             ),
-            array('class' => 'nav-link')
+            array('class' => 'nav-link spin')
           );
         ?>
       </li>
@@ -106,7 +106,7 @@
               'action' => 'email_lists',
               $groupId
             ),
-            array('class' => 'nav-link')
+            array('class' => 'nav-link spin')
           );
         ?>
       </li>

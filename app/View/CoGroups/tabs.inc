@@ -59,7 +59,7 @@
                   'action' => 'edit',
                   $groupId
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             } else {
               print $this->Html->link(
@@ -69,7 +69,7 @@
                   'action' => 'view',
                   $groupId
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             }
           }
@@ -93,7 +93,7 @@
                     'search.members:1',
                     'search.owners:1'
                   ),
-                  array('class' => 'nav-link')
+                  array('class' => 'nav-link spin')
                 );
               } else {
                 print $this->Html->link(
@@ -103,7 +103,7 @@
                     'action' => 'index',
                     'cogroup:' . $groupId
                   ),
-                  array('class' => 'nav-link')
+                  array('class' => 'nav-link spin')
                 );
               }
             }
@@ -125,7 +125,7 @@
                   'action' => 'nest',
                   $groupId
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             }
           ?>
@@ -146,7 +146,7 @@
                   'action' => 'provision',
                   $groupId
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             }
           ?>
@@ -167,7 +167,7 @@
                   'action' => 'email_lists',
                   $groupId
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             }
           ?>

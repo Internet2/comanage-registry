@@ -47,7 +47,7 @@
           'action' => 'dashboard',
           $dashboardId
         ),
-          array('class' => 'nav-link'));
+          array('class' => 'nav-link spin'));
       }
       print '</li>';
     }

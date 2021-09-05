@@ -46,7 +46,7 @@
                   'action' => 'edit',
                   $co_group['CoGroup']['id']
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             } else {
               print $this->Html->link(
@@ -56,7 +56,7 @@
                   'action' => 'view',
                   $co_group['CoGroup']['id']
                 ),
-                array('class' => 'nav-link')
+                array('class' => 'nav-link spin')
               );
             }
           }
@@ -83,7 +83,7 @@
                 'action' => 'nest',
                 $co_group['CoGroup']['id']
               ),
-              array('class' => 'nav-link')
+              array('class' => 'nav-link spin')
             );
           }
         ?>
@@ -100,7 +100,7 @@
                 'action' => 'provision',
                 $co_group['CoGroup']['id']
               ),
-              array('class' => 'nav-link')
+              array('class' => 'nav-link spin')
             );
           ?>
         </li>
@@ -119,7 +119,7 @@
                 'action' => 'email_lists',
                 $co_group['CoGroup']['id']
               ),
-              array('class' => 'nav-link')
+              array('class' => 'nav-link spin')
             );
           }
         ?>
