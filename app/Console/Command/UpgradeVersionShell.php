@@ -537,7 +537,38 @@ class UpgradeVersionShell extends AppShell {
     $this->out(_txt('sh.ug.400.messagetemplate.format'));
     $this->CoMessageTemplate->_ug400();
 
+    // Register Garbage Collector Job
+    $this->out(_txt('sh.ug.400.garbage.collector.register'));
+    
+    // Register the GarbageCollector
+    $Co = ClassRegistry::init('Co');
+    $args = array();
+    $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
+    $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
+    $args['fields'] = array('Co.id');
+    $args['contain'] = false;
+
+    $cmp = $Co->find('first', $args);
+    $cmp_id = $cmp['Co']['id'];
+
+    // We will need a requeue Interval, this will be the same as the queue one.
+    $jobid = $Co->CoJob->register(
+      $cmp_id,                                                // $coId
+      'CoreJob.GarbageCollector',                             // $jobType
+      null,                                                   // $jobTypeFk
+      "",                                                     // $jobMode
+      _txt('rs.jb.started.web', array(__FUNCTION__ , -1)),    // $summary
+      true,                                                   // $queued
+      false,                                                  // $concurrent
+      array(                                                  // $params
+        'object_type' => 'Co',
+      ),
+      0,                                                      // $delay (in seconds)
+      DEF_GARBAGE_COLLECT_INTERVAL                            // $requeueInterval (in seconds)
+    );
+    
     // Set various new defaults
+    $this->out(_txt('sh.ug.400.co_settings'));
     $this->CoSetting->_ug400();
 
     // 4.0.0 adds multiple types of File Sources, however the FileSource

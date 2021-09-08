@@ -505,36 +505,6 @@ class CoSetting extends AppModel {
    */
 
   public function _ug400() {
-    // Register Garbage Collector Job
-    $this->out(_txt('sh.ug.400.garbage.collector.register'));
-    
-    // Register the GarbageCollector
-    $Co = ClassRegistry::init('Co');
-    $args = array();
-    $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
-    $args['conditions']['Co.status'] = TemplateableStatusEnum::Active;
-    $args['fields'] = array('Co.id');
-    $args['contain'] = false;
-
-    $cmp = $Co->find('first', $args);
-    $cmp_id = $cmp['Co']['id'];
-
-    // We will need a requeue Interval, this will be the same as the queue one.
-    $jobid = $Co->CoJob->register(
-      $cmp_id,                                                // $coId
-      'CoreJob.GarbageCollector',                             // $jobType
-      null,                                                   // $jobTypeFk
-      "",                                                     // $jobMode
-      _txt('rs.jb.started.web', array(__FUNCTION__ , -1)),    // $summary
-      true,                                                   // $queued
-      false,                                                  // $concurrent
-      array(                                                  // $params
-        'object_type' => 'Co',
-      ),
-      0,                                                      // $delay (in seconds)
-      DEF_GARBAGE_COLLECT_INTERVAL                            // $requeueInterval (in seconds)
-    );
-
     // Temporarily unbind all relations
     $this->unbindModel(
       array(
@@ -549,7 +519,6 @@ class CoSetting extends AppModel {
     );
 
     // Update CoSettings Garbage Collector interval
-    $this->out(_txt('sh.ug.400.garbage.collector.interval'));
     
     // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
     $this->updateAll(
@@ -557,7 +526,6 @@ class CoSetting extends AppModel {
     );
     
     // Set a default search limit
-    $this->out(_txt('sh.ug.400.global_search_limit'));
     
     $this->updateAll(
       array('CoSetting.global_search_limit'=> DEF_GLOBAL_SEARCH_LIMIT)

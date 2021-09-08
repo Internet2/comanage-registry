@@ -2420,10 +2420,9 @@ original notification at
   'sh.ug.330.users' =>    'Dropping users View',
   'sh.ug.340.password' => 'Updating Password Sources',
   'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations',
+  'sh.ug.400.co_settings' => 'Updating CO Settings',
   'sh.ug.400.filesource' => 'Updating File Sources',
-  'sh.ug.400.garbage.collector.interval' => 'Updating CoSetting Garbage Collection Interval',
   'sh.ug.400.garbage.collector.register' => 'Register GarbageCollector Job',
-  'sh.ug.400.global_search_limit' => 'Setting default global search limit',
   'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
   'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'
