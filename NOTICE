@@ -1,6 +1,6 @@
 COmanage Registry
 
-Copyright (C) 2010-2020
+Copyright (C) 2010-2021
 University Corporation for Advanced Internet Development, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,6 +56,10 @@ files and utilities for further information:
  BSD 3-Clause License
  http://adodb.org
  
+ Bootstrap (app/webroot/js/bootstrap)
+ MIT License
+ https://getbootstrap.com/
+ 
  Guzzle (app/AvailablePlugin/GithubProvisioner/Vendor/guzzle) 
  MIT License
  https://github.com/guzzle/guzzle
@@ -67,6 +71,10 @@ files and utilities for further information:
  jQuery UI (app/webroot/js/jquery/jquery-ui-*)
  MIT License
  http://jquery.com
+
+ JavaScript Cookie (app/webroot/js/js-cookie)
+ MIT License
+ https://github.com/js-cookie/js-cookie
  
  jsTimezoneDetect (app/webroot/js/jstimezonedetect)
  MIT License
@@ -75,10 +83,6 @@ files and utilities for further information:
  Magnific Popup (app/webroot/js/jquery/magnificpopup)
  MIT License
  http://dimsemenov.com/plugins/magnific-popup
- 
- Material Design Light (app/webroot/js/mdl)
- Apache 2.0
- https://getmdl.io
  
  noty (app/webroot/js/jquery/noty)
  MIT License
