@@ -1167,7 +1167,7 @@ class CoPeopleController extends StandardController {
       // This produces the correct results, however Cake then goes into an infinite loop
       // For that reason we will use DISTINCT instead.
 
-      // XXX CO-1091, we need at least the following fields for the View to render properly
+      // CO-1091, we need at least the following fields for the View to render properly
       $this->paginate['fields'] = array( "DISTINCT CoPerson.id","PrimaryName.given","PrimaryName.family","CoPerson.status");
 
       $pagcond['joins'][$jcnt]['table'] = 'co_person_roles';
