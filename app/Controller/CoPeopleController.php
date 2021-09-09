@@ -1165,8 +1165,11 @@ class CoPeopleController extends StandardController {
       //                                 'MIN(CoPersonRole.id)');
       //      $pagcond['group'] = array('CoPerson.id', 'Co.id', 'PrimaryName.family', 'PrimaryName.given');
       // This produces the correct results, however Cake then goes into an infinite loop
-      // trying to pull some related data for the results. So for now, we just leave duplicates
-      // in the search results.
+      // For that reason we will use DISTINCT instead.
+
+      // CO-1091, we need at least the following fields for the View to render properly
+      $this->paginate['fields'] = array( "DISTINCT CoPerson.id","PrimaryName.given","PrimaryName.family","CoPerson.status");
+
       $pagcond['joins'][$jcnt]['table'] = 'co_person_roles';
       $pagcond['joins'][$jcnt]['alias'] = 'CoPersonRole';
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
