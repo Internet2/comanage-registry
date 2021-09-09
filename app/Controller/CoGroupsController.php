@@ -840,25 +840,5 @@ class CoGroupsController extends StandardController {
 
     $this->Paginator->settings = $this->paginate;
     $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
-  }      
-  
-  /**
-   * Retrieve a CO Group.
-   * - precondition: <id> must exist
-   * - postcondition: $<object>s set (with one member)
-   * - postcondition: HTTP status returned (REST)
-   * - postcondition: Session flash message updated (HTML)
-   *
-   * @since  COmanage Registry v0.1
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-  
-  function view($id) {
-    if(!$this->request->is('restful')) {
-      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
-    }
-    
-    // Invoke the StandardController view
-    parent::view($id);
   }
 }
