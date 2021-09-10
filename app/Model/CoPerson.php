@@ -491,10 +491,21 @@ class CoPerson extends AppModel {
         }
       }
       $args['conditions']['CoPerson.id'] = $coPersonIds;
-      $args['contain'] = array('PrimaryName', 'Identifier', 'EmailAddress');
-      $args['order'] = array('PrimaryName.family ASC', 'PrimaryName.given ASC');
+      $args['contain'] = array(
+        // We can't contain PrimaryName because it results in
+        // redundant results and does not filter on primary_name
+        'Name' => array('conditions' => array('Name.primary_name' => true)),
+        'Identifier',
+        'EmailAddress'
+      );
       
       $ret = $this->find('all', $args);
+
+      if(!empty($ret)) {
+        // This appears to maybe maintain a given name sort within the family name?
+        $ret = Hash::sort($ret, '{n}.Name.0.given', 'asc');
+        $ret = Hash::sort($ret, '{n}.Name.0.family', 'asc');
+      }
     }
     
     return $ret;

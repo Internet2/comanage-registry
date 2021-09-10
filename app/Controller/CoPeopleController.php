@@ -553,7 +553,7 @@ class CoPeopleController extends StandardController {
       $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
       
       foreach($people as $p) {
-        $label = generateCn($p['PrimaryName']);
+        $label = generateCn($p['Name'][0]);
         
         $id = Hash::extract($p['Identifier'], '{n}[type=uid]');
         
