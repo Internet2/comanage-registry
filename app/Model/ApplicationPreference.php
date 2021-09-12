@@ -33,8 +33,9 @@ class ApplicationPreference extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable',
-                         'Changelog' => array('priority' => 5));
+  // Because ApplicationPreference isn't maintaining application data (it's
+  // basically frontend state, there's no reason to enable ChangelogBehavior).
+  public $actsAs = array('Containable');
   
   // Association rules from this model to other models
   public $belongsTo = array(
