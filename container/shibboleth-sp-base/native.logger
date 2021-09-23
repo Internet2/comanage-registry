@@ -1,0 +1,31 @@
+# set overall behavior
+log4j.rootCategory=INFO, native_log
+
+# fairly verbose for DEBUG, so generally leave at WARN/INFO
+log4j.category.XMLTooling.XMLObject=WARN
+log4j.category.XMLTooling.KeyInfoResolver=WARN
+log4j.category.Shibboleth.IPRange=WARN
+log4j.category.Shibboleth.PropertySet=WARN
+
+# raise for low-level tracing of SOAP client HTTP/SSL behavior
+log4j.category.XMLTooling.libcurl=WARN
+
+# useful categories to tune independently:
+#
+# tracing of SAML messages and security policies
+#log4j.category.OpenSAML.MessageDecoder=DEBUG
+#log4j.category.OpenSAML.MessageEncoder=DEBUG
+#log4j.category.OpenSAML.SecurityPolicyRule=DEBUG
+# interprocess message remoting
+#log4j.category.Shibboleth.Listener=DEBUG
+# mapping of requests to applicationId
+#log4j.category.Shibboleth.RequestMapper=DEBUG
+# high level session cache operations
+#log4j.category.Shibboleth.SessionCache=DEBUG
+# persistent storage and caching
+#log4j.category.XMLTooling.StorageService=DEBUG
+
+# define the appender
+log4j.appender.native_log=org.apache.log4j.ConsoleAppender
+log4j.appender.native_log.layout=org.apache.log4j.PatternLayout
+log4j.appender.native_log.layout.ConversionPattern=native_log %p %c %x: %m%n

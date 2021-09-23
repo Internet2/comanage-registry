@@ -1,0 +1,6 @@
+<Directory /var/www/html/registry>
+Options Indexes FollowSymLinks
+DirectoryIndex index.php
+AllowOverride All
+Require all granted
+</Directory>
