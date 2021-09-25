@@ -298,8 +298,8 @@ class CoDashboardsController extends StandardController {
     $models = array();
     
     // Obtain our search limit
-    $searchLimit = $this->Co->CoSetting->field('global_search_limit', array('CoSetting.co_id' => $this->cur_co['Co']['id']));
-
+    $searchLimit = $this->Co->CoSetting->getGlobalSearchLimit($this->cur_co['Co']['id']);
+    
     if(!empty($this->request->query['q'])) {
       /* To add a new backend to search:
        * (1) Implement $model->search($id, $q, $limit)
