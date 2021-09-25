@@ -355,6 +355,10 @@ class CoDashboardsController extends StandardController {
           'parent' => array('CoPerson'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
         ),
+        'Organization' => array(
+          'parent' => array('Co'),
+          'roles' => array('cmadmin', 'coadmin', 'couadmin')
+        ),
         'TelephoneNumber' => array(
           'parent' => array('CoPersonRole'),
           'roles' => array('cmadmin', 'coadmin', 'couadmin')
