@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.3.2
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -42,7 +42,7 @@ class CoJiraProvisionerTargetsController extends SPTController {
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    */
 
   function beforeRender() {
@@ -66,7 +66,7 @@ class CoJiraProvisionerTargetsController extends SPTController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @return Array Permissions
    */
   

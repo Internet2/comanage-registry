@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.3.2
+ * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -119,7 +119,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Add member by name to a Jira group.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  String $groupName Name of the Jira group
    * @param  String $name      Jira name
    * @return Void
@@ -143,7 +143,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Get all CO Groups for the CO by name used for provisioning.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Integer $coId                    CO ID
    * @param  String  $groupIdentifierType     The identifier type indicating whether group is to be provisioned
    * @param  Boolean $groupNameFromIdentifier Whether the name of group in Jira is the identifier value
@@ -184,7 +184,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Create a group in Jira.
    *
-   * @since  COmanage Registry v3.3.32
+   * @since  COmanage Registry v4.0.0
    * @param  Integer  $groupName Name of the group in Jira
    * @return Void
    * @throws RuntimeException
@@ -205,7 +205,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Create HTTP client connected to Jira server
    *
-   * @since   COmanage Registry v3.3.2
+   * @since   COmanage Registry v4.0.0
    * @param   Array $coProvisioningTargetData Provisioning target data as passed to provision function
    * @return  Void
    * @throws  InvalidArgumentException
@@ -245,7 +245,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Create user in Jira.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array   $user                   Array of Jira user property values
    * @param  Integer $coPersonId             CO Person ID
    * @param  Integer $coProvisioningTargetId ID for the provisioning target
@@ -284,7 +284,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Delete a CO Group from Jira.
    * 
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array            $coGroup CoGroup
    * @throws RuntimeException
    * @return boolean          true
@@ -329,7 +329,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Delete a CO Person from Jira.
    * 
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
    * @param  IdentifierEnum   $usernameType           Username type
    * @param  Integer          $coPersonId             CoPerson ID
@@ -385,7 +385,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Get CoGroup members by username, filtered by provision group if defined.
    * 
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array            $coGroup            CoGroup
    * @param  IdentifierEnum   $usernameType       Username type
    * @param  Integer          $provisionGroupId   provision group ID
@@ -417,7 +417,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Find the identifier of specified type for CO Group
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array  $coGroup             CO Group
    * @param  String $groupIdentifierType The identifier type
    * @return String
@@ -444,7 +444,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Convert array of CoGroupMemberships to array of group names.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array   $groupMembers            Memberships with associated CoGroup and Identifier
    * @param  String  $groupIdentifierType     The identifier type indicating whether group is to be provisioned
    * @param  Boolean $groupNameFromIdentifier Whether the name of group in Jira is the identifier value
@@ -479,7 +479,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Determine if a Jira username is attached to a CO Person
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  String  $name         Jira username
    * @param  String  $usernameType Identifier type for the Jira user name
    * @param  Integer $coId         CO ID  
@@ -510,7 +510,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /** 
    * Determine if a Jira group is provisioned
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  String $groupName Name of group in Jira
    * @return Array            Array of Boolean and Array of group members by name
    * @throws RuntimeException
@@ -556,7 +556,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Determine if a user is provisioned to Jira
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  String  $jiraUsername           Jira username
    * @param  Integer $coPersonId             CO Person ID
    * @param  Integer $coProvisioningTargetId Provisioning target ID
@@ -625,7 +625,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Provision for the specified CO Person.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array                  $coProvisioningTargetData CO Provisioning Target data
    * @param  ProvisioningActionEnum $op                       Registry transaction type triggering provisioning
    * @param  Array                  $provisioningData         Provisioning data, populated with ['CoPerson'] or ['CoGroup']
@@ -707,7 +707,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Get the members of the provision group by CO Person ID.
    * 
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Integer          $provisionGroupId       provision group ID
    * @return boolean          true
    */
@@ -730,7 +730,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Remove member from group in Jira
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  String $groupName Name of group in Jira
    * @param  String $name      Jira username for member
    * @return Void
@@ -749,7 +749,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Determine the provisioning status of this target.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
    * @param  Model   $Model                  Model being queried for status (eg: CoPerson, CoGroup,
    *                                         CoEmailList, COService)
@@ -870,7 +870,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Synchronize a CO Group.
    * 
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Integer          $coProvisioningTargetId CoProvisioningTarget ID
    * @param  Array            $coGroup                CoGroup
    * @param  IdentifierEnum   $usernameType           Username type
@@ -980,7 +980,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Synchronize a CO Person.
    * 
-   * @since  COmanage Registry v3.2.0
+   * @since  COmanage Registry v4.0.0
    * @param  Array            $coProvisioningTargetData  CoProvisioningTargetData
    * @param  IdentifierEnum   $usernameType              Username type
    * @param  Integer          $coPersonId                CoPerson ID
@@ -1137,7 +1137,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
   /**
    * Update a user in Jira.
    *
-   * @since  COmanage Registry v3.3.2
+   * @since  COmanage Registry v4.0.0
    * @param  Array  $user Array of user attributes
    * @param  String $key  Jira user key
    * @return Void
