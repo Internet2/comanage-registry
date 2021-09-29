@@ -142,6 +142,17 @@ class Co extends AppModel {
     
     return true;
   }
+  
+  /**
+   * Determine the CO ID for the COmanage CO.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return int The COmanage CO ID
+   */
+  
+  public function getCOmanageCOID() {
+    return $this->field('id', array('Co.name' => DEF_COMANAGE_CO_NAME));
+  }
 
   /**
    * Determine if a CO is read only.
