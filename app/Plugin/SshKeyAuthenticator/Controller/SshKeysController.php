@@ -174,7 +174,11 @@ class SshKeysController extends SAMController {
     
     $p['addKeyFile'] = $p['add'];
     
-    $p['edit'] = false;
+    if(!$this->request->is('restful')) {
+      // We don't allow editing of SSH Keys via the UI, though the REST API
+      // does permit edits
+      $p['edit'] = false;
+    }
     
     $this->set('permissions', $p);
     return($p[$this->action]);
