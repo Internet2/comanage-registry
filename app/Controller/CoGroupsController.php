@@ -718,7 +718,11 @@ class CoGroupsController extends StandardController {
     // Filter by management type (automatic / manual)
     if(!empty($this->params['named']['search.auto'])) {
       $searchterm = $this->params['named']['search.auto'];
-      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+      if($searchterm=='f') {
+        $pagcond['conditions']['CoGroup.auto'] = false;
+      } else {
+        $pagcond['conditions']['CoGroup.auto'] = true;
+      }
     }
 
     // Filter by group type
