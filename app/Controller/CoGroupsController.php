@@ -724,7 +724,11 @@ class CoGroupsController extends StandardController {
     // Filter by group type
     if(!empty($this->params['named']['search.group_type'])) {
       $searchterm = $this->params['named']['search.group_type'];
-      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+      if($searchterm == 'f') {
+        $pagcond['conditions']['CoGroup.group_type'] = false;
+      } else {
+        $pagcond['conditions']['CoGroup.group_type'] = true;
+      }
     }
 
     // Exclude admin groups
