@@ -440,9 +440,10 @@ class CoGroupsController extends StandardController {
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     $p['search'] = $p['index'];
     
-    // Nest a Group within another Group?
-    // This aligns with CoGroupNestingsController::isAuthorized
+    // Nest a Group within another Group? Delete a nested group?
+    // These align with CoGroupNestingsController::isAuthorized
     $p['buildnest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    $p['deletenest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
 
     // Edit or View Identifiers?
     // This aligns with IdentifiersController::isAuthorized
