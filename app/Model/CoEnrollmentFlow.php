@@ -637,6 +637,7 @@ class CoEnrollmentFlow extends AppModel {
       $ret['tandcAgreement']['role'] = $ret['checkEligibility']['role'];
     } else {
       $ret['tandcAgreement']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['tandcAgreement']['role'] = EnrollmentRole::Enrollee;
     }
     
     $ret['sendConfirmation']['role'] = EnrollmentRole::Petitioner;
