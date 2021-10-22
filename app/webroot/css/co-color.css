@@ -1,8 +1,11 @@
 :root {
-  --cmg-blue-primary: #0c75c0;
-  --cmg-infobox-yellow: #fbec88;
-  --cmg-warn-yellow: #fcc;
-  --cmg-warn-red: #f5f5bb;
-  --cmg-gray-secondary: #555;
-  --cmg-gray-disabled: #666;
+  --cmg-color-blue-primary: #0c75c0;
+  --cmg-color-infobox-yellow: #fbec88;
+  --cmg-color-warn-yellow: #fcc;
+  --cmg-color-warn-red: #f5f5bb;
+  --cmg-color-gray-secondary: #555;
+  --cmg-color-gray-disabled: #666;
+  --cmg-color-gray-border: #ccc;
+  --cmg-color-white: #fff;
+  --cmg-color-black: #000;
 }
