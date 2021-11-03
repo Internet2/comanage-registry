@@ -2475,7 +2475,14 @@ class CoPetitionsController extends StandardController {
         // Eligibility triggered by petitioner
         $p['checkEligibility'] = $isPetitioner;
       }
-      $p['tandcAgreement'] = $isEnrollee;
+      // Terms and Conditions steps could be triggered by petitioner or enrollee, according to configuration
+      if($steps['tandcAgreement']['role'] == EnrollmentRole::Enrollee) {
+        // Enrollee is triggering tandc steps and is not also the petitioner
+        $p['tandcAgreement'] = $isEnrollee;
+      } else {
+        // Enrollee is triggering tandc steps and is also the petitioner
+        $p['tandcAgreement'] = $isPetitioner;
+      }
       // Only the enrollee can (currently) set up their authenticators. This requires
       // email confirmation to be enabled so that enrollee_token gets set. (Trying to
       // allow petitioner_token as well becomes complicated.)
