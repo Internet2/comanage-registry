@@ -462,7 +462,7 @@ class CoGroupMembersController extends StandardController {
     $p['edit'] = !$readOnly && ($roles['cmadmin'] || $managed);
     
     // View a list of members of a group?
-    $p['index'] = ($roles['cmadmin'] || $managed || $member);
+    $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed || $member);
     
     // Select from a list of potential members to add?
     $p['select'] = !$readOnly && ($roles['cmadmin'] || $managed);
