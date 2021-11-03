@@ -106,8 +106,8 @@
       <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
           <?php
-            $displayName = (!empty($p['EnrolleePrimaryName']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new'));
-            $displayNameWithId = (!empty($p['EnrolleePrimaryName']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new')) . ' (' . $p['CoPetition']['id'] . ')';
+            $displayName = (!empty($p['EnrolleePrimaryName']['id']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new'));
+            $displayNameWithId = (!empty($p['EnrolleePrimaryName']['id']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new')) . ' (' . $p['CoPetition']['id'] . ')';
             print $this->Html->link($displayName,
                                     array(
                                       'controller' => 'co_petitions',

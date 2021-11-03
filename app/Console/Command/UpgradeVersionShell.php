@@ -594,6 +594,28 @@ class UpgradeVersionShell extends AppShell {
     }
   }
   
+  public function post410() {
+    // 4.1.0 adds duplicate_mode to EnvSource, however the EnvSource plugin
+    // might not be enabled.
+    
+    if(CakePlugin::loaded('EnvSource')) {
+      // We can't add models to $uses since they may not exist
+      $this->loadModel('EnvSource.EnvSource');
+      
+      // All existing Password Authenticators have a password_source of Self Select
+      $this->out(_txt('sh.ug.410.envsource'));
+      
+      $this->EnvSource->updateAll(
+        array(
+          'EnvSource.duplicate_mode' => "'SI'"  // Wacky updateAll syntax
+        ),
+        array(
+          'EnvSource.duplicate_mode' => null
+        )
+      );
+    }
+  }
+  
   // We should eventually do something like
   //  upgradeShell::populate_default_values("FileSource", "file_sources", "format", "C1")
   // rather than copying/pasting updateAll syntax

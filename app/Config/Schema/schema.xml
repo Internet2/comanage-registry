@@ -2068,7 +2068,7 @@
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
     <field name="action" type="C" size="4" />
-    <field name="comment" type="C" size="160" />
+    <field name="comment" type="C" size="256" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_petition_history_record_id" type="I">

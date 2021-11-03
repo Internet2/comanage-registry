@@ -36,14 +36,24 @@ $cm_env_source_texts['en_US'] = array(
   'ct.env_sources.1'  => 'Env Organizational Identity Source',
   'ct.env_sources.pl' => 'Env Organizational Identity Sources',
   
+  // Enumeration language texts
+  'pl.envsource.en.mode.dupe' => array(
+    EnvSourceDuplicateModeEnum::SORIdentifier    => 'SOR Identifier Match',
+    EnvSourceDuplicateModeEnum::AnyIdentifier    => 'Any Identifier Match',
+    EnvSourceDuplicateModeEnum::LoginIdentifier  => 'Login Identifier Match',
+  ),
+  
   // Error messages
+  'er.envsource.dupe'           => 'Identifier "%1$s" is already registered',
   'er.envsource.sorid'          => 'Identifier (SORID) variable "%1$s" not set',
   'er.envsource.sorid.cfg'      => 'Identifier (SORID) mapping not defined',
+  'er.envsource.sorid.dupe'     => 'SORID "%1$s" is already associated with %2$s',
   'er.envsource.sorid.mismatch' => 'Requested ID does not match %1$s; EnvSource does not support general retrieve operations',
   'er.envsource.token'          => 'Token error',
   
   // Plugin texts
-  'pl.envsource.sorid.desc'       => 'This must be set to an environment variable holding a unique identifier for any authenticated user.',
+  'pl.envsource.mode.dupe'      => 'Duplicate Handling Mode',
   'pl.envsource.name.unknown'   => 'Unknownname',
-  'pl.envsource.sorid.desc'     => 'This must be set to an environment variable holding a unique identifier for any authenticated user.',
+  'pl.envsource.redirect.dupe'  => 'Redirect on Duplicate',
+  'pl.envsource.sorid.desc'     => 'This must be set to an environment variable holding a unique identifier for any authenticated user.'
 );
