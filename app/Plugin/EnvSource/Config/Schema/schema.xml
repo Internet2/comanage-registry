@@ -37,6 +37,8 @@
     <field name="org_identity_source_id" type="I">
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
+    <field name="duplicate_mode" type="C" size="2" />
+    <field name="redirect_on_duplicate" type="C" size="1024" />
     <field name="env_name_honorific" type="C" size="80" />
     <field name="env_name_given" type="C" size="80" />
     <field name="env_name_middle" type="C" size="80" />

@@ -53,7 +53,7 @@ class CoPetitionHistoryRecord extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'comment' => array(
-      'rule' => array('maxLength', 160),
+      'rule' => array('maxLength', 256),
       'required' => false,
       'allowEmpty' => false
     )

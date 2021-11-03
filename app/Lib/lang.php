@@ -2425,7 +2425,8 @@ original notification at
   'sh.ug.400.garbage.collector.register' => 'Register GarbageCollector Job',
   'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
   'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
-  'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'
+  'sh.ug.400.org' =>      'Instantiating default Organization Extended Types',
+  'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

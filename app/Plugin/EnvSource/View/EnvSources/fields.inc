@@ -59,6 +59,49 @@
   
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_oisid)) . "\n";
 ?>
+<ul id="<?php print $this->action; ?>_env_source" class="fields form-list form-list-admin">
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.envsource.mode.dupe'); ?>
+        <span class="required">*</span><br />
+        <span class="descr"><?php print _txt('pl.apisource.sor.desc'); ?></span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($env_sources[0]['EnvSource']['duplicate_mode']) ? $env_sources[0]['EnvSource']['duplicate_mode'] : "");
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('duplicate_mode',
+                                    $cm_texts[ $cm_lang ]['pl.envsource.en.mode.dupe'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('duplicate_mode')) {
+            print $this->Form->error('duplicate_mode');
+          }
+        } else {
+          print _txt('pl.envsource.en.mode.dupe', null, $env_sources[0]['EnvSource']['duplicate_mode']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('redirect_on_duplicate', _txt('pl.envsource.redirect.dupe')) : _txt('pl.envsource.redirect.dupe')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('redirect_on_duplicate', array('size' => 60))
+                   : filter_var($env_sources[0]['EnvSource']['redirect_on_duplicate'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+</ul>
 <div id="env_attributes" class="field-children table-container">
   <table id="<?php print $this->action; ?>_env_attributes">
     <?php
