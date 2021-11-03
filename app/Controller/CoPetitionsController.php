@@ -2467,14 +2467,20 @@ class CoPetitionsController extends StandardController {
       $p['collectIdentifier'] = $isEnrollee;
       // OIS Plugin steps for collectIdentifier get the same permissions
       $p['collectIdentifierIdentify'] = $p['collectIdentifier'];
-      // Eligibility and tandc steps could be triggered by petitioner or enrollee, according to configuration
+      // Eligibility steps could be triggered by petitioner or enrollee, according to configuration
       if($steps['checkEligibility']['role'] == EnrollmentRole::Enrollee) {
         // Confirmation required, so eligibility steps get triggered by enrollee
         $p['checkEligibility'] = $isEnrollee;
-        $p['tandcAgreement'] = $isEnrollee;
       } else {
         // Eligibility triggered by petitioner
         $p['checkEligibility'] = $isPetitioner;
+      }
+      // Terms and Conditions steps could be triggered by petitioner or enrollee, according to configuration
+      if($steps['tandcAgreement']['role'] == EnrollmentRole::Enrollee) {
+        // Enrollee is triggering tandc steps and is not also the petitioner
+        $p['tandcAgreement'] = $isEnrollee;
+      } else {
+        // Enrollee is triggering tandc steps and is also the petitioner
         $p['tandcAgreement'] = $isPetitioner;
       }
       // Only the enrollee can (currently) set up their authenticators. This requires
