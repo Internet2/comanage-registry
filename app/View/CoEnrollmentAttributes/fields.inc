@@ -362,11 +362,22 @@
       source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Sponsor)); ?>",
       minLength: 3,
       select: function(event, ui) {
-        $("#sponsors").val(ui.item.label);
+        $("#sponsors").val(ui.item.label + " (" + ui.item.value + ")");
         document.getElementById('CoEnrollmentAttributeDefault0Value').value = ui.item.value;
         return false;
+      },
+      search: function (event, ui) {
+        $("#attr_def_val_sponsor_div .co-loading-mini").show();
+      },
+      focus: function (event, ui) {
+        event.preventDefault();
+        $("#attr_def_val_sponsor_div .co-loading-mini").hide();
+        $("#sponsors").val(ui.item.label + " (" + ui.item.value + ")");
+      },
+      close: function (event, ui) {
+        $("#attr_def_val_sponsor_div .co-loading-mini").hide();
       }
-    });
+    }).autocomplete("instance")._renderItem = formatCoPersonAutoselectItem;
 
     // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
     $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
@@ -892,7 +903,10 @@
                   ?>
                   <div class="<?php print $iefClasses; ?>">
                       <div class="ui-widget">
-                        <input id="sponsors" type="text" />
+                        <span class="co-loading-mini-input-container">
+                          <input id="sponsors" type="text" />
+                          <span class="co-loading-mini"><span></span><span></span><span></span></span>
+                        </span>  
                         <input type="hidden" name="def_sponsor_val" id="def_sponsor_val" />
                       </div>
                       <div class="field-desc">

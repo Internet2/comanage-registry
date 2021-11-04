@@ -1861,6 +1861,23 @@ ul.fields.data-list li {
 .group-member-via-nested-label {
   text-transform: lowercase;
 }
+/* AUTOCOMPLETE ITEMS */
+.ui-menu-item-wrapper.cm-ac-item-wrapper {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid #ddd;
+}
+.ui-menu-item-wrapper.cm-ac-item-wrapper.ui-state-active {
+  border: 1px solid var(--cmg-blue-primary);
+}
+.cm-ac-name {
+  font-size: 1.1em;
+}
+.cm-ac-subitem {
+  margin-left: 1em;
+}
+.cm-ac-label {
+  text-transform: lowercase;
+}
 /* FORMS */
 label {
   cursor: pointer;

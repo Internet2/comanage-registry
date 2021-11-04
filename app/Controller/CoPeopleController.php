@@ -554,18 +554,35 @@ class CoPeopleController extends StandardController {
       
       foreach($people as $p) {
         $label = generateCn($p['Name'][0]);
-        
-        $id = Hash::extract($p['Identifier'], '{n}[type=uid]');
-        
-        if(!empty($id[0]['identifier'])) {
-          $label .= " (" . $id[0]['identifier'] . ")";
+        $idArr = Hash::extract($p['Identifier'], '{n}[type=uid]');
+        $emailArr = $p['EmailAddress'];
+        $email = '';
+        $id = '';
+          
+        // Iterate over the email array
+        if (!empty($emailArr)) {
+          foreach($emailArr as $k => $e) {
+            $email .= $e['mail'];
+            if($k !== array_key_last($emailArr)) {
+              $email .= ', ';
+            } 
+          }
         }
         
+        // Set the identifier for display (and limit it to 30 characters max)
+        if (!empty($idArr[0]['identifier'])) {
+          $id = mb_strimwidth($idArr[0]['identifier'], 0, 30, '...');
+        }
+         
         // Make sure we don't already have an entry for this CO Person ID
         if(!Hash::check($matches, '{n}[value='.$p['CoPerson']['id'].']')) {
           $matches[] = array(
             'value' => $p['CoPerson']['id'],
-            'label' => $label
+            'label' => $label,
+            'email' => $email,
+            'emailLabel' => _txt('fd.email_address.mail'),
+            'identifier' => $id,
+            'identifierLabel' => _txt('fd.identifier.identifier')
           );
         }
       }
