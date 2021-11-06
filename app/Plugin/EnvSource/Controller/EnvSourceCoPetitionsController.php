@@ -201,10 +201,10 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
           $args['joins'][0]['alias'] = 'CoPerson';
           $args['joins'][0]['type'] = 'LEFT';
           $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
-          $args['joins'][0]['table'] = 'org_identities';
-          $args['joins'][0]['alias'] = 'OrgIdentity';
-          $args['joins'][0]['type'] = 'LEFT';
-          $args['joins'][0]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+          $args['joins'][1]['table'] = 'org_identities';
+          $args['joins'][1]['alias'] = 'OrgIdentity';
+          $args['joins'][1]['type'] = 'LEFT';
+          $args['joins'][1]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
           $args['conditions']['Identifier.identifier'] = $identifier['Identifier']['identifier'];
           $args['conditions']['Identifier.login'] = $identifier['Identifier']['login'];
           $args['conditions']['Identifier.type'] = $identifier['Identifier']['type'];
