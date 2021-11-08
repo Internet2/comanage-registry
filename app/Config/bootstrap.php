@@ -127,3 +127,10 @@ CakeLog::config('error', array(
 	'types' => array('warning', 'error', 'critical', 'alert', 'emergency'),
 	'file' => 'error',
 ));
+
+// PHP 8 removes FILTER_SANITIZE_MAGIC_QUOTES, which was replaced with FILTER_SANITIZE_ADD_SLASHES
+// starting in 7.3.0. Since we need to support both version concurrently, we'll
+// just backwards define the old label.
+if(!defined('FILTER_SANITIZE_MAGIC_QUOTES')) {
+	define('FILTER_SANITIZE_MAGIC_QUOTES', FILTER_SANITIZE_ADD_SLASHES);
+}
