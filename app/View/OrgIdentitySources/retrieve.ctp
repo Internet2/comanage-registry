@@ -309,7 +309,11 @@
         <?php if(!empty($vv_org_source_record['Identifier'])) foreach($vv_org_source_record['Identifier'] as $id): ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
-            <?php print _txt('fd.identifier.identifier') . " (" . $id['type'] . ")"; ?>
+            <?php 
+              print _txt('fd.identifier.identifier') . " (" 
+                    . $id['type'] 
+                    . ((isset($id['login']) && $id['login']) ? ", " . _txt('fd.identifier.login') : "")
+                    . ")"; ?>
           </td>
           <td>
           <?php print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
