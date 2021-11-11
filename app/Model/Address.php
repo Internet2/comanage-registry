@@ -67,7 +67,7 @@ class Address extends AppModel {
       'content' => array(
         'rule' => array('maxLength', 400),
         'required' => false,
-        'allowEmpty' => false
+        'allowEmpty' => true
       ),
       'filter' => array(
         'rule' => array('validateInput')
