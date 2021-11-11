@@ -124,7 +124,8 @@ class PagesController extends AppController {
            // If the person is not active or graceperiod, they'll get stuck in an
            // infinite loop on login
            && ($co['co_person']['status'] == StatusEnum::Active
-               || $co['co_person']['status'] == StatusEnum::GracePeriod)) {
+               || $co['co_person']['status'] == StatusEnum::GracePeriod)
+           && !empty($co['co_person']['CoPersonRole'])) {
           $this->redirect(array(
             'controller' => 'co_dashboards',
             'action'     => 'dashboard',
