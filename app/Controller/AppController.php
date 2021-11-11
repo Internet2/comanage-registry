@@ -1072,9 +1072,10 @@ class AppController extends Controller {
     $p['menu']['coconfig'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // View CO departments?
-    $p['menu']['codepartments'] = $roles['cmadmin'];
+    $p['menu']['codepartments'] = $roles['cmadmin'] || $roles['coadmin'];;
     
     if(!$roles['cmadmin']
+       && !$roles['coadmin']
        && $roles['user']
        && !empty($this->cur_co['Co']['id'])) {
       // Only render departments link for regular users if departments are defined
