@@ -692,6 +692,9 @@ class RequiredEnum
 // We use the actual field names here to simplify form rendering
 class RequiredAddressFieldsEnum
 {
+  const CityState                    = "locality,state";
+  const Country                      = "country";
+  const Postal                       = "postal_code";
   const Street                       = "street";
   const StreetCityStatePostal        = "street,locality,state,postal_code";
   const StreetCityStatePostalCountry = "street,locality,state,postal_code,country";

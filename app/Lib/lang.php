@@ -814,7 +814,10 @@ original notification at
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
   
-  'en.required.address' => array(RequiredAddressFieldsEnum::Street                       => 'Street',
+  'en.required.address' => array(RequiredAddressFieldsEnum::CityState                    => 'City, State',
+                                 RequiredAddressFieldsEnum::Country                      => 'Country',
+                                 RequiredAddressFieldsEnum::Postal                       => 'ZIP/Postal Code',
+                                 RequiredAddressFieldsEnum::Street                       => 'Street',
                                  RequiredAddressFieldsEnum::StreetCityStatePostal        => 'Street, City, State, ZIP/Postal Code',
                                  RequiredAddressFieldsEnum::StreetCityStatePostalCountry => 'Street, City, State, ZIP/Postal Code, Country'),
   
