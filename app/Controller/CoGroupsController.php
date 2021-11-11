@@ -834,8 +834,8 @@ class CoGroupsController extends StandardController {
 
     // Pagination conditions must be pulled in explicitly because select() is not part of StandardController
     $pagcond = CoGroupsController::paginationConditions();
-    $this->paginate['conditions'] = $pagcond['conditions'];
-    $this->paginate['joins'] = $pagcond['joins'];
+    $this->paginate['conditions'] = !empty($pagcond['conditions']) ? $pagcond['conditions'] : array();
+    $this->paginate['joins'] = !empty($pagcond['joins']) ? $pagcond['joins'] : array();
 
     $this->paginate['contain'] = array(
       'CoGroupMember' => array(
