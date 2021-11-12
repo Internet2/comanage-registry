@@ -56,7 +56,7 @@
   print $this->Form->create(
     'CoPetition',
     array(
-      'url' => array('action' => 'tandcAgreement/' . $vv_co_petition_id),
+      'url' => array('action' => $this->action. '/' . $vv_co_petition_id),
       'inputDefaults' => array(
         'label' => false,
         'div' => false

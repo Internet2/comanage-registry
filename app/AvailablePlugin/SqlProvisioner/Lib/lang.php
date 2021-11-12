@@ -41,5 +41,9 @@ $cm_sql_provisioner_texts['en_US'] = array(
   //'er.changelogprovisioner.logfile.lock'   => 'Failed to obtain lock on logfile "%1$s"',
   
   // Plugin texts
-  'pl.sqlprovisioner.info'         => 'The provisioner SQL schema will automatically be applied to the target database upon save.'
+  'pl.sqlprovisioner.info'         => 'The provisioner SQL schema will automatically be applied to the target database upon save.',
+  'pl.sqlprovisioner.reapply'      => 'Reapply Target Database Schema',
+  'pl.sqlprovisioner.reapply.ok'   => 'Schema Reapplied',
+  'pl.sqlprovisioner.resync'       => 'Resync Reference Data',
+  'pl.sqlprovisioner.resync.ok'    => 'Reference Data Synced'
 );

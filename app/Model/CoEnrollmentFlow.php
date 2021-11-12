@@ -183,7 +183,8 @@ class CoEnrollmentFlow extends AppModel {
       'rule' => array('inList',
                       array(VerificationModeEnum::Automatic,
                             VerificationModeEnum::None,
-                            VerificationModeEnum::Review)),
+                            VerificationModeEnum::Review,
+                            VerificationModeEnum::SkipIfVerified)),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -632,11 +633,30 @@ class CoEnrollmentFlow extends AppModel {
     
     if(!empty($ef['CoEnrollmentFlow']['t_and_c_mode'])
        && $ef['CoEnrollmentFlow']['t_and_c_mode'] != TAndCEnrollmentModeEnum::Ignore) {
-      $ret['tandcAgreement']['enabled'] = RequiredEnum::Required;
-      $ret['tandcAgreement']['role'] = $ret['checkEligibility']['role'];
+      // As an interim approach until refactoring enrollment flows for PE,
+      // we render T&C in one of two locations depending on whether we can
+      // determine the flow to be self service or invitation.
+      
+      if(in_array($ef['CoEnrollmentFlow']['authz_level'], 
+                  array(EnrollmentAuthzEnum::None, EnrollmentAuthzEnum::AuthUser))) {
+        // We'll treat this as a self signup flow, and run T&C (if configured)
+        // after petitionerAttributes
+        
+        $ret['tandcPetitioner']['enabled'] = RequiredEnum::Required;
+        $ret['tandcAgreement']['enabled'] = RequiredEnum::NotPermitted;
+      } else {
+        // Run T&C after confirmation to work with invitation flows.
+        
+        $ret['tandcAgreement']['enabled'] = RequiredEnum::Required;
+        $ret['tandcPetitioner']['enabled'] = RequiredEnum::NotPermitted;
+      }
     } else {
       $ret['tandcAgreement']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['tandcPetitioner']['enabled'] = RequiredEnum::NotPermitted;
     }
+    
+    $ret['tandcPetitioner']['role'] = EnrollmentRole::Petitioner;
+    $ret['tandcAgreement']['role'] = $ret['checkEligibility']['role'];
     
     $ret['sendConfirmation']['role'] = EnrollmentRole::Petitioner;
     $ret['waitForConfirmation']['role'] = EnrollmentRole::Petitioner;

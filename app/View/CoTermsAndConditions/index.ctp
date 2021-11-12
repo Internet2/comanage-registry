@@ -74,7 +74,7 @@
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print $this->Paginator->sort('cou', _txt('fd.cou')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.tc.order')); ?></th>
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.tc.order')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>

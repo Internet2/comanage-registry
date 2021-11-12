@@ -33,8 +33,9 @@ class ApplicationPreference extends AppModel {
   public $version = "1.0";
   
   // Add behaviors
-  public $actsAs = array('Containable',
-                         'Changelog' => array('priority' => 5));
+  // Because ApplicationPreference isn't maintaining application data (it's
+  // basically frontend state, there's no reason to enable ChangelogBehavior).
+  public $actsAs = array('Containable');
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -94,6 +95,21 @@ class ApplicationPreference extends AppModel {
     }
     
     return null;
+  }
+
+  /**
+   * Retrieve all Application Preferences for a user.
+   * @param  int $coPersonId      CO Person ID
+   * @return array                Array of values (possibly empty)
+   */
+
+  public function retrieveAll($coPersonId) {
+    $args = array();
+    $args['conditions']['ApplicationPreference.co_person_id'] = $coPersonId;
+    $args['fields'] = array('tag', 'value');
+    $args['contain'] = false;
+
+    return $this->find('list', $args);
   }
   
   /**

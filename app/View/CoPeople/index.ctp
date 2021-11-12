@@ -127,7 +127,7 @@ if(!empty($vv_alphabet_search)) {
         <?php /*
         <th class="spin"><?php print $this->Paginator->sort('created', _txt('fd.created')); ?></th>
         <th class="spin"><?php print $this->Paginator->sort('modified', _txt('fd.modified')); ?></th> */ ?>
-        <th class="actionButtons"><?php print _txt('fd.actions'); ?></th>
+        <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
     <?php foreach ($co_people as $p): ?>

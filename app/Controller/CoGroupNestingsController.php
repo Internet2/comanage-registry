@@ -83,6 +83,11 @@ class CoGroupNestingsController extends StandardController {
     $args['contain'] = false;
     
     $this->set('vv_available_groups', $this->CoGroupNesting->CoGroup->find('list', $args));
+
+    // Provide the ID of the current group if available
+    if(isset($this->gid)) {
+      $this->set('vv_current_group', $this->gid);
+    }
   }
   
   /**
@@ -119,6 +124,9 @@ class CoGroupNestingsController extends StandardController {
     
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
+
+    // Get the groups listing
+    $p['index'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
     
     // Add a new nested group?
     $p['add'] = !$readOnly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
@@ -142,7 +150,7 @@ class CoGroupNestingsController extends StandardController {
     
     if(isset($this->gid)) {
       $params = array('controller' => 'co_groups',
-                      'action'     => 'edit',
+                      'action'     => 'nest',
                       $this->gid
                      );
     } else {

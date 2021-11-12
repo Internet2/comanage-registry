@@ -32,6 +32,11 @@
   $params = array();
   $params['title'] = $title_for_layout;
   print $this->element("pageTitleAndButtons", $params);
+
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
+  }
 ?>
 
 <div class="table-container">

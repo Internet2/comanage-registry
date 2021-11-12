@@ -30,6 +30,16 @@ App::uses("StandardController", "Controller");
 class MVPAController extends StandardController {
   // MVPAs require a Person ID (CO or Org, or Dept as of v3.1.0)
   public $requires_person = true;
+
+  // Use the lightbox layout for view
+  public function view($id) {
+    parent::view($id);
+    $req = $this->modelClass;
+    $model = $this->$req;
+    $modelpl = Inflector::tableize($req);
+    $this->set('title_for_layout', _txt('ct.' . $modelpl . '.1'));
+    $this->layout = 'lightbox';
+  }
   
   /**
    * Callback before other controller methods are invoked or views are rendered.

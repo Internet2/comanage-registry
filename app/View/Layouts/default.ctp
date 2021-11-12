@@ -67,14 +67,13 @@
       print $this->Html->css('bootstrap/bootstrap-4.5.3-dist/css/bootstrap.min.css') . "\n    ";
       print $this->Html->css('jquery/metisMenu/metisMenu.min.css') . "\n    ";
       print $this->Html->css('fonts/Font-Awesome-4.6.3/css/font-awesome.min') . "\n    ";
+      print $this->Html->css('jquery/magnificpopup/magnific-popup') . "\n    ";
       print $this->Html->css('co-color') . "\n    ";
       print $this->Html->css('co-base') . "\n    ";
       print $this->Html->css('co-responsive') . "\n    ";
+      print $this->Html->css('co-lightbox') . "\n    ";
 
-      // Until used more broadly, limit loading of Magnific Popup
-      if ($this->controller = 'history_records') {
-        print $this->Html->css('jquery/magnificpopup/magnific-popup');
-      }
+      
     ?>
 
     <!-- Load JavaScript -->
@@ -218,7 +217,13 @@
 
       <div id="main-wrapper">
         <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
-          <div id="navigation-drawer">
+          <?php
+            $navigationDrawerClasses = "coNavDrawer";
+            if(!empty($vv_app_prefs['uiDrawerState'])) {
+              $navigationDrawerClasses .= " " . filter_var($vv_app_prefs['uiDrawerState'],FILTER_SANITIZE_STRING);
+            }
+          ?>
+          <div id="navigation-drawer" class="<?php print $navigationDrawerClasses; ?>">
             <nav id="navigation" aria-label="main menu">
               <?php print $this->element('menuMain'); ?>
               <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
@@ -236,6 +241,9 @@
             if($vv_ui_mode === EnrollmentFlowUIMode::Basic) {
               $mainCssClasses = 'cm-main-basic';
             }
+          }
+          if(!empty($vv_app_prefs['uiDrawerState'])) {
+            $mainCssClasses .= " drawer-" . filter_var($vv_app_prefs['uiDrawerState'],FILTER_SANITIZE_STRING);
           }
         ?>
         <main id="main" class="<?php print $mainCssClasses; ?>">
@@ -308,10 +316,7 @@
     <?php
       print $this->Html->script('jquery/metisMenu/metisMenu.min.js') . "\n    ";
       print $this->Html->script('js-cookie/js.cookie-2.1.3.min.js') . "\n    ";
-      if ($this->controller = 'history_records') {
-        // Until used more broadly, limit loading of Magnific Popup
-        print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js') . "\n    ";
-      }
+      print $this->Html->script('jquery/magnificpopup/jquery.magnific-popup.min.js') . "\n    ";
       print $this->Html->script('comanage.js') . "\n    ";
     ?>
 

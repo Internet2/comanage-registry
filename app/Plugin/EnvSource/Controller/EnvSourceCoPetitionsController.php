@@ -84,7 +84,7 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
         $this->redirect("/");
       }
     }
-        
+    
     if($noAuth) {
       $this->Auth->allow($this->action);
       
@@ -151,13 +151,87 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     
     $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
     
-    $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
-                                                            $sorid,
-                                                            $actorCoPersonId,
-                                                            $this->cur_co['Co']['id'],
-                                                            $coPersonId,
-                                                            false,
-                                                            $id);
+    try {
+      $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
+                                                              $sorid,
+                                                              $actorCoPersonId,
+                                                              $this->cur_co['Co']['id'],
+                                                              $coPersonId,
+                                                              false,
+                                                              $id);
+    }
+    catch(OverflowException $e) {
+      // $sorid is already associated with this OIS. Flag as a duplicate.
+      // (We do this regardless of the Duplicate Mode setting.)
+      
+      $this->flagDuplicate($id,
+                           null, // $newOrgId won't be set
+                           $actorCoPersonId,
+                           _txt('er.envsource.sorid.dupe', array($sorid, $oiscfg['OrgIdentitySource']['description'])),
+                           $cfg['EnvSource']['redirect_on_duplicate']);
+    }
+    catch(Exception $e) {
+      // rethrow the exception and let the parent handle it
+      throw new RuntimeException($e->getMessage());
+    }
+    
+    if($cfg['EnvSource']['duplicate_mode'] != EnvSourceDuplicateModeEnum::SORIdentifier) {
+      // See if we have an identity already associated with any of the provided identifiers.
+      // Start by pulling the set of Identifiers associated with the new Org Identity.
+      // (We could also use Backend->retrieve() to regenerate the same data, but
+      // it's probably more strictly correct to pull the persisted identifiers.)
+      
+      $args = array();
+      $args['conditions']['Identifier.org_identity_id'] = $newOrgId;
+      $args['conditions']['Identifier.status'] = StatusEnum::Active;
+      if($cfg['EnvSource']['duplicate_mode'] == EnvSourceDuplicateModeEnum::LoginIdentifier) {
+        $args['conditions']['Identifier.login'] = true;
+      }
+      $args['contain'] = false;
+      
+      $newOrgIdentifiers = $this->CoPetition->EnrolleeOrgIdentity->Identifier->find('all', $args);
+      
+      if(!empty($newOrgIdentifiers)) {
+        foreach($newOrgIdentifiers as $identifier) {
+          // We'll check for any identifier (Org Identity or CO Person), at least
+          // until we find a reason to be more specific.
+          $args = array();
+          // We use LEFT joins because either foreign key might be NULL
+          $args['joins'][0]['table'] = 'co_people';
+          $args['joins'][0]['alias'] = 'CoPerson';
+          $args['joins'][0]['type'] = 'LEFT';
+          $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
+          $args['joins'][1]['table'] = 'org_identities';
+          $args['joins'][1]['alias'] = 'OrgIdentity';
+          $args['joins'][1]['type'] = 'LEFT';
+          $args['joins'][1]['conditions'][0] = 'OrgIdentity.id=Identifier.org_identity_id';
+          $args['conditions']['Identifier.identifier'] = $identifier['Identifier']['identifier'];
+          $args['conditions']['Identifier.login'] = $identifier['Identifier']['login'];
+          $args['conditions']['Identifier.type'] = $identifier['Identifier']['type'];
+          $args['conditions']['Identifier.status'] = StatusEnum::Active;
+          $args['conditions']['Identifier.org_identity_id !='] = $newOrgId;
+          $args['conditions']['OR'] = array(
+            'CoPerson.co_id' => $this->cur_co['Co']['id'],
+            'OrgIdentity.co_id' => $this->cur_co['Co']['id']
+            // We don't check other objects since it's not clear what the use
+            // case for checking Identifiers against (eg) Departments is yet...
+          );
+          $args['contain'] = false;
+
+          $count = $this->CoPetition->EnrolleeOrgIdentity->Identifier->find('count', $args);
+          
+          if($count > 0) {
+            // This identifier is already known, flag this as a duplicate
+            
+            $this->flagDuplicate($id,
+                                 $newOrgId,
+                                 $actorCoPersonId,
+                                 _txt('er.envsource.dupe', array($sorid)),
+                                 $cfg['EnvSource']['redirect_on_duplicate']);
+          }
+        }
+      }
+    }
     
     // The step is done
 
@@ -225,45 +299,51 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     // pass the SORID/$sourceKey to confirm to that backend that we really are
     // trying to create a record.
     
-    // First pull our configuration.
+    // This is functionally equivalent to collectIdentifierIdentify, above
+    $this->execute_plugin_collectIdentifierIdentify($id, $oiscfg, $onFinish, $actorCoPersonId);
+  }
+  
+  /**
+   * Flag a petition as duplicate.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  int    $id              CO Petition ID
+   * @param  int    $orgIdentityId   Enrollee Org Identity ID
+   * @param  int    $actorCoPersonId Actor CO Person ID
+   * @param  string $comment         Comment for Petition History
+   * @param  string $redirectUrl     Redirect URL to use after flagging is ocmpleted
+   * @throws OverflowException
+   */
+  
+  protected function flagDuplicate($id, $orgIdentityId, $actorCoPersonId, $comment, $redirectUrl=null) {
+    // Flag this petition as a duplicate, and then redirect to the redirect URL if we have it.
     
-    $args = array();
-    $args['conditions']['EnvSource.org_identity_source_id'] = $oiscfg['OrgIdentitySource']['id'];
-    $args['contain'] = false;
+    $enrollmentFlowID = $this->CoPetition->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
+    $petitionerId = $this->CoPetition->field('petitioner_co_person_id', array('CoPetition.id' => $id));
     
-    $cfg = $this->EnvSource->find('first', $args);
-    
-    if(empty($cfg)) {
-      throw new InvalidArgumentException(_txt('er.notfound',
-                                              array(_txt('ct.env_sources.1'),
-                                                    $oiscfg['OrgIdentitySource']['id'])));
+    if($orgIdentityId) {
+      // Before we flag the petition, we need to manually link the Org Identity in
+      // since the parent code to do it won't run.
+      $this->CoPetition->linkOrgIdentity($enrollmentFlowID, $id, $orgIdentityId, $petitionerId);
     }
     
-    if(empty($cfg['EnvSource']['env_identifier_sorid'])) {
-      throw new RuntimeException(_txt('er.envsource.sorid.cfg'));
+    // Record a more detailed petition history record
+    $this->CoPetition->CoPetitionHistoryRecord->record($id,
+                                                       $actorCoPersonId,
+                                                       PetitionActionEnum::FlaggedDuplicate,
+                                                       $comment);
+    
+    // Flag this petition as a duplicate
+    $this->CoPetition->updateStatus($id,
+                                    StatusEnum::Duplicate,
+                                    $actorCoPersonId);
+    
+    if($redirectUrl) {
+      $this->redirect($redirectUrl);
     }
     
-    $sorid = getenv($cfg['EnvSource']['env_identifier_sorid']);
-    
-    if(!$sorid) {
-      throw new RuntimeException(_txt('er.envsource.sorid', array($cfg['EnvSource']['env_identifier_sorid'])));
-    }
-    
-    // Do we have a CO Person already associated with this petition?
-    // We need this for Pipelines to link to the correct CO Person.
-    $petitionCoPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
-    
-    $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
-                                                            $sorid,
-                                                            $actorCoPersonId,
-                                                            $this->cur_co['Co']['id'],
-                                                            $petitionCoPersonId,
-                                                            false,
-                                                            $id);
-    
-    // The step is done
-
-    $this->redirect($onFinish);
+    // else rethrow the exception and let the parent handle it
+    throw new OverflowException($comment);
   }
   
   /**

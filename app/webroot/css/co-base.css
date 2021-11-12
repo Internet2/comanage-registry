@@ -63,6 +63,9 @@ h2 {
   font-size: 2em;
   margin: 0;
 }
+h2.subtitle {
+  clear: both;
+}
 h3 {
   font-size: 1.6em;
   margin: 0;
@@ -717,6 +720,21 @@ body.co_people.canvas .titleNavContainer {
   top: -2px;
   height: 33px;
 }
+/* SUBNAVIGATION TABS */
+.cm-subnav-tabs {
+  clear: both;
+  margin: 0 0 1.5em;
+  padding: 1em 0 0;
+}
+.cm-subnav-tabs .nav-link {
+  text-transform: uppercase;
+  padding: 1em 1.5em;
+  font-size: 1.1em;
+}
+.cm-subnav-tabs + form > .form-list,
+.cm-subnav-tabs + .top-search {
+  margin-top: 0;
+}
 /* DASHBOARDS */
 #dashboard-tabs {
   clear: both;
@@ -787,6 +805,10 @@ body.co_people.canvas .titleNavContainer {
   padding: 1em;
   text-align: center;
   width: 240px;
+}
+#redirect-spinner {
+  padding: 1em 1em 2em;
+  position: relative;
 }
 /* SELECT CO */
 #fpCoList .co-row {
@@ -1164,19 +1186,19 @@ body.co_petitions .ui-dialog {
   display: none; /* hide on mobile */
 }
 /* Alpha search  */
-#peopleAlphabet {
+.searchAlphabet {
   margin: 0;
   border-top: 1px solid #ddd;
   border-bottom: 2px solid #ccc;
   font-size: 0.9em;
 }
-#peopleAlphabet ul {
+.searchAlphabet ul {
   display: table;
   width: 100%;
   margin: 0;
   padding: 0;
 }
-#peopleAlphabet li {
+.searchAlphabet li {
   display: table-cell;
   width: 3.6%;
   margin: 0;
@@ -1184,10 +1206,10 @@ body.co_petitions .ui-dialog {
   background-color: #f5f5f5;
   text-align: center;
 }
-#peopleAlphabet li:nth-child(odd) {
+.searchAlphabet li:nth-child(odd) {
   background-color: #e5e5e5;
 }
-#peopleAlphabet a {
+.searchAlphabet a {
   display: inline-block;
   text-decoration: none;
   margin: 0;
@@ -1196,12 +1218,12 @@ body.co_petitions .ui-dialog {
   padding: 4px 0;
   color: #666;
 }
-#peopleAlphabet li.selected a,
-#peopleAlphabet li.selected a:hover{
+.searchAlphabet li.selected a,
+.searchAlphabet li.selected a:hover{
   background-color: #888;
   color: #eee;
 }
-#peopleAlphabet a:hover {
+.searchAlphabet a:hover {
   background-color: #aed9f9;
   color: #333;
   text-decoration: none;
@@ -1241,9 +1263,10 @@ body.co_petitions .ui-dialog {
 #co-people-index .actions {
   padding: 0.5em 1em 1em;
 }
-/* PEOPLE LISTING - ACCORDIANS (legacy) */
+/* PEOPLE LISTING - CO PETITIONS and ACCORDIANS (legacy) */
 #co_people {
   clear: both;
+  table-layout: auto; /* override fixed table layout */
 }
 #co_people > .co-person {
   margin: 0;
@@ -1350,6 +1373,10 @@ body.co_petitions .ui-dialog {
   text-align: right;
   margin: 0 30px 0 0;
 }
+#co_people .form-group,
+#co_groups .form-group {
+  margin-bottom: 0;
+}
 /* people index jquery ui overrides */
 #co_people .person-panel {
   border: 1px solid transparent; /* to allow our jquery UI hovers not to change the size of the div */
@@ -1436,6 +1463,11 @@ a.ui-button:visited,
 #top-search-fields {
   display: none;
   padding: 0.25em 0.5em;
+}
+#top-search-submit {
+  float: right;
+  width: 200px;
+  margin-bottom: 0.75em;
 }
 .top-search input[type=text],
 .top-search select,
@@ -1653,6 +1685,10 @@ body.co_people .addbutton {
   border: none;
   background: none;
 }
+body.canvas .ui-dialog,
+body.org_identities .ui-dialog {
+  z-index: 2000;
+}
 /* DATA LISTS */
 /*** ul.data-list is the main structure for representing data
      in which the field value is to the left, and actions on that
@@ -1808,9 +1844,30 @@ ul.fields.data-list li {
 #groupMembers tr:nth-child(even) td {
   background-color: #eee;
 }
+#group-add-member-name {
+  font-weight: 600;
+  font-size: 1.4em;
+  margin-right: 0.25em;
+}
+#group-add-member-clear-button {
+  padding: 0.5em;
+}
+#group-add-member-info {
+  display: none; /* for now (v4.0) - maybe a tooltip in future */
+}
+.group-member-via-nested {
+  font-style: italic;
+}
+.group-member-via-nested-label {
+  text-transform: lowercase;
+}
 /* FORMS */
 label {
   cursor: pointer;
+}
+.form-group.disabled label,
+.form-group.disabled input {
+  cursor: default;
 }
 #coPersonExplorer.personExplorer,
 #coOrgIdExplorer.personExplorer,
@@ -1948,6 +2005,18 @@ ul.form-list li.field-stack textarea {
 .checkbox .subfield label {
   display: inline;
   margin: 0;
+}
+.form-check.checkbox-replace-container {
+  opacity: 0.6;
+  position: relative;
+}
+.checkbox-replace-container .fa {
+  font-size: 1.3em;
+  margin-right: 6px;
+  color: #555;
+}
+.form-check-input.checkbox-replace {
+  display: none;
 }
 /* Ensure datepicker renders properly.
    We are using javascript to move it near its input field so
@@ -2226,6 +2295,10 @@ table {
   border-collapse: collapse;
   border-left: 1px solid #eee;
   border-right: 1px solid #eee;
+  table-layout: fixed;
+}
+table.cake-sql-log {
+  table-layout: auto;
 }
 .table-container {
   overflow: auto;
@@ -2240,6 +2313,9 @@ th, td {
   border-right: 2px solid #fff;
   border-bottom: 2px solid #fff;
   font-weight: normal;
+}
+td {
+  overflow-wrap: break-word;
 }
 table.common-table td {
   padding: 0.25em 0.25em 0.25em 0.5em;
@@ -2256,6 +2332,12 @@ th a:hover,
   color: #ff3;
   text-decoration: none !important;
 }
+th.thinActionButtonsCol {
+  width: 180px;
+}
+th.order {
+  width: 80px;
+}
 tr td:first-child {
   padding-left: 1em;
 }
@@ -2265,9 +2347,6 @@ tr td:last-child {
 }
 tr.noborder td {
   border: none;
-}
-th.actionButtons {
-  width:70px;
 }
 /* legacy zebra stripes for rows;
    0 used for autoincrementing line counters;
@@ -2301,7 +2380,7 @@ td.indented {
 #co-loading {
   display: none; /* revealed by JavaScript */
   position: fixed;
-  z-index: 100;
+  z-index: 1100;
   top: 50%;
   left: 50%;
   width: 120px;
@@ -2316,6 +2395,16 @@ td.indented {
 #co-loading-redirect {
   padding: 1em 1em 0;
   text-align: center;
+}
+.co-loading-mini-input-container {
+  position: relative;
+}
+.co-loading-mini-input-container .co-loading-mini {
+  display: none;
+  position: relative;
+  right: 38px;
+  bottom: 2px;
+  margin-right: -26px;
 }
 #co-loading span,
 #co-loading-redirect span,
@@ -2363,6 +2452,13 @@ td.indented {
   font-size: 1.2em;
   padding: 0.5em 1.5em;
 }
+.btn:focus {
+  border: 1px dotted black;
+}
+.btn.btn-sm {
+  font-size: 0.9em;
+  margin: -0.5em 0 0 0.1em;
+}
 .btn-primary,
 .btn-primary:focus,
 .btn-primary:active {
@@ -2378,6 +2474,16 @@ td.indented {
   background-color: black;
   color: white !important;
   text-decoration: none !important;
+}
+.btn:focus {
+  border: 1px dotted white;
+}
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #0c75c0;
+  border-color: #0c75c0;
+  opacity: 0.4;
 }
 .btn-default,
 .btn-default:active {
@@ -2424,8 +2530,10 @@ body.redirect #co-footer {
   left: 50%;
   transform: translateX(-50%);
 }
-
-
+.spinner-grow-sm {
+  width: 0.8em;
+  height: 0.8em;
+}
 /* Fast lane filtering block*/
 #filter-block-qaxsbar {
   display: flex;

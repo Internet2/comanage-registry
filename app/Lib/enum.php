@@ -424,6 +424,12 @@ class NameEnum
   const Preferred = 'preferred';
 }
 
+class NestedEnum
+{
+  const Direct   = 'D';
+  const Indirect = 'I';
+}
+  
 class NotificationStatusEnum
 {
   const Acknowledged          = 'A';
@@ -499,6 +505,7 @@ class OrgIdentityStatusEnum
 class PeoplePickerModeEnum
 {
   const Sponsor   = 'S';
+  const All       = 'AL';
 }
 
 class PermissionEnum
@@ -629,6 +636,9 @@ class RequiredEnum
 // We use the actual field names here to simplify form rendering
 class RequiredAddressFieldsEnum
 {
+  const CityState                    = "locality,state";
+  const Country                      = "country";
+  const Postal                       = "postal_code";
   const Street                       = "street";
   const StreetCityStatePostal        = "street,locality,state,postal_code";
   const StreetCityStatePostalCountry = "street,locality,state,postal_code,country";
@@ -808,9 +818,10 @@ class UrlEnum {
 
 class VerificationModeEnum
 {
-  const Automatic = 'A';
-  const Review    = 'R';
-  const None      = 'X';
+  const Automatic       = 'A';
+  const Review          = 'R';
+  const SkipIfVerified  = 'V';
+  const None            = 'X';
 }
 
 class VisibilityEnum

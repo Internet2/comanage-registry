@@ -123,16 +123,29 @@ class AppController extends Controller {
     // XXX CO-351 Placeholder
     $this->Session->write('Config.language', 'eng');
     Configure::write('Config.language', $this->Session->read('Config.language'));
+
+    // CSRF token should expire along with the Session. This is the default in CAKEPHP 3.7.x+
+    // https://book.cakephp.org/3/en/controllers/middleware.html#csrf-middleware
+    // https://github.com/cakephp/cakephp/issues/13532
+    // - expiry, How long the CSRF token should last. Defaults to browser session.
+    // XXX CO-2135
+    $this->Security->csrfUseOnce = false;
     
     // Tell the Auth module to call the controller's isAuthorized() function.
     $this->Auth->authorize = array('Controller');
     
     // Set the redirect and error message for auth failures. Note that we can generate
     // a stack trace instead of a redirect by setting unauthorizedRedirect to false.
-    $this->Auth->unauthorizedRedirect = "/";
-    $this->Auth->authError = _txt('er.permission');
-    // Default flash key is 'auth', switch to 'error' so it maps to noty's default type
-    $this->Auth->flash = array('key' => 'error');
+    if($this->request->is('ajax')) {
+      // XXX CO-2135 In case of an ajax request throw an exception and return handling to the front end
+      // If set to false a ForbiddenException exception is thrown instead of redirecting.
+      $this->Auth->unauthorizedRedirect = false;
+    } else {
+      $this->Auth->unauthorizedRedirect = "/";
+      $this->Auth->authError = _txt('er.permission');
+      // Default flash key is 'auth', switch to 'error' so it maps to noty's default type
+      $this->Auth->flash = array('key' => 'error');
+    }
     
     if($this->request->is('restful')) {
       // Set up basic auth and attempt to login the API user, unless we're already
@@ -284,7 +297,7 @@ class AppController extends Controller {
           // There might be a CO object under another object (eg: CoOrgIdentityLink),
           // but it's easier if we just explicitly load the model
           
-          $this->loadModel('Co');
+          $this->Co = ClassRegistry::init('Co');
         }
         
         $args = array();
@@ -295,50 +308,10 @@ class AppController extends Controller {
         
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
-          
-          // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
-          
-          global $cm_texts;
-          global $cm_lang;
-          
-          $this->loadModel('CoLocalization');
 
-          // Load Platform text. Dynamic texts configured in COmanage CO
-          // Continuously we will replace any occurrence of dynamic texts with the global ones
+          // Load Localizations
+          $this->Co->CoLocalization->load($this->cur_co['Co']['id']);
 
-          $args = array();
-          $args['joins'][0]['table'] = 'cos';
-          $args['joins'][0]['alias'] = 'Co';
-          $args['joins'][0]['type'] = 'INNER';
-          $args['joins'][0]['conditions'][0] = 'CoLocalization.co_id=Co.id';
-          $args['conditions']['Co.name'] = DEF_COMANAGE_CO_NAME;
-          $args['conditions']['Co.status'] = StatusEnum::Active;
-          $args['conditions']['CoLocalization.language'] = $cm_lang;
-          $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
-          $args['contain'] = false;
-
-          $ls_cm = $this->CoLocalization->find('list', $args);
-          unset($args);
-
-          // First load the Platform localization variables
-          if(!empty($ls_cm)) {
-            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls_cm);
-          }
-          
-          $args = array();
-          $args['conditions']['CoLocalization.co_id'] = $coid;
-          $args['conditions']['CoLocalization.language'] = $cm_lang;
-          $args['fields'] = array('CoLocalization.lkey', 'CoLocalization.text');
-          $args['contain'] = false;
-
-          $ls_co = $this->CoLocalization->find('list', $args);
-
-          // Replace all default texts with the ones configured in CO level
-          if(!empty($ls_co)) {
-            $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], $ls_co);
-          }
-          unset($args);
-          
           // Perform a bit of a sanity check before we get any further
           try {
             $this->verifyRequestedId();
@@ -418,6 +391,7 @@ class AppController extends Controller {
     if(!$this->request->is('restful')) {
       $this->getTheme();
       $this->getUImode();
+      $this->getAppPrefs();
       
       if($this->Session->check('Auth.User.org_identities')) {
         $this->menuAuth();
@@ -1026,6 +1000,25 @@ class AppController extends Controller {
     if(!$this->Session->check('Auth.User.name')) {
       $this->set('vv_ui_mode', EnrollmentFlowUIMode::Basic);
     }
+  }
+
+  /**
+   * Get a user's Application Preferences
+   * - postcondition: Application Preferences variable set
+   * @since  COmanage Registry v4.0.0
+   */
+  protected function getAppPrefs() {
+
+    $appPrefs = null;
+    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+
+    // Get preferences if we have an Auth.User.co_person_id
+    if(!empty($coPersonId)) {
+      $this->loadModel('ApplicationPreference');
+      $appPrefs = $this->ApplicationPreference->retrieveAll($coPersonId);
+    }
+
+    $this->set('vv_app_prefs', $appPrefs);
   }
 
   /**

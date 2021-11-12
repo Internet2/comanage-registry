@@ -92,7 +92,7 @@ print $this->element("pageTitleAndButtons", $params);
   <table id="terms_and_conditions">
     <thead>
     <tr>
-      <th><?php print _txt('fd.order'); ?></th>
+      <th class="order"><?php print _txt('fd.order'); ?></th>
       <th><?php print _txt('fd.desc'); ?></th>
     </tr>
     </thead>

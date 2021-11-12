@@ -44,7 +44,55 @@ class CoJobsController extends StandardController {
   
   public $view_contains = array(
   );
-  
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.type' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.type'),
+          'empty'   => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_job_type'],
+        ),
+        'search.status' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.status'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.job'),
+        ),
+      );
+    }
+  }
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @return Array An array suitable for use in $this->paginate
+   */
+
+  public function paginationConditions() {
+    $ret = array();
+    $ret['conditions']['CoJob.co_id'] = $this->cur_co['Co']['id'];
+    if(!empty($this->request->params['named']['search.status'])) {
+      $ret['conditions']['CoJob.status'] = $this->request->params['named']['search.status'];
+    }
+    if(!empty($this->request->params['named']['search.type'])) {
+      $ret['conditions']['CoJob.job_type'] = $this->request->params['named']['search.type'];
+    }
+    if(isset($this->view_contains)) {
+      $ret['contain'] = $this->view_contains;
+    }
+
+    return $ret;
+  }
+
   /**
    * Perform filtering of COU parent options for dropdown.
    * - postcondition: parent_options set
@@ -52,15 +100,40 @@ class CoJobsController extends StandardController {
    * @since  COmanage Registry v0.3
    */
 
-  function beforeRender() {
-    parent::beforeRender();
-    
-    if($this->action == 'view') {
-      if(in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+  function beforeRender()
+  {
+    if (!$this->request->is('restful')) {
+      if ($this->action == 'index') {
+        $vv_job_type = array();
+        foreach ($this->Co->loadAvailablePlugins('job') as $jPlugin) {
+          $job_models_keys = $job_models_values = array();
+          $pluginModel = ClassRegistry::init($jPlugin->name . "." . $jPlugin->name);
+          $plugin_name = $jPlugin->name;
+
+          $job_models = $pluginModel->getAvailableJobs();
+          $job_models_keys = array_map(
+            static function ($model) use ($plugin_name) {
+              return $plugin_name . "." . $model;
+            },
+            array_keys($job_models)
+          );
+          $job_models_values = array_map(
+            static function ($model) use ($plugin_name) {
+              return $model . " (" . $plugin_name . ")";
+            },
+            array_keys($job_models)
+          );
+          $job_type = array_combine($job_models_keys, $job_models_values);
+          $vv_job_type = array_merge($vv_job_type, $job_type);
+        }
+        $this->set('vv_job_type', $vv_job_type);
+      } elseif ($this->action == 'view'
+                && in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
         // Request the page auto-refresh
-        
+
         $this->set('vv_refresh_interval', 15);
       }
+      parent::beforeRender();
     }
   }
   
@@ -109,7 +182,7 @@ class CoJobsController extends StandardController {
     $p['cancel'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View all CO Jobs?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['search'] = $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View this CO Job?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);

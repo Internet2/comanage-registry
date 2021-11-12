@@ -240,6 +240,7 @@ $cm_texts['en_US'] = array(
   'ef.step.sendConfirmation'         => 'Request Email Address Confirmation',
   'ef.step.start'                    => 'Start',
   'ef.step.tandcAgreement'           => 'Agree to Terms and Conditions',
+  'ef.step.tandcPetitioner'          => 'Agree to Terms and Conditions',
   'ef.step.waitForApproval'          => 'Wait For Approval',
   'ef.step.waitForConfirmation'      => 'Wait For Confirmation',
   
@@ -554,9 +555,10 @@ original notification at
   ),
   
   'en.enrollment.verification' => array(
-    VerificationModeEnum::Automatic => 'Automatic',
-    VerificationModeEnum::None      => 'None',
-    VerificationModeEnum::Review    => 'Review'
+    VerificationModeEnum::Automatic       => 'Automatic',
+    VerificationModeEnum::Review          => 'Review',
+    VerificationModeEnum::SkipIfVerified  => 'Skip If Verified',
+    VerificationModeEnum::None            => 'None',
   ),
   
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
@@ -703,6 +705,10 @@ original notification at
                                  NameEnum::Official => 'Official',
                                  NameEnum::Preferred => 'Preferred'),
   
+  // Nested Group member filters
+  'en.nested.filters' => array(NestedEnum::Direct => 'Show direct members only',
+                               NestedEnum::Indirect => 'Show indirect members only'),
+  
   // Navigation links
   'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
 
@@ -755,7 +761,10 @@ original notification at
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
   
-  'en.required.address' => array(RequiredAddressFieldsEnum::Street                       => 'Street',
+  'en.required.address' => array(RequiredAddressFieldsEnum::CityState                    => 'City, State',
+                                 RequiredAddressFieldsEnum::Country                      => 'Country',
+                                 RequiredAddressFieldsEnum::Postal                       => 'ZIP/Postal Code',
+                                 RequiredAddressFieldsEnum::Street                       => 'Street',
                                  RequiredAddressFieldsEnum::StreetCityStatePostal        => 'Street, City, State, ZIP/Postal Code',
                                  RequiredAddressFieldsEnum::StreetCityStatePostalCountry => 'Street, City, State, ZIP/Postal Code, Country'),
   
@@ -1167,6 +1176,7 @@ original notification at
   'er.ug.same' =>     'Current and target versions are the same',
   'er.ug.version' =>  'Unknown version "%1$s"',
   'er.unknown' =>     'Unknown value "%1$s"',
+  'er.unknown.def' =>  'Unknown value',
   'er.url' =>         'Please supply a valid URL. Include "http://" (or similar) for off-site links.',
   'er.validation' =>  'Validation failed',
   'er.validation.date' =>  '"Valid From" date MUST precede "Valid Through" date',
@@ -1239,10 +1249,14 @@ original notification at
   'fd.cou.list' =>    'COU list',
   'fd.cou.nopar'  =>  'No COUs are available to be assigned parent',
   'fd.cou-a' =>       '%1$s COU',
+  'fd.co_group.admin' => 'Admin',
   'fd.co_group.auto' => 'Automatic',
   'fd.co_group.group_type' => 'Group Type',
+  'fd.co_group.my_memberships' => 'Groups I\'m a member of',
+  'fd.co_group.my_ownerships' => 'Groups I manage',
   'fd.co_group.nesting_mode_all' => 'Require All for Nested Memberships',
   'fd.co_group.nesting_mode_all.desc' => 'For membership in this group via nested groups, require membership in <i>all</i> Nested (Source) Groups to be a member of this group (instead of <i>any</i>)',
+  'fd.co_group.no_admin' => 'Hide administrator groups',
   'fd.co_group.source.1' => 'Source Group',
   'fd.co_group.source.pl' => 'Source Groups',
   'fd.co_group.source.desc' => 'Members of each Source Group become indirect members of %1$s',
@@ -1573,6 +1587,7 @@ original notification at
   'fd.name.language' => 'Language',
   'fd.name.primary_name' => 'Primary',
   'fd.name.fields.req' => 'A name must consist of at least these fields:',
+  'fd.nested' => 'Nested',
   'fd.no' =>           'No',
   'fd.none' =>         'None',
   'fd.not.email.body' => 'Notification Email Body',
@@ -1863,6 +1878,15 @@ original notification at
   'in.idval.plugins'   => 'There are no Identifier Validator plugins currently installed.',
   'in.login.last'      => 'Your last login as %1$s was at %2$s from %3$s',
   'in.co_email_lists.none' => 'No email lists',
+  'in.co_group.email_lists' => 'Group Email Lists',
+  'in.co_group.ids.none'   => 'No group identifiers',
+  'in.co_group.members.nested_noedit' => 'Member from nested group may not be directly edited',
+  'in.co_group.members.none' => 'No group members',
+  'in.co_group.none'   => 'No groups',
+  'in.co_group.none_filters' => 'There are no group records for the currently applied filters. Please clear the filters and try again.',
+  'in.co_group.people.none' => 'The CO has no People yet. Add some People to the CO before managing group memberships.',
+  'in.co_group.people.none_filters' => 'There are no people records for the currently applied filters. Please clear the filters and try again.',
+  'in.co_group.props'  => 'Group Properties',
   'in.co_group.source.none' => 'No source groups',
   'in.co_group.target.none' => 'No target groups',
   'in.co_group.auto'   => 'This is an automatic group: membership is determined by person role. To manage membership in this group, please manage roles from the <a href="../../co_people/index/co:%1$s">CO Person Listing</a>.',
@@ -1892,11 +1916,13 @@ original notification at
   'me.orgids'          => 'My Organizational Identities',
   'me.profile.for'     => 'My Profile (%1$s)',
   'me.label'           => 'Manage:',
+  'me.members'         => 'Members',
   'me.people'          => 'People',
   'me.platform'        => 'Platform',
   'me.plugins'         => 'Plugins',
   'me.population'      => 'My Population',
   'me.population.cou'  => 'My %1$s Population',
+  'me.properties'      => 'Properties',
   'me.tandc'           => 'Terms and Conditions',
 
   // Breadcrumbs
@@ -2013,10 +2039,20 @@ original notification at
   'op.gr.reconcile.all.confirm' => 'Are you sure you wish to reconcile all members groups?',
   'op.gr.reconcile.confirm' => 'Are you sure you wish to reconcile this group?',
   'op.gr.reconcile.wait' => 'Requesting reconcilation, please wait...',
+  'op.grm.add' =>    'Add member:',
+  'op.grm.add.desc' => 'Use search to add a new member directly, or use the filters to find people to select. Clear the "Members" and "Owners" filters to bulk-select from all CoPeople.',
+  'op.grm.add.placeholder' => 'enter name, email address, or identifier',
   'op.grm.edit' =>    'Edit Members of %1$s Group %2$s',
   'op.grm.manage' =>  'Manage My Group Memberships',
   'op.grm.manage.all' =>  'Manage Groups',
+  'op.grm.manage.bulk' =>  'Manage/Select Group Memberships',
+  'op.grm.manage.return' =>  'Return to Group Membership List',
   'op.grm.my.groups' => 'My Groups',
+  'op.grm.my.groupmems' => 'My Group Memberships',
+  'op.grm.my.memberships' => 'My Memberships',
+  'op.grm.regular' =>  'Regular Groups',
+  'op.grm.select' =>    'Select Members of %1$s Group %2$s',
+  'op.grm.system' =>  'System Groups',
   'op.grm.title' =>   '%1$s %2$s Membership For %3$s',
   'op.history' =>     'View History',
   'op.history.job' => 'View Job History',
@@ -2041,6 +2077,8 @@ original notification at
   'op.inv.send' =>    'Send Invite',
   'op.inventory.view' => 'View Inventory',
   'op.job.schedule'   => 'Schedule Job',
+  'op.menu' =>        'Menu',
+  'op.msg.tpl.test' => 'Test Template',
   'op.last' =>        'Last',
   'op.link' =>        'Link',
   'op.link.confirm' => 'Are you sure you wish to proceed?',
@@ -2191,6 +2229,7 @@ original notification at
   'rs.grm.added' =>   'Added to CO Group %1$s (%2$s) (member=%3$s, owner=%4$s)',
   'rs.grm.added-n' => 'Added to CO Group %1$s (%2$s) via Nested Group %3$s (%4$s)',
   'rs.grm.added-p' => 'Added to CO Group %1$s (%2$s) via Petition (member=%3$s, owner=%4$s)',
+  'rs.grm.added-d' => '%1$s added to group %2$s',
   'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
   'rs.grm.deleted-n' => 'Removed from CO Group %1$s (%2$s) via Nested Group %3$s (%4$s)',
   'rs.grm.edited' =>  'Edited CO Group Roles %1$s (%2$s) (from member=%3$s, owner=%4$s to member=%5$s, owner=%6$s)',
@@ -2385,13 +2424,13 @@ original notification at
   'sh.ug.330.users' =>    'Dropping users View',
   'sh.ug.340.password' => 'Updating Password Sources',
   'sh.ug.400.attrenums' => 'Migrating Attribute Enumerations',
+  'sh.ug.400.co_settings' => 'Updating CO Settings',
   'sh.ug.400.filesource' => 'Updating File Sources',
-  'sh.ug.400.garbage.collector.interval' => 'Updating CoSetting Garbage Collection Interval',
   'sh.ug.400.garbage.collector.register' => 'Register GarbageCollector Job',
-  'sh.ug.400.global_search_limit' => 'Setting default global search limit',
   'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
   'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
-  'sh.ug.400.org' =>      'Instantiating default Organization Extended Types'
+  'sh.ug.400.org' =>      'Instantiating default Organization Extended Types',
+  'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

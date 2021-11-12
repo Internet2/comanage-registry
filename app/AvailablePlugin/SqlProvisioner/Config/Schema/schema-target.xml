@@ -51,6 +51,17 @@
     <field name="modified" type="T" />
   </table>
   
+  <table name="sp_org_identity_sources">
+    <field name="id" type="I">
+      <key />
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+  </table>
+  
   <!-- Operational Records -->
   
   <table name="sp_co_people">
@@ -79,6 +90,9 @@
     <field name="type" type="C" size="32" />
     <field name="language" type="C" size="16" />
     <field name="primary_name" type="L" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -98,6 +112,9 @@
     <field name="type" type="C" size="32" />
     <field name="login" type="L" />
     <field name="status" type="C" size="2" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
@@ -117,6 +134,9 @@
     <field name="description" type="C" size="128" />
     <field name="type" type="C" size="32" />
     <field name="verified" type="L" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -135,6 +155,9 @@
     <field name="url" type="C" size="256" />
     <field name="description" type="C" size="128" />
     <field name="type" type="C" size="32" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -183,6 +206,9 @@
     <field name="valid_through" type="T" />
     <field name="ordr" type="I" />
     <field name="status" type="C" size="2" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -199,6 +225,9 @@
     <field name="value" type="C" size="256" />
     <field name="co_person_role_id" type="I">
       <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -224,6 +253,9 @@
     <field name="co_person_role_id" type="I">
       <constraint>REFERENCES sp_co_person_roles(id)</constraint>
     </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -244,6 +276,9 @@
     <field name="type" type="C" size="32" />
     <field name="co_person_role_id" type="I">
       <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+    </field>
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -284,6 +319,9 @@
     <field name="owner" type="L" />
     <field name="valid_from" type="T" />
     <field name="valid_through" type="T" />
+    <field name="org_identity_source_id" type="I">
+      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 

@@ -180,6 +180,7 @@
   ul.form-list .field-info {
     display: inline-block;
     width: 65%;
+    overflow-wrap: anywhere;
   }
   ul.form-list .field-info-flex {
     display: inline-flex;
@@ -260,6 +261,9 @@
 /**************************************************************************************************************/
 /* Medium devices (tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+  .mfp-ajax-holder .mfp-content {
+    width: 60em;
+  }
   /* CONTENT LAYOUT */
   #main-wrapper {
     display: flex;
@@ -376,6 +380,9 @@
     margin-top: -1.5em;
     padding-bottom: 0.5em;
   }
+  .co-info-topbox + #sorter {
+    margin-top: 0;
+  }
   /* Listing controls */
   .listControl li {
     margin-left: 0.5em;
@@ -383,15 +390,16 @@
   #peopleToggle {
     display: block;
   }
-  .top-search .search-field-subgroup {
-    float: left;
-    width: 49%;
+  /* Top search / filters */
+  #top-search-fields-subgroups {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1em;
+    padding: 0 0.5em;
   }
-  .search-field-subgroup:nth-child(1) {
-    margin-right: 0.5em;
-  }
-  .top-search #top-search-fields .clear-button {
-    float: right;
+  #top-search-submit.tss-rebalance {
+    margin-top: -3.5em;
+    position: relative;
   }
   /* PEOPLE LISTING */
   /* Reset table for desktop */
@@ -441,6 +449,20 @@
   }
   body.petitionerAttributes .modelbox.hidden {
     display: none;
+  }
+  /* GROUPS */
+  #group-members-select-title {
+    clear: none;
+    float: left;
+  }
+  #group-add-member-search {
+    margin: 1em 0 0;
+  }
+  #group-add-member-search label {
+    margin-right: 0.25em;
+  }
+  #group-add-member {
+    width: 300px;
   }
   /* DASHBOARDS and WIDGETS */
   /* Service Portal */
@@ -591,5 +613,18 @@
   }
   #co_people .person-info-inner {
     width: 550px;
+  }
+  #group-add-member-search-container {
+    float: right;
+    margin-top: -3em;
+  }
+  main.drawer-half-closed #group-add-member {
+    width: 500px;
+  }
+}
+
+@media only screen and (min-width: 1350px) {
+  #group-add-member {
+    width: 500px;
   }
 }

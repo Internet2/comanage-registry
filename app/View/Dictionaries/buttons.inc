@@ -37,7 +37,10 @@ if(!$e && !$permissions['view'])
 
 if($e) {
   // Manage Dictionary Entries button
-  if($this->action == "edit" && $permissions['edit']){
+  // We only allow Dictionary Entries to be managed for Standard Dictionaries.
+  if($this->action == "edit"
+     && $permissions['edit']
+     && $dictionaries[0]['Dictionary']['mode'] === DictionaryModeEnum::Standard){
     $params['topLinks'][] = $this->Html->link(
       _txt('op.manage-a', array(_txt('ct.dictionary_entries.pl'))),
       array(

@@ -123,7 +123,7 @@
     <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
       <th><?php print $this->Paginator->sort('identifier_type', _txt('fd.type')); ?></th>
-      <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
+      <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
       <th><?php print $this->Paginator->sort('context', _txt('fd.ia.context')); ?></th>
       <th><?php print _txt('fd.actions'); ?></th>
     </tr>

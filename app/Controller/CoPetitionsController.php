@@ -139,7 +139,8 @@ class CoPetitionsController extends StandardController {
     'start'                        => 'selectEnrollee',
     'selectEnrollee'               => 'selectOrgIdentity',
     'selectOrgIdentity'            => 'petitionerAttributes',
-    'petitionerAttributes'         => 'sendConfirmation',
+    'petitionerAttributes'         => 'tandcPetitioner',
+    'tandcPetitioner'              => 'sendConfirmation',
     'sendConfirmation'             => 'waitForConfirmation',
     // execution continues here if confirmation not required
     'waitForConfirmation'          => 'checkEligibility',
@@ -977,7 +978,9 @@ class CoPetitionsController extends StandardController {
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
-            
+            if(!empty($e->queryString)) {
+              $this->log(__METHOD__ . "::queryString: " . $e->queryString, LOG_ERROR);
+            }
             // Log the error into the petition history
             $this->CoPetition
                  ->CoPetitionHistoryRecord
@@ -2089,26 +2092,35 @@ class CoPetitionsController extends StandardController {
     $this->set('vv_debug', $debug);
 
     $this->CoPetition->sendConfirmation($id, $this->Session->read('Auth.User.co_person_id'));
-    
-    $this->CoPetition->updateStatus($id,
-                                    PetitionStatusEnum::PendingConfirmation, 
-                                    $this->Session->read('Auth.User.co_person_id'));
-    
-    // The step is done
 
-    if(!$debug) {
+    // A Petition can only go to Confirmed if it was previously PendingConfirmation
+    // Mimics SendConfirmation step if applicable
+    $this->CoPetition->updateStatus($id,
+                                    PetitionStatusEnum::PendingConfirmation,
+                                    $this->Session->read('Auth.User.co_person_id'));
+
+    // Get Invite and Enrollment Flow for this Petition
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'] = array('CoInvite', 'CoEnrollmentFlow');
+    $ef = $this->CoPetition->find('first', $args);
+
+    // The step is done
+    if($ef["CoEnrollmentFlow"]["email_verification_mode"] === VerificationModeEnum::SkipIfVerified
+       && $ef["CoInvite"]["skip_invite"]) {
+      $confirm_url = array(
+        'plugin'     => null,
+        'controller' => 'co_invites',
+        'action'     => 'authconfirm',
+        $ef['CoInvite']['invitation']
+      );
+      $this->redirect($confirm_url);
+    } elseif(!$debug) {
       $this->redirect($this->generateDoneRedirect('sendConfirmation', $id));
     } else {
       // We need to populate the view var to render the debug link
-      $coInviteId = $this->CoPetition->field('co_invite_id',
-                                             array('CoPetition.id' => $id));
-      
-      if($coInviteId) {
-        $args = array();
-        $args['conditions']['CoInvite.id'] = $coInviteId;
-        $args['contain'] = false;
-        
-        $this->set('vv_co_invite', $this->CoPetition->CoInvite->find('first', $args));
+      if(!empty($ef["CoInvite"]["id"])) {
+        $this->set('vv_co_invite', array('CoInvite' => $ef["CoInvite"]));
       }
     }
   }
@@ -2140,11 +2152,12 @@ class CoPetitionsController extends StandardController {
    * Execute CO Petition 'tandcAgreement' step
    *
    * @since  COmanage Registry v4.0.0
-   * @param Integer $id CO Petition ID
+   * @param  int     $id          CO Petition ID
+   * @param  bool    $petitioner  If true, run as tandcPetitioner instead
    * @throws Exception
    */
   
-  protected function execute_tandcAgreement($id) {
+  protected function execute_tandcAgreement($id, $petitioner=false) {
     // Pull the T&C for the view to render
 
     // When this is called, it's just a GET to render the form. POST processing is
@@ -2161,7 +2174,7 @@ class CoPetitionsController extends StandardController {
     if(empty($tandc)) {
       // If there are no active T&C, skip this step.
       
-      $this->redirect($this->generateDoneRedirect('tandcAgreement', $id));
+      $this->redirect($this->generateDoneRedirect(($petitioner ? 'tandcPetitioner' : 'tandcAgreement'), $id));
     }
     
     $this->set('vv_terms_and_conditions', $tandc);
@@ -2172,6 +2185,18 @@ class CoPetitionsController extends StandardController {
                                              array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
     
     $this->set('vv_tandc_mode', (!empty($tcmode) ? $tcmode : TAndCEnrollmentModeEnum::ExplicitConsent));
+  }
+  
+  /**
+   * Execute CO Petition 'tandcPetitioner' step
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_tandcPetitioner($id) {
+    return $this->execute_tandcAgreement($id, true);
   }
   
   /**
@@ -2449,6 +2474,7 @@ class CoPetitionsController extends StandardController {
       $p['selectOrgIdentityClaim'] = $p['selectOrgIdentity'];
       $p['selectEnrollee'] = $isPetitioner;
       $p['petitionerAttributes'] = $isPetitioner;
+      $p['tandcPetitioner'] = $isPetitioner;
       $p['sendConfirmation'] = $isPetitioner;
       $p['waitForConfirmation'] = $isPetitioner;
       // The petition then gets handed off to the enrollee
@@ -2972,7 +2998,7 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
-   * Handle T&C Agreement
+   * Handle T&C Agreement (Enrollee)
    *
    * @since  COmanage Registry v4.0.0
    * @param  Integer $id CO Petition ID
@@ -3001,6 +3027,47 @@ class CoPetitionsController extends StandardController {
         $this->CoPetition->recordTandC($id, $this->request->data['CoTermsAndConditions'], $userId);
         
         $this->redirect($this->generateDoneRedirect('tandcAgreement', $id));
+      }
+      catch(Exception $e) {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        $this->log($e->getMessage());
+        $this->performRedirect();
+      }
+    }
+  }
+  
+  /**
+   * Handle T&C Agreement (Petitioner)
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function tandcPetitioner($id) {
+    // This is basically the same as tandcAgreement, but executes earlier
+    
+    if($this->request->is('get')
+       // If we're in a plugin, we let dispatch execute the plugin
+       || !empty($this->request->params['plugin'])) {
+      $this->dispatch('tandcPetitioner', $this->parseCoPetitionId());
+    } else {
+      // We've already been dispatched (rendered the form) and now we're back
+      // for form submission/processing
+
+      try {
+        // Figure out an identifier to record. Our preference is the authenticated
+        // identifier ($REMOTE_USER), but if we don't have that (ie: for an
+        // anonymous self signup) we'll use the petitioner token.
+        
+        $userId = $this->Session->read('Auth.User.username');
+        
+        if(empty($userId)) {
+          $userId = "etoken:" . $this->CoPetition->field('petitioner_token', array('CoPetition.id' => $id));
+        }
+        
+        $this->CoPetition->recordTandC($id, $this->request->data['CoTermsAndConditions'], $userId);
+        
+        $this->redirect($this->generateDoneRedirect('tandcPetitioner', $id));
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));

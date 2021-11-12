@@ -34,7 +34,7 @@
             'controller' => 'co_invites',
             'action' => 'authverify',
             $invite['CoInvite']['invitation']),
-      array('class' => 'checkbutton')
+      array('class' => 'mr-1 checkbutton')
     );
     
     print $this->Html->link(
@@ -43,7 +43,7 @@
             'controller' => 'co_invites',
             'action' => 'decline',
             $invite['CoInvite']['invitation']),
-      array('class' => 'cancelbutton')
+      array('class' => 'mr-1 cancelbutton')
     );
   } else {
     print $this->Html->link(
@@ -53,7 +53,7 @@
             'action' => (isset($co_enrollment_flow['CoEnrollmentFlow']['require_authn'])
                          && $co_enrollment_flow['CoEnrollmentFlow']['require_authn']) ? 'authconfirm' : 'confirm',
             $invite['CoInvite']['invitation']),
-      array('class' => 'checkbutton')
+      array('class' => 'mr-1 checkbutton')
     );
     
     print $this->Html->link(
@@ -62,6 +62,6 @@
             'controller' => 'co_invites',
             'action' => 'decline',
             $invite['CoInvite']['invitation']),
-      array('class' => 'cancelbutton')
+      array('class' => 'mr-1 cancelbutton')
     );
   }

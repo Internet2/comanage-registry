@@ -51,6 +51,19 @@ function generateFlash(text, type) {
   });
 }
 
+// Set an application preference
+// tag     - name of preference to save (string, required)
+// value   - value to save (json in the form of {"value":"something"} or {"value":null} to unset)
+function setApplicationPreference(tag,value) {
+  var apUrl = "/registry/application_preferences/" + tag;
+  var jsonData = value;
+  $.ajax({
+    url: apUrl,
+    type: 'PUT',
+    data: jsonData
+  });
+}
+
 // Generate a loading animation by revealing a persistent hidden div with CSS animation.
 // An element's onclick action will trigger this to appear if it has the class "spin" class on an element.
 // (See View/Elements/javascript.ctp)
@@ -119,13 +132,50 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
   $("#dialog-text").text(bodyText);
 
   // Set the dialog buttons
-  var dbuttons = {};
-  dbuttons[cxlbutton] = function() { $(this).dialog("close"); };
-  dbuttons[confbutton] = function() { window.location = forwardUrl; };
+  var dbuttons = []
+  // Cancel button
+  dbuttons.push({
+    text: cxlbutton,
+    id: "btn-confirm-generic-cxl",
+    click: function () {$(this).dialog("close");}
+  });
+  // Confirm button
+  dbuttons.push({
+    text: confbutton,
+    id: "btn-confirm-generic-conf",
+    click: function () {
+      // Handle the submit button
+      loadUiDialogSpinner($("#btn-confirm-generic-conf"));
+      // loadButtonSpinner($("#btn-confirm-generic-conf"), confirmbtxt);
+      // Redirect to action
+      window.location = forwardUrl;
+    }
+  });
   $("#dialog").dialog("option", "buttons", dbuttons);
 
   // Open the dialog
   $('#dialog').dialog('open');
+}
+
+// Load button spinner followed by Text
+// elem         - button element (object, required)
+// bodyText     - button text    (string, required)
+function loadButtonSpinner(elem, btnText) {
+  let btn_payload = "<span class='spinner-grow spinner-grow-sm align-middle' role='status' aria-hidden='true'></span><span class='sr-only'>"
+    + btnText
+    + "</span> "
+    + btnText;
+  elem.html(btn_payload);
+  elem.button("disable");
+}
+
+// Load UI Dialog co-loading-mini spinner inline with UI Buttons
+// elem         - button element (object, required)
+function loadUiDialogSpinner(elem) {
+  // debugger;
+  $pane = elem.closest('.ui-dialog-buttonpane');
+  $pane.prepend('<span class="d-inline-flex align-bottom co-loading-mini"><span></span><span></span><span></span></span>');
+  elem.button("disable");
 }
 
 // Generic goto page form handling for multi-page listings.
@@ -257,20 +307,16 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
     title: title_txt,
     buttons: [{
       text: submit_btn_txt,
-      "id": "btnSubmit",
+      id: "btn-form-generic-submit",
       click: function () {
         let dialog_input = $(this).find('input[id="form-dialog-text"]').val();
         let $data = {};
         $data.input = dialog_input;
 
         // Handle the submit button
-        $btn = $("#btnSubmit");
-        let btn_payload = "<span class='spinner-grow spinner-grow-sm' role='status' aria-hidden='true'></span><span class='sr-only'>"
-        + submit_btn_txt_sending
-        + "</span> "
-        + submit_btn_txt_sending;
-        $btn.html(btn_payload);
-        $btn.button("disable");
+        // Handle the submit button
+        // loadButtonSpinner($("#btn-form-generic-submit"), submit_btn_txt_sending);
+        loadUiDialogSpinner($("#btn-form-generic-submit"));
 
         let jqxhr = $.ajax({
           cache: false,
@@ -310,7 +356,7 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
       },
     }, {
       text: cancel_btn_txt,
-      "id": "btnCancel",
+      id: "btn-form-generic-cxl",
       click: function () {
         $(this).dialog('close');
       },

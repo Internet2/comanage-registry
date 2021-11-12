@@ -39,6 +39,18 @@ if(!empty($vv_enrollment_flow_cos)) {
   // Convert the list of COs with enrollment flows defined into a more useful format
   $efcos = Hash::extract($vv_enrollment_flow_cos, '{n}.CoEnrollmentFlow.co_id');
 }
+
+// Determine if we have an expanded menu selected but do not expand a menu if the menu drawer is half-closed.
+// Currently this is used only for the two expandable menus in the Main Menu (People and Platform).
+$selectedMenu = "";
+$currentMenu = "";
+$drawerState = "open";
+if(!empty($vv_app_prefs['uiDrawerState'])) {
+  $drawerState = filter_var($vv_app_prefs['uiDrawerState'],FILTER_SANITIZE_STRING);
+}
+if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-closed') {
+  $selectedMenu = filter_var($vv_app_prefs['uiMainMenuSelectedParentId'],FILTER_SANITIZE_STRING);
+}
 ?>
 
 <ul id="main-menu" class="metismenu">
@@ -49,14 +61,15 @@ if(!empty($vv_enrollment_flow_cos)) {
       $menuCoId = $cur_co['Co']['id'];
 
       // People Menu
+      $currentMenu = 'peopleMenu';
       if(isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
-        print '<li id="peopleMenu" class="co-expandable-menu-item">';
-        print '<a class="menuTop" aria-expanded="false" href="#">';
+        print '<li id="peopleMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
+        print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">person</em>';
         print '<span class="menuTitle">' . _txt('me.people') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
         print '</a>';
-        print '<ul aria-expanded="false" class="collapse">';
+        print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
         print '<li>';
         $args = array();
         $args['plugin'] = null;
@@ -167,60 +180,108 @@ if(!empty($vv_enrollment_flow_cos)) {
       // END People Menu
 
       // Groups Menu
+      $currentMenu = 'groupMenu';
       if(isset($permissions['menu']['cogroups']) && $permissions['menu']['cogroups']) {
-        if(empty(retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId))) {
-          // we have no groups plugins: make this a top-level menu item
-          print '<li id="groupMenu">';
 
-          $linkContent = '<em class="material-icons" aria-hidden="true">group</em><span class="menuTitle">' . _txt('ct.co_groups.pl') .
-            '</span>';
+        print '<li id="groupMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
 
-          $args = array();
-          $args['plugin'] = null;
-          $args['controller'] = 'co_groups';
-          $args['action'] = 'index';
-          $args['co'] = $menuCoId;
+        print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
+        print '<em class="material-icons" aria-hidden="true">group</em>';
+        print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
+        print '<span class="fa arrow fa-fw"></span>';
+        print '</a>';
 
-          print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
 
-          print "</li>";
+        // Regular Groups (with default filtering)
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        $args['search.auto'] = 'f'; // filter out automatic groups by default
+        $args['search.noadmin'] = '1'; // exclude administration groups by default
+        print $this->Html->link(_txt('op.grm.regular'), $args, array('class' => 'spin'));
+        print "</li>";
 
-        } else {
-          // we have groups plugins: make this an expandable menu item
-          print '<li id="groupMenu" class="co-expandable-menu-item">';
+        // System Groups (automatic groups)
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        $args['search.auto'] = 't'; // show only automatic groups
+        print $this->Html->link(_txt('op.grm.system'), $args, array('class' => 'spin'));
+        print "</li>";
 
-          print '<a class="menuTop" aria-expanded="false" href="#">';
-          //print '<span class="fa fa-users fa-fw"></span>';
-          print '<em class="material-icons" aria-hidden="true">group</em>';
-          print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
-          print '<span class="fa arrow fa-fw"></span>';
-  
-          print '</a>';
-          print '<ul aria-expanded="false" class="collapse">';
+        // All Groups
+        print '<li>';
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_groups';
+        $args['action'] = 'index';
+        $args['co'] = $menuCoId;
+        print $this->Html->link(_txt('ct.co_all_groups'), $args, array('class' => 'spin'));
+        print "</li>";
 
-          print '<li>';
-          $args = array();
-          $args['plugin'] = null;
-          $args['controller'] = 'co_groups';
-          $args['action'] = 'index';
-          $args['co'] = $menuCoId;
-          print $this->Html->link(_txt('ct.co_all_groups'), $args, array('class' => 'spin'));
-  
-          print "</li>";
+        // Display My Groups and My Memberships only to members with an active status in the CO and at
+        // least one CoPersonRole. Determine this by investigating the $menuContent. This is identical 
+        // to the constraints placed on menuUser for "My Profile" and "My Group Memberships" links.
+        if(isset($cur_co)) {
+          foreach ($menuContent['cos'] as $co) {
+            if ($co['co_id'] == $cur_co['Co']['id']) {
+              if(isset($co['co_person']['status'])
+                 && ($co['co_person']['status'] == StatusEnum::Active 
+                     || $co['co_person']['status'] == StatusEnum::GracePeriod)
+                 && !empty($co['co_person']['CoPersonRole'])) {
 
-          // Plugins
+                // My Groups
+                print '<li>';
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'co_groups';
+                $args['action'] = 'index';
+                $args['co'] = $menuCoId;
+                $args['search.member'] = '1'; // include groups in which current user is a member
+                $args['search.owner'] = '1'; // include groups in which current user is an owner
+                print $this->Html->link(_txt('op.grm.my.groups'), $args, array('class' => 'spin'));
+                print "</li>";
+
+                // My Memberships
+                print '<li>';
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'co_groups';
+                $args['action'] = 'select';
+                $args['copersonid'] = $this->Session->read('Auth.User.co_person_id');;
+                $args['co'] = $menuCoId;
+                $args['search.member'] = '1';
+                $args['search.owner'] = '1';
+                print $this->Html->link(_txt('op.grm.my.memberships'), $args, array('class' => 'spin'));
+                print "</li>";   
+                
+              }
+            }
+          }
+        }
+        
+
+        // Plugins
+        if(!empty(retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId))) {
           $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'cogroups', $menuCoId);
 
-          foreach($pluginLinks as $plabel => $pcfg) {
+          foreach ($pluginLinks as $plabel => $pcfg) {
             print '<li>';
             print $this->Html->link($plabel, $pcfg['url']);
-    
             print '</li>';
           }
 
-          print "</ul>";
-          print "</li>";
         }
+
+        print "</ul>";
+        print "</li>";
       }
       // END Groups Menu
       
@@ -439,14 +500,15 @@ if(!empty($vv_enrollment_flow_cos)) {
     // END Configuration Menu
 
     // Platform Menu
+    $currentMenu = "platformMenu";
     if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']) {
-      print '<li id="platformMenu" class="co-expandable-menu-item">';
-      print '<a href="#" class="menuTop" aria-expanded="false">';
+      print '<li id="platformMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
+      print '<a href="#" class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '">';
       print '<em class="material-icons" aria-hidden="true">build</em>';
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
       print '<span class="fa arrow fa-fw"></span>';
       print '</a>';
-      print '<ul aria-expanded="false" class="collapse">';
+      print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
       
       if($pool_org_identities) {
         print '<li>';

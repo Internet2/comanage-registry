@@ -619,7 +619,9 @@
             $linktarget = array(
               'controller' => 'co_groups',
               'action'     => 'select',
-              'copersonid' => $co_people[0]['CoPerson']['id']
+              'copersonid' => $co_people[0]['CoPerson']['id'],
+              'search.member' => '1',
+              'search.owner' => '1'
             );
             $linkparams = array('class' => 'addbutton');
             print $this->Html->link(_txt('op.manage.grm'),
@@ -1310,6 +1312,7 @@
                 print '<div class="field-data data-label">';
                 if(!empty($badge_list_org)) {
                   print $this->element('badgeList', array('vv_badge_list' => $badge_list_org));
+                  unset($badge_list_org);
                 }
                 print '</div>';
                 // Actions

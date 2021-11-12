@@ -127,6 +127,9 @@ class ApplicationPreferencesController extends StandardController {
     // things a bit differently. Specifically, we expect a valid session to
     // already exist.
     
+    // Note if the current user is a Platform admin, we will store the preferences
+    // on the CMP Admin record (ie: for the CO Person associated with the
+    // COmanage CO)
     $coPersonId = $this->Session->read('Auth.User.co_person_id');
     
     $self = !empty($coPersonId);

@@ -41,22 +41,29 @@ $hasActiveFilters = false;
 
 ?>
 
-<div id="<?php print $req . ucfirst($this->action); ?>Search" class="top-search">
+<div id="<?php print $req . ucfirst($this->request->action); ?>Search" class="top-search">
   <?php
 
-  if(isset($permissions['select']) && $permissions['select'] && $this->action == 'select') {
-    print $this->Form->hidden('RedirectAction.select', array('default' => 'true')). PHP_EOL;
-  } elseif(isset($permissions['index']) && $permissions['index'] && $this->action == 'index') {
-    print $this->Form->hidden('RedirectAction.index', array('default' => 'true')). PHP_EOL;
-  }
+  // Action
+  print $this->Form->hidden('RedirectAction.' . $this->request->action, array('default' => 'true')). PHP_EOL;
 
+  // Named parameters
+  // Discard op.search named param
   $search_params = array();
   if(isset($this->request->params['named'])) {
-    foreach($this->request->params['named'] as $key => $params) {
-      if(!empty($params) && $key !== 'co') {
-        $search_params[$key] = $params;
+    foreach ($this->request->params['named'] as $param => $value) {
+      if(strpos($param, 'search') === false
+         && $param !== "op") {
+        print $this->Form->hidden($this->request->action . '.named.' . $param, array('default' => filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+      } else {
+        $search_params[$param] = $value;
       }
     }
+  }
+
+  // Passed parameters
+  foreach ($this->request->params['pass'] as $idx => $value) {
+    print $this->Form->hidden($this->request->action . '.'. $idx . '.pass', array('default' => filter_var($value,FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
   }
 
   ?>
@@ -79,7 +86,7 @@ $hasActiveFilters = false;
               // We have named filters - not just a sort.
               $hasActiveFilters = true;
             ?>
-            <button class="top-search-active-filter deletebutton spin" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
+            <button class="top-search-active-filter deletebutton spin" type="button" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
                <span class="top-search-active-filter-title"><?php print $vv_search_fields[$key]['label']; ?></span>
                <span class="top-search-active-filter-value">
                  <?php
@@ -117,7 +124,7 @@ $hasActiveFilters = false;
             </button>
           <?php endforeach; ?>
           <?php if($hasActiveFilters): ?>
-             <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" aria-controls="top-search-clear" onclick="event.stopPropagation()">
+             <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" type="button" aria-controls="top-search-clear" onclick="event.stopPropagation()">
                 <?php print _txt('op.clear.filters.pl');?>
              </button>
           <?php endif; ?>
@@ -154,19 +161,22 @@ $hasActiveFilters = false;
       <?php if(sizeof($field_subgroup_columns) == 1): ?>
         <div><?php print current(current($field_subgroup_columns)); ?></div>
       <?php else: ?>
-        <div class="search-field-subgroup">
-          <?php foreach($field_subgroup_columns[0] as $field_name => $finput): ?>
-            <?php print $finput; ?>
-          <?php endforeach; ?>
-        </div>
-        <div class="search-field-subgroup">
-          <?php foreach($field_subgroup_columns[1] as $field_name => $finput): ?>
-            <?php print $finput; ?>
-          <?php endforeach; ?>
+        <div id="top-search-fields-subgroups">
+          <div class="search-field-subgroup">
+            <?php foreach($field_subgroup_columns[0] as $field_name => $finput): ?>
+              <?php print $finput; ?>
+            <?php endforeach; ?>
+          </div>
+          <div class="search-field-subgroup">
+            <?php foreach($field_subgroup_columns[1] as $field_name => $finput): ?>
+              <?php print $finput; ?>
+            <?php endforeach; ?>
+          </div>
         </div>
       <?php endif; ?>
-
-      <div class="topSearchSubmit">
+      
+      <?php $rebalanceColumns = ($i > 1) && ($i % 2 != 0) ? ' class="tss-rebalance"' : ''; ?>
+      <div id="top-search-submit"<?php print $rebalanceColumns ?>>
         <?php
         $args = array();
         // search button (submit)
@@ -193,8 +203,8 @@ $hasActiveFilters = false;
     <?php
     $args = array();
     $args['controller'] = $controller_route_name;
-    $args['action'] = $this->action;
-    if($this->action == 'index') {
+    $args['action'] = $this->request->action;
+    if($this->request->action == 'index') {
       $args['co'] = $cur_co['Co']['id'];
     } else if(!empty($this->request->params['pass'][0])) {
       $args[] = $this->request->params['pass'][0];
@@ -215,7 +225,6 @@ $hasActiveFilters = false;
         'label' => $enum_val,
         'type' => $vv_search_fields['qaxsbar']['type'],
         'class' => 'mr-2',
-        'label' => $enum_val,
         'value' => $code,
         'div' => false,
       );

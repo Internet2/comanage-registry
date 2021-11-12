@@ -122,12 +122,20 @@
       <div class="field-desc"><?php print _txt('fd.ae.allow_other.desc'); ?></div>
     </div>
     <div class="field-info checkbox">
-      <?php print ($e
-                   ? $this->Form->input('allow_other')
-                   : (isset($attribute_enumerations[0]['AttributeEnumeration']['allow_other'])
-                      && $attribute_enumerations[0]['AttributeEnumeration']['allow_other']
-                      ? _txt('fd.yes') : _txt('fd.no')));
-            print ' ' . $this->Form->label('allow_other', _txt('fd.ae.allow_other'));
+      <?php
+      if($e) {
+        $args = array();
+        $args['class'] = 'mr-1';
+        $args['checked'] = (isset($attribute_enumerations[0]['AttributeEnumeration']['allow_other'])
+                            && $attribute_enumerations[0]['AttributeEnumeration']['allow_other']);
+        print $this->Form->checkbox('allow_other', $args);
+        print $this->Form->label('allow_other', _txt('fd.ae.allow_other'));
+      } else {
+        print (isset($attribute_enumerations[0]['AttributeEnumeration']['allow_other'])
+               && $attribute_enumerations[0]['AttributeEnumeration']['allow_other'])
+              ? _txt('fd.yes')
+              : _txt('fd.no');
+      }
       ?>
   </li>
   <li>

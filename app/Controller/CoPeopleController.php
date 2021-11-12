@@ -103,7 +103,10 @@ class CoPeopleController extends StandardController {
    */
 
   public function searchConfig($action) {
-    if($action == 'index') {                   // Index
+    if($action === 'index'                   // Index
+       || $action === 'link'                 // Link
+       || $action === 'select'               // Select
+       || $action === 'relink') {            // Relink
       return array(
         'search.givenName' => array(             // 1st row, left column
           'label' => _txt('fd.name.given'),
@@ -550,7 +553,7 @@ class CoPeopleController extends StandardController {
       $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
       
       foreach($people as $p) {
-        $label = generateCn($p['PrimaryName']);
+        $label = generateCn($p['Name'][0]);
         
         $id = Hash::extract($p['Identifier'], '{n}[type=uid]');
         
@@ -1162,8 +1165,11 @@ class CoPeopleController extends StandardController {
       //                                 'MIN(CoPersonRole.id)');
       //      $pagcond['group'] = array('CoPerson.id', 'Co.id', 'PrimaryName.family', 'PrimaryName.given');
       // This produces the correct results, however Cake then goes into an infinite loop
-      // trying to pull some related data for the results. So for now, we just leave duplicates
-      // in the search results.
+      // For that reason we will use DISTINCT instead.
+
+      // CO-1091, we need at least the following fields for the View to render properly
+      $this->paginate['fields'] = array( "DISTINCT CoPerson.id","PrimaryName.given","PrimaryName.family","CoPerson.status");
+
       $pagcond['joins'][$jcnt]['table'] = 'co_person_roles';
       $pagcond['joins'][$jcnt]['alias'] = 'CoPersonRole';
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
@@ -1326,39 +1332,26 @@ class CoPeopleController extends StandardController {
   }
   
   /**
-   * Insert search parameters into URL for index, select, or relink views.
+   * Insert search parameters into URL for index, select, or (re)link views.
    * - postcondition: Redirect generated
    *
    * @since  COmanage Registry v0.8
    */
   
   public function search() {
-    // Construct the URL based on the action mode we're in (select, relink, index)
-    if(!empty($this->data['CoPetition']['id'])) {
-      
-      // If a petition ID is provided, we're in select mode
-      // XXX: search now passes the action name explicitly as data['CoPerson']['currentAction'] - could use that to test
-      $url['action'] = 'select';
-      $url['copetitionid'] = filter_var($this->data['CoPetition']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
-      
-    } elseif($this->data['CoPerson']['currentAction'] == 'relink') {
-      
-      // relink mode
-      $url['action'] = 'relink';
-      array_push($url, filter_var($this->data['Relink']['id'], FILTER_SANITIZE_SPECIAL_CHARS));
-      
-      // the following two parameters are mutually exclusive for the two types of relinking (orgid and role)
-      if(!empty($this->data['Relink']['orgidlinkid'])) {
-        $url['linkid'] = filter_var($this->data['Relink']['orgidlinkid'], FILTER_SANITIZE_SPECIAL_CHARS);
-      } elseif(!empty($this->data['Relink']['roleid'])) {
-        $url['copersonroleid'] = filter_var($this->data['Relink']['roleid'], FILTER_SANITIZE_SPECIAL_CHARS);
+    // Construct the URL based on the action mode we're in (select, relink, index, link)
+    $action = key($this->data['RedirectAction']);
+
+    $url['action'] = $action;
+    foreach($this->data[$action] as $key => $value) {
+      // pass parameters
+      if(is_int($key) && isset($value['pass'])) {
+        array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
+      } else {
+        foreach ($value as $knamed => $vnamed) {
+          $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
+        }
       }
-      
-    } else {
-      // Back to the index
-      $url['action'] = 'index';
-      // Add CO to the URL. Note this also prevents truncation of email address searches (CO-1271).
-      $url['co'] = $this->cur_co['Co']['id'];
     }
     
     // Append the URL with all the search elements; the resulting URL will be similar to
@@ -1370,8 +1363,7 @@ class CoPeopleController extends StandardController {
     }
 
     // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
-    $url['op'] = 'search';
-    
+    $url = array_merge($url, array('op' => 'search'));
     // redirect the user to the url
     $this->redirect($url, null, true);
   }

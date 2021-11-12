@@ -85,7 +85,7 @@
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('data_filter_id', _txt('ct.data_filters.1')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>

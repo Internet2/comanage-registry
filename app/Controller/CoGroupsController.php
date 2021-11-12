@@ -65,21 +65,6 @@ class CoGroupsController extends StandardController {
   );
   
   /**
-   * Callback to set relevant tab to open when redirecting to another page
-   * - precondition:
-   * - postcondition: Auth component is configured
-   * - postcondition:
-   *
-   * @since  COmanage Registry v0.8
-   */
-
-  function beforeFilter() {
-    $this->redirectTab = 'group';
-
-    parent::beforeFilter();
-  }
-
-  /**
    * Callback after controller methods are invoked but before views are rendered.
    *
    * @since  COmanage Registry v0.9.4
@@ -227,55 +212,80 @@ class CoGroupsController extends StandardController {
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
     // Add the co person as owner/member of the new group, but only via HTTP
     
-    if(!$this->request->is('restful') && $this->action == 'add') {
-      $cos = $this->Session->read('Auth.User.cos');
-      $this->redirectTarget = array('action' => 'edit', $this->CoGroup->id);
-      
-      // Member of current CO? (Platform admin wouldn't be)
-      if(isset($cos) && isset($cos[ $this->cur_co['Co']['name'] ]['co_person_id'])) {
-        $a['CoGroupMember'] = array(
-          'co_group_id' => $this->CoGroup->id,
-          'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
-          'owner' => true,
-          'member' => true
-        );
-        
-        if(!$this->CoGroup->CoGroupMember->save($a)) {
-          $this->Flash->set(_txt('er.gr.init'), array('key' => 'information'));
-          return false;
+    if(!$this->request->is('restful')) {
+
+      if($this->action == 'add') {
+        $cos = $this->Session->read('Auth.User.cos');
+        $this->redirectTarget = array('action' => 'edit', $this->CoGroup->id);
+
+        // Member of current CO?
+        if (isset($cos[$this->cur_co['Co']['name']]['co_person_id'])) {
+          $a['CoGroupMember'] = array(
+            'co_group_id' => $this->CoGroup->id,
+            'co_person_id' => $this->Session->read('Auth.User.co_person_id'),
+            'owner' => true,
+            'member' => true
+          );
+
+          if (!$this->CoGroup->CoGroupMember->save($a)) {
+            $this->Flash->set(_txt('er.gr.init'), array('key' => 'information'));
+            return false;
+          }
         }
       }
+
+      if($this->action == 'edit') {
+        // return to the index view with default filters in place after edit
+        $this->redirectTarget = array(
+          'controller' => 'co_groups',
+          'action' => 'index',
+          'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS),
+          'search.auto' => 'f',
+          'search.noadmin' => '1'
+        );
+      }
+
     }
     
     return true;
   }
 
   /**
-   * Update a CO Group.
+   * List group nestings for a CO Group.
    * - precondition: Model specific attributes in $this->request->data (optional)
    * - precondition: <id> must exist
    * - postcondition: On GET, $<object>s set (HTML)
-   * - postcondition: On POST success, object updated
-   * - postcondition: On POST, session flash message updated (HTML) or HTTP status returned (REST)
-   * - postcondition: On POST error, $invalid_fields set (REST)
    *
-   * @since  COmanage Registry v0.1
+   * @since  COmanage Registry v4.0.0
    * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
    */
-  
-  function edit($id) {
-    // Mostly, we want the standard behavior.  However, we need to retrieve the
-    // set of members when rendering the edit form.
-    
-    if(!$this->request->is('restful') && $this->request->is('get')) {
-      // Retrieve the set of all group members for group with ID $id.
-      // Specify containable behavior to get necessary relations.
-      
-      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
+
+  function nest($id) {
+    // Invoke the StandardController based on permissions to edit the group
+    if($this->viewVars['permissions']['edit']) {
+      parent::edit($id);
+    } else {
+      parent::view($id);
     }
-    
-    // Invoke the StandardController edit
-    parent::edit($id);
+  }
+
+  /**
+   * Show the Email Lists for a group
+   * - precondition: Model specific attributes in $this->request->data (optional)
+   * - precondition: <id> must exist
+   * - postcondition: On GET, $<object>s set (HTML)
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
+   */
+
+  function email_lists($id) {
+    // Invoke the StandardController based on permissions to edit the group
+    if($this->viewVars['permissions']['edit']) {
+      parent::edit($id);
+    } else {
+      parent::view($id);
+    }
   }
   
   /**
@@ -432,7 +442,12 @@ class CoGroupsController extends StandardController {
     
     // Nest a Group within another Group?
     // This aligns with CoGroupNestingsController::isAuthorized
-    $p['nest'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['buildnest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+
+    // Edit or View Identifiers?
+    // This aligns with IdentifiersController::isAuthorized
+    $p['editids'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['viewids'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
     
     // Reconcile memberships in a members group?
     $p['reconcile'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -450,8 +465,18 @@ class CoGroupsController extends StandardController {
     $p['member'] = !empty($curlRoles['member']) ? $curlRoles['member'] : array();
     $p['owner'] = !empty($curlRoles['owner']) ? $curlRoles['owner'] : array();
     
-    // (Re)provision an existing CO Group?
+    // Determine if the current user is a member of the group.
+    // $managed is already defined for owner.
+    $member = false;
+    if(!empty($this->request->params['pass'][0])) {
+      $member = in_array($this->request->params['pass'][0], $p['member']);  
+    }
+    
+    // View provisioning? This permission grants access to the Provisioned Services tab
     $p['provision'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    
+    // (Re)provision an exsiting CO Group? This pemrmission grants access to the "Provision" buttons.
+    $p['do_provisioning'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     // Select from a list of potential Groups to join?
     $p['select'] = ($roles['cmadmin'] || $roles['coadmin']
@@ -465,6 +490,19 @@ class CoGroupsController extends StandardController {
     // View an existing Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $managed);
     
+    // Viewing members, email lists, and nested groups is available to all group members.
+    // Access to specific actions is controlled in the view.
+    $p['members'] = $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
+    $p['email_lists'] = $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
+    $p['nest'] =  $roles['cmadmin'] || $roles['coadmin'] || $managed || $member;
+
+    // Edit Group members
+    $p['edit_members'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $managed);
+
+    // Edit email lists?
+    // This aligns with CoEmailLists::isAuthorized
+    $p['edit_email_lists'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     if($this->action == 'view'
        && isset($this->request->params['pass'][0])) {
       // Adjust permissions for members and open groups
@@ -525,9 +563,17 @@ class CoGroupsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('co_group', $this->CoGroup->find('first', $args));
+      if($this->viewVars['permissions']['edit']) {
+        $titleText = 'op.edit-a';
+      } else {
+        $titleText = 'op.view-a';
+      }
       $this->set('title_for_layout',
-                 _txt('fd.prov.status.for',
-                      array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
+        _txt($titleText,
+          array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
+      $this->set('vv_subtitle',
+        _txt('fd.prov.status.for',
+          array(filter_var($this->viewVars['co_group']['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS))));
     }
   }
   
@@ -681,6 +727,64 @@ class CoGroupsController extends StandardController {
       $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
     }
 
+    // Exclude admin groups
+    if(!empty($this->params['named']['search.noadmin'])) {
+      $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Admins;
+    }
+
+    // Filter by membership and ownership
+    // First get the CoPersonID to work against either the current user, or the user being acted on in select mode
+    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+    if($this->action == 'select') {
+      $coPersonId = filter_var($this->request->params['named']['copersonid'], FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+
+    // If both member and owner are selected, use a single join with "OR"
+    if(!empty($this->params['named']['search.member']) && !empty($this->params['named']['search.owner'])) {
+      $pagcond['joins'][] = array(
+        'table' => 'co_group_members',
+        'alias' => 'CoGroupMember',
+        'type' => 'INNER',
+        'conditions' => array(
+          "CoGroupMember.co_person_id=" . $coPersonId,
+          "CoGroupMember.co_group_id=CoGroup.id",
+          'OR' => array(
+            "CoGroupMember.member = true",
+            "CoGroupMember.owner = true"
+          )
+        )
+      );
+    } else {
+      // Otherwise filter for member and owner individually
+      // Filter by member
+      if (!empty($this->params['named']['search.member'])) {
+        $pagcond['joins'][] = array(
+          'table' => 'co_group_members',
+          'alias' => 'CoGroupMember',
+          'type' => 'INNER',
+          'conditions' => array(
+            "CoGroupMember.co_person_id=" . $coPersonId,
+            "CoGroupMember.co_group_id=CoGroup.id",
+            "CoGroupMember.member = true"
+          )
+        );
+      }
+
+      // Filter by owner
+      if (!empty($this->params['named']['search.owner'])) {
+        $pagcond['joins'][] = array(
+          'table' => 'co_group_members',
+          'alias' => 'CoGroupMember',
+          'type' => 'INNER',
+          'conditions' => array(
+            "CoGroupMember.co_person_id=" . $coPersonId,
+            "CoGroupMember.co_group_id=CoGroup.id",
+            "CoGroupMember.owner = true"
+          )
+        );
+      }
+    }
+
     return $pagcond;
   }
 
@@ -726,38 +830,15 @@ class CoGroupsController extends StandardController {
     // Pagination conditions must be pulled in explicitly because select() is not part of StandardController
     $pagcond = CoGroupsController::paginationConditions();
     $this->paginate['conditions'] = $pagcond['conditions'];
-    
-    /*$this->paginate['contain'] = array(
+    $this->paginate['joins'] = $pagcond['joins'];
+
+    $this->paginate['contain'] = array(
       'CoGroupMember' => array(
         'conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']),
-        'CoPerson' => array('PrimaryName')
-      )
-    );*/
-    $this->paginate['contain'] = array(
-      'CoGroupMember' => array('conditions' => array('CoGroupMember.co_person_id' => $coPerson['CoPerson']['id']), 'CoPerson' => array('PrimaryName'))
+        'CoPerson' => array('PrimaryName'))
     );
 
     $this->Paginator->settings = $this->paginate;
     $this->set('co_groups', $this->Paginator->paginate('CoGroup'));
-  }      
-  
-  /**
-   * Retrieve a CO Group.
-   * - precondition: <id> must exist
-   * - postcondition: $<object>s set (with one member)
-   * - postcondition: HTTP status returned (REST)
-   * - postcondition: Session flash message updated (HTML)
-   *
-   * @since  COmanage Registry v0.1
-   * @param  integer Object identifier (eg: cm_co_groups:id) representing object to be retrieved
-   */
-  
-  function view($id) {
-    if(!$this->request->is('restful')) {
-      $this->set('vv_co_group_members', $this->CoGroup->findSortedMembers($id));
-    }
-    
-    // Invoke the StandardController view
-    parent::view($id);
   }
 }

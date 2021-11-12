@@ -550,63 +550,6 @@ class CoGroup extends AppModel {
   }
   
   /**
-   * Obtain the set of members of a group, sorted by owner status and member name.
-   *
-   * @since  COmanage Registry v1.0.0
-   * @param  Integer CO Group ID
-   * @return Array Group member information, as returned by find
-   */
-  
-  public function findSortedMembers($id) {
-    $args = array();
-    $args['conditions'] = array();
-    $args['conditions']['CoGroupMember.co_group_id'] = $id;
-    // Only pull currently valid group memberships
-    $args['conditions']['AND'][] = array(
-      'OR' => array(
-        'CoGroupMember.valid_from IS NULL',
-        'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
-      )
-    );
-    $args['conditions']['AND'][] = array(
-      'OR' => array(
-        'CoGroupMember.valid_through IS NULL',
-        'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
-      )
-    );
-    $args['contain'] = array(
-      'CoPerson' => array('PrimaryName')
-    );
-    
-    // Because we're using containable behavior, we can't easily sort by PrimaryName
-    // as part of the find. So instead we'll pull the records and sort using Hash.
-    $results = $this->CoGroupMember->find('all', $args);
-    
-    // Before we sort we'll manually split out the members and owners for rendering.
-    // We could order by (eg) owner in the find, but we'll still need to walk the results
-    // to find the divide.
-    $members = array();
-    $owners = array();
-    
-    foreach($results as $r) {
-      if(isset($r['CoGroupMember']['owner']) && $r['CoGroupMember']['owner']) {
-        $owners[] = $r;
-      } else {
-        $members[] = $r;
-      }
-    }
-    
-    // Now sort each set of results by family name.
-    
-    $sortedMembers = Hash::sort($members, '{n}.CoPerson.PrimaryName.family', 'asc');
-    $sortedOwners = Hash::sort($owners, '{n}.CoPerson.PrimaryName.family', 'asc');
-    
-    // Finally, combine the two arrays back and return
-    
-    return array_merge($sortedOwners, $sortedMembers);
-  }
-  
-  /**
    * Determine if the group is an admin group for COU.
    * 
    * @since COmanage Registry v0.9.3

@@ -37,6 +37,8 @@ class SqlProvisionerListener implements CakeEventListener {
 
   public function implementedEvents() {
     return array(
+      // This listener picks up changes to the reference data models (which
+      // normally do not trigger provisioning) in order to update the SP copies
       'Model.afterDelete' => 'syncReferenceData',
       'Model.afterSave'   => 'syncReferenceData'
     );

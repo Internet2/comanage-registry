@@ -71,8 +71,7 @@
         <th><?php print $this->Paginator->sort('title', _txt('fd.link.title')); ?></th>
         <th><?php print $this->Paginator->sort('url', _txt('fd.link.url')); ?></th>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
-        <th><?php print $this->Paginator->sort('ordr', _txt('fd.link.order')); ?></th>
-
+        <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.link.order')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
