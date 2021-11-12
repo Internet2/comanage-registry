@@ -240,6 +240,7 @@ $cm_texts['en_US'] = array(
   'ef.step.sendConfirmation'         => 'Request Email Address Confirmation',
   'ef.step.start'                    => 'Start',
   'ef.step.tandcAgreement'           => 'Agree to Terms and Conditions',
+  'ef.step.tandcPetitioner'          => 'Agree to Terms and Conditions',
   'ef.step.waitForApproval'          => 'Wait For Approval',
   'ef.step.waitForConfirmation'      => 'Wait For Confirmation',
   
