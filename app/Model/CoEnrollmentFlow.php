@@ -640,6 +640,7 @@ class CoEnrollmentFlow extends AppModel {
       $ret['tandcAgreement']['enabled'] = RequiredEnum::Required;
     } else {
       $ret['tandcAgreement']['enabled'] = RequiredEnum::NotPermitted;
+      $ret['tandcPetitioner']['enabled'] = RequiredEnum::NotPermitted;
     }
     
     $ret['tandcAgreement']['role'] = $ret['checkEligibility']['role'];
