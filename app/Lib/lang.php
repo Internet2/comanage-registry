@@ -1430,7 +1430,7 @@ original notification at
   'fd.ef.vmt.desc' => 'Message template used for email sent as part of verification step',
   'fd.ef.vsub' =>     'Subject For Verification Email',
   'fd.ef.vsub.desc' => 'Subject line for email message sent as part of verification step.',
-  'fd.ef.allowlist' => 'Return URL Whitelist',
+  'fd.ef.allowlist' => 'Return URL Allow List',
   'fd.ef.allowlist.desc' => 'Permitted regular expressions (one per line) for <i>return</i> parameter, which if specified overrides Finalization Redirect URL',
   // (End enrollment configuration fields)
   // Enrollment Flow Template Names
