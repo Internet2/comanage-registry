@@ -242,6 +242,17 @@ class CoEnrollmentFlowWedgesController extends StandardController {
       $target['coef'] = filter_var($this->request->data['CoEnrollmentFlowWedge']['co_enrollment_flow_id'],FILTER_SANITIZE_SPECIAL_CHARS);
 
       $this->redirect($target);
+    } else {
+      // This was probably a delete, redirect to the enrollment flow index as
+      // a lazy but minimal default
+      
+      $target = array();
+      $target['plugin'] = null;
+      $target['controller'] = 'co_enrollment_flows';
+      $target['action'] = 'index';
+      $target['co'] = $this->cur_co['Co']['id'];
+      
+      $this->redirect($target);
     }
     
     parent::performRedirect();
