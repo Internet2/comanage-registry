@@ -35,8 +35,8 @@ class NormalizationBehavior extends ModelBehavior {
    * @throws RuntimeException
    */
   
-  public function beforeValidate(Model $model, $options = array()) {
-    $model->data = $this->normalize($model, $model->data);
+  public function beforeSave(Model $model, $options = array()) {
+    $model->data = $this->normalize($model, $model->data, false, $options);
     
     return true;
   }
@@ -48,13 +48,22 @@ class NormalizationBehavior extends ModelBehavior {
    * @param  Model $model Model instance
    * @param  Array $data Data to normalize in usual format; need not belong to $model
    * @param  Integer $coId CO ID data belongs to, or null for Org Identity data, or false to determine from $data ($data must then belong to $model)
+   * @param  array List of Save options
    * @return boolean true on success
    * @throws RuntimeException
    */
   
-  public function normalize(Model $model, $data, $coId = false) {
+  public function normalize(Model $model, $data, $coId = false, $options = array()) {
     $mname = $model->alias;
-    
+
+    // Are there any types of normalization that we need to skip
+    $normalization_dis = array();
+    foreach (DefaultNormalizerTypeEnum::$type as $key => $value) {
+      if(isset($options[$key]) && !$options[$key]) {
+        $normalization_dis[] = $key;
+      }
+    }
+
     // If $coId is false, look for a CO ID. If we don't find one or if $coId is null,
     // we're dealing with org identity data, which normalizations don't currently support.
     
@@ -113,7 +122,7 @@ class NormalizationBehavior extends ModelBehavior {
       
       if($pluginModel->isPlugin('normalizer')) {
         try {
-          $data = $pluginModel->normalize($data);
+          $data = $pluginModel->normalize($data, $normalization_dis);
         }
         catch(Exception $e) {
           throw new RuntimeException($e->getMessage());

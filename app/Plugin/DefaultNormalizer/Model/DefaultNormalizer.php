@@ -52,51 +52,52 @@ class DefaultNormalizer extends AppModel {
    *
    * @since  COmanage Registry v0.9.2
    * @param  Array Data to be saved, in typical Cake format
+   * @param  Array Type of normalizations that we will skip
    * @return Array Data in the same format
    */
   
-  public function normalize($data) {
+  public function normalize($data, $normalization_dis = array()) {
     $ret = $data;
     
     $normalizations = array(
       'Address' => array(
-        'mixCase' => array('street', 'locality', 'state', 'country'),
-        'trimWhitespace' => array('street', 'locality', 'state', 'postal_code', 'country')
+        NormalizerTypeEnum::MixCase => array('street', 'locality', 'state', 'country'),
+        NormalizerTypeEnum::TrimWhitespace => array('street', 'locality', 'state', 'postal_code', 'country')
       ),
       'CoPersonRole' => array(
-        'mixCase' => array('title', 'o', 'ou'),
-        'trimWhitespace' => array('title', 'o', 'ou')
+        NormalizerTypeEnum::MixCase => array('title', 'o', 'ou'),
+        NormalizerTypeEnum::TrimWhitespace => array('title', 'o', 'ou')
       ),
       // We get passed the alias, not the model name during enrollment.
       // There's not an obvious generic way to figure the out, but for now this
       // only happens here, so we simply duplicate the rules. (CO-1550)
       'EnrolleeCoPersonRole' => array(
-        'mixCase' => array('title', 'o', 'ou'),
-        'trimWhitespace' => array('title', 'o', 'ou')
+        NormalizerTypeEnum::MixCase => array('title', 'o', 'ou'),
+        NormalizerTypeEnum::TrimWhitespace => array('title', 'o', 'ou')
       ),
       'EmailAddress' => array(
         // Note cake validation will likely prevent this from being called
-        'trimWhitespace' => array('mail')
+        NormalizerTypeEnum::TrimWhitespace => array('mail')
       ),
       'Identifier' => array(
-        'trimWhiteSpace' => array('identifier')
+        NormalizerTypeEnum::TrimWhitespace => array('identifier')
       ),
       'Name' => array(
         // For now, we don't mix case to avoid dealing with issues like people who
         // go by lowercase names, or McPherson-style capitalization
-        'trimWhitespace' => array('honorific', 'given', 'middle', 'family', 'suffix')
+        NormalizerTypeEnum::TrimWhitespace => array('honorific', 'given', 'middle', 'family', 'suffix')
       ),
       'TelephoneNumber' => array(
         // Following E.123 format, we only use spaces in telephone numbers
         // (the + and extension label get added by formatTelephone at rendering time)
-        'punctuationToSpace' => array('country_code', 'area_code', 'number', 'extension'),
-        'trimWhitespace' => array('country_code', 'area_code', 'number', 'extension')
+        NormalizerTypeEnum::PunctuationToSpace => array('country_code', 'area_code', 'number', 'extension'),
+        NormalizerTypeEnum::TrimWhitespace => array('country_code', 'area_code', 'number', 'extension')
       ),
       'Url' => array(
         // We don't normalize an http:// prefix because cake validation will prevent
         // a URL from being submitted without a prefix (and we wouldn't know the
         // protocol anyway).
-        'trimWhitespace' => array('url')
+        NormalizerTypeEnum::TrimWhitespace => array('url')
       )
     );
     
@@ -134,7 +135,7 @@ class DefaultNormalizer extends AppModel {
             // We only trim whitespace since we can't say too much about the contents
             // of the extended attribute.
             
-            $normalizations[$model]['trimWhitespace'][] = $name;
+            $normalizations[$model][NormalizerTypeEnum::TrimWhitespace][] = $name;
           }
         }
       }
@@ -147,9 +148,14 @@ class DefaultNormalizer extends AppModel {
       // Run the appropriate normalizations for each field within the model
       
       foreach(array_keys($normalizations[$model]) as $normalization) {
+        // Skip a normalization if found in the exception list
+        if(in_array($normalization, $normalization_dis)) {
+          continue;
+        }
         foreach($normalizations[$model][$normalization] as $field) {
           if(!empty($ret[$model][$field])) {
-            $ret[$model][$field] = $this->$normalization($ret[$model][$field], $field);
+            $func = lcfirst( (NormalizerTypeEnum::$type)[$normalization] );
+            $ret[$model][$field] = $this->$func($ret[$model][$field], $field);
           }
         }
       }
