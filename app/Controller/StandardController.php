@@ -565,10 +565,10 @@ class StandardController extends AppController {
       catch(InvalidArgumentException $e) {
         // See if we have invalid fields
         $invalidFields = $this->Api->getInvalidFields();
-        
+        $this->set('vv_id', $id);
+
         if($invalidFields) {
           // Pass them to the view
-          $this->set('vv_id', $id);
           $this->set('invalid_fields', $invalidFields);
         } else {
           // We don't do this anywhere else, but we should, at least in API v2
