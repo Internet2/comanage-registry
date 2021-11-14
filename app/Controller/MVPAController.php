@@ -34,11 +34,14 @@ class MVPAController extends StandardController {
   // Use the lightbox layout for view
   public function view($id) {
     parent::view($id);
-    $req = $this->modelClass;
-    $model = $this->$req;
-    $modelpl = Inflector::tableize($req);
-    $this->set('title_for_layout', _txt('ct.' . $modelpl . '.1'));
-    $this->layout = 'lightbox';
+    if(!isset($this->request->params["named"]["render"])
+       || $this->request->params["named"]["render"] !== 'norm') {
+        $req = $this->modelClass;
+        $model = $this->$req;
+        $modelpl = Inflector::tableize($req);
+        $this->set('title_for_layout', _txt('ct.' . $modelpl . '.1'));
+        $this->layout = 'lightbox';
+    }
   }
   
   /**
