@@ -380,8 +380,6 @@ class ApiComponent extends Component {
    */
   
   public function requestedCOID($model, $request, $data) {
-    $coid = null;
-    
     // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
     // for REST operations that meet the following requirements:
     //
@@ -443,38 +441,41 @@ class ApiComponent extends Component {
             if($request->method() == 'GET') {
               if(!empty($request->query[$k])) {
                 if($k == 'coid') {
-                  $coid = $request->query['coid'];
+                  return $request->query['coid'];
                 } else {
                   // For any other key, we need to map it to a CO
-                  
                   $ParentModel = ClassRegistry::init($m);
-                  
-                  $coid = $ParentModel->findCoForRecord($request->query[$k]);
+                  return $ParentModel->findCoForRecord($request->query[$k]);
                 }
-                
-                break;
               }
             } else {
               if(!empty($data[$k])) {
                 if($k == 'co_id') {
-                  $coid = $data['co_id'];
+                  return $data['co_id'];
                 } else {
                   // For any other key, we need to map it to a CO
-                  
                   $ParentModel = ClassRegistry::init($m);
-                  
-                  $coid = $ParentModel->findCoForRecord($data[$k]);
+                  return $ParentModel->findCoForRecord($data[$k]);
                 }
-                
-                break;
               }
             }
           }
         }
+        // Since i am here no direct CO relation found. Get the parents and retry
+        $mparents = $model->belongsTo ?: array();
+        foreach ($mparents as $mname => $mproperties) {
+          // Load the model before performing any more logic
+          $model = ClassRegistry::init($mname);
+          // Get up the tree until we find if we can associate the key with the model
+          $coid = $this->requestedCOID($model, $request, $data);
+          if(!is_null($coid)) {
+            return $coid;
+          }
+        }
       }
     }
-    
-    return $coid;
+
+    return null;
   }
   
   /**
