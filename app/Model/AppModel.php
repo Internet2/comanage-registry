@@ -304,6 +304,44 @@ class AppModel extends Model {
     
     return true;
   }
+
+
+  /**
+   * Calculate the title for the layout
+   *
+   * @since  COmanage Registry v4.0.1
+   * @param  Array   $data    request data
+   * @param  boolean $requires_person  Does the controller require a coperson id
+   * @return String  Title string
+   */
+
+  public function calculateTitleForLayout($data, $requires_person) {
+    $model = get_class($this);
+    $req = Inflector::pluralize($model);
+    $modelpl = Inflector::tableize($req);
+
+    $t = _txt('ct.' . $modelpl . '.1');
+
+    if (!empty($data['PrimaryName'])) {
+      $t = generateCn($data['PrimaryName']);
+    } elseif (!empty($data['Name'])) {
+      $t = generateCn($data['Name']);
+    } elseif (!empty($data[$model][$this->displayField])) {
+      $t = $data[$model][$this->displayField];
+    }
+
+    if ($requires_person) {
+      if (!empty($data[$model]['co_person_id'])) {
+        $t .= " (" . _txt('ct.co_people.1') . ")";
+      } elseif (!empty($data[$model]['co_person_role_id'])) {
+        $t .= " (" . _txt('ct.co_person_roles.1') . ")";
+      } elseif (!empty($data[$model]['org_identity_id'])) {
+        $t .= " (" . _txt('ct.org_identities.1') . ")";
+      }
+    }
+
+    return $t;
+  }
   
   /**
    * Compare one model's worth of data and generate a string describing what changed, suitable for
