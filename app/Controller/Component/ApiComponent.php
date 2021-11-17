@@ -337,9 +337,7 @@ class ApiComponent extends Component {
       
       switch($this->request->params['ext']) {
         case 'json':
-          $fh = fopen('php://input', 'r');
-          $doc = stream_get_contents($fh);
-          fclose($fh);
+          $doc = file_get_contents("php://input");
           if(!empty($doc)) {
             $json = json_decode($doc, true);
             
@@ -353,9 +351,7 @@ class ApiComponent extends Component {
           }
           break;
         case 'xml':
-          $fh = fopen('php://input', 'r');
-          $doc = stream_get_contents($fh);
-          fclose($fh);
+          $doc = file_get_contents("php://input");
           if(!empty($doc)) {
             $xml = Xml::toArray(Xml::build($doc));
             $this->reqData = $xml[$this->reqModelNamePl][$this->reqModelName];
