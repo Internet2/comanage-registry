@@ -680,6 +680,9 @@ class CoPeopleController extends StandardController {
    */
 
   public function index() {
+    $req = $this->modelClass;
+    $model = $this->$req;
+
     if(!empty($this->request->query)) {
       $requestKeys = array_keys($this->request->query);
       $coidKey = array_search('coid', $requestKeys);
@@ -695,6 +698,7 @@ class CoPeopleController extends StandardController {
        // should probably get merged at some point (CO-1053, etc).
        && !in_array('search_identifier', $requestKeys)
        && sizeof($requestKeys)>0) {
+      $this->set('vv_model_version', $model->version);
       $this->match();
     } else {
       parent::index();
