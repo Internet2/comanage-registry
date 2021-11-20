@@ -1684,14 +1684,23 @@ class AppModel extends Model {
           // Mismatch, implying bad input
           return _txt('er.input.invalid');
         }
+
+        // We require at least one non-whitespace character (CO-1551)
+        if(!preg_match('/\S/', $v)) {
+          return _txt('er.input.blank');
+        }
+
+        // Has the value an acceptable length (CO-2058)
+        if($this->_schema[$k]['type'] == 'string') {
+          if(strlen($v) > (int)$this->_schema[$k]['length']) {
+            return _txt('er.input.len', array($this->_schema[$k]['length']));
+          }
+        }
       }
     }
-    
-    // We require at least one non-whitespace character (CO-1551)
-    if(!preg_match('/\S/', $v)) {
-      return _txt('er.input.blank');
-    }
-    
+
+
+
     return true;
   }
   

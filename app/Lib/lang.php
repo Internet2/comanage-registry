@@ -1078,6 +1078,7 @@ original notification at
   'er.input.blank' => 'Value cannot consist of only blank characters',
   'er.input.invalid' => 'Invalid character found',
   'er.input.range' => 'Value not in permitted range',
+  'er.input.len' => 'Value not in permitted range, max length permitted "%1$s"',
   'er.inv.exp' =>     'Invitation Expired',
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
