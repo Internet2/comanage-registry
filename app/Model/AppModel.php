@@ -1691,7 +1691,7 @@ class AppModel extends Model {
         }
 
         // Has the value an acceptable length (CO-2058)
-        if($this->_schema[$k]['type'] == 'string') {
+        if(!empty($this->_schema[$k]['type']) && $this->_schema[$k]['type'] == 'string') {
           if(strlen($v) > (int)$this->_schema[$k]['length']) {
             return _txt('er.input.len', array($this->_schema[$k]['length']));
           }
