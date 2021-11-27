@@ -33,7 +33,8 @@ class Dictionary extends AppModel {
   public $belongsTo = array("Co");
   
   public $hasMany = array(
-    "DictionaryEntry" => array('dependent' => true)
+    "DictionaryEntry" => array('dependent' => true),
+    "AttributeEnumeration"
   );
   
   // Default display field for cake generated views

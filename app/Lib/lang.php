@@ -1012,6 +1012,7 @@ original notification at
   'er.db.save' =>     'Database save failed',
   'er.db.save-a' =>   'Database save failed: %1$s',
   'er.dict.entry.mode' => 'Unsupported Dictionary Mode for Dictionary Entries',
+  'er.dict.with.attr' => 'Dictionary is in use by %1$s Attribute Enumerators and can not be deleted',
   'er.ea.alter' =>    'Failed to alter table for attribute',
   'er.ea.exists' =>   'An attribute named "%1$s" already exists within the CO',
   'er.ea.index' =>    'Failed to update index for attribute',
