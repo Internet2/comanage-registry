@@ -63,7 +63,7 @@ class StandardController extends AppController {
       // Validate
       
       try {
-        $this->Api->checkRestPost();
+        $this->Api->checkRestPost($this->cur_co['Co']['id']);
         $data[$req] = $this->Api->getData();
         
         if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {
@@ -540,7 +540,7 @@ class StandardController extends AppController {
       // Validate
       
       try {
-        $this->Api->checkRestPost();
+        $this->Api->checkRestPost($this->cur_co['Co']['id']);
         $data[$req] = $this->Api->getData();
         
         if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {

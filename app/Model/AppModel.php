@@ -208,104 +208,6 @@ class AppModel extends Model {
   }
   
   /**
-   * Actions to take before a validate operation is executed.
-   *
-   * @since  COmanage Registry v3.3.3
-   */
-
-  public function beforeValidate($options = array()) {
-    // If this is an update, verify foreign keys. We could inject validation
-    // rules and let validator() handle this, but it's simpler to just do it
-    // here (for now).
-    
-    if(!empty($this->data[$this->alias]['id'])
-       && !empty($this->validate)) {
-      // We need to full a copy of the current record for comparison
-      
-      $args = array();
-      $args['conditions'][$this->alias.'.id'] = $this->data[$this->alias]['id'];
-      $args['contain'] = false;
-      
-      $current = $this->find('first', $args);
-      
-      foreach(array_keys($this->validate) as $field) {
-        if(preg_match('/_id$/', $field)) {
-          // If the key is present in the new data, compare it to the current
-          // value and reject any changes (which are only plausible via the API,
-          // since the UI generally doesn't allow foreign keys to be changed).
-          // (If the new value is blank, we're probably in saveField.)
-          
-          if(isset($this->data[$this->alias][$field])
-             && $this->data[$this->alias][$field] != $current[$this->alias][$field]) {
-            $frozen = true;
-            
-            // The value for this foreign key has changed. Since if the model
-            // validation permits unfreezing, and if so what scope.
-            
-            if(!empty($this->validate[$field]['content']['unfreeze'])) {
-              // "CO" is the only scope we currently support, meaning the
-              // new foreign key must be in the same CO
-              if($this->validate[$field]['content']['unfreeze'] == 'CO') {
-                // Map the values to their respective COs. Since foreign keys
-                // denote related models, we should easily be able to walk to
-                // the models
-                
-                if(!empty($this->data[$this->alias][$field])) {
-                  $key = substr($field, 0, strlen($field)-3);
-                  $model = Inflector::classify($key);
-                  
-                  if(!isset($this->$model)) {
-                    // We have an aliased foreign key (eg: notification_co_group_id)
-                    // that we need to map via $belongsTo.
-                    
-                    if(!empty($this->belongsTo)) {
-                      // We need to walk the array to find the foreign key
-                      
-                      foreach($this->belongsTo as $label => $config) {
-                        if(!empty($config['foreignKey'])
-                           && $config['foreignKey'] == $field) {
-                          $model = $label;
-                        }
-                      }
-                    }
-                    
-                    // If we fail to find the key, $this->$model will be null and
-                    // we'll throw a stack trace below. Not ideal, but it's a
-                    // programmer error to not have the relation properly defined.
-                  }
-                  
-                  // $current[$field] might be empty if the value was optional,
-                  // so determine the CO based on the actual record (which is
-                  // probably) the right way to do it anyway.
-                  $currentCo = $this->findCoForRecord($this->data[$this->alias]['id']);
-                  $newCo = $this->$model->findCoForRecord($this->data[$this->alias][$field]);
-                  
-                  if($currentCo !== $newCo) {
-                    throw new InvalidArgumentException(_txt('er.fields.api.co', array($field)), 400);
-                  }
-                }
-                // else we are unsetting this field. We don't need to map anything
-                
-                $frozen = false;
-              } elseif($this->validate[$field]['content']['unfreeze'] == 'yes') {
-                // This should only be used when a field is named foo_id for some
-                // reason, but is not actually a foreign key
-                $frozen = false;
-              }
-            }
-            
-            if($frozen) {
-              throw new InvalidArgumentException(_txt('er.fields.api.frozen', array($field)), 400);
-            }
-          }
-        }
-      }
-    }
-    
-    return true;
-  }
-  
-  /**
    * Compare one model's worth of data and generate a string describing what changed, suitable for
    * including in a history record.
    *
@@ -1516,6 +1418,67 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine if a record is contained to its CO.
+   *
+   * @since  COmanage Registry v4.0.1
+   * @param  array Array of fields to validate
+   * @param  array Array CO ID, as set by ApiComponent
+   * @return mixed True if all field strings validate, an error message otherwise
+   */
+  
+  public function validateCO($a, $d) {
+    // This validation rule is injected into the model's validation rules by
+    // ApiComponent for RESTful operations, which are less constrained than UI
+    // operations. It addresses CO-2294, and replaces the original fix for CO-2146.
+    
+    if(empty($d['coid'])) {
+      return true;
+    }
+    
+    foreach($a as $field => $value) {
+      if($field == 'co_id') {
+        // Simply compare $value
+        
+        if($value != $d['coid']) {
+          return _txt('er.fields.api.co.refer', array($field));
+        }
+      } else {
+        // Determine the model name from the key
+        $key = substr($field, 0, strlen($field)-3);
+        $model = Inflector::classify($key);
+        
+        if(!isset($this->$model)) {
+          // We have an aliased foreign key (eg: notification_co_group_id)
+          // that we need to map via $belongsTo.
+          
+          if(!empty($this->belongsTo)) {
+            // We need to walk the array to find the foreign key
+            
+            foreach($this->belongsTo as $label => $config) {
+              if(!empty($config['foreignKey'])
+                 && $config['foreignKey'] == $field) {
+                $model = $label;
+              }
+            }
+          }
+          
+          // If we fail to find the key, $this->$model will be null and
+          // we'll throw a stack trace below. Not ideal, but it's a
+          // programmer error to not have the relation properly defined.
+        }
+        
+        $targetCo = $this->$model->findCoForRecord($value);
+        
+        if($targetCo != $d['coid']) {
+          return _txt('er.fields.api.co', array($field));
+        }
+      }
+    }
+    
+    return true;
+  }
+
+  /**
    * Determine if a given value is valid for an Attribute Enumeration.
    *
    * @since  COmanage Registry v4.0.0
@@ -1533,7 +1496,7 @@ class AppModel extends Model {
     
     return true;
   }
-
+  
   /**
    * Try to normalize a given Attribute Enumeration
    *

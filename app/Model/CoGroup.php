@@ -167,9 +167,11 @@ class CoGroup extends AppModel {
       'allowEmpty' => true
     ),
     'cou_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'nesting_mode_all' => array(
       'rule' => array('boolean'),
