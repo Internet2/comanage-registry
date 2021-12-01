@@ -294,6 +294,18 @@ class CoEnrollmentAttributesController extends StandardController {
                 $this->set('vv_sponsor', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->find('first', $args));
               }
             }
+            
+            // Also populate the current manager, if set
+            if(!empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'])
+               && $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'] == 'r:manager_co_person_id'
+               && !empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
+              // The default value is a CO Person ID
+              $args = array();
+              $args['conditions']['CoPerson.id'] = $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'];
+              $args['contain'] = array('PrimaryName');
+              
+              $this->set('vv_manager', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->find('first', $args));
+            }
 
             // Assemble the list of available groups. Note we currently allow any group to be
             // specified (ie: whether or not it's open). The idea is that an Enrollment Flow

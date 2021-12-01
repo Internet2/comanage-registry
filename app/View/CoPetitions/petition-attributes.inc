@@ -67,8 +67,43 @@
       $("#sponsors").focus();
     });
 
-  });
+    $("#managers").autocomplete({
+      source: "<?php
+        // We inject the Petition ID and token into the request in case we need
+        // autocomplete for new enrollees (unregistered users)
+        $managerurl = array(
+          'controller' => 'co_people',
+          'action' => 'find',
+          'co' => $cur_co['Co']['id'],
+          'mode' => PeoplePickerModeEnum::Manager,
+          'petitionid' => $vv_co_petition_id,
+          'token' => $vv_petition_token
+        );
+        
+        print $this->Html->url($managerurl);
+      ?>",
+      minLength: 3,
+      select: function(event, ui) {
+        $("#managers").val(ui.item.label);
+        $("#EnrolleeCoPersonRoleManagerCoPersonId").val(ui.item.value);
+        return false;
+      }
+    });
 
+    // Used in inline-edit mode for Manager
+    $("#cm-ief-button-remove-EnrolleeCoPersonRoleManagerCoPersonId").click(function() {
+      reset_manager();
+      $(this).closest(".cm-ief-val").hide();
+      $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+      $("#managers").focus();
+    });
+  });
+  
+  function reset_manager() {
+    $("#managers").val("");
+    $("#EnrolleeCoPersonRoleManagerCoPersonId").val(null);
+  }
+  
   function reset_sponsor() {
     $("#sponsors").val("");
     $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(null);
@@ -268,6 +303,7 @@
 
               print "</div>\n";
               break;
+            case 'date':
             case 'validateTimestamp':
               // Handle dates specially to generate the popup calendar
               print '<div class="form-group">';
@@ -430,9 +466,62 @@
                   // Just print out the name
                   print generateCn($vv_default_sponsor['PrimaryName']);
                 }
+              } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id') {
+                // Manager always uses a people picker
+                
+                if($ea['modifiable']) {
+                  // Use a people picker
+                  print '<div class="cm-inline-editable-field">';
+                  $inlineEditableFields['manager-val']['set'] = false;
+
+                  if(!empty($vv_default_manager)) {
+                    $inlineEditableFields['manager-val']['set'] = true;
+
+                    print '<div class="cm-ief-val">';
+                    print generateCn($vv_default_manager['PrimaryName']);
+                    print $this->element('inlineEditControls', array(
+                      'fieldName' => 'EnrolleeCoPersonRoleManagerCoPersonId',
+                      'actions' => array('remove'),
+                      'visible' => true
+                    ));
+                    print '</div>';
+                  }
+
+                  $iefClasses = "cm-ief-widget";
+                  if ($inlineEditableFields['manager-val']['set']) {
+                    $iefClasses .= " hidden";
+                  }
+
+                  print '<div class="' . $iefClasses . '">';
+                  print ' <label for="managers">'
+                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
+                        . '</label>
+                           <div class="ui-widget">
+                             <input id="managers" type="text" class="form-control"/>'
+                        . $this->Form->hidden($fieldName,
+                                              array(
+                                                // We don't support two managers, but if we did this id would break
+                                                'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
+                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                              ))
+                        . '</div>
+                           <div class="field-desc">
+                             <span class="ui-icon ui-icon-info co-info"></span>
+                             <em>' . _txt('fd.manager.desc') . '</em>
+                           </div>';
+                  print '</div>'; // cm-ief-widget
+                  print '</div>'; // cm-inline-editable-field
+                  // We need to unlock the field for autocomplete manipulation
+                  $this->Form->unlockField('EnrolleeCoPersonRole.manager_co_person_id');
+                } elseif(!empty($vv_default_manager)) {
+                  // Just print out the name
+                  print generateCn($vv_default_manager['PrimaryName']);
+                }
               } else {
                 if($fieldName == 'EnrolleeCoPersonRole.sponsor_co_person_id-disabled') {
                   $args['value'] = generateCn($vv_default_sponsor['PrimaryName']);
+                } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id-disabled') {
+                  $args['value'] = generateCn($vv_default_manager['PrimaryName']);
                 }
                 
                 // Render the form field, label, and error (if any)
@@ -495,6 +584,7 @@
                   print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
                 }
                 break;
+              case 'date':
               case 'validateTimestamp':
                 print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
                 break;
@@ -503,6 +593,10 @@
                    && !empty($co_petition_attribute_values[ $ea['id'] ]['sponsorPrimaryName'])) {
                   // Special case the sponsor
                   print $co_petition_attribute_values[ $ea['id'] ]['sponsorPrimaryName'];
+                } elseif($ea['field'] == 'manager_co_person_id'
+                   && !empty($co_petition_attribute_values[ $ea['id'] ]['managerPrimaryName'])) {
+                  // Special case the manager
+                  print $co_petition_attribute_values[ $ea['id'] ]['managerPrimaryName'];
                 } else {
                   // Otherwise just print out the field value
                   print $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];

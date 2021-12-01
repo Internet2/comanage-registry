@@ -915,8 +915,24 @@ class CoPetition extends AppModel {
       }
     }
     
-    // CO Person doesn't currently have any direct attributes that we track.
-    // Move on to related model attributes.
+    if(!empty($coData['EnrolleeCoPerson'])) {
+      foreach(array_keys($coData['EnrolleeCoPerson']) as $a) {
+        // We need to find the attribute ID for this attribute. If not found, we'll
+        // skip it (since it's probably something like co_id that we don't need to
+        // store here).
+        
+        if(isset($attrIDs['c:'.$a])
+           && isset($coData['EnrolleeCoPerson'][$a])
+           && $coData['EnrolleeCoPerson'][$a] != '') {
+          $petitionAttrs['CoPetitionAttribute'][] = array(
+            'co_petition_id' => $coPetitionID,
+            'co_enrollment_attribute_id' => $attrIDs['c:'.$a],
+            'attribute' => $a,
+            'value' => $coData['EnrolleeCoPerson'][$a]
+          );
+        }
+      }
+    }
     
     foreach(array_keys($coData) as $m) {
       // Loop through the related models, which may or may not be hasMany.

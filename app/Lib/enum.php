@@ -560,6 +560,7 @@ class OrgIdentityStatusEnum
 
 class PeoplePickerModeEnum
 {
+  const Manager   = 'M';
   const Sponsor   = 'S';
   const All       = 'AL';
 }

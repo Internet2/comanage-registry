@@ -476,17 +476,20 @@ class CoPetitionsController extends StandardController {
           );
           $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
           
-          // As a special case, we need to convert sponsor_co_person_id to a name
+          // As a special case, we need to convert sponsor_co_person_id and
+          // manager_co_person_id to names
           foreach($vAttrs as $id => $a) {
-            if(!empty($a['sponsor_co_person_id'])) {
-              $args = array();
-              $args['conditions']['CoPerson.id'] = $a['sponsor_co_person_id'];
-              $args['contain'] = array('PrimaryName');
-              
-              $pName = $this->CoPetition->Co->CoPerson->find('first', $args);
-              
-              if(!empty($pName)) {
-                $vAttrs[$id]['sponsorPrimaryName'] = generateCn($pName['PrimaryName']) . " (" . $a['sponsor_co_person_id'] . ")";
+            foreach(array('manager', 'sponsor') as $t) {
+              if(!empty($a[$t.'_co_person_id'])) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $a[$t.'_co_person_id'];
+                $args['contain'] = array('PrimaryName');
+                
+                $pName = $this->CoPetition->Co->CoPerson->find('first', $args);
+                
+                if(!empty($pName)) {
+                  $vAttrs[$id][$t.'PrimaryName'] = generateCn($pName['PrimaryName']) . " (" . $a[$t.'_co_person_id'] . ")";
+                }
               }
             }
           }
@@ -549,6 +552,8 @@ class CoPetitionsController extends StandardController {
           // are in use, at least). We start by looking for an enrollment attribute
           // for sponsor_co_person_id with a default value.
           
+          // We do a similar but simpler check for default manager.
+          
           for($i = 0;$i < count($enrollmentAttributes);$i++) {
             if($enrollmentAttributes[$i]['attribute'] == "r:sponsor_co_person_id") {
               $defaultCoPersonId = null;
@@ -586,10 +591,30 @@ class CoPetitionsController extends StandardController {
                 $this->set('vv_default_sponsor', $this->CoPetition->Co->CoPerson->find('first', $args));
               }
               
-              // In theory there could be more than one sponsor attribute found, but
-              // we don't currently support multiple sponsors so we just work with the
-              // first one we find.
-              break;
+              // While in theory there could be more than one sponsor attribute
+              // found, we don't currently support multiple sponsors. However,
+              // we do need to keep looping for manager_co_person_id, so if
+              // more than one sponsor were specified we'd use the last one.
+            } elseif($enrollmentAttributes[$i]['attribute'] == "r:manager_co_person_id") {
+              $defaultCoPersonId = null;
+
+              if(!empty($enrollmentAttributes[$i]['default'])) {
+                // Now lookup the Manager CO Person
+                $defaultCoPersonId = $enrollmentAttributes[$i]['default'];
+              }
+              
+              if($defaultCoPersonId) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $defaultCoPersonId;
+                $args['contain'] = array('PrimaryName');
+                
+                $this->set('vv_default_manager', $this->CoPetition->Co->CoPerson->find('first', $args));
+              }
+
+              // While in theory there could be more than one manager attribute
+              // found, we don't currently support multiple managers. However,
+              // we do need to keep looping for sponsor_co_person_id, so if
+              // more than one manager were specified we'd use the last one.
             }
           }
         }
