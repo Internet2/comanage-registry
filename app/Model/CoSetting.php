@@ -410,7 +410,7 @@ class CoSetting extends AppModel {
   }
 
   /**
-   * Get person picker email address type for display.
+   * Get person picker email address type.
    *
    * @since  COmanage Registry v4.1.0
    * @param  integer $coId CO ID
@@ -422,7 +422,7 @@ class CoSetting extends AppModel {
   }
 
   /**
-   * Get person picker identifier type for display.
+   * Get person picker identifier type.
    *
    * @since  COmanage Registry v4.1.0
    * @param  integer $coId CO ID
