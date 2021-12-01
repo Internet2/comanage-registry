@@ -1933,6 +1933,19 @@ ul.form-list .field-desc {
 ul.form-list .fields-header {
   background-color: #fff;
 }
+ul.form-list .subfield-title {
+  font-weight: bold;
+}
+ul.form-list .subfield-cols {
+  display: flex;
+}
+ul.form-list .field-col {
+  padding: 0 0 0.5em 1em;
+}
+ul.form-list .field-col .subfield-title {
+  display: block;
+  margin-bottom: 0;
+}
 ul.form-list input[type="text"],
 ul.form-list input[type="number"],
 ul.form-list input[type="password"],

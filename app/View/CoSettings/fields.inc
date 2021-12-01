@@ -489,6 +489,62 @@
                    : filter_var($co_settings[0]['CoSetting']['global_search_limit'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name align-top">
+      <div class="field-title"><?php print _txt('fd.person.picker.display'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.person.picker.display.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <div class="subfield subfield-cols">
+        <div class="field-col">
+          <?php
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['person_picker_email_type'])
+                             ? $co_settings[0]['CoSetting']['person_picker_email_type']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['class'] = 'form-control';
+
+          print $this->Form->label('person_picker_email_type',_txt('fd.email_address.mail'),array('class' => 'subfield-title'));
+          if($e) {
+            print $this->Form->select('person_picker_email_type',
+                                      $vv_person_picker_email_types,
+                                      $attrs);
+
+            if($this->Form->isFieldError('person_picker_email_type')) {
+              print $this->Form->error('person_picker_email_type');
+            }
+          } else {
+            print _txt('en.email_address.type', null, $co_settings[0]['CoSetting']['person_picker_email_type']);
+          }
+          ?>
+        </div>
+        <div class="field-col">
+          <?php
+          $attrs = array();
+          $attrs['value'] = (isset($co_settings[0]['CoSetting']['person_picker_identifier_type'])
+                             ? $co_settings[0]['CoSetting']['person_picker_identifier_type']
+                             : null);
+          $attrs['empty'] = true;
+          $attrs['class'] = 'form-control';
+
+          print $this->Form->label('person_picker_identifier_type',_txt('fd.identifier.identifier'),array('class' => 'subfield-title'));
+          if($e) {
+            print $this->Form->select('person_picker_identifier_type',
+                                      $vv_person_picker_identifier_types,
+                                      $attrs);
+
+            if($this->Form->isFieldError('person_picker_identifier_type')) {
+              print $this->Form->error('person_picker_identifier_type');
+            }
+          } else {
+            print _txt('en.identifier.type', null, $co_settings[0]['CoSetting']['person_picker_identifier_type']);
+          }
+          ?>
+        </div>
+      </div>
+    </div>
+  </li>
   <?php if( $cur_co["Co"]["name"] === DEF_COMANAGE_CO_NAME): ?>
   <li>
     <div class="field-name">

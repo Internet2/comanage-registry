@@ -406,10 +406,10 @@ function formatCoPersonAutoselectItem(ul, item) {
   var itemMarkup = '<div class="cm-ac-item-wrapper">';
   itemMarkup += '<div class="cm-ac-name">' + item.label + '</div>';
   if(item.email != '') {
-    itemMarkup += '<div class="cm-ac-subitem cm-ac-email"><span class="cm-ac-label">' + item.emailLabel + ': </span>' + item.email + '</div>';
+    itemMarkup += '<div class="cm-ac-subitem cm-ac-email"><span class="cm-ac-label">' + item.emailLabel + '</span>' + item.email + '</div>';
   }
   if(item.identifier != '') {
-    itemMarkup += '<div class="cm-ac-subitem cm-ac-id"><span class="cm-ac-label">' + item.identifierLabel + ': </span>' + item.identifier + '</div>';
+    itemMarkup += '<div class="cm-ac-subitem cm-ac-id"><span class="cm-ac-label">' + item.identifierLabel + '</span>' + item.identifier + '</div>';
   }
   itemMarkup += '</div>';
   

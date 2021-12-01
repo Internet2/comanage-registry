@@ -551,27 +551,38 @@ class CoPeopleController extends StandardController {
       );
     } else {
       $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
+      $pickerEmailType = $this->Co->CoSetting->getPersonPickerEmailType($this->cur_co['Co']['id']);
+      $pickerIdentifierType = $this->Co->CoSetting->getPersonPickerIdentifierType($this->cur_co['Co']['id']);
       
       foreach($people as $p) {
         $label = generateCn($p['Name'][0]);
-        $idArr = Hash::extract($p['Identifier'], '{n}[type=uid]');
+        $idArr = $p['Identifier'];
         $emailArr = $p['EmailAddress'];
         $email = '';
+        $emailLabel = '';
         $id = '';
+        $idLabel = '';
           
         // Iterate over the email array
-        if (!empty($emailArr)) {
-          foreach($emailArr as $k => $e) {
-            $email .= $e['mail'];
-            if($k !== array_key_last($emailArr)) {
-              $email .= ', ';
-            } 
+        if(!empty($emailArr) && !empty($pickerEmailType)) {
+          $emailLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.email_address.mail'), $pickerEmailType));
+          foreach($emailArr as $e) {
+            if($e['type'] == $pickerEmailType) {
+              $email = $e['mail'];
+              break;
+            }
           }
         }
         
         // Set the identifier for display (and limit it to 30 characters max)
-        if (!empty($idArr[0]['identifier'])) {
-          $id = mb_strimwidth($idArr[0]['identifier'], 0, 30, '...');
+        if(!empty($idArr[0]['identifier']) && !empty($pickerIdentifierType)) {
+          $idLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.identifier.identifier'), $pickerIdentifierType));
+          foreach($idArr as $i) {
+            if($i['type'] == $pickerIdentifierType) {
+              $id = mb_strimwidth($i['identifier'], 0, 30, '...');
+              break;
+            }
+          }
         }
          
         // Make sure we don't already have an entry for this CO Person ID
@@ -580,9 +591,9 @@ class CoPeopleController extends StandardController {
             'value' => $p['CoPerson']['id'],
             'label' => $label,
             'email' => $email,
-            'emailLabel' => _txt('fd.email_address.mail'),
+            'emailLabel' => $emailLabel,
             'identifier' => $id,
-            'identifierLabel' => _txt('fd.identifier.identifier')
+            'identifierLabel' => $idLabel
           );
         }
       }

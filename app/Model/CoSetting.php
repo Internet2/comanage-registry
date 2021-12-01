@@ -114,6 +114,16 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'person_picker_email_type' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'person_picker_identifier_type' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     't_and_c_login' => array(
       'rule' => array('inList',
                       array(TAndCLoginModeEnum::NotEnforced,
@@ -189,6 +199,8 @@ class CoSetting extends AppModel {
     'required_fields_name'       => RequiredNameFieldsEnum::Given,
     'sponsor_co_group_id'        => null,
     'sponsor_eligibility'        => SponsorEligibilityEnum::CoOrCouAdmin,
+    'person_picker_email_type'   => null,
+    'person_picker_identifier_type' => null,
     't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced,
     'enable_empty_cou'           => false,
     'theme_stacking'             => SuspendableStatusEnum::Suspended,
@@ -395,6 +407,30 @@ class CoSetting extends AppModel {
     }
     
     return $this->lookupValue($coId, 'sponsor_co_group_id');
+  }
+
+  /**
+   * Get person picker email address type for display.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId CO ID
+   * @return CoExtendedType Email Address Type
+   */
+
+  public function getPersonPickerEmailType($coId) {
+    return $this->lookupValue($coId, 'person_picker_email_type');
+  }
+
+  /**
+   * Get person picker identifier type for display.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId CO ID
+   * @return CoExtendedType Identifier Type
+   */
+
+  public function getPersonPickerIdentifierType($coId) {
+    return $this->lookupValue($coId, 'person_picker_identifier_type');
   }
 
   /**
