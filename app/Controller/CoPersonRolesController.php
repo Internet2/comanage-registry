@@ -52,6 +52,7 @@ class CoPersonRolesController extends StandardController {
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'AdHocAttribute' => array('SourceAdHocAttribute' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'CoPerson', // Used to check status recalculation on save
+    'ManagerCoPerson' => array('PrimaryName'),
     'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );
@@ -61,6 +62,7 @@ class CoPersonRolesController extends StandardController {
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'AdHocAttribute' => array('SourceAdHocAttribute' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Cou',
+    'ManagerCoPerson' => array('PrimaryName'),
     'SponsorCoPerson' => array('PrimaryName'),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );

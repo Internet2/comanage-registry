@@ -127,7 +127,7 @@
       <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
         reset_sponsor();
       <?php endif; // vv_sponsor_mode ?>
-
+      
       // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
       $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
         reset_sponsor();
@@ -135,8 +135,30 @@
         $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
         $("#sponsors").focus();
       });
-
+      
+      // Unlike sponsor, manager is always active
+      $("#managers").autocomplete({
+        source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Manager)); ?>",
+        minLength: 3,
+        select: function(event, ui) {
+          $("#managers").val(ui.item.label);
+          $("#manager_co_person_id").val(ui.item.value);
+          return false;
+        }
+      });
+      
+      $("#cm-ief-button-remove-manager_co_person_id").click(function() {
+        reset_manager();
+        $(this).closest(".cm-ief-val").hide();
+        $(this).closest(".cm-inline-editable-field").find(".cm-ief-widget").removeClass('hidden');
+        $("#managers").focus();
+      });
     });
+    
+    function reset_manager() {
+      $("#managers").val("");
+      $("#manager_co_person_id").val(null);
+    }
     
     function reset_sponsor() {
       $("#sponsors").val("");
@@ -473,6 +495,82 @@
               </div>
             </li>
             <?php endif; // vv_sponsor_mode ?>
+            <li>
+              <div class="field-name">
+                <?php
+                  if($e && !$es) {
+                    // The manager field is a manual placeholder, so we generate the label manually too
+                    print '<label for="managers">' . _txt('fd.manager') . "</label>";
+                  } else {
+                    print _txt('fd.manager');
+                  }
+                ?><br />
+              </div>
+              <div class="field-info">
+                <?php if(isset($vv_sponsor_valid) && !$vv_sponsor_valid): ?>
+                  <div class="field-desc">
+                    <span class="ui-icon ui-icon-info co-info"></span>
+                    <em><?php print _txt('fd.sponsor.inel'); ?></em>
+                  </div>
+                <?php endif; ?>
+
+                <?php
+                  if($e && !$es) {
+                    // Unlike sponsors, managers always uses a people picker
+                    // since by the time an organization is large enough to want
+                    // to track managers we're probably past the ~50 threshold
+                    // we use for sponsors.
+                    print '<div class="cm-inline-editable-field">';
+                    $inlineEditableFields['manager-val']['set'] = false;
+
+                    if(!empty($co_person_roles[0]['CoPersonRole']['manager_co_person_id'])
+                       && !empty($co_person_roles[0]['ManagerCoPerson']['PrimaryName'])) {
+
+                      $inlineEditableFields['manager-val']['set'] = true;
+
+                      print '<div class="cm-ief-val">';
+                      print $this->Html->link(
+                        generateCn($co_person_roles[0]['ManagerCoPerson']['PrimaryName']),
+                        array(
+                          'controller' => 'co_people',
+                          'action' => 'canvas',
+                          $co_person_roles[0]['ManagerCoPerson']['id']
+                        )
+                      );
+
+                      print $this->element('inlineEditControls', array(
+                        'fieldName' => 'manager_co_person_id',
+                        'actions' => array('remove')
+                      ));
+                      
+                      print '</div>';
+                    }
+
+                    $iefClasses = "cm-ief-widget";
+                    if ($inlineEditableFields['manager-val']['set']) {
+                      $iefClasses .= " hidden";
+                    }
+
+                    print '<div class="' . $iefClasses . '">
+                             <div class="ui-widget">                      
+                               <input id="managers" type="text" />'
+                               . $this->Form->hidden('manager_co_person_id',
+                               array(
+                                 'id'      => 'manager_co_person_id',
+                                 'default' => (!empty($co_person_roles[0]['CoPersonRole']['manager_co_person_id'])) ? $co_person_roles[0]['CoPersonRole']['manager_co_person_id'] : null
+                               ))
+                          . '</div>
+                             <div class="field-desc">
+                               <span class="ui-icon ui-icon-info co-info"></span>
+                               <em>' . _txt('fd.manager.desc') . '</em>
+                             </div>';
+                    print '</div>';
+                    // We need to unlock the field for autocomplete manipulation
+                    $this->Form->unlockField('CoPersonRole.manager_co_person_id');
+                  }
+                ?>
+              </div>
+            </li>
             <li class="modelbox-data">
               <div class="field-name">
                 <?php
