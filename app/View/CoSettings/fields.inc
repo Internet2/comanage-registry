@@ -491,7 +491,7 @@
   </li>
   <li>
     <div class="field-name align-top">
-      <div class="field-title"><?php print _txt('fd.person.picker.display'); ?></div>
+      <div class="field-title"><?php print _txt('fd.person.picker.display.fields'); ?></div>
       <div class="field-desc"><?php print _txt('fd.person.picker.display.desc'); ?></div>
     </div>
     <div class="field-info">
@@ -542,6 +542,16 @@
           }
           ?>
         </div>
+      </div>
+      <div class="checkbox">
+        <?php
+        print ($e
+          ? $this->Form->input('person_picker_display_types')
+          : (isset($co_settings[0]['CoSetting']['person_picker_display_types'])
+          && $co_settings[0]['CoSetting']['person_picker_display_types']
+            ? _txt('fd.yes') : _txt('fd.no')));
+        print ' ' . $this->Form->label('person_picker_display_types',_txt('fd.person.picker.display.types'));
+        ?>
       </div>
     </div>
   </li>

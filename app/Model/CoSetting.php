@@ -124,6 +124,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'person_picker_display_types' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     't_and_c_login' => array(
       'rule' => array('inList',
                       array(TAndCLoginModeEnum::NotEnforced,
@@ -201,6 +206,7 @@ class CoSetting extends AppModel {
     'sponsor_eligibility'        => SponsorEligibilityEnum::CoOrCouAdmin,
     'person_picker_email_type'   => null,
     'person_picker_identifier_type' => null,
+    'person_picker_display_types' => true,
     't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced,
     'enable_empty_cou'           => false,
     'theme_stacking'             => SuspendableStatusEnum::Suspended,
@@ -431,6 +437,18 @@ class CoSetting extends AppModel {
 
   public function getPersonPickerIdentifierType($coId) {
     return $this->lookupValue($coId, 'person_picker_identifier_type');
+  }
+
+  /**
+   * Get person picker display types.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+
+  public function getPersonPickerDisplayTypes($coId) {
+    return $this->lookupValue($coId, 'person_picker_display_types');
   }
 
   /**

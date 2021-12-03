@@ -2953,6 +2953,7 @@
     <field name="required_fields_name" type="C" size="160" />
     <field name="person_picker_email_type" type="C" size="160" />
     <field name="person_picker_identifier_type" type="C" size="160" />
+    <field name="person_picker_display_types" type="L" />
     <field name="t_and_c_login_mode" type="C" size="2" />
     <field name="sponsor_eligibility" type="C" size="2" />
     <field name="theme_stacking" type="C" size="2" />

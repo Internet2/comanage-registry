@@ -553,6 +553,7 @@ class CoPeopleController extends StandardController {
       $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
       $pickerEmailType = $this->Co->CoSetting->getPersonPickerEmailType($this->cur_co['Co']['id']);
       $pickerIdentifierType = $this->Co->CoSetting->getPersonPickerIdentifierType($this->cur_co['Co']['id']);
+      $pickerDisplayTypes = $this->Co->CoSetting->getPersonPickerDisplayTypes($this->cur_co['Co']['id']);
       
       foreach($people as $p) {
         $label = generateCn($p['Name'][0]);
@@ -565,10 +566,15 @@ class CoPeopleController extends StandardController {
           
         // Iterate over the email array
         if(!empty($emailArr) && !empty($pickerEmailType)) {
-          $emailLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.email_address.mail'), $pickerEmailType));
+          if(!empty($pickerDisplayTypes)) {
+            $emailLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.email_address.mail'), $pickerEmailType));
+          }
+          else {
+            $emailLabel = _txt('fd.email_address.mail') . ': ';
+          }
           foreach($emailArr as $e) {
             if($e['type'] == $pickerEmailType) {
-              $email = $e['mail'];
+              $email = $e['mail'] . ' ' . $pickerDisplayTypes;
               break;
             }
           }
@@ -576,7 +582,12 @@ class CoPeopleController extends StandardController {
         
         // Set the identifier for display (and limit it to 30 characters max)
         if(!empty($idArr[0]['identifier']) && !empty($pickerIdentifierType)) {
-          $idLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.identifier.identifier'), $pickerIdentifierType));
+          if(!empty($pickerDisplayTypes)) {
+            $idLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.identifier.identifier'), $pickerIdentifierType));
+          }
+          else {
+            $idLabel = _txt('fd.identifier.identifier') . ': ';
+          }
           foreach($idArr as $i) {
             if($i['type'] == $pickerIdentifierType) {
               $id = mb_strimwidth($i['identifier'], 0, 30, '...');

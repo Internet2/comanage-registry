@@ -1940,7 +1940,7 @@ ul.form-list .subfield-cols {
   display: flex;
 }
 ul.form-list .field-col {
-  padding: 0 0 0.5em 1em;
+  padding: 0 1em 0.5em 0;
 }
 ul.form-list .field-col .subfield-title {
   display: block;
