@@ -544,7 +544,7 @@ class CoGroupsController extends StandardController {
       }
     }
     
-    return parent::parseCOID();
+    return parent::parseCOID($data);
   }
   
   /**
