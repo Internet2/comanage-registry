@@ -29,7 +29,7 @@ App::uses("StandardController", "Controller");
 
 class DictionariesController extends StandardController {
   public $requires_co = true;
-  
+
   // Class name, used by Cake
   public $name = "Dictionaries";
   
@@ -40,6 +40,38 @@ class DictionariesController extends StandardController {
       'description' => 'asc'
     )
   );
+
+  public $delete_contains = array('AttributeEnumeration');
+
+  public $edit_contains = array();
+
+  public $view_contains = array();
+
+  /**
+   * Perform any dependency checks required prior to a delete operation.
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since  COmanage Registry v4.0.1
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+
+  function checkDeleteDependencies($curdata) {
+    // We can't delete a dictionary if it is linked to an attribute enumerator
+
+    if(!empty($curdata["AttributeEnumeration"])) {
+      $count = count($curdata["AttributeEnumeration"]);
+      // Return the error message
+      if($this->request->is('restful')) {
+        $this->Api->restResultHeader(403, _txt('er.dict.with.attr', array($count)));
+      } else {
+        $this->Flash->set(_txt('er.dict.with.attr', array($count)), array('key' => 'error'));
+      }
+      return false;
+    }
+
+    return true;
+  }
   
   /**
    * Authorization for this Controller, called by Auth component

@@ -63,7 +63,7 @@ class StandardController extends AppController {
       // Validate
       
       try {
-        $this->Api->checkRestPost();
+        $this->Api->checkRestPost($this->cur_co['Co']['id']);
         $data[$req] = $this->Api->getData();
         
         if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {
@@ -226,10 +226,12 @@ class StandardController extends AppController {
       $this->set('vv_servers', $this->Server->find('list', $args));
     }
 
-    // Include Search Block
-    $this->set('vv_search_fields', $this->searchConfig($this->action));
-    // Include alphabet Search bar
-    $this->set('vv_alphabet_search', $this->alphabetSearchConfig($this->action));
+    if(!$this->request->is('restful')) {
+      // Include Search Block
+      $this->set('vv_search_fields', $this->searchConfig($this->action));
+      // Include alphabet Search bar
+      $this->set('vv_alphabet_search', $this->alphabetSearchConfig($this->action));
+    }
 
     parent::beforeRender();
   }
@@ -520,7 +522,7 @@ class StandardController extends AppController {
       // Validate
       
       try {
-        $this->Api->checkRestPost();
+        $this->Api->checkRestPost($this->cur_co['Co']['id']);
         $data[$req] = $this->Api->getData();
         
         if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {

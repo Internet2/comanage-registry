@@ -1554,6 +1554,67 @@ class AppModel extends Model {
   }
   
   /**
+   * Determine if a record is contained to its CO.
+   *
+   * @since  COmanage Registry v4.0.1
+   * @param  array Array of fields to validate
+   * @param  array Array CO ID, as set by ApiComponent
+   * @return mixed True if all field strings validate, an error message otherwise
+   */
+  
+  public function validateCO($a, $d) {
+    // This validation rule is injected into the model's validation rules by
+    // ApiComponent for RESTful operations, which are less constrained than UI
+    // operations. It addresses CO-2294, and replaces the original fix for CO-2146.
+    
+    if(empty($d['coid'])) {
+      return true;
+    }
+    
+    foreach($a as $field => $value) {
+      if($field == 'co_id') {
+        // Simply compare $value
+        
+        if($value != $d['coid']) {
+          return _txt('er.fields.api.co.refer', array($field));
+        }
+      } else {
+        // Determine the model name from the key
+        $key = substr($field, 0, strlen($field)-3);
+        $model = Inflector::classify($key);
+        
+        if(!isset($this->$model)) {
+          // We have an aliased foreign key (eg: notification_co_group_id)
+          // that we need to map via $belongsTo.
+          
+          if(!empty($this->belongsTo)) {
+            // We need to walk the array to find the foreign key
+            
+            foreach($this->belongsTo as $label => $config) {
+              if(!empty($config['foreignKey'])
+                 && $config['foreignKey'] == $field) {
+                $model = $label;
+              }
+            }
+          }
+          
+          // If we fail to find the key, $this->$model will be null and
+          // we'll throw a stack trace below. Not ideal, but it's a
+          // programmer error to not have the relation properly defined.
+        }
+        
+        $targetCo = $this->$model->findCoForRecord($value);
+        
+        if($targetCo != $d['coid']) {
+          return _txt('er.fields.api.co', array($field));
+        }
+      }
+    }
+    
+    return true;
+  }
+
+  /**
    * Determine if a given value is valid for an Attribute Enumeration.
    *
    * @since  COmanage Registry v4.0.0
@@ -1571,7 +1632,7 @@ class AppModel extends Model {
     
     return true;
   }
-
+  
   /**
    * Try to normalize a given Attribute Enumeration
    *
@@ -1722,14 +1783,23 @@ class AppModel extends Model {
           // Mismatch, implying bad input
           return _txt('er.input.invalid');
         }
+
+        // We require at least one non-whitespace character (CO-1551)
+        if(!preg_match('/\S/', $v)) {
+          return _txt('er.input.blank');
+        }
+
+        // Has the value an acceptable length (CO-2058)
+        if(!empty($this->_schema[$k]['type']) && $this->_schema[$k]['type'] == 'string') {
+          if(strlen($v) > (int)$this->_schema[$k]['length']) {
+            return _txt('er.input.len', array($this->_schema[$k]['length']));
+          }
+        }
       }
     }
-    
-    // We require at least one non-whitespace character (CO-1551)
-    if(!preg_match('/\S/', $v)) {
-      return _txt('er.input.blank');
-    }
-    
+
+
+
     return true;
   }
   

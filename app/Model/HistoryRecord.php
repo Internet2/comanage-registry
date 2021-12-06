@@ -60,34 +60,46 @@ class HistoryRecord extends AppModel {
   // Validation rules for table elements
   public $validate = array(
     'co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'co_person_role_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'org_identity_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'co_group_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'co_email_list_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'actor_co_person_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'action' => array(
       'rule' => array('maxLength', 4),
