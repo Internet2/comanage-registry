@@ -50,6 +50,16 @@ class NamesController extends MVPAController {
                            'PrimaryName'),
     'SourceName'
   );
+
+  // Use the lightbox layout for view
+  public function view($id) {
+    parent::view($id);
+    $req = $this->modelClass;
+    $model = $this->$req;
+    $modelpl = Inflector::tableize($req);
+    $this->set('title_for_layout', _txt('ct.' . $modelpl . '.1'));
+    $this->layout = 'lightbox';
+  }
   
   /**
    * Callback to set relevant tab to open when redirecting to another page
