@@ -31,6 +31,11 @@ class DefaultNormalizer extends AppModel {
   
   // Document foreign keys
   public $cmPluginHasMany = array();
+
+  // List of [field,pattern] that Normalization will not apply
+  private $normalizations_exceptions = array(
+    'o' => '/COmanage/'
+  );
   
   /**
    * Expose menu items.
@@ -179,7 +184,13 @@ class DefaultNormalizer extends AppModel {
         return strtoupper($str);
       }
     }
-    
+
+    // Skip this normalization if we defined an exception
+    if(isset($this->normalizations_exceptions[$field])
+       && preg_match($this->normalizations_exceptions[$field], $str)) {
+      return $str;
+    }
+
     if(function_exists('mb_convert_case')) {
       return mb_convert_case($str, MB_CASE_TITLE);
     } else {
@@ -211,5 +222,15 @@ class DefaultNormalizer extends AppModel {
   
   protected function trimWhiteSpace($str, $field) {
     return trim($str);
+  }
+
+  /**
+   * Get list of [field,pattern] that Normalization will not apply
+   *
+   * @return array()
+   */
+  public function getNormalizationsExceptions()
+  {
+    return $this->normalizations_exceptions;
   }
 }
