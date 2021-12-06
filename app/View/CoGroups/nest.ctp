@@ -110,7 +110,7 @@
             <?php
               // Add a nested group
               print $this->Html->link(
-                _txt('op.add-a', array(_txt('ct.co_group_nestings.1'))),
+                _txt('op.gr.add.nested.source'),
                 array(
                   'controller' => 'co_group_nestings',
                   'action'     => 'add',
