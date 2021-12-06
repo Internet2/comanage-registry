@@ -2091,6 +2091,7 @@ original notification at
   'op.first' => 'First',
   'op.generate' => 'Generate',
   'op.go' => 'go',
+  'op.gr.add.nested.source' => 'Add Source Group',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.gr.reconcile' => 'Reconcile',
   'op.gr.reconcile.all' => 'Reconcile All Members Groups',      

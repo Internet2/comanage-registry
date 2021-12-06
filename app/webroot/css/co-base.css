@@ -921,6 +921,9 @@ body.co_people.canvas .titleNavContainer {
 .modelbox .boxtitle a {
   font-weight: bold;
 }
+.modelbox .boxtitle .desc {
+  padding: 0.5em 1em 0;
+}
 .modelbox table tr>:first-child{
   min-width: 200px;
   text-align: right;
@@ -1124,6 +1127,22 @@ body.co_petitions .deny-button:hover {
 /* for T&Cs */
 .tc-checkbox-and-label {
   white-space: nowrap;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-left: 2em;
+}
+.tc-checkbox-and-label label {
+  margin-left: 0.25em;
+}
+#co_petition_tandc button {
+  border: 1px solid;
+  font-weight: bold;
+  margin: 1em 0;
+}
+.tc-checkbox-and-label > input[disabled],
+.tc-checkbox-and-label > input[disabled] + label {
+  cursor: not-allowed;
+  color: #999;
 }
 body.co_petitions .ui-dialog {
   padding: 0;
@@ -1926,6 +1945,7 @@ ul.form-list .field-name {
 }
 ul.form-list .field-title {
   font-weight: bold;
+  margin-bottom: 0;
 }
 ul.form-list .field-info {
   position: relative;
@@ -1936,6 +1956,7 @@ ul.form-list .field-info-prefix {
 ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
+  padding: 0.25em 1em 0.5em 0.5em;
 }
 ul.form-list .fields-header {
   background-color: #fff;
@@ -2154,6 +2175,7 @@ ul, ol { /* MDL override XXX check if still needed */
 }
 .fieldTitle {
   font-weight: bold;
+  margin-bottom: 0;
 }
 .descr {
   font-style: italic; /* used for long descriptions of fields, typically near the field-title */
