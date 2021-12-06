@@ -157,7 +157,7 @@ class CmpEnrollmentConfiguration extends AppModel {
 
     $cmp = $this->find('first', $args);
 
-    return $cmp["CmpEnrollmentConfiguration"]["app_base"];
+    return isset($cmp["CmpEnrollmentConfiguration"]["app_base"]) ? $cmp["CmpEnrollmentConfiguration"]["app_base"] : "";
   }
 
 
@@ -177,7 +177,7 @@ class CmpEnrollmentConfiguration extends AppModel {
 
     $cmp = $this->find('first', $args);
 
-    return $cmp["CmpEnrollmentConfiguration"]["redirect_on_logout"];
+    return isset($cmp["CmpEnrollmentConfiguration"]["redirect_on_logout"]) ? $cmp["CmpEnrollmentConfiguration"]["redirect_on_logout"] : "";
   }
 
   /**
