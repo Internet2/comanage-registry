@@ -544,7 +544,7 @@ class CoGroupsController extends StandardController {
       }
     }
     
-    return parent::parseCOID();
+    return parent::parseCOID($data);
   }
   
   /**
@@ -662,8 +662,6 @@ class CoGroupsController extends StandardController {
       $url['action'] = 'index';
     }
 
-    $url['co'] = $this->cur_co['Co']['id'];
-
     // build a URL will all the search elements in it
     // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
     foreach($this->data['search'] as $field=>$value){
@@ -671,6 +669,8 @@ class CoGroupsController extends StandardController {
         $url['search.'.$field] = $value;
       }
     }
+
+    $url['co'] = $this->cur_co['Co']['id'];
 
     // redirect the user to the url
     $this->redirect($url, null, true);

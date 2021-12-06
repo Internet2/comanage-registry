@@ -63,7 +63,7 @@ class StandardController extends AppController {
       // Validate
       
       try {
-        $this->Api->checkRestPost();
+        $this->Api->checkRestPost($this->cur_co['Co']['id']);
         $data[$req] = $this->Api->getData();
         
         if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {
@@ -226,10 +226,12 @@ class StandardController extends AppController {
       $this->set('vv_servers', $this->Server->find('list', $args));
     }
 
-    // Include Search Block
-    $this->set('vv_search_fields', $this->searchConfig($this->action));
-    // Include alphabet Search bar
-    $this->set('vv_alphabet_search', $this->alphabetSearchConfig($this->action));
+    if(!$this->request->is('restful')) {
+      // Include Search Block
+      $this->set('vv_search_fields', $this->searchConfig($this->action));
+      // Include alphabet Search bar
+      $this->set('vv_alphabet_search', $this->alphabetSearchConfig($this->action));
+    }
 
     parent::beforeRender();
   }
@@ -506,31 +508,13 @@ class StandardController extends AppController {
       return;
     }
 
+    // By default whenever we edit we redirect to the index view. If we decide to stay on the edit view then
+    // title_for_layout will have the old value.
     if(!$this->request->is('restful')) {
       if(!isset($this->viewVars['title_for_layout'])) {
+        $title = $model->calculateTitleForLayout($curdata, $this->requires_person);
         // Set page title if not already set -- note we do similar logic in view()
-        
-        $t = _txt('ct.' . $modelpl . '.1');
-        
-        if(!empty($curdata['PrimaryName'])) {
-          $t = generateCn($curdata['PrimaryName']);
-        } elseif(!empty($curdata['Name'])) {
-          $t = generateCn($curdata['Name']);
-        } elseif(!empty($curdata[$req][ $model->displayField ])) {
-          $t = $curdata[$req][ $model->displayField ];
-        }
-        
-        if($this->requires_person) {
-          if(!empty($curdata[$req]['co_person_id'])) {
-            $t .= " (" . _txt('ct.co_people.1') . ")";
-          } elseif(!empty($curdata[$req]['co_person_role_id'])) {
-            $t .= " (" . _txt('ct.co_person_roles.1') . ")";
-          } elseif(!empty($curdata[$req]['org_identity_id'])) {
-            $t .= " (" . _txt('ct.org_identities.1') . ")";
-          }
-        }
-        
-        $this->set('title_for_layout', _txt('op.edit-a', array($t)));
+        $this->set('title_for_layout', _txt('op.edit-a', array($title)));
       }
     }
     
@@ -538,7 +522,7 @@ class StandardController extends AppController {
       // Validate
       
       try {
-        $this->Api->checkRestPost();
+        $this->Api->checkRestPost($this->cur_co['Co']['id']);
         $data[$req] = $this->Api->getData();
         
         if($this->request->is('restful') && !empty($data[$req]['extended_attributes'])) {
@@ -689,7 +673,11 @@ class StandardController extends AppController {
         
         $data = $model->read();
       }
-      
+
+      // Calculate the title after a successful save
+      $title = $model->calculateTitleForLayout($data, $this->requires_person);
+      $this->set('title_for_layout', _txt('op.edit-a', array($title)));
+
       // Update the view var in case the controller requires the updated values
       // for performRedirect or some other post-processing.
       

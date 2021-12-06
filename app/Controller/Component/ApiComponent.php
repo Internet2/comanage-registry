@@ -49,11 +49,12 @@ class ApiComponent extends Component {
    * invoking controller.
    * 
    * @since  COmanage Registry v0.9.3
+   * @param  Integer $coId CO ID of the current CO
    * @return True on success
    * @throws InvalidArgumentException
    */
   
-  public function checkRestPost() {
+  public function checkRestPost($coId) {
     if(!$this->reqData) {
       $this->parseRestRequestDocument();
     }
@@ -76,34 +77,41 @@ class ApiComponent extends Component {
     
     // Use the model to validate the provided fields
     
-    if(!empty($this->reqModel->validate['type']['content']['rule'][0])
+    if($coId
+       && !empty($this->reqModel->validate['type']['content']['rule'][0])
        && $this->reqModel->validate['type']['content']['rule'][0] == 'validateExtendedType') {
-      // If the model supports extended types, we need to determine the CO ID,
-      // which we have to calculate from the requested person date.
       
-      $coId = null;
+      $vrule = $this->reqModel->validate['type']['content']['rule'];
+      $vrule[1]['coid'] = $coId;
       
-      if(!empty($this->reqConvData['co_person_id'])) {
-        $coId = $this->reqModel->CoPerson->field('co_id',
-                                                 array('CoPerson.id' => $this->reqConvData['co_person_id']));
-      } elseif(!empty($this->reqConvData['co_person_role_id'])) {
-        $coPersonId = $this->reqModel->CoPersonRole->field('co_person_id',
-                                                           array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
-
-        if($coPersonId) {
-          $coId = $this->reqModel->CoPersonRole->CoPerson->field('co_id',
-                                                                 array('CoPerson.id' => $coPersonId));
-        }
-      }
-      
-      if($coId) {
-        $vrule = $this->reqModel->validate['type']['content']['rule'];
-        $vrule[1]['coid'] = $coId;
-        
-        $this->reqModel->validator()->getField('type')->getRule('content')->rule = $vrule;
-      }
+      $this->reqModel->validator()->getField('type')->getRule('content')->rule = $vrule;
     }
  
+    foreach(array_keys($this->reqModel->validate) as $field) {
+      if(preg_match('/_id$/', $field)) {
+        // Add additional validation rules for foreign keys. These checks are
+        // handled differently in v5, as application rules.
+        
+        // This is called "unfreeze" because of the initial implementation for
+        // CO-2146. It's not really the right label anymore, but we don't want
+        // to break existing uses.
+        if(empty($this->reqModel->validate[$field]['content']['unfreeze'])
+           || $this->reqModel->validate[$field]['content']['unfreeze'] != 'yes') {
+          // unfreeze should only be set to "yes" for fields that for some
+          // reason have a name ending in _id but aren't actually foreign keys.
+          
+          $this->reqModel->validator()->add(
+            $field,
+            'co',
+            array(
+              'rule' => 'validateCO', 
+              'coid' => $coId
+            )
+          );
+        }
+      }
+    }
+    
     $this->reqModel->set($this->reqConvData);
     
     if(!$this->reqModel->validates()) {

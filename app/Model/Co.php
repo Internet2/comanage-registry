@@ -319,7 +319,6 @@ class Co extends AppModel {
       foreach(array(
         'CoGroup',
         'Dictionary',
-        'DictionaryEntry',
         'AttributeEnumeration',
         'Authenticator',
         'CoDashboard',
@@ -358,6 +357,7 @@ class Co extends AppModel {
         'MatchServer' => 'Server',
         'Oauth2Server' => 'Server',
         'SqlServer' => 'Server',
+        'DictionaryEntry' => 'Dictionary'
       ) as $m => $parentm) {
         $fk = Inflector::underscore($parentm) . "_id";
         
@@ -555,7 +555,7 @@ class Co extends AppModel {
         $model->save($o, array('validate' => false, 'callbacks' => false));
         
         if($isTree) {
-          // Since we disabled callacks, we have to manually rebuild the tree
+          // Since we disabled callbacks, we have to manually rebuild the tree
           $model->recover('parent');
         }
         
