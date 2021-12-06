@@ -1437,12 +1437,20 @@ class RoleComponent extends Component {
           
           return true;
         }
-        
+
+        $cou_id = !empty($not['RecipientCoGroup']['cou_id']) ? $not['RecipientCoGroup']['cou_id'] : null;
+
         // Check the recipient group
         if(!empty($not['CoNotification']['recipient_co_group_id'])) {
-          if($this->cachedGroupCheck($coPersonId, "", "", $not['CoNotification']['recipient_co_group_id'])) {
-          $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = true;
-          
+          if($this->cachedGroupCheck($coPersonId,
+                                     "",
+                                     "",
+                                     $not['CoNotification']['recipient_co_group_id'],
+                                     false,
+                                     null,
+                                     $cou_id)
+          ) {
+            $this->cache['coperson'][$coPersonId]['co_notification'][$coNotificationId][$role] = true;
             return true;
           }
         }
