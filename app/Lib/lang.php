@@ -1993,7 +1993,7 @@ original notification at
   'op.dashboard.configuration' => 'Configuration for %1$s',
   'op.dashboard.select' => 'Welcome to %1$s. Please select an action from the menus.',
   'op.db.ok' =>       'Database schema update successful',
-  'op.db.schema' =>   'Loading schema from file %1$s...' . "\nThis make take a few minutes for large datasets, please do not interrupt.",
+  'op.db.schema' =>   'Loading schema from file %1$s...' . "\nThis may take a few minutes for large datasets, please do not interrupt.",
   'op.decline' =>     'Decline',
   'op.delete' =>      'Delete',
   'op.delete-a' =>    'Delete %1$s',
