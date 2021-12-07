@@ -257,7 +257,7 @@ class CousController extends StandardController {
    */
   
   function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
-    if(!$this->request->is('restful') && $this->action == 'edit') {
+    if($this->action == 'edit') {
       if(!empty($reqdata['Cou']['name'])
          && !empty($curdata['Cou']['name'])
          && $reqdata['Cou']['name'] != $curdata['Cou']['name']) {

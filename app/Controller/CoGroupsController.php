@@ -440,9 +440,10 @@ class CoGroupsController extends StandardController {
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     $p['search'] = $p['index'];
     
-    // Nest a Group within another Group?
-    // This aligns with CoGroupNestingsController::isAuthorized
+    // Nest a Group within another Group? Delete a nested group?
+    // These align with CoGroupNestingsController::isAuthorized
     $p['buildnest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
+    $p['deletenest'] = !$readonly && ($roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin']);
 
     // Edit or View Identifiers?
     // This aligns with IdentifiersController::isAuthorized
@@ -543,7 +544,7 @@ class CoGroupsController extends StandardController {
       }
     }
     
-    return parent::parseCOID();
+    return parent::parseCOID($data);
   }
   
   /**
@@ -661,8 +662,6 @@ class CoGroupsController extends StandardController {
       $url['action'] = 'index';
     }
 
-    $url['co'] = $this->cur_co['Co']['id'];
-
     // build a URL will all the search elements in it
     // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
     foreach($this->data['search'] as $field=>$value){
@@ -670,6 +669,8 @@ class CoGroupsController extends StandardController {
         $url['search.'.$field] = $value;
       }
     }
+
+    $url['co'] = $this->cur_co['Co']['id'];
 
     // redirect the user to the url
     $this->redirect($url, null, true);
@@ -718,7 +719,11 @@ class CoGroupsController extends StandardController {
     // Filter by management type (automatic / manual)
     if(!empty($this->params['named']['search.auto'])) {
       $searchterm = $this->params['named']['search.auto'];
-      $pagcond['conditions']['CoGroup.auto'] = $searchterm;
+      if($searchterm=='f') {
+        $pagcond['conditions']['CoGroup.auto'] = false;
+      } else {
+        $pagcond['conditions']['CoGroup.auto'] = true;
+      }
     }
 
     // Filter by group type
@@ -829,8 +834,8 @@ class CoGroupsController extends StandardController {
 
     // Pagination conditions must be pulled in explicitly because select() is not part of StandardController
     $pagcond = CoGroupsController::paginationConditions();
-    $this->paginate['conditions'] = $pagcond['conditions'];
-    $this->paginate['joins'] = $pagcond['joins'];
+    $this->paginate['conditions'] = !empty($pagcond['conditions']) ? $pagcond['conditions'] : array();
+    $this->paginate['joins'] = !empty($pagcond['joins']) ? $pagcond['joins'] : array();
 
     $this->paginate['contain'] = array(
       'CoGroupMember' => array(

@@ -55,7 +55,6 @@ class CoServicesWidgetsController extends SDWController {
 
     // Pass the config so we know which div to overwrite
     $this->set('vv_config', $cfg);
-
   }
   
   /**

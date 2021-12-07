@@ -526,6 +526,10 @@ class CoEnrollmentFlow extends AppModel {
     // Optional: Step is not configured, but plugins may elect to execute
     // NotPermitted: Step is not configured and plugins may not run
     
+    // NOTE: A role should always be specified, even if the step is NotPermitted,
+    // since it will be used to determine which token to inject for redirecting
+    // to the next step.
+    
     // The order of the steps in the array will be the order used to generate the
     // steps in the sidebar (enrollmentFlowSteps.ctp)
     

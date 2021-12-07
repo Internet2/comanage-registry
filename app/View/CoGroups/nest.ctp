@@ -30,23 +30,17 @@
   $e = false;
   $v = false;
 
-  if(($permissions['buildnest'])
-    && isset($co_groups[0]['CoGroup']['id'])
-    && !empty($permissions['owner']))
-    // && in_array($co_groups[0]['CoGroup']['id'], $permissions['owner'])) // XXX check this
+  if($permissions['buildnest'])
     $e = true;
 
-  if(($permissions['delete'])
-    || (isset($co_groups[0]['CoGroup']['id'])
-      && !empty($permissions['owner'])
-      && in_array($co_groups[0]['CoGroup']['id'], $permissions['owner'])))
+  if($permissions['deletenest'])
     $dok = true;
 
   if(($permissions['view'])
     || (isset($co_groups[0]['CoGroup']['id'])
-      && !empty($permissions['member'])
       && in_array($co_groups[0]['CoGroup']['id'], $permissions['member']))
-    || (isset($co_groups[0]['CoGroup']['open']) && $co_groups[0]['CoGroup']['open']))
+    || (isset($co_groups[0]['CoGroup']['open']) 
+      && $co_groups[0]['CoGroup']['open']))
     $v = true;
 
   // We shouldn't get here if we don't have at least read permission, but check just in case
@@ -91,7 +85,6 @@
       $nGroups[ $n['id'] ] = filter_var($n['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
     }
   }
-
 ?>
 
 <div class="table-container">
@@ -103,8 +96,7 @@
       <p><em><?php print _txt('fd.co_group.'.$k.'.desc', array(filter_var($co_groups[0]['CoGroup']['name'],FILTER_SANITIZE_STRING))); ?></em></p>
 
       <?php if($e && $k == 'source' && !empty($co_groups[0]['CoGroup']['id'])
-        && !$co_groups[0]['CoGroup']['auto']
-        && $permissions['buildnest']): ?>
+        && !$co_groups[0]['CoGroup']['auto']): ?>
         <ul class="widget-actions">
           <li>
             <?php
@@ -128,7 +120,7 @@
         <thead>
           <tr>
             <th><?php print _txt('fd.name'); ?></th>
-            <?php if($e): ?>
+            <?php if($dok): // only action is delete/remove ?>
               <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
               <?php $tableCols = 2; ?>
             <?php endif; ?>
@@ -156,7 +148,7 @@
                   ?>
                 </td>
 
-                <?php if($e): ?>
+                <?php if($dok): ?>
                   <td class="actions">
                     <?php
                       print '<a class="deletebutton" title="' . _txt('op.remove')

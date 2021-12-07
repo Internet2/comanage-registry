@@ -34,6 +34,41 @@
 <html>
   <head>
     <title><?php print _txt('coordinate') . ': ' . filter_var($title_for_layout,FILTER_SANITIZE_STRING)?></title>
+    <head>
+      <style>
+        @keyframes loading {
+          0%   { opacity: 0.3; }
+          30%  { opacity: 1.0; }
+          100% { opacity: 0.3; }
+        }
+        #co-loading {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          width: 160px;
+          height: 100px;
+          margin: -56px 0 0 -80px;
+          padding: 0;
+          line-height: 0;
+          color: #9FC6E2;
+          text-align: center;
+        }
+        #co-loading span {
+          animation: 1.2s linear infinite both loading;
+          background-color: #9FC6E2;
+          display: inline-block;
+          height: 28px;
+          width: 28px;
+          border-radius: 20px;
+          margin: 0 2.5px;
+        }
+        #co-loading span:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        #co-loading span:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+      </style>
   </head>
 
   <?php
@@ -41,15 +76,39 @@
     $controller_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->controller);
     $action_stripped = preg_replace('/[^a-zA-Z0-9\-_]/', '', $this->params->action);
     $bodyClasses = $controller_stripped . ' ' .$action_stripped;
+
+    $redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . $this->request->here . '/render:norm';
   ?>
 
-  <body class="<?php print $bodyClasses ?>">
+  <!-- Body element will only be loaded if we load lightbox as a standalone layout.  -->
+  <!-- Otherwise we will find ourselves using the existing body. So we choose to hide the body when not -->
+  <!-- in the context of another layout -->
+  <body class="<?php print $bodyClasses ?>" onload="whereami()">
 
-    <div id="lightboxContent">
+    <div id="lightboxContent" class="light-box">
       <?php
         // insert the page internal content
         print $this->fetch('content');
       ?>
     </div>
+    <script type="text/javascript">
+      function whereami() {
+        // Hide lightbox Content
+        document.getElementById('lightboxContent').style.display = 'none';
+
+        let is_lightbox = document.getElementsByClassName("light-box").length;
+        let is_logged_in = document.getElementsByClassName("logged-in").length;
+
+        if(is_lightbox > 0 && is_logged_in == 0) {
+          // Add a spinner into the body
+          document.body.innerHTML = '<div id="co-loading"><span></span><span></span><span></span></div>';
+          // reload my parent
+          window.location.assign('<?php print $redirect_url; ?>');
+        } else {
+          // Show the content
+          document.getElementById('lightboxContent').style.display = 'block';
+        }
+      }
+    </script>
   </body>
 </html>
