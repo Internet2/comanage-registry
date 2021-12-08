@@ -462,4 +462,18 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
     
     return $ret;
   }
+
+  /**
+   * Set the plugin configuration for this backend.
+   *
+   * @since  COmanage Registry v4.0.2
+   * @param  Array $cfg Array of configuration information, as returned by find()
+   */
+
+  public function setConfig($pluginCfg) {
+    parent::setConfig($pluginCfg);
+    
+    // We also need to reset the field config
+    $this->fieldCfg = null;
+  }
 }
