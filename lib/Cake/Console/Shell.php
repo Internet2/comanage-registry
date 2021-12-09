@@ -355,6 +355,8 @@ class Shell extends CakeObject {
  */
 	public function hasMethod($name) {
 		try {
+			// XXX CO-2287
+			$name = isset($name) ? $name : '';
 			$method = new ReflectionMethod($this, $name);
 			if (!$method->isPublic() || substr($name, 0, 1) === '_') {
 				return false;
