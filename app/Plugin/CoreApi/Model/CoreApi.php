@@ -113,8 +113,36 @@ class CoreApi extends AppModel {
         'allowEmpty' => false
       )
     ),
+    'index_response_type' => array(
+      'content' => array(
+        'rule' => array('inList', array(ResponseTypeEnum::Full,
+                                        ResponseTypeEnum::IdentifierList)),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
   );
-  
+
+  /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function beforeValidate($options = array())
+  {
+    if(empty($this->data['CoreApi']["api"])) {
+      return false;
+    }
+    // Disable Response type for Write/Delete actions
+    if($this->data['CoreApi']["api"] === CoreApiEnum::CoPersonWrite) {
+      $this->validate["index_response_type"]["content"]["required"] = false;
+      $this->validate["index_response_type"]["content"]["allowEmpty"] = true;
+    }
+
+    return true;
+  }
+
   /**
    * Expose menu items.
    * 
@@ -574,7 +602,48 @@ class CoreApi extends AppModel {
     
     return $cop;
   }
-  
+
+  /**
+   * Perform a CO People Read API v1 request.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId           CO ID
+   * @param  array   $co_people      Paginators Query Result Set
+   * @return array                   Array of CO People data
+   * @throws InvalidArgumentException
+   */
+
+  public function readV1Index($coId, $co_people) {
+    // First try to map the requested information to a CO Person record.
+    // This is similar to CoPerson::idsForIdentifier, but that has some old
+    // legacy code we want to avoid.
+
+    $cop_index = array();
+    foreach ($co_people as $person) {
+      // Promote OrgIdentity to top level. This interface doesn't permit relinking
+      // identities, and in v5 CoOrgIdentityLink goes away anyway.
+
+      if(!empty($person['CoOrgIdentityLink'])) {
+        foreach($person['CoOrgIdentityLink'] as $link) {
+          if(!empty($link['OrgIdentity'])) {
+            $person['OrgIdentity'][] = $link['OrgIdentity'];
+          }
+        }
+      }
+
+      unset($person['CoOrgIdentityLink']);
+
+      // We need to manually pull Authenticator and Cluster data.
+      $person = array_merge($person, $this->Co->Authenticator->marshallProvisioningData($coId, $person['CoPerson']['id']));
+      $person = array_merge($person, $this->Co->Cluster->marshallProvisioningData($coId, $person['CoPerson']['id'], false));
+
+      $cop = $this->filterMetadataOutbound($person, "CoPerson");
+      $cop_index[] = $cop;
+    }
+
+    return $cop_index;
+  }
+
   /**
    * Perform an "upsert" of a potentially multi-valued model.
    * 
@@ -987,7 +1056,5 @@ class CoreApi extends AppModel {
       $dbc->rollback();
       throw new RuntimeException($e->getMessage());
     }
-    
-    return;
   }
 }

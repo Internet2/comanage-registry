@@ -50,6 +50,37 @@
 
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
+<script type="text/javascript">
+  <!-- JS specific to these fields -->
+
+  function response_config_field() {
+    let $core_api = $('#CoreApiApi > option:selected').val();
+    if ($core_api != undefined
+        && $core_api == '<?php print CoreApiEnum::CoPersonRead; ?>') {
+      $('.core-api-reponse-type').show();
+      $('#CoreApiIndexResponseType').attr("required","required");
+      $('#CoreApiIndexResponseType').attr('data-error', 'This field is required.');
+      const empty_option = $('#CoreApiIndexResponseType option[value=""]');
+      empty_option.attr('disabled', 'disabled');
+      empty_option.hide();
+      // Pick the last value. We assume that this value is non-empty
+      $('#CoreApiIndexResponseType option').last().attr("selected", "selected");
+
+    } else {
+      // hide
+      $('#CoreApiIndexResponseType').removeAttr("required");
+      $('#CoreApiIndexResponseType').removeAttr("data-error");
+      const empty_option = $('#CoreApiIndexResponseType option[value=""]');
+      empty_option.removeAttr('disabled');
+      empty_option.show();
+      $('.core-api-reponse-type').hide();
+
+      // clear the value
+      $('#CoreApiIndexResponseType > option:selected').removeAttr("selected");
+      $('#CoreApiIndexResponseType option[value=""]').attr("selected", "selected");
+    }
+  }
+</script>
 <?php if(!empty($vv_api_endpoint)): ?>
 <div class="co-info-topbox">
   <i class="material-icons">info</i>
@@ -102,6 +133,7 @@
                            ? $core_apis[0]['CoreApi']['api']
                            : "");
         $attrs['empty'] = true;
+        $attrs['onchange'] = 'response_config_field();';
 
         if($e) {
           print $this->Form->select('api',
@@ -146,7 +178,7 @@
         }
       ?>
     </div>
-  </li>  
+  </li>
   <li>
     <div class="field-name">
       <div class="field-title">
@@ -176,6 +208,43 @@
             print $vv_identifier_types[ $core_apis[0]['CoreApi']['identifier_type'] ];
           }
         }
+      ?>
+    </div>
+  </li>
+  <li
+    class="core-api-reponse-type"
+    style="<?php print (!empty($core_apis[0]['CoreApi']['api'])
+                        && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonRead)
+                        ? '' :  'display: none'; ?>"
+  >
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.coreapi.response.type'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.coreapi.response.type.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      $attrs = array();
+      $attrs['value'] = (isset($core_apis[0]['CoreApi']['index_response_type'])
+        ? $core_apis[0]['CoreApi']['index_response_type']
+        : '');
+      $attrs['empty'] = true;
+      $attrs['required'] = (!empty($core_apis[0]['CoreApi']['api']) && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonRead);
+
+      if($e) {
+        print $this->Form->select('index_response_type',
+                                  $cm_texts[ $cm_lang ]['pl.coreapi.en.response.type'],
+                                  $attrs);
+
+        if($this->Form->isFieldError('index_response_type')) {
+          print $this->Form->error('index_response_type');
+        }
+      } else {
+        if(!empty($core_apis[0]['CoreApi']['index_response_type'])) {
+          print _txt('pl.coreapi.en.response.type', null, $core_apis[0]['CoreApi']['index_response_type']);
+        }
+      }
       ?>
     </div>
   </li>

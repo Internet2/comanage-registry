@@ -25,10 +25,19 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+// Define the route elements of the index action
+$core_api_read_index_route_elements =   array(
+  'plugin'     => 'core_api',
+  'controller' => 'Api',
+  'action'     => 'index',
+  '[method]'   => 'GET',
+);
+
 // The general format for Core API URLs should be /api/co/:coid/core/v1/namespace/...
 // Note REST API v2 has taken the form /api/v2/objects
 
 // COmanage CO Person Read API
+// /api/co/:coid/core/v1/people#show
 Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
@@ -39,7 +48,74 @@ Router::connect(
   )
 );
 
+// COmanage CO Person Read API
+// /api/co/:coid/core/v1/people#index
+Router::connect(
+  '/api/co/:coid/core/v1/people/',
+  $core_api_read_index_route_elements
+);
+
+// /api/co/:coid/core/v1/people/limit/20
+Router::connect(
+  '/api/co/:coid/core/v1/people/limit/:limit',
+  $core_api_read_index_route_elements,
+  array(
+    'limit' => '[09]?[0-9][0-9]?', // 0-999 , We probably need to set an upper limit
+  )
+);
+
+// /api/co/:coid/core/v1/people//limit/20/page/2
+Router::connect(
+  '/api/co/:coid/core/v1/people/limit/:limit/page/:page',
+  $core_api_read_index_route_elements,
+  array(
+    'limit' => '[09]?[0-9][0-9]?', // 0-999 , We probably need to set an upper limit
+    'page'  => '[0-9]+'
+  )
+);
+
+// /api/co/:coid/core/v1/people/limit/20/page/2/direction/desc
+Router::connect(
+  '/api/co/:coid/core/v1/people/limit/:limit/page/:page/direction/:direction',
+  $core_api_read_index_route_elements,
+  array(
+    'limit' => '[09]?[0-9][0-9]?', // 0-999 , We probably need to set an upper limit
+    'page'  => '[0-9]+',
+    'direction' => 'asc|desc'
+  )
+);
+
+///  api/co/:coid/core/v1/people/limit/20/direction/desc
+Router::connect(
+  '/api/co/:coid/core/v1/people/limit/:limit/direction/:direction',
+  $core_api_read_index_route_elements,
+  array(
+    'limit' => '[09]?[0-9][0-9]?', // 0-999 , We probably need to set an upper limit
+    'direction' => 'asc|desc'
+  )
+);
+
+// /api/co/:coid/core/v1/people/direction/desc
+Router::connect(
+  '/api/co/:coid/core/v1/people/direction/:direction',
+  $core_api_read_index_route_elements,
+  array(
+    'direction' => 'asc|desc'
+  )
+);
+
+// /api/co/:coid/core/v1/people/page/:page/direction/desc
+Router::connect(
+  '/api/co/:coid/core/v1/people/page/:page/direction/:direction',
+  $core_api_read_index_route_elements,
+  array(
+    'page'  => '[0-9]+',
+    'direction' => 'asc|desc'
+  )
+);
+
 // COmanage CO Person Write Update API
+// /api/co/:coid/core/v1/people#edit
 Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
@@ -50,7 +126,13 @@ Router::connect(
   )
 );
 
+// XXX Scoped identifiers are not parsed properly because they are perceived as file extensions
+// XXX Enable extensions parse to resolve this problem
+Router::parseExtensions('*');
+
+
 /*
+// /api/co/:coid/core/v1/people#destroy
 Router::connect(
 // XXX implement this as a proxy for expunge?
   '/api/co/:coid/core/v1/people/:identifier',
@@ -62,6 +144,7 @@ Router::connect(
   )
 );
 
+// /api/co/:coid/core/v1/people#new
 Router::connect(
 // XXX This needs to trigger identifier assignment and maybe some other stuff
 //     provisioning should only fire after all models are saved

@@ -38,13 +38,27 @@ class ApiController extends Controller {
   // we want to use.
   public $components = array('Api',
                              'Auth',
-                             'RequestHandler');  // For REST
+                             'RequestHandler', // For REST
+                             'Paginator');
   
   public $uses = array(
     "Co",
     "CoreApi.CoreApi"
   );
-  
+
+  /**
+   * Paginator default settings
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public $paginate = array(
+    'limit' => 100,
+    'order' => array(
+      'CoPerson.id' => 'asc'
+    )
+  );
+
   // The Core API record for the current request
   protected $cur_api = null;
   
@@ -153,7 +167,8 @@ class ApiController extends Controller {
           // Which API was requested?
           
           switch($this->request->params['action']) {
-            case 'read':
+            case 'read':    // Read single record
+            case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
                 CoreApiEnum::CoPersonRead,
                 // ApiUsers with Write permission can also read
@@ -187,30 +202,135 @@ class ApiController extends Controller {
       exit;
     }
   }
-  
+
+  /**
+   * Handle a Core API CO People Read API request.
+   * /api/co/:coid/core/v1/people#index
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function index() {
+    try {
+      // Load the default ordering and pagination settings
+      $this->Paginator->settings = $this->paginate;
+      $this->Paginator->settings['conditions']['Identifier.type'] = $this->cur_api['CoreApi']['identifier_type'];
+      $this->Paginator->settings['conditions']['Identifier.deleted'] = false;
+      $this->Paginator->settings['conditions']['Identifier.identifier_id'] = null;
+      $this->Paginator->settings['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+      $this->Paginator->settings['conditions']['CoPerson.co_id'] = $this->cur_api['CoreApi']['co_id'];
+      // We allow people of any status to be pulled, though maybe we could offer a filter
+      if(!empty($this->params['named']['search.status'])) {
+        $this->Paginator->settings['conditions']['CoPerson.status'] = $this->params['named']['search.status'];
+      }
+      $this->Paginator->settings['joins'][0]['table'] = 'identifiers';
+      $this->Paginator->settings['joins'][0]['alias'] = 'Identifier';
+      $this->Paginator->settings['joins'][0]['type'] = 'INNER';
+      $this->Paginator->settings['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
+
+      // We need all the relational data for the full mode
+      if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
+        // While we're here pull the data we need
+        $this->Paginator->settings['contain'] = array(
+          'CoPersonRole' => array(
+            'Address',
+            'AdHocAttribute',
+            'TelephoneNumber'
+          ),
+          'CoGroupMember',
+          'CoOrgIdentityLink' => array(
+            'OrgIdentity' => array(
+              'Address',
+              'AdHocAttribute',
+              'EmailAddress',
+              'Identifier',
+              'Name',
+              'TelephoneNumber',
+              'Url'
+            ),
+          ),
+          'EmailAddress',
+          'Identifier',
+          'Name',
+          'Url'
+        );
+      } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
+        $this->Paginator->settings['contain'] = array(
+          'Identifier' => array(
+            'conditions' => array(
+              'type ' => $this->cur_api['CoreApi']['identifier_type'],
+              'deleted' => false,
+              'identifier_id' => null
+          )));
+      }
+
+      // Query offset
+      if(!empty($this->request->params['limit'])) {
+        $this->Paginator->settings['limit'] = $this->request->params['limit'];
+      }
+      // Order Direction
+      if(!empty($this->request->params['direction'])) {
+        $this->Paginator->settings['order']['CoPerson.id'] = $this->request->params['direction'];
+      }
+      // Page
+      if(!empty($this->request->params['page'])) {
+        $this->Paginator->settings['page'] = $this->request->params['page'];
+      }
+
+      $coPeople = $this->Paginator->paginate('CoPerson');
+
+      if(empty($coPeople)) {
+        throw new InvalidArgumentException(
+          _txt('er.notfound', array(
+                              _txt('ct.identifiers.1'),
+                               _txt('en.identifier.type', null, filter_var($this->cur_api['CoreApi']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS))
+                            ))
+        );
+      }
+
+      if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
+        $ret = $this->CoreApi->readV1Index($this->cur_api['CoreApi']['co_id'], $coPeople);
+      } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
+        // Would it make sense to return the person id as well?
+        $ret = Hash::extract($coPeople, '{n}.Identifier.{n}.identifier');
+      }
+
+      // Set the results
+      $this->set('results', $ret);
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(500);
+    }
+  }
+
   /**
    * Handle a Core API CO Person Read API request.
-   * 
+   * /api/co/:coid/core/v1/people#show
+   *
    * @since  COmanage Registry v4.0.0
    */
-  
+
   public function read() {
     // We basically just pull the current record and return it.
     // We could inject some metadata (modified time, etc) but currently we don't.
-    
+
     try {
       if(empty($this->request->params['identifier'])) {
         // We shouldn't really get here since routes.php shouldn't allow it
         throw new InvalidArgumentException(_txt('er.notprov'));
       }
-      
-      // print_r($this->request->params);
-      // print_r($this->cur_api);
-      
-      $ret = $this->CoreApi->readV1($this->cur_api['CoreApi']['co_id'], 
+
+
+      $ret = $this->CoreApi->readV1($this->cur_api['CoreApi']['co_id'],
                                     $this->request->params['identifier'],
                                     $this->cur_api['CoreApi']['identifier_type']);
-      
+
       $this->set('results', $ret);
       $this->Api->restResultHeader(200);
     }
