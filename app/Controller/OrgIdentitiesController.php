@@ -90,7 +90,7 @@ class OrgIdentitiesController extends StandardController {
 
   public function alphabetSearchConfig($action)
   {
-    if($action == 'index') {
+    if(in_array($action, array('index', 'find'))) {
       return array(
         'search.familyNameStart' => array(
           'label' => _txt('me.alpha.label'),
@@ -106,7 +106,7 @@ class OrgIdentitiesController extends StandardController {
    */
 
   public function searchConfig($action) {
-    if($action == 'index') {                   // Index
+    if(in_array($action, array('index', 'find'))) {
       return array(
         'search.givenName' => array(              // 1st row, left column
           'label' => _txt('fd.name.given'),
@@ -411,10 +411,44 @@ class OrgIdentitiesController extends StandardController {
     $this->set('cur_co', $this->Co->find('first', $args));
     
     // Use server side pagination
-    
+
+    $local = $this->paginationConditions();
+
+    // XXX We could probaby come up with a better approach than manually enumerating
+    // each field we want to copy...
+    if(!empty($local['conditions'])) {
+      $this->paginate['conditions'] = $local['conditions'];
+    }
+
+    if(!empty($local['fields'])) {
+      $this->paginate['fields'] = $local['fields'];
+    }
+
+    if(!empty($local['group'])) {
+      $this->paginate['group'] = $local['group'];
+    }
+
+    if(!empty($local['joins'])) {
+      $this->paginate['joins'] = $local['joins'];
+    }
+
+    if(isset($local['contain'])) {
+      $this->paginate['contain'] = $local['contain'];
+    } elseif(isset($this->view_contains)) {
+      $this->paginate['contain'] = $this->view_contains;
+    }
+
+    // Used either to enumerate which fields can be used for sorting, or
+    // explicitly naming sortable fields for complex relations (ie: using
+    // linkable behavior).
+    $sortlist = array();
+
+    if(!empty($local['sortlist'])) {
+      $sortlist = $local['sortlist'];
+    }
+
     $this->Paginator->settings = $this->paginate;
-    $this->Paginator->settings['contain'] = $this->view_contains;
-    
+
     if(!isset($this->viewVars['pool_org_identities'])
        || !$this->viewVars['pool_org_identities']) {
       $this->set('org_identities',
@@ -812,28 +846,36 @@ class OrgIdentitiesController extends StandardController {
    * Insert search parameters into URL for index.
    * - postcondition: Redirect generated
    *
+   * @todo Duplicate CoPeopleController/move to StandardController
    * @since  COmanage Registry v0.8
    */
   
   function search() {
-    // the page we will redirect to
-    $url['action'] = 'index';
-     
-    // build a URL will all the search elements in it
-    // the resulting URL will be 
-    // example.com/registry/org_identities/index/search.givenName:albert/search.familyName:einstein
-    foreach ($this->data['search'] as $field=>$value){
-      if(!empty($value))
-        $url['search.'.$field] = $value;
+    // Construct the URL based on the action mode we're in (find, index)
+    $action = key($this->data['RedirectAction']);
+
+    $url['action'] = $action;
+    foreach($this->data[$action] as $key => $value) {
+      // pass parameters
+      if(is_int($key) && isset($value['pass'])) {
+        array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
+      } else {
+        foreach ($value as $knamed => $vnamed) {
+          $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+      }
     }
 
-    if($this->requires_co) {
-      // Include CO
-      $url['co'] = $this->cur_co['Co']['id'];
-    } else {
-      // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
-      $url['op'] = 'search';
+    // Append the URL with all the search elements; the resulting URL will be similar to
+    // example.com/registry/co_people/index/search.givenName:albert/search.familyName:einstein
+    foreach($this->data['search'] as $field=>$value){
+      if(!empty($value)) {
+        $url['search.'.$field] = $value;
+      }
     }
+
+    // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
+    $url = array_merge($url, array('op' => 'search'));
     
     // redirect the user to the url
     $this->redirect($url, null, true);
