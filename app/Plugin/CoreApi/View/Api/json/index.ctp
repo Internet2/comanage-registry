@@ -28,10 +28,12 @@
 if(isset($results)) {
   // 'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
   // Set pagination metadata
-  $results['currentPage'] = $this->Paginator->counter('{:page}');
-  $results['itemsPerPage'] = $this->Paginator->counter('{:current}');
-  $results['pageCount'] = $this->Paginator->counter('{:pages}');
-  $results['startIndex'] = $this->Paginator->counter('{:start}');
-  $results['totalResults'] = $this->Paginator->counter('{:count}');
+  if(empty($results["error"])) {
+    $results['currentPage'] = $this->Paginator->counter('{:page}');
+    $results['itemsPerPage'] = $this->Paginator->counter('{:current}');
+    $results['pageCount'] = $this->Paginator->counter('{:pages}');
+    $results['startIndex'] = $this->Paginator->counter('{:start}');
+    $results['totalResults'] = $this->Paginator->counter('{:count}');
+  }
   print json_encode($results);
 }

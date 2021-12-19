@@ -192,7 +192,7 @@ class CoPerson extends AppModel {
   public $cm_enum_types = array(
     'status' => 'StatusEnum'
   );
-  
+
   /**
    * Execute logic after a CO Person save operation.
    * For now manage membership of CO Person in members group.

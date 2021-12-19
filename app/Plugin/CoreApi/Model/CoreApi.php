@@ -26,18 +26,36 @@
  */
 
 App::uses("AppModel", "Model");
+App::uses('Utility', 'Validation');
 
 class CoreApi extends AppModel {
   // Define class name for cake
   public $name = "CoreApi";
 
   // Required by COmanage Plugins
-// XXX could have an "api" plugin type though there's not much value add for it atm
+  // XXX could have an "api" plugin type though there's not much value add for it atm
   public $cmPluginType = "other";
   
   // Add behaviors
   public $actsAs = array('Changelog', 'Containable');
-  
+
+  // List of allowed query parameters
+  // 1. range, inList, comparison are all validation rules supported by CAKE core
+  //    In runtime it will be translated to Validation::validation_rule, Validation::email
+  // 2. CAKEPHP 2.x uses lowercased and underscored URLS (InflectedRoute class in CAKEPHP 3.0)
+  //    as a result person.status becomes person_status
+  const ALLOWED_QUERY_PARAMS = array(
+    'limit' => array('integer' => array('range' => array(1, 1000))),
+    'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
+    'page'  => array('integer' => array('comparison' => array('>=', 1))),
+    'person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/')))
+  );
+
+  // Map TAP to COmanage objectType notation
+  const MODEL_TAP_TO_COMANAGE = array(
+    'person' => 'CoPerson'
+  );
+
   // Document foreign keys
   public $cmPluginHasMany = array(
     "ApiUser" => array("CoreApi"),
@@ -787,7 +805,41 @@ class CoreApi extends AppModel {
     
     return $id;
   }
-  
+
+  /**
+   * Rename query parameters from TAP to COmanage notation
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param array   $queryParams  List of query parameters
+   * @return array
+   */
+  public function tapToComanageQueryParams($queryParams) {
+    if(empty($queryParams)) {
+      return $queryParams;
+    }
+
+    $queryParamsNew = array();
+    foreach ($queryParams as $attr => $tvalue) {
+      // CAKEPHP 2.x uses lowercased and underscored URLS (InflectedRoute class in CAKEPHP 3.0)
+      // as a result person.status becomes person_status
+      if(strpos($attr, '_') === false) {
+        $queryParamsNew[$attr] = $tvalue;
+        // We are looking for model_attribute params
+        continue;
+      }
+      list($tmodel, $tattr) = explode('_', $attr, 2);
+      $cmodel = CoreAPI::MODEL_TAP_TO_COMANAGE[$tmodel];
+      $cModelObject = ClassRegistry::init($cmodel);
+      // The model has a status enum type hint. I use the existing type hint and append the postfix
+      // `.tap.to.cmp` or `.cmg.to.tap` depending on the use case
+      $tenum_value = constant('TapStatusEnum::' . ucfirst($tvalue));
+      $cvalue = _txt($cModelObject->cm_enum_txt[$tattr] . '.tap.to.cmg', null, $tenum_value);
+      $cmg_attr = $cmodel . '.' . $tattr;
+      $queryParamsNew[$cmg_attr] = $cvalue;
+    }
+    return $queryParamsNew;
+  }
+
   /**
    * Perform a CO Person Write API v1 request.
    *
@@ -1056,5 +1108,50 @@ class CoreApi extends AppModel {
       $dbc->rollback();
       throw new RuntimeException($e->getMessage());
     }
+  }
+
+  /**
+   * Validate query parameters
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  array $queryParams
+   */
+  public function validateQueryParams($queryParams) {
+    if(empty($queryParams)) {
+      return array();
+    }
+    // Extract the allowed param names
+    $allowed_params = array_keys(CoreApi::ALLOWED_QUERY_PARAMS);
+
+    // Filter the ones that we do not accept
+    // Deep copy queryParams array
+    $queryParamsArrayObject = new ArrayObject($queryParams);
+    $queryParamsCopy = $queryParamsArrayObject->getArrayCopy();
+    foreach ($queryParamsCopy as $key => $value) {
+      if(!in_array($key, $allowed_params)) {
+        unset($queryParams[$key]);
+      }
+    }
+    $queryParamsArrayObject = null;
+
+    // Validate the ones we accept
+    foreach (CoreApi::ALLOWED_QUERY_PARAMS as $param => $validation_rule) {
+      if(empty($queryParams[$param]))
+        continue;
+       // Parameter type
+      $param_type = key($validation_rule);
+      if(!settype($queryParams[$param], $param_type)) {
+        unset($queryParams[$param]);
+        continue;
+      }
+      // Parameter validation rule
+      $param_validation_rule = key($validation_rule[$param_type]);
+      // Parameter validation rule options
+      $param_validation_options = $validation_rule[$param_type][$param_validation_rule];
+       if (!Validation::$param_validation_rule($queryParams[$param], ...$param_validation_options)) {
+         unset($queryParams[$param]);
+       }
+    }
+    return $queryParams;
   }
 }

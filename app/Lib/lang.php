@@ -888,7 +888,18 @@ original notification at
     SuspendableStatusEnum::Active              => 'Active',
     SuspendableStatusEnum::Suspended           => 'Suspended'
   ),
-  
+
+  'en.status.tap' => array(
+    TapStatusEnum::Accepted          => 'accepted',
+    TapStatusEnum::Applied           => 'applied',
+    TapStatusEnum::Active            => 'active',
+    TapStatusEnum::Offered           => 'offered',
+    TapStatusEnum::OnLeave           => 'onLeave',
+    TapStatusEnum::Registered        => 'registered',
+    TapStatusEnum::Suspended         => 'suspended',
+    TapStatusEnum::Terminated        => 'terminated'
+  ),
+
   'en.status.temp' => array(
     TemplateableStatusEnum::Active              => 'Active',
     TemplateableStatusEnum::Suspended           => 'Suspended',
@@ -954,7 +965,22 @@ original notification at
     VisibilityEnum::CoMember        => 'CO Member',
     VisibilityEnum::Unauthenticated => 'Unauthenticated Users'
   ),
-  
+
+  // Mappings
+  // Status TAP to COmanage notation
+  'en.status.tap.to.cmg' => array(
+    TapStatusEnum::Active            => StatusEnum::Active,
+    TapStatusEnum::Suspended         => StatusEnum::Suspended,
+    TapStatusEnum::Terminated        => StatusEnum::Deleted
+  ),
+
+  // Status COmanage to TAP notation
+  'en.status.cmg.to.tap' => array(
+    StatusEnum::Active => TapStatusEnum::Active,
+    StatusEnum::Suspended => TapStatusEnum::Suspended,
+    StatusEnum::Deleted => TapStatusEnum::Terminated
+  ),
+
   // Errors
   'er.ae.defined' =>  'An Attribute Enumeration is already defined for the attribute "%1$s"',
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',

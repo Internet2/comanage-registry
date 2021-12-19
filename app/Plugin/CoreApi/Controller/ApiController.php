@@ -201,6 +201,13 @@ class ApiController extends Controller {
       $this->response->send();
       exit;
     }
+
+    if($this->request->params['action'] == 'index') {
+      // Filter/Validate Query parameters
+      $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
+      // TAP to COmanage
+      $this->params->query = $this->CoreApi->tapToComanageQueryParams($this->params->query);
+    }
   }
 
   /**
@@ -212,6 +219,7 @@ class ApiController extends Controller {
 
   public function index() {
     try {
+      $query_filters = array();
       // Load the default ordering and pagination settings
       $this->Paginator->settings = $this->paginate;
       $this->Paginator->settings['conditions']['Identifier.type'] = $this->cur_api['CoreApi']['identifier_type'];
@@ -220,8 +228,9 @@ class ApiController extends Controller {
       $this->Paginator->settings['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
       $this->Paginator->settings['conditions']['CoPerson.co_id'] = $this->cur_api['CoreApi']['co_id'];
       // We allow people of any status to be pulled, though maybe we could offer a filter
-      if(!empty($this->params['named']['search.status'])) {
-        $this->Paginator->settings['conditions']['CoPerson.status'] = $this->params['named']['search.status'];
+      if(!empty($this->request->query['CoPerson.status'])) {
+        $query_filters[] = 'status';
+        $this->Paginator->settings['conditions']['CoPerson.status'] = $this->request->query['CoPerson.status'];
       }
       $this->Paginator->settings['joins'][0]['table'] = 'identifiers';
       $this->Paginator->settings['joins'][0]['alias'] = 'Identifier';
@@ -265,26 +274,31 @@ class ApiController extends Controller {
       }
 
       // Query offset
-      if(!empty($this->request->params['limit'])) {
-        $this->Paginator->settings['limit'] = $this->request->params['limit'];
+      if(!empty($this->request->query['limit'])) {
+        $this->Paginator->settings['limit'] = $this->request->query['limit'];
       }
       // Order Direction
-      if(!empty($this->request->params['direction'])) {
-        $this->Paginator->settings['order']['CoPerson.id'] = $this->request->params['direction'];
+      if(!empty($this->request->query['direction'])) {
+        $this->Paginator->settings['order']['CoPerson.id'] = $this->request->query['direction'];
       }
       // Page
-      if(!empty($this->request->params['page'])) {
-        $this->Paginator->settings['page'] = $this->request->params['page'];
+      if(!empty($this->request->query['page'])) {
+        $this->Paginator->settings['page'] = $this->request->query['page'];
       }
 
       $coPeople = $this->Paginator->paginate('CoPerson');
 
       if(empty($coPeople)) {
+        $CoPerson = ClassRegistry::init('CoPerson');
+        // The model has a status enum type hint. I use the existing type hint and append the postfix
+        // `.tap.to.cmp` or `.cmg.to.tap` depending on the use case
+        $status_fn = array();
+        foreach ($query_filters as $filter) {
+          $cmg_to_tap_status = _txt($CoPerson->cm_enum_txt[$filter] . '.cmg.to.tap', null, $this->request->query['CoPerson.' . $filter]);
+          $status_fn[] = _txt($CoPerson->cm_enum_txt[$filter] . '.tap', null, $cmg_to_tap_status);
+        }
         throw new InvalidArgumentException(
-          _txt('er.notfound', array(
-                              _txt('ct.identifiers.1'),
-                               _txt('en.identifier.type', null, filter_var($this->cur_api['CoreApi']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS))
-                            ))
+          _txt('er.notfound', array('Person', implode(',', $status_fn)))
         );
       }
 

@@ -785,6 +785,18 @@ class TAndCLoginModeEnum
   const DisableAllServices = 'D';
 }
 
+class TapStatusEnum
+{
+  const Accepted          = 'AC';
+  const Applied           = 'AP';
+  const Active            = 'A';
+  const Offered           = 'OF';
+  const OnLeave           = 'OL';
+  const Registered        = 'R';
+  const Suspended         = 'S';
+  const Terminated        = 'T';
+}
+
 class TemplateableStatusEnum
 {
   const Active              = 'A';
