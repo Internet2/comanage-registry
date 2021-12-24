@@ -425,16 +425,15 @@
             </div>
             <div class="field-info">
               <?php
-                global $cm_lang, $cm_texts;
                 $attrs = array();
                 $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['affiliation'])
                   ? $org_identities[0]['OrgIdentity']['affiliation']
-                  : "M");
+                  : null);
                 $attrs['empty'] = true;
 
                 if($e) {
                   print $this->Form->select('affiliation',
-                    $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
+                    $vv_affiliation_types,
                     $attrs);
 
                   if($this->Form->isFieldError('affiliation')) {
@@ -442,7 +441,7 @@
                   }
                 } else {
                   if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {
-                    print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
+                    print $vv_affiliation_types[ $org_identities[0]['OrgIdentity']['affiliation'] ];
                   }
                 }
               ?>

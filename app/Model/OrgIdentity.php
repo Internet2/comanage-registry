@@ -122,14 +122,17 @@ class OrgIdentity extends AppModel {
     ),
     'affiliation' => array(
       'content' => array(
-        'rule' => array('inList', array(AffiliationEnum::Faculty,
-                                        AffiliationEnum::Student,
-                                        AffiliationEnum::Staff,
-                                        AffiliationEnum::Alum,
-                                        AffiliationEnum::Member,
-                                        AffiliationEnum::Affiliate,
-                                        AffiliationEnum::Employee,
-                                        AffiliationEnum::LibraryWalkIn)),
+        'rule' => array('validateExtendedType',
+                        // We intentionally piggyback on CoPersonRole
+                        array('attribute' => 'CoPersonRole.affiliation',
+                              'default' => array(AffiliationEnum::Faculty,
+                                                 AffiliationEnum::Student,
+                                                 AffiliationEnum::Staff,
+                                                 AffiliationEnum::Alum,
+                                                 AffiliationEnum::Member,
+                                                 AffiliationEnum::Affiliate,
+                                                 AffiliationEnum::Employee,
+                                                 AffiliationEnum::LibraryWalkIn))),
         'required' => false,
         'allowEmpty' => true
       )
@@ -192,12 +195,6 @@ class OrgIdentity extends AppModel {
         'rule' => array("validateTimestampRange", "valid_from", ">"),
       ),
     )
-  );
-  
-  // Enum type hints
-  
-  public $cm_enum_txt = array(
-    'affiliation' => 'en.co_person_role.affiliation'
   );
   
   /**

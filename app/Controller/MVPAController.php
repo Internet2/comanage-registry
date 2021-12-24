@@ -98,9 +98,9 @@ class MVPAController extends StandardController {
       $pid = $this->parsePersonID();
       
       if(!empty($pid['orgidentityid'])) {
-        // Org identities use the default model types, and self service does not apply
+        // Org identities do not support self service
         
-        $this->set('vv_available_types', $model->defaultTypes('type'));
+        $this->set('vv_available_types', $model->types($this->cur_co['Co']['id'], 'type'));
       } else {
         // When attached to a CO Person or Role, figure out the available extended
         // types and then filter for self service permissions

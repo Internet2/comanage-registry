@@ -213,6 +213,12 @@ class OrgIdentitiesController extends StandardController {
       // Set the current timezone, primarily for beforeSave
       $this->OrgIdentity->setTimeZone($this->viewVars['vv_tz']);
     }
+    
+    // Dynamically adjust validation rules to include the current CO ID for dynamic types.
+
+    $vrule = $this->OrgIdentity->validate['affiliation']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    $this->OrgIdentity->validator()->getField('affiliation')->getRule('content')->rule = $vrule;
   }
   
   /**
@@ -272,6 +278,8 @@ class OrgIdentitiesController extends StandardController {
       $this->set('vv_identifiers_types', $this->OrgIdentity->Identifier->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_telephone_numbers_types', $this->OrgIdentity->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_urls_types', $this->OrgIdentity->Url->types($this->cur_co['Co']['id'], 'type'));
+      // We intentionally use CoPersonRole types
+      $this->set('vv_affiliation_types', $this->OrgIdentity->types($this->cur_co['Co']['id'], 'affiliation'));
     }
     
     parent::beforeRender();
