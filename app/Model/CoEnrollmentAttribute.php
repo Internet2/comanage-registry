@@ -259,25 +259,24 @@ class CoEnrollmentAttribute extends AppModel {
       $ret[_txt('ct.org_identities.1')]['o:ou'] = _txt('fd.ou');
       
       // (6) Multi valued Org Identity attributes, if enabled (code=i)
-      // Note that since org identities don't support extended types, we use default values here.
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.name.type']) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:name:'.$k] = _txt('fd.name') . " (" . $cm_texts[ $cm_lang ]['en.name.type'][$k] . ")";
+      foreach(array_keys($nameTypes) as $k)
+        $ret[_txt('ct.org_identities.1')]['i:name:'.$k] = _txt('fd.name') . " (" . $nameTypes[$k] . ")";
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.identifier.type']) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $cm_texts[ $cm_lang ]['en.identifier.type'][$k] . ")";
+      foreach(array_keys($identifierTypes) as $k)
+        $ret[_txt('ct.org_identities.1')]['i:identifier:'.$k] = _txt('fd.identifier.identifier') . " (" . $identifierTypes[$k] . ")";
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.address.type']) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:address:'.$k] = _txt('fd.address') . " (" . $cm_texts[ $cm_lang ]['en.address.type'][$k] . ")";
+      foreach(array_keys($addressTypes) as $k)
+        $ret[_txt('ct.org_identities.1')]['i:address:'.$k] = _txt('fd.address') . " (" . $addressTypes[$k] . ")";
       
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.email_address.type']) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $cm_texts[ $cm_lang ]['en.email_address.type'][$k] . ")";
+      foreach(array_keys($emailAddressTypes) as $k)
+        $ret[_txt('ct.org_identities.1')]['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $emailAddressTypes[$k] . ")";
         
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.telephone_number.type']) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $cm_texts[ $cm_lang ]['en.telephone_number.type'][$k] . ")";
+      foreach(array_keys($telephoneNumberTypes) as $k)
+        $ret[_txt('ct.org_identities.1')]['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $telephoneNumberTypes[$k] . ")";
         
-      foreach(array_keys($cm_texts[ $cm_lang ]['en.url.type']) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:url:'.$k] = _txt('fd.url.url') . " (" . $cm_texts[ $cm_lang ]['en.url.type'][$k] . ")";
+      foreach(array_keys($urlTypes) as $k)
+        $ret[_txt('ct.org_identities.1')]['i:url:'.$k] = _txt('fd.url.url') . " (" . $urlTypes[$k] . ")";
     }
     
     // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
@@ -503,6 +502,12 @@ class CoEnrollmentAttribute extends AppModel {
              && $attr['validate']['content']['rule'][0] == 'inList') {
             // If this is a select field, get the set of options
             $attr['select'] = $attrModel->validEnumsForSelect($attrName);
+          } elseif($attrName == 'affiliation') {
+            // Affiliation needs a select based on available affiliations
+            
+            $attr['select'] = $attrModel->types($efAttr['CoEnrollmentFlow']['co_id'], 'affiliation');
+            $attr['validate']['content']['rule'][0] = 'inList';
+            $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
           }
         } elseif($attrCode == 'r') {
           if($attrName == 'affiliation') {

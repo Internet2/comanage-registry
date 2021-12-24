@@ -1410,7 +1410,10 @@ class AppModel extends Model {
     
     $CoExtendedType = ClassRegistry::init('CoExtendedType');
     
-    return $CoExtendedType->active($coId, $this->name . "." . $attribute, 'list');
+    // For OrgIdentity.affiliation we want to use the CoPersonRole values
+    $model = ($this->name == 'OrgIdentity') ? 'CoPersonRole' : $this->name;
+    
+    return $CoExtendedType->active($coId, $model . "." . $attribute, 'list');
   }
   
   /**

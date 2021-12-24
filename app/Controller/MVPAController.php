@@ -96,7 +96,6 @@ class MVPAController extends StandardController {
       // Provide a hint as to available types for this model
       
       $pid = $this->parsePersonID();
-
       // Set the person info for view usage
       $this->set('vv_pid', $pid);
       
