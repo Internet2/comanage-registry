@@ -43,8 +43,8 @@ $cm_core_api_texts['en_US'] = array(
   ),
 
   'pl.coreapi.en.response.type' => array(
-    ResponseTypeEnum::Full              => 'Full Profile(s)',
-    ResponseTypeEnum::IdentifierList    => 'Identifiers List'
+    ResponseTypeEnum::Full              => 'Full Profile',
+    ResponseTypeEnum::IdentifierList    => 'Identifier Only'
   ),
 
 
@@ -59,7 +59,7 @@ $cm_core_api_texts['en_US'] = array(
   'pl.coreapi.identifier.desc'      => 'The Identifier type used to map API locate identifiers to CO Person records',
   'pl.coreapi.info'                 => 'The Core API endpoint is %1$s',
   'pl.coreapi.response.type'        => 'Response Type',
-  'pl.coreapi.response.type.desc'   => 'Define the response data granularity',
+  'pl.coreapi.response.type.desc'   => 'Define the response content granularity',
   'pl.coreapi.rs.edited-a4'         => '%1$s Edited via Core API: %2$s',
   'pl.coreapi.rs.linked'            => 'New Org Identity Linked via Core API',
 );

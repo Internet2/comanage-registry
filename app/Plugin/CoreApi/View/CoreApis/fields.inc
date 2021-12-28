@@ -53,26 +53,21 @@
 <script type="text/javascript">
   <!-- JS specific to these fields -->
 
+  // Response config is only for CO Person API. For other APIs we will need to hide this configuration
   function response_config_field() {
-    let $core_api = $('#CoreApiApi > option:selected').val();
-    if ($core_api != undefined
-        && $core_api == '<?php print CoreApiEnum::CoPersonRead; ?>') {
+    let core_apis = <?php
+      print json_encode(array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite));
+      ?>;
+    let core_api = $('#CoreApiApi > option:selected').val();
+    if (core_api != undefined
+        && core_apis.includes(core_api)) {
       $('.core-api-reponse-type').show();
       $('#CoreApiIndexResponseType').attr("required","required");
       $('#CoreApiIndexResponseType').attr('data-error', 'This field is required.');
-      const empty_option = $('#CoreApiIndexResponseType option[value=""]');
-      empty_option.attr('disabled', 'disabled');
-      empty_option.hide();
-      // Pick the last value. We assume that this value is non-empty
-      $('#CoreApiIndexResponseType option').last().attr("selected", "selected");
-
     } else {
       // hide
       $('#CoreApiIndexResponseType').removeAttr("required");
       $('#CoreApiIndexResponseType').removeAttr("data-error");
-      const empty_option = $('#CoreApiIndexResponseType option[value=""]');
-      empty_option.removeAttr('disabled');
-      empty_option.show();
       $('.core-api-reponse-type').hide();
 
       // clear the value
@@ -213,9 +208,11 @@
   </li>
   <li
     class="core-api-reponse-type"
-    style="<?php print (!empty($core_apis[0]['CoreApi']['api'])
-                        && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonRead)
-                        ? '' :  'display: none'; ?>"
+    style="<?php
+    $person_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    print (!empty($core_apis[0]['CoreApi']['api'])
+           && in_array($core_apis[0]['CoreApi']['api'], $person_api_keys))
+           ? '' :  'display: none'; ?>"
   >
     <div class="field-name">
       <div class="field-title">
@@ -230,7 +227,8 @@
         ? $core_apis[0]['CoreApi']['index_response_type']
         : '');
       $attrs['empty'] = true;
-      $attrs['required'] = (!empty($core_apis[0]['CoreApi']['api']) && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonRead);
+      $attrs['required'] = (!empty($core_apis[0]['CoreApi']['api'])
+                            && in_array($core_apis[0]['CoreApi']['api'], $person_api_keys));
 
       if($e) {
         print $this->Form->select('index_response_type',

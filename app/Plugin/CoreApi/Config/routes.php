@@ -28,8 +28,6 @@
 // The general format for Core API URLs should be /api/co/:coid/core/v1/namespace/...
 // Note REST API v2 has taken the form /api/v2/objects
 
-// COmanage CO Person Read API
-// /api/co/:coid/core/v1/people#show
 Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
@@ -40,7 +38,6 @@ Router::connect(
   )
 );
 
-// COmanage CO Person Read API
 // /api/co/:coid/core/v1/people?limit=20&page=2&direction=desc
 Router::connect(
   '/api/co/:coid/core/v1/people',
@@ -52,8 +49,6 @@ Router::connect(
   )
 );
 
-// COmanage CO Person Write Update API
-// /api/co/:coid/core/v1/people#edit
 Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
@@ -64,13 +59,12 @@ Router::connect(
   )
 );
 
-// XXX Scoped identifiers are not parsed properly because they are perceived as file extensions
-// XXX Enable extensions parse to resolve this problem
+// Scoped identifiers are not parsed properly because they are perceived as file extensions
+// Enable extensions parse to resolve this problem
 Router::parseExtensions('*');
 
 
 /*
-// /api/co/:coid/core/v1/people#destroy
 Router::connect(
 // XXX implement this as a proxy for expunge?
   '/api/co/:coid/core/v1/people/:identifier',
@@ -82,7 +76,6 @@ Router::connect(
   )
 );
 
-// /api/co/:coid/core/v1/people#new
 Router::connect(
 // XXX This needs to trigger identifier assignment and maybe some other stuff
 //     provisioning should only fire after all models are saved

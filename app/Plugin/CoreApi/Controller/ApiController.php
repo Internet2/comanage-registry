@@ -227,7 +227,6 @@ class ApiController extends Controller {
       $this->Paginator->settings['conditions']['Identifier.identifier_id'] = null;
       $this->Paginator->settings['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
       $this->Paginator->settings['conditions']['CoPerson.co_id'] = $this->cur_api['CoreApi']['co_id'];
-      // We allow people of any status to be pulled, though maybe we could offer a filter
       if(!empty($this->request->query['CoPerson.status'])) {
         $query_filters[] = 'status';
         $this->Paginator->settings['conditions']['CoPerson.status'] = $this->request->query['CoPerson.status'];
@@ -302,6 +301,7 @@ class ApiController extends Controller {
         );
       }
 
+      $ret = array();
       if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
         $ret = $this->CoreApi->readV1Index($this->cur_api['CoreApi']['co_id'], $coPeople);
       } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {

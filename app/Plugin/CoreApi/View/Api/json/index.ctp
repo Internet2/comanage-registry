@@ -28,7 +28,8 @@
 if(isset($results)) {
   // 'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
   // Set pagination metadata
-  if(empty($results["error"])) {
+  if(empty($results["error"])
+     && !empty($results)) {
     $results['currentPage'] = $this->Paginator->counter('{:page}');
     $results['itemsPerPage'] = $this->Paginator->counter('{:current}');
     $results['pageCount'] = $this->Paginator->counter('{:pages}');

@@ -44,7 +44,7 @@ class CoreApi extends AppModel {
   //    In runtime it will be translated to Validation::validation_rule, Validation::email
   // 2. CAKEPHP 2.x uses lowercased and underscored URLS (InflectedRoute class in CAKEPHP 3.0)
   //    as a result person.status becomes person_status
-  const ALLOWED_QUERY_PARAMS = array(
+  private $allowed_query_params = array(
     'limit' => array('integer' => array('range' => array(1, 1000))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
@@ -152,8 +152,9 @@ class CoreApi extends AppModel {
     if(empty($this->data['CoreApi']["api"])) {
       return false;
     }
-    // Disable Response type for Write/Delete actions
-    if($this->data['CoreApi']["api"] === CoreApiEnum::CoPersonWrite) {
+
+    $person_core_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    if(!in_array($this->data['CoreApi']["api"], $person_core_api_keys)) {
       $this->validate["index_response_type"]["content"]["required"] = false;
       $this->validate["index_response_type"]["content"]["allowEmpty"] = true;
     }
@@ -1121,7 +1122,7 @@ class CoreApi extends AppModel {
       return array();
     }
     // Extract the allowed param names
-    $allowed_params = array_keys(CoreApi::ALLOWED_QUERY_PARAMS);
+    $allowed_params = array_keys($this->allowed_query_params);
 
     // Filter the ones that we do not accept
     // Deep copy queryParams array
@@ -1135,7 +1136,7 @@ class CoreApi extends AppModel {
     $queryParamsArrayObject = null;
 
     // Validate the ones we accept
-    foreach (CoreApi::ALLOWED_QUERY_PARAMS as $param => $validation_rule) {
+    foreach ($this->allowed_query_params as $param => $validation_rule) {
       if(empty($queryParams[$param]))
         continue;
        // Parameter type
