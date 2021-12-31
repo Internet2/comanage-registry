@@ -39,6 +39,7 @@ class UpgradeVersionShell extends AppShell {
                     'CoIdentifierAssignment',
                     'CoJob',
                     'CoSetting',
+                    'DataFilter',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'HttpServer',
                     'Identifier',
@@ -614,6 +615,20 @@ class UpgradeVersionShell extends AppShell {
         )
       );
     }
+    
+    // 4.1.0 adds a new context for DataFilters. All existing DataFilters are
+    // ProvisioningTarget context.
+    
+    $this->out(_txt('sh.ug.410.datafilter'));
+    
+    $this->DataFilter->updateAll(
+      array(
+        'DataFilter.context' => "'PT'"  // Wacky updateAll syntax
+      ),
+      array(
+        'DataFilter.context' => null
+      )
+    );
   }
   
   // We should eventually do something like

@@ -163,6 +163,16 @@ class OrgIdentitySourcesController extends StandardController {
   public function beforeRender() {
     if(!$this->request->is('restful')) {
       $this->set('vv_identifier_types', $this->OrgIdentitySource->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+      
+      $args = array();
+      $args['conditions']['DataFilter.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['DataFilter.status'] = SuspendableStatusEnum::Active;
+      $args['conditions']['DataFilter.context'] = DataFilterContextEnum::OrgIdentitySource;
+      $args['fields'] = array('id', 'description');
+      $args['order'] = 'description';
+      $args['contain'] = false;
+      
+      $this->set('vv_available_filters', $this->OrgIdentitySource->OrgIdentitySourceFilter->DataFilter->find('list', $args));
     }
     
     parent::beforeRender();

@@ -145,6 +145,40 @@
         ?>
       </div>
     </li>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('fd.df.context'); ?>
+          <span class="required">*</span>
+        </div>
+      </div>
+      <div class="field-info">
+        <?php
+          // We don't filter context by what each plugin supports because it's
+          // a bit complicated to do that here. Instead, we verify the plugin
+          // supports the requested context in DataFilter::beforeSave().
+          
+          global $cm_lang, $cm_texts;
+          $attrs = array();
+          $attrs['value'] = (isset($data_filters[0]['DataFilter']['context'])
+                             ? $data_filters[0]['DataFilter']['context']
+                             : null);
+          $attrs['empty'] = true;
+
+          if($e) {
+            print $this->Form->select('context',
+                                      $cm_texts[ $cm_lang ]['en.df.context'],
+                                      $attrs);
+
+            if($this->Form->isFieldError('context')) {
+              print $this->Form->error('context');
+            }
+          } else {
+            print _txt('en.df.context', null, $data_filters[0]['DataFilter']['context']);
+          }
+        ?>
+      </div>
+    </li>
     <?php if($e): ?>
       <li class="fields-submit">
         <div class="field-name">

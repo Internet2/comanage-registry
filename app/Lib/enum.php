@@ -208,8 +208,7 @@ class ContactEnum
 
 class DataFilterContextEnum
 {
-// Not yet implemented
-//  const OrgIdentitySource  = 'OIS';
+  const OrgIdentitySource  = 'OS';
   const ProvisioningTarget = 'PT';
 }
 

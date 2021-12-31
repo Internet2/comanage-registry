@@ -57,6 +57,7 @@
       <tr>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
+        <th><?php print $this->Paginator->sort('context', _txt('fd.df.context')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
@@ -86,6 +87,9 @@
         </td>
         <td>
           <?php print _txt('en.status.susp', null, $d['DataFilter']['status']); ?>
+        </td>
+        <td>
+          <?php print _txt('en.df.context', null, $d['DataFilter']['context']); ?>
         </td>
         <td>
           <?php

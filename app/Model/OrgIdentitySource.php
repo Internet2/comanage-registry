@@ -53,6 +53,9 @@ class OrgIdentitySource extends AppModel {
     "CoProvisioningTarget" => array(
       'foreignKey' => 'provision_co_group_id'
     ),
+    "OrgIdentitySourceFilter" => array(
+      'dependent' => true
+    ),
     "OrgIdentitySourceRecord" => array(
       'dependent' => true
     )
@@ -574,6 +577,34 @@ class OrgIdentitySource extends AppModel {
       
       if(!empty($ret['raw'])) {
         $ret['hash'] = md5($ret['raw']);
+      }
+    }
+    
+    // Apply Data Filters, if any are configured. We specifically don't want to
+    // filter the raw record (whether or not it is used for hashing).
+    
+    $args = array();
+    $args['conditions']['OrgIdentitySourceFilter.org_identity_source_id'] = $id;
+    $args['order'] = 'OrgIdentitySourceFilter.ordr ASC';
+    $args['contain'] = array('DataFilter');
+
+    $OISFilter = ClassRegistry::init('OrgIdentitySourceFilter');
+    $filters = $OISFilter->find('all', $args);
+
+    if(!empty($filters)) {
+      foreach($filters as $filter) {
+        if(!empty($filter['DataFilter'])
+           && $filter['DataFilter']['status'] == SuspendableStatusEnum::Active) {
+          $pluginModelName = $filter['DataFilter']['plugin'] . "." . $filter['DataFilter']['plugin'];
+
+          $pluginModel = ClassRegistry::init($pluginModelName);
+
+          // We let any exception pass up the stack, since presumably we shouldn't
+          // continue processing if the filter fails for some reason.
+          $ret['orgidentity'] = $pluginModel->filter(DataFilterContextEnum::OrgIdentitySource,
+                                                     $filter['DataFilter']['id'],
+                                                     $ret['orgidentity']);
+        }
       }
     }
     

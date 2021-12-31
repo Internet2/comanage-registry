@@ -198,10 +198,12 @@ $cm_texts['en_US'] = array(
   'ct.org_identities.fi' =>     'Organizational Identity Filter',
   'ct.org_identities.se' =>     'Organizational Identity Search',
   'ct.org_identities.pl' =>     'Organizational Identities',
-  'ct.org_identity_sources.1' => 'Organizational Identity Source',
-  'ct.org_identity_sources.pl' => 'Organizational Identity Sources',
+  'ct.org_identity_source_filters.1' => 'Organizational Identity Source Filter',
+  'ct.org_identity_source_filters.pl' => 'Organizational Identity Source Filters',
   'ct.org_identity_source_records.1' => 'Organizational Identity Source Record',
   'ct.org_identity_source_records.pl' => 'Organizational Identity Source Records',
+  'ct.org_identity_sources.1' => 'Organizational Identity Source',
+  'ct.org_identity_sources.pl' => 'Organizational Identity Sources',
   'ct.organizations.1' =>       'Organization',
   'ct.organizations.pl' =>      'Organizations',
   'ct.petitions.1' =>           'Petition',
@@ -494,6 +496,11 @@ original notification at
     OrganizationEnum::Academic   => 'Academic',
     OrganizationEnum::Commercial => 'Commercial',
     OrganizationEnum::Government => 'Government'
+  ),
+  
+  'en.df.context' => array(
+    DataFilterContextEnum::OrgIdentitySource  => 'Org Identity Source',
+    DataFilterContextEnum::ProvisioningTarget => 'Provisioning Target'
   ),
   
   'en.dictionary.mode' => array(
@@ -1017,6 +1024,7 @@ original notification at
   'er.db.save-a' =>   'Database save failed: %1$s',
   'er.dict.entry.mode' => 'Unsupported Dictionary Mode for Dictionary Entries',
   'er.dict.with.attr' => 'Dictionary is in use by %1$s Attribute Enumerators and can not be deleted',
+  'er.df.context' =>  'Requested context is not supported by this plugin',
   'er.ea.alter' =>    'Failed to alter table for attribute',
   'er.ea.exists' =>   'An attribute named "%1$s" already exists within the CO',
   'er.ea.index' =>    'Failed to update index for attribute',
@@ -1278,6 +1286,7 @@ original notification at
   'fd.co_people.filter' => 'CO Person Filter',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
+  'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.created' =>     'Created',
   'fd.created.tz' =>  'Created (%1$s)',
   'fd.dashboard.header' => 'Header',
@@ -1287,6 +1296,7 @@ original notification at
   'fd.dashboard.visibility.group' => 'Group',
   'fd.dashboard.primary' => 'Primary Dashboard',
   'fd.dashboard.primary.desc' => 'Default Dashboard for the CO landing page',
+  'fd.date_of_birth' => 'Date of Birth',
   'fd.deleted' =>     'Deleted',
   // Demographics fields
   'fd.de.persid'  =>  'Person ID',
@@ -1296,9 +1306,8 @@ original notification at
   'fd.de.race'    =>  'Race',
   'fd.de.disab'   =>  'Disability',
   'fd.de.enable'  =>  'Enable NSF Demographics',
-  'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.default'    =>  'Default',
-  'fd.date_of_birth' => 'Date of Birth',
+  'fd.df.context' => 'Context',
   'fd.dict.mode'  => 'Dictionary Mode',
   'fd.dp.group.admin' => 'Administrative Group',
   'fd.dp.group.admin.desc' => 'Group containing the Department administrators',
@@ -1556,6 +1565,8 @@ original notification at
   'fd.link.title' =>  'Link Title',
   'fd.link.url' =>    'Link URL',
   'fd.load.last' =>   'Last Loaded',
+  'fd.manager' =>     'Manager',
+  'fd.manager.desc' => 'Use the search box to pick a new manager (use a name, email address, or identifier)',
   'fd.members' =>     'Members',
   'fd.membership' =>  'Membership',
   'fd.model' =>       'Model',
@@ -2433,7 +2444,8 @@ original notification at
   'sh.ug.400.http_server.password' => 'Resizing HttpServer column',
   'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types',
-  'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource'
+  'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource',
+  'sh.ug.410.datafilter' => 'Adding default context for DataFilters'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

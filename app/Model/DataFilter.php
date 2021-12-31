@@ -72,6 +72,25 @@ class DataFilter extends AppModel {
       // XXX This should be a dynamically generated list based on available plugins
       'rule' => 'notBlank',
       'required' => true
+    ),
+    'status' => array(
+      'content' => array(
+        'rule' => array('inList', array(SuspendableStatusEnum::Active,
+                                        SuspendableStatusEnum::Suspended)),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
+    'context' => array(
+      'rule' => array(
+        'inList',
+        array(
+          DataFilterContextEnum::OrgIdentitySource,
+          DataFilterContextEnum::ProvisioningTarget
+        )
+      ),
+      'required' => true,
+      'allowEmpty' => false
     )
   );
   
@@ -98,6 +117,33 @@ class DataFilter extends AppModel {
       // Note that we have to disable validation because we want to create an empty row.
       if(!$this->$modelName->save($source, false)) {
         return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+  
+  public function beforeSave($options = array()) {
+    // Check that the requested plugin supports the requested context. We do this
+    // on both add and edit since, even though the plugin can't be changed after
+    // add, the context can.
+    
+    if(!empty($this->data['DataFilter']['plugin']) 
+       && !empty($this->data['DataFilter']['context'])) {
+      $plugin = $this->data['DataFilter']['plugin'];
+      
+      // Instantiate the plugin and make sure it supports the requested context
+      
+      $pModel = ClassRegistry::init($plugin.".".$plugin);
+      
+      if(!in_array($this->data['DataFilter']['context'], $pModel->supportedContexts)) {
+        throw new InvalidArgumentException(_txt('er.df.context'));
       }
     }
     

@@ -54,6 +54,5 @@ $cm_salesforce_source_texts['en_US'] = array(
   'pl.salesforcesource.limits.used'    => 'Used',
   'pl.salesforcesource.search.contacts' => 'Search Contacts',
   'pl.salesforcesource.search.users'   => 'Search Users',
-  'pl.salesforcesource.servers.none'  => 'There are no defined OAuth2 servers to use for this provisioner.',
   'pl.salesforcesource.token.missing'  => 'There is no current OAuth token. You must obtain a new token before the Salesforce API can be queried.',
 );
