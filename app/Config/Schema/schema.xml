@@ -2018,6 +2018,9 @@
     <index name="co_petitions_i7">
       <col>enrollee_co_person_id</col>
     </index>
+    <index name="co_petitions_i8">
+      <col>authenticated_identifier</col>
+    </index>
   </table>
   
   <table name="co_petition_attributes">
