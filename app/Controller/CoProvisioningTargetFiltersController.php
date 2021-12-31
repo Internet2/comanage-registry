@@ -95,6 +95,7 @@ class CoProvisioningTargetFiltersController extends StandardController {
     $args = array();
     $args['conditions']['DataFilter.co_id'] = $this->cur_co['Co']['id'];
     $args['conditions']['DataFilter.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['DataFilter.context'] = DataFilterContextEnum::ProvisioningTarget;
     $args['fields'] = array('id', 'description');
     $args['order'] = 'description';
     $args['contain'] = false;

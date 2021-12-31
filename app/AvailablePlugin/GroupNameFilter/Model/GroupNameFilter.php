@@ -55,6 +55,11 @@ class GroupNameFilter extends AppModel {
     )
   );
   
+  // The context(s) this filter supports
+  public $supportedContexts = array(
+    DataFilterContextEnum::ProvisioningTarget
+  );
+  
   /**
    * Expose menu items.
    * 

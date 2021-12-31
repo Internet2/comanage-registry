@@ -27,6 +27,21 @@
 -->
 <?php
 
+if($this->action == "edit" && $permissions['edit']) {
+  // Attach data filters
+  if(!empty($vv_available_filters)) {
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.attach', array(_txt('ct.data_filters.pl'))),
+      array(
+        'controller' => 'org_identity_source_filters',
+        'action'     => 'index',
+        'oisid'      => $org_identity_sources[0]['OrgIdentitySource']['id']
+      ),
+      array('class' => 'relinkbutton')
+    );
+  }
+}
+
 if($permissions['query']
    && !empty($org_identity_sources[0]['OrgIdentitySource']['id'])
    && !empty($vv_plugin_group_attrs)) {
