@@ -42,18 +42,15 @@ class CoreApi extends AppModel {
   // List of allowed query parameters
   // 1. range, inList, comparison are all validation rules supported by CAKE core
   //    In runtime it will be translated to Validation::validation_rule, Validation::email
-  // 2. CAKEPHP 2.x uses lowercased and underscored URLS (InflectedRoute class in CAKEPHP 3.0)
-  //    as a result person.status becomes person_status
+  // 2. https://www.php.net/manual/en/language.variables.external.php#language.variables.external.dot-in-names
+  //    Currently the dot character is not a valid character for a PHP variable name. So co_person.status
+  //    will be transformed to co_person_status.
+  // XXX We are making the convention that the field will be placed last and will be a single word
   private $allowed_query_params = array(
     'limit' => array('integer' => array('range' => array(1, 1000))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
-    'person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/')))
-  );
-
-  // Map TAP to COmanage objectType notation
-  const MODEL_TAP_TO_COMANAGE = array(
-    'person' => 'CoPerson'
+    'co_person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/')))
   );
 
   // Document foreign keys
@@ -808,34 +805,33 @@ class CoreApi extends AppModel {
   }
 
   /**
-   * Rename query parameters from TAP to COmanage notation
+   * Parse query parameters
    *
    * @since  COmanage Registry v4.1.0
    * @param array   $queryParams  List of query parameters
    * @return array
    */
-  public function tapToComanageQueryParams($queryParams) {
+  public function parseQueryParams($queryParams) {
     if(empty($queryParams)) {
       return $queryParams;
     }
 
     $queryParamsNew = array();
-    foreach ($queryParams as $attr => $tvalue) {
-      // CAKEPHP 2.x uses lowercased and underscored URLS (InflectedRoute class in CAKEPHP 3.0)
-      // as a result person.status becomes person_status
+    foreach ($queryParams as $attr => $req_value) {
       if(strpos($attr, '_') === false) {
-        $queryParamsNew[$attr] = $tvalue;
+        $queryParamsNew[$attr] = $req_value;
         // We are looking for model_attribute params
         continue;
       }
-      list($tmodel, $tattr) = explode('_', $attr, 2);
-      $cmodel = CoreAPI::MODEL_TAP_TO_COMANAGE[$tmodel];
-      $cModelObject = ClassRegistry::init($cmodel);
-      // The model has a status enum type hint. I use the existing type hint and append the postfix
-      // `.tap.to.cmp` or `.cmg.to.tap` depending on the use case
-      $tenum_value = constant('TapStatusEnum::' . ucfirst($tvalue));
-      $cvalue = _txt($cModelObject->cm_enum_txt[$tattr] . '.tap.to.cmg', null, $tenum_value);
-      $cmg_attr = $cmodel . '.' . $tattr;
+      $param_pieces = explode('_', $attr);
+      $field = array_pop($param_pieces);
+      $model_underscored = implode('_', $param_pieces);
+      // Construct the enumeraton. e.g. if the field is status and the value is asctive then
+      // ucfirst($field) . 'Enum::' . ucfirst($req_value) => StatusEnum::Active
+      $cmodel = Inflector::classify($model_underscored);
+      $cvalue = constant(ucfirst($field) . 'Enum::' . ucfirst($req_value));
+      $cmg_attr = $cmodel . '.' . $field;
+      // Transform request params to COmanage internal terminology
       $queryParamsNew[$cmg_attr] = $cvalue;
     }
     return $queryParamsNew;

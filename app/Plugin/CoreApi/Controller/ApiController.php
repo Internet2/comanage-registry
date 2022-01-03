@@ -205,8 +205,8 @@ class ApiController extends Controller {
     if($this->request->params['action'] == 'index') {
       // Filter/Validate Query parameters
       $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
-      // TAP to COmanage
-      $this->params->query = $this->CoreApi->tapToComanageQueryParams($this->params->query);
+      // Parse query parameters
+      $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
     }
   }
 
@@ -290,14 +290,12 @@ class ApiController extends Controller {
       if(empty($coPeople)) {
         $CoPerson = ClassRegistry::init('CoPerson');
         // The model has a status enum type hint. I use the existing type hint and append the postfix
-        // `.tap.to.cmp` or `.cmg.to.tap` depending on the use case
-        $status_fn = array();
+        $attr_human_readable = array();
         foreach ($query_filters as $filter) {
-          $cmg_to_tap_status = _txt($CoPerson->cm_enum_txt[$filter] . '.cmg.to.tap', null, $this->request->query['CoPerson.' . $filter]);
-          $status_fn[] = _txt($CoPerson->cm_enum_txt[$filter] . '.tap', null, $cmg_to_tap_status);
+          $attr_human_readable[] = _txt($CoPerson->cm_enum_txt[$filter], null, $this->request->query['CoPerson.' . $filter]);
         }
         throw new InvalidArgumentException(
-          _txt('er.notfound', array('Person', implode(',', $status_fn)))
+          _txt('er.notfound', array('Person', implode(',', $attr_human_readable)))
         );
       }
 
