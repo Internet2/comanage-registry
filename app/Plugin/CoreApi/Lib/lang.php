@@ -41,17 +41,25 @@ $cm_core_api_texts['en_US'] = array(
     CoreApiEnum::CoPersonRead     => 'COmanage CO Person Read API',
     CoreApiEnum::CoPersonWrite    => 'COmanage CO Person Write API'
   ),
-  
+
+  'pl.coreapi.en.response.type' => array(
+    ResponseTypeEnum::Full              => 'Full Profile',
+    ResponseTypeEnum::IdentifierList    => 'Identifier Only'
+  ),
+
+
   // Error messages
   'er.coreapi.coperson'        => 'CoPerson object not found in inbound document',
   'er.coreapi.id.invalid'      => 'Invalid record id %1$s',
   'er.coreapi.json'            => 'No JSON document found in request, or document did not successfully parse',
   
   // Plugin texts
-  'pl.coreapi.api'             => 'API',
-  'pl.coreapi.api_user.desc'   => 'The API User authroized to make requests to this endpoint',
-  'pl.coreapi.identifier.desc' => 'The Identifier type used to map API locater identifiers to CO Person records',
-  'pl.coreapi.info'            => 'The Core API endpoint is %1$s',
-  'pl.coreapi.rs.edited-a4'    => '%1$s Edited via Core API: %2$s',
-  'pl.coreapi.rs.linked'       => 'New Org Identity Linked via Core API',
+  'pl.coreapi.api'                  => 'API',
+  'pl.coreapi.api_user.desc'        => 'The API User authorized to make requests to this endpoint',
+  'pl.coreapi.identifier.desc'      => 'The Identifier type used to map API locate identifiers to CO Person records',
+  'pl.coreapi.info'                 => 'The Core API endpoint is %1$s',
+  'pl.coreapi.response.type'        => 'Response Type',
+  'pl.coreapi.response.type.desc'   => 'Define the response content granularity',
+  'pl.coreapi.rs.edited-a4'         => '%1$s Edited via Core API: %2$s',
+  'pl.coreapi.rs.linked'            => 'New Org Identity Linked via Core API',
 );
