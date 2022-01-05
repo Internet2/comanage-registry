@@ -176,6 +176,7 @@ class ApiController extends Controller {
               );
               break;
             case 'update':
+            case 'delete':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::CoPersonWrite;
               break;
             default:
@@ -207,6 +208,31 @@ class ApiController extends Controller {
       $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
       // Parse query parameters
       $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
+    }
+  }
+
+  public function delete() {
+    try {
+      if(empty($this->request->params['identifier'])) {
+        // We shouldn't really get here since routes.php shouldn't allow it
+        throw new InvalidArgumentException(_txt('er.notprov'));
+      }
+
+      $ret = $this->CoreApi->deleteV1($this->cur_api['CoreApi']['co_id'],
+                                      $this->request->params['identifier'],
+                                      $this->cur_api['CoreApi']['identifier_type'],
+                                      $this->request->data);
+
+      $this->set('results', $ret);
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(500);
     }
   }
 
