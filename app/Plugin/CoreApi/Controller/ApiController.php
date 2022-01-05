@@ -175,6 +175,7 @@ class ApiController extends Controller {
                 CoreApiEnum::CoPersonWrite
               );
               break;
+            case 'create':
             case 'update':
             case 'delete':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::CoPersonWrite;
@@ -212,6 +213,35 @@ class ApiController extends Controller {
   }
 
   /**
+   * Handle a Core API CO Person record create
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function create() {
+    try {
+      $ret = $this->CoreApi->createV1($this->cur_api['CoreApi']['co_id'],
+                                      $this->request->data,
+                                      $this->cur_api['CoreApi']['api_user_id']);
+
+      $this->set('results', array_values($ret));
+      $this->Api->restResultHeader(201);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      if(isset(_txt('en.http.status.codes')[$e->getCode()])) {
+        $this->Api->restResultHeader($e->getCode());
+      } else {
+        $this->Api->restResultHeader(500);
+      }
+    }
+  }
+
+  /**
    * Handle a Core API CO People delete request
    * /api/co/:coid/core/v1/people/:identifier
    * The action has two possible outcomes. Either transition the user to status delete or expunge the user
@@ -240,7 +270,7 @@ class ApiController extends Controller {
                                         $this->cur_api['CoreApi']['identifier_type']);
       }
 
-      if(!empty($ret)) {
+      if(!empty($ret) && !is_bool($ret)) {
         $this->set('results', $ret);
       }
       $this->Api->restResultHeader(200);
@@ -251,7 +281,11 @@ class ApiController extends Controller {
     }
     catch(Exception $e) {
       $this->set('results', array('error' => $e->getMessage()));
-      $this->Api->restResultHeader(500);
+      if(isset(_txt('en.http.status.codes')[$e->getCode()])) {
+        $this->Api->restResultHeader($e->getCode());
+      } else {
+        $this->Api->restResultHeader(500);
+      }
     }
   }
 
@@ -417,7 +451,8 @@ class ApiController extends Controller {
       $ret = $this->CoreApi->upsertV1($this->cur_api['CoreApi']['co_id'], 
                                       $this->request->params['identifier'],
                                       $this->cur_api['CoreApi']['identifier_type'],
-                                      $this->request->data);
+                                      $this->request->data,
+                                      $this->cur_api['CoreApi']['api_user_id']);
       
       $this->set('results', $ret);
       $this->Api->restResultHeader(200);
@@ -428,7 +463,11 @@ class ApiController extends Controller {
     }
     catch(Exception $e) {
       $this->set('results', array('error' => $e->getMessage()));
-      $this->Api->restResultHeader(500);
+      if(isset(_txt('en.http.status.codes')[$e->getCode()])) {
+        $this->Api->restResultHeader($e->getCode());
+      } else {
+        $this->Api->restResultHeader(500);
+      }
     }
   }
   
