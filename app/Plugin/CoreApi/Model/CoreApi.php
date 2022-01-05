@@ -174,7 +174,49 @@ class CoreApi extends AppModel {
             'action'     => "index"))
     );
   }
-  
+
+  public function deleteV1($coId, $identifier, $identifierType, $reqData) {
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+
+    if(!empty($reqData)) {
+      // This is an expunge action. Do something and return
+      return;
+    }
+
+    try {
+      // Start by trying to retrieve the current record. This will throw an error
+      // if not found
+
+      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+
+      if(empty($current['CoPerson']['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      }
+
+      // Move CoPerson to status deleted
+      if($current["CoPerson"]["status"] !== StatusEnum::Deleted) {
+        // Clear here and below in case we're run in a loop
+        $this->Co->CoPerson->clear();
+        $this->Co->CoPerson->read(null, $current['CoPerson']['id']);
+        $this->Co->CoPerson->set('status', StatusEnum::Deleted);
+        if(!$this->Co->CoPerson->save()) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
+        }
+        // Trigger provisioning
+        // todo: Should i manually provision or let save handle this
+        $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
+      }
+
+      $dbc->commit();
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
+  }
+
   /**
    * Delete associated models that were not provided in the update request.
    *
