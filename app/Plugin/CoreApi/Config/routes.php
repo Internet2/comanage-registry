@@ -71,19 +71,6 @@ Router::connect(
   )
 );
 
-// There is an HTTP PURGE method, though it is not defined in the HTTP RFCs
-// (which do allow for custom methods beyond the standard defined methods)
-// curl supports PURGE as a result we support this route
-Router::connect(
-  '/api/co/:coid/core/v1/people/:identifier',
-  array(
-    'plugin'     => 'core_api',
-    'controller' => 'Api',
-    'action'     => 'expunge',
-    '[method]'   => 'PURGE'
-  )
-);
-
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem
 Router::parseExtensions('json', 'xml');

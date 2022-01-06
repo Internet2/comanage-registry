@@ -136,6 +136,11 @@ class CoreApi extends AppModel {
         'allowEmpty' => false
       )
     ),
+    'expunge_on_delete' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    )
   );
 
   /**
