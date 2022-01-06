@@ -180,15 +180,22 @@ class CoreApi extends AppModel {
     );
   }
 
-  public function deleteV1($coId, $identifier, $identifierType, $reqData) {
+  /**
+   * @param Integer $coId
+   * @param String  $identifier
+   * @param String  $identifierType
+   * @param Boolean $expunge_on_delete
+   * @return void
+   */
+  public function deleteV1($coId, $identifier, $identifierType, $expunge_on_delete) {
+    if($expunge_on_delete) {
+      // expunge
+      return;
+    }
+
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
-
-    if(!empty($reqData)) {
-      // This is an expunge action. Do something and return
-      return;
-    }
 
     try {
       // Start by trying to retrieve the current record. This will throw an error
@@ -200,21 +207,47 @@ class CoreApi extends AppModel {
         throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
       }
 
-      // Move CoPerson to status deleted
-      if($current["CoPerson"]["status"] !== StatusEnum::Deleted) {
+      // If the CO Person has no Role
+      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
+         && empty($current["CoPersonRole"])) {
         // Clear here and below in case we're run in a loop
+        $person_data = array(
+          'id'      => $current['CoPerson']['id'],
+          'co_id'   => $coId,   // Required field
+          'status'  => StatusEnum::Deleted
+        );
         $this->Co->CoPerson->clear();
-        $this->Co->CoPerson->read(null, $current['CoPerson']['id']);
-        $this->Co->CoPerson->set('status', StatusEnum::Deleted);
-        if(!$this->Co->CoPerson->save()) {
+        if(!$this->Co->CoPerson->save($person_data, array('provision' => false))) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
         }
-        // Trigger provisioning
-        // todo: Should i manually provision or let save handle this
-        $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
       }
 
+      // If the CO Person has at least one Role
+      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
+         && !empty($current["CoPersonRole"])) {
+        $values = array();
+        foreach($current["CoPersonRole"] as $role) {
+          // Unless we do not provide the required fields the model validation will fail
+          $values[] = array(
+            'id'           => $role['id'],
+            'co_person_id' => $role['co_person_id'],   // Required field
+            'affiliation'  => $role['affiliation'],    // Required field
+            'status'       => StatusEnum::Deleted
+          );
+        }
+
+        $this->Co->CoPerson->CoPersonRole->clear();
+        // Disable Model validation. We do not provide co_person_id and affiliation which are required
+        if(!$this->Co->CoPerson->CoPersonRole->saveMany($values, array('provision' => false))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
+        }
+      }
+
+      // Commit all changes to the databases
       $dbc->commit();
+
+      // Trigger provisioning
+      $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
     }
     catch(Exception $e) {
       $dbc->rollback();
