@@ -181,18 +181,16 @@ class CoreApi extends AppModel {
   }
 
   /**
-   * @param Integer $coId
-   * @param String  $identifier
-   * @param String  $identifierType
-   * @param Boolean $expunge_on_delete
+   * Transition CO Person to status delete. This implies that all CO Person Roles
+   * will be transitioned to status deleted as well
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId           CO ID
+   * @param  string  $identifier     Identifier to query
+   * @param  string  $identifierType Identifier type
    * @return void
    */
-  public function deleteV1($coId, $identifier, $identifierType, $expunge_on_delete) {
-    if($expunge_on_delete) {
-      // expunge
-      return;
-    }
-
+  public function deleteV1($coId, $identifier, $identifierType) {
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
@@ -328,7 +326,39 @@ class CoreApi extends AppModel {
       }
     }
   }
-  
+
+  /**
+   * This is a wrapper around CoPerson->expunge. Regardless of its status the CoPerson
+   * will be expunged
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId               CO ID
+   * @param  string  $identifier         Identifier to query
+   * @param  string  $identifierType     Identifier type
+   * @param  integer $expungerCoPersonId Identifier of CO Person performing expunge
+   * @return boolean True on success
+   * @throws InvalidArgumentException
+   */
+  public function expungeV1($coId, $identifier, $identifierType, $expungerCoPersonId) {
+    try {
+      // Start by trying to retrieve the current record. This will throw an error
+      // if not found
+
+      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+
+      if(empty($current['CoPerson']['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      }
+
+      return $this->Co->CoPerson->expunge($current['CoPerson']['id'],
+                                          null,
+                                          $expungerCoPersonId);
+    }
+    catch(Exception $e) {
+      throw new RuntimeException($e->getMessage());
+    }
+  }
+
   /**
    * Filter metadata from an inbound request. Associated models are not examined.
    *

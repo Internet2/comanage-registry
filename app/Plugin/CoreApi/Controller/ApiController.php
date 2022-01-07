@@ -229,13 +229,20 @@ class ApiController extends Controller {
 
       $expunge_on_delete = !isset($this->cur_api['CoreApi']['expunge_on_delete'])
                          ? false : $this->cur_api['CoreApi']['expunge_on_delete'];
+      if($expunge_on_delete) {
+        $ret = $this->CoreApi->expungeV1($this->cur_api['CoreApi']['co_id'],
+                                         $this->request->params['identifier'],
+                                         $this->cur_api['CoreApi']['identifier_type'],
+                                         $this->cur_api['CoreApi']['api_user_id']);
+      } else {
+        $ret = $this->CoreApi->deleteV1($this->cur_api['CoreApi']['co_id'],
+                                        $this->request->params['identifier'],
+                                        $this->cur_api['CoreApi']['identifier_type']);
+      }
 
-      $ret = $this->CoreApi->deleteV1($this->cur_api['CoreApi']['co_id'],
-                                      $this->request->params['identifier'],
-                                      $this->cur_api['CoreApi']['identifier_type'],
-                                      $expunge_on_delete);
-
-      $this->set('results', $ret);
+      if(!empty($ret)) {
+        $this->set('results', $ret);
+      }
       $this->Api->restResultHeader(200);
     }
     catch(InvalidArgumentException $e) {

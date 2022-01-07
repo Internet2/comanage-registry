@@ -2843,6 +2843,9 @@
     <field name="actor_co_person_id" type="I">
       <constraint>REFERENCES cm_co_people(id)</constraint>
     </field>
+    <field name="actor_api_user_id" type="I">
+      <constraint>REFERENCES cm_api_users(id)</constraint>
+    </field>
     <field name="action" type="C" size="4" />
     <field name="comment" type="C" size="256" />
     <field name="created" type="T" />
