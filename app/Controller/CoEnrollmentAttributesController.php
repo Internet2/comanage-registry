@@ -209,6 +209,16 @@ class CoEnrollmentAttributesController extends StandardController {
           // Assemble the set of available attributes for the view to render
           
           $availableAttributes = $this->CoEnrollmentAttribute->availableAttributes($coid);
+          
+          // Simple key value, primarily for "order"
+          $availableAttributesFlat = array();
+          
+          foreach(array_keys($availableAttributes) as $m) {
+            $availableAttributesFlat += $availableAttributes[$m];
+          }
+          $this->set('vv_available_attributes', $availableAttributesFlat);
+          
+          // Nested
           $availableAttributesNested = array();
           foreach($availableAttributes as $mdl_name => &$attr_mdl) {
             foreach($attr_mdl as $attribute_map => $attribute_fn) {

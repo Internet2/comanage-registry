@@ -843,6 +843,9 @@
     </field>
     <field name="my_identity_shortcut" type="L" />
     <field name="match_policy" type="C" size="2" />
+    <field name="match_server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
     <field name="enable_person_find" type="L" />
     <field name="approval_required" type="L" />
     <field name="approver_co_group_id" type="I">
@@ -1983,6 +1986,7 @@
       <constraint>REFERENCES cm_co_invites(id)</constraint>
     </field>
     <field name="authenticated_identifier" type="C" size="256" />
+    <field name="reference_identifier" type="C" size="40" />
     <field name="petitioner_token" type="C" size="48" />
     <field name="enrollee_token" type="C" size="48" />
     <field name="return_url" type="C" size="256" />

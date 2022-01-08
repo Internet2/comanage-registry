@@ -85,6 +85,8 @@
       } else {
         $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
       }
+      
+      dupe_update_gadgets();
     } else {
       $("#CoEnrollmentFlowInvitationValidity").closest("ul.field-children").hide('fade');
     }
@@ -128,6 +130,36 @@
       $("#CoEnrollmentFlowEnablePersonFind").closest("li").show('fade');
     } else {
       $("#CoEnrollmentFlowEnablePersonFind").closest("li").hide('fade');
+    }
+  }
+  
+  function dupe_update_gadgets() {
+    // We use the same configuration for old style duplicate on $REMOTE_USER
+    // and new style Identity Matching = External.
+    
+    // Because of how this code is currently structured, we have to reimplement
+    // the same lofic in authn_update_gadgets and fields_update_gadgets.
+    
+    var externalMatch = false;
+    var confirmation = false;  // This will go away in Registry v5
+    
+    var matchpolicy = document.getElementById('CoEnrollmentFlowMatchPolicy').value;
+    
+    if(matchpolicy == "<?php print EnrollmentMatchPolicyEnum::External; ?>") {
+      externalMatch = true;
+    }
+    
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
+    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
+    
+    if(confirm != '<?php print VerificationModeEnum::None; ?>' && authn) {
+      confirmation = true;
+    }
+    
+    if(externalMatch || confirmation) {
+      $("#CoEnrollmentFlowDuplicateMode").closest("li").show('fade');
+    } else {
+      $("#CoEnrollmentFlowDuplicateMode").closest("li").hide('fade');
     }
   }
   
@@ -196,6 +228,18 @@
       $("#clusters").hide('fade');
     }
     <?php endif; // $vv_clusters ?>
+
+    // If Identity Matching is External, show the available servers
+    
+    var matchpolicy = document.getElementById('CoEnrollmentFlowMatchPolicy').value;
+    
+    if(matchpolicy == "<?php print EnrollmentMatchPolicyEnum::External; ?>") {
+      $("#CoEnrollmentFlowMatchServerId").closest("li").show('fade');
+    } else {
+      $("#CoEnrollmentFlowMatchServerId").closest("li").hide('fade');
+    }
+    
+    dupe_update_gadgets();
   }
   
   function js_local_onload() {
@@ -362,6 +406,7 @@
         global $cm_lang, $cm_texts;
         $attrs = array();
         $attrs['value'] = (isset($co_enrollment_flows) ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_policy'] : EnrollmentMatchPolicyEnum::Advisory);
+        $attrs['onChange'] = 'fields_update_gadgets()';
         $attrs['empty'] = false;
 
         if($e) {
@@ -377,6 +422,36 @@
         }
       ?>
     </div>
+    <ul class="field-children">
+      <li style="display:none">
+        <div class="field-name">
+          <div class="field-title"><?php print _txt('ct.match_servers.1'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php
+            $attrs = array();
+            $attrs['value'] = (isset($co_enrollment_flows[0]['CoEnrollmentFlow']['match_server_id'])
+                               ? $co_enrollment_flows[0]['CoEnrollmentFlow']['match_server_id']
+                               : null);
+            $attrs['empty'] = false;
+
+            if($e) {
+              print $this->Form->select('match_server_id',
+                                        $vv_servers,
+                                        $attrs);
+
+              if($this->Form->isFieldError('match_server_id')) {
+                print $this->Form->error('match_server_id');
+              }
+            } else {
+              if(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['match_server_id'])) {
+                print filter_var($vv_servers[ $co_enrollment_flows[0]['CoEnrollmentFlow']['match_server_id'] ], FILTER_SANITIZE_SPECIAL_CHARS);
+              }
+            }
+          ?>
+        </div>
+      </li>
+    </ul>
   </li>
   <li>
     <div class="field-name">
@@ -550,37 +625,37 @@
             : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['require_authn'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
       </li>
-      <li style="display:none">
-        <div class="field-name">
-          <div class="field-title">
-            <?php print ($e ? $this->Form->label('duplicate_mode', _txt('fd.ef.dupe')) : _txt('fd.ef.dupe')); ?>
-          </div>
-          <div class="field-desc"><?php print _txt('fd.ef.dupe.desc'); ?></div>
-        </div>
-        <div class="field-info">
-          <?php
-            global $cm_lang, $cm_texts;
-            $attrs = array();
-            $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode'])
-              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
-              : EnrollmentDupeModeEnum::Duplicate);
-            $attrs['empty'] = false;
-
-            if($e) {
-              print $this->Form->select('duplicate_mode',
-                $cm_texts[ $cm_lang ]['en.enrollment.dupe'],
-                $attrs);
-
-              if($this->Form->isFieldError('duplicate_mode')) {
-                print $this->Form->error('duplicate_mode');
-              }
-            } else {
-              print _txt('en.enrollment.dupe', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']);
-            }
-          ?>
-        </div>
-      </li>
     </ul>
+  </li>
+  <li style="display:none">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('duplicate_mode', _txt('fd.ef.dupe')) : _txt('fd.ef.dupe')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.dupe.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+        $attrs = array();
+        $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode'])
+          ? $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']
+          : EnrollmentDupeModeEnum::Duplicate);
+        $attrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('duplicate_mode',
+            $cm_texts[ $cm_lang ]['en.enrollment.dupe'],
+            $attrs);
+
+          if($this->Form->isFieldError('duplicate_mode')) {
+            print $this->Form->error('duplicate_mode');
+          }
+        } else {
+          print _txt('en.enrollment.dupe', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['duplicate_mode']);
+        }
+      ?>
+    </div>
   </li>
   <li>
     <div class="field-name">

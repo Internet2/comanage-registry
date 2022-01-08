@@ -236,6 +236,7 @@ class AppModel extends Model {
           // (If the new value is blank, we're probably in saveField.)
           
           if(isset($this->data[$this->alias][$field])
+             && isset($current[$this->alias][$field])
              && $this->data[$this->alias][$field] != $current[$this->alias][$field]) {
             $frozen = true;
             
