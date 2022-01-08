@@ -260,7 +260,7 @@ class EnrollmentDupeModeEnum
 
 class EnrollmentMatchPolicyEnum {
   const Advisory  = "A";
-  const Automatic = "M";
+  const External  = "E";
   const None      = "N";
   const Select    = "P";
   const Self      = "S";
@@ -614,6 +614,7 @@ class PetitionActionEnum
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const InviteViewed            = 'IV';
+  const MatchResult             = 'MR';
   const NotificationSent        = 'NS';
   const OrgIdentitySourced      = 'OC';
   const StatusUpdated           = 'SU';

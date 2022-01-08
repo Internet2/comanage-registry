@@ -262,6 +262,16 @@
                 </div>
               </li>
               <li>
+                <div class="field-name"><?php print _txt('en.identifier.type', null, IdentifierEnum::Reference); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(!empty($co_petitions[0]['CoPetition']['reference_identifier'])) {
+                      print filter_var($co_petitions[0]['CoPetition']['reference_identifier'],FILTER_SANITIZE_SPECIAL_CHARS);
+                    }
+                  ?>
+                </div>
+              </li>
+              <li>
                 <div class="field-name"><?php print _txt('fd.created'); ?></div>
                 <div class="field-info"><?php print $this->Time->format($co_petitions[0]['CoPetition']['created'], "%c $vv_tz", false, $vv_tz); ?></div>
               </li>

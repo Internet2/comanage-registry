@@ -139,7 +139,8 @@ class CoPetitionsController extends StandardController {
     'start'                        => 'selectEnrollee',
     'selectEnrollee'               => 'selectOrgIdentity',
     'selectOrgIdentity'            => 'petitionerAttributes',
-    'petitionerAttributes'         => 'tandcPetitioner',
+    'petitionerAttributes'         => 'duplicateCheck',
+    'duplicateCheck'               => 'tandcPetitioner',
     'tandcPetitioner'              => 'sendConfirmation',
     'sendConfirmation'             => 'waitForConfirmation',
     // execution continues here if confirmation not required
@@ -1373,6 +1374,39 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Check for duplicates.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function duplicateCheck($id) {
+    if($this->request->is('post')) {
+      // We're back from a 300 multiple choices with a selection
+      
+      if(!empty($this->request->data['referenceId'])) {
+        try {
+          $ret = $this->CoPetition->performMatch($id,
+                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 $this->request->data['referenceId']);
+          
+          if($ret !== true) {
+            throw new RuntimeException("Bad result");
+          }
+          
+          $this->redirect($this->generateDoneRedirect('duplicateCheck', $id));   
+        }
+        catch(Exception $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          $this->redirect("/");
+        }
+      }
+    } else {
+      $this->dispatch('duplicateCheck', $id);
+    }
+  }
+  
+  /**
    * Determine the requested Enrollment Flow ID.
    * - precondition: An enrollment flow ID should be specified as a named query parameter or in form data.
    *
@@ -1530,6 +1564,37 @@ class CoPetitionsController extends StandardController {
     // The step is done
     
     $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));    
+  }
+  
+  /**
+   * Execute CO Petition 'duplicateCheck' step
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_duplicateCheck($id) {
+    // Right now, the only mode that gets us here is External
+    
+    try {
+      $matchResult = $this->CoPetition->performMatch($id, $this->Session->read('Auth.User.co_person_id'));
+      
+      if($matchResult === true) {
+        // A new Reference Identifier was assigned. There's no follow up to do
+        // here, so redirect into the next step.
+        
+        $this->redirect($this->generateDoneRedirect('duplicateCheck', $id));    
+      } elseif(is_array($matchResult)) {
+        // We have an array of options, present them to the petitioner.
+        
+        $this->set('vv_matches', $matchResult);
+      }
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      $this->performRedirect();
+    }
   }
   
   /**
@@ -2499,6 +2564,7 @@ class CoPetitionsController extends StandardController {
       $p['selectOrgIdentityClaim'] = $p['selectOrgIdentity'];
       $p['selectEnrollee'] = $isPetitioner;
       $p['petitionerAttributes'] = $isPetitioner;
+      $p['duplicateCheck'] = $isPetitioner;
       $p['tandcPetitioner'] = $isPetitioner;
       $p['sendConfirmation'] = $isPetitioner;
       $p['waitForConfirmation'] = $isPetitioner;

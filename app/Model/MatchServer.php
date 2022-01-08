@@ -94,21 +94,28 @@ class MatchServer extends AppModel {
    */
   
   /**
-   * Assemble attributes from an Org Identity into a format suitable for wire
+   * Assemble attributes from a person record into a format suitable for wire
    * transfer.
    *
    * @since  COmanage Registry v4.0.0
    * @param  array $matchAttributes Match Attribute configuration
-   * @param  array $orgIdentity     Org Identity
+   * @param  array $person          Org Identity or CO Person
    * @return array                  Array of data suitable for conversion to JSON
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
 
-  protected function assembleRequestAttributes($matchAttributes, $orgIdentity) {
+  protected function assembleRequestAttributes($matchAttributes, $person) {
     $matchRequest = array();
     
     $supportedAttrs = $this->MatchServerAttribute->supportedAttributes();
+    
+    // We accept either an OrgIdentity or CoPerson, and (at least for now) the
+    // structure of the two will be the same (since we don't look at any MVPAs
+    // attached to CoPersonRoles), so we just need to figure out which one we
+    // are working with.
+    
+    $pmodel = isset($person['OrgIdentity']) ? 'OrgIdentity' : 'CoPerson';
     
     foreach($matchAttributes as $mattr) {
       if($mattr['required'] == RequiredEnum::NotPermitted)
@@ -130,8 +137,8 @@ class MatchServer extends AppModel {
 
         // XXX date_of_birth is expected to be YYYY-MM-DD but we don't currently try to reformat it...
         
-        if(!empty($orgIdentity['OrgIdentity'][ $supportedAttrs[$attrKey]['attribute'] ])) {
-          $matchRequest['sorAttributes'][$wire] = $orgIdentity['OrgIdentity'][ $supportedAttrs[$attrKey]['attribute'] ];
+        if(!empty($person[$pmodel][ $supportedAttrs[$attrKey]['attribute'] ])) {
+          $matchRequest['sorAttributes'][$wire] = $person[$pmodel][ $supportedAttrs[$attrKey]['attribute'] ];
           $found = true;
         }
       } elseif(isset($supportedAttrs[$attrKey]['attributes'])) {
@@ -147,7 +154,7 @@ class MatchServer extends AppModel {
         // $type = (eg) official (as configured for this Match Server instance)
         $type = $mattr['type'];
         
-        $obj = Hash::extract($orgIdentity[$model], '{n}[type='.$type.']');
+        $obj = Hash::extract($person[$model], '{n}[type='.$type.']');
         
         if(!empty($obj)) {
           foreach($obj as $o) {
@@ -195,14 +202,16 @@ class MatchServer extends AppModel {
    *
    * @since  COmanage Registry v3.3.0
    * @param  integer $serverId      Server ID
-   * @param  array   $orgIdentityId Org Identity ID to pull attributes from for match request
+   * @param  integer $orgIdentityId Org Identity ID to pull attributes from for match request
+   * @param  integer $coPersonId    CO Person ID to pull attributes from for match request
    * @param  string  $action        'request' or 'update'
-   * @return [type]           [description]
+   * @param  string  $referenceId   Reference ID, for forced reconciliation request
+   * @return mixed                  Reference ID (for request). Array (for request/300), or boolean true (for update)
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  protected function doRequest($serverId, $orgIdentityId, $action) {
+  protected function doRequest($serverId, $orgIdentityId, $coPersonId, $action, $referenceId=null) {
     // Pull the Match Server configuration.
     
     $args = array();
@@ -217,31 +226,63 @@ class MatchServer extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.match_servers.1'), $serverId)));
     }
     
-    // Pull the Org Identity record
+    // We accept either an Org Identity ID or a CO Person ID to pull attributes from.
+    // Org Identities are used by Pipelines, CO Person IDs are used by Enrollment Flows.
+    // Only one should be specified.
+    
+    if(!$orgIdentityId && !$coPersonId) {
+      throw new InvalidArgumentException(_txt('er.notprov'));
+    }
+    
+    // Pull the person record
     $args = array();
-    $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
+    if($orgIdentityId) {
+      $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
+    } else {
+      $args['conditions']['CoPerson.id'] = $coPersonId;
+    }
     $args['contain'] = array(
       'EmailAddress',
       'Name',
       'Identifier'
     );
     
-    $orgIdentity = $this->Server->Co->OrgIdentity->find('first', $args);
+    if($orgIdentityId) {
+      $person = $this->Server->Co->OrgIdentity->find('first', $args);
+      
+      if(empty($person)) {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.org_identities.1'), $orgIdentityId)));
+      }
+      
+      // Find an SOR ID in the Org Identity
+      $s = Hash::extract($orgIdentity['Identifier'], '{n}[type='.IdentifierEnum::SORID.']');
     
-    if(empty($orgIdentity)) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.org_identities.1'), $orgIdentityId)));
-    }
-    
-    // Find an SOR ID in the Org Identity
-    $sorId = Hash::extract($orgIdentity['Identifier'], '{n}[type='.IdentifierEnum::SORID.']');
-    
-    if(empty($sorId)) {
-      throw new InvalidArgumentException(_txt('er.match.attr.sorid'));
+      if(empty($s)) {
+        throw new InvalidArgumentException(_txt('er.match.attr.sorid'));
+      }
+      
+      $sorId = $s[0]['identifier'];
+    } else {
+      $person = $this->Server->Co->CoPerson->find('first', $args);
+      
+      if(empty($person)) {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_people.1'), $coPersonId)));
+      }
+      
+      // We don't really have a guarantee of anything other than the CO Person ID
+      // so we'll use that.
+      $sorId = (string)$coPersonId;
     }
     
     // Assemble a match request using the attributes in the Org Identity record
     // Let any exceptions bubble up
-    $matchRequest = $this->assembleRequestAttributes($srvr['MatchServer']['MatchServerAttribute'], $orgIdentity);
+    $matchRequest = $this->assembleRequestAttributes($srvr['MatchServer']['MatchServerAttribute'], $person);
+    
+    if($referenceId) {
+      // Insert the requested Reference ID into the message body
+      
+      $matchRequest['referenceId'] = $referenceId;
+    }
     
     $Http = new CoHttpClient();
     
@@ -257,7 +298,7 @@ class MatchServer extends AppModel {
       $srvr['MatchServer']['password']
     );
     
-    $url = "/people/" . urlencode($srvr['MatchServer']['sor_label']) . "/" . urlencode($sorId[0]['identifier']);
+    $url = "/people/" . urlencode($srvr['MatchServer']['sor_label']) . "/" . urlencode($sorId);
     
     if($action == 'request') {
       // Before we submit the PUT, we do a GET (Request Current Values) to see
@@ -302,6 +343,25 @@ class MatchServer extends AppModel {
       throw new RuntimeException(_txt('rs.match.accepted', array($matchRequest)));
     }
     
+    if($response->code == 300) {
+      $candidates = $body->candidates;
+      
+      // Inject the "new" candidate to make it easier for the calling code
+      $candidates[] = (object)array(
+        'referenceId' => 'new',
+        'sorRecords' => (object)array(
+          (object)array(
+            'meta' => (object)array(
+              'referenceId' => 'new'
+            ),
+            'sorAttributes' => (object)$matchRequest['sorAttributes']
+          )
+        )
+      );
+      
+      return $candidates;
+    }
+    
     if($response->code != 200 && $response->code != 201) {
       $error = $response->reasonPhrase;
       
@@ -326,14 +386,16 @@ class MatchServer extends AppModel {
    *
    * @since  COmanage Registry v3.3.0
    * @param  integer $serverId      Server ID
-   * @param  array   $orgIdentityId Org Identity ID to pull attributes from for match request
-   * @return string                 Reference ID
+   * @param  integer $orgIdentityId Org Identity ID to pull attributes from for match request
+   * @param  integer $coPersonId    CO Person ID to pull attributes from for match request
+   * @param  string  $referenceId   Reference ID, for forced reconciliation request
+   * @return mixed                  Reference ID or Array (on 300 response)
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function requestReferenceIdentifier($serverId, $orgIdentityId) {
-    return $this->doRequest($serverId, $orgIdentityId, 'request');
+  public function requestReferenceIdentifier($serverId, $orgIdentityId, $coPersonId=null, $referenceId=null) {
+    return $this->doRequest($serverId, $orgIdentityId, $coPersonId, 'request', $referenceId);
   }
   
   /**
@@ -350,6 +412,6 @@ class MatchServer extends AppModel {
   public function updateMatchAttributes($serverId, $orgIdentityId) {
     // This is basically the same request as requestReferenceIdentifier().
     
-    return $this->doRequest($serverId, $orgIdentityId, 'update');
+    return $this->doRequest($serverId, $orgIdentityId, null, 'update');
   }
 }

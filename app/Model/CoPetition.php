@@ -183,6 +183,13 @@ class CoPetition extends AppModel {
                                       PetitionStatusEnum::PendingConfirmation)),
       'required' => true,
       'message' => 'A valid status must be selected'
+    ),
+    'reference_identifier' => array(
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   
@@ -1290,6 +1297,202 @@ class CoPetition extends AppModel {
     catch(Exception $e) {
       throw new RuntimeException(_txt('er.db.save'));
     }
+    
+    return true;
+  }
+  
+  /**
+   * Perform a Match Request.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $id                    CO Petition ID
+   * @param  integer $actorCoPersonId       Actor CO Person ID
+   * @param  string  $requestedReferenceId  Requested Reference Identifier, for return from 300 response
+   * @return mixed                          An array of options on potential match, or true if enrollment should continue
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  
+  public function performMatch($id, $actorCoPersonId, $requestedReferenceId=null) {
+    // This is probably already set, but just in case.
+    $this->id = $id;
+    
+    // Pull the petition and Enrollment Flow configuration
+    
+    $args = array();
+    $args['conditions']['CoPetition.id'] = $id;
+    $args['contain'] = array('CoEnrollmentFlow');
+    
+    $pt = $this->find('first', $args);
+    
+    // Pull the enrollment flow match server configuration
+    
+    if($pt['CoEnrollmentFlow']['match_policy'] != EnrollmentMatchPolicyEnum::External
+       || empty($pt['CoEnrollmentFlow']['match_server_id'])) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.match_servers.1'))));
+    }
+    
+    if(empty($pt['CoPetition']['enrollee_co_person_id'])) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
+    }
+    
+    try {
+      $referenceId = $this->Co->Server->MatchServer->requestReferenceIdentifier(
+        $pt['CoEnrollmentFlow']['match_server_id'],
+        null,
+        $pt['CoPetition']['enrollee_co_person_id'],
+        $requestedReferenceId
+      );
+      
+      if(is_array($referenceId)) {
+        // We got a 300 Multiple Choices response, return the array to the view
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::MatchResult,
+                                               _txt('rs.match.multiple', array(count($referenceId))));
+        
+        return $referenceId;
+      }
+      
+      // Once we have a referenceId, see if there is already a CO Person with that
+      // identifier. If so, use duplicate_mode to decide what to do. This logic
+      // is very similar to validateIdentifier below, but it's not worth
+      // refactoring since that logic goes away in v5.
+      
+      $args = array();
+      // We don't have an exact index on this combo, but at least looking at the
+      // Postgres query plan it doesn't seem necessary.
+      $args['conditions'][] = 'Identifier.co_person_id IS NOT NULL';
+      $args['conditions']['Identifier.identifier'] = $referenceId;
+      $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+      $args['conditions']['Identifier.type'] = IdentifierEnum::Reference;
+      $args['contain'] = false;
+      
+      $existingIdentifier = $this->EnrolleeCoPerson->Identifier->find('first', $args);
+      
+      if(empty($existingIdentifier)) {
+        // This is a new Reference ID (not already attached to an existing CO
+        // Person) so we can treat the enrollee as a new CO Person.
+        
+        // Store the reference identifier on the CO Person record
+        $identifier = array(
+          'identifier'      => $referenceId,
+          'type'            => IdentifierEnum::Reference,
+          'login'           => false,
+          'status'          => SuspendableStatusEnum::Active,
+          'co_person_id'    => $pt['CoPetition']['enrollee_co_person_id']
+        );
+        
+        $this->Co->CoPerson->Identifier->clear();
+        $this->Co->CoPerson->Identifier->save($identifier);
+        
+        // and in the Petition
+        $this->saveField('reference_identifier', $referenceId);
+        
+        // Create some history records
+        
+        $this->CoPetitionHistoryRecord->record($id,
+                                               $actorCoPersonId,
+                                               PetitionActionEnum::MatchResult,
+                                               _txt('rs.match', array($referenceId)));
+        
+        $this->Co->CoPerson->HistoryRecord->record($pt['CoPetition']['enrollee_co_person_id'],
+                                                   null,
+                                                   null,
+                                                   $actorCoPersonId,
+                                                   ActionEnum::ReferenceIdentifierObtained,
+                                                   _txt('rs.match', array($referenceId)));
+      } else {
+        // There is an existing CO Person with this Reference ID, so treat this
+        // as a merge using duplicate_mode.
+        
+        // We start a transaction because the invoked code expects it.
+        $this->_begin();
+        
+        if(!isset($pt['CoEnrollmentFlow']['duplicate_mode'])
+           || $pt['CoEnrollmentFlow']['duplicate_mode'] == EnrollmentDupeModeEnum::Duplicate) {
+          // Flag this petition and its associated identity as a duplicate
+          
+          // We want to flag as duplicate and commit, but then throw an exception
+          // back up the stack so an error can be rendered for the user
+          
+          try {
+            $this->updateStatus($id,
+                                StatusEnum::Duplicate,
+                                $actorCoPersonId);
+          }
+          catch(Exception $e) {
+            $this->_rollback();
+            throw new RuntimeException($e->getMessage());
+          }
+          
+          $this->_commit();
+          throw new OverflowException(_txt('er.pt.duplicate', array($referenceId)));
+        } else {
+          // Maybe merge... we only support the "Create New Role" options and not
+          // the "Merge" options since the latter don't really make sense in the
+          // evolving separation of Org Identities and CO Person records, and
+          // should be deprecated.
+          
+          try {
+            if($pt['CoEnrollmentFlow']['duplicate_mode'] == EnrollmentDupeModeEnum::Merge) {
+              throw new InvalidArgumentException(_txt('er.setting'));
+            } else {
+              // relinkRole() will delete extra co person and org identity
+              $this->relinkRole($id,
+                                // Sending null for the target org identity seems
+                                // to work well enough for the use cases tested so far
+                                null,
+                                $existingIdentifier['Identifier']['co_person_id'],
+                                $actorCoPersonId,
+                                $pt['CoEnrollmentFlow']['duplicate_mode']);
+            }
+          }
+          catch(OverflowException $e) {
+            // Mode is NewRoleCouCheck and an existing role in the same COU was found.
+            // Convert to duplicate.
+            
+            $this->updateStatus($id,
+                                StatusEnum::Duplicate,
+                                $actorCoPersonId);
+            
+            // While we're here, grab the authenticated identifier, which would otherwise
+            // be done below
+            
+            $this->saveField('authenticated_identifier', $loginIdentifier);
+            
+            // Create a petition history record
+            
+            $this->CoPetitionHistoryRecord->record($id,
+                                                   $actorCoPersonId,
+                                                   PetitionActionEnum::IdentifierAuthenticated,
+                                                   _txt('rs.pt.id.auth', array($loginIdentifier)));
+            
+            $this->_commit();
+            throw new OverflowException(_txt('er.pt.duplicate', array($loginIdentifier)));
+          }
+          catch(Exception $e) {
+            $this->_rollback();
+            throw new RuntimeException($e->getMessage());
+          }
+        }
+      }
+    }
+    catch(Exception $e) {
+      // On error, including 202, an exception is thrown and we don't continue.
+      // Eventually to support self signup match integration we'll need to
+      // handle 202 better (probably by catching it as a different type of
+      // exception and then triggering an approval like flow). (CO-2317)
+      
+      // This will only rollback if a transaction is in progress
+      $this->_rollback();
+      
+      throw new RuntimeException($e->getMessage());
+    }
+    
+    // This will only commit if a transaction is in progress
+    $this->_commit();
     
     return true;
   }

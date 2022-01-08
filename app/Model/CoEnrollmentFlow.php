@@ -75,7 +75,11 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'verification_template_id'
     ),
-    "CoTheme"
+    "CoTheme",
+    "MatchServer" => array(
+      'className' => 'Server',
+      'foreignKey' => 'match_server_id'
+    )
   );
   
   public $hasMany = array(
@@ -99,6 +103,10 @@ class CoEnrollmentFlow extends AppModel {
   // Default ordering for find operations
 // XXX Toss? CO-296
 //  public $order = array("CoEnrollmentFlow.name");
+  
+  // This will populate vv_servers. As long as we only have one server type to
+  // worry about this is sufficient.
+  public $cmServerType = ServerEnum::MatchServer;
   
   // Validation rules for table elements
   public $validate = array(
@@ -145,12 +153,20 @@ class CoEnrollmentFlow extends AppModel {
     'match_policy' => array(
       'rule' => array('inList',
                       array(EnrollmentMatchPolicyEnum::Advisory,
-                            EnrollmentMatchPolicyEnum::Automatic,
+                            EnrollmentMatchPolicyEnum::External,
                             EnrollmentMatchPolicyEnum::None,
                             EnrollmentMatchPolicyEnum::Select,
                             EnrollmentMatchPolicyEnum::Self)),
       'required' => false,
       'allowEmpty' => true
+    ),
+    'match_server_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
     ),
     'enable_person_find' => array(
       'rule' => array('boolean')
@@ -576,16 +592,25 @@ class CoEnrollmentFlow extends AppModel {
       }
     }
     
-    // If match policy is appropriately set we run the selectEnrollee step.
+    // A match policy of Select or Self triggers selectEnrollee, while External
+    // triggers duplicateCheck (for callout to the match server).
     
-    if(!empty($ef['CoEnrollmentFlow']['match_policy'])
-       && ($ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Select
-           || $ef['CoEnrollmentFlow']['match_policy'] == EnrollmentMatchPolicyEnum::Self)) {
-      $ret['selectEnrollee']['enabled'] = RequiredEnum::Required;
-    } else {
-      $ret['selectEnrollee']['enabled'] = RequiredEnum::NotPermitted;
-    }
+    $ret['selectEnrollee']['enabled'] = RequiredEnum::NotPermitted;
+    $ret['duplicateCheck']['enabled'] = RequiredEnum::NotPermitted;
     $ret['selectEnrollee']['role'] = EnrollmentRole::Petitioner;
+    $ret['duplicateCheck']['role'] = EnrollmentRole::Petitioner;
+    
+    if(!empty($ef['CoEnrollmentFlow']['match_policy'])) {
+      switch($ef['CoEnrollmentFlow']['match_policy']) {
+        case EnrollmentMatchPolicyEnum::External:
+          $ret['duplicateCheck']['enabled'] = RequiredEnum::Required;
+          break;
+        case EnrollmentMatchPolicyEnum::Select:
+        case EnrollmentMatchPolicyEnum::Self:
+          $ret['selectEnrollee']['enabled'] = RequiredEnum::Required;
+          break;
+      }
+    }
     
     // If there are no attributes defined, petitionerAttributes becomes optional.
     
