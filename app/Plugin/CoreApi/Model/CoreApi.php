@@ -181,6 +181,169 @@ class CoreApi extends AppModel {
   }
 
   /**
+   * Create a new CO Person record
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param integer  $coId     CO ID
+   * @param array    $reqData  Array of request data
+   * @param integeer $actorID  Core API User ID making the request
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  public function createV1($coId, $reqData, $actorID) {
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+
+    if(empty($reqData)) {
+      // This probably means JSON failed to parse, or that the Content-Type
+      // header is NOT application/json
+      throw new InvalidArgumentException(_txt('er.coreapi.json'));
+    }
+
+    try {
+      // This is somewhat similar to OrgIdentitySource and CoPipeline
+
+      $co_person_id = null;
+      foreach(array('CoPerson') as $model) {
+        $co_person_id = $this->upsertRecord($coId,
+                                            null,
+                                            $this->Co->$model,
+                                            $reqData[$model],
+                                            null,
+                                            'co_id',
+                                            $coId);
+      }
+
+      // Related models are multi-valued, start with OrgIdentity on its own,
+      // since it actually has a parent key of CO in the current data model.
+
+      foreach(array('OrgIdentity') as $model) {
+        $accessedRecords[$model] = array();
+
+        if(!empty($reqData[$model])) {
+          foreach($reqData[$model] as $m) {
+            $recordId = $this->upsertRecord($coId,
+                                            $co_person_id,
+                                            $this->Co->$model,
+                                            $m,
+                                            null,
+                                            'co_id',
+                                            $coId);
+
+            // Track that we've seen this record
+            $accessedRecords[$model][$recordId] = $m;
+
+            // We also need to insert a new CoOrgIdentityLink.
+            $this->linkOrgIdentity($co_person_id, $recordId);
+          }
+        }
+      }
+
+      foreach(array('CoGroupMember',
+                // CoPersonRole here (and OrgIdentity above) will only process
+                // the top level record. We'll handle related models below.
+                'CoPersonRole',
+                'EmailAddress',
+                'Identifier',
+                'Name',
+                // In the current data model, OrgIdentity actually has CO
+                // as a parent (though this will change)
+                //'OrgIdentity',
+                'Url') as $model) {
+        $accessedRecords[$model] = array();
+
+        if(!empty($reqData[$model])) {
+          foreach($reqData[$model] as $m) {
+            $recordId = $this->upsertRecord($coId,
+                                            $co_person_id,
+                                            $this->Co->CoPerson->$model,
+                                            $m,
+                                            null,
+                                            'co_person_id',
+                                            $co_person_id);
+            // Track that we've seen this record, for checking what to delete
+            $accessedRecords[$model][$recordId] = $m;
+          }
+        }
+      }
+
+      // Next handle related models for CoPersonRole and OrgIdentity.
+
+      $related = array(
+        'CoPersonRole' => array(
+          'Address',
+          'AdHocAttribute',
+          'TelephoneNumber'
+        ),
+        'OrgIdentity' => array(
+          'Address',
+          'AdHocAttribute',
+          'EmailAddress',
+          'Identifier',
+          'Name',
+          'TelephoneNumber'
+        )
+      );
+
+      foreach($related as $parentModel => $relatedModels) {
+        // We use the $accessedRecords version rather than $reqData because it will
+        // have newly created parent keys (eg: for a CO Person Role that was
+        // added during this operation).
+
+        if(!empty($accessedRecords[$parentModel])) {
+          foreach($accessedRecords[$parentModel] as $id => $accessed) {
+            if($parentModel == 'OrgIdentity') {
+              // Skip read-only Org Identities
+              if($this->Co->OrgIdentity->readOnly($id)) {
+                continue;
+              }
+            }
+
+            foreach($relatedModels as $model) {
+              // While there can be multiple associated models across multiple roles,
+              // $current will have them attached to each role. Thus, we can track
+              // $accessedIds on a per-role basis, as opposed to across all roles.
+
+              $accessedIds = array();
+
+              if(!empty($accessed[$model])) {
+                foreach($accessed[$model] as $m) {
+                  $accessedIds[] = $this->upsertRecord($coId,
+                                                       $co_person_id,
+                                                       // We just need the associated model, it
+                                                       // doesn't matter how we got there so we
+                                                       // use OrgIdentity since it is the superset
+                                                        $this->Co->OrgIdentity->$model,
+                                                        $m,
+                                                        null,
+                                                        Inflector::underscore($parentModel).'_id',
+                                                        $id);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Assign Identifiers
+      // Disable provisioning since we will bulk provision at the end
+      // This will return an array describing which, if any, identifiers were assigned,
+      // but we don't do anything with the result here
+      $this->Co->CoPerson->Identifier->assign('CoPerson', $co_person_id, $actorID, false);
+
+      // Trigger provisioning
+      $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
+
+      $dbc->commit();
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
+  }
+
+  /**
    * Transition CO Person to status delete. This implies that all CO Person Roles
    * will be transitioned to status deleted as well
    *
@@ -629,7 +792,40 @@ class CoreApi extends AppModel {
     
     return $ret;
   }
-  
+
+  /**
+   * Parse query parameters
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param array   $queryParams  List of query parameters
+   * @return array
+   */
+  public function parseQueryParams($queryParams) {
+    if(empty($queryParams)) {
+      return $queryParams;
+    }
+
+    $queryParamsNew = array();
+    foreach ($queryParams as $attr => $req_value) {
+      if(strpos($attr, '_') === false) {
+        $queryParamsNew[$attr] = $req_value;
+        // We are looking for model_attribute params
+        continue;
+      }
+      $param_pieces = explode('_', $attr);
+      $field = array_pop($param_pieces);
+      $model_underscored = implode('_', $param_pieces);
+      // Construct the enumeraton. e.g. if the field is status and the value is asctive then
+      // ucfirst($field) . 'Enum::' . ucfirst($req_value) => StatusEnum::Active
+      $cmodel = Inflector::classify($model_underscored);
+      $cvalue = constant(ucfirst($field) . 'Enum::' . ucfirst($req_value));
+      $cmg_attr = $cmodel . '.' . $field;
+      // Transform request params to COmanage internal terminology
+      $queryParamsNew[$cmg_attr] = $cvalue;
+    }
+    return $queryParamsNew;
+  }
+
   /**
    * Pull a CO Person record, including associated models.
    *
@@ -799,8 +995,11 @@ class CoreApi extends AppModel {
     // Inject the parent key. We do this for both add (which requires it) and
     // update (to prevent rekeying a record via update).
     $filteredIn[$modelName][$parentKey] = $parentValue;
-    
-    if($modelName == 'CoPerson') {
+
+    // The currentSet might be an empty array. In that case this will simulate an expunge
+    // todo: Test the update with an empty array to verify that it will do the right thing
+    if($modelName == 'CoPerson'
+       && isset($currentSet)) {
       // This currently only supports update, not creation of a new CO Person
       // Filter the current record, then restore the record id.
       $filteredCurrent[$modelName] = $this->filterMetadataInbound($currentSet[0], $modelName);
@@ -912,39 +1111,6 @@ class CoreApi extends AppModel {
     }
     
     return $id;
-  }
-
-  /**
-   * Parse query parameters
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param array   $queryParams  List of query parameters
-   * @return array
-   */
-  public function parseQueryParams($queryParams) {
-    if(empty($queryParams)) {
-      return $queryParams;
-    }
-
-    $queryParamsNew = array();
-    foreach ($queryParams as $attr => $req_value) {
-      if(strpos($attr, '_') === false) {
-        $queryParamsNew[$attr] = $req_value;
-        // We are looking for model_attribute params
-        continue;
-      }
-      $param_pieces = explode('_', $attr);
-      $field = array_pop($param_pieces);
-      $model_underscored = implode('_', $param_pieces);
-      // Construct the enumeraton. e.g. if the field is status and the value is asctive then
-      // ucfirst($field) . 'Enum::' . ucfirst($req_value) => StatusEnum::Active
-      $cmodel = Inflector::classify($model_underscored);
-      $cvalue = constant(ucfirst($field) . 'Enum::' . ucfirst($req_value));
-      $cmg_attr = $cmodel . '.' . $field;
-      // Transform request params to COmanage internal terminology
-      $queryParamsNew[$cmg_attr] = $cvalue;
-    }
-    return $queryParamsNew;
   }
 
   /**
