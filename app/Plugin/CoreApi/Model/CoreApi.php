@@ -332,10 +332,60 @@ class CoreApi extends AppModel {
       // but we don't do anything with the result here
       $this->Co->CoPerson->Identifier->assign('CoPerson', $co_person_id, $actorID, false);
 
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
+      // Handle plugin models
+      // - Authenticator
+      // - XXX Clusters currently not supported
+      $not_supported_plugins = array('UnixCluster');
+      $plugins = $this->loadApiPlugins();
+
+      foreach(array_keys($plugins) as $pluginName) {
+        if(!empty($plugins[$pluginName]['permittedModels'])
+            && !in_array($pluginName, $not_supported_plugins)) {
+          foreach($plugins[$pluginName]['permittedModels'] as $model) {
+            // Note we're not checking here that the plugin is instantiated.
+            // As a proxy for that, we'll use $current[$model] since that is
+            // based on instantiations. (If we don't get back at least an empty
+            // $model, then the plugin is not instantiated.)
+            if(isset($reqData[$model])) {
+              $pModel = ClassRegistry::init($pluginName . "." . $model);
+
+              // Get all the Authenticators
+              $pBaseModel = ClassRegistry::init($pluginName . "." . $pluginName);
+              $authenticatos_list = $pBaseModel->find(
+                'list',
+                array(
+                  'fields' => array($pluginName . '.id', $pluginName . '.created'),
+                  'contain' => false
+                )
+              );
+              $authenticator_fk = Inflector::underscore($pluginName) . '_id';
+
+              if(!empty($reqData[$model])) {
+                foreach($reqData[$model] as $m) {
+                  // XXX We are adding the new object under all the linked authenticators
+                  foreach ($authenticatos_list as $auth_id => $created) {
+                    $m[$authenticator_fk] = $auth_id;
+                    $recordId = $this->upsertRecord($coId,
+                                                    $co_person_id,
+                                                    $pModel,
+                                                    $m,
+                                                    $reqData[$model],
+                                                    'co_person_id',
+                                                    $co_person_id);
+                    // Track that we've seen this record, for checking what to delete
+                    $accessedRecords[$model][$recordId] = $m;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
 
       $dbc->commit();
+
+      // Trigger provisioning
+      $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
     }
     catch(Exception $e) {
       $dbc->rollback();
