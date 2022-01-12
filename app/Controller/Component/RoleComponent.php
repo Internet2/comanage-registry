@@ -354,8 +354,8 @@ class RoleComponent extends Component {
     $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
     $args['conditions']['CoPerson.id'] = $coPersonId;
     $args['conditions']['CoPerson.co_id'] = $coId;
-    $args['conditions']['CoPerson.deleted'] = false;
-    $args['conditions']['CoPersonRole.deleted'] = false;
+    $args['conditions'][] = 'CoPerson.deleted IS NOT true';
+    $args['conditions'][] = 'CoPersonRole.deleted IS NOT true';
     $args['conditions'][] = 'CoPersonRole.co_person_role_id IS NULL';
     $args['conditions'][] = 'CoPerson.co_person_id IS NULL';
     if($active) {
