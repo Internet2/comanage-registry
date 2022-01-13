@@ -741,6 +741,7 @@ class CoPeopleController extends StandardController {
        // and "match", distinguishable only by the query parameter. These APIs
        // should probably get merged at some point (CO-1053, etc).
        && !in_array('search_identifier', $requestKeys)
+       && !in_array('search_mail', $requestKeys)
        && sizeof($requestKeys)>0) {
       $this->set('vv_model_version', $model->version);
       $this->match();
