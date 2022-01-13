@@ -825,7 +825,27 @@ class StandardController extends AppController {
         $args['joins'][0]['type'] = 'INNER';
         $args['joins'][0]['conditions'][0] = $req . '.id=Identifier.' . $modelid;
         $args['contain'] = false;
-        
+
+        $t = $model->find('all', $args);
+
+        $this->set($modelpl, $this->Api->convertRestResponse($t));
+      } elseif(!empty($this->request->query['search_mail'])) {
+        // XXX another hack (this time for Mail) that should be rewritten
+        // as part of CO-1053
+        $args = array();
+        $args['conditions']['EmailAddress.mail'] = $this->request->query['search_mail'];
+
+        $orgPooled = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
+        if(!empty($this->params['url']['coid']) && !$orgPooled) {
+          $args['conditions'][$model->name . '.co_id'] = $this->params['url']['coid'];
+        }
+
+        $args['joins'][0]['table'] = 'email_addresses';
+        $args['joins'][0]['alias'] = 'EmailAddress';
+        $args['joins'][0]['type'] = 'INNER';
+        $args['joins'][0]['conditions'][0] = $req . '.id=EmailAddress.' . $modelid;
+        $args['contain'] = false;
+
         $t = $model->find('all', $args);
         
         $this->set($modelpl, $this->Api->convertRestResponse($t));
