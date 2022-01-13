@@ -53,6 +53,17 @@
   <?php print _txt('in.orgid.co'); ?>
 </div>
 
+<?php // Load the top search bar
+// Search Block
+if(!empty($vv_search_fields)) {
+  print $this->element('search', array('vv_search_fields' => $vv_search_fields));
+}
+// Alphabet Search quick access bar
+if(!empty($vv_alphabet_search)) {
+  print $this->element('alphabetSearch', array('vv_alphabet_search_config' => $vv_alphabet_search));
+}
+?>
+
 <div class="table-container">
   <table id="org_identities">
     <thead>

@@ -1387,6 +1387,7 @@ class CoPeopleController extends StandardController {
    * Insert search parameters into URL for index, select, or (re)link views.
    * - postcondition: Redirect generated
    *
+   * @todo Duplicate OrgIdentities/move to StandardController
    * @since  COmanage Registry v0.8
    */
   
