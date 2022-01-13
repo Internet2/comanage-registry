@@ -40,6 +40,8 @@
     </field>
     <field name="identifier_type" type="C" size="32" />
     <field name="api" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
     <field name="core_api_id" type="I">
       <constraint>REFERENCES cm_core_apis(id)</constraint>
     </field>
