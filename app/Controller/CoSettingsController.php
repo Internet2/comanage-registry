@@ -31,7 +31,7 @@ class CoSettingsController extends StandardController {
   // Class name, used by Cake
   public $name = "CoSettings";
   
-  public $uses = array('CoSetting', 'CmpEnrollmentConfiguration');
+  public $uses = array('CoSetting', 'CmpEnrollmentConfiguration', 'CoExtendedType');
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -180,6 +180,9 @@ class CoSettingsController extends StandardController {
         );
       }
 
+      // Pull extended types for setting Person Picker display field values
+      $this->set('vv_person_picker_email_types', $this->Co->CoExtendedType->active($this->cur_co['Co']['id'], 'EmailAddress.type', 'list'));
+      $this->set('vv_person_picker_identifier_types', $this->Co->CoExtendedType->active($this->cur_co['Co']['id'], 'Identifier.type', 'list'));
     }
     
     parent::beforeRender();

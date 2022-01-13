@@ -100,12 +100,14 @@
         $("#group-add-member-search-container .co-loading-mini").show();
       },
       focus: function (event, ui) {
+        event.preventDefault();
         $("#group-add-member-search-container .co-loading-mini").hide();
+        $("#group-add-member").val(ui.item.label + " (" + ui.item.value + ")");
       },
       close: function (event, ui) {
         $("#group-add-member-search-container .co-loading-mini").hide();
       }
-    });
+    }).autocomplete("instance")._renderItem = formatCoPersonAutoselectItem;
 
     $("#group-add-member-button").click(function(e) {
       displaySpinner();

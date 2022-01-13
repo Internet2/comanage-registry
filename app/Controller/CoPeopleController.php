@@ -556,21 +556,60 @@ class CoPeopleController extends StandardController {
       );
     } else {
       $people = $this->CoPerson->filterPicker($this->cur_co['Co']['id'], $coPersonIds, $mode);
+      $pickerEmailType = $this->Co->CoSetting->getPersonPickerEmailType($this->cur_co['Co']['id']);
+      $pickerIdentifierType = $this->Co->CoSetting->getPersonPickerIdentifierType($this->cur_co['Co']['id']);
+      $pickerDisplayTypes = $this->Co->CoSetting->getPersonPickerDisplayTypes($this->cur_co['Co']['id']);
       
       foreach($people as $p) {
         $label = generateCn($p['Name'][0]);
-        
-        $id = Hash::extract($p['Identifier'], '{n}[type=uid]');
-        
-        if(!empty($id[0]['identifier'])) {
-          $label .= " (" . $id[0]['identifier'] . ")";
+        $idArr = $p['Identifier'];
+        $emailArr = $p['EmailAddress'];
+        $email = '';
+        $emailLabel = '';
+        $id = '';
+        $idLabel = '';
+          
+        // Iterate over the email array
+        if(!empty($emailArr) && !empty($pickerEmailType)) {
+          if(!empty($pickerDisplayTypes)) {
+            $emailLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.email_address.mail'), $pickerEmailType));
+          }
+          else {
+            $emailLabel = _txt('fd.email_address.mail') . ': ';
+          }
+          foreach($emailArr as $e) {
+            if($e['type'] == $pickerEmailType) {
+              $email = $e['mail'] . ' ' . $pickerDisplayTypes;
+              break;
+            }
+          }
         }
         
+        // Set the identifier for display (and limit it to 30 characters max)
+        if(!empty($idArr[0]['identifier']) && !empty($pickerIdentifierType)) {
+          if(!empty($pickerDisplayTypes)) {
+            $idLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.identifier.identifier'), $pickerIdentifierType));
+          }
+          else {
+            $idLabel = _txt('fd.identifier.identifier') . ': ';
+          }
+          foreach($idArr as $i) {
+            if($i['type'] == $pickerIdentifierType) {
+              $id = mb_strimwidth($i['identifier'], 0, 30, '...');
+              break;
+            }
+          }
+        }
+         
         // Make sure we don't already have an entry for this CO Person ID
         if(!Hash::check($matches, '{n}[value='.$p['CoPerson']['id'].']')) {
           $matches[] = array(
             'value' => $p['CoPerson']['id'],
-            'label' => $label
+            'label' => $label,
+            'email' => $email,
+            'emailLabel' => $emailLabel,
+            'identifier' => $id,
+            'identifierLabel' => $idLabel
           );
         }
       }
