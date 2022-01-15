@@ -448,12 +448,13 @@ class CoService extends AppModel {
    * @param  Integer $coPersonId      CO Person ID to set membership for
    * @param  Integer $actorCoPersonId CO Person ID of requestor
    * @param  String  $action          Action: "join" or "leave"
+   * @param  Boolean $provision       Whether or not to fire provisioning
    * @return Boolean True on success
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function setServiceGroupMembership($id, $Role, $coPersonId, $actorCoPersonId, $action="join") {
+  public function setServiceGroupMembership($id, $Role, $coPersonId, $actorCoPersonId, $action="join", $provision=true) {
     // First see if there is even a group associated with this service
     
     $coGroupId = $this->field('co_group_id', array('CoService.id' => $id));
@@ -474,8 +475,9 @@ class CoService extends AppModel {
                                         $coPersonId,
                                         $member,
                                         $owner,
-                                        $actorCoPersonId);
-         
+                                        $actorCoPersonId,
+                                        $provision);
+    
     return true;
   }
 }
