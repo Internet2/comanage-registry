@@ -307,6 +307,21 @@
         );
       }
       
+      // Inject plugin menus. We intentionally leave expunge as the last option,
+      // pending identity architecture analysis.
+      
+      if(!empty($menuContent['plugins'])) {
+        $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'canvas');
+        
+        foreach($pluginLinks as $label => $pcfg) {
+          $sidebarButtons[] = array(
+            'icon'    => $pcfg['icon'],
+            'title'   => $label,
+            'url'     => array_merge($pcfg['url'], array('copersonid' => $co_people[0]['CoPerson']['id']))
+          );
+        }
+      }
+      
       if($permissions['expunge']) {
         $sidebarButtons[] = array(
           'icon'    => 'circle-close',

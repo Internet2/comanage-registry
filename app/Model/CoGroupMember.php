@@ -635,11 +635,16 @@ class CoGroupMember extends AppModel {
       throw new InvalidArgumentException(_txt('er.gr.auto.edit'));
     }
     
-    // Or to closed groups where $actorCoPersonId is not an owner or admin
-    
-    if(!$group['CoGroup']['open']
-       && !$Role->isGroupManager($coPersonId, $coGroupId)) {
-      throw new RuntimeException(_txt('er.permission'));
+    if($Role) {
+      // Or to closed groups where $actorCoPersonId is not an owner or admin.
+      // However, if we are not passed RoleComponent we skip this check. This
+      // is primarily intended for CoService use cases, where an authorized user
+      // (who is not necessarily a group manager can set Service eligibility.)
+      
+      if(!$group['CoGroup']['open']
+         && !$Role->isGroupManager($coPersonId, $coGroupId)) {
+        throw new RuntimeException(_txt('er.permission'));
+      }
     }
     
     // See if there is already a row for this group+person, if so update it
