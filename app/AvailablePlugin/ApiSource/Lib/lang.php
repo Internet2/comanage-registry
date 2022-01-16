@@ -42,10 +42,11 @@ $cm_api_source_texts['en_US'] = array(
   ),
   
   // Error messages
-  'er.apisource.kafka.meta' =>     'Invalid value for metadata attribute %1$s at offset %2$s (found "%3$s", expecting "%4$s")',
-  'er.apisource.kafka.json' =>     'Invalid JSON at offset %1$s',
-  'er.apisource.kafka.sorid' =>    'No SORID in message at offset %1$s',
-  'er.apisource.label.inuse' =>    'The SOR Label "%1$s" is already in use',
+  'er.apisource.kafka.meta'     => 'Invalid value for metadata attribute %1$s at offset %2$s (found "%3$s", expecting "%4$s")',
+  'er.apisource.kafka.json'     => 'Invalid JSON at offset %1$s',
+  'er.apisource.kafka.sorid'    => 'No SORID in message at offset %1$s',
+  'er.apisource.label.inuse'    => 'The SOR Label "%1$s" is already in use',
+  'er.apisource.role.id'        => 'Role does not include roleIdentifier',
   'er.apisource.sorid.notfound' => 'No record found for specified SORID',
   
   // Plugin texts

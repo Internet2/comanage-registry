@@ -255,7 +255,7 @@ class MatchServer extends AppModel {
       }
       
       // Find an SOR ID in the Org Identity
-      $s = Hash::extract($orgIdentity['Identifier'], '{n}[type='.IdentifierEnum::SORID.']');
+      $s = Hash::extract($person['Identifier'], '{n}[type='.IdentifierEnum::SORID.']');
     
       if(empty($s)) {
         throw new InvalidArgumentException(_txt('er.match.attr.sorid'));

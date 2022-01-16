@@ -244,15 +244,20 @@ class ServiceEligibility extends AppModel {
     
     if(empty($current)) {
       // There's nothing to do, most likely because $coServiceId is null and
-      // there are no matching rows. If we were already in a transaction, just
-      // return WITHOUT rolling back. Otherwise, throw an error.
+      // there are no matching rows. If we were already in a transaction, return
+      // WITHOUT rolling back.
       
       if($alreadyInTxn) {
         return;
       }
       
       $this->_rollback();
-      throw new RuntimeException(_txt('er.serviceeligibilityenroller.none'));
+      
+      if($coServiceId) {
+        throw new RuntimeException(_txt('er.serviceeligibilityenroller.none'));
+      }
+      
+      return;
     }
     
     foreach($current as $se) {

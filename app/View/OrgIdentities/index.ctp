@@ -65,7 +65,6 @@ if($permissions['add']) {
 }
 
 print $this->element("pageTitleAndButtons", $params);
-
 ?>
 
 <div class="co-info-topbox">
@@ -116,7 +115,7 @@ if(!empty($vv_alphabet_search)) {
         <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
-        <td><?php if(!empty($p['OrgIdentity']['affiliation'])) print _txt('en.org_identity.affiliation', null, $p['OrgIdentity']['affiliation']); ?></td>
+        <td><?php if(!empty($p['OrgIdentity']['affiliation'])) print $vv_affiliation_types[ $p['OrgIdentity']['affiliation'] ]; ?></td>
 
         <td class="actions">
           <?php
