@@ -44,6 +44,10 @@ class CoProvisioningTargetsController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
   
+  public $edit_contains = array();
+  
+  public $view_contains = array();
+  
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $plugins set
@@ -64,9 +68,14 @@ class CoProvisioningTargetsController extends StandardController {
     // data to figure out which type of Plugin we should bind).
     
     foreach(array_values($plugins) as $plugin) {
+      $pmodel = "Co" . $plugin . "Target";
+      
       $this->CoProvisioningTarget->bindModel(array('hasOne'
-                                                   => array("Co" . $plugin . "Target"
+                                                   => array($pmodel
                                                             => array('dependent' => true))));
+      
+      $this->edit_contains[] = $pmodel;
+      $this->view_contains[] = $pmodel;
     }
     
     $this->set('plugins', $plugins);
