@@ -80,7 +80,23 @@ class Identifier extends AppModel {
       // See also Identifier Self Service (CO-1255).
       'filter' => array(
         'rule' => array('validateInput')
-      )
+      ),
+      'unique' => array(
+        'rule' => array(
+          'isUniqueChangelog',
+          array(
+            'identifier',
+            'type',
+            'co_person_id',
+            'co_group_id',
+            'org_identity_id',
+            'organization_id',
+            'co_department_id'
+            ),
+          false),
+        'message' => array('The Identifier is already in use.'),
+        'last' => 'true'
+      ),
     ),
     'type' => array(
       'content' => array(

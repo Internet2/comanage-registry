@@ -79,7 +79,22 @@ class EmailAddress extends AppModel {
       'filter' => array(
         'rule' => array('validateInput',
                         array('filter' => FILTER_SANITIZE_EMAIL))
-      )
+      ),
+      'unique' => array(
+        'rule' => array(
+          'isUniqueChangelog',
+          array(
+            'identifier',
+            'type',
+            'co_person_id',
+            'org_identity_id',
+            'organization_id',
+            'co_department_id'
+          ),
+          false),
+        'message' => array('The Email is already in use.'),
+        'last' => 'true'
+      ),
     ),
     'description' => array(
       'content' => array(
