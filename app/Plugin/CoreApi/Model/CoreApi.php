@@ -348,23 +348,13 @@ class CoreApi extends AppModel {
             // $model, then the plugin is not instantiated.)
             if(isset($reqData[$model])) {
               $pModel = ClassRegistry::init($pluginName . "." . $model);
-
-              // Get all the Authenticators
-              $pBaseModel = ClassRegistry::init($pluginName . "." . $pluginName);
-              $authenticatos_list = $pBaseModel->find(
-                'list',
-                array(
-                  'fields' => array($pluginName . '.id', $pluginName . '.created'),
-                  'contain' => false
-                )
-              );
               $authenticator_fk = Inflector::underscore($pluginName) . '_id';
 
               if(!empty($reqData[$model])) {
                 foreach($reqData[$model] as $m) {
-                  // XXX We are adding the new object under all the linked authenticators
-                  foreach ($authenticatos_list as $auth_id => $created) {
-                    $m[$authenticator_fk] = $auth_id;
+                  // The CoreAPI client has to provide the authenticator foreign key in order
+                  // for the record to be saved.
+                  if(!empty($m[$authenticator_fk])) {
                     $recordId = $this->upsertRecord($coId,
                                                     $co_person_id,
                                                     $pModel,
@@ -372,7 +362,6 @@ class CoreApi extends AppModel {
                                                     $reqData[$model],
                                                     'co_person_id',
                                                     $co_person_id);
-                    // Track that we've seen this record, for checking what to delete
                     $accessedRecords[$model][$recordId] = $m;
                   }
                 }
