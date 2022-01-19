@@ -1471,7 +1471,7 @@ original notification at
   'fd.ef.nogr' =>     'Notification Group',
   'fd.ef.nogr.desc' => 'Group to notify on new petitions and changes of petition status. (This is an informational notification. Separate notifications will be sent to approvers and enrollees, as appropriate.)',
   'fd.ef.orgid' =>    'Org Identity Mode',
-  'fd.ef.orgid.desc' => 'Org Identity mode for this enrollment flow, see <a href="https://spaces.at.internet2.edu/display/COmanage/Registry+Enrollment+Flow+Configuration#RegistryEnrollmentFlowConfiguration-OrganizationalIdentitySources">Organizational Identity Sources</a> for details',
+  'fd.ef.orgid.desc' => 'Org Identity mode for this enrollment flow, see <a href="https://spaces.at.internet2.edu/display/COmanage/Enrollment+Sources">Organizational Identity Sources</a> for details',
   'fd.ef.orgid.sn' => 'Verify Family Name',
   'fd.ef.orgid.sn.desc' => 'If set, the family name of the retrieved Org Identity Source record must have a family name associated with the Petitioner CO Person record',
   'fd.ef.pool' =>     'Pool Organizational Identities',
