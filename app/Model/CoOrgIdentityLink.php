@@ -139,39 +139,45 @@ class CoOrgIdentityLink extends AppModel {
       if($cnt > 0) {
         throw new RuntimeException(_txt('er.linked'));
       }
-    } else {
-      // If we're updating an existing link we need to check to see if the Org
-      // Identity was created from an Org Identity Source attached to a Pipeline.
-      // If so, we tell the Pipeline to unlink the CO Person here, and then in
-      // afterSave we will link the new target CO Person.
+    }
+    
+    // If we're updating an existing link (or linking a previously unlinked
+    // Org Identity) we need to check to see if the Org Identity was created
+    // from an Org Identity Source attached to a Pipeline. If so, for update
+    // only we tell the Pipeline to unlink the CO Person here, and then for both
+    // in afterSave we will link the new target CO Person.
+    
+    // Note if Org Identities are pooled then Org Identity Sources aren't
+    // supported, so we won't need to do any of this.
+    
+    $args = array();
+    $args['conditions']['OrgIdentity.id'] = $this->data['CoOrgIdentityLink']['org_identity_id'];
+    $args['contain'] = array(
+      // Until pooling goes away, an OrgIdentity could point to multiple CO People,
+      // but Org Identity Sources are not supported when pooling is enabled so
+      // we don't need to worry about it here.
+      'CoOrgIdentityLink',
+      'OrgIdentitySourceRecord' => array('OrgIdentitySource')
+    );
+    
+    $orgIdentity = $this->OrgIdentity->find('first', $args);
+    
+    if(!empty($orgIdentity['OrgIdentitySourceRecord']['id'])
+       // There must be an associated pipeline
+       && !empty($orgIdentity['OrgIdentitySourceRecord']['OrgIdentitySource']['co_pipeline_id'])
+       // and we must be changing the CO Person ID
+       && (empty($orgIdentity['CoOrgIdentityLink'][0]['co_person_id'])
+           ||
+           ($this->data['CoOrgIdentityLink']['co_person_id']
+            != $orgIdentity['CoOrgIdentityLink'][0]['co_person_id']))
+       // but not the Org Identity
+       && ($this->data['CoOrgIdentityLink']['org_identity_id']
+           == $orgIdentity['OrgIdentity']['id'])) {
+      $this->_begin();
       
-      // Note if Org Identities are pooled then Org Identity Sources aren't
-      // supported, so we won't need to do any of this.
-      
-      $args = array();
-      $args['conditions']['OrgIdentity.id'] = $this->data['CoOrgIdentityLink']['org_identity_id'];
-      $args['contain'] = array(
-        // Until pooling goes away, an OrgIdentity could point to multiple CO People,
-        // but Org Identity Sources are not supported when pooling is enabled so
-        // we don't need to worry about it here.
-        'CoOrgIdentityLink',
-        'OrgIdentitySourceRecord' => array('OrgIdentitySource')
-      );
-      
-      $orgIdentity = $this->OrgIdentity->find('first', $args);
-      
-      if(!empty($orgIdentity['OrgIdentitySourceRecord']['id'])
-         // There must be an associated pipeline
-         && !empty($orgIdentity['OrgIdentitySourceRecord']['OrgIdentitySource']['co_pipeline_id'])
-         // and we must be changing the CO Person ID
-         && ($this->data['CoOrgIdentityLink']['co_person_id']
-             != $orgIdentity['CoOrgIdentityLink'][0]['co_person_id'])
-         // but not the Org Identity
-         && ($this->data['CoOrgIdentityLink']['org_identity_id']
-             == $orgIdentity['OrgIdentity']['id'])) {
-        $this->_begin();
-        
-        try {
+      try {
+        if(!empty($this->data['CoOrgIdentityLink']['co_person_id'])) {
+          // We're relinking
           $this->OrgIdentity
                ->Co
                ->CoPipeline
@@ -183,16 +189,54 @@ class CoOrgIdentityLink extends AppModel {
                          true,
                          $orgIdentity['OrgIdentitySourceRecord']['source_record'],
                          $orgIdentity['OrgIdentitySourceRecord']['id']);
-          
-          $this->relinkingOrgIdentity = $orgIdentity;
         }
-        catch(Exception $e) {
-          $this->_rollback();
-          throw new RuntimeException($e->getMessage());
-        }
+        // else we're linking a previously unlinked record
+        
+        $this->relinkingOrgIdentity = $orgIdentity;
+      }
+      catch(Exception $e) {
+        $this->_rollback();
+        throw new RuntimeException($e->getMessage());
       }
     }
     
     return true;
+  }
+  
+  /**
+   * Delete an object.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function delete($id = null, $cascade = true) {
+    // If the unlinked Org Identity had been connected to the CO Person by a
+    // pipeline, we need to re-run the pipeline to unlink the associated data.
+    // (This is similar to afterSave's handling of relinking, below.)
+    
+    // Note that ChangelogBehavior screws up the triggering of beforeDelete, so
+    // we can't rely on that callback.
+    
+    $args = array();
+    $args['conditions']['CoOrgIdentityLink.id'] = $id;
+    $args['contain'] = array('CoPerson', 'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')));
+    
+    $link = $this->find('first', $args);
+    
+    if(!empty($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['co_pipeline_id'])) {
+      $this->OrgIdentity
+           ->Co
+           ->CoPipeline
+           ->execute($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['co_pipeline_id'],
+                     $link['OrgIdentity']['id'],
+                     SyncActionEnum::Unlink,
+                     // In PE we can do something similar to ChangelogBehavior to get the username
+                     CakeSession::read('Auth.User.co_person_id'),
+                     true,
+                     $link['OrgIdentity']['OrgIdentitySourceRecord']['source_record'],
+                     $link['OrgIdentity']['OrgIdentitySourceRecord']['id']);
+    }
+    
+    return parent::delete($id, $cascade);
   }
 }
