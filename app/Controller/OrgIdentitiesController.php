@@ -90,7 +90,8 @@ class OrgIdentitiesController extends StandardController {
 
   public function alphabetSearchConfig($action)
   {
-    if(in_array($action, array('index', 'find'))) {
+    $supported_views = array('index', 'find');
+    if(in_array($action, $supported_views)) {
       return array(
         'search.familyNameStart' => array(
           'label' => _txt('me.alpha.label'),
@@ -106,7 +107,8 @@ class OrgIdentitiesController extends StandardController {
    */
 
   public function searchConfig($action) {
-    if(in_array($action, array('index', 'find'))) {
+    $supported_views = array('index', 'find');
+    if(in_array($action, $supported_views)) {
       return array(
         'search.givenName' => array(              // 1st row, left column
           'label' => _txt('fd.name.given'),
@@ -387,7 +389,8 @@ class OrgIdentitiesController extends StandardController {
   
   function find() {
     $coid = null;
-    
+
+    // Query required for the title construction
     if(!empty($this->request->params['named']['copersonid'])) {
       // Find the CO Person name
       $args = array();
@@ -460,10 +463,12 @@ class OrgIdentitiesController extends StandardController {
     if(!isset($this->viewVars['pool_org_identities'])
        || !$this->viewVars['pool_org_identities']) {
       $this->set('org_identities',
-                 $this->Paginator->paginate('OrgIdentity',
-                                      array("OrgIdentity.co_id" => $this->cur_co['Co']['id'])));
+                 $this->Paginator->paginate(
+                   'OrgIdentity',
+                   array("OrgIdentity.co_id" => $this->cur_co['Co']['id']),
+                   $sortlist));
     } else {
-      $this->set('org_identities', $this->Paginator->paginate('OrgIdentity'));
+      $this->set('org_identities', $this->Paginator->paginate('OrgIdentity', array(), $sortlist));
     }
   }
   
