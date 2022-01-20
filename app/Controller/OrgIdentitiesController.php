@@ -269,6 +269,25 @@ class OrgIdentitiesController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_co_person_roles', $this->OrgIdentity->PipelineCoPersonRole->find('first', $args));
+      
+      // Pull the list of linkable CO IDs from the model, then filter list according to
+      // current user being CMP admin or CO admin
+      
+      $cos = array();
+      
+      if($this->Role->identifierIsCmpAdmin($this->Session->read('Auth.User.username'))) {
+        // CMP Admins can do any linking, at least for now
+        
+        $cos = $this->OrgIdentity->linkableCos($this->request->params['pass'][0]);
+      } else {
+        foreach($this->OrgIdentity->linkableCos($this->request->params['pass'][0]) as $coid => $coname) {
+          if($this->Role->isCoAdmin($this->Session->read('Auth.User.co_person_id'), $coid)) {
+            $cos[$coid] = $coname;
+          }
+        }
+      }
+      
+      $this->set('vv_linkable_cos', $cos);
     }
     
     if(!$this->request->is('restful') && !empty($this->cur_co['Co']['id'])) {
@@ -334,44 +353,6 @@ class OrgIdentitiesController extends StandardController {
     }
     
     return true;
-  }
-
-  /**
-   * Generate the edit view.
-   * - precondition: <id> must exist
-   * - postcondition: $<object>s set (with one member) if found
-   * - postcondition: HTTP status returned (REST)
-   * - postcondition: Session flash message updated (HTML) on suitable error
-   *
-   * @since  COmanage Registry v0.9.1
-   * @param  Integer Org Identity identifier
-   */
-  
-  public function edit($id) {
-    // We mostly want the standard behavior, but we need to determine if the org
-    // identity is eligible to be linked into any CO and if so provide that info
-    // to the view.
-    
-    parent::edit($id);
-    
-    // Pull the list of linkable CO IDs from the model, then filter list according to
-    // current user being CMP admin or CO admin
-    
-    $cos = array();
-    
-    if($this->Role->identifierIsCmpAdmin($this->Session->read('Auth.User.username'))) {
-      // CMP Admins can do any linking, at least for now
-      
-      $cos = $this->OrgIdentity->linkableCos($id);
-    } else {
-      foreach($this->OrgIdentity->linkableCos($id) as $coid => $coname) {
-        if($this->Role->isCoAdmin($this->Session->read('Auth.User.co_person_id'), $coid)) {
-          $cos[$coid] = $coname;
-        }
-      }
-    }
-    
-    $this->set('vv_linkable_cos', $cos);
   }
   
   /**

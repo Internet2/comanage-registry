@@ -628,23 +628,21 @@
       <?php if($this->action != "add"): ?>       
         <!-- Associated CoPeople listings -->
         <li id="fields-copeople" class="fieldGroup">
-          <?php if($e): ?>
-            <div class="coAddEditButtons">
-              <?php
-                if($permissions['link']) {
-                  foreach($vv_linkable_cos as $lcoid => $lconame) {
-                    print $this->Html->link(_txt('op.link.to.co', array($lconame)),
-                      array('controller'    => 'co_people',
-                        'action'        => 'link',
-                        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                        'co'            => $lcoid),
-                      array('class'  => 'addbutton'));
+          <div class="coAddEditButtons">
+            <?php
+              if($permissions['link']) {
+                foreach($vv_linkable_cos as $lcoid => $lconame) {
+                  print $this->Html->link(_txt('op.link.to.co', array($lconame)),
+                    array('controller'    => 'co_people',
+                      'action'        => 'link',
+                      'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                      'co'            => $lcoid),
+                    array('class'  => 'addbutton'));
 
-                  }
                 }
-              ?>
-            </div>
-          <?php endif; ?>
+              }
+            ?>
+          </div>
           <a href="#tabs-copeople" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.co_people.pl'); ?>
