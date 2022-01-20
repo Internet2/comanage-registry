@@ -958,8 +958,11 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
           }
         } 
       } else {
-        // Delete group since it does not have the identifier but is provisioned.
-        $this->deleteGroup($coProvisioningTargetData, $coGroup);
+        // The group already exists in Jira but either the COmanage Registry
+        // Identifier is required but not present, or the Identifier is not
+        // required. Either way, this is a noop and we do not delete
+        // the group in Jira because there is separate logic when the provisioning
+        // operation is CoGroupDeleted.
       }
     } else {
       if(($identifierRequired && $hasIdentifier) || !$identifierRequired) {
