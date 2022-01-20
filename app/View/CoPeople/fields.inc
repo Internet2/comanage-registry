@@ -1381,12 +1381,7 @@
                 }
 
                 // Delete Action
-                if($permissions['delete']
-                  && count($co_people[0]['CoOrgIdentityLink']) > 1) {
-                  // An Org Identity Link can only be removed if there is at least one other remaining
-                  // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
-                  // away, even if it's the last one attached to the CO Preson.
-
+                if($permissions['delete']) {
                   $unlnk_url = array(
                     'controller' => 'co_org_identity_links',
                     'action' => 'delete',
