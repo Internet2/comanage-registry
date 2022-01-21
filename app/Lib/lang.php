@@ -1038,6 +1038,7 @@ original notification at
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.fields.api' =>  'Invalid fields: %1$s',
   'er.fields.api.co' => '"%1$s" may not refer to another CO',
+  'er.fields.api.frozen' => '"%1$s" is frozen and may not be changed',
   'er.file.none' =>   'No file specified',
   'er.file.parse' =>  'Unable to parse "%1$s"',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
