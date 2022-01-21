@@ -99,25 +99,16 @@
   <div class="co-card<?php print $containerClass ?>">
     <?php
        $filteredServiceName = filter_var($c['CoService']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
+       $filteredServiceUrl =  filter_var($c['CoService']['service_url'],FILTER_SANITIZE_SPECIAL_CHARS);
     ?>
-    <h2>
-      <?php
-        // wrap the title with the URL if available; JavaScript will be used to make entire div clickable
-        if(!empty($c['CoService']['service_url'])) {
-          print $this->Html->link(
-            $c['CoService']['name'], // note that the link function does the filtering for us.
-            $c['CoService']['service_url'],
-            array(
-              'class' => 'co-card-link co-card-service-url',
-              'escape' => false,
-              'title' => $c['CoService']['service_url']
-            ));
-        } else {
-          // otherwise just print the name
-          print $filteredServiceName;
-        }
-      ?>
-    </h2>
+    <?php
+    // wrap the card content with the URL if available; JavaScript will be used to make entire div clickable
+    if(!empty($filteredServiceUrl)): ?> 
+      <a href="<?php print $filteredServiceUrl; ?>" 
+         class="co-card-link co-card-service-url" 
+         title="<?php print $filteredServiceUrl; ?>">
+    <?php endif; ?>
+    <h2><?php print $filteredServiceName; ?></h2>
     <div class="co-card-content">
       <?php if(!empty($c['CoService']['logo_url'])): ?>
         <div class="co-card-image">
@@ -127,41 +118,44 @@
       <div class="co-card-description">
         <?php print filter_var($c['CoService']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
-      <div class="co-card-icons">
-        <?php
-
-          if(!empty($c['CoService']['contact_email'])) {
-            print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
-              'mailto:'.$c['CoService']['contact_email'],
-              array(
-                'class' => 'co-card-link',
-                'escape' => false,
-                'title' => _txt('fd.svc.mail.prefix', array($c['CoService']['contact_email']))
-              ));
-          }
-
-        ?>
-      </div>
-      <div class="co-card-join-button">
-        <?php
-          if(!empty($c['CoService']['co_group_id'])) {
-            // Render the join/leave link, depending on the outcome of the code above
-            if($args) {
-              $args[] = $c['CoService']['id'];
-              
-              // If we have a cou (ie: cou portal), add it here as advisory for redirect
-              if(!empty($this->request->params['named']['cou'])) {
-                $args['cou'] = filter_var($this->request->params['named']['cou'],FILTER_SANITIZE_SPECIAL_CHARS);
-              }
-              print $this->Html->link($action, $args, $attribs);
-            } else {
-              print $action;
-            }
-          }
-        ?>
-      </div>
-      <span class="clearfix"></span>
     </div>
+    <?php if(!empty($filteredServiceUrl)): ?>
+      </a>
+    <?php endif; ?>
+    <div class="co-card-icons">
+      <?php
+
+        if(!empty($c['CoService']['contact_email'])) {
+          print $this->Html->link('<em class="material-icons" aria-hidden="true">email</em>',
+            'mailto:'.$c['CoService']['contact_email'],
+            array(
+              'class' => 'co-card-link',
+              'escape' => false,
+              'title' => _txt('fd.svc.mail.prefix', array($c['CoService']['contact_email']))
+            ));
+        }
+
+      ?>
+    </div>
+    <div class="co-card-join-button">
+      <?php
+      if(!empty($c['CoService']['co_group_id'])) {
+        // Render the join/leave link, depending on the outcome of the code above
+        if($args) {
+          $args[] = $c['CoService']['id'];
+        
+          // If we have a cou (ie: cou portal), add it here as advisory for redirect
+          if(!empty($this->request->params['named']['cou'])) {
+            $args['cou'] = filter_var($this->request->params['named']['cou'],FILTER_SANITIZE_SPECIAL_CHARS);
+          }
+          print $this->Html->link($action, $args, $attribs);
+        } else {
+          print $action;
+        }
+      }
+      ?>
+    </div>
+    <span class="clearfix"></span>
   </div>
   <?php endforeach; ?>
 
