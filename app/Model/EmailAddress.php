@@ -84,12 +84,13 @@ class EmailAddress extends AppModel {
         'rule' => array(
           'isUniqueChangelog',
           array(
-            'identifier',
+            'mail',
             'type',
             'co_person_id',
             'org_identity_id',
             'organization_id',
-            'co_department_id'
+            'co_department_id',
+            'source_email_address_id'
           ),
           false),
         'message' => array('The Email is already in use.'),

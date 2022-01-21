@@ -91,7 +91,8 @@ class Identifier extends AppModel {
             'co_group_id',
             'org_identity_id',
             'organization_id',
-            'co_department_id'
+            'co_department_id',
+            'source_identifier_id'
             ),
           false),
         'message' => array('The Identifier is already in use.'),
