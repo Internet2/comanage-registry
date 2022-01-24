@@ -59,10 +59,6 @@ Router::connect(
   )
 );
 
-// Scoped identifiers are not parsed properly because they are perceived as file extensions
-// Enable extensions parse to resolve this problem
-Router::parseExtensions('*');
-
 
 /*
 Router::connect(
