@@ -1432,6 +1432,14 @@ class AppController extends Controller {
               $coid = $this->request->data[$req]['co_id'];
             }
           }
+          // CO ID can be passed via a query parameter when we use the API Model
+          elseif($this->request->is('restful')
+                 && isset($this->request->params["ext"])
+                 && in_array($this->request->params["ext"], DEF_URL_EXTENSIONS)) {
+            if(isset($this->request->query['coid'])) {
+              $coid = $this->request->query['coid'];
+            }
+          }
         }
       }
     }

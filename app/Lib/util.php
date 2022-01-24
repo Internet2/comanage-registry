@@ -42,6 +42,9 @@ define("DEF_GARBAGE_COLLECT_INTERVAL", 1440);
 // Default global search limit
 define("DEF_GLOBAL_SEARCH_LIMIT", 500);
 
+// URL extensions to parse
+define("DEF_URL_EXTENSIONS", array('json', 'xml'));
+
 /**
  * Find an attribute within an array, specifically intended for working with
  * Enrollment Flow Attributes.
