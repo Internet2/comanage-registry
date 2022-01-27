@@ -92,7 +92,8 @@ Router::mapResources(array(
   'telephone_numbers',
 	'urls'
 ));
-Router::parseExtensions();
+
+Router::parseExtensions('json', 'xml');
 
 // ApplicationPreferences uses non-standard REST routes
 Router::connect(
