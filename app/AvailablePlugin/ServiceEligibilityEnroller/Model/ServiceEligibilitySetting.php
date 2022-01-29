@@ -46,13 +46,13 @@ class ServiceEligibilitySetting extends AppModel {
     ),
     'allow_multiple' => array(
       'rule' => 'boolean',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
     ),
     'require_selection' => array(
       'rule' => 'boolean',
-      'required' => true,
-      'allowEmpty' => false
+      'required' => false,
+      'allowEmpty' => true
     )
   );
 }
