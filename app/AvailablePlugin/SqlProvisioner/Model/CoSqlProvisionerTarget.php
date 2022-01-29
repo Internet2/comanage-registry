@@ -63,7 +63,8 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   );
   
   // The models we currently synchronize, not including CO Person, in the order
-  // we want to process them.
+  // we want to process them. Note when adding a model here, it may need to be
+  // added to the contains clause in syncPerson.
   public $models = array(
     array(
       'table'  => 'sp_names',
@@ -591,6 +592,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       $args['conditions']['OrgIdentity.id'] = $orgIds;
       $args['contain'] = array(
         'Address',
+        'AdHocAttribute',
         'EmailAddress',
         'Identifier',
         'Name',
@@ -638,7 +640,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       if($m['parent'] == 'CoPersonRole') {
         $records = Hash::extract($provisioningData['CoPersonRole'], '{n}.' . $m['source'] . '.{n}');
         $parentfk = 'co_person_role_id';
-        $parentids = array_unique(Hash::extract($provisioningData['CoPersonRole'], '{n}.co_person_role_id'));
+        $parentids = array_unique(Hash::extract($records, '{n}.co_person_role_id'));
       } else {
         $records = $provisioningData[ $m['source'] ];
         $parentids[] = $provisioningData['CoPerson']['id'];

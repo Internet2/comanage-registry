@@ -930,6 +930,9 @@ class CoPipeline extends AppModel {
         } else {
           // No change, unset $newCoPersonRole to indicate not to bother saving
           $newCoPersonRole = array();
+          
+          // But note the coPersonRoleId so related model diffs calculate correctly.
+          $coPersonRoleId = $orgIdentity['PipelineCoPersonRole']['id'];
         }
       } else {
         // No current person role, so just save as is
