@@ -244,6 +244,8 @@
     </field>
     <field name="valid_from" type="T" />
     <field name="valid_through" type="T" />
+    <field name="manager_identifier" type="C" size="512" />
+    <field name="sponsor_identifier" type="C" size="512" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="org_identity_id" type="I">
@@ -953,6 +955,7 @@
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
     <field name="sync_status_on_delete" type="C" size="2" />
+    <field name="sync_identifier_type" type="C" size="32" />
     <field name="co_enrollment_flow_id" type="I">
       <constraint>REFERENCES cm_co_enrollment_flows(id)</constraint>
     </field>

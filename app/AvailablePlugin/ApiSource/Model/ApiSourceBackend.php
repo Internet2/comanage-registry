@@ -229,8 +229,18 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
       }
     }
     
+    if(!empty($attrs['sorAttributes']['managerIdentifier'])) {
+      // The Pipeline maps this to a CO Person ID
+      $orgdata['OrgIdentity']['manager_identifier'] = $attrs['sorAttributes']['managerIdentifier'];
+    }
+    
     if(!empty($attrs['sorAttributes']['organization'])) {
       $orgdata['OrgIdentity']['o'] = $attrs['sorAttributes']['organization'];
+    }
+    
+    if(!empty($attrs['sorAttributes']['sponsorIdentifier'])) {
+      // The Pipeline maps this to a CO Person ID
+      $orgdata['OrgIdentity']['sponsor_identifier'] = $attrs['sorAttributes']['sponsorIdentifier'];
     }
     
     if(!empty($attrs['sorAttributes']['telephoneNumbers'])) {

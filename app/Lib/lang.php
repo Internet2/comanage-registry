@@ -1689,6 +1689,8 @@ original notification at
   'fd.pi.sync.del.stat.desc' => 'When the source record is no longer valid, the corresponding CO Person Role will be set to this status',
   'fd.pi.sync.role' => 'Create CO Person Role Record',
   'fd.pi.sync.str' => 'Sync Strategy',
+  'fd.pi.sync.type' => 'Sync Identifier Type',
+  'fd.pi.sync.type.desc' => 'For fields such as <i>manager</i> or <i>sponsor</i>, the inbound identifier type',
   'fd.pi.sync.upd' => 'Sync on Update',
   'fd.pipeline' =>    'Pipeline',
   'fd.pipeline.desc.ef' => 'Org Identities created directly (not via an Org Identity Source) from this Enrollment Flow will be processed using the specified Pipeline',

@@ -378,6 +378,26 @@
           </td>
         </tr>
         <?php endif; // AdHocAttribute ?>
+        <?php if(!empty($vv_org_source_record['OrgIdentity']['manager_identifier'])): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.manager'); ?>
+          </td>
+          <td>
+            <?php print $vv_org_source_record['OrgIdentity']['manager_identifier']; ?>
+          </td>
+        </tr>
+        <?php endif; // manager_identifier ?>
+        <?php if(!empty($vv_org_source_record['OrgIdentity']['sponsor_identifier'])): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.sponsor'); ?>
+          </td>
+          <td>
+            <?php print $vv_org_source_record['OrgIdentity']['sponsor_identifier']; ?>
+          </td>
+        </tr>
+        <?php endif; // sponsor_identifier ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
             <?php print _txt('fd.ois.record'); ?><br />

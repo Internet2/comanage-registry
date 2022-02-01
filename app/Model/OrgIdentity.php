@@ -194,6 +194,20 @@ class OrgIdentity extends AppModel {
       'follows' => array(
         'rule' => array("validateTimestampRange", "valid_from", ">"),
       ),
+    ),
+    'manager_identifier' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'sponsor_identifier' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   

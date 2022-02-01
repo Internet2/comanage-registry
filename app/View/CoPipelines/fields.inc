@@ -80,10 +80,12 @@
       $("#CoPipelineSyncCouId").closest('li').show('fade');
       $("#CoPipelineSyncAffiliation").closest('li').show('fade');
       $("#CoPipelineSyncReplaceCouId").closest('li').show('fade');
+      $("#CoPipelineSyncIdentifierType").closest('li').show('fade');
     } else {
       $("#CoPipelineSyncCouId").closest('li').hide('fade');
       $("#CoPipelineSyncAffiliation").closest('li').hide('fade');
       $("#CoPipelineSyncReplaceCouId").closest('li').hide('fade');
+      $("#CoPipelineSyncIdentifierType").closest('li').hide('fade');
     }
     
     <?php /* XXX #CoPipelineSyncStatusOnDelete is not in the DOM
@@ -527,6 +529,35 @@
                 }
               } else {
                 print $vv_cous[ $co_pipelines[0]['CoPipeline']['sync_replace_cou_id'] ];
+              }
+            ?>
+          </div>
+        </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('CoPipeline.sync_identifier_type', _txt('fd.pi.sync.type')) : _txt('fd.pi.sync.type')); ?>
+            </div>
+            <span class="field-desc"><?php print _txt('fd.pi.sync.type.desc'); ?></span>
+          </div>
+          <div class="field-info">
+            <?php
+              $attrs = array();
+              $attrs['value'] = (isset($co_pipelines[0]['CoPipeline']['sync_identifier_type'])
+                                 ? $co_pipelines[0]['CoPipeline']['sync_identifier_type']
+                                 : '');
+              $attrs['empty'] = true;
+              
+              if($e) {
+                print $this->Form->select('CoPipeline.sync_identifier_type',
+                                          $vv_identifier_types,
+                                          $attrs);
+                
+                if($this->Form->isFieldError('sync_identifier_type')) {
+                  print $this->Form->error('sync_identifier_type');
+                }
+              } else {
+                print filter_var($co_pipelines[0]['CoPipeline']['sync_identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS);
               }
             ?>
           </div>
