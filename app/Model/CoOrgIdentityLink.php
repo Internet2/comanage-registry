@@ -162,7 +162,8 @@ class CoOrgIdentityLink extends AppModel {
     
     $orgIdentity = $this->OrgIdentity->find('first', $args);
     
-    if(!empty($orgIdentity['OrgIdentitySourceRecord']['id'])
+    if((!isset($options['pipeline']) || $options['pipeline'])
+       && !empty($orgIdentity['OrgIdentitySourceRecord']['id'])
        // There must be an associated pipeline
        && !empty($orgIdentity['OrgIdentitySourceRecord']['OrgIdentitySource']['co_pipeline_id'])
        // and we must be changing the CO Person ID

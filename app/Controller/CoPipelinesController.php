@@ -77,6 +77,9 @@ class CoPipelinesController extends StandardController {
     // Provide a list of valid affiliations
     $this->set('vv_copr_affiliation_types', $this->CoPipeline->Co->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
     
+    // Pull the set of identifier types
+    $this->set('vv_identifier_types', $this->CoPipeline->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
+    
     // Provide a list of valid statuses on delete
     $statuses = array();
     

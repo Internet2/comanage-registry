@@ -569,6 +569,26 @@
               ?>
             </div>
           </li>
+          <!-- Manager and Sponsor fields are read only because we only support
+               setting these fields in an OIS context. In Registry v5, Org
+               Identities basically become read only to the administrator.
+          -->
+          <li>
+            <div class="field-name">
+              <?php print _txt('fd.manager'); ?>
+            </div>
+            <div class="field-info">
+              <?php print filter_var($org_identities[0]['OrgIdentity']['manager_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <?php print _txt('fd.sponsor'); ?>
+            </div>
+            <div class="field-info">
+              <?php print filter_var($org_identities[0]['OrgIdentity']['sponsor_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            </div>
+          </li>
           <?php if($e): ?>
             <li class="fields-submit">
               <div class="field-name">

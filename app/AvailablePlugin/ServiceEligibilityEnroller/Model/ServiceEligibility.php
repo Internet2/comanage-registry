@@ -254,7 +254,8 @@ class ServiceEligibility extends AppModel {
       $this->_rollback();
       
       if($coServiceId) {
-        throw new RuntimeException(_txt('er.serviceeligibilityenroller.none'));
+        // Pretty much all the cases where we get here aren't real errors
+        //throw new RuntimeException(_txt('er.serviceeligibilityenroller.none'));
       }
       
       return;
