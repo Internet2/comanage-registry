@@ -526,7 +526,6 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
       if(empty($url)) {
         $url = "/rest/api/2/group/member?groupname=" . urlencode($groupName);
       }
-      $this->log("FOO BAR url is " . print_r($url, true));
       $response = $this->Http->get($url);
       if($response->code == 404) {
         $isProvisioned = false;
@@ -538,8 +537,6 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
         if(!$isLast) {
           $nextPage = $provisionedData->nextPage;
           $url = parse_url($nextPage, PHP_URL_PATH) . "?" . parse_url($nextPage, PHP_URL_QUERY);
-
-          $this->log("FOO isLast is " . print_r($isLast, true));
         }
         foreach($provisionedData->values as $m) {
           $provisionedMembersByName[] = $m->name;
@@ -1010,6 +1007,20 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
     $provisionGroupId = $coProvisioningTargetData['CoJiraProvisionerTarget']['provision_co_group_id'];
     $queryByUsername = $coProvisioningTargetData['CoJiraProvisionerTarget']['query_by_username'];
 
+    if(!empty($groupMembers[0]['CoGroup']['co_id'])) {
+      $coId = $groupMembers[0]['CoGroup']['co_id'];
+    } else {
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $coPersonId;
+      $args['contain'] = false;
+
+      $person = $this->CoProvisioningTarget->Co->CoPerson->find('first', $args);
+
+      if(!empty($person)) {
+        $coId = $person['CoPerson']['co_id'];
+      }
+    }
+
     // Find the identifier of the requested username type.
     // Note similar logic in deletePerson.
     $ids = Hash::extract($identifiers, '{n}[type='.$usernameType.']');
@@ -1111,7 +1122,7 @@ class CoJiraProvisionerTarget extends CoProvisionerPluginTarget {
     }
 
     // Get all CO Groups by their name.
-    $allCoGroupsByName = $this->allCoGroupsByName($groupMembers[0]['CoGroup']['co_id'], $groupIdentifierType, $groupNameFromIdentifier);
+    $allCoGroupsByName = $this->allCoGroupsByName($coId, $groupIdentifierType, $groupNameFromIdentifier);
 
     // Add missing membership in Jira.
     foreach($groupsByName as $g) {
