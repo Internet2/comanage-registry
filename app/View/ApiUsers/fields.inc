@@ -247,7 +247,8 @@
       <div class="field-desc"><?php print _txt('fd.api.priv.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print $this->Form->input('privileged'); ?>
+      <?php print $e ? $this->Form->input('privileged')
+                     : ($api_users[0]['ApiUser']['privileged'] ? _txt('fd.true') : _txt('fd.false')); ?>
     </div>
   </li>
   <?php else: // co > 1 ?>
