@@ -64,7 +64,7 @@
 <?php if(empty($vv_servers)): ?>
 <div class="co-info-topbox">
   <i class="material-icons">info</i>
-  <?php print _txt('pl.salesforcesource.servers.none'); ?>
+  <?php print _txt('er.server.none', array(_txt('ct.oauth2_servers.1'))); ?>
 </div>
 <?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_salesforce_source" class="fields form-list">
@@ -75,8 +75,8 @@
     <div class="field-info">
       <?php
         $attrs = array();
-        $attrs['value'] = (isset($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id']) 
-                           ? $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id']
+        $attrs['value'] = (isset($salesforce_sources[0]['SalesforceSource']['server_id']) 
+                           ? $salesforce_sources[0]['SalesforceSource']['server_id']
                            : null);
         // Since required=true, this will render blank by default but not allow save until a server is selected
         $attrs['empty'] = true;
@@ -90,8 +90,8 @@
             print $this->Form->error('server_id');
           }
         } else {
-          if(!empty($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id'])) {
-            print filter_var($vv_servers[ $co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['server_id'] ], FILTER_SANITIZE_SPECIAL_CHARS);
+          if(!empty($salesforce_sources[0]['SalesforceSource']['server_id'])) {
+            print filter_var($vv_servers[ $salesforce_sources[0]['SalesforceSource']['server_id'] ], FILTER_SANITIZE_SPECIAL_CHARS);
           }
         }
       ?>
@@ -103,7 +103,7 @@
       <div class="field-desc"><?php print _txt('pl.salesforcesource.instanceurl.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('instance_url', array('class' => 'focusFirst')) : filter_var($co_salesforce_provisioner_targets[0]['CoSalesforceProvisionerTarget']['instance_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e ? $this->Form->input('instance_url', array('class' => 'focusFirst')) : filter_var($salesforce_sources[0]['SalesforceSource']['instance_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>

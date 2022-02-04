@@ -124,6 +124,14 @@ class NoviSourceBackend extends OrgIdentitySourceBackend {
       );
     }
     
+    if(!empty($result->MemberSince)) {
+      $orgdata['OrgIdentity']['valid_from'] = date('Y-m-d H:i:s', strtotime($result->MemberSince));
+    }
+    
+    if(!empty($result->MembershipExpires)) {
+      $orgdata['OrgIdentity']['valid_through'] = date('Y-m-d H:i:s', strtotime($result->MembershipExpires));
+    }
+    
     if(!empty($result->Phone)) {
       $orgdata['TelephoneNumber'][] = array(
         'number' => $result->Phone,

@@ -285,21 +285,19 @@ class AppController extends Controller {
       // or posted as "Model.co_id".
       
       $coid = $this->parseCOID();
+
+      // Retrieve CO Object.  If this model doesn't have a direct relationship, we'll temporarily bind the model
+
+      $this->Co = ClassRegistry::init('Co');
+      // Load Localizations
+      // If $coid == -1 the Global localizations will be loaded.
+      $this->Co->CoLocalization->load($coid);
       
       if($coid == -1) {
         if($this->requires_co) {
           throw new InvalidArgumentException(_txt('er.co.specify'));
         }
       } else {
-        // Retrieve CO Object.  If this model doesn't have a direct relationship, we'll temporarily bind the model
-        
-        if(!isset($this->Co)) {
-          // There might be a CO object under another object (eg: CoOrgIdentityLink),
-          // but it's easier if we just explicitly load the model
-          
-          $this->Co = ClassRegistry::init('Co');
-        }
-        
         $args = array();
         $args['conditions']['Co.id'] = $coid;
         $args['contain'] = false;
@@ -308,9 +306,6 @@ class AppController extends Controller {
         
         if(!empty($this->cur_co)) {
           $this->set("cur_co", $this->cur_co);
-
-          // Load Localizations
-          $this->Co->CoLocalization->load($this->cur_co['Co']['id']);
 
           // Perform a bit of a sanity check before we get any further
           try {
@@ -1077,9 +1072,10 @@ class AppController extends Controller {
     $p['menu']['coconfig'] = $roles['cmadmin'] || $roles['coadmin'];
     
     // View CO departments?
-    $p['menu']['codepartments'] = $roles['cmadmin'];
+    $p['menu']['codepartments'] = $roles['cmadmin'] || $roles['coadmin'];;
     
     if(!$roles['cmadmin']
+       && !$roles['coadmin']
        && $roles['user']
        && !empty($this->cur_co['Co']['id'])) {
       // Only render departments link for regular users if departments are defined

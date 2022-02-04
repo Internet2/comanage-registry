@@ -139,7 +139,8 @@ class CoPetitionsController extends StandardController {
     'start'                        => 'selectEnrollee',
     'selectEnrollee'               => 'selectOrgIdentity',
     'selectOrgIdentity'            => 'petitionerAttributes',
-    'petitionerAttributes'         => 'tandcPetitioner',
+    'petitionerAttributes'         => 'duplicateCheck',
+    'duplicateCheck'               => 'tandcPetitioner',
     'tandcPetitioner'              => 'sendConfirmation',
     'sendConfirmation'             => 'waitForConfirmation',
     // execution continues here if confirmation not required
@@ -476,17 +477,20 @@ class CoPetitionsController extends StandardController {
           );
           $vAttrs = $this->CoPetition->CoPetitionAttribute->find("list", $vArgs);
           
-          // As a special case, we need to convert sponsor_co_person_id to a name
+          // As a special case, we need to convert sponsor_co_person_id and
+          // manager_co_person_id to names
           foreach($vAttrs as $id => $a) {
-            if(!empty($a['sponsor_co_person_id'])) {
-              $args = array();
-              $args['conditions']['CoPerson.id'] = $a['sponsor_co_person_id'];
-              $args['contain'] = array('PrimaryName');
-              
-              $pName = $this->CoPetition->Co->CoPerson->find('first', $args);
-              
-              if(!empty($pName)) {
-                $vAttrs[$id]['sponsorPrimaryName'] = generateCn($pName['PrimaryName']) . " (" . $a['sponsor_co_person_id'] . ")";
+            foreach(array('manager', 'sponsor') as $t) {
+              if(!empty($a[$t.'_co_person_id'])) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $a[$t.'_co_person_id'];
+                $args['contain'] = array('PrimaryName');
+                
+                $pName = $this->CoPetition->Co->CoPerson->find('first', $args);
+                
+                if(!empty($pName)) {
+                  $vAttrs[$id][$t.'PrimaryName'] = generateCn($pName['PrimaryName']) . " (" . $a[$t.'_co_person_id'] . ")";
+                }
               }
             }
           }
@@ -549,6 +553,8 @@ class CoPetitionsController extends StandardController {
           // are in use, at least). We start by looking for an enrollment attribute
           // for sponsor_co_person_id with a default value.
           
+          // We do a similar but simpler check for default manager.
+          
           for($i = 0;$i < count($enrollmentAttributes);$i++) {
             if($enrollmentAttributes[$i]['attribute'] == "r:sponsor_co_person_id") {
               $defaultCoPersonId = null;
@@ -586,10 +592,30 @@ class CoPetitionsController extends StandardController {
                 $this->set('vv_default_sponsor', $this->CoPetition->Co->CoPerson->find('first', $args));
               }
               
-              // In theory there could be more than one sponsor attribute found, but
-              // we don't currently support multiple sponsors so we just work with the
-              // first one we find.
-              break;
+              // While in theory there could be more than one sponsor attribute
+              // found, we don't currently support multiple sponsors. However,
+              // we do need to keep looping for manager_co_person_id, so if
+              // more than one sponsor were specified we'd use the last one.
+            } elseif($enrollmentAttributes[$i]['attribute'] == "r:manager_co_person_id") {
+              $defaultCoPersonId = null;
+
+              if(!empty($enrollmentAttributes[$i]['default'])) {
+                // Now lookup the Manager CO Person
+                $defaultCoPersonId = $enrollmentAttributes[$i]['default'];
+              }
+              
+              if($defaultCoPersonId) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $defaultCoPersonId;
+                $args['contain'] = array('PrimaryName');
+                
+                $this->set('vv_default_manager', $this->CoPetition->Co->CoPerson->find('first', $args));
+              }
+
+              // While in theory there could be more than one manager attribute
+              // found, we don't currently support multiple managers. However,
+              // we do need to keep looping for sponsor_co_person_id, so if
+              // more than one manager were specified we'd use the last one.
             }
           }
         }
@@ -1348,6 +1374,39 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Check for duplicates.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function duplicateCheck($id) {
+    if($this->request->is('post')) {
+      // We're back from a 300 multiple choices with a selection
+      
+      if(!empty($this->request->data['referenceId'])) {
+        try {
+          $ret = $this->CoPetition->performMatch($id,
+                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 $this->request->data['referenceId']);
+          
+          if($ret !== true) {
+            throw new RuntimeException("Bad result");
+          }
+          
+          $this->redirect($this->generateDoneRedirect('duplicateCheck', $id));   
+        }
+        catch(Exception $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          $this->redirect("/");
+        }
+      }
+    } else {
+      $this->dispatch('duplicateCheck', $id);
+    }
+  }
+  
+  /**
    * Determine the requested Enrollment Flow ID.
    * - precondition: An enrollment flow ID should be specified as a named query parameter or in form data.
    *
@@ -1505,6 +1564,37 @@ class CoPetitionsController extends StandardController {
     // The step is done
     
     $this->redirect($this->generateDoneRedirect('collectIdentifier', $id));    
+  }
+  
+  /**
+   * Execute CO Petition 'duplicateCheck' step
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_duplicateCheck($id) {
+    // Right now, the only mode that gets us here is External
+    
+    try {
+      $matchResult = $this->CoPetition->performMatch($id, $this->Session->read('Auth.User.co_person_id'));
+      
+      if($matchResult === true) {
+        // A new Reference Identifier was assigned. There's no follow up to do
+        // here, so redirect into the next step.
+        
+        $this->redirect($this->generateDoneRedirect('duplicateCheck', $id));    
+      } elseif(is_array($matchResult)) {
+        // We have an array of options, present them to the petitioner.
+        
+        $this->set('vv_matches', $matchResult);
+      }
+    }
+    catch(Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      $this->performRedirect();
+    }
   }
   
   /**
@@ -2474,6 +2564,7 @@ class CoPetitionsController extends StandardController {
       $p['selectOrgIdentityClaim'] = $p['selectOrgIdentity'];
       $p['selectEnrollee'] = $isPetitioner;
       $p['petitionerAttributes'] = $isPetitioner;
+      $p['duplicateCheck'] = $isPetitioner;
       $p['tandcPetitioner'] = $isPetitioner;
       $p['sendConfirmation'] = $isPetitioner;
       $p['waitForConfirmation'] = $isPetitioner;
@@ -2490,7 +2581,14 @@ class CoPetitionsController extends StandardController {
         // Eligibility triggered by petitioner
         $p['checkEligibility'] = $isPetitioner;
       }
-      $p['tandcAgreement'] = $isEnrollee;
+      // Terms and Conditions steps could be triggered by petitioner or enrollee, according to configuration
+      if($steps['tandcAgreement']['role'] == EnrollmentRole::Enrollee) {
+        // Enrollee is triggering tandc steps and is not also the petitioner
+        $p['tandcAgreement'] = $isEnrollee;
+      } else {
+        // Enrollee is triggering tandc steps and is also the petitioner
+        $p['tandcAgreement'] = $isPetitioner;
+      }
       // Only the enrollee can (currently) set up their authenticators. This requires
       // email confirmation to be enabled so that enrollee_token gets set. (Trying to
       // allow petitioner_token as well becomes complicated.)

@@ -160,7 +160,10 @@ class CoJobHistoryRecordsController extends StandardController {
   
   public function view($id) {
     parent::view($id);
-    $this->set('title_for_layout', $id);
-    $this->layout = 'lightbox';
+    if(!isset($this->request->params["named"]["render"])
+       || $this->request->params["named"]["render"] !== 'norm') {
+      $this->set('title_for_layout', $id);
+      $this->layout = 'lightbox';
+    }
   }
 }

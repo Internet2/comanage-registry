@@ -320,6 +320,7 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     
     $enrollmentFlowID = $this->CoPetition->field('co_enrollment_flow_id', array('CoPetition.id' => $id));
     $petitionerId = $this->CoPetition->field('petitioner_co_person_id', array('CoPetition.id' => $id));
+    $authUserId = $this->CoPetition->field('authenticated_identifier', array('CoPetition.id' => $id));
     
     if($orgIdentityId) {
       // Before we flag the petition, we need to manually link the Org Identity in
@@ -332,6 +333,17 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
                                                        $actorCoPersonId,
                                                        PetitionActionEnum::FlaggedDuplicate,
                                                        $comment);
+    
+    if(empty($authUserId)) {
+      // If there's not already an authenticated_identifier on the petition,
+      // pull the current username (if set) and store it in the petition for future reference
+      $userId = $this->Session->read('Auth.User.username');
+      
+      if(!empty($userId)) {
+        $this->CoPetition->id = $id;
+        $this->CoPetition->saveField('authenticated_identifier', $userId);
+      }
+    }
     
     // Flag this petition as a duplicate
     $this->CoPetition->updateStatus($id,

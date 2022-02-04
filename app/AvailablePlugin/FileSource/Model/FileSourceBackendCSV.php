@@ -273,6 +273,22 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
               $n['verified'] = true;
             }
             
+            if($model == 'Identifier') {
+              if(!isset($n['status'])) {
+                // By default set the Identifier to active
+                $n['status'] = SuspendableStatusEnum::Active;
+              }
+              
+              if(strlen($n['type']) > 6) {
+                $p = strpos($n['type'], "+login", -6);
+                
+                if($p) {
+                  $n['login'] = true;
+                  $n['type'] = substr($n['type'], 0, $p);
+                }
+              }
+            }
+            
             $orgdata[$model][] = $n;
           }
         }

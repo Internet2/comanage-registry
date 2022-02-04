@@ -26,18 +26,33 @@
  */
 
 App::uses("AppModel", "Model");
+App::uses('Utility', 'Validation');
 
 class CoreApi extends AppModel {
   // Define class name for cake
   public $name = "CoreApi";
 
   // Required by COmanage Plugins
-// XXX could have an "api" plugin type though there's not much value add for it atm
+  // XXX could have an "api" plugin type though there's not much value add for it atm
   public $cmPluginType = "other";
   
   // Add behaviors
   public $actsAs = array('Changelog', 'Containable');
-  
+
+  // List of allowed query parameters
+  // 1. range, inList, comparison are all validation rules supported by CAKE core
+  //    In runtime it will be translated to Validation::validation_rule, Validation::email
+  // 2. https://www.php.net/manual/en/language.variables.external.php#language.variables.external.dot-in-names
+  //    Currently the dot character is not a valid character for a PHP variable name. So co_person.status
+  //    will be transformed to co_person_status.
+  // XXX We are making the convention that the field will be placed last and will be a single word
+  private $allowed_query_params = array(
+    'limit' => array('integer' => array('range' => array(1, 1000))),
+    'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
+    'page'  => array('integer' => array('comparison' => array('>=', 1))),
+    'co_person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/')))
+  );
+
   // Document foreign keys
   public $cmPluginHasMany = array(
     "ApiUser" => array("CoreApi"),
@@ -113,8 +128,37 @@ class CoreApi extends AppModel {
         'allowEmpty' => false
       )
     ),
+    'index_response_type' => array(
+      'content' => array(
+        'rule' => array('inList', array(ResponseTypeEnum::Full,
+                                        ResponseTypeEnum::IdentifierList)),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
   );
-  
+
+  /**
+   * Actions to take before a validate operation is executed.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function beforeValidate($options = array())
+  {
+    if(empty($this->data['CoreApi']["api"])) {
+      return false;
+    }
+
+    $person_core_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    if(!in_array($this->data['CoreApi']["api"], $person_core_api_keys)) {
+      $this->validate["index_response_type"]["content"]["required"] = false;
+      $this->validate["index_response_type"]["content"]["allowEmpty"] = true;
+    }
+
+    return true;
+  }
+
   /**
    * Expose menu items.
    * 
@@ -574,7 +618,48 @@ class CoreApi extends AppModel {
     
     return $cop;
   }
-  
+
+  /**
+   * Perform a CO People Read API v1 request.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId           CO ID
+   * @param  array   $co_people      Paginators Query Result Set
+   * @return array                   Array of CO People data
+   * @throws InvalidArgumentException
+   */
+
+  public function readV1Index($coId, $co_people) {
+    // First try to map the requested information to a CO Person record.
+    // This is similar to CoPerson::idsForIdentifier, but that has some old
+    // legacy code we want to avoid.
+
+    $cop_index = array();
+    foreach ($co_people as $person) {
+      // Promote OrgIdentity to top level. This interface doesn't permit relinking
+      // identities, and in v5 CoOrgIdentityLink goes away anyway.
+
+      if(!empty($person['CoOrgIdentityLink'])) {
+        foreach($person['CoOrgIdentityLink'] as $link) {
+          if(!empty($link['OrgIdentity'])) {
+            $person['OrgIdentity'][] = $link['OrgIdentity'];
+          }
+        }
+      }
+
+      unset($person['CoOrgIdentityLink']);
+
+      // We need to manually pull Authenticator and Cluster data.
+      $person = array_merge($person, $this->Co->Authenticator->marshallProvisioningData($coId, $person['CoPerson']['id']));
+      $person = array_merge($person, $this->Co->Cluster->marshallProvisioningData($coId, $person['CoPerson']['id'], false));
+
+      $cop = $this->filterMetadataOutbound($person, "CoPerson");
+      $cop_index[] = $cop;
+    }
+
+    return $cop_index;
+  }
+
   /**
    * Perform an "upsert" of a potentially multi-valued model.
    * 
@@ -718,7 +803,40 @@ class CoreApi extends AppModel {
     
     return $id;
   }
-  
+
+  /**
+   * Parse query parameters
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param array   $queryParams  List of query parameters
+   * @return array
+   */
+  public function parseQueryParams($queryParams) {
+    if(empty($queryParams)) {
+      return $queryParams;
+    }
+
+    $queryParamsNew = array();
+    foreach ($queryParams as $attr => $req_value) {
+      if(strpos($attr, '_') === false) {
+        $queryParamsNew[$attr] = $req_value;
+        // We are looking for model_attribute params
+        continue;
+      }
+      $param_pieces = explode('_', $attr);
+      $field = array_pop($param_pieces);
+      $model_underscored = implode('_', $param_pieces);
+      // Construct the enumeraton. e.g. if the field is status and the value is asctive then
+      // ucfirst($field) . 'Enum::' . ucfirst($req_value) => StatusEnum::Active
+      $cmodel = Inflector::classify($model_underscored);
+      $cvalue = constant(ucfirst($field) . 'Enum::' . ucfirst($req_value));
+      $cmg_attr = $cmodel . '.' . $field;
+      // Transform request params to COmanage internal terminology
+      $queryParamsNew[$cmg_attr] = $cvalue;
+    }
+    return $queryParamsNew;
+  }
+
   /**
    * Perform a CO Person Write API v1 request.
    *
@@ -987,7 +1105,50 @@ class CoreApi extends AppModel {
       $dbc->rollback();
       throw new RuntimeException($e->getMessage());
     }
-    
-    return;
+  }
+
+  /**
+   * Validate query parameters
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  array $queryParams
+   */
+  public function validateQueryParams($queryParams) {
+    if(empty($queryParams)) {
+      return array();
+    }
+    // Extract the allowed param names
+    $allowed_params = array_keys($this->allowed_query_params);
+
+    // Filter the ones that we do not accept
+    // Deep copy queryParams array
+    $queryParamsArrayObject = new ArrayObject($queryParams);
+    $queryParamsCopy = $queryParamsArrayObject->getArrayCopy();
+    foreach ($queryParamsCopy as $key => $value) {
+      if(!in_array($key, $allowed_params)) {
+        unset($queryParams[$key]);
+      }
+    }
+    $queryParamsArrayObject = null;
+
+    // Validate the ones we accept
+    foreach ($this->allowed_query_params as $param => $validation_rule) {
+      if(empty($queryParams[$param]))
+        continue;
+       // Parameter type
+      $param_type = key($validation_rule);
+      if(!settype($queryParams[$param], $param_type)) {
+        unset($queryParams[$param]);
+        continue;
+      }
+      // Parameter validation rule
+      $param_validation_rule = key($validation_rule[$param_type]);
+      // Parameter validation rule options
+      $param_validation_options = $validation_rule[$param_type][$param_validation_rule];
+       if (!Validation::$param_validation_rule($queryParams[$param], ...$param_validation_options)) {
+         unset($queryParams[$param]);
+       }
+    }
+    return $queryParams;
   }
 }

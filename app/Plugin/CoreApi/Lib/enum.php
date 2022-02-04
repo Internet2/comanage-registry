@@ -31,3 +31,9 @@ class CoreApiEnum
   // Write implies Read
   const CoPersonWrite     = "CW";
 }
+
+class ResponseTypeEnum
+{
+  const Full              = 'FL';
+  const IdentifierList    = 'IL';
+}

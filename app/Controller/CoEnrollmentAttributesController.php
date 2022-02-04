@@ -209,6 +209,16 @@ class CoEnrollmentAttributesController extends StandardController {
           // Assemble the set of available attributes for the view to render
           
           $availableAttributes = $this->CoEnrollmentAttribute->availableAttributes($coid);
+          
+          // Simple key value, primarily for "order"
+          $availableAttributesFlat = array();
+          
+          foreach(array_keys($availableAttributes) as $m) {
+            $availableAttributesFlat += $availableAttributes[$m];
+          }
+          $this->set('vv_available_attributes', $availableAttributesFlat);
+          
+          // Nested
           $availableAttributesNested = array();
           foreach($availableAttributes as $mdl_name => &$attr_mdl) {
             foreach($attr_mdl as $attribute_map => $attribute_fn) {
@@ -293,6 +303,18 @@ class CoEnrollmentAttributesController extends StandardController {
                 
                 $this->set('vv_sponsor', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->find('first', $args));
               }
+            }
+            
+            // Also populate the current manager, if set
+            if(!empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'])
+               && $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'] == 'r:manager_co_person_id'
+               && !empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
+              // The default value is a CO Person ID
+              $args = array();
+              $args['conditions']['CoPerson.id'] = $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'];
+              $args['contain'] = array('PrimaryName');
+              
+              $this->set('vv_manager', $this->CoEnrollmentAttribute->CoEnrollmentFlow->Co->CoPerson->find('first', $args));
             }
 
             // Assemble the list of available groups. Note we currently allow any group to be

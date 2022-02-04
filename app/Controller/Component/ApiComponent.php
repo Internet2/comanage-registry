@@ -49,11 +49,12 @@ class ApiComponent extends Component {
    * invoking controller.
    * 
    * @since  COmanage Registry v0.9.3
+   * @param  Integer $coId CO ID of the current CO
    * @return True on success
    * @throws InvalidArgumentException
    */
   
-  public function checkRestPost() {
+  public function checkRestPost($coId) {
     if(!$this->reqData) {
       $this->parseRestRequestDocument();
     }
@@ -76,34 +77,41 @@ class ApiComponent extends Component {
     
     // Use the model to validate the provided fields
     
-    if(!empty($this->reqModel->validate['type']['content']['rule'][0])
+    if($coId
+       && !empty($this->reqModel->validate['type']['content']['rule'][0])
        && $this->reqModel->validate['type']['content']['rule'][0] == 'validateExtendedType') {
-      // If the model supports extended types, we need to determine the CO ID,
-      // which we have to calculate from the requested person date.
       
-      $coId = null;
+      $vrule = $this->reqModel->validate['type']['content']['rule'];
+      $vrule[1]['coid'] = $coId;
       
-      if(!empty($this->reqConvData['co_person_id'])) {
-        $coId = $this->reqModel->CoPerson->field('co_id',
-                                                 array('CoPerson.id' => $this->reqConvData['co_person_id']));
-      } elseif(!empty($this->reqConvData['co_person_role_id'])) {
-        $coPersonId = $this->reqModel->CoPersonRole->field('co_person_id',
-                                                           array('CoPersonRole.id' => $this->reqConvData['co_person_role_id']));
-
-        if($coPersonId) {
-          $coId = $this->reqModel->CoPersonRole->CoPerson->field('co_id',
-                                                                 array('CoPerson.id' => $coPersonId));
-        }
-      }
-      
-      if($coId) {
-        $vrule = $this->reqModel->validate['type']['content']['rule'];
-        $vrule[1]['coid'] = $coId;
-        
-        $this->reqModel->validator()->getField('type')->getRule('content')->rule = $vrule;
-      }
+      $this->reqModel->validator()->getField('type')->getRule('content')->rule = $vrule;
     }
  
+    foreach(array_keys($this->reqModel->validate) as $field) {
+      if(preg_match('/_id$/', $field)) {
+        // Add additional validation rules for foreign keys. These checks are
+        // handled differently in v5, as application rules.
+        
+        // This is called "unfreeze" because of the initial implementation for
+        // CO-2146. It's not really the right label anymore, but we don't want
+        // to break existing uses.
+        if(empty($this->reqModel->validate[$field]['content']['unfreeze'])
+           || $this->reqModel->validate[$field]['content']['unfreeze'] != 'yes') {
+          // unfreeze should only be set to "yes" for fields that for some
+          // reason have a name ending in _id but aren't actually foreign keys.
+          
+          $this->reqModel->validator()->add(
+            $field,
+            'co',
+            array(
+              'rule' => 'validateCO', 
+              'coid' => $coId
+            )
+          );
+        }
+      }
+    }
+    
     $this->reqModel->set($this->reqConvData);
     
     if(!$this->reqModel->validates()) {
@@ -337,9 +345,7 @@ class ApiComponent extends Component {
       
       switch($this->request->params['ext']) {
         case 'json':
-          $fh = fopen('php://input', 'r');
-          $doc = stream_get_contents($fh);
-          fclose($fh);
+          $doc = file_get_contents("php://input");
           if(!empty($doc)) {
             $json = json_decode($doc, true);
             
@@ -353,9 +359,7 @@ class ApiComponent extends Component {
           }
           break;
         case 'xml':
-          $fh = fopen('php://input', 'r');
-          $doc = stream_get_contents($fh);
-          fclose($fh);
+          $doc = file_get_contents("php://input");
           if(!empty($doc)) {
             $xml = Xml::toArray(Xml::build($doc));
             $this->reqData = $xml[$this->reqModelNamePl][$this->reqModelName];
@@ -384,8 +388,6 @@ class ApiComponent extends Component {
    */
   
   public function requestedCOID($model, $request, $data) {
-    $coid = null;
-    
     // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
     // for REST operations that meet the following requirements:
     //
@@ -447,38 +449,41 @@ class ApiComponent extends Component {
             if($request->method() == 'GET') {
               if(!empty($request->query[$k])) {
                 if($k == 'coid') {
-                  $coid = $request->query['coid'];
+                  return $request->query['coid'];
                 } else {
                   // For any other key, we need to map it to a CO
-                  
                   $ParentModel = ClassRegistry::init($m);
-                  
-                  $coid = $ParentModel->findCoForRecord($request->query[$k]);
+                  return $ParentModel->findCoForRecord($request->query[$k]);
                 }
-                
-                break;
               }
             } else {
               if(!empty($data[$k])) {
                 if($k == 'co_id') {
-                  $coid = $data['co_id'];
+                  return $data['co_id'];
                 } else {
                   // For any other key, we need to map it to a CO
-                  
                   $ParentModel = ClassRegistry::init($m);
-                  
-                  $coid = $ParentModel->findCoForRecord($data[$k]);
+                  return $ParentModel->findCoForRecord($data[$k]);
                 }
-                
-                break;
               }
             }
           }
         }
+        // Since i am here no direct CO relation found. Get the parents and retry
+        $mparents = $model->belongsTo ?: array();
+        foreach ($mparents as $mname => $mproperties) {
+          // Load the model before performing any more logic
+          $model = ClassRegistry::init($mname);
+          // Get up the tree until we find if we can associate the key with the model
+          $coid = $this->requestedCOID($model, $request, $data);
+          if(!is_null($coid)) {
+            return $coid;
+          }
+        }
       }
     }
-    
-    return $coid;
+
+    return null;
   }
   
   /**

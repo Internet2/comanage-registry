@@ -240,6 +240,17 @@ class CoDashboardWidgetsController extends StandardController {
       $target['codashboard'] = filter_var($this->request->data['CoDashboardWidget']['co_dashboard_id'],FILTER_SANITIZE_SPECIAL_CHARS);
 
       $this->redirect($target);
+    } else {
+      // This was probably a delete, redirect to the dashboard index as
+      // a lazy but minimal default
+
+      $target = array();
+      $target['plugin'] = null;
+      $target['controller'] = 'co_dashboards';
+      $target['action'] = 'index';
+      $target['co'] = $this->cur_co['Co']['id'];
+
+      $this->redirect($target);
     }
     
     parent::performRedirect();

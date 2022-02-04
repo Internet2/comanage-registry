@@ -372,9 +372,9 @@ function js_form_generic(txt, url, submitbtxt, cancelbtxt, titletxt, lbltxt, sen
 // errormsg          - Tooltip Error message  (string, required)
 function validate_date_input(flashmsg, errormsg) {
   $("input[id*='ValidFrom'], input[id*='ValidThrough']").on('change', function () {
-    var $valid_from = $("input[id*='ValidFrom'");
+    var $valid_from = $("input[id*='ValidFrom']");
     let valid_from_date = $valid_from.val();
-    var $valid_through = $("input[id*='ValidThrough'");
+    var $valid_through = $("input[id*='ValidThrough']");
     let valid_through_date = $valid_through.val();
 
     // In case any of the two is empty return success
@@ -396,4 +396,22 @@ function validate_date_input(flashmsg, errormsg) {
       $("input[type='submit']").prop('disabled', false);
     }
   });
+}
+
+// CO-2263, Format CO Person autocomplete widget items for easier disambiguation
+// Depends on jQuery UI - this function is fed to the _renderItem extension point for the autocomplete widget
+// ul            - list for the jQuery UI autocomplete selection menu                  (DOM element)
+// item          - json item used to construct the autocomplete selection list element (JSON object)
+function formatCoPersonAutoselectItem(ul, item) {
+  var itemMarkup = '<div class="cm-ac-item-wrapper">';
+  itemMarkup += '<div class="cm-ac-name">' + item.label + '</div>';
+  if(item.email != '') {
+    itemMarkup += '<div class="cm-ac-subitem cm-ac-email"><span class="cm-ac-label">' + item.emailLabel + '</span>' + item.email + '</div>';
+  }
+  if(item.identifier != '') {
+    itemMarkup += '<div class="cm-ac-subitem cm-ac-id"><span class="cm-ac-label">' + item.identifierLabel + '</span>' + item.identifier + '</div>';
+  }
+  itemMarkup += '</div>';
+  
+  return $("<li>").append(itemMarkup).appendTo(ul);
 }

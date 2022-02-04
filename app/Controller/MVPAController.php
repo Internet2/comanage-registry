@@ -34,11 +34,14 @@ class MVPAController extends StandardController {
   // Use the lightbox layout for view
   public function view($id) {
     parent::view($id);
-    $req = $this->modelClass;
-    $model = $this->$req;
-    $modelpl = Inflector::tableize($req);
-    $this->set('title_for_layout', _txt('ct.' . $modelpl . '.1'));
-    $this->layout = 'lightbox';
+    if(!isset($this->request->params["named"]["render"])
+       || $this->request->params["named"]["render"] !== 'norm') {
+        $req = $this->modelClass;
+        $model = $this->$req;
+        $modelpl = Inflector::tableize($req);
+        $this->set('title_for_layout', _txt('ct.' . $modelpl . '.1'));
+        $this->layout = 'lightbox';
+    }
   }
   
   /**
@@ -95,9 +98,9 @@ class MVPAController extends StandardController {
       $pid = $this->parsePersonID();
       
       if(!empty($pid['orgidentityid'])) {
-        // Org identities use the default model types, and self service does not apply
+        // Org identities do not support self service
         
-        $this->set('vv_available_types', $model->defaultTypes('type'));
+        $this->set('vv_available_types', $model->types($this->cur_co['Co']['id'], 'type'));
       } else {
         // When attached to a CO Person or Role, figure out the available extended
         // types and then filter for self service permissions

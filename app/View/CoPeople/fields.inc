@@ -307,6 +307,21 @@
         );
       }
       
+      // Inject plugin menus. We intentionally leave expunge as the last option,
+      // pending identity architecture analysis.
+      
+      if(!empty($menuContent['plugins'])) {
+        $pluginLinks = retrieve_plugin_menus($menuContent['plugins'], 'canvas');
+        
+        foreach($pluginLinks as $label => $pcfg) {
+          $sidebarButtons[] = array(
+            'icon'    => $pcfg['icon'],
+            'title'   => $label,
+            'url'     => array_merge($pcfg['url'], array('copersonid' => $co_people[0]['CoPerson']['id']))
+          );
+        }
+      }
+      
       if($permissions['expunge']) {
         $sidebarButtons[] = array(
           'icon'    => 'circle-close',
@@ -509,6 +524,7 @@
                     $action_args['vv_actions'][] = array(
                       'order' => $this->Menu->getMenuOrder('View'),
                       'icon' => $this->Menu->getMenuIcon('View'),
+                      'lightbox' => true,
                       'url' => $this->Html->url(
                         array(
                           'controller' => 'names',
@@ -1365,12 +1381,7 @@
                 }
 
                 // Delete Action
-                if($permissions['delete']
-                  && count($co_people[0]['CoOrgIdentityLink']) > 1) {
-                  // An Org Identity Link can only be removed if there is at least one other remaining
-                  // XXX Is this still a valid restriction? As of 0.9.1 one can relink an org identity
-                  // away, even if it's the last one attached to the CO Preson.
-
+                if($permissions['delete']) {
                   $unlnk_url = array(
                     'controller' => 'co_org_identity_links',
                     'action' => 'delete',

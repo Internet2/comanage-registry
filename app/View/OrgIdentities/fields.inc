@@ -425,16 +425,15 @@
             </div>
             <div class="field-info">
               <?php
-                global $cm_lang, $cm_texts;
                 $attrs = array();
                 $attrs['value'] = (isset($org_identities[0]['OrgIdentity']['affiliation'])
                   ? $org_identities[0]['OrgIdentity']['affiliation']
-                  : "M");
+                  : null);
                 $attrs['empty'] = true;
 
                 if($e) {
                   print $this->Form->select('affiliation',
-                    $cm_texts[ $cm_lang ]['en.org_identity.affiliation'],
+                    $vv_affiliation_types,
                     $attrs);
 
                   if($this->Form->isFieldError('affiliation')) {
@@ -442,7 +441,7 @@
                   }
                 } else {
                   if(!empty($org_identities[0]['OrgIdentity']['affiliation'])) {
-                    print $cm_texts[ $cm_lang ]['en.org_identity.affiliation'][ $org_identities[0]['OrgIdentity']['affiliation'] ];
+                    print $vv_affiliation_types[ $org_identities[0]['OrgIdentity']['affiliation'] ];
                   }
                 }
               ?>
@@ -570,6 +569,26 @@
               ?>
             </div>
           </li>
+          <!-- Manager and Sponsor fields are read only because we only support
+               setting these fields in an OIS context. In Registry v5, Org
+               Identities basically become read only to the administrator.
+          -->
+          <li>
+            <div class="field-name">
+              <?php print _txt('fd.manager'); ?>
+            </div>
+            <div class="field-info">
+              <?php print filter_var($org_identities[0]['OrgIdentity']['manager_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <?php print _txt('fd.sponsor'); ?>
+            </div>
+            <div class="field-info">
+              <?php print filter_var($org_identities[0]['OrgIdentity']['sponsor_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+            </div>
+          </li>
           <?php if($e): ?>
             <li class="fields-submit">
               <div class="field-name">
@@ -629,23 +648,21 @@
       <?php if($this->action != "add"): ?>       
         <!-- Associated CoPeople listings -->
         <li id="fields-copeople" class="fieldGroup">
-          <?php if($e): ?>
-            <div class="coAddEditButtons">
-              <?php
-                if($permissions['link']) {
-                  foreach($vv_linkable_cos as $lcoid => $lconame) {
-                    print $this->Html->link(_txt('op.link.to.co', array($lconame)),
-                      array('controller'    => 'co_people',
-                        'action'        => 'link',
-                        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                        'co'            => $lcoid),
-                      array('class'  => 'addbutton'));
+          <div class="coAddEditButtons">
+            <?php
+              if($permissions['link']) {
+                foreach($vv_linkable_cos as $lcoid => $lconame) {
+                  print $this->Html->link(_txt('op.link.to.co', array($lconame)),
+                    array('controller'    => 'co_people',
+                      'action'        => 'link',
+                      'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                      'co'            => $lcoid),
+                    array('class'  => 'addbutton'));
 
-                  }
                 }
-              ?>
-            </div>
-          <?php endif; ?>
+              }
+            ?>
+          </div>
           <a href="#tabs-copeople" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
             <?php print _txt('ct.co_people.pl'); ?>

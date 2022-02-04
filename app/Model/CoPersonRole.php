@@ -41,13 +41,15 @@ class CoPersonRole extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
-    // A CO Org Person To is attached to one COU
     "Cou",
     "CoPerson"=> array(
       'className' => 'CoPerson',
       'foreignKey' => 'co_person_id'
     ),
-    // A CO Org Person To is attached to one CO Person    
+    "ManagerCoPerson" => array(
+      'className' => 'CoPerson',
+      'foreignKey' => 'manager_co_person_id'
+    ),        // foreign key to manager
     "SponsorCoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'sponsor_co_person_id'
@@ -176,6 +178,14 @@ class CoPersonRole extends AppModel {
       )
     ),
     'sponsor_co_person_id' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+        'unfreeze' => 'CO'
+      )
+    ),
+    'manager_co_person_id' => array(
       'content' => array(
         'rule' => array('numeric'),
         'required' => false,

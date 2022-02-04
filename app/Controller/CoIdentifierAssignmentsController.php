@@ -109,6 +109,11 @@ class CoIdentifierAssignmentsController extends StandardController {
     $vrule[1]['coid'] = $this->cur_co['Co']['id'];
     
     $this->CoIdentifierAssignment->validator()->getField('identifier_type')->getRule('content')->rule = $vrule;
+    
+    $vrule = $this->CoIdentifierAssignment->validate['email_type']['content']['rule'];
+    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    
+    $this->CoIdentifierAssignment->validator()->getField('email_type')->getRule('content')->rule = $vrule;
   }
   
   /**

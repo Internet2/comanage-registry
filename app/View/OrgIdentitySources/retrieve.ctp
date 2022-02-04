@@ -309,7 +309,11 @@
         <?php if(!empty($vv_org_source_record['Identifier'])) foreach($vv_org_source_record['Identifier'] as $id): ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
-            <?php print _txt('fd.identifier.identifier') . " (" . $id['type'] . ")"; ?>
+            <?php 
+              print _txt('fd.identifier.identifier') . " (" 
+                    . $id['type'] 
+                    . ((isset($id['login']) && $id['login']) ? ", " . _txt('fd.identifier.login') : "")
+                    . ")"; ?>
           </td>
           <td>
           <?php print filter_var($id['identifier'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
@@ -374,6 +378,26 @@
           </td>
         </tr>
         <?php endif; // AdHocAttribute ?>
+        <?php if(!empty($vv_org_source_record['OrgIdentity']['manager_identifier'])): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.manager'); ?>
+          </td>
+          <td>
+            <?php print $vv_org_source_record['OrgIdentity']['manager_identifier']; ?>
+          </td>
+        </tr>
+        <?php endif; // manager_identifier ?>
+        <?php if(!empty($vv_org_source_record['OrgIdentity']['sponsor_identifier'])): ?>
+        <tr class="line<?php print $l++ % 2; ?>">
+          <td>
+            <?php print _txt('fd.sponsor'); ?>
+          </td>
+          <td>
+            <?php print $vv_org_source_record['OrgIdentity']['sponsor_identifier']; ?>
+          </td>
+        </tr>
+        <?php endif; // sponsor_identifier ?>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
             <?php print _txt('fd.ois.record'); ?><br />

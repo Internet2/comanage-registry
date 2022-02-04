@@ -208,8 +208,7 @@ class ContactEnum
 
 class DataFilterContextEnum
 {
-// Not yet implemented
-//  const OrgIdentitySource  = 'OIS';
+  const OrgIdentitySource  = 'OS';
   const ProvisioningTarget = 'PT';
 }
 
@@ -261,7 +260,7 @@ class EnrollmentDupeModeEnum
 
 class EnrollmentMatchPolicyEnum {
   const Advisory  = "A";
-  const Automatic = "M";
+  const External  = "E";
   const None      = "N";
   const Select    = "P";
   const Self      = "S";
@@ -504,6 +503,7 @@ class OrgIdentityStatusEnum
 
 class PeoplePickerModeEnum
 {
+  const Manager   = 'M';
   const Sponsor   = 'S';
   const All       = 'AL';
 }
@@ -558,6 +558,7 @@ class PetitionActionEnum
   const InviteConfirmed         = 'IC';
   const InviteSent              = 'IS';
   const InviteViewed            = 'IV';
+  const MatchResult             = 'MR';
   const NotificationSent        = 'NS';
   const OrgIdentitySourced      = 'OC';
   const StatusUpdated           = 'SU';

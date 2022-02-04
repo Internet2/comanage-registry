@@ -197,6 +197,7 @@
       <constraint>REFERENCES sp_co_people(id)</constraint>
     </field>
     <field name="sponsor_co_person_id" type="I" />
+    <field name="manager_co_person_id" type="I" />
     <field name="cou_id" type="I" />
     <field name="affiliation" type="C" size="32" />
     <field name="title" type="C" size="128" />
