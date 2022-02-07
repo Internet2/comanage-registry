@@ -125,7 +125,10 @@
                                             'coef' => $vv_coefid));
             ?>
           </td>
-          <td><?php print $vv_available_attributes[ $c['CoEnrollmentAttribute']['attribute'] ]; ?></td>
+          <td><?php
+            $attrProps = $vv_attributes_properties[ $c['CoEnrollmentAttribute']['attribute'] ];
+            print $attrProps['attrName'] . ' (' . implode(', ', array_slice(array_filter($attrProps), '1')) . ')';
+            ?></td>
         </tr>
       <?php endforeach; ?>
     </tbody>
