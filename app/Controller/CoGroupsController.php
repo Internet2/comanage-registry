@@ -407,7 +407,10 @@ class CoGroupsController extends StandardController {
     if(!empty($this->request->params['pass'][0])) {
       $readonly = $this->CoGroup->readOnly(filter_var($this->request->params['pass'][0], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK));
     }
-    
+
+    // Calculate managed for the API User
+    $managed = $managed || ($roles["apiuser"] && $roles["coadmin"]);
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
