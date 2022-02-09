@@ -128,6 +128,8 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
           $n['given'] = $name['given'];
         if(!empty($attrs['sorAttributes']['names'][0]['family']))
           $n['family'] = $name['family'];
+        if(!empty($attrs['sorAttributes']['names'][0]['middle']))
+          $n['middle'] = $name['middle'];
         if(!empty($attrs['sorAttributes']['names'][0]['suffix']))
           $n['suffix'] = $name['suffix'];
         if(!empty($attrs['sorAttributes']['names'][0]['type']))
