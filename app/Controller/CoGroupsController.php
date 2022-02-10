@@ -543,7 +543,15 @@ class CoGroupsController extends StandardController {
         return $coId;
       }
     }
-    
+
+    if($this->request->is('restful')) {
+      if($this->request->method() == "GET"
+         && isset($this->request->query["copersonid"])) {
+        return $this->CoGroup->Co->CoPerson->field('co_id',
+                                                    array('id' => $this->request->query["copersonid"]));
+      }
+    }
+
     return parent::parseCOID($data);
   }
   
