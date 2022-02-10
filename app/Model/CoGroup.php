@@ -681,6 +681,18 @@ class CoGroup extends AppModel {
       
       $args = array();
       $args['conditions']['CoGroupMember.co_group_id'] = $n['co_group_id'];
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_from IS NULL',
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+        )
+      );
+      $args['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoGroupMember.valid_through IS NULL',
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+        )
+      );
       $args['fields'] = array('co_person_id', 'id');
       
       $nMembers[ $n['id'] ] = $this->CoGroupMember->find('list', $args);
