@@ -117,11 +117,9 @@ class CoNsfDemographicsController extends StandardController {
   
   function checkWriteDependencies($reqdata, $curdata = null) {
     // Look up id to check validity
-    if($this->request->is('restful')) {
-      $personid = $reqdata['CoNsfDemographic'][0]['co_person_id'];
-    } else {
-      $personid = $reqdata['CoNsfDemographic']['co_person_id'];
-    }
+    $personid = isset($reqdata['CoNsfDemographic']['co_person_id'])
+                ? $reqdata['CoNsfDemographic']['co_person_id'] : -1;
+
 
     $args =  array(
       'conditions' => array(
