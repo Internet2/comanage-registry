@@ -31,6 +31,9 @@ class UnixCluster extends ClusterInterface {
   // Define class name for cake
   public $name = "UnixCluster";
 
+  // Current schema version for API
+  public $version = "1.0";
+
   // Required by COmanage Plugins
   public $cmPluginType = "cluster";
 	
