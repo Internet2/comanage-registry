@@ -133,11 +133,12 @@ function formatAdHoc($aha) {
   }
   
   $a .= ": ";
-  
-  if(!empty($aha['value'])) {
-    $a .= $aha['value'];
+
+  // We want (eg) 0 to render as 0 and not "(Null)"
+  if(is_null($aha['value']) || $aha['value'] === "") {
+    $a .= "(" . _txt('fd.null') . ")";
   } else {
-    $a .= "<i>" . _txt('fd.null') . "</i>";
+    $a .= $aha['value'];
   }
   
   return $a;
