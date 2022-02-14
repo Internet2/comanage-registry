@@ -84,7 +84,7 @@ class CoTAndCAgreementsController extends StandardController {
     }
     
     try {
-      $this->Api->checkRestPost();
+      $this->Api->checkRestPost($this->cur_co["Co"]["id"]);
       $data[$req] = $this->Api->getData();
     }
     catch(InvalidArgumentException $e) {
