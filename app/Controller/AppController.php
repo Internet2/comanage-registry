@@ -1403,8 +1403,8 @@ class AppController extends Controller {
       $coid = -1;
       
       if($this->request->is('restful')) {
-        $coid = $this->Api->requestedCOID($model, $this->request, $data);
-        
+        $coid = $this->Api->requestedCOID($model, $this->request, $this->Api->getData());
+
         if(!$coid) {
           $coid = -1;
         }
