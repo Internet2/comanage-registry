@@ -205,6 +205,59 @@ class CoNsfDemographicsController extends StandardController {
     
     parent::edit($id);
   }
+
+  /**
+   * Obtain all NsfDemographic Objects.
+   * - postcondition: NsfDemographic objects set on success (REST or HTML), using pagination (HTML only)
+   * - postcondition: HTTP status returned (REST)
+   * - postcondition: Session flash message updated (HTML) on suitable error
+   *
+   * @since  COmanage Registry v4.0.2
+   */
+  function index() {
+    // Special logic for View per CoGroup.
+    if($this->request->is('restful') && !empty($this->request->query['cogroupid'])) {
+      $coId = $this->cur_co['Co']['id'];
+
+      // Existing code in the StandardController and elsewhere will have already
+      // established that the query parameter cogroupid is for a CoGroup that is
+      // part of the current CO.
+      $coGroupId = $this->request->query['cogroupid'];
+
+      // Find all CoPeople and then filter by membership in the CoGroup.
+      $args = array();
+      $args['conditions']['CoPerson.status'] = StatusEnum::Active;
+      $args['conditions']['CoPerson.co_id'] = $coId;
+      $args['contain'][] = 'CoNsfDemographic';
+      $args['contain'][] = 'CoGroupMember';
+
+      $coPeople = $this->CoNsfDemographic->CoPerson->find('all', $args);
+
+      $demographics = array();
+
+      foreach($coPeople as $p) {
+        foreach($p['CoGroupMember'] as $m) {
+          if($m['co_group_id'] == $coGroupId) {
+            if(!empty($p['CoNsfDemographic']['id'])) {
+              $d = array();
+              $d['CoNsfDemographic'] = $p['CoNsfDemographic'];
+              $demographics[] = $d;
+              break 2;
+            }
+          }
+        }
+      }
+
+      $this->set('vv_model_version', $this->CoNsfDemographic->version);
+      $this->set('co_nsf_demographics', $this->Api->convertRestResponse($demographics));
+      $this->Api->restResultHeader(200, "OK");
+
+      return;
+    }
+
+    // Rely on the StandardController for all other index calls.
+    parent::index();
+  }
   
   /**
    * Authorization for this Controller, called by Auth component
@@ -283,6 +336,35 @@ class CoNsfDemographicsController extends StandardController {
     
     $this->set('permissions', $p);
     return $p[$this->action];
+  }
+
+  /**
+   * Find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v4.0.2
+   * @param  Array $data Array of data for calculating implied CO ID
+   * @return Integer The CO ID if found, or -1 if not
+   */
+  function parseCOID($data = null) {
+    // Special logic for View per CoGroup.
+    if($this->request->is('restful') && $this->action == "index") {
+      if(!empty($this->request->query['cogroupid'])) {
+        $coGroupId = $this->request->query['cogroupid'];
+
+        $args = array();
+        $args['conditions']['CoGroup.id'] = $coGroupId;
+        $args['contain'] = false;
+
+        $coGroup = $this->CoNsfDemographic->CoPerson->Co->CoGroup->find('first', $args);
+        if(!empty($coGroup['CoGroup']['co_id'])) {
+          return $coGroup['CoGroup']['co_id'];
+        }
+      }
+    }
+
+    // Rely on parent for all other calls.
+    return parent::parseCOID($data);
   }
 
   /**
