@@ -578,6 +578,24 @@ class Co extends AppModel {
     
     // Create the default groups
     $this->CoGroup->addDefaults($coId);
+
+    // Register the garbage Collector
+    if($coId == $this->getCOmanageCOID()) {
+      $this->CoJob->register(
+        $coId,                                                       // $coId
+        'CoreJob.GarbageCollector',                                  // $jobType
+        null,                                                        // $jobTypeFk
+        "",                                                          // $jobMode
+        _txt('rs.jb.started.web', array(__FUNCTION__ , -1)),         // $summary
+        true,                                                        // $queued
+        false,                                                       // $concurrent
+        array(                                                       // $params
+          'object_type' => 'Co',
+        ),
+        0,                                                           // $delay (in seconds)
+        DEF_GARBAGE_COLLECT_INTERVAL                                 // $requeueInterval (in seconds)
+      );
+    }
     
     return true;
   }
