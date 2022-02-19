@@ -172,6 +172,12 @@ class StandardController extends AppController {
         if(!empty($fs)) {
           $this->Api->restResultHeader(400, "Invalid Fields");
           $this->set('invalid_fields', $fs);
+        } elseif ($e
+                  && isset(_txt('en.http.status.codes')[$e->getCode()]) )  {
+            $this->Api->restResultHeader($e->getCode(), _txt('en.http.status.codes')[$e->getCode()]);
+            if(!empty($e->getMessage())) {
+              $this->set('vv_error', $e->getMessage());
+            }
         } else {
           $this->Api->restResultHeader(500, "Other Error");
         }

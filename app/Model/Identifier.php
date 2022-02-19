@@ -385,7 +385,7 @@ class Identifier extends AppModel {
           $this->_rollback();
           
           $eclass = get_class($e);
-          throw new $eclass($e->getMessage());
+          throw new $eclass($e->getMessage(), $e->getCode());
         }
       }
     }
