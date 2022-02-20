@@ -793,7 +793,7 @@ class CoreApi extends AppModel {
                                             $current['CoPerson']['id'], 
                                             $this->Co->$model,
                                             $m,
-                                            $current[$model],
+                                            (!empty($current[$model]) ? $current[$model] : array()),
                                             'co_id',
                                             $coId);
             
@@ -845,7 +845,7 @@ class CoreApi extends AppModel {
                                             $current['CoPerson']['id'], 
                                             $this->Co->CoPerson->$model,
                                             $m,
-                                            $current[$model],
+                                            (!empty($current[$model]) ? $current[$model] : array()),
                                             'co_person_id',
                                             $current['CoPerson']['id']);
             
@@ -857,7 +857,7 @@ class CoreApi extends AppModel {
         // See if any of the current entries were omitted, if so delete them
         $this->deleteOmitted($current['CoPerson']['id'], 
                              $this->Co->CoPerson->$model,
-                             $current[$model],
+                             (!empty($current[$model]) ? $current[$model] : array()),
                              array_keys($seenRecords[$model]));
       }
       
