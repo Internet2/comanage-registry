@@ -652,7 +652,8 @@ class AppModel extends Model {
                                 $args['joins']);
       
       if(!empty($r)) {
-        throw new OverflowException(_txt('er.ia.exists', array($identifier)));
+        // XXX CO-2372
+        throw new OverflowException(_txt('er.ia.exists', array($identifier)), HttpStatusCodesEnum::HTTP_FORBIDDEN);
       }
     }
     
@@ -706,7 +707,7 @@ class AppModel extends Model {
           }
           catch(OverflowException $e) {
             // In use
-            throw new OverflowException(_txt('er.id.exists-a', array($identifier, $e->getMessage())));
+            throw new OverflowException(_txt('er.id.exists-a', array($identifier, $e->getMessage())), HttpStatusCodesEnum::HTTP_FORBIDDEN);
           }
           catch(RuntimeException $e) {
             throw new RuntimeException($e->getMessage());
