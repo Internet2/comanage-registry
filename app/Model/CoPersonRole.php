@@ -172,7 +172,10 @@ class CoPersonRole extends AppModel {
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
                                         StatusEnum::PendingConfirmation,
-                                        StatusEnum::Suspended))
+                                        StatusEnum::Suspended)),
+        'required' => true,
+        'allowEmpty' => false,
+        'message' => 'A valid status must be selected'
       )
     ),
     'sponsor_co_person_id' => array(
