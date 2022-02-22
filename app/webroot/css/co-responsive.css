@@ -238,6 +238,10 @@
     float: right;
     width: 70%;
   }
+  /* RECONCILE TABLE */
+  #reconcile-table {
+    font-size: 1em;
+  }
   /* SEARCH PAGE */
   #search input#CoDashboardQ {
     width: 300px;

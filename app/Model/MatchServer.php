@@ -348,7 +348,7 @@ class MatchServer extends AppModel {
     }
     
     if($response->code == 300) {
-      $candidates = $body->candidates;
+      $candidates = array();
       
       // Inject the "new" candidate to make it easier for the calling code
       $candidates[] = (object)array(
@@ -363,6 +363,7 @@ class MatchServer extends AppModel {
         )
       );
       
+      $candidates = array_merge($candidates, $body->candidates);
       return $candidates;
     }
     

@@ -1031,6 +1031,67 @@ iframe#tandc_content {
   width: 100%;
   height: 100%;
 }
+/* CHECK DUPLICATES (RECONCILE) TABLE */
+#reconcile-table {
+  width: auto;
+  border: none;
+  font-size: 0.8em;
+}
+#reconcile-table td,
+#reconcile-table th {
+  border: 1px solid var(--cmg-color-lightgray-006);
+  vertical-align: top;
+}
+#reconcile-table th {
+  font-weight: normal;
+  color: var(--cmg-color-black);
+}
+#reconcile-table th.col-names {
+  text-align: center;
+  background-color: var(--cmg-color-white);
+  border: none;
+  font-weight: bold;
+}
+#reconcile-table td.empty {
+  background-color: var(--cmg-color-white) !important;
+  border: none;
+  font-size: 0.5em;
+}
+#reconcile-table tbody td.reference-ids {
+  text-align: center;
+  word-break: break-all;
+  background-color: var(--cmg-color-lightgray-003) !important;
+}
+#reconcile-table td.reconcile-actions {
+  text-align: center;
+}
+#reconcile-table .btn {
+  font-size: 1em;
+}
+#reconcile-table th.attr-title {
+  border: none;
+  background-color: var(--cmg-color-white);
+  text-align: right;
+  white-space: nowrap;
+}
+#reconcile-table .reconcile-fields {
+  display: grid;
+  grid-auto-flow: column;
+}
+#reconcile-table .reconcile-fields ul { /* XXX likely temporary */
+  padding-left: 1em;
+}
+/* set the borders on the "new" reference id */
+#reconcile-table tbody td:nth-child(2) {
+  border-left: 2px solid var(--cmg-color-lightgray-007);
+  border-right: 2px solid var(--cmg-color-lightgray-007);
+}
+#reconcile-table tbody tr:first-child td:nth-child(2) {
+  border-top: 2px solid var(--cmg-color-lightgray-007);
+}
+#reconcile-table tbody tr:last-child td:nth-child(2) {
+  border-bottom: 2px solid var(--cmg-color-lightgray-007);
+}
 /* INVITATIONS */
 .invitation {
   clear: both;

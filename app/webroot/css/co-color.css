@@ -10,7 +10,7 @@
   --cmg-color-black-001: #000;
   --cmg-color-black-002: #222;
 
-  --cmg-color-lightgray-001: #fafafa; /* background color */
+  --cmg-color-lightgray-001: #fafafa; /* background color, drawer */
   --cmg-color-lightgray-002: #f8f8f8; /* background color */
   --cmg-color-lightgray-003: #f5f5f5; /* background color */
   --cmg-color-lightgray-004: #f2f2f2; /* background color */
@@ -20,4 +20,6 @@
   --cmg-color-lightgray-008: #bbb;    /* border color */
   --cmg-color-lightgray-009: #ededed; /* data-list background color */
   --cmg-color-lightgray-010: #e8e8e8; /* co-grid background color */
+
+  --cmg-color-green-003: #dfd;       /* matching fields for reconciliation */
 }
