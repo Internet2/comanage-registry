@@ -244,6 +244,8 @@ class CoPeopleController extends StandardController {
    */
   
   protected function calculateImpliedCoId($data = null) {
+    $req = $this->Api->getData();
+
     if(($this->action == "invite"
         // The first pass through link will not include a CO Person ID, but the second will
         || ($this->action == "link" && empty($this->request->params['passed'][0])))
@@ -297,6 +299,9 @@ class CoPeopleController extends StandardController {
                                                 array(_txt('ct.co_petitions.1'),
                                                       filter_var($this->request->params['named']['copetitionid'],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
+    } elseif (!is_null($req)
+              && isset($req['co_id']) ) {
+      return $req['co_id'];
     }
     
     return parent::calculateImpliedCoId();
@@ -781,7 +786,9 @@ class CoPeopleController extends StandardController {
       $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
                                                         $this->request->params['pass'][0]);
     }
-    
+
+    $managed = $managed || ($roles['coadmin'] && $roles['apiuser']);
+
     // Is this a petitioner for an in-progress Petition? Only do this check if
     // we don't have a valid copersonid.
     
