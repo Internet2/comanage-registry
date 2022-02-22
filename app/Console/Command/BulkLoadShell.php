@@ -388,7 +388,10 @@
                 if(!empty($role['cou_id'])) {
                   $autoGroupTodo[ $role['cou_id'] ] = array(
                     'status'                 => $role['status'],
-                    'source_org_identity_id' => $orgIdentityId
+                    // This should be NULL because these group memberships are
+                    // ordinarily maintained by CoPersonRole::afterSave, not by
+                    // the pipeline.
+                    'source_org_identity_id' => null
                   );
                 }
               }
