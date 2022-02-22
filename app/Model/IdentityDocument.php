@@ -182,11 +182,14 @@ class IdentityDocument extends AppModel {
     $coId = $this->CoPerson->findCoForRecord($this->data[$this->alias]['co_person_id']);
     
     $docType = $this->data[$this->alias]['document_type'];
+    $issuing_authority = isset($this->data[$this->alias]['issuing_authority'])
+                         ? $this->data[$this->alias]['issuing_authority']
+                         : '';
     
     if($docType) {
       $this->validateEnumeration($coId,
-                                 'IdentityDocument.issuing_authority.'.$docType, 
-                                 $this->data[$this->alias]['issuing_authority']);
+                                 'IdentityDocument.issuing_authority.'.$docType,
+                                 $issuing_authority);
     }
     
     // Possibly convert the requested timestamps to UTC from browser time.

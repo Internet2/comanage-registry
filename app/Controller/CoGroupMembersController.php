@@ -380,7 +380,9 @@ class CoGroupMembersController extends StandardController {
     if($this->request->is('restful') && !empty($this->params['url']['cogroupid']) && $this->isCmpCoAdmin) {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
-      
+
+      $this->set('vv_model_version', $this->CoGroupMember->version);
+
       try {
         $groups = $this->CoGroupMember->findForCoGroup($this->params['url']['cogroupid']);
         
