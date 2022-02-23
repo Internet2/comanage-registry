@@ -25,21 +25,10 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-// A simple local function to render an object full of match attributes in a basic list
-function render_match_attributes($o) {
-  print "<ul>\n";
-  
-  foreach($o as $k => $v) {
-    if(is_array($v) || is_object($v)) {
-      print "<li>$k</li>\n";
-      render_match_attributes($v);
-    } else {
-      print "<li>$k: $v</li>\n";
-    }
-  }
-  
-  print "</ul>\n";
-}
+// A simple array to hold Match Attribute names for generating unique attribute rows:
+$matchAttributeNames = array();
+
+// Generate page title
 $params = array();
 $params['title'] = _txt('ct.co_petition.duplicate.check');
 print $this->element("pageTitleAndButtons", $params);
@@ -53,6 +42,7 @@ print $this->element("pageTitleAndButtons", $params);
 <div id="reconcile-table-container">
   <table id="reconcile-table" class="side-by-side">
     <thead>
+    <!-- Table headers: "New" and "Suggestion n" -->
     <tr>
       <td class="empty"></td>
       <?php $i = 1; ?>
@@ -60,6 +50,15 @@ print $this->element("pageTitleAndButtons", $params);
         <th class="col-names" scope="col">
           <?php print ($m->referenceId != 'new') ? _txt('fd.match.suggestion', array($i++)) : _txt('fd.match.new.record');  ?>
         </th>
+        <?php
+          // Gather up all Match Attribute names for generating unique attribute rows later:
+          foreach($m->sorRecords as $s) {
+             foreach($s->sorAttributes as $k => $v) {
+               // we only need the names at the top of the sorAttributes; we will make them unique before we use them
+               $matchAttributeNames[] = $k; 
+             } 
+          }
+        ?>
       <?php endforeach; ?>
     </tr>
     </thead>
@@ -104,6 +103,49 @@ print $this->element("pageTitleAndButtons", $params);
         </td>
       <?php endforeach; ?>
     </tr>
+
+    <!-- MATCH ATTRIBUTES -->
+    <?php
+    // Make the Match Attribute names array unique:
+    $matchAttributeNames = array_unique($matchAttributeNames);
+    ?>
+    <?php foreach($matchAttributeNames as $n): ?>
+      <tr>
+        <th class="attr-title match-attr-name" scope="row"><?php print $n ?></th>
+        <?php foreach($vv_matches as $m): ?>
+          <td>
+            <div class="reconcile-fields">
+              <?php
+              // Output the Match Attribute values for the current attribute key.
+              foreach($m->sorRecords as $s) {
+                foreach($s->sorAttributes as $k => $v) {
+                  // Only output values for the current key (derived from $matchAttributeNames).
+                  if($k == $n) {
+                    print '<div class="match-attr-list-container">';
+                    foreach($v as $obj) {
+                      print '<ul class="match-attr-list">' . "\n";
+                      // Convert the object to associative array and sort by key values.
+                      // XXX This assumes that our object will *always* be a simple associative array by this point.
+                      $attrsArr = json_decode(json_encode($obj), true);
+                      ksort($attrsArr);
+                      // Finally, output the key/value pairs:
+                      foreach($attrsArr as $key => $val) {
+                        if(!empty($val)) {
+                          print "<li>$key: <strong>$val</strong></li>\n";
+                        }
+                      }
+                      print "</ul>\n";
+                    }
+                    print "</div>\n";
+                  }
+                }
+              }
+              ?>
+            </div>
+          </td>
+        <?php endforeach; // $m ?>
+      </tr>
+    <?php endforeach; // $n ?>
     <!-- System of Record (SOR) -->
     <tr>
       <th class="attr-title" scope="row"><?php print _txt('fd.match.sor'); ?></th>
@@ -151,33 +193,7 @@ print $this->element("pageTitleAndButtons", $params);
         </td>
       <?php endforeach; // $m ?>
     </tr>
-    <!-- MATCH ATTRIBUTES -->
-    <?php
-    function render_match_attributes2($o) {
-      print "<ul>\n";
-      foreach($o as $k => $v) {
-        if(is_array($v) || is_object($v)) {
-          print "<li>$k</li>\n";
-          render_match_attributes($v);
-        } else {
-          print "<li>$k: $v</li>\n";
-        }
-      }
-      print "</ul>\n";
-    }
-    ?>
-    <tr>
-      <th class="attr-title" scope="row"><?php print _txt('fd.attrs.match'); ?></th>
-      <?php foreach($vv_matches as $m): ?>
-        <td>
-          <div class="reconcile-fields">
-            <?php foreach($m->sorRecords as $s): ?>
-              <?php render_match_attributes($s->sorAttributes); ?>
-            <?php endforeach; // $s ?>
-          </div>
-        </td>
-      <?php endforeach; // $m ?>
-    </tr>
     </tbody>
   </table>
 </div>
+

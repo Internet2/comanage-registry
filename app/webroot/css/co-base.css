@@ -1074,12 +1074,24 @@ iframe#tandc_content {
   text-align: right;
   white-space: nowrap;
 }
+#reconcile-table .match-attr-name {
+  text-transform: capitalize;
+}
 #reconcile-table .reconcile-fields {
   display: grid;
   grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
 }
-#reconcile-table .reconcile-fields ul { /* XXX likely temporary */
-  padding-left: 1em;
+#reconcile-table .reconcile-fields ul.match-attr-list {
+  padding: 0.5em 1em 0 0;
+  margin: 0.5em 0 0 0;
+  border-top: 1px dashed var(--cmg-color-lightgray-008);
+  list-style: none;
+}
+#reconcile-table .reconcile-fields ul.match-attr-list:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 /* set the borders on the "new" reference id */
 #reconcile-table tbody td:nth-child(2) {

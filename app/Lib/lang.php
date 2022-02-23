@@ -2245,7 +2245,7 @@ The request may be viewed at
   'op.manage.grm' =>  'Manage Group Memberships',
   'op.match.add.confirm' => 'Are you sure you wish to add new CO Person record?',
   'op.match.new' =>   'Assign a new Reference Identifier',
-  'op.match.select.confirm' => 'Are you sure you wish to select this reference?',
+  'op.match.select.confirm' => 'Are you sure you wish to select this CO Person as a duplicate of the petitioner?',
   'op.menu' =>        'Menu',
   'op.move' =>        'Move',
   'op.msg.tpl.test' => 'Test Template',
