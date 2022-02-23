@@ -288,7 +288,9 @@ class HistoryRecordsController extends StandardController {
     // this, we simply don't set permission for most actions.
     
     $roles = $this->Role->calculateCMRoles();
-    $pids = $this->parsePersonID($this->request->data);
+    $pids = $this->parsePersonID(
+      !empty($this->request->data) ? $this->request->data : $this->Api->getData()
+    );
     
     $managed = false;
     $groupManaged = false;
@@ -360,11 +362,10 @@ class HistoryRecordsController extends StandardController {
     $p = array();
     
     // Determine what operations this user can perform
-    
-    // Add history records? For now we only permit adds for history attached to
-    // person records due to complexities in StandardController::add and requires_person.
+
     $p['add'] = (($pids['copersonid'] || $pids['orgidentityid'])
                   && ($roles['cmadmin']
+                      || ($roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']))
                       || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                        || ($pool &&
                                            ($roles['admin'] || $roles['subadmin']))))));
@@ -372,6 +373,7 @@ class HistoryRecordsController extends StandardController {
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
     $p['index'] = ($roles['cmadmin']
+                   || ($roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']))
                    || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                     || ($pool &&
                                         ($roles['admin'] || $roles['subadmin']))))
@@ -394,6 +396,7 @@ class HistoryRecordsController extends StandardController {
     
     // View a single history record?
     $p['view'] = ($roles['cmadmin']
+                  || ($roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']))
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                    || ($pool &&
                                        ($roles['admin'] || $roles['subadmin']))))

@@ -806,7 +806,10 @@ original notification at
                                PermittedNameFieldsEnum::HGMF  => 'Honorific, Given, Middle, Family',
                                PermittedNameFieldsEnum::HGFS  => 'Honorific, Given, Family, Suffix',
                                PermittedNameFieldsEnum::HGMFS => 'Honorific, Given, Middle, Family, Suffix'),
-  
+
+  'en.people.picker.mode' => array(PeoplePickerModeEnum::Sponsor   => 'Sponsor',
+                                   PeoplePickerModeEnum::All       => 'All'),
+
   'en.required' =>    array(RequiredEnum::Required => 'Required',
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),

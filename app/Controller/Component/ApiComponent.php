@@ -318,8 +318,11 @@ class ApiComponent extends Component {
    */
   
   public function parseRestRequestDocument() {
-    if(!empty($this->reqData)) {
-      // No need to reparse
+    // We do not need to parse because either the data have been parsed already or
+    // the data are meaningless to the type of request
+    if(!empty($this->reqData)
+       || $this->request->method() == 'GET'
+       || $this->request->method() == 'DELETE') {
       return;
     }
     

@@ -59,40 +59,120 @@ Router::connect(
 /**
  * Enable REST. These *MUST* come before the default CakePHP routes.
  */
+Router::resourceMap(array(
+                      array('action' => 'index', 'method' => 'GET', 'id' => false),
+                      array('action' => 'view', 'method' => 'GET', 'id' => true),
+                      array('action' => 'add', 'method' => 'POST', 'id' => false),
+                      array('action' => 'edit', 'method' => 'PUT', 'id' => true),
+                      array('action' => 'delete', 'method' => 'DELETE', 'id' => true)
+                    ));
 
 Router::mapResources(array(
-	'ad_hoc_attributes',
-  'addresses',
-	'clusters',
-	'co_departments',
-	'co_email_lists',
-  'co_extended_attributes',
-  'co_extended_types',
-  'co_invites',
-  'co_groups',
-  'co_group_members',
-  'co_navigation_links',
-  'co_nsf_demographics',
-  'co_org_identity_links',
-  'co_people',
-  'co_person_roles',
-	'co_services',
-	'co_t_and_c_agreements',
-	'co_terms_and_conditions',
-  'cos',
-  'cous',
-  'email_addresses',
-  'history_records',
-  'identifiers',
-	'identity_documents',
-  'names',
-  'navigation_links',
-  'org_identities',
-  'organizations',
-  'telephone_numbers',
-	'urls'
-));
-Router::parseExtensions();
+                       'ad_hoc_attributes',
+                       'addresses',
+                       'clusters',
+                       'co_departments',
+                       'co_email_lists',
+                       'co_extended_attributes',
+                       'co_extended_types',
+                       'co_invites',
+                       'co_groups',
+                       'co_group_members',
+                       'co_navigation_links',
+                       'co_nsf_demographics',
+                       'co_org_identity_links',
+                       'co_people',
+                       'co_person_roles',
+                       'co_provisioning_targets',
+                       'co_services',
+                       'co_t_and_c_agreements',
+                       'co_terms_and_conditions',
+                       'cos',
+                       'cous',
+                       'email_addresses',
+                       'identifiers',
+                       'identity_documents',
+                       'names',
+                       'navigation_links',
+                       'org_identities',
+                       'organizations',
+                       'telephone_numbers',
+                       'urls'
+                     ));
+
+// CO People find
+$modes = array_keys(_txt('en.people.picker.mode'));
+Router::connect(
+  '/co_people/find/*',
+  array('controller' => 'co_people', 'action' => 'find', '[method]' => 'GET'),
+  array(
+    'named' => array(
+      'co' => '[0-9]+',
+      'mode' => '[' . implode("|", $modes) . ']{1}'
+    )
+  )
+);
+
+// Identifiers Assign
+Router::connect(
+  '/identifiers/assign',
+  array('controller' => 'identifiers', 'action' => 'assign', '[method]' => 'POST')
+);
+
+// COs duplicate
+Router::connect(
+  '/cos/duplicate/:id',
+  array('controller' => 'cos', 'action' => 'duplicate', '[method]' => 'POST'),
+  array(
+    'pass' => array('id'),
+    'id' => '[0-9]+'
+  )
+);
+
+// History Records
+Router::connect(
+  '/history_records',
+  array('controller' => 'history_records', 'action' => 'index', '[method]' => 'GET')
+);
+
+Router::connect(
+  '/history_records/:id',
+  array('controller' => 'history_records', 'action' => 'view', '[method]' => 'GET'),
+  array(
+    'pass' => array('id'),
+    'id' => '[0-9]+'
+  )
+);
+
+Router::connect(
+  '/history_records',
+  array('controller' => 'history_records', 'action' => 'add', '[method]' => 'POST')
+);
+
+// CoEnrollmentAttribute
+Router::connect(
+  '/co_enrollment_attributes/reorder/*',
+  array('controller' => 'co_enrollment_attributes', 'action' => 'reorder', '[method]' => 'POST'),
+  array(
+    'named' => array(
+      'coef' => '[0-9]+'
+    )
+  )
+);
+
+// Provisioning
+Router::connect(
+  '/co_provisioning_targets/provision/:id',
+  array('controller' => 'co_provisioning_targets', 'action' => 'provision', '[method]' => 'POST'),
+  array(
+    'pass' => array('id'),
+    'named' => array(
+      'id' => '[0-9]+'
+    )
+  )
+);
+
+Router::parseExtensions('json', 'xml');
 
 // ApplicationPreferences uses non-standard REST routes
 Router::connect(

@@ -148,6 +148,31 @@ class AppController extends Controller {
     }
     
     if($this->request->is('restful')) {
+      // Do not allow route fallbacks
+      $rparams = $this->request->params;
+      // Keep only the routes related to the current request
+      $request_related_routes = array_filter(
+        Router::$routes,
+        static function ($route) use ($rparams) {
+          return (strpos($route->template, $rparams['controller']) !== false);
+        }
+      );
+
+      // Map each actions to methods
+      $action_method = array();
+      foreach ($request_related_routes as $idx => $params) {
+        $action_method[ $params->defaults['action'] ][] = $params->defaults['[method]'];
+      }
+
+      if(!array_key_exists($this->request->action, $action_method)
+         || !in_array($this->request->method(), $action_method[$this->request->action])) {
+        $this->Api->restResultHeader(404, "Unknown");
+        // We force an exit here to prevent any views from rendering, but also
+        // to prevent Cake from dumping the default layout
+        $this->response->send();
+        exit;
+      }
+
       // Set up basic auth and attempt to login the API user, unless we're already
       // logged in (ie: via a cookie provided via an AJAX initiated REST call)
       
