@@ -349,6 +349,7 @@ class CoGroupsController extends StandardController {
     if($this->request->is('restful') && !empty($this->params['url']['copersonid'])) {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
+      $this->set('vv_model_version', $this->CoGroup->version);
       
       try {
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
@@ -407,7 +408,10 @@ class CoGroupsController extends StandardController {
     if(!empty($this->request->params['pass'][0])) {
       $readonly = $this->CoGroup->readOnly(filter_var($this->request->params['pass'][0], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK));
     }
-    
+
+    // Calculate managed for the API User
+    $managed = $managed || ($roles["apiuser"] && $roles["coadmin"]);
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     
@@ -543,7 +547,15 @@ class CoGroupsController extends StandardController {
         return $coId;
       }
     }
-    
+
+    if($this->request->is('restful')) {
+      if($this->request->method() == "GET"
+         && isset($this->request->query["copersonid"])) {
+        return $this->CoGroup->Co->CoPerson->field('co_id',
+                                                    array('id' => $this->request->query["copersonid"]));
+      }
+    }
+
     return parent::parseCOID($data);
   }
   

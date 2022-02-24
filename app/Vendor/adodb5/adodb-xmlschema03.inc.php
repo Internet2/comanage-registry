@@ -600,6 +600,10 @@ class dbTable extends dbObject {
 					if( is_array( $opt ) ) {
 						$key = key( $opt );
 						$value = $opt[key( $opt )];
+						// XXX CO-2287
+						if(!isset($fldarray[$field_id][$key])) {
+							$fldarray[$field_id][$key] = "";
+						}
 						@$fldarray[$field_id][$key] .= $value;
 					// Option doesn't have arguments
 					} else {

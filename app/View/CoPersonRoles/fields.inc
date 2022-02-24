@@ -178,7 +178,7 @@
         'CoPersonRole.title'
       )
     );
-    print $this->element('enumerations', $args); 
+    print $this->element('enumerations', $args);
   ?>
 
   <div id="<?php print $this->action; ?>_role_attributes" class="explorerContainer">
@@ -231,6 +231,7 @@
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
                     $attrs['empty'] = $vv_allow_empty_cou;
+                    $attrs['autofocus'] = true;
 
                     if($e && !$es) {
                       print $this->Form->select('cou_id',
@@ -268,6 +269,7 @@
                     ? $co_person_roles[0]['CoPersonRole']['affiliation']
                     : AffiliationEnum::Member);
                   $attrs['empty'] = false;
+                  $attrs['autofocus'] = empty($vv_available_cous);
 
                   if($e && !$es) {
                     print $this->Form->select('affiliation',

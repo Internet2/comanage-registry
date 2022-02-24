@@ -96,39 +96,7 @@ class MVPAController extends StandardController {
       // Provide a hint as to available types for this model
       
       $pid = $this->parsePersonID();
-      
-      if(!empty($pid['orgidentityid'])) {
-        // Org identities do not support self service
-        
-        $this->set('vv_available_types', $model->types($this->cur_co['Co']['id'], 'type'));
-      } else {
-        // When attached to a CO Person or Role, figure out the available extended
-        // types and then filter for self service permissions
-        
-        $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
-        
-        if(!empty($this->viewVars['permissions']['selfsvc'])
-           && !$this->Role->isCoOrCouAdmin($this->Session->read('Auth.User.co_person_id'),
-                                           $this->cur_co['Co']['id'])) {
-          // For models supporting self service permissions, adjust the available types
-          // in accordance with the configuration (but not if self is an admin)
-          
-          foreach(array_keys($availableTypes) as $k) {
-            // We use edit for the permission even if we're adding or viewing because
-            // add has different semantics for calculatePermission (whether or not the person
-            // can add a new item).
-            if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
-                                                                       $req,
-                                                                       'edit',
-                                                                       $k)) {
-              unset($availableTypes[$k]);
-            }
-          }
-        }
-        
-        $this->set('vv_available_types', $availableTypes);
-      }
-      
+
       // Set the person info for view usage
       $this->set('vv_pid', $pid);
       
@@ -200,8 +168,54 @@ class MVPAController extends StandardController {
     }
     
     parent::beforeRender();
+
+
+    if(!$this->request->is('restful')) {
+      $view_var_keys = array_keys(Hash::flatten($this->viewVars));
+      // Find if any Source var is present
+      $re_source = '/.*\.?(Source\w+)\..*/m';
+      $has_source = (boolean)preg_grep ($re_source, $view_var_keys);
+      if (!empty($pid['orgidentityid'])
+          || ( !empty($pid['copersonid']
+               && $has_source) )
+      ) {
+        // Org identities use the default model types, and self service does not apply
+
+        $this->set('vv_available_types', $model->defaultTypes('type'));
+      } else {
+        // When attached to a CO Person or Role, figure out the available extended
+        // types and then filter for self service permissions
+
+        $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
+
+        if (!empty($this->viewVars['permissions']['selfsvc'])
+          && !$this->Role->isCoOrCouAdmin(
+            $this->Session->read('Auth.User.co_person_id'),
+            $this->cur_co['Co']['id']
+          )) {
+          // For models supporting self service permissions, adjust the available types
+          // in accordance with the configuration (but not if self is an admin)
+
+          foreach (array_keys($availableTypes) as $k) {
+            // We use edit for the permission even if we're adding or viewing because
+            // add has different semantics for calculatePermission (whether or not the person
+            // can add a new item).
+            if (!$this->Co->CoSelfServicePermission->calculatePermission(
+              $this->cur_co['Co']['id'],
+              $req,
+              'edit',
+              $k
+            )) {
+              unset($availableTypes[$k]);
+            }
+          }
+        }
+
+        $this->set('vv_available_types', $availableTypes);
+      }
+    }
   }
-  
+
   /**
    * Perform any dependency checks required prior to a write (add/edit) operation.
    * This method is intended to be overridden by model-specific controllers.

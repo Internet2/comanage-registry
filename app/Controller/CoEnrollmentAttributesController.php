@@ -513,7 +513,9 @@ class CoEnrollmentAttributesController extends StandardController {
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Modify ordering for display via AJAX 
-    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['reorder'] = $roles['cmadmin']
+                    || $roles['coadmin']
+                    || ($roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']));
 
     // View an existing CO Enrollment Attributes?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);

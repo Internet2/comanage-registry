@@ -318,8 +318,11 @@ class ApiComponent extends Component {
    */
   
   public function parseRestRequestDocument() {
-    if(!empty($this->reqData)) {
-      // No need to reparse
+    // We do not need to parse because either the data have been parsed already or
+    // the data are meaningless to the type of request
+    if(!empty($this->reqData)
+       || $this->request->method() == 'GET'
+       || $this->request->method() == 'DELETE') {
       return;
     }
     
@@ -386,7 +389,7 @@ class ApiComponent extends Component {
    * @param  $data    Parsed PUT/POST body
    * @return int      CO ID, or null if not found
    */
-  
+
   public function requestedCOID($model, $request, $data) {
     // As of Registry v3.3.0, CO level API users are allowed to assert a CO ID
     // for REST operations that meet the following requirements:
@@ -395,7 +398,7 @@ class ApiComponent extends Component {
     // (2) The requested model directly belongsTo the parent link
     // (Note Registry v5 implements this as a per-model check instead, but
     // we don't have the infrastructure for that.)
-    
+
     if(empty($request->params['pass'])) {
       // For historical reasons, the query string keys aren't standard
       $permittedKeys = array(
@@ -422,29 +425,29 @@ class ApiComponent extends Component {
           'organization_id' => 'Organization'
         )
       );
-      
+
       // PUT and POST are basically the same
       $permittedKeys['PUT'] = $permittedKeys['POST'];
-      
+
       if(!empty($model->permittedApiFilters)) {
         // Merge in the plugin's additional permitted key
         foreach(array('GET', 'POST', 'PUT') as $a) {
           $permittedKeys[$a] = array_merge($permittedKeys[$a], $model->permittedApiFilters);
         }
       }
-      
+
       if(!empty($permittedKeys[$request->method()])) {
         foreach($permittedKeys[$request->method()] as $k => $m) {
           // For plugins, $m is of the form Plugin.Model, but belongsTo[]
           // will be keyed only on Model
           $b = strstr($m, '.');
-          
+
           if($b) {
             $b = ltrim($b, '.');
           } else {
             $b = $m;
           }
-          
+
           if(!empty($model->belongsTo[$b])) {
             if($request->method() == 'GET') {
               if(!empty($request->query[$k])) {
@@ -485,7 +488,7 @@ class ApiComponent extends Component {
 
     return null;
   }
-  
+
   /**
    * Prepare a REST result HTTP header.
    * - precondition: HTTP headers must not yet have been sent

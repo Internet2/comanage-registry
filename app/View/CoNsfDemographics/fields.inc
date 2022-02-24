@@ -88,7 +88,9 @@
             print $this->Form->error('gender');
           }
         } else {
-          print _txt('en.nsf.gender', null, $CoNsfDemographics[0]['CoNsfDemographic']['gender']);
+          print isset($co_nsf_demographics[0]['CoNsfDemographic']['gender'])
+                ? _txt('en.nsf.gender',null, $co_nsf_demographics[0]['CoNsfDemographic']['gender'])
+                : '';
         }
       ?>
     </div>
@@ -111,7 +113,9 @@
             print $this->Form->error('citizenship');
           }
         } else {
-          print _txt('en.nsf.citizen', null, $CoNsfDemographics[0]['CoNsfDemographic']['citizenship']);
+          print isset($co_nsf_demographics[0]['CoNsfDemographic']['citizenship'])
+                ? _txt('en.nsf.citizen',null, $co_nsf_demographics[0]['CoNsfDemographic']['citizenship'])
+                : '';
         }
       ?>
     </div>
@@ -134,7 +138,9 @@
             print $this->Form->error('ethnicity');
           }
         } else {
-          print _txt('en.nsf.ethnic', null, $CoNsfDemographics[0]['CoNsfDemographic']['ethnicity']);
+          print isset($co_nsf_demographics[0]['CoNsfDemographic']['ethnicity'])
+                ? _txt('en.nsf.ethnic',null, $co_nsf_demographics[0]['CoNsfDemographic']['ethnicity'])
+                : '';
         }
       ?>
     </div>
@@ -150,10 +156,13 @@
                       'options'  => $optionDesc['race'],
                       'selected' => (isset($race_options) ? $race_options : array())
                      );
-        print ($e ? $this->Form->input('race', $args)
-                  : _txt('en.nsf.race',
-                         null,
-                         $CoNsfDemographics[0]['CoNsfDemographic']['race']));
+      if($e) {
+        print $this->Form->input('race', $args);
+      } else {
+        print isset($co_nsf_demographics[0]['CoNsfDemographic']['race'])
+              ? _txt('en.nsf.race',null, $co_nsf_demographics[0]['CoNsfDemographic']['race'])
+              : '';
+      }
       ?>
     </div>
   </li>
@@ -168,10 +177,13 @@
                       'options'  => $optionDesc['disability'],
                       'selected' => (isset($disability_options) ? $disability_options : array())
                      );
-        print ($e ? $this->Form->input('disability', $args)
-                  : _txt('en.nsf.disab',
-                         null,
-                         $CoNsfDemographics[0]['CoNsfDemographic']['disability']));
+        if($e) {
+          print $this->Form->input('disability', $args);
+        } else {
+          print isset($co_nsf_demographics[0]['CoNsfDemographic']['disability'])
+                ? _txt('en.nsf.disab',null, $co_nsf_demographics[0]['CoNsfDemographic']['disability'])
+                : '';
+        }
       ?>
     </div>
   </li>

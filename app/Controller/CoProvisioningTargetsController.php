@@ -44,6 +44,31 @@ class CoProvisioningTargetsController extends StandardController {
   // This controller needs a CO to be set
   public $requires_co = true;
   
+  public $edit_contains = array();
+  
+  public $view_contains = array();
+
+  /**
+   * @since  COmanage Registry v4.0.2
+   * @var null
+   */
+
+  private $_sModel = null;
+
+  /**
+   * @since  COmanage Registry v4.0.2
+   * @var null
+   */
+
+  private $_sId = null;
+
+  /**
+   * @since  COmanage Registry v4.0.2
+   * @var string
+   */
+
+  private $_sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
+
   /**
    * Callback before other controller methods are invoked or views are rendered.
    * - postcondition: $plugins set
@@ -64,9 +89,14 @@ class CoProvisioningTargetsController extends StandardController {
     // data to figure out which type of Plugin we should bind).
     
     foreach(array_values($plugins) as $plugin) {
+      $pmodel = "Co" . $plugin . "Target";
+      
       $this->CoProvisioningTarget->bindModel(array('hasOne'
-                                                   => array("Co" . $plugin . "Target"
+                                                   => array($pmodel
                                                             => array('dependent' => true))));
+      
+      $this->edit_contains[] = $pmodel;
+      $this->view_contains[] = $pmodel;
     }
     
     $this->set('plugins', $plugins);
@@ -261,6 +291,51 @@ class CoProvisioningTargetsController extends StandardController {
         return $this->request->params['named']['co'];
       }
     }
+
+    // The direct ancestor of CoProvisioningTarget is CO Model. As a result
+    // Api->requestedCOID will not be able to extract the CO Id
+    // We will calculate the CO ID here
+    if($this->request->is('restful')) {
+      if (!empty($this->request->params['named']['copersonid'])) {
+        $this->_sId = $this->request->params['named']['copersonid'];
+        $this->_sModel = 'CoPerson';
+      } elseif (!empty($this->request->params['named']['cogroupid'])) {
+        $this->_sId = $this->request->params['named']['cogroupid'];
+        $this->_sModel = 'CoGroup';
+        $this->_sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
+      } elseif (!empty($this->request->params['named']['coemaillistid'])) {
+        $this->_sId = $this->request->params['named']['coemaillistid'];
+        $this->_sModel = 'CoEmailList';
+        $this->_sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
+      } elseif (!empty($this->request->params['named']['coserviceid'])) {
+        $this->_sId = $this->request->params['named']['coserviceid'];
+        $this->_sModel = 'CoService';
+        $this->_sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
+      } else {
+        $this->Api->restResultHeader(500, "Bad Request");
+      }
+
+      // Make sure the subject is in the same CO as $id
+
+      $args = array();
+      $args['joins'][0]['table'] = Inflector::tableize($this->_sModel);
+      $args['joins'][0]['alias'] = $this->_sModel;
+      $args['joins'][0]['type'] = 'INNER';
+      $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=' . $this->_sModel . '.co_id';
+      $args['conditions'][$this->_sModel . '.id'] = $this->_sId;
+      $args['conditions']['CoProvisioningTarget.id'] = $this->request->params["pass"][0];
+      $args['contain'] = false;
+
+      $provisioner = $this->CoProvisioningTarget->find('first', $args);
+
+      if (empty($provisioner)) {
+        // XXX this could also be co provisioning target not found -- do a separate find to check?
+        $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+        return;
+      }
+
+      return $provisioner['CoProvisioningTarget']['co_id'];
+    }
     
     return parent::parseCOID();
   }
@@ -304,63 +379,24 @@ class CoProvisioningTargetsController extends StandardController {
   
   function provision($id) {
     if($this->request->is('restful')) {
-      $sModel = null;
-      $sId = null;
-      $sAction = ProvisioningActionEnum::CoPersonReprovisionRequested;
-      
-      if(!empty($this->request->params['named']['copersonid'])) {
-        $sId = $this->request->params['named']['copersonid'];
-        $sModel = 'CoPerson';
-      } elseif(!empty($this->request->params['named']['cogroupid'])) {
-        $sId = $this->request->params['named']['cogroupid'];
-        $sModel = 'CoGroup';
-        $sAction = ProvisioningActionEnum::CoGroupReprovisionRequested;
-      } elseif(!empty($this->request->params['named']['coemaillistid'])) {
-        $sId = $this->request->params['named']['coemaillistid'];
-        $sModel = 'CoEmailList';
-        $sAction = ProvisioningActionEnum::CoEmailListReprovisionRequested;
-      } elseif(!empty($this->request->params['named']['coserviceid'])) {
-        $sId = $this->request->params['named']['coserviceid'];
-        $sModel = 'CoService';
-        $sAction = ProvisioningActionEnum::CoServiceReprovisionRequested;
-      } else {
-        $this->Api->restResultHeader(500, "Bad Request");
-      }
-      
-      // Make sure the subject is in the same CO as $id
-      
-      $args = array();
-      $args['joins'][0]['table'] = Inflector::tableize($sModel);
-      $args['joins'][0]['alias'] = $sModel;
-      $args['joins'][0]['type'] = 'INNER';
-      $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=' . $sModel . '.co_id';
-      $args['conditions'][$sModel.'.id'] = $sId;
-      $args['conditions']['CoProvisioningTarget.id'] = $id;
-      $args['contain'] = false;
-      
-      if($this->CoProvisioningTarget->find('count', $args) < 1) {
-        // XXX this could also be co provisioning target not found -- do a separate find to check?
-        $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
-        return;
-      }
-      
       // Attach ProvisionerBehavior and manually invoke provisioning
       
       try {
-        $this->CoProvisioningTarget->Co->$sModel->Behaviors->load('Provisioner');
-        $this->CoProvisioningTarget->Co->$sModel->manualProvision($id,
-                                                                  ($sModel == 'CoPerson' ? $sId : null),
-                                                                  ($sModel == 'CoGroup' ? $sId : null),
-                                                                  $sAction,
-                                                                  ($sModel == 'CoEmailList' ? $sId : null),
+        $mdl = $this->_sModel;
+        $this->CoProvisioningTarget->Co->$mdl->Behaviors->load('Provisioner');
+        $this->CoProvisioningTarget->Co->$mdl->manualProvision($id,
+                                                                  ($mdl == 'CoPerson' ? $this->_sId : null),
+                                                                  ($mdl == 'CoGroup' ? $this->_sId : null),
+                                                                  $this->_sAction,
+                                                                  ($mdl == 'CoEmailList' ? $this->_sId : null),
                                                                   null, // CoGroupMemberId
                                                                   null, // ActorCoPersonId
-                                                                  ($sModel == 'CoService' ? $sId : null));
+                                                                  ($mdl == 'CoService' ? $this->_sId : null));
       }
       catch(InvalidArgumentException $e) {
         switch($e->getMessage()) {
           case _txt('er.cop.unk'):
-            $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
+            $this->Api->restResultHeader(404, $mdl . " Not Found");
             break;
           case _txt('er.copt.unk'):
             $this->Api->restResultHeader(404, "CoProvisioningTarget Not Found");

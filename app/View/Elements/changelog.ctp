@@ -37,6 +37,11 @@
     // There can't be a changelog yet...
     return;
   }
+  
+  if(empty(${$modelpl}[0][$req])) {
+    // We shouldn't get here without the model data being set, but just in case...
+    return;
+  }
 ?>
 <div id="changeLog">
   <a href="#tabs-changelog" class="fieldGroupNameCl">

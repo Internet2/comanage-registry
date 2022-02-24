@@ -1475,7 +1475,7 @@
     <field name="actor_identifier" type="C" size="256" />
     
     <index name="co_group_nestings_i1">
-      <col>source_co_group_id</col>
+      <col>co_group_id</col>
     </index>
     <index name="co_group_nestings_i2">
       <col>target_co_group_id</col>

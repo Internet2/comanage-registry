@@ -160,8 +160,8 @@ class SAMController extends StandardController {
   
   protected function calculateParentPermissions($multiple=false) {
     $roles = $this->Role->calculateCMRoles();           // Who we authenticated as
-    $pids = $this->parsePersonID($this->request->data); // Who we're asking for
-    
+    $request_data = $this->Api->getData();
+
     // Is this a record we can manage?
     $managed = false;
     $self = false;
@@ -187,6 +187,20 @@ class SAMController extends StandardController {
         $authenticatorId = $this->$model->$authmodel->field('authenticator_id',
                                                             array($authmodel.'.id' => $modelAuthenticatorId));
       }
+    } elseif (!empty($request_data)) {
+      $model = $this->modelClass;
+      $authfield = $this->request->plugin . "_id";
+      $authmodel = Inflector::classify($this->request->plugin);
+
+      if(!empty($request_data[$authfield])) {
+        $authenticatorId = $this->$model->$authmodel->field('authenticator_id',
+                                                            array($authmodel.'.id' => $request_data[$authfield]));
+      }
+
+      if(!empty($request_data['co_person_id'])) {
+        $coPersonId = $request_data['co_person_id'];
+      }
+
     } else {
       if(!empty($this->request->params['named']['authenticatorid'])) {
         $authenticatorId = $this->request->params['named']['authenticatorid'];

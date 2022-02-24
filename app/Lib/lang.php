@@ -482,7 +482,58 @@ original notification at
                                            AffiliationEnum::Affiliate     => 'Affiliate',
                                            AffiliationEnum::Employee      => 'Employee',
                                            AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
-  
+
+  'en.http.status.codes' => array(// [Informational 1xx]
+                                  HttpStatusCodesEnum::HTTP_CONTINUE                        => 'Continue',
+                                  HttpStatusCodesEnum::HTTP_SWITCHING_PROTOCOLS             => 'Switching Protocols',
+
+                                  // [Successful 2xx]
+                                  HttpStatusCodesEnum::HTTP_OK                              => 'OK',
+                                  HttpStatusCodesEnum::HTTP_CREATED                         => 'Created',
+                                  HttpStatusCodesEnum::HTTP_ACCEPTED                        => 'Accepted',
+                                  HttpStatusCodesEnum::HTTP_NONAUTHORITATIVE_INFORMATION    => 'Non-Authoritative Information',
+                                  HttpStatusCodesEnum::HTTP_NO_CONTENT                      => 'No Content',
+                                  HttpStatusCodesEnum::HTTP_RESET_CONTENT                   => 'Reset Content',
+                                  HttpStatusCodesEnum::HTTP_PARTIAL_CONTENT                 => 'Partial Content',
+
+                                  // [Redirection 3xx]
+                                  HttpStatusCodesEnum::HTTP_MULTIPLE_CHOICES                => 'Multiple Choices',
+                                  HttpStatusCodesEnum::HTTP_MOVED_PERMANENTLY               => 'Moved Permanently',
+                                  HttpStatusCodesEnum::HTTP_FOUND                           => 'Found',
+                                  HttpStatusCodesEnum::HTTP_SEE_OTHER                       => 'See Other',
+                                  HttpStatusCodesEnum::HTTP_NOT_MODIFIED                    => 'Not Modified',
+                                  HttpStatusCodesEnum::HTTP_USE_PROXY                       => 'Use Proxy',
+                                  HttpStatusCodesEnum::HTTP_UNUSED                          => '(Unused)',
+                                  HttpStatusCodesEnum::HTTP_TEMPORARY_REDIRECT              => 'Temporary Redirect',
+
+                                  // [Client Error 4xx]
+                                  HttpStatusCodesEnum::HTTP_BAD_REQUEST                     => 'Bad Request',
+                                  HttpStatusCodesEnum::HTTP_UNAUTHORIZED                    => 'Unauthorized',
+                                  HttpStatusCodesEnum::HTTP_PAYMENT_REQUIRED                => 'Payment Required',
+                                  HttpStatusCodesEnum::HTTP_FORBIDDEN                       => 'Forbidden',
+                                  HttpStatusCodesEnum::HTTP_NOT_FOUND                       => 'Not Found',
+                                  HttpStatusCodesEnum::HTTP_METHOD_NOT_ALLOWED              => 'Method Not Allowed',
+                                  HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE                  => 'Not Acceptable',
+                                  HttpStatusCodesEnum::HTTP_PROXY_AUTHENTICATION_REQUIRED   => 'Proxy Authentication Required',
+                                  HttpStatusCodesEnum::HTTP_REQUEST_TIMEOUT                 => 'Request Timeout',
+                                  HttpStatusCodesEnum::HTTP_CONFLICT                        => 'Conflict',
+                                  HttpStatusCodesEnum::HTTP_GONE                            => 'Gone',
+                                  HttpStatusCodesEnum::HTTP_LENGTH_REQUIRED                 => 'Length Required',
+                                  HttpStatusCodesEnum::HTTP_PRECONDITION_FAILED             => 'Precondition Failed',
+                                  HttpStatusCodesEnum::HTTP_REQUEST_ENTITY_TOO_LARGE        => 'Request Entity Too Large',
+                                  HttpStatusCodesEnum::HTTP_REQUEST_URI_TOO_LONG            => 'Request-URI Too Long',
+                                  HttpStatusCodesEnum::HTTP_UNSUPPORTED_MEDIA_TYPE          => 'Unsupported Media Type',
+                                  HttpStatusCodesEnum::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE => 'Requested Range Not Satisfiable',
+                                  HttpStatusCodesEnum::HTTP_EXPECTATION_FAILED              => 'Expectation Failed',
+
+                                  // [Server Error 5xx]
+                                  HttpStatusCodesEnum::HTTP_INTERNAL_SERVER_ERROR           => 'Internal Server Error',
+                                  HttpStatusCodesEnum::HTTP_NOT_IMPLEMENTED                 => 'Not Implemented',
+                                  HttpStatusCodesEnum::HTTP_BAD_GATEWAY                     => 'Bad Gateway',
+                                  HttpStatusCodesEnum::HTTP_SERVICE_UNAVAILABLE             => 'Service Unavailable',
+                                  HttpStatusCodesEnum::HTTP_GATEWAY_TIMEOUT                 => 'Gateway Timeout',
+                                  HttpStatusCodesEnum::HTTP_VERSION_NOT_SUPPORTED           => 'HTTP Version Not Supported'),
+
   // Sort of silly to have the same list twice...
   'en.org_identity.affiliation' => array(AffiliationEnum::Faculty       => 'Faculty',
                                          AffiliationEnum::Student       => 'Student',
@@ -765,7 +816,10 @@ original notification at
                                PermittedNameFieldsEnum::HGMF  => 'Honorific, Given, Middle, Family',
                                PermittedNameFieldsEnum::HGFS  => 'Honorific, Given, Family, Suffix',
                                PermittedNameFieldsEnum::HGMFS => 'Honorific, Given, Middle, Family, Suffix'),
-  
+
+  'en.people.picker.mode' => array(PeoplePickerModeEnum::Sponsor   => 'Sponsor',
+                                   PeoplePickerModeEnum::All       => 'All'),
+
   'en.required' =>    array(RequiredEnum::Required => 'Required',
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
@@ -1278,8 +1332,10 @@ original notification at
   'fd.co_group_member.member' => 'Member',
   'fd.co_group_member.member.via' => 'Member via %1$s',
   'fd.co_group_member.owner' => 'Owner',
-  'fd.co_group_member.sync.count' => 'Reprovisioning %1$s record(s)',
-  'fd.co_group_member.sync.count.done' => 'Reprovisioned %1$s record(s)',
+  'fd.co_group_member.sync.reprovision.count' => 'Reprovisioning %1$s record(s)',
+  'fd.co_group_member.sync.reprovision.count.done' => 'Reprovisioned %1$s record(s)',
+  'fd.co_group_member.sync.resync.count' => 'Resyncing nestings for %1$s record(s)',
+  'fd.co_group_member.sync.resync.count.done' => 'Resynced %1$s record(s)',
   'fd.co_group_member.sync.window' => 'Group Validity Sync Window',
   'fd.co_group_member.sync.window.desc' => 'When performing scheduled reprovisioning of group memberships due to validity status change, the "look back" window in minutes within which to check for changes (0 to disable)',
   'fd.co_group_nesting.negate' => 'Negate Nesting',
@@ -2259,7 +2315,8 @@ original notification at
   'rs.grm.deleted' => 'Removed from CO Group %1$s (%2$s)',
   'rs.grm.deleted-n' => 'Removed from CO Group %1$s (%2$s) via Nested Group %3$s (%4$s)',
   'rs.grm.edited' =>  'Edited CO Group Roles %1$s (%2$s) (from member=%3$s, owner=%4$s to member=%5$s, owner=%6$s)',
-  'rs.grm.prov.validity' => 'Reprovisioned due to validity time trigger for membership in CO Group %1$s (%2$s)',
+  'rs.grm.reprovision.validity' => 'Reprovisioned due to validity time trigger for membership in CO Group %1$s (%2$s)',
+  'rs.grm.resync.validity' => 'Resynced Group Nestings due to validity time trigger for membership in CO Group %1$s (%2$s)',
   'rs.hr.expunge' =>  'History Record %1$s actor removed as part of CO Person expunge',
   'rs.ia.ok' =>       'Identifiers Assigned',
   'rs.inv.conf' =>    'Invitation Confirmed',

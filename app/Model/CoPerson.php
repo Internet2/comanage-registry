@@ -164,6 +164,7 @@ class CoPerson extends AppModel {
                                         StatusEnum::PendingConfirmation,
                                         StatusEnum::Suspended)),
         'required' => true,
+        'allowEmpty' => false,
         'message' => 'A valid status must be selected'
       )
     ),
@@ -850,7 +851,7 @@ class CoPerson extends AppModel {
     $newStatus = null;
     
     // We rank status by "preference". More "preferred" statuses rank higher.
-    // To faciliate comparison, we'll convert this to an integer value and store
+    // To facilitate comparison, we'll convert this to an integer value and store
     // it in a hash. Most preferred numbers are larger so we can say things like
     // Active > Expired. Possibly this should go somewhere else, if useful. (CO-1360)
     

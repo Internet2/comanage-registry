@@ -70,6 +70,7 @@ class UnixClustersController extends SCController {
     $p = array();
     
     // Determine what operations this user can perform
+    $p['add'] = false;
     
     // Delete an existing Unix Cluster?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);

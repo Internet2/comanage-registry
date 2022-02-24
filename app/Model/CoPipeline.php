@@ -343,6 +343,7 @@ class CoPipeline extends AppModel {
       }
       
       $coPersonId = $this->syncOrgIdentityToCoPerson($pipeline,
+                                                     $syncAction,
                                                      $orgIdentity,
                                                      $targetIds['co_person_id'],
                                                      $actorCoPersonId,
@@ -763,6 +764,7 @@ class CoPipeline extends AppModel {
    *
    * @since  COmanage Registry v2.0.0
    * @param  Array   $coPipeline       Array of CO Pipeline configuration
+   * @param  SyncActionEnum $syncAction Add, Update, or Delete
    * @param  Array   $orgIdentity      Array of Org Identity data and related models
    * @param  Integer $targetCoPersonId Target CO Person ID, if known
    * @param  Integer $actorCoPersonId  CO Person ID of actor
@@ -773,12 +775,13 @@ class CoPipeline extends AppModel {
    */
   
   protected function syncOrgIdentityToCoPerson($coPipeline, 
-                                            $orgIdentity, 
-                                            $targetCoPersonId=null, 
-                                            $actorCoPersonId=null,
-                                            $provision=true,
-                                            $oisRawRecord=null,
-                                            $safeties="on") {
+                                               $syncAction,
+                                               $orgIdentity, 
+                                               $targetCoPersonId=null, 
+                                               $actorCoPersonId=null,
+                                               $provision=true,
+                                               $oisRawRecord=null,
+                                               $safeties="on") {
     $coPersonId = $targetCoPersonId;
     $coPersonRoleId = null;
     $doProvision = false; // We did something provision-worthy
@@ -975,6 +978,9 @@ class CoPipeline extends AppModel {
         } else {
           // No change, unset $newCoPersonRole to indicate not to bother saving
           $newCoPersonRole = array();
+          
+          // But note the coPersonRoleId so related model diffs calculate correctly.
+          $coPersonRoleId = $orgIdentity['PipelineCoPersonRole']['id'];
         }
       } else {
         // No current person role, so just save as is
@@ -1210,9 +1216,13 @@ class CoPipeline extends AppModel {
         // For email addresses, we generally want to honor the verified status,
         // *unless* we're configured to trigger an Enrollment Flow. In that
         // case, we need an unverified email address for the confirmation to be
-        // sent.
+        // sent, but only for add/relink (as per execute(), above).
         
-        $trustVerified = empty($coPipeline['CoPipeline']['co_enrollment_flow_id']);
+        $trustVerified = true;
+        
+        if($syncAction == SyncActionEnum::Add || $syncAction == SyncActionEnum::Relink) {
+          $trustVerified = empty($coPipeline['CoPipeline']['co_enrollment_flow_id']);
+        }
         
         if(!$model->save($nr, array("provision" => false,
                                     "safeties" => $safeties,

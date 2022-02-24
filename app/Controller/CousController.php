@@ -125,7 +125,7 @@ class CousController extends StandardController {
           'type'    => 'select',
           'label'   => _txt('fd.parent'),
           'empty'   => _txt('op.select.all'),
-          'options' => $this->viewVars['vv_cou_list'],
+          'options' => !empty($this->viewVars['vv_cou_list']) ? $this->viewVars['vv_cou_list'] : array(),
         ),
       );
     }

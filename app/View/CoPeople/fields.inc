@@ -794,7 +794,7 @@
                 } else {
                   $badge_list = array();
                   $auto_group_format = $this->Badge->systemGroupHFormat($g['CoGroup']['name'], $cur_co);
-                  if($g['member']) {
+                  if($g['member'] && !empty($auto_group_format['badge'])) {
                     // Do not present Auto Groups to non CO and Platform Administrators
                     if(!$permissions['viewautogroups'] && $g['CoGroup']['auto']) {
                       continue;
