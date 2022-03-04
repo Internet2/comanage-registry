@@ -1575,6 +1575,7 @@ original notification at
   'fd.ia.type.email.desc' => 'For Identifier Assignments applied to Type <i>Mail</i>, an Email Address (instead of an Identifier) will be created with this type (if not blank)',
   // fd.id.seq should be used only for database internal column IDs
   'fd.id.seq' =>      'ID',
+  'fd.id.val' =>      'ID: %1$s',
   // The next set must be named fd.model.validation-field
   'fd.identifier.description' => 'Description',
   'fd.identifier.identifier' => 'Identifier',
