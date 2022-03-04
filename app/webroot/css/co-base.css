@@ -2675,6 +2675,62 @@ td.indented {
 .smaller {
   font-size: smaller;
 }
+/* SELF-SERVICE WIDGETS (PLUGIN) Common Styles */
+.cm-ssw {
+  border: 1px solid var(--cmg-color-gray-border);
+  padding: 1em;
+}
+.cm-ssw .hidden {
+  display: none;
+}
+.cm-ssw-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cm-ssw-display {
+  cursor: pointer;
+}
+ul.cm-ssw-field-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+ul.cm-ssw-field-list li {
+  padding: 0 1em;
+}
+.cm-ssw-form-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1em solid transparent;
+  justify-content: space-between;
+}
+.cm-ssw-form-row:last-child {
+  border-bottom: none;
+}
+.cm-ssw-form-row-fields {
+  display: flex;
+  align-items: center;
+}
+.cm-ssw-form-field-type {
+  margin-left: 0.5em;
+}
+.cm-ssw-form-field.form-group {
+  margin-bottom: unset;
+}
+.cm-ssw-form-field.form-check {
+  margin: 0 3em 0 1.5em;
+  font-size: 1.3em;
+}
+.cm-ssw-update-form .material-icons {
+  position: relative;
+  top: -2px;
+}
+.cm-ssw-form-actions {
+  margin-top: 1em;
+}
 /* FOOTER */
 #co-footer {
   text-align: center;

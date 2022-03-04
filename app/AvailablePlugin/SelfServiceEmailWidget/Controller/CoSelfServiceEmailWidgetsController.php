@@ -21,12 +21,11 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v3.2.0
+ * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
 App::uses("SDWController", "Controller");
-//App::import('Controller', 'CoPeopleController');
 
 class CoSelfServiceEmailWidgetsController extends SDWController {
   // Class name, used by Cake
@@ -34,13 +33,14 @@ class CoSelfServiceEmailWidgetsController extends SDWController {
   
   public $uses = array(
     'SelfServiceEmailWidget.CoSelfServiceEmailWidget',
-    'CoPerson'
+    'EmailAddress',
+    'CO'
   );
   
   /**
    * Render the widget according to the requested user and current configuration.
    *
-   * @since  COmanage Registry v3.2.0
+   * @since  COmanage Registry v4.1.0
    * @param  Integer $id CO Services Widget ID
    */
   
@@ -50,10 +50,40 @@ class CoSelfServiceEmailWidgetsController extends SDWController {
     // Pass the config so we know which div to overwrite
     $this->set('vv_config', $cfg);
   
-    // Gather the email addresses for the current CoPerson
+    // Gather the email addresses for the current CoPerson for the first 
+    // read-only display. After the first load, updates and reloads will
+    // be performed via ajax.
     $coPersonId = $this->Session->read('Auth.User.co_person_id');
-    
-    
+    $args = [];
+    $args['conditions'] = array('EmailAddress.co_person_id' => $coPersonId);
+    $args['contain'] = false;
+    $emailAddresses = $this->EmailAddress->find('all',$args);
+    $this->set('vv_email_addresses', $emailAddresses);
+    $this->set('vv_co_person_id', array($coPersonId));
+  
+    $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
+  /* XXX probably need to work with the self-service permissions below
+    if(!empty($this->viewVars['permissions']['selfsvc'])
+      && !$this->Role->isCoOrCouAdmin($coPersonId,
+        $this->cur_co['Co']['id'])) {
+        // For models supporting self service permissions, adjust the available types
+        // in accordance with the configuration (but not if self is an admin)
+      
+        foreach(array_keys($availableTypes) as $k) {
+          // We use edit for the permission even if we're adding or viewing because
+          // add has different semantics for calculatePermission (whether or not the person
+          // can add a new item).
+          if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
+            'EmailAddress',
+            'edit',
+            $k)) {
+            unset($availableTypes[$k]);
+          }
+        }
+      }
+    */
+      $this->set('vv_available_types', $availableTypes);
+    /*}*/
   }
   
   /**
@@ -61,7 +91,7 @@ class CoSelfServiceEmailWidgetsController extends SDWController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v3.2.0
+   * @since  COmanage Registry v4.1.0
    * @return Array Permissions
    */
   

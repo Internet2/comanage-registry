@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.2.0
+ * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 -->
@@ -70,12 +70,12 @@
 
 <ul id="<?php print $this->action; ?>_co_url_widget" class="fields form-list form-list-admin">
   <li>
-    <?php print _txt('pl.serviceswidget.noconfig'); ?>
+    <?php print _txt('pl.self_email_widget.noconfig'); ?>
   </li>
 
   <li class="fields-submit">
     <div class="submit">
-      <?php print $this->Html->link(_txt('pl.serviceswidget.return'),
+      <?php print $this->Html->link(_txt('pl.self_email_widget.return'),
         $args,  array('class' => 'spin submit-button btn btn-primary')); ?>
     </div>
   </li>

@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v3.2.0
+ * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
   
@@ -40,7 +40,10 @@ $cm_self_service_email_widget_texts['en_US'] = array(
   //'er.serviceswidget.foobar'        => 'Some error here',
   
   // Plugin texts
+  'pl.self_email_widget.add' => 'Add another email address',
+  'pl.self_email_widget.make.primary'   => 'Make Primary',
   'pl.self_email_widget.noconfig' => 'This widget requires no configuration.',
   'pl.self_email_widget.none'     => 'No email addresses',
+  'pl.self_email_widget.primary'   => 'Primary',
   'pl.self_email_widget.return'   => 'Return'
 );
