@@ -32,11 +32,17 @@
   $divid = $vv_config['CoSelfServiceEmailWidget']['co_dashboard_widget_id'];
 ?>
 
+<?php
+// Include widget-specific css
+print $this->element('css');
+?>
+
 <div id="cm-ssw-email-widget" class="cm-ssw">
   <div class="cm-ssw-display">
     <ul class="cm-ssw-field-list">
       <?php foreach($vv_email_addresses as $k => $e): ?>
-        <li id="cm-ssw-display-entity-id-<?php print $e['EmailAddress']['id'] ?>">
+        <li id="cm-ssw-display-entity-id-<?php print $e['EmailAddress']['id'] ?>" 
+            data-entity-id="<?php print $e['EmailAddress']['id'] ?>">
           <?php 
             print $e['EmailAddress']['mail'];
             if($k === array_key_first($vv_email_addresses)) { // XXX when "Primary" is available, test for it here.
@@ -57,19 +63,32 @@
   </div>
   <div class="cm-ssw-update-form hidden">
     <form action="#">
+      <div class="cm-ssw-update-form-rows">
       <?php foreach($vv_email_addresses as $k => $e): ?>
-        <div class="cm-ssw-form-row" id="cm-ssw-form-entity-id-<?php print $e['EmailAddress']['id'] ?>">
+        <div class="cm-ssw-form-row" id="cm-ssw-form-entity-id-<?php print $e['EmailAddress']['id'] ?>" 
+             data-entity-id="<?php print $e['EmailAddress']['id'] ?>">
           <span class="cm-ssw-form-row-fields">
             <span class="cm-ssw-form-field form-group">
-              <input type="text" class="form-control cm-ssw-form-field-email" value="<?php print $e['EmailAddress']['mail'] ?>"/>
+              <label for="cm-ssw-form-field-email-<?php print $e['EmailAddress']['id'] ?>">
+                <?php print _txt('pl.self_email_widget.fd.email'); ?>
+              </label> 
+              <input type="text" 
+                     id="cm-ssw-form-field-email-<?php print $e['EmailAddress']['id'] ?>"
+                     class="form-control cm-ssw-form-field-email" 
+                     value="<?php print $e['EmailAddress']['mail'] ?>"/>
             </span>
-            <span class="cm-ssw-form-field form-group">
-            <?php
-              $attrs['value'] = (isset($e['EmailAddress']['type']) ? $e['EmailAddress']['type'] : "");
-              $attrs['empty'] = false;
-              $attrs['class'] = 'form-control cm-ssw-form-field-type';
-              print $this->Form->select('type', $vv_available_types, $attrs);
-            ?>
+            <span class="cm-ssw-form-field form-group cm-ssw-form-field-type">
+              <label for="cm-ssw-form-field-email-type-<?php print $e['EmailAddress']['id'] ?>">
+                 <?php print _txt('pl.self_email_widget.fd.type'); ?>
+               </label> 
+              <?php
+                $attrs['value'] = (isset($e['EmailAddress']['type']) ? $e['EmailAddress']['type'] : "");
+                $attrs['empty'] = false;
+                $attrs['id'] = 'cm-ssw-form-field-email-type-' . $e['EmailAddress']['id'];
+                $attrs['class'] = 'form-control cm-ssw-form-field-email-type';
+                $attrs['required'] = 'required';
+                print $this->Form->select('type', $vv_available_types, $attrs);
+              ?>
             </span>  
             <span class="cm-ssw-form-field form-check">
               <input type="radio" class="form-check-input cm-ssw-form-field-primary" 
@@ -89,6 +108,7 @@
           </span>  
         </div>
       <?php endforeach; ?>
+      </div>
       <div class="cm-ssw-form-row cm-ssw-form-actions">
         <div class="cm-ssw-add">
           <a href="#" class="cm-ssw-add-link">
@@ -98,7 +118,7 @@
         </div>
         <div class="cm-ssw-submit-buttons">
           <button class="btn btn-small cm-ssw-update-cancel"><?php print _txt('op.cancel'); ?></button>
-          <button class="btn btm-small btn-primary cm-ssw-save"><?php print _txt('op.save'); ?></button>
+          <button class="btn btm-small btn-primary cm-ssw-update-email-save-link"><?php print _txt('op.save'); ?></button>
         </div>
       </div>  
     </form>  
@@ -108,16 +128,23 @@
       <div class="cm-ssw-form-row">
         <span class="cm-ssw-form-row-fields">
           <span class="cm-ssw-form-field form-group">
-            <input type="text" id="cm-ssw-email-address-new" class="form-control cm-ssw-form-field-email" value=""/>
+            <label for="cm-ssw-email-address-new">
+              <?php print _txt('pl.self_email_widget.fd.email'); ?>
+            </label> 
+            <input type="text" id="cm-ssw-email-address-new" class="form-control cm-ssw-form-field-email" value="" required="required"/>
           </span>
-          <span class="cm-ssw-form-field form-group">
-          <?php
-          $attrs['value'] = "";
-          $attrs['empty'] = false;
-          $attrs['class'] = 'form-control cm-ssw-form-field-type';
-          print $this->Form->select('cm-ssw-email-type', $vv_available_types, $attrs);
-          print $this->Form->hidden('cm-ssw-email-co-person-id', array('value' => $vv_co_person_id));
-          ?>
+          <span class="cm-ssw-form-field form-group cm-ssw-form-field-type">
+            <label for="cm-ssw-form-field-email-type-new">
+              <?php print _txt('pl.self_email_widget.fd.type'); ?>
+            </label> 
+            <?php
+            $attrs['value'] = "";
+            $attrs['empty'] = false;
+            $attrs['id'] = 'cm-ssw-form-field-email-type-new';
+            $attrs['class'] = 'form-control';
+            print $this->Form->select('cm-ssw-email-type', $vv_available_types, $attrs);
+            print $this->Form->hidden('cm-ssw-email-co-person-id', array('value' => $vv_co_person_id));
+            ?>
           </span>  
           <span class="cm-ssw-form-field form-check">
             <input type="checkbox" class="form-check-input cm-ssw-form-field-primary" name="cm-ssw-email-make-primary" id="cm-ssw-email-make-primary"/>
@@ -132,13 +159,35 @@
     </form>
   </div>
 
+  <div class="modal" id="cm-ssw-email-modal" 
+       tabindex="-1" role="dialog" aria-labelledby="cm-ssw-email-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cm-ssw-email-modal-title"><?php print _txt('op.confirm'); ?></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="cm-ssw-email-modal-body">
+          --
+        </div>
+        <div class="modal-footer" id="cm-ssw-email-modal-confirm-footer">
+          <button type="button" id="cm-ssw-email-modal-cancel" 
+                  class="btn btn-small" data-dismiss="modal"><?php print _txt('op.cancel'); ?></button>
+          <button type="button" id="cm-ssw-email-modal-confirm" 
+                  class="btn btn-small btn-primary"><?php print _txt('op.confirm'); ?></button>
+        </div>
+        <div class="modal-footer" id="cm-ssw-email-modal-info-footer">
+          <button type="button" id="cm-ssw-email-modal-cancel"
+                  class="btn btn-small btn-primary" data-dismiss="modal"><?php print _txt('op.ok'); ?></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <?php
     // Include widget-specific javascript
     print $this->element('javascript'); 
   ?>
-  
-  <?php /*
-  <div style="white-space: pre;">
-    <?php print_r($vv_email_addresses); ?>
-  </div> */ ?>
 </div>

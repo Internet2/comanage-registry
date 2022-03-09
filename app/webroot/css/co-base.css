@@ -2721,7 +2721,7 @@ ul.cm-ssw-field-list li {
   margin-bottom: unset;
 }
 .cm-ssw-form-field.form-check {
-  margin: 0 3em 0 1.5em;
+  margin: 1.5em 3em 0 1em;
   font-size: 1.3em;
 }
 .cm-ssw-update-form .material-icons {

@@ -465,17 +465,17 @@ function callRegistryAPI(url, method, dataType, successCallback, entityId, failu
     data: data,
     encode: true
   })
-    .done(function() {
-      successCallback(xhr.status, entityId);
-    })
-    .fail(function() {
-      if(failureCallback != undefined) {
-        failureCallback(xhr.status, entityId);
-      }
-    })
-    .always(function() {
-      if(alwaysCallback != undefined) {
-        alwaysCallback(xhr.status, entityId);
-      }
-    });
+  .done(function() {
+    successCallback(xhr, entityId);
+  })
+  .fail(function() {
+    if(failureCallback != undefined) {
+      failureCallback(xhr, entityId);
+    }
+  })
+  .always(function() {
+    if(alwaysCallback != undefined) {
+      alwaysCallback(xhr, entityId);
+    }
+  });
 }
