@@ -1032,15 +1032,27 @@ iframe#tandc_content {
   height: 100%;
 }
 /* CHECK DUPLICATES (RECONCILE) TABLE */
+#reconcile-table-container {
+  /* Allow the table to scroll on the x axis if too large */
+  overflow-x: auto;
+  max-width: 100vw;
+}
 #reconcile-table {
   width: auto;
   border: none;
   font-size: 0.8em;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 #reconcile-table td,
 #reconcile-table th {
   border: 1px solid var(--cmg-color-lightgray-006);
   vertical-align: top;
+  padding: 1em;
+  background-color: var(--cmg-color-white);
+}
+#reconcile-table td {
+  padding: 1em;
 }
 #reconcile-table th {
   font-weight: normal;
@@ -1064,15 +1076,20 @@ iframe#tandc_content {
 }
 #reconcile-table td.reconcile-actions {
   text-align: center;
+  white-space: nowrap;
 }
 #reconcile-table .btn {
   font-size: 1em;
 }
 #reconcile-table th.attr-title {
   border: none;
+  border-right: 1px solid var(--cmg-color-white); /* avoid scrolled content appearing in the border spacing */
   background-color: var(--cmg-color-white);
   text-align: right;
   white-space: nowrap;
+}
+#reconcile-table .match-attributes-row td {
+  padding: 0 1em;
 }
 #reconcile-table .match-attr-name {
   text-transform: capitalize;
@@ -1080,18 +1097,19 @@ iframe#tandc_content {
 #reconcile-table .reconcile-fields {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-columns: 1fr; 
+  /* An alternative for grid-auto-columns is minmax(0, 1fr) - but by allowing the #reconcile-table-container
+     to overflow-x: scroll, we can get cleaner layout that works better for all devices. */ 
 }
 #reconcile-table .reconcile-fields ul.match-attr-list {
-  padding: 0.5em 1em 0 0;
-  margin: 0.5em 0 0 0;
+  padding: 1em 1em 1em 0;
+  margin: 0;
   border-top: 1px dashed var(--cmg-color-lightgray-008);
   list-style: none;
+  white-space: nowrap;
 }
 #reconcile-table .reconcile-fields ul.match-attr-list:first-child {
   border-top: none;
-  padding-top: 0;
-  margin-top: 0;
 }
 /* set the borders on the "new" reference id */
 #reconcile-table tbody td:nth-child(2) {

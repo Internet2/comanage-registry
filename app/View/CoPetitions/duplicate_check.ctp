@@ -44,20 +44,38 @@ print $this->element("pageTitleAndButtons", $params);
     <thead>
     <!-- Table headers: "New" and "Suggestion n" -->
     <tr>
-      <td class="empty"></td>
+      <th class="attr-title empty"></th>
       <?php $i = 1; ?>
       <?php foreach($vv_matches as $m): ?>
         <th class="col-names" scope="col">
           <?php print ($m->referenceId != 'new') ? _txt('fd.match.suggestion', array($i++)) : _txt('fd.match.new.record');  ?>
         </th>
         <?php
-          // Gather up all Match Attribute names for generating unique attribute rows later:
+          // Gather up all Match Attribute names for generating unique attribute rows later.
+          $hasNonSorIdentifiers = false;
           foreach($m->sorRecords as $s) {
              foreach($s->sorAttributes as $k => $v) {
-               // we only need the names at the top of the sorAttributes; we will make them unique before we use them
-               $matchAttributeNames[] = $k; 
-             } 
+               // We display SOR indentifiers separately, so see if we have any identifiers that are *NOT* SOR. If so,
+               // we need to display an identifier row. Otherwise we can skip it.
+               if ($k == 'identifiers') {
+                 // We only need to determine this once.
+                 if(!$hasNonSorIdentifiers) {
+                   foreach ($v as $id) {
+                     if ($id->type != 'sor') {
+                       $hasNonSorIdentifiers = true;
+                       $matchAttributeNames[] = $k;
+                     }
+                   }
+                 }  
+               } else {
+                 // We only need the names at the top of the sorAttributes
+                 $matchAttributeNames[] = $k;
+               }
+             }
           }
+          // Finally, make the Match Attribute names array unique so we can iterate over
+          // them and produce one row per attribute.
+          $matchAttributeNames = array_unique($matchAttributeNames);
         ?>
       <?php endforeach; ?>
     </tr>
@@ -97,55 +115,12 @@ print $this->element("pageTitleAndButtons", $params);
             if(!empty($vv_petition_token)) {
               $targetUrl['token'] = $vv_petition_token;
             }
-            $linkText = ($m->referenceId != 'new') ? _txt('op.select.person') : _txt('op.add.new.literal');
+            $linkText = ($m->referenceId != 'new') ? _txt('op.match.merge') : _txt('op.add.new.literal');
             print $this->Form->postLink($linkText, $targetUrl, $targetOptions); 
           ?>
         </td>
       <?php endforeach; ?>
     </tr>
-
-    <!-- MATCH ATTRIBUTES -->
-    <?php
-    // Make the Match Attribute names array unique:
-    $matchAttributeNames = array_unique($matchAttributeNames);
-    ?>
-    <?php foreach($matchAttributeNames as $n): ?>
-      <tr>
-        <th class="attr-title match-attr-name" scope="row"><?php print $n ?></th>
-        <?php foreach($vv_matches as $m): ?>
-          <td>
-            <div class="reconcile-fields">
-              <?php
-              // Output the Match Attribute values for the current attribute key.
-              foreach($m->sorRecords as $s) {
-                foreach($s->sorAttributes as $k => $v) {
-                  // Only output values for the current key (derived from $matchAttributeNames).
-                  if($k == $n) {
-                    print '<div class="match-attr-list-container">';
-                    foreach($v as $obj) {
-                      print '<ul class="match-attr-list">' . "\n";
-                      // Convert the object to associative array and sort by key values.
-                      // XXX This assumes that our object will *always* be a simple associative array by this point.
-                      $attrsArr = json_decode(json_encode($obj), true);
-                      ksort($attrsArr);
-                      // Finally, output the key/value pairs:
-                      foreach($attrsArr as $key => $val) {
-                        if(!empty($val)) {
-                          print "<li>$key: <strong>$val</strong></li>\n";
-                        }
-                      }
-                      print "</ul>\n";
-                    }
-                    print "</div>\n";
-                  }
-                }
-              }
-              ?>
-            </div>
-          </td>
-        <?php endforeach; // $m ?>
-      </tr>
-    <?php endforeach; // $n ?>
     <!-- System of Record (SOR) -->
     <tr>
       <th class="attr-title" scope="row"><?php print _txt('fd.match.sor'); ?></th>
@@ -172,12 +147,56 @@ print $this->element("pageTitleAndButtons", $params);
             <?php foreach($m->sorRecords as $s): ?>
               <span class="reconcile-sor-id">
                 <?php if(!empty($s->meta->sorId)) print $s->meta->sorId; ?>
-              </span>  
+              </span>
             <?php endforeach; // $s ?>
-          </div>  
+          </div>
         </td>
       <?php endforeach; // $m ?>
     </tr>
+
+    <!-- MATCH ATTRIBUTES -->
+    <?php foreach($matchAttributeNames as $n): ?>
+      <tr class="match-attributes-row">
+        <th class="attr-title match-attr-name" scope="row"><?php print $n ?></th>
+        <?php foreach($vv_matches as $m): ?>
+          <td>
+            <div class="reconcile-fields">
+              <?php
+              // Output the Match Attribute values for the current attribute key.
+              foreach($m->sorRecords as $s) {
+                foreach($s->sorAttributes as $k => $v) {
+                  // Only output values for the current key (derived from $matchAttributeNames).
+                  if($k == $n) {
+                    print '<div class="match-attr-list-container">';
+                    foreach($v as $obj) {
+                      // Skip SOR Identifiers (if Identifiers are being listed at all).
+                      if (!($k == 'identifiers' && $obj->type == 'sor')) {
+                        print '<ul class="match-attr-list">' . "\n";
+                        // Convert the object to associative array and sort by key values.
+                        // XXX This assumes that our object will *always* be a simple associative array by this point.
+                        $attrsArr = json_decode(json_encode($obj), true);
+                        ksort($attrsArr);
+                        // Finally, output the key/value pairs:
+                        foreach ($attrsArr as $key => $val) {
+                          if (!empty($val)) {
+                            print "<li>$key: <strong>$val</strong></li>\n";
+                          }
+                        }
+                        print "</ul>\n";
+                      }
+                    }  
+                    print "</div>\n";
+                  }
+                }  
+                
+              }
+              ?>
+            </div>
+          </td>
+        <?php endforeach; // $m ?>
+      </tr>
+    <?php endforeach; // $n - end of MATCH ATTRIBUTES ?>
+    
     <!-- Match ID -->
     <tr>
       <th class="attr-title" scope="row"><?php print _txt('fd.match.id'); ?></th>
@@ -193,7 +212,34 @@ print $this->element("pageTitleAndButtons", $params);
         </td>
       <?php endforeach; // $m ?>
     </tr>
+    <!-- Request Times -->
+    <tr class="match-attributes-row">
+      <th class="attr-title" scope="row">
+        <?php print _txt('fd.match.request.time'); ?>
+      </th>
+      <?php foreach($vv_matches as $m): ?>
+        <td class="request-time">
+          <div class="reconcile-fields">
+            <?php
+            // Output the Request Time for each set of attributes
+            foreach($m->sorRecords as $s) {
+              print '<div class="match-attr-list-container">';
+              foreach($s->meta as $k => $v) {
+                if($k == 'requestTime') {
+                  print '<ul class="match-attr-list">' . "\n";
+                  print '<li>';
+                  print $this->Time->format($v, "%F %T", false, $vv_tz) . '<br>' . $vv_tz;
+                  print "</li>\n";
+                  print "</ul>\n";
+                }
+              }
+              print "</div>\n";
+            }
+            ?>
+          </div>
+        </td>
+      <?php endforeach; ?>
+    </tr>
     </tbody>
   </table>
 </div>
-

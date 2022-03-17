@@ -238,10 +238,6 @@
     float: right;
     width: 70%;
   }
-  /* RECONCILE TABLE */
-  #reconcile-table {
-    font-size: 1em;
-  }
   /* SEARCH PAGE */
   #search input#CoDashboardQ {
     width: 300px;
@@ -551,6 +547,27 @@
     -moz-column-gap: 20px; /* Firefox */
     column-gap: 20px;
   }
+  /* RECONCILE TABLE */
+  #reconcile-table-container {
+    max-width: calc(100vw - 180px - 5em); /* offset the menu drawer width */
+  }
+  main.drawer-half-closed #reconcile-table-container {
+    max-width: calc(100vw - 52px - 5em);
+  }
+  #reconcile-table {
+    font-size: 1em;
+  }
+  #reconcile-table th.attr-title,
+  #reconcile-table th:nth-child(2),
+  #reconcile-table td:nth-child(2) {
+    position: sticky;
+    position: -webkit-sticky;
+    left: 0;
+  }
+  #reconcile-table th:nth-child(2),
+  #reconcile-table td:nth-child(2) {
+    left: 125px;
+  }
   /* FOOTER */
   #co-footer,
   body.co_petitions.petitionerAttributes.logged-out #co-footer {
@@ -588,6 +605,12 @@
     width: 200px;
     min-width: 200px;
   }
+  #reconcile-table-container {
+    max-width: calc(100vw - 200px - 5em);
+  }
+  main.drawer-half-closed #reconcile-table-container {
+    max-width: calc(100vw - 52px - 5em);
+  }
   #content.with-sidebar {
     display: grid;
     grid-template-columns: minmax(320px, 3fr) 1fr;
@@ -614,6 +637,12 @@
     width: 240px;
     min-width: 240px;
   }
+  #reconcile-table-container {
+    max-width: calc(100vw - 240px - 5em);
+  }
+  main.drawer-half-closed #reconcile-table-container {
+    max-width: calc(100vw - 52px - 5em);
+  } 
   #co_people .person-info-inner {
     width: 550px;
   }
