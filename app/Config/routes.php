@@ -100,6 +100,21 @@ Router::mapResources(array(
                        'urls'
                      ));
 
+// CO Group
+Router::connect(
+  '/co_groups/reconcile/:id',
+  array('controller' => 'co_groups', 'action' => 'reconcile', '[method]' => 'POST'),
+  array(
+    'pass' => array('id'),
+    'id' => '[0-9]+'
+  )
+);
+
+Router::connect(
+  '/co_groups/reconcile',
+  array('controller' => 'co_groups', 'action' => 'reconcile', '[method]' => 'PUT'),
+);
+
 // CO People find
 $modes = array_keys(_txt('en.people.picker.mode'));
 Router::connect(
