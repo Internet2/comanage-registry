@@ -258,6 +258,39 @@ class CoGroupMember extends AppModel {
         }
       }
     }
+
+    // Soft delete the membership entry if the owner and member are false
+    if(!empty($groupMember['co_group_id'])
+       && !empty($groupMember['co_person_id'])
+       && !$groupMember['member']           // Not a member
+       && !$groupMember['owner']            // Not an owner
+       && !$groupMember['deleted']) {       // Not deleted yet
+      // If a (CO Group Member) id is specified but member and owner are
+      // both false, delete the row and cut a history record.
+
+      // Set $this->data so ProvisionerBehavior can run on beforeDelete()
+      $group_name = $this->CoGroup->field('name', array('id' => $groupMember['co_group_id']));
+
+      if (!$this->delete($groupMember['id'], false)) {
+        throw new RuntimeException(_txt('er.delete'));
+      }
+
+      // Cut a history record
+
+      try {
+        $this->CoPerson->HistoryRecord->record(
+          $groupMember['co_person_id'],
+          null,
+          null,
+          AuthComponent::user('co_person_id'),
+          ActionEnum::CoGroupMemberDeleted,
+          _txt('rs.grm.deleted', array($group_name, $groupMember['co_group_id'])),
+          $groupMember['co_group_id']
+        );
+      } catch (Exception $e) {
+        throw new RuntimeException($e->getMessage());
+      }
+    }
     
     return true;
   }
