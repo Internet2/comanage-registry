@@ -28,16 +28,7 @@
 // The general format for Core API URLs should be /api/co/:coid/core/v1/namespace/...
 // Note REST API v2 has taken the form /api/v2/objects
 
-Router::connect(
-  '/api/co/:coid/core/v1/people/:identifier',
-  array(
-    'plugin'     => 'core_api',
-    'controller' => 'Api',
-    'action'     => 'read',
-    '[method]'   => 'GET'
-  )
-);
-
+// COmanage CO Person Read API
 // /api/co/:coid/core/v1/people?limit=20&page=2&direction=desc
 Router::connect(
   '/api/co/:coid/core/v1/people',
@@ -46,6 +37,17 @@ Router::connect(
     'controller' => 'Api',
     'action'     => 'index',
     '[method]'   => 'GET',
+  )
+);
+
+// COmanage CO Person Read API
+Router::connect(
+  '/api/co/:coid/core/v1/people/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Api',
+    'action'     => 'read',
+    '[method]'   => 'GET'
   )
 );
 
@@ -59,10 +61,7 @@ Router::connect(
   )
 );
 
-
-/*
 Router::connect(
-// XXX implement this as a proxy for expunge?
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
@@ -71,6 +70,13 @@ Router::connect(
     '[method]'   => 'DELETE'
   )
 );
+
+// Scoped identifiers are not parsed properly because they are perceived as file extensions
+// Enable extensions parse to resolve this problem
+Router::parseExtensions('json', 'xml');
+
+
+/*
 
 Router::connect(
 // XXX This needs to trigger identifier assignment and maybe some other stuff

@@ -62,4 +62,5 @@ $cm_core_api_texts['en_US'] = array(
   'pl.coreapi.response.type.desc'   => 'Define the response content granularity',
   'pl.coreapi.rs.edited-a4'         => '%1$s Edited via Core API: %2$s',
   'pl.coreapi.rs.linked'            => 'New Org Identity Linked via Core API',
+  'pl.coreapi.expunge.on.del'       => 'Expunge on Delete',
 );

@@ -136,6 +136,11 @@ class CoreApi extends AppModel {
         'allowEmpty' => false
       )
     ),
+    'expunge_on_delete' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    )
   );
 
   /**
@@ -174,7 +179,80 @@ class CoreApi extends AppModel {
             'action'     => "index"))
     );
   }
-  
+
+  /**
+   * Transition CO Person to status delete. This implies that all CO Person Roles
+   * will be transitioned to status deleted as well
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId           CO ID
+   * @param  string  $identifier     Identifier to query
+   * @param  string  $identifierType Identifier type
+   * @return void
+   */
+  public function deleteV1($coId, $identifier, $identifierType) {
+    // Start a transaction
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+
+    try {
+      // Start by trying to retrieve the current record. This will throw an error
+      // if not found
+
+      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+
+      if(empty($current['CoPerson']['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      }
+
+      // If the CO Person has no Role
+      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
+         && empty($current["CoPersonRole"])) {
+        // Clear here and below in case we're run in a loop
+        $person_data = array(
+          'id'      => $current['CoPerson']['id'],
+          'co_id'   => $coId,   // Required field
+          'status'  => StatusEnum::Deleted
+        );
+        $this->Co->CoPerson->clear();
+        if(!$this->Co->CoPerson->save($person_data, array('provision' => false))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
+        }
+      }
+
+      // If the CO Person has at least one Role
+      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
+         && !empty($current["CoPersonRole"])) {
+        $values = array();
+        foreach($current["CoPersonRole"] as $role) {
+          // Unless we do not provide the required fields the model validation will fail
+          $values[] = array(
+            'id'           => $role['id'],
+            'co_person_id' => $role['co_person_id'],   // Required field
+            'affiliation'  => $role['affiliation'],    // Required field
+            'status'       => StatusEnum::Deleted
+          );
+        }
+
+        $this->Co->CoPerson->CoPersonRole->clear();
+        // Disable Model validation. We do not provide co_person_id and affiliation which are required
+        if(!$this->Co->CoPerson->CoPersonRole->saveMany($values, array('provision' => false))) {
+          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
+        }
+      }
+
+      // Commit all changes to the databases
+      $dbc->commit();
+
+      // Trigger provisioning
+      $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
+    }
+  }
+
   /**
    * Delete associated models that were not provided in the update request.
    *
@@ -248,7 +326,39 @@ class CoreApi extends AppModel {
       }
     }
   }
-  
+
+  /**
+   * This is a wrapper around CoPerson->expunge. Regardless of its status the CoPerson
+   * will be expunged
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId               CO ID
+   * @param  string  $identifier         Identifier to query
+   * @param  string  $identifierType     Identifier type
+   * @param  integer $expungerCoPersonId Identifier of CO Person performing expunge
+   * @return boolean True on success
+   * @throws InvalidArgumentException
+   */
+  public function expungeV1($coId, $identifier, $identifierType, $expungerCoPersonId) {
+    try {
+      // Start by trying to retrieve the current record. This will throw an error
+      // if not found
+
+      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+
+      if(empty($current['CoPerson']['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      }
+
+      return $this->Co->CoPerson->expunge($current['CoPerson']['id'],
+                                          null,
+                                          $expungerCoPersonId);
+    }
+    catch(Exception $e) {
+      throw new RuntimeException($e->getMessage());
+    }
+  }
+
   /**
    * Filter metadata from an inbound request. Associated models are not examined.
    *

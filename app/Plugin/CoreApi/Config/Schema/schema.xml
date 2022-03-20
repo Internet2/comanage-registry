@@ -40,6 +40,7 @@
     </field>
     <field name="identifier_type" type="C" size="32" />
     <field name="index_response_type" type="C" size="2" />
+    <field name="expunge_on_delete" type="L" />
     <field name="api" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
