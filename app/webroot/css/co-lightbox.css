@@ -39,6 +39,18 @@
 .mfp-content #lightboxContent h1 {
   font-size: 1.4em;
 }
+
+.mfp-content #lightboxContent .co-info-topbox.lightbox-info,
+.mfp-content #lightboxContent h1 div {
+  display: flex;
+}
+.mfp-content .titleNavContainer {
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--cmg-color-gray-border);
+  font-size: larger;
+}
 .mfp-content #lightboxContent h2 {
   font-size: 1.2em;
   margin-bottom: 1.5em;

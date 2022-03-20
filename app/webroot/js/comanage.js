@@ -178,6 +178,16 @@ function loadUiDialogSpinner(elem) {
   elem.button("disable");
 }
 
+// Turn the loader to visible and disable the submit button
+// This function assumes that the view contains only one submit button
+function showBtnSpinnerLightbox() {
+  var $spinner = $(".btn-submit-with-loader");
+  if($('.lightbox').length > 0) {
+    $spinner.addClass('visible').removeClass('invisible');
+    $spinner.closest("button").attr('disabled', true);
+  }
+}
+
 // Generic goto page form handling for multi-page listings.
 // We handle this in javascript to avoid special casing controllers.
 // pageNumber         - page number         (int, required)
