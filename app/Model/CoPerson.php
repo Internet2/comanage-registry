@@ -343,13 +343,14 @@ class CoPerson extends AppModel {
    * has a role beyond subject.
    *
    * @since  COmanage Registry v0.8.5
-   * @param  integer Identifier of CO Person
-   * @param  integer Identifier of CO Person performing expunge
+   * @param  integer CO Person ID getting expunged
+   * @param  integer CO Person ID performing expunge
+   * @param  integer API User ID performing expunge
    * @return boolean True on success
    * @throws InvalidArgumentException
    */
   
-  public function expunge($coPersonId, $expungerCoPersonId) {
+  public function expunge($coPersonId, $expungerCoPersonId, $expungerApiUserId = null) {
     $coperson = $this->findForExpunge($coPersonId);
     
     if(!$coperson) {
@@ -395,15 +396,24 @@ class CoPerson extends AppModel {
     // Rewrite any Notification where this person is an actor, recipient, or resolver
     
     foreach($coperson['CoNotificationActor'] as $n) {
-      $this->CoNotificationActor->expungeParticipant($n['id'], 'actor', $expungerCoPersonId);
+      $this->CoNotificationActor->expungeParticipant($n['id'],
+                                                     'actor',
+                                                     $expungerCoPersonId,
+                                                     $expungerApiUserId);
     }
     
     foreach($coperson['CoNotificationRecipient'] as $n) {
-      $this->CoNotificationActor->expungeParticipant($n['id'], 'recipient', $expungerCoPersonId);
+      $this->CoNotificationActor->expungeParticipant($n['id'],
+                                                     'recipient',
+                                                     $expungerCoPersonId,
+                                                     $expungerApiUserId);
     }
     
     foreach($coperson['CoNotificationResolver'] as $n) {
-      $this->CoNotificationActor->expungeParticipant($n['id'], 'resolver', $expungerCoPersonId);
+      $this->CoNotificationActor->expungeParticipant($n['id'],
+                                                     'resolver',
+                                                     $expungerCoPersonId,
+                                                     $expungerApiUserId);
     }
     
     // Rewrite any History Records where this person is an actor but not a recipient
@@ -411,7 +421,9 @@ class CoPerson extends AppModel {
     
     foreach($coperson['HistoryRecordActor'] as $h) {
       if($h['co_person_id'] != $coPersonId) {
-        $this->HistoryRecord->expungeActor($h['id'], $expungerCoPersonId);
+        $this->HistoryRecord->expungeActor($h['id'],
+                                           $expungerCoPersonId,
+                                           $expungerApiUserId);
       }
     }
     

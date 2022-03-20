@@ -53,6 +53,26 @@
 <script type="text/javascript">
   <!-- JS specific to these fields -->
 
+  function core_api_toggle() {
+    response_config_field();
+    expunge_on_del_toggle();
+  }
+
+  function expunge_on_del_toggle() {
+    let core_api = $('#CoreApiApi > option:selected').val();
+    let person_write = '<?php print CoreApiEnum::CoPersonWrite;?>';
+    if (core_api != undefined
+        && core_api == person_write) {
+      $('.core-api-expunge-on-del').show();
+    } else {
+      // hide
+      $('.core-api-expunge-on-del').hide();
+
+      // clear the value
+      $('#CoreApiExpungeOnDelete').prop( "checked", false );
+    }
+  }
+
   // Response config is only for CO Person API. For other APIs we will need to hide this configuration
   function response_config_field() {
     let core_apis = <?php
@@ -128,7 +148,7 @@
                            ? $core_apis[0]['CoreApi']['api']
                            : "");
         $attrs['empty'] = true;
-        $attrs['onchange'] = 'response_config_field();';
+        $attrs['onchange'] = 'core_api_toggle();';
 
         if($e) {
           print $this->Form->select('api',
@@ -245,6 +265,32 @@
       }
       ?>
     </div>
+  </li>
+  <li
+    class="core-api-expunge-on-del"
+    style="<?php
+    print (!empty($core_apis[0]['CoreApi']['api'])
+           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonWrite)
+      ? '' :  'display: none'; ?>"
+  >
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.coreapi.expunge.on.del'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+      if ($e) {
+        $args = array();
+        $args['class'] = 'mr-1';
+        $args['checked'] = (isset($core_apis[0]['CoreApi']['expunge_on_delete'])
+                            && $core_apis[0]['CoreApi']['expunge_on_delete']);
+
+        print $this->Form->checkbox('expunge_on_delete', $args);
+        print $this->Form->label('expunge_on_delete', _txt('pl.coreapi.expunge.on.del'));
+      } else {
+        print (isset($core_apis[0]['CoreApi']['expunge_on_delete']) && $core_apis[0]['CoreApi']['expunge_on_delete'])
+              ? _txt('fd.yes') : _txt('fd.no');
+      }
+      ?>
   </li>
   <?php if($e): ?>
     <li class="fields-submit">

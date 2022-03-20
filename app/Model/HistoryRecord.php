@@ -101,6 +101,13 @@ class HistoryRecord extends AppModel {
         'allowEmpty' => true
       )
     ),
+    'actor_api_user_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
     'action' => array(
       'rule' => array('maxLength', 4),
       'required' => false,
@@ -122,12 +129,14 @@ class HistoryRecord extends AppModel {
    * @since  COmanage Registry v0.8.5
    * @param  integer $id                  History Record ID
    * @param  integer $expungerCoPersonId  CO Person ID of person performing expunge
+   * @param  integer $expungerApiUserId   API User ID performing expunge
    * @return boolean True on success
    * @throws InvalidArgumentException
    */
   
   public function expungeActor($id,
-                               $expungerCoPersonId) {
+                               $expungerCoPersonId,
+                               $expungerApiUserId = null) {
     $this->id = $id;
     
     $subjectCoPersonId = $this->field('co_person_id');
@@ -142,7 +151,11 @@ class HistoryRecord extends AppModel {
                     $subjectOrgIdentityId,
                     $expungerCoPersonId,
                     ActionEnum::HistoryRecordActorExpunged,
-                    _txt('rs.hr.expunge', array($id)));
+                    _txt('rs.hr.expunge', array($id)),
+                    null,
+                    null,
+                    null,
+                    $expungerApiUserId);
     }
     // else subject can be null if (eg) a group provisioner failed and a notification
     // is sent to the admins. In that case, don't bother with the history record
@@ -189,6 +202,7 @@ class HistoryRecord extends AppModel {
    * @param  String Comment (if not provided, default comment for $action is used)
    * @param  Integer CO Group ID
    * @param  Integer CO Email List ID
+   * @param  Integer Actor API User ID
    * @throws RuntimeException
    */
   
@@ -200,7 +214,8 @@ class HistoryRecord extends AppModel {
                          $comment=null,
                          $coGroupID=null,
                          $coEmailListId = null,
-                         $coServiceId = null) {
+                         $coServiceId = null,
+                         $actorApiUserId = null) {
     $historyData = array();
     $historyData['HistoryRecord']['co_person_id'] = $coPersonID;
     $historyData['HistoryRecord']['co_person_role_id'] = $coPersonRoleID;
@@ -210,7 +225,8 @@ class HistoryRecord extends AppModel {
     $historyData['HistoryRecord']['co_service_id'] = $coServiceId;
     $historyData['HistoryRecord']['actor_co_person_id'] = $actorCoPersonID;
     $historyData['HistoryRecord']['action'] = $action;
-    
+    $historyData['HistoryRecord']['actor_api_user_id'] = $actorApiUserId;
+
     if(isset($comment)) {
       $historyData['HistoryRecord']['comment'] = $comment;
     } else {
