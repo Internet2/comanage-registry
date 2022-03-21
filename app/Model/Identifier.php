@@ -217,13 +217,14 @@ class Identifier extends AppModel {
    * @param  Integer Object ID
    * @param  Integer Actor CO Person ID
    * @param  Boolean Whether or not to run provisioners on save
+   * @param  Integer Actor API User ID
    * @return Array Success for each attribute, where the key is the attribute assigned and the value is 1 for success, 2 for already assigned, or an error string
    * @throws Exception
    * @throws InvalidArgumentException
    * @throws OverflowException
    */  
   
-  function assign($objType, $objId, $actorCoPersonId, $provision=true) {
+  function assign($objType, $objId, $actorCoPersonId, $provision=true, $actorApiUserId=null) {
     $ret = array();
     
     // First, pull the CO ID from the object record
@@ -259,7 +260,7 @@ class Identifier extends AppModel {
         
         try {
           // We don't provision here, but instead once below after all identifiers are assigned
-          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $objType, $objId, $actorCoPersonId, false);
+          $this->CoPerson->Co->CoIdentifierAssignment->assign($ia, $objType, $objId, $actorCoPersonId, false, $actorApiUserId);
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 1;
           $cnt++;
         }
