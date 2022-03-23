@@ -325,34 +325,41 @@ class CoGroupMembersController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       case 'add':
         $this->CoGroupMember->CoPerson->HistoryRecord->record($newdata['CoGroupMember']['co_person_id'],
                                                               null,
                                                               null,
-                                                              $this->Session->read('Auth.User.co_person_id'),
+                                                              $actorCoPersonId,
                                                               ActionEnum::CoGroupMemberAdded,
                                                               _txt('rs.grm.added', array($newdata['CoGroup']['name'],
                                                                                          $newdata['CoGroup']['id'],
                                                                                          _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
                                                                                          _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
-                                                              $olddata['CoGroup']['id']);
+                                                              $olddata['CoGroup']['id'],
+                                                              null, null,
+                                                              $actorApiUserId);
         break;
       case 'delete':
         $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
                                                               null,
                                                               null,
-                                                              $this->Session->read('Auth.User.co_person_id'),
+                                                              $actorCoPersonId,
                                                               ActionEnum::CoGroupMemberDeleted,
-                                                              _txt('rs.grm.deleted', array($olddata['CoGroup']['name'],
-                                                                                           $olddata['CoGroup']['id'])),
-                                                              $olddata['CoGroup']['id']);
+                                                              _txt('rs.grm.deleted',
+                                                                   array($olddata['CoGroup']['name'], $olddata['CoGroup']['id'])),
+                                                              $olddata['CoGroup']['id'],
+                                                              null, null,
+                                                              $actorApiUserId);
         break;
       case 'edit':
         $this->CoGroupMember->CoPerson->HistoryRecord->record($olddata['CoGroupMember']['co_person_id'],
                                                               null,
                                                               null,
-                                                              $this->Session->read('Auth.User.co_person_id'),
+                                                              $actorCoPersonId,
                                                               ActionEnum::CoGroupMemberEdited,
                                                               _txt('rs.grm.edited', array($olddata['CoGroup']['name'],
                                                                                           $olddata['CoGroup']['id'],
@@ -360,7 +367,9 @@ class CoGroupMembersController extends StandardController {
                                                                                           _txt($olddata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'),
                                                                                           _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
                                                                                           _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
-                                                              $olddata['CoGroup']['id']);
+                                                              $olddata['CoGroup']['id'],
+                                                              null, null,
+                                                              $actorApiUserId);
         break;
     }
     
