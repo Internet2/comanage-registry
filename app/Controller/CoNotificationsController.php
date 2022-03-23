@@ -61,6 +61,10 @@ class CoNotificationsController extends StandardController {
   public function view($id) {
     parent::view($id);
     $this->set('title_for_layout', _txt('ct.co_notifications.1'));
+    if(!isset($this->request->params["named"]["render"])
+      || $this->request->params["named"]["render"] !== 'norm') {
+      $this->layout = 'lightbox';
+    }
   }
 
   /**
