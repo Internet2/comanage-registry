@@ -502,33 +502,42 @@ class OrgIdentitiesController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       case 'add':
         $this->OrgIdentity->HistoryRecord->record(null,
                                                   null,
                                                   $this->OrgIdentity->id,
-                                                  $this->Session->read('Auth.User.co_person_id'),
-                                                  ActionEnum::OrgIdAddedManual);
+                                                  $actorCoPersonId,
+                                                  ActionEnum::OrgIdAddedManual,
+                                                  null, null, null, null,
+                                                  $actorApiUserId);
         break;
       case 'delete':
         $this->OrgIdentity->HistoryRecord->record(null,
                                                   null,
                                                   $this->OrgIdentity->id,
-                                                  $this->Session->read('Auth.User.co_person_id'),
-                                                  ActionEnum::OrgIdDeletedManual);
+                                                  $actorCoPersonId,
+                                                  ActionEnum::OrgIdDeletedManual,
+                                                  null, null, null, null,
+                                                  $actorApiUserId);
         break;
       case 'edit':
+        $comment = _txt('en.action', null, ActionEnum::OrgIdEditedManual)
+          . ": "
+          . $this->OrgIdentity->changesToString(
+            $newdata, $olddata, (!empty($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : null)
+          );
         $this->OrgIdentity->HistoryRecord->record(null,
                                                   null,
                                                   $this->OrgIdentity->id,
-                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  $actorCoPersonId,
                                                   ActionEnum::OrgIdEditedManual,
-                                                  _txt('en.action', null, ActionEnum::OrgIdEditedManual) . ": " .
-                                                  $this->OrgIdentity->changesToString($newdata,
-                                                                                      $olddata,
-                                                                                      (!empty($this->cur_co['Co']['id'])
-                                                                                       ? $this->cur_co['Co']['id']
-                                                                                       : null)));
+                                                  $comment,
+                                                  null, null, null,
+                                                  $actorApiUserId);
         break;
     }
     
