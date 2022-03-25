@@ -24,7 +24,7 @@
  * @since         COmanage Registry v0.8.5
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-  
+
   $params = array('title' => $title_for_layout);
   print $this->element("pageTitle", $params);
 
@@ -74,8 +74,12 @@
     maybe_enable_submit();
   }
 </script>
-<div class="co-info-topbox">
-  <em class="material-icons">info</em>
+<?php if($vv_lightbox): ?>
+<div class="co-info-topbox lightbox-info">
+<?php else: ?>
+ <div class="co-info-topbox">
+<?php endif; ?>
+  <em class="material-icons mr-1">info</em>
   <?php print _txt('op.expunge.confirm', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?>
 </div>
 <div class="innerContent">
@@ -184,7 +188,23 @@
   
   <p>
     <?php
-      print $this->Form->submit(_txt('op.expunge'));
+      $loader = $this->Html->tag(
+        'span',
+        '',
+        array(
+          'class' => 'spinner-grow spinner-grow-sm mr-1 align-middle invisible btn-submit-with-loader',
+          'escape' => false,
+          'role' => 'status',
+          'aria-hidden' => true
+        )
+      );
+
+      print $this->Form->button($loader . _txt('op.expunge'),array(
+        'type' => 'submit',
+        'class' => 'btn btn-primary',
+        'disabled' => true,
+        'onclick' => 'javascript:showBtnSpinnerLightbox()'
+      ));
     ?>
   </p>
 </div>

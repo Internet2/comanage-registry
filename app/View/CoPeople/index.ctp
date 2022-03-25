@@ -325,7 +325,7 @@ if(!empty($vv_alphabet_search)) {
                       'action'        => 'link',
                       $p['CoPerson']['id'],
                       'orgidentityid'        => $vv_org_identity['OrgIdentity']['id']),
-                    array('class'   => 'relinkbutton',
+                    array('class'   => 'relinkbutton lightbox',
                       'onclick' => 'noprop(event);'))
                   . "\n";
               } elseif($this->action == 'relink'
@@ -338,7 +338,7 @@ if(!empty($vv_alphabet_search)) {
                       $vv_co_org_identity_link['CoOrgIdentityLink']['co_person_id'],
                       'linkid'        => $vv_co_org_identity_link['CoOrgIdentityLink']['id'],
                       'tocopersonid'  => $p['CoPerson']['id']),
-                    array('class'   => 'relinkbutton',
+                    array('class'   => 'relinkbutton lightbox',
                       'onclick' => 'noprop(event);'))
                   . "\n";
               } elseif($this->action == 'relink'
@@ -351,7 +351,7 @@ if(!empty($vv_alphabet_search)) {
                       $vv_co_person_role['CoPersonRole']['co_person_id'],
                       'copersonroleid' => $vv_co_person_role['CoPersonRole']['id'],
                       'tocopersonid' => $p['CoPerson']['id']),
-                    array('class'   => 'relinkbutton',
+                    array('class'   => 'relinkbutton lightbox',
                       'onclick' => 'noprop(event);'))
                   . "\n";
               } elseif($this->action == 'select') {

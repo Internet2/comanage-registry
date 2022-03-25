@@ -30,7 +30,13 @@
 <div class="titleNavContainer">
   <div class="pageTitle">
     <h1>
-      <?php print filter_var($title,FILTER_SANITIZE_SPECIAL_CHARS); ?>
+      <?php
+      if($title !== strip_tags($title)) {
+       print($title);
+      } else {
+        print filter_var($title,FILTER_SANITIZE_SPECIAL_CHARS);
+      }
+      ?>
     </h1>
     <?php if(!empty($subtitle)) { print filter_var($subtitle,FILTER_SANITIZE_SPECIAL_CHARS); } ?>
   </div>

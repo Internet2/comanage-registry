@@ -656,7 +656,8 @@
                     array('controller'    => 'co_people',
                       'action'        => 'link',
                       'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                      'co'            => $lcoid),
+                      'co'            => $lcoid,
+                      'render'        => 'norm'),
                     array('class'  => 'addbutton'));
 
                 }

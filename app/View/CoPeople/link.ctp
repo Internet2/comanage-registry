@@ -87,7 +87,7 @@
       $(":submit").attr('disabled', true);
     }
   }
-  
+
   function js_local_onload()
   {
     // Local (to this view) initializations
@@ -96,8 +96,12 @@
     maybe_enable_submit();
   }
 </script>
+<?php if($vv_lightbox): ?>
+<div class="co-info-topbox lightbox-info">
+<?php else: ?>
 <div class="co-info-topbox">
-  <em class="material-icons">info</em>
+ <?php endif; ?>
+  <em class="material-icons mr-1">info</em>
   <?php print _txt('op.link.confirm'); ?>
 </div>
 <div class="innerContent">
@@ -141,7 +145,23 @@
   
   <p>
     <?php
-      print $this->Form->submit(_txt('op.link'));
+    $loader = $this->Html->tag(
+      'span',
+      '',
+      array(
+        'class' => 'spinner-grow spinner-grow-sm mr-1 align-middle invisible btn-submit-with-loader',
+        'escape' => false,
+        'role' => 'status',
+        'aria-hidden' => true
+      )
+    );
+
+    print $this->Form->button($loader . _txt('op.link'),array(
+      'type' => 'submit',
+      'class' => 'btn btn-primary',
+      'disabled' => true,
+      'onclick' => 'javascript:showBtnSpinnerLightbox()'
+    ));
     ?>
   </p>
 </div>

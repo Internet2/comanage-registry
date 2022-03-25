@@ -326,6 +326,7 @@
         $sidebarButtons[] = array(
           'icon'    => 'circle-close',
           'title'   => _txt('op.expunge'),
+          'class'   => 'lightbox',
           'url'     => array(
             'controller' => 'co_people', 
             'action'     => 'expunge', 

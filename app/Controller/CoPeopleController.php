@@ -487,6 +487,12 @@ class CoPeopleController extends StandardController {
           // Populate data for the view
           $this->set('vv_co_person', $coperson);
           $this->set('title_for_layout', _txt('op.expunge-a', array(generateCn($coperson['PrimaryName']))));
+          $this->set('vv_lightbox', false);
+          if(!isset($this->request->params["named"]["render"])
+             || $this->request->params["named"]["render"] !== 'norm') {
+            $this->set('vv_lightbox', true);
+            $this->layout = 'lightbox';
+          }
         } else {
           $this->Flash->set(_txt('er.cop.unk-a', array($id)), array('key' => 'error'));
           $this->performRedirect();
@@ -1052,9 +1058,9 @@ class CoPeopleController extends StandardController {
   public function link($copersonid=null) {
     if(!$this->request->is('restful')) {
       // We basically want the index behavior
-      
+
       $this->index();
-      
+
       // But we also need to pass a bit extra data (and also for the confirmation page)
       
       if(!empty($this->request->params['named']['orgidentityid'])) {
@@ -1064,6 +1070,12 @@ class CoPeopleController extends StandardController {
         
         $this->set('vv_org_identity', $this->CoPerson->CoOrgIdentityLink->OrgIdentity->find('first', $args));
         $this->set('title_for_layout', _txt('op.link'));
+        $this->set('vv_lightbox', false);
+        if(!isset($this->request->params["named"]["render"])
+          || $this->request->params["named"]["render"] !== 'norm') {
+          $this->set('vv_lightbox', true);
+          $this->layout = 'lightbox';
+        }
       }
       
       if(!empty($copersonid)) {
@@ -1379,6 +1391,13 @@ class CoPeopleController extends StandardController {
         
         $this->set('vv_to_co_person', $this->CoPerson->find('first', $args));
         $this->set('title_for_layout', _txt('op.relink'));
+
+        $this->set('vv_lightbox', false);
+        if(!isset($this->request->params["named"]["render"])
+          || $this->request->params["named"]["render"] !== 'norm') {
+          $this->set('vv_lightbox', true);
+          $this->layout = 'lightbox';
+        }
       }
     }
   }

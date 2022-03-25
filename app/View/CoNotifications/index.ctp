@@ -106,6 +106,9 @@
                                             'controller' => 'co_notifications',
                                             'action'     => 'view',
                                             $c['CoNotification']['id']
+                                          ),
+                                          array(
+                                            'class' => 'spin lightbox'
                                           )); ?></td>
         <td>
           <?php

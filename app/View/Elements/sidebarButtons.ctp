@@ -30,11 +30,7 @@
   <ul id="menu">
     <?php
     foreach($sidebarButtons as $button => $link){
-      if(gettype($link['url']) == 'string') {
-        print '<li>'; // don't show spinner for dialog boxes
-      } else {
-        print '<li class="spin">'; // 'url' is otherwise an array
-      }
+      print '<li>';
       // Clean data
       $icontitle = '<span class="ui-icon ui-icon-'
         . $link['icon']
@@ -50,6 +46,14 @@
       }
 
       $options['escape'] = FALSE;
+
+      if(gettype($link['url']) != 'string') {
+        $options['class'] = 'spin ignore-invalid';
+      }
+
+      if(isset($link['class'])) {
+        $options['class'] = $options['class'] . ' ' . $link['class'];
+      }
 
       if(!empty($link['confirm'])) {
         // There is a built in Cake popup, which can be accessed by putting the confirmation text
