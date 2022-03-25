@@ -144,11 +144,15 @@ class PasswordsController extends SAMController {
       if($this->viewVars['vv_authenticator']['PasswordAuthenticator']['password_source'] != PasswordAuthPasswordSourceEnum::AutoGenerate) {
         throw new InvalidArgumentException(_txt('er.passwordauthenticator.source', PasswordAuthPasswordSourceEnum::AutoGenerate));
       }
-      
+
+      $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+      $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
       $this->set('vv_token', $this->Password->generateToken($this->viewVars['vv_authenticator']['PasswordAuthenticator']['id'],
                                                             $this->viewVars['vv_co_person']['CoPerson']['id'],
                                                             $this->viewVars['vv_authenticator']['PasswordAuthenticator']['max_length'],
-                                                            $this->Session->read('Auth.User.co_person_id')));
+                                                            $actorCoPersonId,
+                                                            $actorApiUserId));
     }
     catch(Exception $e) {
       $this->Flash->set($e->getMessage(), array('key' => 'error'));
