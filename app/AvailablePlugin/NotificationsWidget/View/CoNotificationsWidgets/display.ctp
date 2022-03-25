@@ -41,7 +41,13 @@
       );
 
       print '<span class="notification-comment">';
-      print $this->Html->link($n['CoNotification']['comment'],$args, array('title' => _txt('op.see.notification.num',array($n['CoNotification']['id']))));
+      print $this->Html->link($n['CoNotification']['comment'],
+                              $args,
+                              array(
+                                'class' => 'lightbox spin',
+                                'title' => _txt('op.see.notification.num',array($n['CoNotification']['id']))
+                              )
+      );
       print '</span> ';
       print '<span class="notification-created">';
       print $this->Time->timeAgoInWords($n['CoNotification']['created']);

@@ -269,6 +269,7 @@
     $(".accordion").accordion();
 
     // Add classes to all submit buttons
+    // NOTE: This is not working for the lightbox
     $("input:submit").addClass("spin submit-button btn btn-primary");
 
     // Other buttons (jQuery)
@@ -601,8 +602,13 @@
     // or when any item with a "spin" class is clicked.
     // XXX we might consider applying this to all anchors except for those marked for exclusion
     $("input[type='submit'], .spin").click(function() {
-
       displaySpinner();
+
+      // XXX This is a workaround. Currently the sidebar actions in CO Person Canvas
+      //     are part of the form. As a result the spinner is dismissed immediately after
+      if($(this).hasClass('ignore-invalid')) {
+        return;
+      }
 
       // Test for invalid fields (HTML5) and turn off spinner explicitly if found
       if(document.querySelectorAll(":invalid").length) {

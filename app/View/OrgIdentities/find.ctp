@@ -111,14 +111,14 @@ if(!empty($vv_alphabet_search)) {
                                                'action' => 'link',
                                                filter_var($this->request->params['named']['copersonid'],FILTER_SANITIZE_SPECIAL_CHARS),
                                                'orgidentityid' => $p['OrgIdentity']['id']),
-                                         array('class' => 'linkbutton'));
+                                         array('class' => 'linkbutton spin lightbox'));
             } else {
               print $this->Html->link(_txt('op.inv'),
                                          array('controller' => 'co_people',
                                                'action' => 'invite',
                                                'orgidentityid' => $p['OrgIdentity']['id'],
                                                'co' => $cur_co['Co']['id']),
-                                         array('class' => 'invitebutton'));
+                                         array('class' => 'invitebutton spin'));
             }
           }
         ?></td>

@@ -74,13 +74,16 @@
         if($co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingAcknowledgment
            && $permissions['acknowledge']) {
           print $this->Html->link(
-            _txt('op.ack'),
+            '<i class="fa fa-check-circle-o fa-lg mr-1" aria-hidden="true"></i>' . _txt('op.ack'),
             array(
               'controller' => 'co_notifications',
               'action'     => 'acknowledge',
               $co_notifications[0]['CoNotification']['id']
             ),
-            array('class' => 'checkbutton')
+            array(
+              'class' => 'btn btn-primary btn-sm mt-auto mb-auto mr-1',
+              'escape' => false
+            )
           );
         }
         
@@ -89,13 +92,16 @@
             || $co_notifications[0]['CoNotification']['status'] == NotificationStatusEnum::PendingResolution)
            && $permissions['cancel']) {
           print $this->Html->link(
-            _txt('op.cancel'),
+           '<i class="fa fa-times-circle-o fa-lg mr-1" aria-hidden="true"></i>' . _txt('op.cancel'),
             array(
               'controller' => 'co_notifications',
               'action'     => 'cancel',
               $co_notifications[0]['CoNotification']['id']
             ),
-            array('class' => 'cancelbutton')
+            array(
+              'class' => 'btn btn-danger btn-sm mt-auto mb-auto',
+              'escape' => false
+           )
           );
         }
       ?>
