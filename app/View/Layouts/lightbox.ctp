@@ -78,12 +78,15 @@
     $bodyClasses = $controller_stripped . ' ' .$action_stripped;
 
     $redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . $this->request->here . '/render:norm';
+
+    // Load Dependencies
+    print $this->Html->script('comanage.js') . "\n    ";
   ?>
 
   <!-- Body element will only be loaded if we load lightbox as a standalone layout.  -->
   <!-- Otherwise we will find ourselves using the existing body. So we choose to hide the body when not -->
   <!-- in the context of another layout -->
-  <body class="<?php print $bodyClasses ?>" onload="whereami()">
+  <body class="<?php print $bodyClasses ?>" onload="whereami('<?php print $redirect_url; ?>')">
 
     <div id="lightboxContent" class="light-box">
       <?php
@@ -91,24 +94,5 @@
         print $this->fetch('content');
       ?>
     </div>
-    <script type="text/javascript">
-      function whereami() {
-        // Hide lightbox Content
-        document.getElementById('lightboxContent').style.display = 'none';
-
-        let is_lightbox = document.getElementsByClassName("light-box").length;
-        let is_logged_in = document.getElementsByClassName("logged-in").length;
-
-        if(is_lightbox > 0 && is_logged_in == 0) {
-          // Add a spinner into the body
-          document.body.innerHTML = '<div id="co-loading"><span></span><span></span><span></span></div>';
-          // reload my parent
-          window.location.assign('<?php print $redirect_url; ?>');
-        } else {
-          // Show the content
-          document.getElementById('lightboxContent').style.display = 'block';
-        }
-      }
-    </script>
   </body>
 </html>
