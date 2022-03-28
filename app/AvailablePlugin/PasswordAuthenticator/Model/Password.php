@@ -26,23 +26,23 @@
  */
 
 class Password extends AppModel {
-	// Define class name for cake
+  // Define class name for cake
   public $name = "Password";
-	
+
   // Current schema version for API
   public $version = "1.0";
   
-	// Add behaviors
+  // Add behaviors
   public $actsAs = array('Containable',
                          'Changelog' => array('priority' => 5),
                          'Provisioner');
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
     "PasswordAuthenticator.PasswordAuthenticator",
     "CoPerson"
   );
-	
+
   // Default display field for cake generated views
   public $displayField = "password_type";
 
@@ -51,7 +51,7 @@ class Password extends AppModel {
     'password_authenticator_id' => array(
       'rule' => 'numeric',
       'required' => true,
-			'allowEmpty' => false
+      'allowEmpty' => false
     ),
     'co_person_id' => array(
       'rule' => 'numeric',
@@ -63,7 +63,7 @@ class Password extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
-		'password_type' => array(
+    'password_type' => array(
       'rule' => array('inList', 
                       array(
                         PasswordEncodingEnum::Crypt,
