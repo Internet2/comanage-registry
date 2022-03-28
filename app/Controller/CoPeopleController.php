@@ -1187,7 +1187,7 @@ class CoPeopleController extends StandardController {
     // For that reason we will use DISTINCT instead.
 
     // CO-1091, CO-2371, we need at least the following fields for the View to render properly
-    $this->paginate['fields'] = array( "DISTINCT CoPerson.id","PrimaryName.given","PrimaryName.family","CoPerson.status");
+    $this->paginate['fields'] = $this->CoPerson->getPaginateFields();
     
     // We need to manually add this in for some reason. (It should have been
     // added automatically by Cake based on the CoPerson Model definition of
