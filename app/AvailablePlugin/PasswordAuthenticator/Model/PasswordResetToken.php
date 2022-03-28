@@ -26,22 +26,22 @@
  */
 
 class PasswordResetToken extends AppModel {
-	// Define class name for cake
+  // Define class name for cake
   public $name = "PasswordResetToken";
-	
+
   // Current schema version for API
   public $version = "1.0";
   
-	// Add behaviors
+  // Add behaviors
   public $actsAs = array('Containable',
                          'Changelog' => array('priority' => 5));
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
     "PasswordAuthenticator.PasswordAuthenticator",
     "CoPerson"
   );
-	
+
   // Default display field for cake generated views
   public $displayField = "co_person_id";
 
@@ -50,7 +50,7 @@ class PasswordResetToken extends AppModel {
     'password_authenticator_id' => array(
       'rule' => 'numeric',
       'required' => true,
-			'allowEmpty' => false
+      'allowEmpty' => false
     ),
     'co_person_id' => array(
       'rule' => 'numeric',
