@@ -542,6 +542,9 @@ class CoPersonRolesController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       // Because of the way extended attributes are saved in checkWriteFollowups,
       // we ignore generateHistory as requested by StandardController and instead wait
@@ -554,21 +557,25 @@ class CoPersonRolesController extends StandardController {
         $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
                                                    $this->CoPersonRole->id,
                                                    null,
-                                                   $this->Session->read('Auth.User.co_person_id'),
-                                                   ActionEnum::CoPersonRoleAddedManual);
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoPersonRoleAddedManual,
+                                                   null, null, null, null,
+                                                   $actorApiUserId);
         break;
       case 'delete':
         $this->CoPersonRole->HistoryRecord->record($olddata['CoPersonRole']['co_person_id'],
                                                    $this->CoPersonRole->id,
                                                    null,
-                                                   $this->Session->read('Auth.User.co_person_id'),
-                                                   ActionEnum::CoPersonRoleDeletedManual);
+                                                   $actorCoPersonId,
+                                                   ActionEnum::CoPersonRoleDeletedManual,
+                                                   null, null, null, null,
+                                                   $actorApiUserId);
         break;
       case 'xedit':
         $this->CoPersonRole->HistoryRecord->record($newdata['CoPersonRole']['co_person_id'],
                                                    $this->CoPersonRole->id,
                                                    null,
-                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                   $actorCoPersonId,
                                                    ActionEnum::CoPersonRoleEditedManual,
                                                    _txt('en.action', null, ActionEnum::CoPersonRoleEditedManual)
                                                    . " (" . $this->CoPersonRole->id . "):"
@@ -576,7 +583,9 @@ class CoPersonRolesController extends StandardController {
                                                                                           $olddata,
                                                                                           $this->cur_co['Co']['id'],
                                                                                           array('ExtendedAttribute'),
-                                                                                          $this->extended_attributes));
+                                                                                          $this->extended_attributes),
+                                                   null, null, null,
+                                                   $actorApiUserId);
         break;
     }
     

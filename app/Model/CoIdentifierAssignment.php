@@ -170,14 +170,15 @@ class CoIdentifierAssignment extends AppModel {
    * @param  String  Object Type ("CoDepartment", "CoGroup", "CoPerson")
    * @param  Integer Object ID
    * @param  Integer Actor CO Person ID
+   * @param  Boolean Whether to run provisioners on save
+   * @param  Integer Actor API User ID
    * @return Integer ID of newly created Identifier
-   * @return Boolean Whether or not to run provisioners on save
    * @throws InvalidArgumentException
    * @throws OverflowException (identifier already exists)
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $objType, $objId, $actorCoPersonID, $provision=true) {
+  public function assign($coIdentifierAssignment, $objType, $objId, $actorCoPersonID, $provision=true, $actorApiUserId=null) {
     $ret = null;
 
     // Determine if we are actually assigning an email address instead of an identifier.
@@ -383,7 +384,10 @@ class CoIdentifierAssignment extends AppModel {
                                                            $actorCoPersonID,
                                                            ActionEnum::IdentifierAutoAssigned,
                                                            $txt,
-                                                           $coGroupId);
+                                                           $coGroupId,
+                                                           null,
+                                                           null,
+                                                           $actorApiUserId);
               }
               catch(Exception $e) {
                 $dbc->rollback();

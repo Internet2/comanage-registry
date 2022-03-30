@@ -169,6 +169,8 @@ class NamesController extends MVPAController {
     $orgidentityid = null;
     $HistoryRecord = null;
     $cn = "";
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
     
     // Find some pointers according to the data
     if(isset($newdata['Name']['co_person_id'])) {
@@ -194,33 +196,41 @@ class NamesController extends MVPAController {
         $HistoryRecord->record($copersonid,
                                null,
                                $orgidentityid,
-                               $this->Session->read('Auth.User.co_person_id'),
+                               $actorCoPersonId,
                                ActionEnum::NameAdded,
-                               _txt('rs.added-a2', array(_txt('ct.names.1'), $cn)));
+                               _txt('rs.added-a2', array(_txt('ct.names.1'), $cn)),
+                               null, null, null,
+                               $actorApiUserId);
         break;
       case 'delete':
         $HistoryRecord->record($copersonid,
                                null,
                                $orgidentityid,
-                               $this->Session->read('Auth.User.co_person_id'),
+                               $actorCoPersonId,
                                ActionEnum::NameDeleted,
-                               _txt('rs.deleted-a2', array(_txt('ct.names.1'), $cn)));
+                               _txt('rs.deleted-a2', array(_txt('ct.names.1'), $cn)),
+                               null, null, null,
+                               $actorApiUserId);
         break;
       case 'edit':
         $HistoryRecord->record($copersonid,
                                null,
                                $orgidentityid,
-                               $this->Session->read('Auth.User.co_person_id'),
+                               $actorCoPersonId,
                                ActionEnum::NameEdited,
-                               _txt('rs.updated-a2', array(_txt('ct.names.1'), $cn)));
+                               _txt('rs.updated-a2', array(_txt('ct.names.1'), $cn)),
+                               null, null, null,
+                               $actorApiUserId);
         break;
       case 'primary':
         $HistoryRecord->record($copersonid,
                                null,
                                $orgidentityid,
-                               $this->Session->read('Auth.User.co_person_id'),
+                               $actorCoPersonId,
                                ActionEnum::NamePrimary,
-                               _txt('rs.nm.primary-a', array($cn)));
+                               _txt('rs.nm.primary-a', array($cn)),
+                               null, null, null,
+                               $actorApiUserId);
         break;
     }
     

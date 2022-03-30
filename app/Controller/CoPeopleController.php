@@ -681,6 +681,9 @@ class CoPeopleController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       case 'add':
         // We try to record an Org Identity ID, but this will only exist for non-REST operations
@@ -688,16 +691,20 @@ class CoPeopleController extends StandardController {
                                                null,
                                                (isset($newdata['CoOrgIdentityLink'][0]['org_identity_id'])
                                                ? $newdata['CoOrgIdentityLink'][0]['org_identity_id'] : null),
-                                               $this->Session->read('Auth.User.co_person_id'),
-                                               ActionEnum::CoPersonAddedManual);
+                                               $actorCoPersonId,
+                                               ActionEnum::CoPersonAddedManual,
+                                               null, null, null, null,
+                                               $actorApiUserId);
         
         if(!$this->request->is('restful')) {
           // Add a record indicating the link took place
           $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
                                                  null,
                                                  $newdata['CoOrgIdentityLink'][0]['org_identity_id'],
-                                                 $this->Session->read('Auth.User.co_person_id'),
-                                                 ActionEnum::CoPersonOrgIdLinked);
+                                                 $actorCoPersonId,
+                                                 ActionEnum::CoPersonOrgIdLinked,
+                                                 null, null, null, null,
+                                                 $actorApiUserId);
         }
         break;
       case 'delete':
@@ -705,18 +712,22 @@ class CoPeopleController extends StandardController {
                                                null,
                                                (isset($olddata['CoOrgIdentityLink'][0]['org_identity_id'])
                                                ? $olddata['CoOrgIdentityLink'][0]['org_identity_id'] : null),
-                                               $this->Session->read('Auth.User.co_person_id'),
-                                               ActionEnum::CoPersonDeletedManual);
+                                               $actorCoPersonId,
+                                               ActionEnum::CoPersonDeletedManual,
+                                               null, null, null, null,
+                                               $actorApiUserId);
         break;
       case 'edit':
         $this->CoPerson->HistoryRecord->record($this->CoPerson->id,
                                                null,
                                                (isset($newdata['CoOrgIdentityLink'][0]['org_identity_id'])
                                                 ? $newdata['CoOrgIdentityLink'][0]['org_identity_id'] : null),
-                                               $this->Session->read('Auth.User.co_person_id'),
+                                               $actorCoPersonId,
                                                ActionEnum::CoPersonEditedManual,
                                                _txt('en.action', null, ActionEnum::CoPersonEditedManual) . ": " .
-                                               $this->CoPerson->changesToString($newdata, $olddata, $this->cur_co['Co']['id']));
+                                               $this->CoPerson->changesToString($newdata, $olddata, $this->cur_co['Co']['id']),
+                                               null, null, null,
+                                               $actorApiUserId);
         break;
     }
     

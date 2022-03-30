@@ -162,7 +162,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
    * @throws RuntimeException
    */
 
-  public function manage($data, $actorCoPersonId) {
+  public function manage($data, $actorCoPersonId, $actorApiUserId=null) {
     if(!empty($data['Password']['token'])) {
       // Me're here from a Self Service Password Reset operation (ssr), which
       // means all we have are the token and the new password. First, we'll need
@@ -333,7 +333,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
                                  null,
                                  $actorCoPersonId,
                                  ActionEnum::AuthenticatorEdited,
-                                 $comment);
+                                 $comment,
+                                 null, null, null, null,
+                                 $actorApiUserId);
 
     $this->_commit();
     
@@ -358,10 +360,11 @@ class PasswordAuthenticator extends AuthenticatorBackend {
    * @since  COmanage Registry v3.1.0
    * @param  integer $coPersonId      CO Person ID
    * @param  integer $actorCoPersonId Actor CO Person ID
+   * @param  integer $actorApiUserId  Actor API User ID
    * @return boolean true on success
    */
   
-  public function reset($coPersonId, $actorCoPersonId) {
+  public function reset($coPersonId, $actorCoPersonId, $actorApiUserId=null) {
     // Perform the reset. We simply delete any authenticators for the specified CO Person.
 
     $args = array();
@@ -384,7 +387,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
                                  null,
                                  $actorCoPersonId,
                                  ActionEnum::AuthenticatorDeleted,
-                                 $comment);
+                                 $comment,
+                                 null, null, null, null,
+                                 $actorApiUserId);
 
     // We always return true
     return true;

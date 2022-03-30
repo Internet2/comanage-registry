@@ -222,39 +222,48 @@ class UnixClusterAccountsController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       case 'add':
         $this->UnixClusterAccount->CoPerson->HistoryRecord->record($newdata['UnixClusterAccount']['co_person_id'],
                                                                    null,
                                                                    null,
-                                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                                   $actorCoPersonId,
                                                                    ActionEnum::ClusterAccountAdded,
                                                                    _txt('pl.unixcluster.rs.added', array($newdata['UnixClusterAccount']['unix_cluster_id'],
                                                                                                          $newdata['UnixClusterAccount']['username'],
-                                                                                                         $newdata['UnixClusterAccount']['uid'])));
+                                                                                                         $newdata['UnixClusterAccount']['uid'])),
+                                                                   null, null, null, null,
+                                                                   $actorApiUserId);
         break;
       case 'delete':
         $this->UnixClusterAccount->CoPerson->HistoryRecord->record($olddata['UnixClusterAccount']['co_person_id'],
                                                                    null,
                                                                    null,
-                                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                                   $actorCoPersonId,
                                                                    ActionEnum::ClusterAccountDeleted,
                                                                    _txt('pl.unixcluster.rs.deleted', array($olddata['UnixClusterAccount']['unix_cluster_id'],
                                                                                                            $olddata['UnixClusterAccount']['username'],
-                                                                                                           $olddata['UnixClusterAccount']['uid'])));
+                                                                                                           $olddata['UnixClusterAccount']['uid'])),
+                                                                   null, null, null, null,
+                                                                   $actorApiUserId);
         break;
       case 'edit':
         $this->UnixClusterAccount->CoPerson->HistoryRecord->record($olddata['UnixClusterAccount']['co_person_id'],
                                                                    null,
                                                                    null,
-                                                                   $this->Session->read('Auth.User.co_person_id'),
+                                                                   $actorCoPersonId,
                                                                    ActionEnum::ClusterAccountEdited,
                                                                    _txt('pl.unixcluster.rs.edited', array($olddata['UnixClusterAccount']['unix_cluster_id'],
                                                                                                           $olddata['UnixClusterAccount']['username'],
                                                                                                           $olddata['UnixClusterAccount']['uid'],
                                                                                                           $newdata['UnixClusterAccount']['unix_cluster_id'],
                                                                                                           $newdata['UnixClusterAccount']['username'],
-                                                                                                          $newdata['UnixClusterAccount']['uid'])));
+                                                                                                          $newdata['UnixClusterAccount']['uid'])),
+                                                                   null, null, null, null,
+                                                                   $actorApiUserId);
         break;
     }
     

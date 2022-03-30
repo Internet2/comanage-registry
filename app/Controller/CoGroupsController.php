@@ -302,34 +302,43 @@ class CoGroupsController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       case 'add':
         $this->CoGroup->HistoryRecord->record(null,
                                               null,
                                               null,
-                                              $this->Session->read('Auth.User.co_person_id'),
+                                              $actorCoPersonId,
                                               ActionEnum::CoGroupAdded,
                                               _txt('rs.gr.added', array($newdata['CoGroup']['name'])),
-                                              $this->CoGroup->id);
+                                              $this->CoGroup->id,
+                                              null, null,
+                                              $actorApiUserId);
         break;
       case 'delete':
         $this->CoGroup->HistoryRecord->record(null,
-                                               null,
-                                               null,
-                                               $this->Session->read('Auth.User.co_person_id'),
-                                               ActionEnum::CoGroupDeleted,
-                                               _txt('rs.gr.deleted', array($olddata['CoGroup']['name'])),
-                                               $this->CoGroup->id);
+                                              null,
+                                              null,
+                                              $actorCoPersonId,
+                                              ActionEnum::CoGroupDeleted,
+                                              _txt('rs.gr.deleted', array($olddata['CoGroup']['name'])),
+                                              $this->CoGroup->id,
+                                              null, null,
+                                              $actorApiUserId);
         break;
       case 'edit':
         $this->CoGroup->HistoryRecord->record(null,
-                                               null,
-                                               null,
-                                               $this->Session->read('Auth.User.co_person_id'),
-                                               ActionEnum::CoGroupEdited,
-                                               _txt('en.action', null, ActionEnum::CoGroupEdited) . ": " .
-                                               $this->CoGroup->changesToString($newdata, $olddata, $this->cur_co['Co']['id']),
-                                               $this->CoGroup->id);
+                                              null,
+                                              null,
+                                              $actorCoPersonId,
+                                              ActionEnum::CoGroupEdited,
+                                              _txt('en.action', null, ActionEnum::CoGroupEdited) . ": " .
+                                              $this->CoGroup->changesToString($newdata, $olddata, $this->cur_co['Co']['id']),
+                                              $this->CoGroup->id,
+                                              null, null,
+                                              $actorApiUserId);
         break;
     }
     

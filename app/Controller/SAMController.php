@@ -432,7 +432,10 @@ class SAMController extends StandardController {
     $modelpl = Inflector::tableize($req);
     $authmodel = $req . "Authenticator";
     $authcfg = $this->viewVars['vv_authenticator'];
-    
+
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     // Build a change string
     $cstr = "";
 
@@ -457,17 +460,21 @@ class SAMController extends StandardController {
         $model->CoPerson->HistoryRecord->record($newdata[$req]['co_person_id'],
                                                 null,
                                                 null,
-                                                $this->Session->read('Auth.User.co_person_id'),
+                                                $actorCoPersonId,
                                                 ActionEnum::AuthenticatorEdited,
-                                                $cstr);
+                                                $cstr,
+                                                null, null, null,
+                                                $actorApiUserId);
         break;
       case 'delete':
         $model->CoPerson->HistoryRecord->record($olddata[$req]['co_person_id'],
                                                 null,
                                                 null,
-                                                $this->Session->read('Auth.User.co_person_id'),
+                                                $actorCoPersonId,
                                                 ActionEnum::AuthenticatorDeleted,
-                                                $cstr);
+                                                $cstr,
+                                                null, null, null,
+                                                $actorApiUserId);
         break;
     }
 
