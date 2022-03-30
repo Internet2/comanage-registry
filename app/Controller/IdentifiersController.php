@@ -69,8 +69,11 @@ class IdentifiersController extends MVPAController {
   function assign() {
     $objType = null; // "CoDepartment", "CoGroup", or "CoPerson"
     $objId = null;   // $objType::id
+    $actorCoPersonId = null;
+    $actorApiUserId = null;
     
     if($this->request->is('restful')) {
+      $actorApiUserId = $this->Auth->User('id');
       $this->Api->parseRestRequestDocument();
       
       $reqdata = $this->Api->getData();
@@ -91,6 +94,8 @@ class IdentifiersController extends MVPAController {
       
       $coid = $this->cur_co['Co']['id'];
     } else {
+      // Set the actor to the current user id
+      $actorCoPersonId = $this->Session->read('Auth.User.co_person_id');
       // While the controller doesn't require_co, this method does.
       $coid = $this->cur_co['Co']['id'];
       $named_param_list = array(
@@ -111,9 +116,10 @@ class IdentifiersController extends MVPAController {
       // Assign the identifiers, then walk through the result array and generate a flash message
       $res = $this->Identifier->assign($objType,
                                        $objId,
-                                       $this->Session->read('Auth.User.co_person_id'),
+                                       $actorCoPersonId,
                                        // CoDepartment is not currently provisioned
-                                       ($objType != 'CoDepartment'));
+                                       ($objType != 'CoDepartment'),
+                                       $actorApiUserId);
       
       if(!empty($res)) {
         // Loop through the results and build result messages

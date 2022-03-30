@@ -84,10 +84,11 @@ class Password extends AppModel {
    * @param  int    $coPersonId              CO Person ID
    * @param  int    $maxLength               Maximum length of password to generate
    * @param  int    $actorCoPersonId         Actor CO Person ID
+   * @param  int    $actorApiUserId          Actor API User ID
    * @return string                          Service Token
    */
 
-  public function generateToken($passwordAuthenticatorId, $coPersonId, $maxLength, $actorCoPersonId) {
+  public function generateToken($passwordAuthenticatorId, $coPersonId, $maxLength, $actorCoPersonId, $actorApiUserId=null) {
     $token = generateRandomToken($maxLength);
     
     $data = array(
@@ -98,7 +99,7 @@ class Password extends AppModel {
       )
     );
     
-    $this->PasswordAuthenticator->manage($data, $actorCoPersonId);
+    $this->PasswordAuthenticator->manage($data, $actorCoPersonId, $actorApiUserId);
     
     return $token;
   }

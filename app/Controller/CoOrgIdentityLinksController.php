@@ -134,14 +134,19 @@ class CoOrgIdentityLinksController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     switch($action) {
       case 'add':
         // We try to record an Org Identity ID, but this will only exist for non-REST operations
         $this->CoOrgIdentityLink->CoPerson->HistoryRecord->record($newdata['CoOrgIdentityLink']['co_person_id'],
                                                                   null,
                                                                   $newdata['CoOrgIdentityLink']['org_identity_id'],
-                                                                  $this->Session->read('Auth.User.co_person_id'),
-                                                                  ActionEnum::CoPersonOrgIdLinked);
+                                                                  $actorCoPersonId,
+                                                                  ActionEnum::CoPersonOrgIdLinked,
+                                                                  null, null, null, null,
+                                                                  $actorApiUserId);
         break;
       case 'delete':
         // In most cases, unlinking preceeds deletion of an identity/person that will therefore
@@ -150,21 +155,27 @@ class CoOrgIdentityLinksController extends StandardController {
         $this->CoOrgIdentityLink->CoPerson->HistoryRecord->record($olddata['CoOrgIdentityLink']['co_person_id'],
                                                                   null,
                                                                   $olddata['CoOrgIdentityLink']['org_identity_id'],
-                                                                  $this->Session->read('Auth.User.co_person_id'),
-                                                                  ActionEnum::CoPersonOrgIdUnlinked);
+                                                                  $actorCoPersonId,
+                                                                  ActionEnum::CoPersonOrgIdUnlinked,
+                                                                  null, null, null, null,
+                                                                  $actorApiUserId);
         break;
       case 'edit':
         // An edit is a relink, or rather an unlink followed by a link.
         $this->CoOrgIdentityLink->CoPerson->HistoryRecord->record($olddata['CoOrgIdentityLink']['co_person_id'],
                                                                   null,
                                                                   $olddata['CoOrgIdentityLink']['org_identity_id'],
-                                                                  $this->Session->read('Auth.User.co_person_id'),
-                                                                  ActionEnum::CoPersonOrgIdUnlinked);
+                                                                  $actorCoPersonId,
+                                                                  ActionEnum::CoPersonOrgIdUnlinked,
+                                                                  null, null, null, null,
+                                                                  $actorApiUserId);
         $this->CoOrgIdentityLink->CoPerson->HistoryRecord->record($newdata['CoOrgIdentityLink']['co_person_id'],
                                                                   null,
                                                                   $newdata['CoOrgIdentityLink']['org_identity_id'],
-                                                                  $this->Session->read('Auth.User.co_person_id'),
-                                                                  ActionEnum::CoPersonOrgIdLinked);
+                                                                  $actorCoPersonId,
+                                                                  ActionEnum::CoPersonOrgIdLinked,
+                                                                  null, null, null, null,
+                                                                  $actorApiUserId);
         break;
     }
     

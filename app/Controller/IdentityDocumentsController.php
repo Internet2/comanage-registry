@@ -102,6 +102,8 @@ class IdentityDocumentsController extends StandardController {
    */
 
   public function generateHistory($action, $newdata, $olddata) {
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
     $comment = " (";
     
     if(!empty($newdata['IdentityDocument']['document_type'])) {
@@ -129,25 +131,31 @@ class IdentityDocumentsController extends StandardController {
         $this->HistoryRecord->record($newdata['IdentityDocument']['co_person_id'],
                                      null,
                                      null,
-                                     $this->Session->read('Auth.User.co_person_id'),
+                                     $actorCoPersonId,
                                      ActionEnum::IdentityDocumentAdded,
-                                     _txt('en.action', null, ActionEnum::IdentityDocumentAdded) . $comment);
+                                     _txt('en.action', null, ActionEnum::IdentityDocumentAdded) . $comment,
+                                     null, null, null,
+                                     $actorApiUserId);
         break;
       case 'delete':
         $this->HistoryRecord->record($olddata['IdentityDocument']['co_person_id'],
                                      null,
                                      null,
-                                     $this->Session->read('Auth.User.co_person_id'),
+                                     $actorCoPersonId,
                                      ActionEnum::IdentityDocumentDeleted,
-                                     _txt('en.action', null, ActionEnum::IdentityDocumentDeleted) . $comment);
+                                     _txt('en.action', null, ActionEnum::IdentityDocumentDeleted) . $comment,
+                                     null, null, null,
+                                     $actorApiUserId);
         break;
       case 'edit':
         $this->HistoryRecord->record($olddata['IdentityDocument']['co_person_id'],
                                      null,
                                      null,
-                                     $this->Session->read('Auth.User.co_person_id'),
+                                     $actorCoPersonId,
                                      ActionEnum::IdentityDocumentEdited,
-                                     _txt('en.action', null, ActionEnum::IdentityDocumentEdited) . $comment);
+                                     _txt('en.action', null, ActionEnum::IdentityDocumentEdited) . $comment,
+                                     null, null, null,
+                                     $actorApiUserId);
         break;
     }
     

@@ -286,6 +286,10 @@ class MVPAController extends StandardController {
    */
   
   public function generateHistory($action, $newdata, $olddata) {
+
+    $actorCoPersonId = $this->request->is('restful') ? null : $this->Session->read('Auth.User.co_person_id');
+    $actorApiUserId = $this->request->is('restful') ? $this->Auth->User('id') : null;
+
     $req = $this->modelClass;
     $model = $this->$req;
     $modelpl = Inflector::tableize($req);
@@ -314,17 +318,21 @@ class MVPAController extends StandardController {
           $model->OrgIdentity->HistoryRecord->record(null,
                                                      null,
                                                      $newdata[$req]['org_identity_id'],
-                                                     $this->Session->read('Auth.User.co_person_id'),
+                                                     $actorCoPersonId,
                                                      ActionEnum::OrgIdEditedManual,
-                                                     $cstr);
+                                                     $cstr,
+                                                     null, null, null,
+                                                     $actorApiUserId);
         } elseif(!empty($newdata[$req]['co_group_id'])) {
           $model->CoGroup->HistoryRecord->record(null,
                                                  null,
                                                  null,
-                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 $actorCoPersonId,
                                                  ActionEnum::CoGroupEdited,
                                                  $cstr,
-                                                 $newdata[$req]['co_group_id']);
+                                                 $newdata[$req]['co_group_id'],
+                                                 null, null,
+                                                 $actorApiUserId);
         } elseif(!empty($newdata[$req]['co_person_role_id'])) {
           // Map CO Person Role to CO Person
           $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $newdata[$req]['co_person_role_id']));
@@ -332,16 +340,20 @@ class MVPAController extends StandardController {
           $model->CoPersonRole->HistoryRecord->record($copid,
                                                       $newdata[$req]['co_person_role_id'],
                                                       null,
-                                                      $this->Session->read('Auth.User.co_person_id'),
+                                                      $actorCoPersonId,
                                                       ActionEnum::CoPersonEditedManual,
-                                                      $cstr);
+                                                      $cstr,
+                                                      null, null, null,
+                                                      $actorApiUserId);
         } elseif(!empty($newdata[$req]['co_person_id'])) {
           $model->CoPerson->HistoryRecord->record($newdata[$req]['co_person_id'],
                                                   null,
                                                   null,
-                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  $actorCoPersonId,
                                                   ActionEnum::CoPersonEditedManual,
-                                                  $cstr);
+                                                  $cstr,
+                                                  null, null, null,
+                                                  $actorApiUserId);
         }
         break;
       case 'delete':
@@ -349,17 +361,21 @@ class MVPAController extends StandardController {
           $model->OrgIdentity->HistoryRecord->record(null,
                                                      null,
                                                      $olddata[$req]['org_identity_id'],
-                                                     $this->Session->read('Auth.User.co_person_id'),
+                                                     $actorCoPersonId,
                                                      ActionEnum::OrgIdEditedManual,
-                                                     $cstr);
+                                                     $cstr,
+                                                     null, null, null,
+                                                     $actorApiUserId);
         } elseif(!empty($olddata[$req]['co_group_id'])) {
           $model->CoGroup->HistoryRecord->record(null,
                                                  null,
                                                  null,
-                                                 $this->Session->read('Auth.User.co_person_id'),
+                                                 $actorCoPersonId,
                                                  ActionEnum::CoGroupEdited,
                                                  $cstr,
-                                                 $olddata[$req]['co_group_id']);
+                                                 $olddata[$req]['co_group_id'],
+                                                 null, null,
+                                                 $actorApiUserId);
         } elseif(!empty($olddata[$req]['co_person_role_id'])) {
           // Map CO Person Role to CO Person
           $copid = $model->CoPersonRole->field('co_person_id', array('CoPersonRole.id' => $olddata[$req]['co_person_role_id']));
@@ -367,16 +383,20 @@ class MVPAController extends StandardController {
           $model->CoPersonRole->HistoryRecord->record($copid,
                                                       $olddata[$req]['co_person_role_id'],
                                                       null,
-                                                      $this->Session->read('Auth.User.co_person_id'),
+                                                      $actorCoPersonId,
                                                       ActionEnum::CoPersonEditedManual,
-                                                      $cstr);
+                                                      $cstr,
+                                                      null, null,
+                                                      $actorApiUserId);
         } elseif(!empty($olddata[$req]['co_person_id'])) {
           $model->CoPerson->HistoryRecord->record($olddata[$req]['co_person_id'],
                                                   null,
                                                   null,
-                                                  $this->Session->read('Auth.User.co_person_id'),
+                                                  $actorCoPersonId,
                                                   ActionEnum::CoPersonEditedManual,
-                                                  $cstr);
+                                                  $cstr,
+                                                  null, null,
+                                                  $actorApiUserId);
         }
         break;
     }
