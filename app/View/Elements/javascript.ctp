@@ -315,12 +315,11 @@
       text: true
     });
 
-    $(".configurebutton").button({
-      icons: {
-        primary: 'ui-icon-pencil'
-      },
-      text: true
-    });
+    $(".configurebutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">edit</em>');
+
 
     $(".contactbutton").button({
       icons: {
@@ -329,19 +328,16 @@
       text: true
     });
 
-    $(".copybutton").button({
-      icons: {
-        primary: 'ui-icon-copy'
-      },
-      text: true
-    });
+    $(".copybutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">content_copy</em>');
 
-    $(".deletebutton").button({
-      icons: {
-        primary: 'ui-icon-circle-close'
-      },
-      text: true
-    });
+    $(".deletebutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">highlight_off</em>');
+
 
     $(".trashbutton").button({
       icons: {
@@ -350,15 +346,10 @@
       text: true
     });
 
-    $(".editbutton").button(
-      {  classes: {
-      "ui-button": "highlight"
-      },
-      icons: {
-        primary: 'ui-icon-pencil'
-      },
-      text: true
-    });
+    $(".editbutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">edit</em>');
 
     $(".flagbutton").button({
       icons: {
@@ -367,12 +358,11 @@
       text: true
     });
 
-    $(".forwardbutton").button({
-      icons: {
-        primary: 'ui-icon-circle-arrow-e'
-      },
-      text: true
-    });
+    $(".forwardbutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">play_circle_filled</em>');
+
 
     $(".historybutton").button({
       icons: {
@@ -381,12 +371,13 @@
       text: true
     });
 
-    $(".invitebutton").button({
-      icons: {
-        primary: 'ui-icon-mail-closed'
-      },
-      text: true
-    });
+    $(".invitebutton")
+      .addClass('btn')
+      .addClass('btn-sm')
+      .addClass('btn-default')
+      .addClass('m-1')
+      .prepend('<em class="material-icons action-button mr-1" role="button">mail</em>');
+
 
     $(".linkbutton").button({
       icons: {
@@ -458,12 +449,11 @@
       text: true
     });
 
-    $(".provisionbutton").button({
-      icons: {
-        primary: 'ui-icon-gear'
-      },
-      text: true
-    });
+    $(".provisionbutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">publish</em>');
+
 
     $(".primarybutton").button({
       icons: {
@@ -510,12 +500,11 @@
       text: true
     });
 
-    $(".viewbutton").button({
-      icons: {
-        primary: 'ui-icon-extlink'
-      },
-      text: true
-    });
+    $(".viewbutton")
+      .addClass('btn')
+      .addClass('btn-link')
+      .prepend('<em class="material-icons action-button mr-1" role="button">launch</em>');
+
 
     $(".restorebutton").button({
       icons: {

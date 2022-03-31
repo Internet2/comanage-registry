@@ -2185,6 +2185,9 @@ ul.form-list li.field-stack textarea {
   margin-top: 3px;
   vertical-align: top;
 }
+#content .material-icons.action-button {
+  font-size: inherit;
+}
 /* GENERAL */
 .hidden,
 .invisible,
@@ -2541,6 +2544,11 @@ td.indented {
   background-color: var(--cmg-color-blue-primary);
   color: var(--cmg-color-white);
   border-color: var(--cmg-color-blue-primary);
+}
+.btn-link,
+.btn-link:focus,
+.btn-link:active {
+  color: var(--cmg-color-blue-001);
 }
 .btn-primary,
 .btn-primary:active {
