@@ -105,7 +105,8 @@
                                           array(
                                             'controller' => 'co_notifications',
                                             'action'     => 'view',
-                                            $c['CoNotification']['id']
+                                            $c['CoNotification']['id'],
+                                            'origin'     => base64_encode($this->request->url)
                                           ),
                                           array(
                                             'class' => 'spin lightbox'
