@@ -78,7 +78,8 @@
             $args = array(
               'controller' => 'co_notifications',
               'action'     => 'view',
-              $n['CoNotification']['id']
+              $n['CoNotification']['id'],
+              'origin'     => base64_encode($this->request->url)
             );
 
             print '<span class="notification-comment">';

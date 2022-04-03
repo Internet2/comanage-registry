@@ -62,7 +62,7 @@ class CoNotificationsController extends StandardController {
     parent::view($id);
     $this->set('title_for_layout', _txt('ct.co_notifications.1'));
     if(!isset($this->request->params["named"]["render"])
-      || $this->request->params["named"]["render"] !== 'norm') {
+       || $this->request->params["named"]["render"] !== 'norm') {
       $this->layout = 'lightbox';
     }
   }
@@ -85,11 +85,15 @@ class CoNotificationsController extends StandardController {
     }
     
     $this->Flash->set(_txt('rs.nt.ackd'), array('key' => 'success'));
-    
-    // Not really clear where to redirect to
-    $this->redirect("/");
+
+    if(isset($this->request->params['named']['origin'])) {
+      $this->redirect(base64_decode($this->request->params['named']['origin']));
+    } else {
+      // Not really clear where to redirect to
+      $this->redirect("/");
+    }
   }
-  
+
   /**
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
@@ -165,9 +169,13 @@ class CoNotificationsController extends StandardController {
     catch(Exception $e) {
       $this->Flash->set($e->getMessage(), array('key' => 'error'));
     }
-    
-    // Not really clear where to redirect to
-    $this->redirect("/");
+
+    if(isset($this->request->params['named']['origin'])) {
+      $this->redirect("/" . base64_decode($this->request->params['named']['origin']));
+    } else {
+      // Not really clear where to redirect to
+      $this->redirect("/" );
+    }
   }
   
   /**
