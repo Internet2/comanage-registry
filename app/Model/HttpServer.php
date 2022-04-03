@@ -66,6 +66,13 @@ class HttpServer extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'authtype' => array(
+      'rule' => array('inList', array(HttpServerAuthType::Basic,
+                                      HttpServerAuthType::Bearer,
+                                      HttpServerAuthType::None)),
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'ssl_verify_peer' => array(
       'rule' => array('boolean'),
       'required' => false,

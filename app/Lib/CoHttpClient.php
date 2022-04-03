@@ -154,6 +154,50 @@ class CoHttpClient extends HttpSocket {
   }
   
   /**
+   * Set the HttpClient configuration based on an HttpServer configuration array.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  array $config  Array of HttpServer configuration
+   */
+  
+  public function setConfig($config) {
+    if(!empty($config['serverurl'])) {
+      $this->setBaseUrl($config['serverurl']);
+    }
+    
+    if(!empty($config['auth_type'])) {
+      switch($config['auth_type']) {
+        case HttpServerAuthType::Basic:
+          $this->configAuth(
+            'Basic',
+            $config['username'],
+            $config['password']
+          );
+          break;
+        case HttpServerAuthType::Bearer:
+          $this->setRequestOptions(array(
+            'header' => array(
+              'Content-Type'  => 'application/json',
+              'Authorization' => 'Bearer ' . $config['password']
+            )
+          ));      
+          break;
+        case HttpServerAuthType::None:
+        default:
+          break;
+      }
+    }
+    
+    if(isset($config['ssl_verify_host'])) {
+      $this->config['ssl_verify_host'];
+    }
+    
+    if(isset($config['ssl_verify_peer'])) {
+      $this->config['ssl_verify_peer'];
+    }
+  }
+  
+  /**
    * Set common config options for each request.
    *
    * @since  COmanage Registry v3.2.0

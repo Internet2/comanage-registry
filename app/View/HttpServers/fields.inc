@@ -97,11 +97,39 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print $this->Form->label('password',_txt('fd.password')); ?>
+        <?php print $this->Form->label('password',_txt('fd.server.http.password')); ?>
       </div>
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('password') : filter_var($http_servers[0]['HttpServer']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('auth_type', _txt('fd.server.http.auth_type')) : _txt('fd.server.http.auth_type')); ?><span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($http_servers) ? $http_servers[0]['HttpServer']['auth_type'] : HttpServerAuthType::Basic);
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('auth_type',
+                                    $cm_texts[ $cm_lang ]['en.server.http.auth_type'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('auth_type')) {
+            print $this->Form->error('auth_type');
+          }
+        } else {
+          print _txt('en.server.http.auth_type', null, $http_servers[0]['HttpServer']['auth_type']);
+        }
+      ?>
     </div>
   </li>
   <li>

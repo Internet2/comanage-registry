@@ -166,21 +166,16 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
         throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.http_servers.1'), $coProvisioningTargetData['CoApiProvisionerTarget']['server_id'])));
       }
       
-      $this->Http = new CoHttpClient(array(
-        'ssl_verify_peer' => $srvr['HttpServer']['ssl_verify_peer'],
-        'ssl_verify_host' => $srvr['HttpServer']['ssl_verify_host']
-      ));
+      $this->Http = new CoHttpClient();
       
-      $this->Http->setBaseUrl($srvr['HttpServer']['serverurl']);
+      $this->Http->setConfig($srvr['HttpServer']);
+      
       $this->Http->setRequestOptions(array(
         'header' => array(
           'Accept'        => 'application/json',
           'Content-Type'  => 'application/json'
         )
       ));
-      $this->Http->configAuth('Basic',
-                              $srvr['HttpServer']['username'],
-                              $srvr['HttpServer']['password']);
     }
     
     if($deleteGroup) {

@@ -634,7 +634,8 @@ original notification at
     GroupEnum::NestedMembers => 'Nested Members'
   ),
   
-  'en.ia.algorithm' => array(IdentifierAssignmentEnum::Random => 'Random',
+  'en.ia.algorithm' => array(IdentifierAssignmentEnum::Plugin => 'Plugin',
+                             IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
   
   'en.ia.context' => array(
@@ -841,6 +842,12 @@ original notification at
     ServerEnum::MatchServer  => 'Match',
     ServerEnum::Oauth2Server => 'OAuth2',
     ServerEnum::SqlServer    => 'SQL'
+  ),
+  
+  'en.server.http.auth_type' => array(
+    HttpServerAuthType::Basic   => 'Basic',
+    HttpServerAuthType::Bearer  => 'Bearer',
+    HttpServerAuthType::None    => 'None'
   ),
 
   'en.server.oauth2.grant' => array(
@@ -1136,9 +1143,11 @@ original notification at
   'er.ia.exists' =>   'The identifier "%1$s" is already in use',
   'er.ia.failed' =>   'Failed to find a unique identifier to assign',
   'er.ia.gr.auto' =>  'Cannot assign identifiers for automatic groups',
-  'er.ia.none' =>     'No identifier assignments configured',
   'er.ia.id.type' =>  'No identifier of type "%1$s" found',
   'er.ia.id.type.none' =>  'No identifier type specified',
+  'er.ia.none' =>     'No identifier assignments configured',
+  'er.ia.plugin' =>   'A plugin must be specified',
+  'er.ia.plugin.none' => 'No Identifier Assigner plugins are available',
   'er.id.exists-a' => 'The identifier "%1$s" is already in use (%2$s)',
   'er.id.format-a' => 'The identifier "%1$s" does not meet the required format (%2$s)',
   'er.id.unk' =>      'Unknown Identifier',
@@ -1803,6 +1812,8 @@ original notification at
   'fd.server.oauth2.redirect' => 'Redirect URI',
   'fd.server.oauth2.scope' => 'Scope',
   'fd.server.sql.database' => 'Database',
+  'fd.server.http.auth_type' => 'HTTP Authentication Type',
+  'fd.server.http.password' => 'Password or Token',
   'fd.server.http.ssl_verify_peer'       => 'Require certificate verification',
   'fd.server.http.ssl_verify_peer.desc'  => 'Enable certificate verification (should normally be true, but may need to be disabled for self-signed certificates)',
   'fd.server.http.ssl_verify_host'       => 'Require name verification',
@@ -2515,7 +2526,8 @@ original notification at
   'sh.ug.400.messagetemplate.format' => 'Updating CoMessageTemplate format',
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types',
   'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource',
-  'sh.ug.410.datafilter' => 'Adding default context for DataFilters'
+  'sh.ug.410.datafilter' => 'Adding default context for DataFilters',
+  'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
