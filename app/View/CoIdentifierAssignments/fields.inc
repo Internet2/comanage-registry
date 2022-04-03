@@ -77,10 +77,24 @@
       $('#CoIdentifierAssignmentLogin').closest("li").hide('fade');
     }
     
-    if(algorithm == '<?php print IdentifierAssignmentEnum::Random; ?>') {
-      $('#CoIdentifierAssignmentMaximum').closest("li").show('fade');
-    } else {
+    if(algorithm == '<?php print IdentifierAssignmentEnum::Plugin; ?>') {
+      $('#CoIdentifierAssignmentPlugin').closest("li").show('fade');
       $('#CoIdentifierAssignmentMaximum').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentMinimum').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentFormat').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentPermitted').closest("li").hide('fade');
+    } else if(algorithm == '<?php print IdentifierAssignmentEnum::Random; ?>') {
+      $('#CoIdentifierAssignmentPlugin').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentMaximum').closest("li").show('fade');
+      $('#CoIdentifierAssignmentMinimum').closest("li").show('fade');
+      $('#CoIdentifierAssignmentFormat').closest("li").show('fade');
+      $('#CoIdentifierAssignmentPermitted').closest("li").show('fade');
+    } else {
+      $('#CoIdentifierAssignmentPlugin').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentMaximum').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentMinimum').closest("li").show('fade');
+      $('#CoIdentifierAssignmentFormat').closest("li").show('fade');
+      $('#CoIdentifierAssignmentPermitted').closest("li").show('fade');
     }
   }
   
@@ -269,6 +283,38 @@
           }
         } else {
           print _txt('en.ia.algorithm', null, $co_identifier_assignments[0]['CoIdentifierAssignment']['algorithm']);
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        if(empty($plugins)) {
+          print _txt('er.ia.plugin.none');
+        } else {
+          $attrs = array();
+          $attrs['value'] = (isset($co_identifier_assignments[0]['CoIdentifierAssignment']['plugin'])
+                             ? $co_identifier_assignments[0]['CoIdentifierAssignment']['plugin']
+                             : "");
+          $attrs['empty'] = false;
+          
+          if($e) {
+            print $this->Form->select('plugin',
+                                      $plugins,
+                                      $attrs);
+            
+            if($this->Form->isFieldError('plugin')) {
+              print $this->Form->error('plugin');
+            }
+          } else {
+            print filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['plugin'], FILTER_SANITIZE_SPECIAL_CHARS);
+          }
         }
       ?>
     </div>

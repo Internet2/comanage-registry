@@ -117,6 +117,20 @@ class CoIdentifierAssignmentsController extends StandardController {
   }
   
   /**
+   * Callback before views are rendered.
+   * - precondition: None
+   * - postcondition: content and permissions for menu are set
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+    
+    $this->set('plugins', $this->loadAvailablePlugins('identifierassigner'));
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

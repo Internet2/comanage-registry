@@ -307,6 +307,13 @@ class GroupEnum
   const NestedMembers = "MN";
 }
 
+class HttpServerAuthType
+{
+  const Basic         = "BA";
+  const Bearer        = "BE";
+  const None          = "X";
+}
+
 // XXX [REF]https://httpstatuses.com
 class HttpStatusCodesEnum
 {
@@ -365,6 +372,7 @@ class HttpStatusCodesEnum
 
 class IdentifierAssignmentEnum
 {
+  const Plugin     = 'P';
   const Random     = 'R';
   const Sequential = 'S';
 }

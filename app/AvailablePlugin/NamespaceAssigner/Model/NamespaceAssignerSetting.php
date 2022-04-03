@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Service Eligibility Setting Model
+ * COmanage Registry Namespace Assigner Setting Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,7 +25,7 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class ServiceEligibilitySetting extends AppModel {
+class NamespaceAssignerSetting extends AppModel {
   // Document foreign keys
   
   // Add behaviors
@@ -33,10 +33,16 @@ class ServiceEligibilitySetting extends AppModel {
                          'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
-  public $belongsTo = array("Co");
+  public $belongsTo = array(
+    "Co",
+    "Server"
+  );
   
   // Default display field for cake generated views
   public $displayField = "co_id";
+  
+  // We use HTTP servers for configuration
+  public $cmServerType = ServerEnum::HttpServer;
   
   // Validation rules for table elements
   public $validate = array(
@@ -45,13 +51,10 @@ class ServiceEligibilitySetting extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
-    'allow_multiple' => array(
-      'rule' => 'boolean',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'require_selection' => array(
-      'rule' => 'boolean',
+    'server_id' => array(
+      'rule' => 'numeric',
+      // We can't require this because the CO row will be inserted by
+      // NamespaceAssignerSettingsController before we know what it is.
       'required' => false,
       'allowEmpty' => true
     )

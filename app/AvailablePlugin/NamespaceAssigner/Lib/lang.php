@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Service Eligibility Setting Model
+ * COmanage Registry Namespace Assigner Plugin Language File
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -24,36 +24,22 @@
  * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+  
+global $cm_lang, $cm_texts;
 
-class ServiceEligibilitySetting extends AppModel {
-  // Document foreign keys
+// When localizing, the number in format specifications (eg: %1$s) indicates the argument
+// position as passed to _txt.  This can be used to process the arguments in
+// a different order than they were passed.
+
+$cm_namespace_assigner_texts['en_US'] = array(
+  // Titles, per-controller
+  'ct.namespace_assigner_settings.1'   => 'Namespace Assigner Setting',
+  'ct.namespace_assigner_settings.pl'  => 'Namespace Assigner Settings',
   
-  // Add behaviors
-  public $actsAs = array('Containable',
-                         'Changelog' => array('priority' => 5));
+  // Error messages
+  'er.namespaceassigner.name'   => 'No official name found',
+  'er.namespaceassigner.token'  => 'Token not found in response',
   
-  // Association rules from this model to other models
-  public $belongsTo = array("Co");
-  
-  // Default display field for cake generated views
-  public $displayField = "co_id";
-  
-  // Validation rules for table elements
-  public $validate = array(
-    'co_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    'allow_multiple' => array(
-      'rule' => 'boolean',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'require_selection' => array(
-      'rule' => 'boolean',
-      'required' => false,
-      'allowEmpty' => true
-    )
-  );
-}
+  // Plugin texts
+  //'pl.namespaceassigner.placeholder' => 'Placeholder'
+);

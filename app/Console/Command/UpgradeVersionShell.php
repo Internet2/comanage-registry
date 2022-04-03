@@ -630,6 +630,19 @@ class UpgradeVersionShell extends AppShell {
         'DataFilter.context' => null
       )
     );
+    
+    // 4.1.0 adds at auth type for HttpServers
+    
+    $this->out(_txt('sh.ug.410.httpserver'));
+    
+    $this->HttpServer->updateAll(
+      array(
+        'HttpServer.auth_type' => "'BA'"  // Wacky updateAll syntax
+      ),
+      array(
+        'HttpServer.auth_type' => null
+      )
+    );
   }
   
   // We should eventually do something like

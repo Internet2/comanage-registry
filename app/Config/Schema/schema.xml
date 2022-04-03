@@ -468,6 +468,7 @@
     <field name="serverurl" type="C" size="256" />
     <field name="username" type="C" size="128" />
     <field name="password" type="C" size="400" />
+    <field name="auth_type" type="C" size="2" />
     <field name="ssl_verify_peer" type="L" />
     <field name="ssl_verify_host" type="L" />
     <field name="created" type="T" />
@@ -2214,6 +2215,7 @@
     <field name="description" type="C" size="256" />
     <field name="login" type="L" />
     <field name="algorithm" type="C" size="2" />
+    <field name="plugin" type="C" size="64" />
     <field name="format" type="C" size="256" />
     <field name="minimum" type="I" />
     <field name="maximum" type="I" />

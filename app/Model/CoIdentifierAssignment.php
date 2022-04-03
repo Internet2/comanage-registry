@@ -110,14 +110,23 @@ class CoIdentifierAssignment extends AppModel {
         'inList',
         array(
           IdentifierAssignmentEnum::Random,
-          IdentifierAssignmentEnum::Sequential
+          IdentifierAssignmentEnum::Sequential,
+          IdentifierAssignmentEnum::Plugin
         )
       ),
       'required' => true
     ),
+    'plugin' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'format' => array(
       'rule' => '/.*/',
-      'required' => true
+      // This should be required, but because we're stapling Plugins on rather
+      // than moving existing logic into its own plugin, we can't require it
+      'required' => false,
+      'allowEmpty' => true
     ),
     'minimum' => array(
       'rule' => 'numeric',
@@ -242,167 +251,96 @@ class CoIdentifierAssignment extends AppModel {
       }
     }
     
-    // Generate the new identifier. This requires several steps. First, substitute
-    // non-collision number parameters. If no format is specified, default to "(#)".
-    // We'll use PrimaryName in case there is more than one.
+    // If we are invoking a plugin, do it here
     
-    $iaFormat = "(#)";
-    
-    if(isset($coIdentifierAssignment['CoIdentifierAssignment']['format'])
-       && $coIdentifierAssignment['CoIdentifierAssignment']['format'] != '') {
-      $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
-    }
-    
-    try {
-      $base = $this->substituteParameters($iaFormat,
-                                          (!empty($obj['PrimaryName']) ? $obj['PrimaryName'] : $obj[$objType]['name']),
-                                          $obj['Identifier'],
-                                          $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
-    }
-    catch(Exception $e) {
-      // Some sort of substitution error, such as dependent identifier not existing
-      $dbc->rollback();
-      throw new InvalidArgumentException($e->getMessage());
-    }
-    
-    // Now that we've got our base, loop until we get a unique identifier.
-    // We try a maximum of 10 (0 through 9) times, and track identifiers we've
-    // seen already.
-    
-    $tested = array();
-    
-    for($i = 0;$i < 10;$i++) {
-      $sequenced = $this->selectSequences($base,
-                                          $i,
-                                          $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
+    if($coIdentifierAssignment['CoIdentifierAssignment']['algorithm'] == IdentifierAssignmentEnum::Plugin) {
+      if(empty($coIdentifierAssignment['CoIdentifierAssignment']['plugin'])) {
+        throw new InvalidArgumentException(_txt('er.ia.plugin'));
+      }
       
-      // There may or may not be a collision number format. If so, we should end
-      // up with a unique candidate (though for random it's possible we won't).
-      $candidate = $this->assignCollisionNumber($coIdentifierAssignment['CoIdentifierAssignment']['id'],
-                                                $sequenced,
-                                                $coIdentifierAssignment['CoIdentifierAssignment']['algorithm'],
-                                                $coIdentifierAssignment['CoIdentifierAssignment']['minimum'],
-                                                $coIdentifierAssignment['CoIdentifierAssignment']['maximum']);
+      $pModel = ClassRegistry::init($coIdentifierAssignment['CoIdentifierAssignment']['plugin'] . "." . $coIdentifierAssignment['CoIdentifierAssignment']['plugin']);
       
-      if(!in_array($candidate, $tested)
-         // Also check that we didn't get an empty string
-         && trim($candidate) != false) {
-        // We have a new candidate (ie: one that wasn't generated on a previous loop),
-        // so let's see if it is already in use.
+      try {
+        // Unlike our native implementation, we do NOT retry if the returned
+        // identifier is already in use. We simply through an error.
         
-        $ok = false;
+        $candidate = $pModel->assign(
+          $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
+          $coIdentifierAssignment['CoIdentifierAssignment']['context'],
+          $objId,
+          $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
+          $coIdentifierAssignment['CoIdentifierAssignment']['email_type']
+        );
         
-        try {
-          if(($assignEmail
-              && $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
-                                                                      $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
-                                                                      $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
-                                                                      true,
-                                                                      $objType))
-             ||
-             (!$assignEmail
-              && $this->Co->CoPerson->Identifier->checkAvailability($candidate,
-                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
-                                                                    $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
-                                                                    false,
-                                                                    $objType))) {
-            $ok = true;
-          }
-        }
-        catch(Exception $e) {
-          // OverflowException = Identifier in use
-          // InvalidArgumentException = Bad format
-          // For now, we ignore the details and loop for the next candidate
+        if(empty($candidate)) {
+          throw new InvalidArgumentException("No identifier received"); // XXX I18n
         }
         
-        if($ok) {
-          // This one's good... insert it into the table and break the loop
+        // We only try once, pretty much any failure should throw an Exception.
+        // If checkInsert() returns null we'll catch it below.
+        
+        $ret = $this->checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonId, $provision);
+      }
+      catch(Exception $e) {
+        $dbc->rollback();
+        throw new InvalidArgumentException($e->getMessage());
+      }
+    } else {
+      // Generate the new identifier. This requires several steps. First, substitute
+      // non-collision number parameters. If no format is specified, default to "(#)".
+      // We'll use PrimaryName in case there is more than one.
+      
+      $iaFormat = "(#)";
+      
+      if(isset($coIdentifierAssignment['CoIdentifierAssignment']['format'])
+         && $coIdentifierAssignment['CoIdentifierAssignment']['format'] != '') {
+        $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
+      }
+      
+      try {
+        $base = $this->substituteParameters($iaFormat,
+                                            (!empty($obj['PrimaryName']) ? $obj['PrimaryName'] : $obj[$objType]['name']),
+                                            $obj['Identifier'],
+                                            $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
+      }
+      catch(Exception $e) {
+        // Some sort of substitution error, such as dependent identifier not existing
+        $dbc->rollback();
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      
+      // Now that we've got our base, loop until we get a unique identifier.
+      // We try a maximum of 10 (0 through 9) times, and track identifiers we've
+      // seen already.
+      
+      $tested = array();
+      
+      for($i = 0;$i < 10;$i++) {
+        $sequenced = $this->selectSequences($base,
+                                            $i,
+                                            $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
+        
+        // There may or may not be a collision number format. If so, we should end
+        // up with a unique candidate (though for random it's possible we won't).
+        $candidate = $this->assignCollisionNumber($coIdentifierAssignment['CoIdentifierAssignment']['id'],
+                                                  $sequenced,
+                                                  $coIdentifierAssignment['CoIdentifierAssignment']['algorithm'],
+                                                  $coIdentifierAssignment['CoIdentifierAssignment']['minimum'],
+                                                  $coIdentifierAssignment['CoIdentifierAssignment']['maximum']);
+        
+        if(!in_array($candidate, $tested)
+           // Also check that we didn't get an empty string
+           && trim($candidate) != false) {
+          // We have a new candidate (ie: one that wasn't generated on a previous loop),
+          // so let's see if it is already in use.
           
-          // We need to update the appropriate validation rule with the current CO ID
-          // so that extended types can validate correctly. In order to do that, we need
-          // the CO ID. We'll pick it out of the CO Identifier Assignment data.
-          
-          $coId = $coIdentifierAssignment['CoIdentifierAssignment']['co_id'];
-          $fk = Inflector::underscore($objType) . "_id";
-          
-          if($assignEmail) {
-            $emailAddressData = array();
-            $emailAddressData['EmailAddress']['mail'] = $candidate;
-            $emailAddressData['EmailAddress']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['email_type'];
-            $emailAddressData['EmailAddress'][$fk] = $obj[$objType]['id'];
-            
-            // We need to update the Email Address validation rule
-            $this->Co->CoPerson->EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
-            
-            // We need to call create to reset the model state since we're (possibly) doing multiple distinct
-            // saves against the same model.
-            $this->Co->CoPerson->EmailAddress->create($emailAddressData);
-            
-            if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => $provision))) {
-              $ret = $this->Co->CoPerson->EmailAddress->id;
-            }
-          } else {
-            $identifierData = array();
-            $identifierData['Identifier']['identifier'] = $candidate;
-            $identifierData['Identifier']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'];
-            $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
-            $identifierData['Identifier'][$fk] = $obj[$objType]['id'];
-            $identifierData['Identifier']['status'] = StatusEnum::Active;
-            
-            // We need to update the Identifier validation rule
-            $this->Co->CoPerson->Identifier->validate['type']['content']['rule'][1]['coid'] = $coId;
-            
-            // We need to call create to reset the model state since we're (possibly) doing multiple distinct
-            // saves against the same model.
-            $this->Co->CoPerson->Identifier->create($identifierData);
-            
-            // Because we're in a transaction (at least for local checks, not necessarily
-            // for plugin checks), we can advise beforeSave to skip the availability checks
-            // (that we just ran).
-            if($this->Co->CoPerson->Identifier->save($identifierData,
-                                                     array('provision' => $provision,
-                                                           'skipAvailability' => true))) {
-              $ret = $this->Co->CoPerson->Identifier->id;
-            }
-          }
-          
-          if($ret) {
-            // Create a history record, for CoPerson and CoGroup
-            if($objType == 'CoGroup' || $objType == 'CoPerson') {
-              $coGroupId = !empty($obj['CoGroup']['id']) ? $obj['CoGroup']['id'] : null;
-              $coPersonId = !empty($obj['CoPerson']['id']) ? $obj['CoPerson']['id'] : null;
-              
-              $txt =  _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
-               . $candidate . ' (' . $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type']
-               . ($assignEmail ? ':'.$coIdentifierAssignment['CoIdentifierAssignment']['email_type'] : '')
-               . ')';
-              
-              try {
-                $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                           null,
-                                                           null,
-                                                           $actorCoPersonID,
-                                                           ActionEnum::IdentifierAutoAssigned,
-                                                           $txt,
-                                                           $coGroupId,
-                                                           null,
-                                                           null,
-                                                           $actorApiUserId);
-              }
-              catch(Exception $e) {
-                $dbc->rollback();
-                throw new RuntimeException(_txt('er.db.save'));
-              }
-            }
-          } else {
-            $dbc->rollback();
-            throw new RuntimeException(_txt('er.db.save'));
-          }
-          
+          $ret = $this->checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonId, $provision);
+        }
+        
+        if($ret)
           break;
-        }
-        // else try the next one
         
+        // else try the next one
         $tested[] = $candidate;
       }
     }
@@ -475,6 +413,165 @@ class CoIdentifierAssignment extends AppModel {
       
       return $sequenced;
     }
+  }
+
+  /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function beforeSave($options = array()) {
+    if(!empty($this->data['CoIdentifierAssignment']['algorithm'])
+       && $this->data['CoIdentifierAssignment']['algorithm'] == IdentifierAssignmentEnum::Plugin
+       && empty($this->data['CoIdentifierAssignment']['plugin'])) {
+      throw new InvalidArgumentException(_txt('er.ia.plugin'));
+    }
+    
+    if(!empty($this->data['CoIdentifierAssignment']['co_id'])
+       && (empty($this->data['CoIdentifierAssignment']['ordr'])
+           || $this->data['CoIdentifierAssignment']['ordr'] == '')) {
+      // Find the current high value and add one
+      $n = 1;
+
+      $args = array();
+      $args['fields'][] = "MAX(ordr) as m";
+      $args['conditions']['CoIdentifierAssignment.co_id'] = $this->data['CoIdentifierAssignment']['co_id'];
+      $args['order'][] = "m";
+
+      $o = $this->find('first', $args);
+
+      if(!empty($o[0]['m'])) {
+        $n = $o[0]['m'] + 1;
+      }
+
+      $this->data['CoIdentifierAssignment']['ordr'] = $n;
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Check the requested identifier for availability, and if available insert it.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  array  $coIdentifierAssignment CoIdentifierAssignment configuration
+   * @param  string $objType                Object type (eg: 'CoPeople') to check identifier for
+   * @param  bool   $assignEmail            Whether to check an email address instead of an identifier
+   * @param  array  $obj                    Object to check identifier for
+   * @param  string $candidate              Candidate identifier
+   * @param  int    $actorCoPersonId        Actor CoPerson ID
+   * @param  bool   $provision              Whether to trigger provisioning
+   * @return int                            Identifier ID, or false
+   */
+  
+  private function checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonId, $provision) {
+    $ret = null;
+    
+    try {
+      if($assignEmail) {
+        $this->Co->CoPerson->EmailAddress->checkAvailability($candidate,
+                                                             $coIdentifierAssignment['CoIdentifierAssignment']['email_type'],
+                                                             $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
+                                                             true,
+                                                             $objType);
+      } else {
+        $this->Co->CoPerson->Identifier->checkAvailability($candidate,
+                                                           $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'],
+                                                           $coIdentifierAssignment['CoIdentifierAssignment']['co_id'],
+                                                           false,
+                                                           $objType);
+      }
+    }
+    catch(Exception $e) {
+      // OverflowException = Identifier in use
+      // InvalidArgumentException = Bad format
+      // For now, we ignore the details and return false
+      
+      return false;
+    }
+    
+    // This one's good... insert it into the table
+    
+    // We need to update the appropriate validation rule with the current CO ID
+    // so that extended types can validate correctly. In order to do that, we need
+    // the CO ID. We'll pick it out of the CO Identifier Assignment data.
+    
+    $coId = $coIdentifierAssignment['CoIdentifierAssignment']['co_id'];
+    $fk = Inflector::underscore($objType) . "_id";
+    
+    if($assignEmail) {
+      $emailAddressData = array();
+      $emailAddressData['EmailAddress']['mail'] = $candidate;
+      $emailAddressData['EmailAddress']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['email_type'];
+      $emailAddressData['EmailAddress'][$fk] = $obj[$objType]['id'];
+      
+      // We need to update the Email Address validation rule
+      $this->Co->CoPerson->EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
+      
+      // We need to call create to reset the model state since we're (possibly) doing multiple distinct
+      // saves against the same model.
+      $this->Co->CoPerson->EmailAddress->create($emailAddressData);
+      
+      if($this->Co->CoPerson->EmailAddress->save($emailAddressData, array('provision' => $provision))) {
+        $ret = $this->Co->CoPerson->EmailAddress->id;
+      }
+    } else {
+      $identifierData = array();
+      $identifierData['Identifier']['identifier'] = $candidate;
+      $identifierData['Identifier']['type'] = $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type'];
+      $identifierData['Identifier']['login'] = $coIdentifierAssignment['CoIdentifierAssignment']['login'];
+      $identifierData['Identifier'][$fk] = $obj[$objType]['id'];
+      $identifierData['Identifier']['status'] = StatusEnum::Active;
+      
+      // We need to update the Identifier validation rule
+      $this->Co->CoPerson->Identifier->validate['type']['content']['rule'][1]['coid'] = $coId;
+      
+      // We need to call create to reset the model state since we're (possibly) doing multiple distinct
+      // saves against the same model.
+      $this->Co->CoPerson->Identifier->create($identifierData);
+      
+      // Because we're in a transaction (at least for local checks, not necessarily
+      // for plugin checks), we can advise beforeSave to skip the availability checks
+      // (that we just ran).
+      if($this->Co->CoPerson->Identifier->save($identifierData,
+                                               array('provision' => $provision,
+                                                     'skipAvailability' => true))) {
+        $ret = $this->Co->CoPerson->Identifier->id;
+      }
+    }
+    
+    if($ret) {
+      // Create a history record, for CoPerson and CoGroup
+      if($objType == 'CoGroup' || $objType == 'CoPerson') {
+        $coGroupId = !empty($obj['CoGroup']['id']) ? $obj['CoGroup']['id'] : null;
+        $coPersonId = !empty($obj['CoPerson']['id']) ? $obj['CoPerson']['id'] : null;
+        
+        $txt =  _txt('en.action', null, ActionEnum::IdentifierAutoAssigned) . ': '
+         . $candidate . ' (' . $coIdentifierAssignment['CoIdentifierAssignment']['identifier_type']
+         . ($assignEmail ? ':'.$coIdentifierAssignment['CoIdentifierAssignment']['email_type'] : '')
+         . ')';
+        
+        try {
+          $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                     null,
+                                                     null,
+                                                     $actorCoPersonId,
+                                                     ActionEnum::IdentifierAutoAssigned,
+                                                     $txt,
+                                                     $coGroupId);
+        }
+        catch(Exception $e) {
+          $dbc->rollback();
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+      }
+    } else {
+      $dbc->rollback();
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    return $ret;
   }
   
   /**
@@ -745,35 +842,5 @@ class CoIdentifierAssignment extends AppModel {
     // else nothing to do
     
     return false;
-  }
-
-  /**
-   * Actions to take before a save operation is executed.
-   *
-   * @since  COmanage Registry v4.0.0
-   */
-
-  public function beforeSave($options = array()) {
-    if(!empty($this->data['CoIdentifierAssignment']['co_id'])
-       && (empty($this->data['CoIdentifierAssignment']['ordr'])
-           || $this->data['CoIdentifierAssignment']['ordr'] == '')) {
-      // Find the current high value and add one
-      $n = 1;
-
-      $args = array();
-      $args['fields'][] = "MAX(ordr) as m";
-      $args['conditions']['CoIdentifierAssignment.co_id'] = $this->data['CoIdentifierAssignment']['co_id'];
-      $args['order'][] = "m";
-
-      $o = $this->find('first', $args);
-
-      if(!empty($o[0]['m'])) {
-        $n = $o[0]['m'] + 1;
-      }
-
-      $this->data['CoIdentifierAssignment']['ordr'] = $n;
-    }
-
-    return true;
   }
 }
