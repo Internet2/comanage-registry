@@ -1889,7 +1889,7 @@ original notification at
   'fd.th.css' =>      'CSS',
   'fd.th.footer' =>   'Footer',
   'fd.th.header' =>   'Header',
-  'fd.th.hide_title' => 'Hide Title',
+  'fd.th.hide_title' => 'Hide Title Banner',
   'fd.th.hide_footer_logo' => 'Hide Footer Logo',
   'fd.theme' =>       'Theme',
   'fd.theme.stacking_status' => 'Inheritance/Stacking',

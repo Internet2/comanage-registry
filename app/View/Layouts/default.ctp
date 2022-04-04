@@ -171,10 +171,9 @@
           <?php print $this->element('menuUser'); ?>
         </nav>
       </div>
-
-      <header id="banner">
-
-        <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+  
+      <?php if(!isset($vv_theme_hide_title) || !$vv_theme_hide_title): ?>
+        <header id="banner">
           <div id="collaborationTitle">
             <?php
               if(!empty($cur_co['Co']['name'])) {
@@ -189,32 +188,31 @@
               }
             ?>
           </div>
-        <?php endif; // $vv_theme_hide_title ?>
 
-        <div id="logo">
-          <?php
-            $imgFile = 'COmanage-Logo-LG-onBlue.png';
-
-            if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
-              // A custom logo has been installed, so use that instead
-              $imgFile = 'logo.png';
-            }
-
-            // Clicking on the logo will take us to the front page
-            print $this->Html->link(
-              $this->Html->image(
-                $imgFile,
-                array(
-                  'alt' => 'COmanage Logo'
-                )
-              ),'/',
-              array('escape' => false)
-            );
-          ?>
-        </div>
-
-      </header>
-
+          <div id="logo">
+            <?php
+              $imgFile = 'COmanage-Logo-LG-onBlue.png';
+  
+              if(is_readable(APP . WEBROOT_DIR . DS . 'img' . DS . 'logo.png')) {
+                // A custom logo has been installed, so use that instead
+                $imgFile = 'logo.png';
+              }
+  
+              // Clicking on the logo will take us to the front page
+              print $this->Html->link(
+                $this->Html->image(
+                  $imgFile,
+                  array(
+                    'alt' => 'COmanage Logo'
+                  )
+                ),'/',
+                array('escape' => false)
+              );
+            ?>
+          </div>
+        </header>
+      <?php endif; // $vv_theme_hide_title ?>
+      
       <div id="main-wrapper">
         <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
           <?php
