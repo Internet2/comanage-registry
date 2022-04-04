@@ -74,7 +74,7 @@
     <?php if(!empty($a['PosterCoPerson']['PrimaryName']['id'])): ?>
       <div class="announcement-meta">
         <em class="announcement-poster"><?php print filter_var(generateCn($a['PosterCoPerson']['PrimaryName']), FILTER_SANITIZE_SPECIAL_CHARS); ?>,</em>
-        <em class="announcement-created"><?php print  $this->Time->format('Y-n-d g:i a', $a['CoAnnouncement']['created']); ?></em>
+        <em class="announcement-modified"><?php print  $this->Time->format('Y-m-d g:i a', $a['CoAnnouncement']['modified']); ?></em>
       </div>
     <?php endif; // PrimaryName ?>
     <div class="announcement-body">

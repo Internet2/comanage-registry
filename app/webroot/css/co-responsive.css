@@ -519,7 +519,7 @@
     float: right;
   }
   .widget-list .announcement-body {
-    clear: both;
+    clear: left;
   }
   .widget-actions {
     margin: -2.5em 0.5em 1em 0;
