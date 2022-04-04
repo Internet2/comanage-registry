@@ -604,6 +604,8 @@ body.co_people.canvas .titleNavContainer {
 .titleNavContainer {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
   margin: 0 0 0.5em;
 }
 .pageTitle {
@@ -625,7 +627,7 @@ body.co_people.canvas .titleNavContainer {
 }
 /* TOP CONTENT LINKS (contextual) */
 #topLinks {
-  margin: 1.5em 0 0 0;
+  margin: 0;
   padding: 0;
 }
 #topLinks.ui-widget-content {
@@ -1609,7 +1611,7 @@ a.ui-button:visited,
   padding: 2px 4px;
   border: 1px solid #ddd;
   background-color: #fff;
-  width: 60%
+  width: calc(100% - 170px);
 }
 .top-filter .submit-button {
   font-size: 0.9em;
@@ -1617,6 +1619,7 @@ a.ui-button:visited,
   line-height: 24px;
   height: 28px;
   margin: 0.25em;
+  padding: 0;
 }
 /* SERVICE PORTAL */
 .co-services {
