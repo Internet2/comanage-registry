@@ -54,12 +54,14 @@
     <?php foreach($vv_actions as $action): ?>
       <?php if(empty($action['onclick'])): ?>
         <?php $lightbox = (isset($action['lightbox']) && $action['lightbox']) ? " lightbox" : "";  ?>
-        <a class="dropdown-item spin<?php print $lightbox; ?>" href="<?php print $action['url']; ?>">
-          <?php if(!empty($action['icon'])): ?>
-          <i class="<?php print $action['icon']; ?>"></i>
-          <?php endif; ?>
-          <?php print $action['label']; ?>
-        </a>
+        <li class="dropdown-item">
+          <a class="spin ignore-invalid <?php print $lightbox; ?>" href="<?php print $action['url']; ?>">
+            <?php if(!empty($action['icon'])): ?>
+            <i class="<?php print $action['icon']; ?>"></i>
+            <?php endif; ?>
+            <?php print $action['label']; ?>
+          </a>
+        </li>
       <?php else: ?>
       <?php
         $dg_onclick = 'javascript:js_confirm_generic(\''
@@ -71,12 +73,14 @@
           . $action['onclick']['db_bd_txt_repl_str']             // dialog body text replacement strings
           . '\']);';
       ?>
-        <a class="dropdown-item" href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
-          <?php if(!empty($action['icon'])): ?>
-            <i class="<?php print $action['icon']; ?>"></i>
-          <?php endif; ?>
-          <?php print $action['label']; ?>
-        </a>
+        <li class="dropdown-item">
+          <a href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
+            <?php if(!empty($action['icon'])): ?>
+              <i class="<?php print $action['icon']; ?>"></i>
+            <?php endif; ?>
+            <?php print $action['label']; ?>
+          </a>
+        </li>
       <?php endif; ?>
     <?php endforeach;?>
   </ul>
