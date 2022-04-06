@@ -33,7 +33,7 @@ html * {
   font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
 }
 body {
-  color: #222;
+  color: var(--cmg-color-black-002);
   -webkit-overflow-scrolling: touch; /* for dialog boxes */
   font-size: 12px;
 }
@@ -121,7 +121,7 @@ a {
   position: relative;
   line-height: 1.5em;
   height: 30px;
-  background-color: #222;
+  background-color: var(--cmg-color-black-002);
 }
 button.cm-toggle {
   padding: 0;
@@ -151,7 +151,7 @@ button.cm-toggle {
   height: 38px;
 }
 #logo a:focus {
-  border: 1px dotted #222;
+  border: 1px dotted var(--cmg-color-black-002);
   display: block;
 }
 /* USER MENU */
@@ -242,7 +242,7 @@ body.logged-in #user-menu {
   right: 0;
   top: 27px;
   z-index: 200;
-  color: #222;
+  color: var(--cmg-color-black-002);
   background-color: #f8f8f8;
   border: 1px solid #eee;
   padding: 1em;
@@ -521,7 +521,7 @@ form#notificationStatus {
   margin: 0;
   padding: 8px 0 8px 12px;
   text-decoration: none;
-  color: #222;
+  color: var(--cmg-color-black-002);
   position: relative;
   overflow:hidden;
 }
@@ -587,14 +587,14 @@ form#notificationStatus {
 }
 /* CONTENT */
 #collaborationTitle {
-  color: #222;
+  color: var(--cmg-color-black-002);
   font-size: 2em;
   min-height: 23px;
   padding: 0 40px 0 0;
   margin: 0;
 }
 #collaborationTitle a {
-  color: #222;
+  color: var(--cmg-color-black-002);
 }
 body.co_petitions.view .titleNavContainer,
 body.co_person_roles .titleNavContainer,
@@ -646,7 +646,7 @@ body.co_people.canvas .titleNavContainer {
   background-color: var(--cmg-color-white);
 }
 #topLinks a:hover {
-  color: #222;
+  color: var(--cmg-color-black-002);
 }
 #main #topLinks a:active,
 #main #topLinks a:hover {
@@ -1072,7 +1072,7 @@ body.petitionerAttributes td {
 .filters-box .checkbox {
   display: inline-block;
   margin: 0.25em 0.5em 0 0;
-  color: #222;
+  color: var(--cmg-color-black-002);
   white-space: nowrap;
 }
 .filters-box input {
@@ -1698,12 +1698,15 @@ a.ui-button:visited,
   margin: 0;
   padding: 0;
 }
-.personExplorer li {
+.personExplorer li:not(.dropdown-item) {
   list-style: none;
   margin: 0 0 0.5em 0;
 }
 .personExplorer a {
   text-decoration: none;
+}
+li .dropdown-item {
+  padding: unset;
 }
 .explorerHead {
   height: 20px;
@@ -1741,14 +1744,14 @@ body.org_identities .ui-dialog {
      value are to the right; this is used for canvases and explorers
      where the fields require no (or few) labels.
      see also ul.form-list below. ***/
-ul.data-list li {
+ul.data-list > li {
   margin: 0 0 2px !important;
   overflow: hidden;
   padding: 2px 0 3px 0;
   background-color: #F5F5F5;
   border: 1px solid #F5F5F5;
 }
-ul.data-list li:nth-child(2n) {
+ul.data-list > li:nth-child(2n) {
   background-color: #ededed; /* note that this is slightly lighter than the .form-list zebra */
   border: 1px solid #ededed;
 }
@@ -1913,7 +1916,7 @@ ul.fields.data-list li {
   border-bottom: 1px solid #ddd;
 }
 .ui-menu-item-wrapper.cm-ac-item-wrapper.ui-state-active {
-  border: 1px solid var(--cmg-blue-primary);
+  border: 1px solid var(--cmg-color-blue-primary);
 }
 .cm-ac-name {
   font-size: 1.1em;
@@ -2583,13 +2586,15 @@ td.indented {
   min-width: 7rem;
   padding: 0;
 }
-.dropdown-item {
+.dropdown-item > a {
   color: #06c;
+  display: block;
   padding: 0.5em;
 }
-.dropdown-item:focus,
-.dropdown-item:hover {
+.dropdown-item > a:focus,
+.dropdown-item > a:hover {
   text-decoration: none !important;
+  color: var(--cmg-color-black-002);
 }
 .text-muted-cmg {
   color: #555 !important;
