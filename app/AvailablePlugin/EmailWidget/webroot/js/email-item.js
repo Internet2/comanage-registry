@@ -111,9 +111,6 @@ export default {
       </div> 
       <div v-else class="cm-ssw-view-container">     
         <span v-else class="email-address">{{ this.mail }}</span> 
-        <!-- XXX badges should probably be generated using a template "slot" so we can generate them using PHP 
-             as we do elsewhere and pass the markup down to the child component. This is the only badge in this
-             plugin, however, so we're ok for now. --> 
         <span v-if="primary" class="mr-1 badge badge-outline-primary">{{ txt.primary }}</span>
       </div>
     </li>
