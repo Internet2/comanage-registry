@@ -434,7 +434,7 @@ function formatCoPersonAutoselectItem(ul, item) {
  * @param url              {string} API Url
  * @param method           {string} HTTP Method (GET, POST, PUT, DELETE)
  * @param dataType         {string} Data type (json, html)
- * @param successCallback  {string} Name of the callback function for success
+ * @param successCallback  {string} [Name of the callback function for success]
  * @param entityId         {string} [ID used to identify an entity in the DOM]
  * @param failureCallback  {string} [Name of the callback function for failure]
  * @param data             {Object} [POST or PUT data in JSON]
@@ -466,16 +466,24 @@ function callRegistryAPI(url, method, dataType, successCallback, entityId, failu
     encode: true
   })
   .done(function() {
-    successCallback(xhr, entityId);
+    if(successCallback != undefined) {
+      successCallback(xhr, entityId);  
+    } else {
+      return xhr;
+    }
   })
   .fail(function() {
     if(failureCallback != undefined) {
       failureCallback(xhr, entityId);
+    } else {
+      return xhr;
     }
   })
   .always(function() {
     if(alwaysCallback != undefined) {
       alwaysCallback(xhr, entityId);
+    } else {
+      return xhr;
     }
   });
 }

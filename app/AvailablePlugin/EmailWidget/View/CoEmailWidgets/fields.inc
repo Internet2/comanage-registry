@@ -1,6 +1,6 @@
 <!--
 /**
- * COmanage Registry CO Services Widgets Fields
+ * COmanage Registry CO Email Widgets Fields
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -51,17 +51,17 @@
   $args['plugin'] = null;
   $args['controller'] = 'co_dashboards';
   $args['action'] = 'edit';
-  $args[] = $co_self_service_email_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
+  $args[] = $co_email_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
   $this->Html->addCrumb(_txt('ct.co_dashboards.1'), $args);
   
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_dashboard_widgets';
   $args['action'] = 'index';
-  $args['codashboard'] = $co_self_service_email_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
+  $args['codashboard'] = $co_email_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
   $this->Html->addCrumb(_txt('ct.co_dashboard_widgets.1'), $args);
   
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(filter_var($co_self_service_email_widgets[0]['CoDashboardWidget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)));
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(filter_var($co_email_widgets[0]['CoDashboardWidget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)));
   $this->Html->addCrumb($crumbTxt);
   
   print $this->Form->hidden('co_dashboard_widget_id', array('default' => $vv_dwid)) . "\n";
@@ -70,12 +70,12 @@
 
 <ul id="<?php print $this->action; ?>_co_url_widget" class="fields form-list form-list-admin">
   <li>
-    <?php print _txt('pl.self_email_widget.noconfig'); ?>
+    <?php print _txt('pl.email_widget.noconfig'); ?>
   </li>
 
   <li class="fields-submit">
     <div class="submit">
-      <?php print $this->Html->link(_txt('pl.self_email_widget.return'),
+      <?php print $this->Html->link(_txt('pl.email_widget.return'),
         $args,  array('class' => 'spin submit-button btn btn-primary')); ?>
     </div>
   </li>

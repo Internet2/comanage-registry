@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Self Service Email Widget CSS
+ * COmanage Registry Email Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -18,23 +18,48 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ * 
  * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
+ * @package       registry-plugin
  * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-?>
-<style>
-  #cm-ssw-email-modal-errors {
-    padding-top: 0;
+
+class EmailWidget extends AppModel {
+  // Define class name for cake
+  public $name = "EmailWidget";
+
+  // Required by COmanage Plugins
+  public $cmPluginType = "dashboardwidget";
+	
+	// Add behaviors
+  // public $actsAs = array('Containable');
+	
+  // Document foreign keys
+  public $cmPluginHasMany = array();
+	
+	// Association rules from this model to other models
+	public $belongsTo = array(
+	);
+	
+	public $hasMany = array(
+	);
+	
+  // Default display field for cake generated views
+  // public $displayField = "description";
+	
+  // Validation rules for table elements
+  public $validate = array(
+	);
+  
+  /**
+   * Expose menu items.
+   * 
+   * @ since COmanage Registry v3.2.0
+   * @ return Array with menu location type as key and array of labels, controllers, actions as values.
+   */
+	
+  public function cmPluginMenus() {
+  	return array();
   }
-  @media only screen and (min-width: 768px) {
-    .cm-ssw-form-field-email {
-      width: 300px;
-    }
-    .cm-ssw-form-field-type {
-      margin-left: 1em;
-    }
-  }
-</style>
+}

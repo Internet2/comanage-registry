@@ -25,7 +25,7 @@
   must be specified in raw SQL, which needs the prefixed table name.
 -->
 <schema version="0.3">
-  <table name="co_self_service_email_widgets">
+  <table name="co_email_widgets">
     <field name="id" type="I">
       <key />
       <autoincrement />
@@ -36,7 +36,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="co_self_service_email_widgets_i1">
+    <index name="co_email_widgets_i1">
       <col>co_dashboard_widget_id</col>
       <unique />
     </index>

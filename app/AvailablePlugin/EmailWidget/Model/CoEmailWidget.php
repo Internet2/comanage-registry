@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Self Service Email Widget Model
+ * COmanage Registry CO Email Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,9 +27,9 @@
 
 App::uses("CoDashboardWidgetBackend", "Model");
 
-class CoSelfServiceEmailWidget extends CoDashboardWidgetBackend {
+class CoEmailWidget extends CoDashboardWidgetBackend {
   // Define class name for cake
-  public $name = "CoSelfServiceEmailWidget";
+  public $name = "CoEmailWidget";
   
 	// Add behaviors
   public $actsAs = array('Containable');

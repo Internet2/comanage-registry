@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Self Service Email Widgets Controller
+ * COmanage Registry CO Email Widgets Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,12 +27,12 @@
 
 App::uses("SDWController", "Controller");
 
-class CoSelfServiceEmailWidgetsController extends SDWController {
+class CoEmailWidgetsController extends SDWController {
   // Class name, used by Cake
-  public $name = "CoSelfServiceEmailWidgets";
+  public $name = "CoEmailWidgets";
   
   public $uses = array(
-    'SelfServiceEmailWidget.CoSelfServiceEmailWidget',
+    'EmailWidget.CoEmailWidget',
     'EmailAddress',
     'CO'
   );
@@ -45,7 +45,7 @@ class CoSelfServiceEmailWidgetsController extends SDWController {
    */
   
   public function display($id) {
-    $cfg = $this->CoSelfServiceEmailWidget->getConfig();
+    $cfg = $this->CoEmailWidget->getConfig();
     
     // Pass the config so we know which div to overwrite
     $this->set('vv_config', $cfg);
@@ -73,7 +73,7 @@ class CoSelfServiceEmailWidgetsController extends SDWController {
           // We use edit for the permission even if we're adding or viewing because
           // add has different semantics for calculatePermission (whether or not the person
           // can add a new item).
-          if(!$this->Co->CoSelfServicePermission->calculatePermission($this->cur_co['Co']['id'],
+          if(!$this->Co->CoPermission->calculatePermission($this->cur_co['Co']['id'],
             'EmailAddress',
             'edit',
             $k)) {
@@ -105,13 +105,13 @@ class CoSelfServiceEmailWidgetsController extends SDWController {
     // Note that the display permission is set at the Dashboard, not Dashboard Widget level.
     $p = $this->calculateParentPermissions($roles);
 
-    // Delete an existing CO Self Service Email Widget?
+    // Delete an existing CO Email Widget?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
     
-    // Edit an existing CO Self Service Email Widget?
+    // Edit an existing CO Email Widget?
     $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
 
-    // View an existing CO Self Service Email Widget?
+    // View an existing CO Email Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Self-service permission is true for all EmailAddress types
