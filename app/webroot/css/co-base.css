@@ -475,6 +475,10 @@ form#notificationStatus {
 .material-icons.error {
   color: #d00;
 }
+/* MAIN WRAPPER */
+#main-wrapper {
+  clear: both;
+}
 /* NAVIGATION / SIDE DRAWER */
 #navigation {
   z-index: 100;
