@@ -64,7 +64,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
       $currentMenu = 'peopleMenu';
       if(isset($permissions['menu']['cos']) && $permissions['menu']['cos']) {
         print '<li id="peopleMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
-        print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
+        print '<a class="menuTop" title="' . _txt('me.people') . '" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">person</em>';
         print '<span class="menuTitle">' . _txt('me.people') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
@@ -185,7 +185,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
 
         print '<li id="groupMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
 
-        print '<a class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
+        print '<a class="menuTop" title="' . _txt('ct.co_groups.pl') . '" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">group</em>';
         print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
         print '<span class="fa arrow fa-fw"></span>';
@@ -298,7 +298,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('ct.co_departments.pl')));
 
         print "</li>";
       }
@@ -317,7 +317,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('ct.organizations.pl')));
 
         print "</li>";
       }
@@ -336,7 +336,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('ct.co_email_lists.pl')));
 
         print "</li>";
       }
@@ -359,7 +359,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
           // Multiple entries, so render a link to each COU.
           
           print '<li id="serviceMenu">';
-          print '<a class="menuTop" aria-expanded="false" href="#">';
+          print '<a class="menuTop" title="' . _txt('ct.co_services.pl') . '" aria-expanded="false" href="#">';
           print '<em class="material-icons" aria-hidden="true">apps</em>';
           print '<span class="menuTitle">' . _txt('ct.co_services.pl') . '</span>';
           print '<span class="fa arrow fa-fw"></span>';
@@ -411,7 +411,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
           } else {
             $args['co'] = $menuCoId;
           }
-          print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+          print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('ct.co_services.pl')));
   
           print "</li>";
         }
@@ -431,7 +431,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('ct.co_jobs.pl')));
 
         print "</li>";
       }
@@ -450,7 +450,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('ct.servers.pl')));
 
         print "</li>";
       }
@@ -470,7 +470,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
               '</em><span class="menuTitle">' . $plabel .
               '</span>';
 
-            print $this->Html->link($linkContent, $pcfg['url'], array('escape' => false, 'class' => 'spin'));
+            print $this->Html->link($linkContent, $pcfg['url'], array('escape' => false, 'class' => 'spin', 'title' => $plabel));
 
             print "</li>";
             $itemIndex++;
@@ -492,7 +492,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['action'] = 'configuration';
         $args['co'] = $menuCoId;
 
-        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin'));
+        print $this->Html->link($linkContent, $args, array('escape' => false, 'class' => 'spin', 'title' => _txt('me.configuration')));
 
         print "</li>";
       }
@@ -503,7 +503,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
     $currentMenu = "platformMenu";
     if(!empty($permissions['menu']['admin']) && $permissions['menu']['admin']) {
       print '<li id="platformMenu" class="co-expandable-menu-item' . ($selectedMenu == $currentMenu ? " active" : "") . '">';
-      print '<a href="#" class="menuTop" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '">';
+      print '<a href="#" class="menuTop" title="' . _txt('me.platform') . '" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '">';
       print '<em class="material-icons" aria-hidden="true">build</em>';
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
       print '<span class="fa arrow fa-fw"></span>';
@@ -595,7 +595,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
       $linkContent = '<em class="material-icons" aria-hidden="true">transfer_within_a_station</em><span class="menuTitle">' . _txt('me.collaborations') .
         '</span>';
 
-      print $this->Html->link($linkContent, '/', array('escape' => false, 'class' => 'spin'));
+      print $this->Html->link($linkContent, '/', array('escape' => false, 'class' => 'spin', 'title' => _txt('me.collaborations')));
 
       print "</li>";
     }
