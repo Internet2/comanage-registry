@@ -2751,6 +2751,10 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   margin-left: 0;
   top: 0;
 }
+.cm-ssw .alert {
+  margin-bottom: 0;
+  border-radius: 0;
+}
 #content .cm-ssw-edit-container .material-icons {
   margin-right: -3px;
 }

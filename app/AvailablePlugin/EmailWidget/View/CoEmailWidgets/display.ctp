@@ -45,6 +45,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
     data() {
       return {
         emailAddresses: {},
+        error: '',
         core: {
           coPersonId: '<?php print $vv_co_person_id[0] ?>',
           widget: 'widget<?php print $divid ?>',
@@ -63,6 +64,9 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           deleteFail:   "<?php print _txt('pl.email_widget.modal.title.delete.fail'); ?>",
           edit :        "<?php print _txt('op.edit'); ?>",
           email:        "<?php print _txt('pl.email_widget.fd.email'); ?>",
+          error401:     "<?php print _txt('pl.email_widget.error.401');?>",
+          error500:     "<?php print _txt('pl.email_widget.error.500');?>",
+          errorInvalid: "<?php print _txt('pl.email_widget.error.invalid');?>",
           makePrimary:  "<?php print _txt('pl.email_widget.make.primary');?>",
           ok:           "<?php print _txt('op.ok'); ?>",
           primary:      "<?php print _txt('fd.name.primary_name'); ?>"
@@ -75,10 +79,23 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
     methods: {
       getEmailAddresses() {
         let url = '<?php print $this->webroot ?>email_addresses.json?copersonid=<?php print $vv_co_person_id[0] ?>';
-        let xhr = callRegistryAPI(url, 'GET', 'json', this.setEmailAddresses);
+        let xhr = callRegistryAPI(url, 'GET', 'json', this.setEmailAddresses, '', this.generalXhrFailCallback);
       },
       setEmailAddresses: function(xhr){
         this.emailAddresses = xhr.responseJSON.EmailAddresses;
+      },
+      setError(txt) {
+        this.error = txt;
+      },
+      generalXhrFailCallback(xhr) {
+        console.log(xhr.status);
+        switch(xhr.status) {
+          case 401:
+            this.setError(this.txt.error401);
+            break;
+          default:
+            this.setError(this.txt.error500);
+        }
       }
     },
     mounted() {
@@ -89,6 +106,9 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
 </script>
 
 <div id="email-widget<?php print $divid ?>" class="cm-ssw">
+  <div v-if="this.error != ''" id="email-widget<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
+    {{ this.error }}
+  </div>
   <email-panel 
     :emails="emailAddresses" 
     :core="core" 
