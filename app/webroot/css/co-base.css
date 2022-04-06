@@ -2581,6 +2581,25 @@ td.indented {
   background-color: #c33; /* red */
   color: var(--cmg-color-white);
 }
+.btn-action {
+  background-color: #5c8edb;
+  color: var(--cmg-color-white);
+}
+.btn-xs {
+  padding: 1px 5px !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  border-radius: 3px !important;
+}
+.btn-xs .material-icons {
+  font-size: inherit !important;
+}
+.btn-flat {
+  border-radius: 0 !important;
+  border-width: 1px;
+  box-shadow: none;
+}
+
 /*Bootstrap*/
 .dropdown-menu {
   font-size: 1em;

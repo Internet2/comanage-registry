@@ -335,8 +335,11 @@
 
     $(".deletebutton")
       .addClass('btn')
-      .addClass('btn-link')
-      .prepend('<em class="material-icons action-button mr-1" role="button">highlight_off</em>');
+      .addClass('btn-xs')
+      .addClass('btn-action')
+      .addClass('btn-flat')
+      .addClass('text-capitalize')
+      .prepend('<em class="material-icons action-button" role="button">delete</em>');
 
 
     $(".trashbutton").button({
