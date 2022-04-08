@@ -148,14 +148,13 @@
 
     // Desktop half-closed drawer behavior & expandable menu items
     $('#navigation-drawer a.menuTop').click(function () {
-      // widen the menu while a.menuTop is expanded so we can see the menu items
-      if ($("#navigation-drawer").hasClass("half-closed")) {
+      if($("#navigation-drawer").hasClass("half-closed") && $(this).attr("aria-expanded") == "true") {
+        // widen the menu when we open a.menuTop so we can see the menu items
         $("#navigation-drawer").removeClass("half-closed").addClass("intermediate-open");
-      } else {
+      }
+      if($("#navigation-drawer").hasClass("intermediate-open") && $(this).attr("aria-expanded") == "false") {
         // close it back down if we're in the intermediate state and we close a.menuTop
-        if ($("#navigation-drawer").hasClass("intermediate-open")) {
-          $("#navigation-drawer").removeClass("intermediate-open").addClass("half-closed");
-        }
+        $("#navigation-drawer").addClass("half-closed").removeClass("intermediate-open");
       }
 
       // Save the ID of the most recently expanded menuTop item in an Application Preference
