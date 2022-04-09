@@ -752,8 +752,9 @@ class CoGroupsController extends StandardController {
     // Filter by membership and ownership
     // First get the CoPersonID to work against either the current user, or the user being acted on in select mode
     $coPersonId = $this->Session->read('Auth.User.co_person_id');
-    if($this->action == 'select') {
-      $coPersonId = filter_var($this->request->params['named']['copersonid'], FILTER_SANITIZE_SPECIAL_CHARS);
+    if($this->action == 'select'
+       && !empty($this->request->params['named']['copersonid'])) {
+      $coPersonId = $this->request->params['named']['copersonid'];
     }
 
     // If both member and owner are selected, use a single join with "OR"
