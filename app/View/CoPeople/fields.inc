@@ -1077,7 +1077,7 @@
                     'aria-expanded' => false,
                   );
                   print $this->Html->link(
-                    $cou_name . ' <cite class="text-muted-cmg">(' . $r['id'] . ')</cite>',
+                    $cou_name . ' <cite class="text-muted-cmg cm-id-display">' . _txt('fd.id.val', array($r['id'])) . '</cite>',
                     '#collapse_link_' . md5("CoPersonRole" . $r['id']),
                     $linkparams
                   );
@@ -1297,7 +1297,7 @@
                 );
                 // Name
                 print $this->Html->link(
-                  $orgid_name . ' <cite class="text-muted-cmg">(' .filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS) . ')</cite>',
+                  $orgid_name . ' <cite class="text-muted-cmg cm-id-display">' . _txt('fd.id.val', array(filter_var($link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))) . '</cite>',
                   '#collapse_link_' . md5("OrgIdentity" . $link['OrgIdentity']['id']),
                   $linkparams
                 );

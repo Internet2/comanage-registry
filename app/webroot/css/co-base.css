@@ -2603,6 +2603,10 @@ td.indented {
 .text-muted-cmg {
   color: #555 !important;
 }
+.cm-id-display {
+  margin-left: 1em;
+  font-size: 0.9em;
+}
 .smaller {
   font-size: smaller;
 }
