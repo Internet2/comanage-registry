@@ -47,6 +47,7 @@ function generateFlash(text, type) {
     type: type,
     dismissQueue: true,
     layout: 'topCenter',
+    closeWith: ['button'],
     theme: 'comanage'
   });
 }
