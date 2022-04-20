@@ -102,7 +102,18 @@ class ServiceEligibilityListener implements CakeEventListener {
         // we can ignore that since there's no role yet to remove an eligibilty
         // from.
         
-        if(in_array($subjectData['CoPersonRole']['status'],
+        $status = null;
+        
+        if(!empty($subjectData['CoPersonRole']['status'])) {
+          $status = $subjectData['CoPersonRole']['status'];
+        } else {
+          // We got here via saveField, pull the status
+          
+          $CoPersonRole = ClassRegistry::init('CoPersonRole');
+          $status = $CoPersonRole->field('status', array('CoPersonRole.id' => $subjectData['CoPersonRole']['id']));
+        }
+        
+        if(in_array($status,
                     array(
                       StatusEnum::Declined,
                       StatusEnum::Deleted,
