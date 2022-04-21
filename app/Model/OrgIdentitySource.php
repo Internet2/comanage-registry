@@ -381,7 +381,7 @@ class OrgIdentitySource extends AppModel {
       // CoOrgIdentityLink is not currently provisioner-enabled, but we'll disable
       // provisioning just in case that changes in the future.
       
-      if($this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false))) {
+      if($this->Co->CoPerson->CoOrgIdentityLink->save($coOrgLink, array("provision" => false, "pipeline" => false))) {
         // Create a history record
         try {
           $this->Co->CoPerson->HistoryRecord->record($targetCoPersonId,
