@@ -2015,6 +2015,10 @@
     <index name="co_petitions_i7">
       <col>enrollee_co_person_id</col>
     </index>
+    <!-- Used by expunge -->
+    <index name="co_petitions_i8">
+      <col>archived_org_identity_id</col>
+    </index>
   </table>
   
   <table name="co_petition_attributes">
