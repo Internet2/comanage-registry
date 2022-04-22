@@ -1111,6 +1111,9 @@ iframe#tandc_content {
 #reconcile-table .reconcile-fields ul.match-attr-list:first-child {
   border-top: none;
 }
+#reconcile-table .reconcile-fields ul.match-attr-list li.match {
+  background-color: var(--cmg-color-green-003);
+}
 /* set the borders on the "new" reference id */
 #reconcile-table tbody td:nth-child(2) {
   border-left: 2px solid var(--cmg-color-lightgray-007);
@@ -2391,11 +2394,11 @@ tr.highlight td:first-child {
 }
 .warn-level-a,
 .warn-level-a td {
-  background-color: var(--cmg-color-warn-yellow);
+  background-color: var(--cmg-color-warn-red);
 }
 .warn-level-b,
 .warn-level-b td {
-  background-color: var(--cmg-color-warn-red);
+  background-color: var(--cmg-color-warn-yellow);
 }
 .asc, .desc {
   font-style: italic;

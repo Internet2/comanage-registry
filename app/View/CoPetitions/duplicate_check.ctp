@@ -156,6 +156,7 @@ print $this->element("pageTitleAndButtons", $params);
 
     <!-- MATCH ATTRIBUTES -->
     <?php foreach($matchAttributeNames as $n): ?>
+      <?php $newAttributes = []; // Keep the list of new attributes for matching comparison. ?>
       <tr class="match-attributes-row">
         <th class="attr-title match-attr-name" scope="row"><?php print $n ?></th>
         <?php foreach($vv_matches as $m): ?>
@@ -179,7 +180,19 @@ print $this->element("pageTitleAndButtons", $params);
                         // Finally, output the key/value pairs:
                         foreach ($attrsArr as $key => $val) {
                           if (!empty($val)) {
-                            print "<li>$key: <strong>$val</strong></li>\n";
+                            $matchClass = '';
+                            if($m->referenceId == 'new') {
+                              // Save the new attribute.
+                              $newAttributes[$key] = $val;
+                            } else {
+                              // Do we have a match? Compare the new attribute with the current attribute.
+                              if($newAttributes[$key] == $val) {
+                                $matchClass = ' class="match"';
+                              } elseif(!empty($newAttributes[$key])) {
+                                $matchClass = ' class="no-match"';
+                              }
+                            }
+                            print "<li" . $matchClass . ">$key: <strong>$val</strong></li>\n";
                           }
                         }
                         print "</ul>\n";
