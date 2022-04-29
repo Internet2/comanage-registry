@@ -334,7 +334,7 @@ class CoIdentifierAssignment extends AppModel {
           // We have a new candidate (ie: one that wasn't generated on a previous loop),
           // so let's see if it is already in use.
           
-          $ret = $this->checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonId, $provision);
+          $ret = $this->checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonID, $provision);
         }
         
         if($ret)
