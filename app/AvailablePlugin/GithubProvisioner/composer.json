@@ -3,7 +3,7 @@
     "vendor-dir": "Vendor"
   },
   "require": {
-    "guzzlehttp/guzzle": "~6.0",
+    "guzzlehttp/guzzle": "~6.5",
     "knplabs/github-api": "^2.12",
     "php-http/guzzle6-adapter": "^1.1",
     "cache/filesystem-adapter": "^1.0"
