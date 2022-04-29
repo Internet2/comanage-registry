@@ -174,8 +174,8 @@ class PrivacyIdea extends AppModel {
       'user' => $identifier,
       'realm' => $privacyIdeaAuthenticator['realm'],
       'optlen' => '6'
-    );    
-
+    );
+    
     $response = $Http->post("/token/init", $params, $this->requestCfg);
     
     $jresponse = json_decode($response);
