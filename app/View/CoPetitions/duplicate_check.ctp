@@ -186,7 +186,8 @@ print $this->element("pageTitleAndButtons", $params);
                               $newAttributes[$key] = $val;
                             } else {
                               // Do we have a match? Compare the new attribute with the current attribute.
-                              if($newAttributes[$key] == $val) {
+                              // We will convert both strings to lowercase for a case-insensitive match.
+                              if(strtolower($newAttributes[$key]) == strtolower($val)) {
                                 $matchClass = ' class="match"';
                               } elseif(!empty($newAttributes[$key])) {
                                 $matchClass = ' class="no-match"';
