@@ -319,7 +319,7 @@ class CoPersonRolesController extends StandardController {
         
         $cous = $this->CoPersonRole->Cou->find('threaded', $args);
         
-        $childCous = array();
+        $childCous = array('' => '');
         foreach($cous as $cou) {
           $childCous = array_unique($childCous + $this->CoPersonRole->Cou->childCousById($cou['Cou']['id'], true, true));
         }
