@@ -50,18 +50,14 @@ class CoEmailWidgetsController extends SDWController {
     // Pass the config so we know which div to overwrite
     $this->set('vv_config', $cfg);
   
-    // Gather the email addresses for the current CoPerson for the first 
-    // read-only display. After the first load, updates and reloads will
-    // be performed via ajax.
+    // We need only the CoPerson ID - with that we can look up the Email Addresses via 
+    // ajax against the API in the web client.
     $coPersonId = $this->Session->read('Auth.User.co_person_id');
-    $args = [];
-    $args['conditions'] = array('EmailAddress.co_person_id' => $coPersonId);
-    $args['contain'] = false;
-    $emailAddresses = $this->EmailAddress->find('all',$args);
-    $this->set('vv_email_addresses', $emailAddresses);
     $this->set('vv_co_person_id', array($coPersonId));
   
+    // Gather the available email address types
     $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
+    
   /* XXX probably need to work with the self-service permissions below
     if(!empty($this->viewVars['permissions']['selfsvc'])
       && !$this->Role->isCoOrCouAdmin($coPersonId,
@@ -85,6 +81,18 @@ class CoEmailWidgetsController extends SDWController {
       $this->set('vv_available_types', $availableTypes);
     /*}*/
   }
+  
+  public function edit($id) {
+    parent::edit($id);
+    
+    // Pass the config
+    $cfg = $this->CoEmailWidget->getConfig();
+    $this->set('vv_config', $cfg);
+    
+    // Gather the available email address types for the config form
+    $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
+    $this->set('vv_available_types', $availableTypes);
+  }  
   
   /**
    * Authorization for this Controller, called by Auth component

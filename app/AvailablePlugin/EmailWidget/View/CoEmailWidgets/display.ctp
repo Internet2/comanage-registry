@@ -47,9 +47,11 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
         emailAddresses: {},
         error: '',
         core: {
-          coPersonId: '<?php print $vv_co_person_id[0] ?>',
-          widget: 'widget<?php print $divid ?>',
-          webRoot: '<?php print $this->webroot ?>',
+          coPersonId: '<?php print $vv_co_person_id[0]; ?>',
+          widget: 'widget<?php print $divid; ?>',
+          webRoot: '<?php print $this->webroot; ?>',
+          // Fallback to 'official' email type if no default is set in configuration
+          defaultEmailType: '<?php print !empty($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : 'official'; ?>',
           editEmails: false,  // TODO: determine this from configuration - can email be edited?
           deletePrimary: false // TODO: determine this from configuration - can primary email be deleted?
         },
@@ -62,6 +64,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           deleteModalTitle: "<?php print _txt('pl.email_widget.modal.title.delete'); ?>",
           deleteModalMessage: "<?php print _txt('pl.email_widget.modal.body.delete'); ?>",
           deleteFail:   "<?php print _txt('pl.email_widget.modal.title.delete.fail'); ?>",
+          done:         "<?php print _txt('op.done'); ?>",
           edit :        "<?php print _txt('op.edit'); ?>",
           email:        "<?php print _txt('pl.email_widget.fd.email'); ?>",
           error401:     "<?php print _txt('pl.email_widget.error.401');?>",
@@ -105,7 +108,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
   
 </script>
 
-<div id="email-widget<?php print $divid ?>" class="cm-ssw">
+<div id="email-widget<?php print $divid ?>" class="cm-ssw" v-cloak>
   <div v-if="this.error != ''" id="email-widget<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
     {{ this.error }}
   </div>

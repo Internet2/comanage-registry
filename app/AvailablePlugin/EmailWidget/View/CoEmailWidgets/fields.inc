@@ -70,13 +70,42 @@
 
 <ul id="<?php print $this->action; ?>_co_url_widget" class="fields form-list form-list-admin">
   <li>
-    <?php print _txt('pl.email_widget.noconfig'); ?>
-  </li>
-
-  <li class="fields-submit">
-    <div class="submit">
-      <?php print $this->Html->link(_txt('pl.email_widget.return'),
-        $args,  array('class' => 'spin submit-button btn btn-primary')); ?>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_widget.fd.type.default')) : _txt('pl.email_widget.fd.type.default')); ?>
+      </div>
+      <div class="field-desc">
+        <?php print _txt('pl.email_widget.fd.type.default.desc'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      $attrs['value'] = (isset($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : "");
+      $attrs['empty'] = false;
+  
+      if($e) {
+        print $this->Form->select('default_type',
+          $vv_available_types,
+          $attrs);
+    
+        if($this->Form->isFieldError('default_type')) {
+          print $this->Form->error('default_type');
+        }
+      } else {
+        print _txt('pl.email_widget.fd.type.default', null, filter_var($vv_config['default_type'],FILTER_SANITIZE_SPECIAL_CHARS));
+      }
+      ?>
     </div>
   </li>
+  
+  <?php if($e): ?>
+    <li class="fields-submit">
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
+      <div class="field-info">
+        <?php print $this->Form->submit($submit_label); ?>
+      </div>
+    </li>
+  <?php endif; ?>
 </ul>

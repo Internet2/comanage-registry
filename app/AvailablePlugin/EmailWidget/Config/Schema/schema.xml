@@ -35,6 +35,8 @@
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
+    <field name="default_type" type="C" size="128" />
+    <field name="hide_type" type="L" />
     
     <index name="co_email_widgets_i1">
       <col>co_dashboard_widget_id</col>

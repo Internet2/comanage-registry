@@ -2715,6 +2715,7 @@ ul.cm-ssw-field-list ul.dropdown-menu li {
 }
 ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   text-transform: none;
+  padding: 0.5em 0.75em;
 }
 .cm-ssw-form-row:last-child {
   border-bottom: none;
@@ -2778,6 +2779,9 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   padding: 1em;
   white-space: nowrap;
   text-align: right;
+}
+[v-cloak] {
+  display: none;
 }
 /* FOOTER */
 #co-footer {

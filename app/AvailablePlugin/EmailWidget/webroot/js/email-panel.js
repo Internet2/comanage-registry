@@ -68,7 +68,7 @@ export default {
             {
               "Version":"1.0",
               "Mail":this.$refs.newAddress.value,
-              "Type":"official", // XXX set based on defaults or form
+              "Type":this.$refs.newAddressType.value,
               "Person":
                 {
                   "Type":"CO",
@@ -126,6 +126,9 @@ export default {
       </ul>
       <div v-if="!editing" class="cm-self-service-submit-buttons">
         <button @click="showEdit" class="btn btn-small btn-primary">{{ this.txt.edit }}</button>
+      </div>
+      <div v-else class="cm-self-service-submit-buttons">
+        <button @click="hideEdit" class="btn btn-small btn-default">{{ this.txt.done }}</button>
       </div>  
     </div>
     <div v-if="editing" class="cm-ssw-add-form">
@@ -148,6 +151,11 @@ export default {
                   {{ this.newEmailErrorMessage }}
                 </div>
             </span>
+            <input 
+              type="hidden"
+              :id="generateId('cm-ssw-email-type-new')"
+              :value="core.defaultEmailType"
+              ref="newAddressType"/>
             <span class="cm-ssw-form-field form-check">
               <input 
                 type="checkbox"
@@ -161,7 +169,7 @@ export default {
             </span>
           </span>
           <div class="cm-ssw-submit-buttons">
-            <button @click="hideEdit" class="btn btn-small cm-ssw-add-cancel">{{ txt.cancel }}</button>
+            <!--button @click="hideEdit" class="btn btn-small cm-ssw-add-cancel">{{ txt.cancel }}</button-->
             <button @click.prevent="addEmail" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ txt.add }}</button>
           </div>
         </div>
