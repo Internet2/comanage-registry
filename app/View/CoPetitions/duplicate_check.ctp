@@ -30,7 +30,7 @@ $matchAttributeNames = array();
 
 // Generate page title
 $params = array();
-$params['title'] = _txt('ct.co_petition.duplicate.check');
+$params['title'] = _txt('op.match.duplicate.check');
 print $this->element("pageTitleAndButtons", $params);
 ?>
 
@@ -88,7 +88,7 @@ print $this->element("pageTitleAndButtons", $params);
       </th>
       <?php foreach($vv_matches as $m): ?>
         <td class="reference-ids">
-          <?php print ($m->referenceId != 'new') ? $m->referenceId : _txt('fd.new'); ?>
+          <?php print ($m->referenceId != 'new') ? $m->referenceId : _txt('fd.match.new'); ?>
         </td>
       <?php endforeach; ?>
     </tr>
@@ -115,7 +115,7 @@ print $this->element("pageTitleAndButtons", $params);
             if(!empty($vv_petition_token)) {
               $targetUrl['token'] = $vv_petition_token;
             }
-            $linkText = ($m->referenceId != 'new') ? _txt('op.match.merge') : _txt('op.add.new.literal');
+            $linkText = ($m->referenceId != 'new') ? _txt('op.match.merge') : _txt('op.match.new');
             print $this->Form->postLink($linkText, $targetUrl, $targetOptions); 
           ?>
         </td>
