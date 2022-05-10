@@ -1315,7 +1315,6 @@ body.co_petitions .ui-dialog {
 /* PEOPLE LISTING - CO PETITIONS and ACCORDIANS (legacy) */
 #co_people {
   clear: both;
-  table-layout: auto; /* override fixed table layout */
 }
 #co_people > .co-person {
   margin: 0;
@@ -2317,7 +2316,17 @@ a.desc::before {
 }
 code,
 .fixed-width * {
-  font-family: "Courier New","Courier",monospace !important;
+  font-family: "Courier New", "Courier", monospace;
+  color: var(--cmg-color-black-001);
+  font-size: 0.9em;
+  text-align: left;
+}
+code.source-record-formatted {
+  white-space: pre;
+}
+#source-record-format-toggle {
+  float: right;
+  margin-bottom: 1em;
 }
 /*Bootstrap badge*/
 .badge {
@@ -2381,10 +2390,9 @@ table {
   border-collapse: collapse;
   border-left: 1px solid #eee;
   border-right: 1px solid #eee;
-  table-layout: fixed;
 }
-table.cake-sql-log {
-  table-layout: auto;
+table.fixed-table {
+  table-layout: fixed;
 }
 .table-container {
   overflow: auto;
@@ -2582,6 +2590,12 @@ td.indented {
 .btn-secondary {
   background-color: #c33; /* red */
   color: var(--cmg-color-white);
+}
+.btn-link {
+  text-transform: unset;
+  color: var(--cmg-color-blue-primary);
+  padding: 0;
+  font-size: 1em;
 }
 /*Bootstrap*/
 .dropdown-menu {

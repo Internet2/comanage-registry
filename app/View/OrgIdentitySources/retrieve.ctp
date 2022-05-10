@@ -159,6 +159,15 @@
 </div>
 <br />
 <?php else: // vv_not_found ?>
+<script>
+  $(function() {
+    // Toggle source record formatting
+    $("#source-record-format-toggle").click(function (e) {
+      e.preventDefault();
+      $("code.source-record").toggleClass("source-record-formatted");
+    });
+  });
+</script>
 <div class="innerContent">
   <div class="table-container">
     <table id="view_org_identity_source_record">
@@ -404,13 +413,16 @@
             <span class="descr"><?php print _txt('fd.ois.record.desc'); ?></span>
           </td>
           <td>
-            <pre>
+            <button id="source-record-format-toggle" class="btn btn-link">
+              <?php print _txt('op.ois.toggle.format') ?>
+            </button>
+            <code class="source-record">
               <?php
                 if(!empty($vv_raw_source_record)) {
                 print filter_var($vv_raw_source_record,FILTER_SANITIZE_SPECIAL_CHARS);
                 }
               ?>
-            </pre>
+            </code>
           </td>
         </tr>
         <?php if($vv_org_identity_source['hash_source_record']): ?>

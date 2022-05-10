@@ -2194,6 +2194,7 @@ original notification at
   'op.mt.test.wait' => 'Sending...',
   'op.next' =>        'Next',
   'op.ois.conf.gr' => 'Configure Group Mapping',
+  'op.ois.toggle.format' => 'Toggle formatting',
   'op.ois.inventory' => 'View %1$s Inventory',
   'op.ok' =>          'OK',
   'op.order-a' =>     'Reorder %1$s',
