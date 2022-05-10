@@ -1544,7 +1544,7 @@ original notification at
   'fd.ia.format' =>   'Format',
   'fd.ia.format.desc' => 'See <a href="https://spaces.at.internet2.edu/display/COmanage/Configuring+Registry+Identifier+Assignment">Configuring Registry Identifier Assignment</a> for details',
   'fd.ia.format.prefab' => 'Select a Common Pattern',
-  'fd.ia.format.pattern' => 'Pattern',
+  'fd.ia.format.pattern' => 'Common patterns',
   'fd.ia.format.p0' => 'Default (#)',
   'fd.ia.format.p1' => 'given.family(.#)@myvo.org',
   'fd.ia.format.p2' => 'given(.m).family(.#)@myvo.org',
