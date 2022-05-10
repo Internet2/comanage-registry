@@ -870,7 +870,7 @@ class CoPerson extends AppModel {
     //       You would only need to specify fields for a DISTINCT
     //       count (since otherwise, the count is always the same,
     //       dictated by the conditions).
-    $args['fields'] = 'DISTINCT "' . $this->name . '"."id"';
+    $args['fields'] = 'DISTINCT ' . $this->name . '.id';
     return $this->find('count', $args);
   }
 
