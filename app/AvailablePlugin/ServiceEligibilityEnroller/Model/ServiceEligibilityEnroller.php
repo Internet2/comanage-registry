@@ -42,10 +42,6 @@ class ServiceEligibilityEnroller extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array("CoEnrollmentFlowWedge");
   
-  public $hasMany = array(
-    "ServiceEligibility" => array('dependent' => true)
-  );
-  
   // Default display field for cake generated views
   public $displayField = "id";
   

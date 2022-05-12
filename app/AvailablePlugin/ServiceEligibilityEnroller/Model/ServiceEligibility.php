@@ -31,7 +31,6 @@ class ServiceEligibility extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
-    'ServiceEligibilityEnroller',
     'CoPersonRole',
     'CoService'
   );
