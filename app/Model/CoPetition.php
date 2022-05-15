@@ -75,7 +75,8 @@ class CoPetition extends AppModel {
     "SponsorCoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'sponsor_co_person_id'
-    )
+    ),
+    "VettingRequest"
   );
   
   public $hasMany = array(
@@ -180,7 +181,8 @@ class CoPetition extends AppModel {
                                       PetitionStatusEnum::Duplicate,
                                       PetitionStatusEnum::Finalized,
                                       PetitionStatusEnum::PendingApproval,
-                                      PetitionStatusEnum::PendingConfirmation)),
+                                      PetitionStatusEnum::PendingConfirmation,
+                                      PetitionStatusEnum::PendingVetting)),
       'required' => true,
       'message' => 'A valid status must be selected'
     ),
@@ -712,7 +714,8 @@ class CoPetition extends AppModel {
       PetitionStatusEnum::Duplicate           => 'done',
       PetitionStatusEnum::Finalized           => 'done',
       PetitionStatusEnum::PendingApproval     => 'waitForApproval',
-      PetitionStatusEnum::PendingConfirmation => 'waitForConfirmation'
+      PetitionStatusEnum::PendingConfirmation => 'waitForConfirmation',
+      PetitionStatusEnum::PendingVetting      => 'requestVetting'
     );
     
     // Pull the status of the petition
@@ -1567,6 +1570,46 @@ class CoPetition extends AppModel {
         }
       }
     }
+  }
+  
+  /**
+   * Register a Vetting Request for this Petition.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  int  $id              CO Petition ID
+   * @param  int  $actorCoPersonId Actor CO Person ID
+   * @return int                   Vetting Request ID
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+
+  public function registerVettingRequest($id, $actorCoPersonId) {
+    $coPersonId = $this->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+    
+    if(!$coPersonId) {
+      throw new InvalidArgumentException(_txt('er.cop.unk'));
+    }
+    
+    // Just let any exception bubble up
+    $requestId = $this->VettingRequest->register($coPersonId, $actorCoPersonId);
+    
+    $this->clear();
+    $this->id = $id;
+    $this->saveField('vetting_request_id', $requestId);
+    
+    // Update the petition status
+    $this->updateStatus($id, PetitionStatusEnum::PendingVetting, $actorCoPersonId);
+    
+    // Record a Petition History Record
+    $this->CoPetitionHistoryRecord->record($id,
+                                           $actorCoPersonId,
+                                           PetitionActionEnum::VettingRequested,
+                                           _txt('rs.vetting.registered', array($requestId)));
+    
+    // Note we don't specifically generate a notification to the vetter here
+    // because that is handled by VetJob, which knows who to notify and when.
+    
+    return $requestId;  
   }
   
   /**
@@ -2914,6 +2957,11 @@ class CoPetition extends AppModel {
          || $newStatus == StatusEnum::Duplicate) {
         $valid = true;
       }
+    } elseif($newStatus == PetitionStatusEnum::PendingVetting) {
+      // Update the CO Person status
+      
+      $valid = true;
+      $newCoPersonStatus = StatusEnum::PendingVetting;
     } elseif($newStatus == PetitionStatusEnum::Finalized) {
       // On finalization, set the CO Person and CO Person Role to Active.
       

@@ -150,7 +150,8 @@ class CoPetitionsController extends StandardController {
     // It might be preferable for establishAuthenticators to run after approval,
     // but we don't currently have a model to move from approver back to enrollee
     // (which would require something like "click here to upload your ssh key" in the approval message)
-    'establishAuthenticators'      => 'sendApproverNotification',
+    'establishAuthenticators'      => 'requestVetting',
+    'requestVetting'               => 'sendApproverNotification',
     // We have both redirectOnConfirm and waitForApproval because depending on the
     // confirmation we might have different paths to completing the processConfirmation step
     'sendApproverNotification'     => 'waitForApproval',
@@ -1920,6 +1921,26 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Execute CO Petition 'requestVetting' step
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param Integer $id CO Petition ID
+   * @throws Exception
+   */
+  
+  protected function execute_requestVetting($id) {
+    $requestId = $this->CoPetition->registerVettingRequest($id, $this->Session->read('Auth.User.co_person_id'));
+    
+    // At this point, the enrollment process stops, pending the results of vetting.
+    // This means there is no support for Enroller Plugins. However, Vetting is
+    // itself plugin based, so that's where plugins should be injected for this step.
+    
+    // We trigger redirect on submit here, since effectively this is the end of
+    // the enrollee sequence
+    $this->execute_redirectOnSubmit($id);
+  }
+  
+  /**
    * Execute CO Petition 'selectEnrollee' step
    *
    * @since  COmanage Registry v0.9.4
@@ -2598,6 +2619,12 @@ class CoPetitionsController extends StandardController {
       $p['establishAuthenticators'] = $isEnrollee || ($steps['establishAuthenticators']['enabled'] == RequiredEnum::NotPermitted);
       // Authenticator Plugin steps for establishAuthenticators get the same permissions
       $p['establishAuthenticator'] = $p['establishAuthenticators'];
+      // Vetting Request could be triggered by either petitioner or enrollee
+      if($steps['requestVetting']['role'] == EnrollmentRole::Enrollee) {
+        $p['requestVetting'] = $isEnrollee;
+      } else {
+        $p['requestVetting'] = $isPetitioner;
+      }
       // Approval steps could be triggered by petitioner or enrollee, according to configuration
       if($steps['sendApproverNotification']['role'] == EnrollmentRole::Enrollee) {
         // Confirmation required, so approval steps get triggered by enrollee
@@ -2956,6 +2983,17 @@ class CoPetitionsController extends StandardController {
   
   public function redirectOnConfirm($id) {
     $this->dispatch('redirectOnConfirm', $id);
+  }
+  
+  /**
+   * Request Vetting of the Enrollee CO Person
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Integer $id CO Petition ID
+   */
+  
+  public function requestVetting($id) {
+    $this->dispatch('requestVetting', $id);
   }
   
   /**

@@ -108,7 +108,11 @@ class CoGroup extends AppModel {
       'foreignKey' => 'moderators_co_group_id'
     ),
     "HistoryRecord",
-    "Identifier" => array('dependent' => true)
+    "Identifier" => array('dependent' => true),
+    "VetterCoGroup" => array(
+      'className' => 'VettingStep',
+      'foreignKey' => 'vetter_co_group_id'
+    )
   );
 
   public $belongsTo = array(

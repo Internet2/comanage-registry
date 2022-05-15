@@ -59,11 +59,12 @@ class CoreJob extends CoJobBackend {
     return array(
       'Bulk' => _txt('pl.bulkjob.job'),
       'Expire' => _txt('pl.expirationjob.job'),
+      'GarbageCollector' => _txt('pl.garbagecollectorjob.job'),
       'IdAssign' => _txt('pl.idassignerjob.job'),
       'Provision' => _txt('pl.provisionerjob.job'),
       'Sync' => _txt('pl.syncjob.job'),
       'ValidateGroupMember' => _txt('pl.groupvalidityjob.job'),
-      'GarbageCollector' => _txt('pl.garbagecollectorjob.job')
+      'Vet' => _txt('pl.vetjob.vet')
     );
   }
 }

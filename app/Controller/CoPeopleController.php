@@ -19,7 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * @link          http://www.internet2.edu/comanage COmanage Project
+ * @link          https://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
@@ -229,6 +229,14 @@ class CoPeopleController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_cluster_count', $this->Co->Cluster->find('count', $args));
+      
+      // Are any Vetting Steps defined for this CO?
+      
+      $args = array();
+      $args['conditions']['VettingStep.co_id'] = $this->cur_co['Co']['id'];
+      $args['contain'] = false;
+      
+      $this->set('vv_vetting_step_count', $this->Co->VettingStep->find('count', $args));
     }
     
     parent::beforeRender();

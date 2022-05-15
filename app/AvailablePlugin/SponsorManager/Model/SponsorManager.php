@@ -95,7 +95,8 @@ class SponsorManager extends AppModel {
                      PetitionStatusEnum::Confirmed,
                      PetitionStatusEnum::Created,
                      PetitionStatusEnum::PendingApproval,
-                     PetitionStatusEnum::PendingConfirmation
+                     PetitionStatusEnum::PendingConfirmation,
+                     PetitionStatusEnum::PendingVetting
                    ))) {
         throw new InvalidArgumentException(_txt('er.sponsormanager.petition'));
       }

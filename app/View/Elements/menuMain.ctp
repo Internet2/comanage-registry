@@ -147,6 +147,22 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
     
             print "</li>";
           }
+          
+          if(isset($permissions['menu']['vettingrequests']) && $permissions['menu']['vettingrequests']) {
+            print '<li>';
+            $args = array();
+            $args['plugin'] = null;
+            $args['controller'] = 'vetting_requests';
+            $args['action'] = 'index';
+            $args['co'] = $menuCoId;
+            $args['sort'] = 'VettingRequest.created';
+            $args['direction'] = 'desc';
+            $args['search.status'] = VettingStatusEnum::PendingManual;
+
+            print $this->Html->link(_txt('ct.vetting_requests.pl'), $args, array('class' => 'spin'));
+    
+            print "</li>";
+          }
         } else {
           // Default enrollment
           if(isset($permissions['menu']['invite']) && $permissions['menu']['invite']) {

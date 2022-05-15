@@ -277,6 +277,19 @@
         );
       }
       
+      // Vetting Requests (available if Vetting Steps are defined)
+      if(isset($vv_vetting_step_count) && $vv_vetting_step_count > 0) {
+        $sidebarButtons[] = array(
+          'icon'    => 'person',
+          'title'   => _txt('ct.vetting_requests.pl'),
+          'url'     => array(
+            'controller' => 'vetting_requests',
+            'action' => 'index',
+            'copersonid' => $co_people[0]['CoPerson']['id']
+          )
+        );
+      }
+      
       // Autogenerate Identifiers button
       if($permissions['assign'] && !empty($co_identifier_assignments)) {
         $sidebarButtons[] = array(

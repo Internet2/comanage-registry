@@ -83,7 +83,8 @@ class Co extends AppModel {
     "CoGroup" => array('dependent' => true),
     // A CO has zero or more COUs
     "Cou" => array('dependent' => true),
-    "Server" => array('dependent' => true)
+    "Server" => array('dependent' => true),
+    "VettingStep" => array('dependent' => true)
   );
   
   public $hasOne = array(

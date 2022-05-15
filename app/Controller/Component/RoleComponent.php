@@ -1486,4 +1486,44 @@ class RoleComponent extends Component {
                                        $coPersonId) {
     return $this->isNotificationRole($coNotificationId, $coPersonId, 'actor');
   }
+  
+  /**
+   * Determine which CO Groups a CO Person is a member of that are associated
+   * with Vetting Steps.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  int   $coPersonId CO Person ID
+   * @return array             Array of CO Group IDs
+   */
+  
+  public function vetterForGroups($coPersonId) {
+    if(!$coPersonId)
+      return false;
+    
+    $ret = array();
+    
+    // Get the CO ID for the CO Person
+    $coId = $this->cachedCoIdLookup($coPersonId);
+    
+    // Pull the set of groups that are associated with vetter steps
+    $args = array();
+    $args['conditions']['VettingStep.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['VettingStep.co_id'] = $coId;
+    $args['conditions']['NOT']['VettingStep.vetter_co_group_id'] = null;
+    $args['fields'] = array('id', 'vetter_co_group_id');
+    $args['contain'] = false;
+    
+    $VettingStep = ClassRegistry::init('VettingStep');
+    
+    $groups = $VettingStep->find('list', $args);
+    
+    // Otherwise figure out which groups $coPersonId is a member of
+    foreach(array_values($groups) as $gid) {
+      if($this->cachedGroupCheck($coPersonId, "", "", $gid)) {
+        $ret[] = $gid;
+      }
+    }
+    
+    return $ret;
+  }
 }

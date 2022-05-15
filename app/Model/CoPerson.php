@@ -127,6 +127,7 @@ class CoPerson extends AppModel {
     "CoProvisioningExport" => array('dependent' => true),
     // A person can have one or more URL
     "Url" => array('dependent' => true),
+    "VettingRequest" => array('dependent' => true)
   );
 
   // Default display field for cake generated views
@@ -162,6 +163,7 @@ class CoPerson extends AppModel {
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
                                         StatusEnum::PendingConfirmation,
+                                        StatusEnum::PendingVetting,
                                         StatusEnum::Suspended)),
         'required' => true,
         'allowEmpty' => false,

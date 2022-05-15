@@ -83,4 +83,5 @@ For more information, see the Job review at
   'pl.syncjob.arg.ois_id' => 'Org Identity Source ID to process (or all, by default)',
   'pl.syncjob.done'       => 'Sync Finished',
   'pl.syncjob.job'        => 'Sync Organizational Identity Sources',
+  'pl.vetjob.job'         => 'Process Vetting Requests'
 );

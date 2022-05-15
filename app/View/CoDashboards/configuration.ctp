@@ -180,6 +180,12 @@
       'permissionKey' => 'cothemes',
       'controller'    => 'co_themes',
       'action'        => 'index'
+    ),
+    _txt('ct.vetting_steps.pl') => array(
+      'icon'          => 'verified_user',
+      'permissionKey' => 'vettingsteps',
+      'controller'    => 'vetting_steps',
+      'action'        => 'index'
     )
   );
   

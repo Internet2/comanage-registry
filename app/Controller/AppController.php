@@ -1218,6 +1218,17 @@ class AppController extends Controller {
     // Manage servers?
     $p['menu']['servers'] = $roles['cmadmin'] || $roles['coadmin'];
     
+    // Manage vetting steps?
+    $p['menu']['vettingsteps'] = $roles['cmadmin'] || $roles['coadmin'];
+    
+    // View Vetting Requests?
+    // Because of the complex mess of this code, we don't expose the vetting
+    // link via the People menu to non-admins (since doing so will expose other
+    // menu items that don't make sense).
+    $p['menu']['vettingrequests'] = $roles['cmadmin'] 
+                                    || $roles['coadmin']
+                                    || (!empty($roles['copersonid']) && !empty($this->Role->vetterForGroups($roles['copersonid'])));
+    
     $this->set('permissions', $p);
   }
 

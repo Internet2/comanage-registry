@@ -272,6 +272,23 @@
                 </div>
               </li>
               <li>
+                <div class="field-name"><?php print _txt('ct.vetting_requests.1'); ?></div>
+                <div class="field-info">
+                  <?php
+                    if(!empty($co_petitions[0]['CoPetition']['vetting_request_id'])) {
+                      print $this->Html->link(
+                        $co_petitions[0]['CoPetition']['vetting_request_id'],
+                        array(
+                          'controller'    => 'vetting_requests',
+                          'action'        => 'view',
+                          $co_petitions[0]['CoPetition']['vetting_request_id']
+                        )
+                      );
+                    }
+                  ?>
+                </div>
+              </li>
+              <li>
                 <div class="field-name"><?php print _txt('fd.created'); ?></div>
                 <div class="field-info"><?php print $this->Time->format($co_petitions[0]['CoPetition']['created'], "%c $vv_tz", false, $vv_tz); ?></div>
               </li>

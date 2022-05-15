@@ -174,6 +174,7 @@ class CoPersonRole extends AppModel {
                                         StatusEnum::Pending,
                                         StatusEnum::PendingApproval,
                                         StatusEnum::PendingConfirmation,
+                                        StatusEnum::PendingVetting,
                                         StatusEnum::Suspended)),
         'required' => true,
         'allowEmpty' => false,

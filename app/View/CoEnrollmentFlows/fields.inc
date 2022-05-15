@@ -62,10 +62,12 @@
     if(approval) {
       document.getElementById('approvergroupdiv').style.display = "block";
       document.getElementById('approvalnotifydiv').style.display = "block";
+      $("#CoEnrollmentFlowRequestVetting").closest("li").show('fade');
     } else {
       document.getElementById('approvergroupdiv').style.display = "none";
       document.getElementById('approvalnotifydiv').style.display = "none";
       document.getElementById('CoEnrollmentFlowApproverCoGroupId').value = "";
+      $("#CoEnrollmentFlowRequestVetting").closest("li").hide('fade');
     }
   }
   
@@ -626,6 +628,20 @@
         </div>
       </li>
     </ul>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('request_vetting', _txt('fd.ef.vet')) : _txt('fd.ef.vet')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.vet.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('request_vetting') . 
+                     $this->Form->label('request_vetting', _txt('fd.ef.vet'))
+                   : ($co_enrollment_flows[0]['CoEnrollmentFlow']['request_vetting'] ? _txt('fd.yes') : _txt('fd.no'))); ?>
+    </div>
   </li>
   <li style="display:none">
     <div class="field-name">

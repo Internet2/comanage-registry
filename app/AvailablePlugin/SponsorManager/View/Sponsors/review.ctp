@@ -201,7 +201,8 @@ print $this->element("pageTitle", array('title' => $title));
           <?php
             if($p['CoPersonRole']['status'] == StatusEnum::Pending
                || $p['CoPersonRole']['status'] == StatusEnum::PendingApproval
-               || $p['CoPersonRole']['status'] == StatusEnum::PendingConfirmation) {
+               || $p['CoPersonRole']['status'] == StatusEnum::PendingConfirmation
+               || $p['CoPersonRole']['status'] == StatusEnum::PendingVetting) {
               print '<button type="button" class="trashbutton" title="' . _txt('pl.sponsormanager.cancel')
                 . '" onclick="javascript:js_confirm_generic(\''
                 . _txt('pl.sponsormanager.cancel.confirm', array(_jtxt(generateCn($p['CoPerson']['PrimaryName'])))) . '\',\''    // dialog body text

@@ -35,7 +35,10 @@ class CoJob extends AppModel {
   // Association rules from this model to other models
   public $belongsTo = array("Co");
   
-  public $hasMany = array("CoJobHistoryRecord");
+  public $hasMany = array(
+    "CoJobHistoryRecord",
+    "VettingRequest"
+  );
   
   // Default display field for cake generated views
   public $displayField = "summary";
@@ -155,14 +158,7 @@ class CoJob extends AppModel {
     
     // Make sure the job is in a cancelable status
     
-    $curStatus = $this->field('status', array('CoJob.id' => $id));
-    
-    if(!$curStatus) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
-    }
-    
-    // This array corresponds to View/CoJob/fields.inc
-    if(!in_array($curStatus, array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+    if(!$this->cancelable($id)) {
       throw new InvalidArgumentException(_txt('er.jb.cxl.status', array(_txt('en.status.job', null, $curStatus))));
     }
     
@@ -170,7 +166,26 @@ class CoJob extends AppModel {
     
     return $this->finish($id, _txt('rs.jb.cxld.by', array($actor)), JobStatusEnum::Canceled);
   }
-
+  
+  /**
+   * Determine if a CO Job can be canceled.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  int  $id CO Job ID
+   * @return bool     true if the Job can be canceled, false otherwise
+   */
+  
+  public function cancelable($id) {
+    $curStatus = $this->field('status', array('CoJob.id' => $id));
+    
+    if(!$curStatus) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_jobs.1'), $id)));
+    }
+    
+    // This array corresponds to View/CoJob/fields.inc
+    return in_array($curStatus, array(JobStatusEnum::InProgress, JobStatusEnum::Queued));
+  }
+  
   /**
    * Determine if a job has been canceled.
    *

@@ -171,6 +171,9 @@ class CoEnrollmentFlow extends AppModel {
     'enable_person_find' => array(
       'rule' => array('boolean')
     ),
+    'request_vetting' => array(
+      'rule' => array('boolean')
+    ),
     'approval_required' => array(
       'rule' => array('boolean')
     ),
@@ -694,10 +697,12 @@ class CoEnrollmentFlow extends AppModel {
     
     if($ret['sendConfirmation']['enabled'] == RequiredEnum::Required) {
       $ret['establishAuthenticators']['role'] = EnrollmentRole::Enrollee;
+      $ret['requestVetting']['role'] = EnrollmentRole::Enrollee;
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Enrollee;
       $ret['waitForApproval']['role'] = EnrollmentRole::Enrollee;
     } else {
       $ret['establishAuthenticators']['role'] = EnrollmentRole::Petitioner;
+      $ret['requestVetting']['role'] = EnrollmentRole::Petitioner;
       $ret['sendApproverNotification']['role'] = EnrollmentRole::Petitioner;
       $ret['waitForApproval']['role'] = EnrollmentRole::Petitioner;
     }
@@ -709,6 +714,14 @@ class CoEnrollmentFlow extends AppModel {
       $ret['establishAuthenticators']['enabled'] = RequiredEnum::Required;
     } else {
       $ret['establishAuthenticators']['enabled'] = RequiredEnum::NotPermitted;
+    }
+    
+    // Maybe request vetting
+    if(isset($ef['CoEnrollmentFlow']['request_vetting'])
+       && $ef['CoEnrollmentFlow']['request_vetting']) {
+      $ret['requestVetting']['enabled'] = RequiredEnum::Required;
+    } else {
+      $ret['requestVetting']['enabled'] = RequiredEnum::NotPermitted;
     }
     
     // If approval is required, run the appropriate steps

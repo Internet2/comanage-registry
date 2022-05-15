@@ -1076,18 +1076,6 @@ class AppModel extends Model {
       if(!empty($copt['OrgIdentitySource']['co_id'])) {
         return $copt['OrgIdentitySource']['co_id'];
       }
-    } elseif(isset($this->validate['server_id'])) {
-      // Typed Servers will refer to a parent server
-      
-      $args = array();
-      $args['conditions'][$this->alias.'.id'] = $id;
-      $args['contain'][] = 'Server';
-    
-      $srvr = $this->find('first', $args);
-      
-      if(!empty($srvr['Server']['co_id'])) {
-        return $srvr['Server']['co_id'];
-      }
     } elseif(isset($this->validate['co_enrollment_flow_wedge_id'])) {
       // As of v4.0.0, Enroller Plugins refer to an enrollment flow wedge,
       // which in turn refer to an enrollment flow
@@ -1100,6 +1088,29 @@ class AppModel extends Model {
       
       if(!empty($efw['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['co_id'])) {
         return $efw['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['co_id'];
+      }
+    } elseif(isset($this->validate['vetting_step_id'])) {
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'] = array('VettingStep');
+      
+      $vts = $this->find('first', $args);
+      
+      if(!empty($vts['VettingStep']['co_id'])) {
+        return $vts['VettingStep']['co_id'];
+      }
+    } elseif(isset($this->validate['server_id'])) {
+      // Typed Servers will refer to a parent server, but we want to try this
+      // last since this may be a secondary foreign key
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'Server';
+    
+      $srvr = $this->find('first', $args);
+      
+      if(!empty($srvr['Server']['co_id'])) {
+        return $srvr['Server']['co_id'];
       }
     } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
       // Extended attributes need to be handled specially, as usual, since there

@@ -827,6 +827,203 @@
     </index>
   </table>
   
+  <table name="co_jobs">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="job_type" type="C" size="64" />
+    <!-- job_type_fk and job_mode are deprecated and will be removed in v4.0.0 (CO-1310) 
+     We may need to un-deprecate this field, since ProvisionerJob uses it to track
+     if a job is queued for a given subject (in particular for provisioner status)
+    -->
+    <field name="job_type_fk" type="I" />
+    <field name="job_mode" type="C" size="16" />
+    <field name="job_params" type="XL" />
+    <field name="requeue_interval" type="I" />
+    <field name="retry_interval" type="I" />
+    <field name="requeued_from_co_job_id" type="I">
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="register_summary" type="C" size="256" />
+    <field name="start_summary" type="C" size="256" />
+    <field name="finish_summary" type="C" size="256" />
+    <field name="queue_time" type="T" />
+    <field name="start_after_time" type="T" />
+    <field name="start_time" type="T" />
+    <field name="complete_time" type="T" />
+    <field name="percent_complete" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_jobs_i1">
+      <col>co_id</col>
+    </index>
+    
+    <index name="co_jobs_i2">
+      <col>job_type</col>
+      <col>job_type_fk</col>
+    </index>
+    
+    <index name="co_jobs_i3">
+      <col>co_id</col>
+      <col>job_type</col>
+      <col>job_type_fk</col>
+      <col>status</col>
+    </index>
+    
+    <index name="co_jobs_i4">
+      <col>co_job_id</col>
+    </index>
+  </table>
+  
+  <table name="co_job_history_records">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_job_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
+    <field name="record_key" type="C" size="64" />
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="org_identity_id" type="I">
+      <constraint>REFERENCES cm_org_identities(id)</constraint>
+    </field>
+    <field name="comment" type="C" size="256" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_job_history_records_i1">
+      <col>co_job_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i2">
+      <col>co_person_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i3">
+      <col>org_identity_id</col>
+    </index>
+    
+    <index name="co_job_history_records_i4">
+      <col>co_job_id</col>
+      <col>record_key</col>
+    </index>
+  </table>
+  
+  <table name="vetting_steps">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="ordr" type="I" />
+    <field name="vetter_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="review_on_result" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="vetting_step_id" type="I">
+      <constraint>REFERENCES cm_vetting_steps(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="vetting_steps_i1">
+      <col>co_id</col>
+    </index>
+    <index name="vetting_steps_i2">
+      <col>vetting_step_id</col>
+    </index>
+  </table>
+  
+  <table name="vetting_requests">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_person_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="vetting_step_id" type="I">
+      <constraint>REFERENCES cm_vetting_steps(id)</constraint>
+    </field>
+    <field name="co_job_id" type="I">
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="vetting_request_id" type="I">
+      <constraint>REFERENCES cm_vetting_requests(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="vetting_requests_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="vetting_requests_i2">
+      <col>vetting_step_id</col>
+    </index>
+  </table>
+  
+  <table name="vetting_results">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="vetting_request_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_vetting_requests(id)</constraint>
+    </field>
+    <field name="vetting_step_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_vetting_steps(id)</constraint>
+    </field>
+    <field name="vetter_co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="comment" type="C" size="256" />
+    <field name="raw" type="X" size="4000" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="vetting_result_id" type="I">
+      <constraint>REFERENCES cm_vetting_results(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+    
+    <index name="vetting_results_i1">
+      <col>vetting_request_id</col>
+    </index>
+    <index name="vetting_results_i2">
+      <col>vetting_result_id</col>
+    </index>
+  </table>
+  
   <table name="co_enrollment_flows">
     <field name="id" type="I">
       <key />
@@ -1989,6 +2186,9 @@
     <field name="co_invite_id" type="I">
       <constraint>REFERENCES cm_co_invites(id)</constraint>
     </field>
+    <field name="vetting_request_id" type="I">
+      <constraint>REFERENCES cm_vetting_requests(id)</constraint>
+    </field>
     <field name="authenticated_identifier" type="C" size="256" />
     <field name="reference_identifier" type="C" size="40" />
     <field name="petitioner_token" type="C" size="48" />
@@ -2028,6 +2228,9 @@
     </index>
     <index name="co_petitions_i8">
       <col>authenticated_identifier</col>
+    </index>
+    <index name="co_petitions_i9">
+      <col>vetting_request_id</col>
     </index>
   </table>
   
@@ -2287,100 +2490,6 @@
     </index>
     <index name="co_email_lists_i2">
       <col>co_email_list_id</col>
-    </index>
-  </table>
-  
-  <table name="co_jobs">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="job_type" type="C" size="64" />
-    <!-- job_type_fk and job_mode are deprecated and will be removed in v4.0.0 (CO-1310) 
-     We may need to un-deprecate this field, since ProvisionerJob uses it to track
-     if a job is queued for a given subject (in particular for provisioner status)
-    -->
-    <field name="job_type_fk" type="I" />
-    <field name="job_mode" type="C" size="16" />
-    <field name="job_params" type="XL" />
-    <field name="requeue_interval" type="I" />
-    <field name="retry_interval" type="I" />
-    <field name="requeued_from_co_job_id" type="I">
-      <constraint>REFERENCES cm_co_jobs(id)</constraint>
-    </field>
-    <field name="status" type="C" size="2" />
-    <field name="register_summary" type="C" size="256" />
-    <field name="start_summary" type="C" size="256" />
-    <field name="finish_summary" type="C" size="256" />
-    <field name="queue_time" type="T" />
-    <field name="start_after_time" type="T" />
-    <field name="start_time" type="T" />
-    <field name="complete_time" type="T" />
-    <field name="percent_complete" type="I" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="co_jobs_i1">
-      <col>co_id</col>
-    </index>
-    
-    <index name="co_jobs_i2">
-      <col>job_type</col>
-      <col>job_type_fk</col>
-    </index>
-    
-    <index name="co_jobs_i3">
-      <col>co_id</col>
-      <col>job_type</col>
-      <col>job_type_fk</col>
-      <col>status</col>
-    </index>
-    
-    <index name="co_jobs_i4">
-      <col>co_job_id</col>
-    </index>
-  </table>
-  
-  <table name="co_job_history_records">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_job_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_co_jobs(id)</constraint>
-    </field>
-    <field name="record_key" type="C" size="64" />
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="org_identity_id" type="I">
-      <constraint>REFERENCES cm_org_identities(id)</constraint>
-    </field>
-    <field name="comment" type="C" size="256" />
-    <field name="status" type="C" size="2" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="co_job_history_records_i1">
-      <col>co_job_id</col>
-    </index>
-    
-    <index name="co_job_history_records_i2">
-      <col>co_person_id</col>
-    </index>
-    
-    <index name="co_job_history_records_i3">
-      <col>org_identity_id</col>
-    </index>
-    
-    <index name="co_job_history_records_i4">
-      <col>co_job_id</col>
-      <col>record_key</col>
     </index>
   </table>
   

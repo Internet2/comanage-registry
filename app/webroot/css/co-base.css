@@ -1027,7 +1027,7 @@ iframe#tandc_content {
 .invitation-text {
   font-size: 1.2em;
 }
-/* PETITIONS */
+/* PETITIONS (and vetting requests) */
 #view_co_petition .status {
   display: inline-block;
   font-size: 1.4em;
@@ -1047,7 +1047,8 @@ iframe#tandc_content {
   background-color: #c33;
   color: var(--cmg-color-white);
 }
-#view_co_petition .ui-button {
+#view_co_petition .ui-button, 
+#vetting-plugin-wrapper .ui-button {
   margin: 0.5em 0.5em 1.5em 0;
 }
 body.co_petitions.view th,
@@ -1109,25 +1110,31 @@ body.co_petitions .deny-button .ui-icon {
   background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png");
 }
 body.co_petitions .approve-button,
-body.co_petitions .deny-button {
+body.co_petitions .deny-button,
+#vetting-plugin-wrapper .approve-button,
+#vetting-plugin-wrapper .deny-button {
   color: white !important;
   font-weight: normal;
   letter-spacing: 1px;
   border: none;
 }
-body.co_petitions .approve-button {
+body.co_petitions .approve-button,
+#vetting-plugin-wrapper .approve-button {
   float: left;
   background-color: #2a2 !important;
   background-image: none;
 }
-body.co_petitions .approve-button:hover {
+body.co_petitions .approve-button:hover,
+#vetting-plugin-wrapper .approve-button:hover {
   background-color: #3b3;
 }
-body.co_petitions .deny-button {
+body.co_petitions .deny-button,
+#vetting-plugin-wrapper .deny-button {
   background-color: #c33 !important;
   background-image: none;
 }
-body.co_petitions .deny-button:hover {
+body.co_petitions .deny-button:hover,
+#vetting-plugin-wrapper .deny-button:hover {
   background-color: #d44 !important;
 }
 /* for T&Cs */
@@ -1152,6 +1159,13 @@ body.co_petitions .deny-button:hover {
 }
 body.co_petitions .ui-dialog {
   padding: 0;
+}
+/* more vetting */
+#vetting-request-wrapper {
+  padding: 1em 0 2em;
+}
+#vetting-request-wrapper input[type=text] {
+  width: 100%;
 }
 /* Pagination */
 #pagination {
@@ -1965,6 +1979,12 @@ ul.form-list li:nth-child(even) {
 }
 ul.form-list li.fields-submit {
   background-color: unset;
+}
+ul.form-list li.warn-level-a {
+  background-color: var(--cmg-color-warn-yellow);
+}
+ul.form-list li.warn-level-b {
+  background-color: var(--cmg-color-warn-red);
 }
 ul.form-list .field-name {
   display: block;
