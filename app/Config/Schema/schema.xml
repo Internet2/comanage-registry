@@ -1067,6 +1067,7 @@
     <field name="verification_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
+    <field name="request_vetting" type="L" />
     <field name="notify_on_approval" type="L" />
     <!-- _subject and _body are deprecated (CO-1213) -->
     <field name="approval_subject" type="C" size="256" />
