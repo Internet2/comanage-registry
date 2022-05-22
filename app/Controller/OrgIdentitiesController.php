@@ -186,7 +186,7 @@ class OrgIdentitiesController extends StandardController {
     $coId = null;
     
     if($this->requires_co) {
-      $coId = $this->cur_co['Co']['id'];
+      $coId = isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : -1;
     }
     
     $enums = array();
@@ -219,7 +219,7 @@ class OrgIdentitiesController extends StandardController {
     // Dynamically adjust validation rules to include the current CO ID for dynamic types.
 
     $vrule = $this->OrgIdentity->validate['affiliation']['content']['rule'];
-    $vrule[1]['coid'] = $this->cur_co['Co']['id'];
+    $vrule[1]['coid'] = isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : -1;
     $this->OrgIdentity->validator()->getField('affiliation')->getRule('content')->rule = $vrule;
   }
   
@@ -238,7 +238,7 @@ class OrgIdentitiesController extends StandardController {
     $args = array();
     $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
     if(!$this->viewVars['pool_org_identities']) {
-      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['OrgIdentitySource.co_id'] = isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : -1;
     }
     $args['fields'] = array('id', 'description');
     $args['contain'] = false;
