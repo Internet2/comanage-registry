@@ -568,7 +568,7 @@ class CoPetitionsController extends StandardController {
                 // _and_ the current user is eligible to be a sponsor, then the
                 // current user will be defaulted to be the sponsor.
                 
-                if($enrollmentAttributes[$i]['required'] == RequiredEnum::Required) {
+                if($enrollmentAttributes[$i]['CoEnrollmentAttribute']['required'] == RequiredEnum::Required) {
                   $s = $this->CoPetition->Co->CoPerson->filterPicker($this->cur_co['Co']['id'], 
                                                                      array($this->Session->read('Auth.User.co_person_id')),
                                                                      PeoplePickerModeEnum::Sponsor);
