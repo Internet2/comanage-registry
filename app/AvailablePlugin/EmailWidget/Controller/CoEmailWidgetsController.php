@@ -52,7 +52,7 @@ class CoEmailWidgetsController extends SDWController {
   
     // We need only the CoPerson ID - with that we can look up the Email Addresses via 
     // ajax against the API in the web client.
-    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+    $coPersonId = $this->reqCoPersonId;
     $this->set('vv_co_person_id', array($coPersonId));
   
     // Gather the available email address types
