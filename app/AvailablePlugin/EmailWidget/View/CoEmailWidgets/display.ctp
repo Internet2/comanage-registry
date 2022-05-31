@@ -72,7 +72,12 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           errorInvalid: "<?php print _txt('pl.email_widget.error.invalid');?>",
           makePrimary:  "<?php print _txt('pl.email_widget.make.primary');?>",
           ok:           "<?php print _txt('op.ok'); ?>",
-          primary:      "<?php print _txt('fd.name.primary_name'); ?>"
+          primary:      "<?php print _txt('fd.name.primary_name'); ?>",
+          timeout:      "<?php print _txt('pl.email_widget.timeout'); ?>",
+          token:        "<?php print _txt('pl.email_widget.fd.token'); ?>",
+          tokenMsg:     "<?php print _txt('pl.email_widget.fd.token.msg'); ?>",
+          tokenError:   "<?php print _txt('pl.email_widget.fd.token.error'); ?>",
+          verify:       "<?php print _txt('op.verify'); ?>"
         }
       }
     },

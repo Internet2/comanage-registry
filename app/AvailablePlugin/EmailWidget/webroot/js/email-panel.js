@@ -36,29 +36,91 @@ export default {
   data() {
     return {
       editing: false,
+      verifying: false,
       newEmailInvalid: false,
       newEmailInvalidClass: '',
-      newEmailErrorMessage: this.txt.addFail
+      newEmailErrorMessage: this.txt.addFail,
+      tokenId: '',
+      tokenInvalid: false,
+      tokenInvalidClass: '',
+      tokenErrorMessage: this.txt.tokenError
     }
   },
   methods: {
     generateId(prefix) {
       return  prefix + '-' + this.core.widget;
     },
-    addEmail() {
+    genToken() {
       const newEmailAddress = this.$refs.newAddress.value.trim();
       // basic front-end validation: is it empty?
-      if(newEmailAddress == '') {
+      if (newEmailAddress == '') {
         return;
       }
       // basic front-end validation: does it contain '@' and '.'?
-      if(newEmailAddress.indexOf('@') == -1 || newEmailAddress.indexOf('.') == -1) {
+      if (newEmailAddress.indexOf('@') == -1 || newEmailAddress.indexOf('.') == -1) {
         this.newEmailInvalid = true;
         this.newEmailInvalidClass = 'is-invalid';
         this.newEmailErrorMessage = this.txt.errorInvalid;
         return;
       }
-      // pass the new address to the server  
+      let url = '/registry/email_widget/email_widget_email/gentoken';
+      url += '/email:' + this.$refs.newAddress.value;
+      url += '/type:' + this.$refs.newAddressType.value;
+      url += '/primary:' + this.$refs.newAddressPrimary.checked;
+      callRegistryAPI(url, 'GET', 'json', this.genTokenSuccessCallback, '', this.genTokenFailCallback);
+    },
+    genTokenSuccessCallback(xhr) {
+      this.tokenId = xhr.responseJSON['id'];
+      if(this.tokenId != '') {
+        this.verifying = true;
+        this.$nextTick(() => this.$refs['token'].focus()); 
+      } else {
+        this.newEmailInvalid = true;
+        this.newEmailInvalidClass = 'is-invalid';
+        this.newEmailErrorMessage = this.txt.error500;
+      }
+    },
+    genTokenFailCallback(xhr) {
+      this.$parent.generalXhrFailCallback(xhr);
+    },
+    verifyEmail() {
+      const token = this.$refs.token.value.trim();
+      // basic front-end validation: is it empty?
+      if (token == '') {
+        return;
+      }
+      let url = '/registry/email_widget/email_widget_email/verify';
+      url += '/id:' + this.tokenId;
+      url += '/token:' + token;
+      url += '/copersonid:' + this.core.coPersonId;
+      callRegistryAPI(url, 'GET', 'json', this.verifySuccessCallback, '', this.verifyFailCallback);
+    },
+    verifySuccessCallback(xhr) {
+      if(xhr.responseJSON['result'] == 'success') {
+        this.tokenInvalid = false;
+        this.tokenInvalidClass = '';
+        this.$refs.token.value = '';
+        this.verifying = false;
+        this.clearInvalid();
+        this.refreshDisplay();
+      } else {
+        this.tokenInvalid = true;
+        this.tokenInvalidClass = 'is-invalid';
+        if(xhr.responseJSON['result'] == 'fail') {
+          this.tokenErrorMessage = this.txt.tokenError;
+        } else if(xhr.responseJSON['result'] == 'timeout') {
+          this.tokenErrorMessage = this.txt.timeout;
+        } else {
+          this.tokenErrorMessage = this.txt.error500;
+        }
+      }
+    },
+    verifyFailCallback(xhr) {
+      this.$parent.generalXhrFailCallback(xhr);
+    },
+    /* //Keep to show how we'd send email directly to the API without verification 
+    addEmail(email,type) {
+      // Pass the new address to the server.
       let url = this.core.webRoot + 'email_addresses.json';
       let data = {
         "RequestType":"EmailAddresses",
@@ -67,8 +129,9 @@ export default {
           [
             {
               "Version":"1.0",
-              "Mail":this.$refs.newAddress.value,
-              "Type":this.$refs.newAddressType.value,
+              "Mail":email,
+              "Type":type,
+              "Verified":false,
               "Person":
                 {
                   "Type":"CO",
@@ -93,7 +156,7 @@ export default {
       } else {
         this.$parent.generalXhrFailCallback(xhr); 
       }
-    },
+    }, */
     refreshDisplay() {
       this.$parent.getEmailAddresses(); // reload the addresses from the server
     },
@@ -103,12 +166,17 @@ export default {
     },
     hideEdit() {
       this.editing = false;
+      this.verifying = false;
       this.$parent.setError('');
       this.clearInvalid();
     },
     clearInvalid() {
+      this.newEmailInvalid = false;
       this.newEmailInvalidClass = '';
       this.newEmailErrorMessage = this.txt.newEmailErrorMessage;
+      this.tokenInvalid = false;
+      this.tokenInvalidClass = '';
+      this.tokenErrorMessage = this.txt.tokenError;
     }
   },
   template: `
@@ -131,49 +199,78 @@ export default {
         <button @click="hideEdit" class="btn btn-small btn-default">{{ this.txt.done }}</button>
       </div>  
     </div>
-    <div v-if="editing" class="cm-ssw-add-form">
-      <form action="#">
-        <div class="cm-ssw-form-row">
-          <span class="cm-ssw-form-row-fields">
-            <span class="cm-ssw-form-field form-group">
-              <label :for="generateId('cm-ssw-email-address-new')">
-                {{ txt.email }}
-              </label> 
-              <input 
-                type="text" 
-                :id="generateId('cm-ssw-email-address-new')"
-                class="form-control cm-ssw-form-field-email" 
-                :class="this.newEmailInvalidClass"
-                value="" 
-                required="required"
-                ref="newAddress"/>
-                <div v-if="this.newEmailInvalid" class="invalid-feedback">
-                  {{ this.newEmailErrorMessage }}
-                </div>
+    <div v-if="editing" class="cm-ssw-add-container">
+      <div v-if="verifying" class="cm-ssw-add-form cm-ssw-verify-form">
+        <form action="#">
+          <div class="cm-ssw-form-row">
+            <span class="cm-ssw-form-row-fields">
+              <span class="cm-ssw-form-field form-group">
+                <label :for="generateId('cm-ssw-email-address-token')">
+                  {{ txt.token }}
+                </label>
+                <p>{{ txt.tokenMsg }}</p>
+                <input 
+                  type="text" 
+                  :id="generateId('cm-ssw-email-address-token')"
+                  class="form-control cm-ssw-form-field-token" 
+                  :class="this.tokenInvalidClass"
+                  value="" 
+                  required="required"
+                  ref="token"/>
+                  <div v-if="this.tokenInvalid" class="invalid-feedback">
+                    {{ this.tokenErrorMessage }}
+                  </div>
+              </span>
             </span>
-            <input 
-              type="hidden"
-              :id="generateId('cm-ssw-email-type-new')"
-              :value="core.defaultEmailType"
-              ref="newAddressType"/>
-            <span class="cm-ssw-form-field form-check">
-              <input 
-                type="checkbox"
-                :id="generateId('cm-ssw-email-make-primary')"
-                class="form-check-input cm-ssw-form-field-primary" 
-                name="cm-ssw-email-make-primary"
-                ref="new-email-address-primary"/>
-              <label class="form-check-label" :for="generateId('cm-ssw-email-make-primary')">
-                {{ txt.makePrimary }}
-              </label>
-            </span>
-          </span>
-          <div class="cm-ssw-submit-buttons">
-            <!--button @click="hideEdit" class="btn btn-small cm-ssw-add-cancel">{{ txt.cancel }}</button-->
-            <button @click.prevent="addEmail" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ txt.add }}</button>
+            <div class="cm-ssw-submit-buttons">
+              <button @click.prevent="verifyEmail" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ txt.verify }}</button>
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>      
+      </div>
+      <div v-else class="cm-ssw-add-form">
+        <form action="#">
+          <div class="cm-ssw-form-row">
+            <span class="cm-ssw-form-row-fields">
+              <span class="cm-ssw-form-field form-group">
+                <label :for="generateId('cm-ssw-email-address-new')">
+                  {{ txt.email }}
+                </label> 
+                <input 
+                  type="text" 
+                  :id="generateId('cm-ssw-email-address-new')"
+                  class="form-control cm-ssw-form-field-email" 
+                  :class="this.newEmailInvalidClass"
+                  value="" 
+                  required="required"
+                  ref="newAddress"/>
+                  <div v-if="this.newEmailInvalid" class="invalid-feedback">
+                    {{ this.newEmailErrorMessage }}
+                  </div>
+              </span>
+              <input 
+                type="hidden"
+                :id="generateId('cm-ssw-email-type-new')"
+                :value="core.defaultEmailType"
+                ref="newAddressType"/>
+              <span class="cm-ssw-form-field form-check">
+                <input 
+                  type="checkbox"
+                  :id="generateId('cm-ssw-email-make-primary')"
+                  class="form-check-input cm-ssw-form-field-primary" 
+                  name="cm-ssw-email-make-primary"
+                  ref="newAddressPrimary"/>
+                <label class="form-check-label" :for="generateId('cm-ssw-email-make-primary')">
+                  {{ txt.makePrimary }}
+                </label>
+              </span>
+            </span>
+            <div class="cm-ssw-submit-buttons">
+              <button @click.prevent="genToken" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ txt.add }}</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>  
   `
 }

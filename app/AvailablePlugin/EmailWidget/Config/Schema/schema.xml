@@ -43,4 +43,24 @@
       <unique />
     </index>
   </table>
+  <table name="email_widget_emails">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="email_widget_email_id" type="I">
+      <constraint>REFERENCES cm_email_widget_emails(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="email" type="C" size="128" />
+    <field name="type" type="C" size="32" />
+    <field name="primary_email" type="L" />
+    <field name="token" type="C" size="8" />
+
+    <index name="email_widget_emails_i1">
+      <col>id</col>
+      <unique />
+    </index>
+  </table>
 </schema>
