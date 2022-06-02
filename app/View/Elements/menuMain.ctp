@@ -67,7 +67,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         print '<a class="menuTop" title="' . _txt('me.people') . '" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">person</em>';
         print '<span class="menuTitle">' . _txt('me.people') . '</span>';
-        print '<span class="fa arrow fa-fw"></span>';
+        print '<em class="material-icons arrow" aria-hidden="true">chevron_left</em>';
         print '</a>';
         print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
         print '<li>';
@@ -204,7 +204,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         print '<a class="menuTop" title="' . _txt('ct.co_groups.pl') . '" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" href="#">';
         print '<em class="material-icons" aria-hidden="true">group</em>';
         print '<span class="menuTitle">' . _txt('ct.co_groups.pl') . '</span>';
-        print '<span class="fa arrow fa-fw"></span>';
+        print '<em class="material-icons arrow" aria-hidden="true">chevron_left</em>';
         print '</a>';
 
         print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
@@ -378,8 +378,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
           print '<a class="menuTop" title="' . _txt('ct.co_services.pl') . '" aria-expanded="false" href="#">';
           print '<em class="material-icons" aria-hidden="true">apps</em>';
           print '<span class="menuTitle">' . _txt('ct.co_services.pl') . '</span>';
-          print '<span class="fa arrow fa-fw"></span>';
-  
+          print '<em class="material-icons arrow" aria-hidden="true">chevron_left</em>';
           print '</a>';
           print '<ul aria-expanded="false" class="collapse">';
           
@@ -522,7 +521,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
       print '<a href="#" class="menuTop" title="' . _txt('me.platform') . '" aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '">';
       print '<em class="material-icons" aria-hidden="true">build</em>';
       print '<span class="menuTitle">' . _txt('me.platform') . '</span>';
-      print '<span class="fa arrow fa-fw"></span>';
+      print '<em class="material-icons arrow" aria-hidden="true">chevron_left</em>';
       print '</a>';
       print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
       

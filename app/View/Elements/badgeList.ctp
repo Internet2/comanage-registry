@@ -27,7 +27,7 @@
  *    'color' => BadgeColorModeEnum::Blue,
  *    'outline' => false,
  *    'pill' => true,
- *    'fa_class' => 'fa-key',
+ *    'icon' => 'material-icons-key',
  *   ),
  * );
  *
@@ -48,13 +48,13 @@ usort($vv_badge_list, function ($item1, $item2) {
 
 foreach($vv_badge_list as $badge) {
   $badge_classes = array();
-  $fa_element = "";
+  $icon = "";
 
   if(isset($badge['pill']) && $badge['pill']) {
     $badge_classes[] = "badge-pill";
   }
-  if(!empty($badge['fa_class'])) {
-    $fa_element = '<i class="mr-1 fa ' . $badge["fa_class"] .'"></i>';
+  if(!empty($badge['icon'])) {
+    $icon = '<i class="mr-1 material-icons" aria-hidden="true">' . $badge["icon"] .'</i>';
   }
   if(isset($badge['outline']) && $badge['outline']) {
     $badge_classes[] = "badge-outline-" . $badge['color'];
@@ -65,7 +65,7 @@ foreach($vv_badge_list as $badge) {
   // Print the Badge
   print $this->Html->tag(
     'span',
-    $fa_element . $badge['text'],
+    $icon . $badge['text'],
     array(
       'class' => 'mr-1 badge ' . implode(' ', $badge_classes),
       'escape' => false,

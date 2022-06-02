@@ -31,14 +31,14 @@
   <?php
   $linkparams = array(
     'id' => 'action-menu-content_' . md5($vv_attr_mdl . $vv_attr_id),
-    'class' => 'fa fa-cog coAddEditButtons',
+    'class' => 'coAddEditButtons',
     'escape' => false,
     'data-toggle' => 'dropdown',
     'aria-haspopup' => true,
     'aria-expanded' => false,
   );
   print $this->Html->link(
-    $this->Html->tag('span', 'actions', array('class' => 'sr-only')),
+    '<em class="material-icons">settings</em>',
     'javascript:void(0);',
     $linkparams
   );
@@ -57,7 +57,7 @@
         <li class="dropdown-item">
           <a class="spin ignore-invalid <?php print $lightbox; ?>" href="<?php print $action['url']; ?>">
             <?php if(!empty($action['icon'])): ?>
-            <i class="<?php print $action['icon']; ?>"></i>
+            <em class="material-icons" aria-hidden="true"><?php print $action['icon']; ?></em>
             <?php endif; ?>
             <?php print $action['label']; ?>
           </a>
@@ -76,7 +76,7 @@
         <li class="dropdown-item">
           <a href="<?php print $action['url']; ?>" onclick="<?php print $dg_onclick; ?>">
             <?php if(!empty($action['icon'])): ?>
-              <i class="<?php print $action['icon']; ?>"></i>
+              <em class="material-icons" aria-hidden="true"><?php print $action['icon']; ?></em>
             <?php endif; ?>
             <?php print $action['label']; ?>
           </a>

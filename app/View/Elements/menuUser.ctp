@@ -127,7 +127,7 @@
           $args = array('controller' => 'auth',
             'action'     => 'logout',
             'plugin'     => false);
-          print $this->Html->link(_txt('op.logout') . ' <span class="fa fa-sign-out"></span>',
+          print $this->Html->link(_txt('op.logout') . ' <em class="material-icons" aria-hidden="true">logout</em>',
             $args, array('escape'=>false, 'class' => 'btn'));
         ?>
       </div>
@@ -312,7 +312,7 @@
                     'action'     => 'login',
                     'plugin'     => false
                    );
-      print $this->Html->link(_txt('op.login') . ' <span class="fa fa-sign-in"></span>',
+      print $this->Html->link(_txt('op.login') . ' <em class="material-icons" aria-hidden="true">login</em>',
             $args, array('escape'=>false, 'id' => 'login', 'class' => ''));
     }
   ?>
