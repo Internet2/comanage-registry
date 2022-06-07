@@ -97,6 +97,44 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_widget.fd.message.template')) : _txt('pl.email_widget.fd.message.template')); ?>
+      </div>
+      <div class="field-desc">
+        <p>
+          <?php print _txt('pl.email_widget.fd.message.template.desc'); ?>
+        </p>
+        <p>
+          <strong><?php print _txt('fd.subject');?></strong> 
+          "<?php print _txt('pl.email_widget.email.subject');?>"
+        </p>
+        <p>
+          <strong><?php print _txt('pl.email_widget.fd.body');?></strong>
+          "<?php print _txt('pl.email_widget.email.body');?>"
+        </p>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      $attrs['value'] = (isset($vv_config['CoEmailWidget']['co_message_template_id']) ? $vv_config['CoEmailWidget']['co_message_template_id'] : "");
+      $attrs['empty'] = true;
+
+      if($e) {
+        print $this->Form->select('co_message_template_id',
+          $vv_message_templates,
+          $attrs);
+  
+        if($this->Form->isFieldError('co_message_template_id')) {
+          print $this->Form->error('co_message_template_id');
+        }
+      } else {
+        print _txt('pl.email_widget.fd.message.template', null, filter_var($vv_config['co_message_template_id'],FILTER_SANITIZE_SPECIAL_CHARS));
+      }
+      ?>
+    </div>  
+  </li>
   
   <?php if($e): ?>
     <li class="fields-submit">

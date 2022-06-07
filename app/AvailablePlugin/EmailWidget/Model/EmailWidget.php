@@ -42,7 +42,11 @@ class EmailWidget extends AppModel {
 	public $belongsTo = array(
 	);
 	
-	public $hasMany = array(
+	public $hasOne = array(
+    'CoMessageTemplate' => array(
+      'className' => 'CoMessageTemplate',
+      'conditions' => array('CoMessageTemplate.status' => SuspendableStatusEnum::Active)
+    )
 	);
 	
   // Default display field for cake generated views

@@ -34,7 +34,8 @@ class CoEmailWidgetsController extends SDWController {
   public $uses = array(
     'EmailWidget.CoEmailWidget',
     'EmailAddress',
-    'CO'
+    'CO',
+    'CoMessageTemplate'
   );
   
   /**
@@ -92,6 +93,14 @@ class CoEmailWidgetsController extends SDWController {
     // Gather the available email address types for the config form
     $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
     $this->set('vv_available_types', $availableTypes);
+  
+    // Gather message templates for the config form
+    $args = array();
+    $args['conditions']['status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    $messageTemplates = $this->CoMessageTemplate->find('list',$args);
+    $this->set('vv_message_templates', $messageTemplates);
+    
   }  
   
   /**

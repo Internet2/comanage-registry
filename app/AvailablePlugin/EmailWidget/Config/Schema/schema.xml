@@ -37,6 +37,9 @@
     <field name="modified" type="T" />
     <field name="default_type" type="C" size="128" />
     <field name="hide_type" type="L" />
+    <field name="co_message_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     
     <index name="co_email_widgets_i1">
       <col>co_dashboard_widget_id</col>

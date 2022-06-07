@@ -38,12 +38,17 @@ $cm_email_widget_texts['en_US'] = array(
   
   // Plugin texts
   'pl.email_widget.add' => 'Add an email address',
+  'pl.email_widget.email.subject' => 'Your email verification code',
+  'pl.email_widget.email.body' => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
   'pl.email_widget.error.status' => 'HTTP Status: ',
   'pl.email_widget.error.message' => 'Message: ',
   'pl.email_widget.error.401' => 'Your session has timed out. Please log in.',
   'pl.email_widget.error.500' => 'There was an unknown error.',
   'pl.email_widget.error.invalid' => 'Please enter a valid email address.',
+  'pl.email_widget.fd.body' => 'Body',
   'pl.email_widget.fd.email' => 'Add Email Address',
+  'pl.email_widget.fd.message.template' => 'Message template',
+  'pl.email_widget.fd.message.template.desc' => 'The email message template to be used. If empty, the following default message will be sent:',
   'pl.email_widget.fd.type' => 'Type',
   'pl.email_widget.fd.type.default' => 'Default Email Type',
   'pl.email_widget.fd.type.default.desc' => 'The default type assigned to email addresses',

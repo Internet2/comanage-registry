@@ -67,9 +67,12 @@ export default {
       url += '/email:' + this.$refs.newAddress.value;
       url += '/type:' + this.$refs.newAddressType.value;
       url += '/primary:' + this.$refs.newAddressPrimary.checked;
+      url += '/mtid:' + this.core.messageTemplateId;
+      displaySpinner();
       callRegistryAPI(url, 'GET', 'json', this.genTokenSuccessCallback, '', this.genTokenFailCallback);
     },
     genTokenSuccessCallback(xhr) {
+      stopSpinner();
       this.tokenId = xhr.responseJSON['id'];
       if(this.tokenId != '') {
         this.verifying = true;

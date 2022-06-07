@@ -26,6 +26,8 @@
  */
 
 App::uses("EmailAddress", "Model");
+App::uses("CoMessageTemplate", "Model");
+App::uses("CakeEmail", "Network/Email");
 
 class EmailWidgetEmail extends AppModel {
   // Define class name for cake
@@ -34,8 +36,11 @@ class EmailWidgetEmail extends AppModel {
   public $hasMany = array(
     "EmailWidgetEmail"
   );
+  
+  //public $hasOne = "CoMessageTemplate";
 	
   // Validation rules for table elements
+  // XXX These are not in use
   public $validate = array(
     'email' => 'email',
     'type' => array(
@@ -69,9 +74,15 @@ class EmailWidgetEmail extends AppModel {
     );
     
     $this->EmailWidgetEmail->save($fields);
-    $id = $this->EmailWidgetEmail->id;
     
-    return $id;
+    // Return the id for for success testing and
+    // the token to pass along via email
+    $results = array(
+      'id' => $this->EmailWidgetEmail->id,
+      'token' => $token
+    );
+    
+    return $results;
   }
   
   /**
@@ -117,5 +128,76 @@ class EmailWidgetEmail extends AppModel {
       }
     } 
     return "fail"; // token doesn't match
+  }
+  
+  /**
+   * Send the token to the new email address for round-trip verification.
+   * This is loosely modeled on AvailablePlugin/PasswordAuthenticator/Model/PasswordResetToken.php
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  string  $emailAddress  Email address being verified
+   * @param  string  $token         Token used for verification
+   * @param  mixed   $mtid          Message Template id (int) or NULL if not set
+   */
+  public function send(string $emailAddress, string $token, mixed $mtid) {
+    // Get an email object
+    $email = new CakeEmail('default');
+    
+    // Pull the message template if set
+    $mt = null;
+    
+    if(!empty($mtid)) {
+      $args = array();
+      $args['conditions']['CoMessageTemplate.id'] = $mtid;
+      $args['conditions']['CoMessageTemplate.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+      
+      //$mt = $this->CoMessageTemplate->find('first', $args);
+    }
+    
+    // Allow the message template to subsitute in the token
+    $substitutions = array(
+      'TOKEN'         => $token
+    );
+    
+    // Begin with defaults
+    $msgSubject = _txt('pl.email_widget.email.subject');
+    $format = MessageFormatEnum::Plaintext;
+    $msgBody = array();
+    
+    // but use the message template if available
+    if(!empty($mt)) {
+      $msgSubject = processTemplate($mt['CoMessageTemplate']['message_subject'], $substitutions);
+      
+      $format = $mt['CoMessageTemplate']['format'];
+      if($format != MessageFormatEnum::Plaintext
+        && !empty($mt['CoMessageTemplate']['message_body_html'])) {
+        $msgBody[MessageFormatEnum::HTML] = processTemplate($mt['CoMessageTemplate']['message_body_html'], $substitutions);
+      }
+      if($format != MessageFormatEnum::HTML
+        && !empty($mt['CoMessageTemplate']['message_body'])) {
+        $msgBody[MessageFormatEnum::Plaintext] = processTemplate($mt['CoMessageTemplate']['message_body'], $substitutions);
+      }
+      
+      // Add cc and bcc if specified in the template
+      if($mt['CoMessageTemplate']['cc']) {
+        $email->cc(explode(',', $mt['CoMessageTemplate']['cc']));
+      }
+      if($mt['CoMessageTemplate']['bcc']) {
+        $email->bcc(explode(',', $mt['CoMessageTemplate']['bcc']));
+      }
+    }
+    
+    if(empty($msgBody[MessageFormatEnum::Plaintext])) {
+      // Fall back to the default message body and insert the token directly.
+      $msgBody[MessageFormatEnum::Plaintext] = _txt('pl.email_widget.email.body') . "\n\n" . $token;
+    }
+    
+    $email->template('custom', 'basic')
+      ->emailFormat($format)
+      ->to($emailAddress)
+      ->viewVars($msgBody)
+      ->subject($msgSubject);
+    $email->send();
   }
 }

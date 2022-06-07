@@ -37,7 +37,7 @@ class EmailWidgetEmailController extends StandardController {
   
   /**
    * Step 1 in adding an email address: 
-   * Generate a token for email verification.
+   * Generate and mail a token for email verification.
    * Return the row id back for use in step two. 
    *
    * @since  COmanage Registry v4.1.0
@@ -45,25 +45,31 @@ class EmailWidgetEmailController extends StandardController {
   public function gentoken() {
     if(!empty($this->request->params['named']['email']) &&
        !empty($this->request->params['named']['type'])) {
+      
       $email = $this->request->params['named']['email'];
       $type = $this->request->params['named']['type'];
       $primary = $this->request->params['named']['primary'];
-      $id = $this->EmailWidgetEmail->generateToken($email,$type,$primary);
-      if(!empty($id)) {
+      $mtid = $this->request->params['named']['mtid'];
+      
+      $results = $this->EmailWidgetEmail->generateToken($email,$type,$primary);
+      if(!empty($results['id'])) { // XXX Ensure this test is adequate.
+        // We have a valid result. Provide the row ID to the verification form,
+        // and send the token to the new email address for round-trip verification by the user.
         $this->set('vv_response_type', 'ok');
-        $this->set('vv_id', $id);
+        $this->set('vv_id', $results['id']);
+        $this->EmailWidgetEmail->send($email,$results['token'],$mtid);
       } else {
         $this->set('vv_response_type','error');
       }
+      
     } else {
       $this->set('vv_response_type','badParams');
     }
   }
   
   /**
-   * Step 1 in adding an email address:
-   * Generate a token for email verification.
-   * Return the row id back for use in step two.
+   * Step 2 in adding an email address:
+   * Verify the token associated with the new address.
    *
    * @since  COmanage Registry v4.1.0
    */

@@ -52,6 +52,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
           defaultEmailType: '<?php print !empty($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : 'official'; ?>',
+          messageTemplateId: '<?php print !empty($vv_config['CoEmailWidget']['co_message_template_id']) ? $vv_config['CoEmailWidget']['co_message_template_id'] : ''; ?>',
           editEmails: false,  // TODO: determine this from configuration - can email be edited?
           deletePrimary: false // TODO: determine this from configuration - can primary email be deleted?
         },
@@ -96,6 +97,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
         this.error = txt;
       },
       generalXhrFailCallback(xhr) {
+        stopSpinner();
         console.log(xhr.status);
         switch(xhr.status) {
           case 401:
