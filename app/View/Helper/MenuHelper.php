@@ -46,16 +46,16 @@ class MenuHelper extends AppHelper {
     }
 
     $order = array(
-      'EmailVerify'   => 1,   // fa fa-envelope
-      'PrimaryName'   => 2,   // fa fa-tag
-      'AuthEvent'     => 3,   // fa fa-sign-in
-      'Provision'     => 4,   // fa fa-forward
-      'PetitionView'  => 9,   // fa fa-user-plus
-      'View'          => 10,  // fa fa-eye
-      'Edit'          => 12,  // fa fa-edit
-      'Relink'        => 14,  // fa fa-link
-      'Unlink'        => 17,  // fa fa-chain-broken
-      'Delete'        => 20,  // fa fa-trash
+      'EmailVerify'   => 1,   // material-icons "mail_outline"
+      'PrimaryName'   => 2,   // material-icons "local_offer"
+      'AuthEvent'     => 3,   // material-icons "login"
+      'Provision'     => 4,   // material-icons "fast_forward"
+      'PetitionView'  => 9,   // material-icons "person_add"
+      'View'          => 10,  // material-icons "visibility"
+      'Edit'          => 12,  // material-icons "edit"
+      'Relink'        => 14,  // material-icons "link"
+      'Unlink'        => 17,  // material-icons "link_off"
+      'Delete'        => 20,  // material-icons "delete"
     );
 
     return $order[$action];
@@ -75,16 +75,16 @@ class MenuHelper extends AppHelper {
     }
 
     $icon = array(
-      'EmailVerify'   =>  'fa fa-envelope',
-      'PrimaryName'   =>  'fa fa-tag',
-      'AuthEvent'     =>  'fa fa-sign-in',
-      'Provision'     =>  'fa fa-forward',
-      'PetitionView'  =>  'fa fa-user-plus',
-      'View'          =>  'fa fa-eye',
-      'Edit'          =>  'fa fa-edit',
-      'Relink'        =>  'fa fa-link',
-      'Unlink'        =>  'fa fa-chain-broken',
-      'Delete'        =>  'fa fa-trash',
+      'EmailVerify'   =>  'mail',
+      'PrimaryName'   =>  'local_offer',
+      'AuthEvent'     =>  'login',
+      'Provision'     =>  'fast_forward',
+      'PetitionView'  =>  'person_add',
+      'View'          =>  'visibility',
+      'Edit'          =>  'edit',
+      'Relink'        =>  'link',
+      'Unlink'        =>  'link_off',
+      'Delete'        =>  'delete',
     );
 
     return $icon[$action];

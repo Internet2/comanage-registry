@@ -88,14 +88,6 @@
       add_observer(elem, 'tr', 'highlight');
     });
 
-    // Handle caret up/down toggle
-    $('li.field-data-container').on('shown.bs.collapse', function () {
-      $(this).find('.field-data > a i').removeClass('fa-caret-down').addClass('fa-caret-up');
-    })
-    $('li.field-data-container').on('hidden.bs.collapse', function () {
-      $(this).find('.field-data > a i').removeClass('fa-caret-up').addClass('fa-caret-down');
-    })
-
     $('#user-panel-toggle,#user-notifications,#global-search').on('click', function() {
       if($(window).width() < 768) {
         if ($('#navigation-drawer').is(':visible')) {

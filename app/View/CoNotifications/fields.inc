@@ -82,7 +82,7 @@
             $route['origin'] = $this->request->params['named']['origin'];
           }
           print $this->Html->link(
-            '<i class="fa fa-check-circle-o fa-lg mr-1" aria-hidden="true"></i>' . _txt('op.ack'),
+            '<em class="material-icons mr-1" aria-hidden="true">check_circle_outline</em>' . _txt('op.ack'),
             $route,
             array(
               'class' => 'btn btn-primary btn-sm mt-auto mb-auto mr-1',
@@ -104,7 +104,7 @@
             $route['origin'] = $this->request->params['named']['origin'];
           }
           print $this->Html->link(
-           '<i class="fa fa-times-circle-o fa-lg mr-1" aria-hidden="true"></i>' . _txt('op.cancel'),
+           '<em class="material-icons mr-1" aria-hidden="true">cancel</em>' . _txt('op.cancel'),
             $route,
             array(
               'class' => 'btn btn-danger btn-sm mt-auto mb-auto',

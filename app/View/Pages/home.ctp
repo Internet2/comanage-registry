@@ -160,7 +160,7 @@
         'plugin'     => false
       );
       print ' <div id="welcome-login">';
-      print $this->Html->link(_txt('op.login') . ' <span class="fa fa-sign-in"></span>',
+      print $this->Html->link(_txt('op.login') . ' <em class="material-icons" aria-hidden="true">login</em>',
         $args, array('escape'=>false, 'id' => 'welcome-login-button', 'class' => $buttonClasses));
       print '</div>';
     }

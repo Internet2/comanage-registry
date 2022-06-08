@@ -320,7 +320,7 @@
               // Note: do not actually disable checkboxes using $args['disabled'] = 'disabled' or Cake
               // will also disable the hidden field - allowing the memberships/ownerships for nested groups to be
               // temporarily stripped. Instead, hide the checkboxes in the front end with CSS and JavaScript, and
-              // send values of nested group members too. We are using font-awesome here because pure CSS
+              // send values of nested group members too. We are using material-icons here because pure CSS
               // replacement with a unicode check mark isn't very attractive.
               $disabledClass = '';
               $disabledAttributes = '';
@@ -330,7 +330,7 @@
                 $disabledClass = ' disabled checkbox-replace-container';
                 $disabledAttributes = ' data-toggle="tooltip" title="' . _txt('in.co_group.members.nested_noedit') . '"';
                 $checkboxReplaceClass =  ' checkbox-replace checkbox-replace-' . ($isMember ? 'checked' : 'unchecked');
-                $checkboxReplaceBox = '<i class="fa ' . ($isMember ? 'fa-check-square' : 'fa-square-o') . '"></i>';
+                $checkboxReplaceBox = '<em class="material-icons">' . ($isMember ? 'check_box' : 'check_box_outline_blank') . '</em>';
               }
               print '<div class="form-group form-check form-check-inline' . $disabledClass . '"' . $disabledAttributes . '>';
               $args = array();
@@ -351,7 +351,7 @@
                 $disabledClass = ' disabled checkbox-replace-container';
                 $disabledAttributes = ' data-toggle="tooltip" title="' . _txt('in.co_group.members.nested_noedit') . '"';
                 $checkboxReplaceClass =  ' checkbox-replace checkbox-replace-' . ($isOwner ? 'checked' : 'unchecked');
-                $checkboxReplaceBox = '<i class="fa ' . ($isOwner ? 'fa-check-square' : 'fa-square-o') . '"></i>';
+                $checkboxReplaceBox = '<em class="material-icons">' . ($isOwner ? 'check_box' : 'check_box_outline_blank') . '</em>';
               }
               print '<div class="form-group form-check form-check-inline' . $disabledClass . '"' . $disabledAttributes . '>';
               $args = array();

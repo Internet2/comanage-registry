@@ -25,12 +25,11 @@
  */
 
 /* HTML, BODY, HEADINGS, ANCHORS, FONTS */
-@import url("fonts/notosans_regular/stylesheet.css");
-@import url("fonts/notosans_bold/stylesheet.css");
+@import url("fonts/opensans/stylesheet.css");
 @import url("fonts/material-icons/material-icons.css");
 
 html * {
-  font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
+  font-family: 'open_sansregular',Arial,Helvetica,sans-serif;
 }
 body {
   color: var(--cmg-color-black-002);
@@ -38,7 +37,6 @@ body {
   font-size: 12px;
 }
 h1,h2,h3,h4,h5 {
-  font-family: 'Noto Sans Bold','Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
   color: #555;
 }
 h1 {
@@ -51,7 +49,6 @@ h1.loginMsg {
   text-align: center;
 }
 h1.firstPrompt {
-  font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
   font-size: 1.2em;
   font-weight: normal;
   overflow: hidden;
@@ -297,7 +294,6 @@ body.logged-in #user-menu {
   font-size: 1.1em;
   font-weight: normal;
   margin: 1em 0 0 1em;
-  font-family: 'Noto Sans','Trebuchet MS',Arial,Helvetica,sans-serif;
 }
 #user-panel #panel-orgid-container {
   margin-top: 2em;
@@ -385,7 +381,6 @@ form#notificationStatus {
   color: var(--cmg-color-white);
   cursor: pointer;
   display: inline-block;
-  font-family: "Roboto","Helvetica","Arial",sans-serif;
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
@@ -397,6 +392,12 @@ form#notificationStatus {
   text-decoration: none;
   text-transform: uppercase;
   vertical-align: middle;
+}
+#login .material-icons {
+  font-size: 1rem;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
 }
 #welcome-login {
   text-align: center;
@@ -410,6 +411,12 @@ form#notificationStatus {
 #logout-in-panel {
   margin: 4px 0 -8px;
   text-align: right;
+}
+#logout-in-panel .material-icons {
+  font-size: 1rem;
+  vertical-align: top;
+  position: relative;
+  top: 3px;
 }
 /* Specialty Buttons */
 .co-raised-button {
@@ -555,9 +562,6 @@ form#notificationStatus {
   color: #06c;
   background-color: #fafafa;
 }
-#main-menu .fa-fw {
-  width: 2em;
-}
 #main-menu li.active a.menuTop {
   background-color: #f2f2f2;
 }
@@ -567,6 +571,14 @@ form#notificationStatus {
 #main-menu .material-icons {
   margin-right: 6px;
   vertical-align: bottom;
+}
+#main-menu .material-icons.arrow {
+  margin: 0 0.25em 0;
+  font-size: 1.4em;
+  color: #555;
+}
+#main-menu .co-expandable-menu-item.active .material-icons.arrow {
+  transform: rotate(-90deg);
 }
 #main-menu #serviceMenu ul .material-icons {
   font-size: 1.1em;
@@ -1564,7 +1576,6 @@ a.ui-button:visited,
   font-size: 0.9em;
   width: 80px;
   line-height: 28px;
-  height: 28px;
   margin: 1em 0.5em;
   padding: 0;
 }
@@ -1628,13 +1639,12 @@ a.ui-button:visited,
   padding: 2px 4px;
   border: 1px solid #ddd;
   background-color: #fff;
-  width: calc(100% - 170px);
+  width: calc(100% - 184px);
 }
 .top-filter .submit-button {
   font-size: 0.9em;
   width: 80px;
   line-height: 24px;
-  height: 28px;
   margin: 0.25em;
   padding: 0;
 }
@@ -1743,9 +1753,19 @@ li .dropdown-item {
   padding: 0.3em 0;
   margin: 1em 0 0 0;
 }
+#content .fieldGroupName .material-icons,
+#content #changeLog .material-icons {
+  margin-top: 1px;
+}
 .coAddEditButtons {
   float: right;
   clear: left;
+}
+#content .field-actions-menu .material-icons {
+  font-size: 15px;
+}
+#content .field-actions-menu .coAddEditButtons .material-icons {
+  font-size: 12px;
 }
 body.co_people .addbutton {
   border: none;
@@ -2114,10 +2134,10 @@ ul.form-list li.field-stack textarea {
   opacity: 0.6;
   position: relative;
 }
-.checkbox-replace-container .fa {
-  font-size: 1.3em;
-  margin-right: 6px;
+#content .checkbox-replace-container .material-icons {
+  margin: 0 .3125rem 0 -.12rem;
   color: #555;
+  font-size: 16px;
 }
 .form-check-input.checkbox-replace {
   display: none;
@@ -2256,6 +2276,10 @@ ul, ol { /* MDL override XXX check if still needed */
 #tabs-orgid .field-data-container .field-data > a,
 #tabs-role .field-data-container .field-data > a {
   color: inherit;
+}
+#tabs-orgid .field-data-container .field-data > a.collapsed .material-icons,
+#tabs-role .field-data-container .field-data > a.collapsed .material-icons {
+  transform: rotate(180deg);
 }
 tr.tr-highlight td,
 tr.tr-highlight th,
@@ -2573,6 +2597,10 @@ td.indented {
   font-size: 0.9em;
   margin: -0.5em 0 0 0.1em;
 }
+.btn-sm .material-icons {
+  font-size: 15px;
+  vertical-align: top;
+}
 .btn-primary,
 .btn-primary:focus,
 .btn-primary:active {
@@ -2628,6 +2656,9 @@ td.indented {
   color: #06c;
   display: block;
   padding: 0.5em;
+}
+.dropdown-item > a:active {
+  background-color: var(--cmg-color-lightgray-004);
 }
 .dropdown-item > a:focus,
 .dropdown-item > a:hover {
