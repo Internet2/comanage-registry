@@ -527,6 +527,14 @@
   .widget-actions li {
     margin-left: 1em;
   }
+  /* Self-Service Widgets (.cm-ssw) */
+  .cm-ssw-form-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1em solid transparent;
+    justify-content: space-between;
+    align-items: end;
+  }
   /* GENERAL */
   .submit-buttons {
     margin-right: 0.5em;
@@ -626,6 +634,10 @@
   }
   #right-sidebar #menu {
     padding-left: 1em;
+  }
+  /* Self-Service Widgets (.cm-ssw) */
+  .cm-ssw-form-field-email {
+    width: 30vw;
   }
 }
 
