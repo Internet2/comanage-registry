@@ -94,6 +94,16 @@ function render_match_attributes($o) {
         <td><?php if(!empty($s->meta->matchRequest)) print $s->meta->matchRequest; ?></td>
         <?php endforeach; // $s ?>
       </tr>
+      <!-- Match Attributes -->
+      <tr>
+        <th><?php print _txt('fd.attrs.match'); ?></th>
+        <?php foreach($m->sorRecords as $s): ?>
+          <td>
+            <?php render_match_attributes($s->sorAttributes); ?>
+          </td>
+        <?php endforeach; // $s ?>
+      </tr>
+      <!-- XXX Original: -->
       <tr>
         <th><?php print _txt('fd.attrs.match'); ?></th>
         <?php foreach($m->sorRecords as $s): ?>

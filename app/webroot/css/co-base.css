@@ -2675,6 +2675,114 @@ td.indented {
 .smaller {
   font-size: smaller;
 }
+.invalid-feedback {
+  font-size: 1em;
+}
+/* SELF-SERVICE WIDGETS (PLUGIN) Common Styles */
+.cm-ssw {
+  border: 1px solid var(--cmg-color-gray-border);
+  padding: 0;
+}
+.cm-ssw .hidden {
+  display: none;
+}
+.cm-ssw-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+}
+ul.cm-ssw-field-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  row-gap: 0.5em;
+}
+ul.cm-ssw-field-list li {
+  padding: 0 1em;
+}
+.cm-ssw-display.editing ul.cm-ssw-field-list {
+  column-gap: 1em;
+}
+.cm-ssw-display.editing ul.cm-ssw-field-list li {
+  padding: 0;
+}
+ul.cm-ssw-field-list ul.dropdown-menu li {
+  padding: 0;
+}
+ul.cm-ssw-field-list ul.dropdown-menu button.btn {
+  text-transform: none;
+  padding: 0.5em 0.75em;
+}
+.cm-ssw-form-row:last-child {
+  border-bottom: none;
+}
+.cm-ssw-form-row-fields {
+  display: flex;
+  align-items: end;
+  padding: 1em;
+}
+.cm-ssw-form-field-type {
+  margin-left: 0.5em;
+}
+.cm-ssw-form-field.form-group {
+  margin-bottom: unset;
+}
+.cm-ssw-form-field.form-check {
+  margin: 1.5em 3em 0 1em;
+  font-size: 1.3em;
+}
+.cm-ssw-update-form .material-icons {
+  position: relative;
+  top: -2px;
+}
+.cm-ssw-form-field.form-group label {
+  font-size: 1.5em;
+}
+.cm-ssw-form-actions {
+  margin-top: 1em;
+}
+.cm-ssw .badge {
+  margin-left: 0.5em;
+}
+.cm-ssw .cm-ssw-edit-container .badge {
+  margin-left: 0;
+  top: 0;
+}
+.cm-ssw .alert {
+  margin-bottom: 0;
+  border-radius: 0;
+}
+#content .cm-ssw-edit-container .material-icons {
+  margin-right: -3px;
+}
+.cm-ssw-dropdown-toggle {
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  column-gap: 0.5em;
+  text-transform: none;
+  padding: 0.5em;
+}
+.cm-ssw-dropdown-toggle:hover {
+  text-decoration: none;
+}
+.cm-ssw-add-form {
+  padding: 1em;
+  background-color: #f2f2f2;
+  border-top: 1px solid var(--cmg-color-gray-border);
+}
+.cm-ssw-submit-buttons {
+  padding: 1em;
+  white-space: nowrap;
+  text-align: right;
+}
+[v-cloak] {
+  display: none;
+}
 /* FOOTER */
 #co-footer {
   text-align: center;

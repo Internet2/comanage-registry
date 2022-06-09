@@ -428,3 +428,62 @@ function formatCoPersonAutoselectItem(ul, item) {
   
   return $("<li>").append(itemMarkup).appendTo(ul);
 }
+
+/**
+ * COmanage Registry API AJAX Calls: general function for making an ajax call to Registry API v.1
+ * @param url              {string} API Url
+ * @param method           {string} HTTP Method (GET, POST, PUT, DELETE)
+ * @param dataType         {string} Data type (json, html)
+ * @param successCallback  {string} [Name of the callback function for success]
+ * @param entityId         {string} [ID used to identify an entity in the DOM]
+ * @param failureCallback  {string} [Name of the callback function for failure]
+ * @param data             {Object} [POST or PUT data in JSON]
+ * @param alwaysCallback   {string} [Name of the callback function for always]
+ */
+function callRegistryAPI(url, method, dataType, successCallback, entityId, failureCallback, data, alwaysCallback) {
+  var apiUrl = url;
+  var httpMethod = method;
+  var dataType = dataType;
+  var entityId = entityId;
+  var successCallback = successCallback;
+  var failureCallback = failureCallback;
+  var alwaysCallback = alwaysCallback;
+  var data = data;
+
+  if(data === undefined) {
+    data = '';
+  }
+
+  if(entityId === undefined) {
+    entityId = '';
+  }
+
+  var xhr = $.ajax({
+    url: apiUrl,
+    method: httpMethod,
+    dataType: dataType,
+    data: data,
+    encode: true
+  })
+  .done(function() {
+    if(successCallback != undefined) {
+      successCallback(xhr, entityId);  
+    } else {
+      return xhr;
+    }
+  })
+  .fail(function() {
+    if(failureCallback != undefined) {
+      failureCallback(xhr, entityId);
+    } else {
+      return xhr;
+    }
+  })
+  .always(function() {
+    if(alwaysCallback != undefined) {
+      alwaysCallback(xhr, entityId);
+    } else {
+      return xhr;
+    }
+  });
+}
