@@ -1287,6 +1287,7 @@ The request may be viewed at
   'er.ug.version' =>  'Unknown version "%1$s"',
   'er.unknown' =>     'Unknown value "%1$s"',
   'er.unknown.def' =>  'Unknown value',
+  'er.unknown.er' =>  'An unknown error occurred.',
   'er.url' =>         'Please supply a valid URL. Include "http://" (or similar) for off-site links.',
   'er.validation' =>  'Validation failed',
   'er.validation.date' =>  '"Valid From" date MUST precede "Valid Through" date',

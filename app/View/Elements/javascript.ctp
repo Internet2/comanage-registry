@@ -657,4 +657,8 @@
   var defaultConfirmOk = "<?php print _txt('op.ok'); ?>";
   var defaultConfirmCancel = "<?php print _txt('op.cancel'); ?>";
   var defaultConfirmTitle = "<?php print _txt('op.confirm'); ?>";
+  
+  // Define default text for session timeout and unknown errors
+  var defaultHttp500 = "<?php print _txt('er.unknown.er'); ?>";
+  var defaultHttp401 = "<?php print _txt('er.timeout'); ?>";
 </script>
