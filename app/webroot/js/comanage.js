@@ -440,7 +440,7 @@ function formatCoPersonAutoselectItem(ul, item) {
  * @param data             {Object} [POST or PUT data in JSON]
  * @param alwaysCallback   {string} [Name of the callback function for always]
  */
-function callRegistryAPI(url, method, dataType, successCallback, entityId, failureCallback, data, alwaysCallback) {
+function callRegistryAPI(url, method, dataType, successCallback, entityId, failureCallback, data = undefined, alwaysCallback = undefined) {
   var apiUrl = url;
   var httpMethod = method;
   var dataType = dataType;

@@ -38,7 +38,7 @@ class EmailWidgetEmail extends AppModel {
   );
   
   //public $hasOne = "CoMessageTemplate";
-	
+
   // Validation rules for table elements
   // XXX These are not in use
   public $validate = array(
@@ -51,7 +51,7 @@ class EmailWidgetEmail extends AppModel {
       'rule' => 'alphaNumeric',
       'required' => true
     )
-	);
+  );
   
   /**
    * Generate a token for email verification and save it in a new record
@@ -139,7 +139,7 @@ class EmailWidgetEmail extends AppModel {
    * @param  string  $token         Token used for verification
    * @param  mixed   $mtid          Message Template id (int) or NULL if not set
    */
-  public function send(string $emailAddress, string $token, mixed $mtid) {
+  public function send($emailAddress, $token, $mtid) {
     // Get an email object
     $email = new CakeEmail('default');
     

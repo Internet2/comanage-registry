@@ -32,6 +32,8 @@ class EmailWidgetEmailController extends StandardController {
   public $name = "EmailWidgetEmail";
   
   public function beforeFilter() {
+    parent::beforeFilter();
+
     $this->RequestHandler->renderAs($this, 'json');
   }
   
@@ -108,10 +110,13 @@ class EmailWidgetEmailController extends StandardController {
   
     // Add an email address?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
+
     // Generate an email address token?
     $p['gentoken'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
+
+    // Verify Email
+    $p['verify'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
     // Self-service permission is true for all EmailAddress types
     $p['selfsvc']['EmailAddress']['*'] = true;
     

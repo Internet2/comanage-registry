@@ -98,7 +98,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
       },
       generalXhrFailCallback(xhr) {
         stopSpinner();
-        console.log(xhr.status);
+        console.error(xhr);
         switch(xhr.status) {
           case 401:
             this.setError(this.txt.error401);
