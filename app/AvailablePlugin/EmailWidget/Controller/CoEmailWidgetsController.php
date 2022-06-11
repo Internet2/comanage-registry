@@ -54,8 +54,9 @@ class CoEmailWidgetsController extends SDWController {
     // We need only the CoPerson ID - with that we can look up the Email Addresses via 
     // ajax against the API in the web client.
     $coPersonId = $this->reqCoPersonId;
-    $this->set('vv_co_person_id', array($coPersonId));
-  
+    $this->set('vv_co_person_id', $coPersonId);
+    $this->set('vv_co_id', $this->cur_co['Co']['id']);
+
     // Gather the available email address types
     $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
     
@@ -130,10 +131,7 @@ class CoEmailWidgetsController extends SDWController {
 
     // View an existing CO Email Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
-    // Self-service permission is true for all EmailAddress types
-    $p['selfsvc']['EmailAddress']['*'] = true;
-    
+
     $this->set('permissions', $p);
     return($p[$this->action]);
   }

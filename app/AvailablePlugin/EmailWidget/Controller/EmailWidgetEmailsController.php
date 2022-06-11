@@ -27,12 +27,23 @@
 
 App::uses("StandardController", "Controller");
 
-class EmailWidgetEmailController extends StandardController {
+class EmailWidgetEmailsController extends StandardController {
   // Class name, used by Cake
-  public $name = "EmailWidgetEmail";
+  public $name = "EmailWidgetEmails";
+
+  private static $actions = array(
+    'gentoken',
+    'verify'
+  );
   
   public function beforeFilter() {
     parent::beforeFilter();
+
+    if(in_array($this->action, EmailWidgetEmailsController::$actions)) {
+      $this->Security->validatePost = false;
+      $this->Security->enabled = false;
+      $this->Security->csrfCheck = false;
+    }
 
     $this->RequestHandler->renderAs($this, 'json');
   }
@@ -45,13 +56,13 @@ class EmailWidgetEmailController extends StandardController {
    * @since  COmanage Registry v4.1.0
    */
   public function gentoken() {
-    if(!empty($this->request->params['named']['email']) &&
-       !empty($this->request->params['named']['type'])) {
+    if(!empty($this->request->data['email']) &&
+       !empty($this->request->data['type'])) {
       
-      $email = $this->request->params['named']['email'];
-      $type = $this->request->params['named']['type'];
-      $primary = $this->request->params['named']['primary'];
-      $mtid = $this->request->params['named']['mtid'];
+      $email = $this->request->data['email'];
+      $type = $this->request->data['type'];
+      $primary = $this->request->data['primary'];
+      $mtid = $this->request->data['mtid'];
       
       $results = $this->EmailWidgetEmail->generateToken($email,$type,$primary);
       if(!empty($results['id'])) { // XXX Ensure this test is adequate.
@@ -76,13 +87,12 @@ class EmailWidgetEmailController extends StandardController {
    * @since  COmanage Registry v4.1.0
    */
   public function verify() {
-    if(!empty($this->request->params['named']['token']) &&
-       !empty($this->request->params['named']['id']) &&
-       !empty($this->request->params['named']['copersonid'])) {
-      $token = $this->request->params['named']['token'];
-      $id = $this->request->params['named']['id'];
-      // $coPersonId = $this->Session->read('Auth.User.co_person_id'); // XXX this returns the wrong id. Why?
-      $coPersonId = $this->request->params['named']['copersonid'];
+    if(!empty($this->request->data['token']) &&
+       !empty($this->request->data['id']) &&
+       !empty($this->request->data['copersonid'])) {
+      $token = $this->request->data['token'];
+      $id = $this->request->data['id'];
+      $coPersonId = $this->request->data['copersonid'];
       $outcome = $this->EmailWidgetEmail->verify($token,$id,$coPersonId);
       $this->set('vv_outcome', $outcome);
       if($outcome == 'success') {
@@ -93,6 +103,25 @@ class EmailWidgetEmailController extends StandardController {
     } else {
       $this->set('vv_response_type','badParams');
     }
+  }
+
+  /**
+   * Find the provided CO ID from the query string for the reconcile action
+   * or invoke the parent method.
+   * - precondition: A coid should be provided in the query string
+   *
+   * @since  COmanage Registry v4.1.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    if($this->request->method() == "POST"
+       && isset($this->request->data["coid"])
+       && in_array($this->action, EmailWidgetEmailsController::$actions)) {
+      return $this->request->data["coid"];
+    }
+
+    return parent::parseCOID($data);
   }
   
   /**
@@ -106,8 +135,9 @@ class EmailWidgetEmailController extends StandardController {
    */
   
   function isAuthorized() {
+
     $roles = $this->Role->calculateCMRoles();
-  
+
     // Add an email address?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
 
@@ -116,9 +146,6 @@ class EmailWidgetEmailController extends StandardController {
 
     // Verify Email
     $p['verify'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-
-    // Self-service permission is true for all EmailAddress types
-    $p['selfsvc']['EmailAddress']['*'] = true;
     
     $this->set('permissions', $p);
     return($p[$this->action]);

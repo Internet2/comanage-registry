@@ -63,13 +63,25 @@ export default {
         this.newEmailErrorMessage = this.txt.errorInvalid;
         return;
       }
-      let url = '/registry/email_widget/email_widget_email/gentoken';
-      url += '/email:' + this.$refs.newAddress.value;
-      url += '/type:' + this.$refs.newAddressType.value;
-      url += '/primary:' + this.$refs.newAddressPrimary.checked;
-      url += '/mtid:' + this.core.messageTemplateId;
+
+      const url = '/registry/email_widget/email_widget_emails/gentoken';
+      const gen_data = {
+        email: this.$refs.newAddress.value,
+        type: this.$refs.newAddressType.value,
+        primary: this.$refs.newAddressPrimary.checked,
+        mtid: this.core.messageTemplateId,
+        copersonid: this.core.coPersonId,
+        coid: this.core.coId
+      }
       displaySpinner();
-      callRegistryAPI(url, 'GET', 'json', this.genTokenSuccessCallback, '', this.genTokenFailCallback);
+      callRegistryAPI(
+        url,
+        'POST',
+        'json',
+        this.genTokenSuccessCallback,
+        '',
+        this.genTokenFailCallback,
+        gen_data);
     },
     genTokenSuccessCallback(xhr) {
       stopSpinner();
@@ -92,11 +104,22 @@ export default {
       if (token == '') {
         return;
       }
-      let url = '/registry/email_widget/email_widget_email/verify';
-      url += '/id:' + this.tokenId;
-      url += '/token:' + token;
-      url += '/copersonid:' + this.core.coPersonId;
-      callRegistryAPI(url, 'GET', 'json', this.verifySuccessCallback, '', this.verifyFailCallback);
+      const ver_data = {
+        id: this.tokenId,
+        token: token,
+        copersonid: this.core.coPersonId,
+        coid: this.core.coId
+      }
+      let url = '/registry/email_widget/email_widget_emails/verify';
+
+      callRegistryAPI(
+        url,
+        'POST',
+        'json',
+        this.verifySuccessCallback,
+        '',
+        this.verifyFailCallback,
+        ver_data);
     },
     verifySuccessCallback(xhr) {
       if(xhr.responseJSON['result'] == 'success') {

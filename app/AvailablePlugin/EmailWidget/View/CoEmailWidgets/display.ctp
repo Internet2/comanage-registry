@@ -39,15 +39,20 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
 ?>
 
 <script type="module">
-  import EmailPanel from '<?php print $this->webroot ?>email_widget/js/email-panel.js';
-  
+  <?php if(Configure::read('debug') > 0): ?>
+    import EmailPanel from '<?php print $this->webroot ?>email_widget/js/email-panel.js?time=<?php print time()?>';
+  <?php else: ?>
+    import EmailPanel from '<?php print $this->webroot ?>email_widget/js/email-panel.js';
+  <?php endif; ?>
+
   const app = Vue.createApp({
     data() {
       return {
         emailAddresses: {},
         error: '',
         core: {
-          coPersonId: '<?php print $vv_co_person_id[0]; ?>',
+          coPersonId: '<?php print $vv_co_person_id; ?>',
+          coId: '<?php print $vv_co_id; ?>',
           widget: 'widget<?php print $divid; ?>',
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
@@ -87,7 +92,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
     },
     methods: {
       getEmailAddresses() {
-        let url = '<?php print $this->webroot ?>email_addresses.json?copersonid=<?php print $vv_co_person_id[0] ?>';
+        let url = '<?php print $this->webroot ?>email_addresses.json?copersonid=<?php print $vv_co_person_id ?>';
         let xhr = callRegistryAPI(url, 'GET', 'json', this.setEmailAddresses, '', this.generalXhrFailCallback);
       },
       setEmailAddresses: function(xhr){
