@@ -59,29 +59,7 @@ class CoEmailWidgetsController extends SDWController {
 
     // Gather the available email address types
     $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
-    
-  /* XXX probably need to work with the self-service permissions below
-    if(!empty($this->viewVars['permissions']['selfsvc'])
-      && !$this->Role->isCoOrCouAdmin($coPersonId,
-        $this->cur_co['Co']['id'])) {
-        // For models supporting self service permissions, adjust the available types
-        // in accordance with the configuration (but not if self is an admin)
-      
-        foreach(array_keys($availableTypes) as $k) {
-          // We use edit for the permission even if we're adding or viewing because
-          // add has different semantics for calculatePermission (whether or not the person
-          // can add a new item).
-          if(!$this->Co->CoPermission->calculatePermission($this->cur_co['Co']['id'],
-            'EmailAddress',
-            'edit',
-            $k)) {
-            unset($availableTypes[$k]);
-          }
-        }
-      }
-    */
-      $this->set('vv_available_types', $availableTypes);
-    /*}*/
+    $this->set('vv_available_types', $availableTypes);
   }
   
   public function edit($id) {
@@ -92,15 +70,13 @@ class CoEmailWidgetsController extends SDWController {
     $this->set('vv_config', $cfg);
     
     // Gather the available email address types for the config form
-    $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
-    $this->set('vv_available_types', $availableTypes);
+    $this->set('vv_available_types', $this->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
   
     // Gather message templates for the config form
     $args = array();
     $args['conditions']['status'] = SuspendableStatusEnum::Active;
     $args['contain'] = false;
-    $messageTemplates = $this->CoMessageTemplate->find('list',$args);
-    $this->set('vv_message_templates', $messageTemplates);
+    $this->set('vv_message_templates', $this->CoMessageTemplate->find('list',$args));
     
   }  
   

@@ -35,7 +35,13 @@ class EmailWidgetEmailsController extends StandardController {
     'gentoken',
     'verify'
   );
-  
+
+  public $uses = array(
+    'EmailWidget.CoEmailWidget',
+    'EmailWidget.EmailWidgetEmail',
+    'CoMessageTemplate'
+  );
+
   public function beforeFilter() {
     parent::beforeFilter();
 
@@ -56,21 +62,20 @@ class EmailWidgetEmailsController extends StandardController {
    * @since  COmanage Registry v4.1.0
    */
   public function gentoken() {
-    if(!empty($this->request->data['email']) &&
-       !empty($this->request->data['type'])) {
-      
+    if(!empty($this->request->data['email'])
+       && !empty($this->request->data["configid"])) {
+      $this->CoEmailWidget->id = $this->request->data["configid"];
+
       $email = $this->request->data['email'];
-      $type = $this->request->data['type'];
       $primary = $this->request->data['primary'];
-      $mtid = $this->request->data['mtid'];
       
-      $results = $this->EmailWidgetEmail->generateToken($email,$type,$primary);
+      $results = $this->EmailWidgetEmail->generateToken($email,$this->CoEmailWidget->field('default_type'),$primary);
       if(!empty($results['id'])) { // XXX Ensure this test is adequate.
         // We have a valid result. Provide the row ID to the verification form,
         // and send the token to the new email address for round-trip verification by the user.
         $this->set('vv_response_type', 'ok');
         $this->set('vv_id', $results['id']);
-        $this->EmailWidgetEmail->send($email,$results['token'],$mtid);
+        $this->EmailWidgetEmail->send($email,$results['token'], $this->CoEmailWidget->field('co_message_template_id'));
       } else {
         $this->set('vv_response_type','error');
       }
@@ -125,7 +130,6 @@ class EmailWidgetEmailsController extends StandardController {
   }
   
   /**
-   * TODO: Refactor this to be correct
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -140,6 +144,8 @@ class EmailWidgetEmailsController extends StandardController {
 
     // Add an email address?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
 
     // Generate an email address token?
     $p['gentoken'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);

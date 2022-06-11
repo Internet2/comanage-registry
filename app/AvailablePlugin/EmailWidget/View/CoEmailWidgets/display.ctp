@@ -54,6 +54,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           coPersonId: '<?php print $vv_co_person_id; ?>',
           coId: '<?php print $vv_co_id; ?>',
           widget: 'widget<?php print $divid; ?>',
+          configId: '<?php print $vv_config['CoEmailWidget']['id']; ?>',
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
           defaultEmailType: '<?php print !empty($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : 'official'; ?>',

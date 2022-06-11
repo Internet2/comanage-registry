@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v4.1.0
@@ -31,39 +31,36 @@ class EmailWidget extends AppModel {
 
   // Required by COmanage Plugins
   public $cmPluginType = "dashboardwidget";
-	
-	// Add behaviors
+
+  // Add behaviors
   // public $actsAs = array('Containable');
-	
+
   // Document foreign keys
   public $cmPluginHasMany = array();
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
-	);
-	
-	public $hasOne = array(
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
+  );
+
+  public $hasOne = array(
     'CoMessageTemplate' => array(
       'className' => 'CoMessageTemplate',
       'conditions' => array('CoMessageTemplate.status' => SuspendableStatusEnum::Active)
     )
-	);
-	
-  // Default display field for cake generated views
-  // public $displayField = "description";
-	
+  );
+
   // Validation rules for table elements
   public $validate = array(
-	);
-  
+  );
+
   /**
    * Expose menu items.
-   * 
+   *
    * @ since COmanage Registry v3.2.0
    * @ return Array with menu location type as key and array of labels, controllers, actions as values.
    */
-	
+
   public function cmPluginMenus() {
-  	return array();
+    return array();
   }
 }
