@@ -27,11 +27,30 @@
 
 App::uses("StandardController", "Controller");
 
-class EmailWidgetEmailController extends StandardController {
+class EmailWidgetEmailsController extends StandardController {
   // Class name, used by Cake
-  public $name = "EmailWidgetEmail";
-  
+  public $name = "EmailWidgetEmails";
+
+  private static $actions = array(
+    'gentoken',
+    'verify'
+  );
+
+  public $uses = array(
+    'EmailWidget.CoEmailWidget',
+    'EmailWidget.EmailWidgetEmail',
+    'CoMessageTemplate'
+  );
+
   public function beforeFilter() {
+    parent::beforeFilter();
+
+    if(in_array($this->action, EmailWidgetEmailsController::$actions)) {
+      $this->Security->validatePost = false;
+      $this->Security->enabled = false;
+      $this->Security->csrfCheck = false;
+    }
+
     $this->RequestHandler->renderAs($this, 'json');
   }
   
@@ -43,21 +62,20 @@ class EmailWidgetEmailController extends StandardController {
    * @since  COmanage Registry v4.1.0
    */
   public function gentoken() {
-    if(!empty($this->request->params['named']['email']) &&
-       !empty($this->request->params['named']['type'])) {
+    if(!empty($this->request->data['email'])
+       && !empty($this->request->data["configid"])) {
+      $this->CoEmailWidget->id = $this->request->data["configid"];
+
+      $email = $this->request->data['email'];
+      $primary = $this->request->data['primary'];
       
-      $email = $this->request->params['named']['email'];
-      $type = $this->request->params['named']['type'];
-      $primary = $this->request->params['named']['primary'];
-      $mtid = $this->request->params['named']['mtid'];
-      
-      $results = $this->EmailWidgetEmail->generateToken($email,$type,$primary);
+      $results = $this->EmailWidgetEmail->generateToken($email,$this->CoEmailWidget->field('default_type'),$primary);
       if(!empty($results['id'])) { // XXX Ensure this test is adequate.
         // We have a valid result. Provide the row ID to the verification form,
         // and send the token to the new email address for round-trip verification by the user.
         $this->set('vv_response_type', 'ok');
         $this->set('vv_id', $results['id']);
-        $this->EmailWidgetEmail->send($email,$results['token'],$mtid);
+        $this->EmailWidgetEmail->send($email,$results['token'], $this->CoEmailWidget->field('co_message_template_id'));
       } else {
         $this->set('vv_response_type','error');
       }
@@ -74,13 +92,12 @@ class EmailWidgetEmailController extends StandardController {
    * @since  COmanage Registry v4.1.0
    */
   public function verify() {
-    if(!empty($this->request->params['named']['token']) &&
-       !empty($this->request->params['named']['id']) &&
-       !empty($this->request->params['named']['copersonid'])) {
-      $token = $this->request->params['named']['token'];
-      $id = $this->request->params['named']['id'];
-      // $coPersonId = $this->Session->read('Auth.User.co_person_id'); // XXX this returns the wrong id. Why?
-      $coPersonId = $this->request->params['named']['copersonid'];
+    if(!empty($this->request->data['token']) &&
+       !empty($this->request->data['id']) &&
+       !empty($this->request->data['copersonid'])) {
+      $token = $this->request->data['token'];
+      $id = $this->request->data['id'];
+      $coPersonId = $this->request->data['copersonid'];
       $outcome = $this->EmailWidgetEmail->verify($token,$id,$coPersonId);
       $this->set('vv_outcome', $outcome);
       if($outcome == 'success') {
@@ -92,9 +109,27 @@ class EmailWidgetEmailController extends StandardController {
       $this->set('vv_response_type','badParams');
     }
   }
+
+  /**
+   * Find the provided CO ID from the query string for the reconcile action
+   * or invoke the parent method.
+   * - precondition: A coid should be provided in the query string
+   *
+   * @since  COmanage Registry v4.1.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    if($this->request->method() == "POST"
+       && isset($this->request->data["coid"])
+       && in_array($this->action, EmailWidgetEmailsController::$actions)) {
+      return $this->request->data["coid"];
+    }
+
+    return parent::parseCOID($data);
+  }
   
   /**
-   * TODO: Refactor this to be correct
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
@@ -104,16 +139,19 @@ class EmailWidgetEmailController extends StandardController {
    */
   
   function isAuthorized() {
+
     $roles = $this->Role->calculateCMRoles();
-  
+
     // Add an email address?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
+
+    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
     // Generate an email address token?
     $p['gentoken'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
-    // Self-service permission is true for all EmailAddress types
-    $p['selfsvc']['EmailAddress']['*'] = true;
+
+    // Verify Email
+    $p['verify'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
     
     $this->set('permissions', $p);
     return($p[$this->action]);

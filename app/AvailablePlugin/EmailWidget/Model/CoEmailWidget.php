@@ -31,23 +31,40 @@ class CoEmailWidget extends CoDashboardWidgetBackend {
   // Define class name for cake
   public $name = "CoEmailWidget";
   
-	// Add behaviors
+  // Add behaviors
   public $actsAs = array('Containable');
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
-		"CoDashboardWidget"
-	);
-	
-	public $hasMany = array(
-	);
-	
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
+    "CoDashboardWidget"
+  );
+
   // Validation rules for table elements
   public $validate = array(
     'co_dashboard_widget_id' => array(
       'rule' => 'numeric',
       'required' => true,
-			'allowEmpty' => false
-		)
-	);
+      'allowEmpty' => false
+    ),
+    'type' => array(
+      'content' => array(
+        'rule' => array('validateExtendedType',
+          array('attribute' => 'EmailAddress.type',
+            'default' => array(EmailAddressEnum::Delivery,
+              EmailAddressEnum::Forwarding,
+              EmailAddressEnum::MailingList,
+              EmailAddressEnum::Official,
+              EmailAddressEnum::Personal,
+              EmailAddressEnum::Preferred,
+              EmailAddressEnum::Recovery))),
+        'required' => false,
+        'allowEmpty' => false
+      )
+    ),
+    'co_message_template_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    )
+  );
 }
