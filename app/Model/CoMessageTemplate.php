@@ -262,6 +262,17 @@ class CoMessageTemplate extends AppModel {
    * @since COmanage Registry v4.0.0
    */
   public function templateTest($id, $toEmail) {
+    $this->templateSend($id, $toEmail);
+  }
+
+  /**
+   * Send to the $toEmail recipient. Ignore cc and bcc configuration.
+   *
+   * @param intenger $id
+   * @param string $toEmail Send test email to this address
+   * @since COmanage Registry v4.1.0
+   */
+  public function templateSend($id, $toEmail, $substituteWith = array()) {
     $subject = null;
     $body = null;
     $cc = null;
@@ -285,23 +296,24 @@ class CoMessageTemplate extends AppModel {
 
     $substitutions = array(
       'CO_NAME'           => $co_name,
-      'ACTOR_NAME'        => 'template_test',
-      'NOTIFICATION_URL'  => '#',
-      'SOURCE_URL'        => '#',
-      'INVITE_URL'        => '#',
-      'ORIG_AFFIL'        => "member",
-      'NEW_AFFIL'         => "faculty",
-      'CO_PERSON'         => "John Doe",
-      'ORIG_COU'          => "",
-      'NEW_COU'           => "",
-      'ORIG_STATUS'       => "Active",
-      'NEW_STATUS'        => "Grace Period",
-      'DAYS_TO_EXPIRY'    => "5",
-      'POLICY_DESC'       => "Expiration Policy Description",
-      'SPONSOR'           => "Bob Builder",
-      'TITLE'             => "Mr",
-      'VALID_FROM'        => "YYYY/MM/DD",
-      'VALID_THROUGH'     => "YYYY/MM/DD",
+      'ACTOR_NAME'       => $substituteWith['ACTOR_NAME'] ?? 'template_test',
+      'NOTIFICATION_URL' => $substituteWith['NOTIFICATION_URL'] ?? '#',
+      'SOURCE_URL'       => $substituteWith['SOURCE_URL'] ?? '#',
+      'INVITE_URL'       => $substituteWith['INVITE_URL'] ?? '#',
+      'ORIG_AFFIL'       => $substituteWith['ORIG_AFFIL'] ?? "member",
+      'NEW_AFFIL'        => $substituteWith['NEW_AFFIL'] ?? "faculty",
+      'CO_PERSON'        => $substituteWith['CO_PERSON'] ?? "John Doe",
+      'ORIG_COU'         => $substituteWith['ORIG_COU'] ?? "",
+      'NEW_COU'          => $substituteWith['NEW_COU'] ?? "",
+      'ORIG_STATUS'      => $substituteWith['ORIG_STATUS'] ?? "Active",
+      'NEW_STATUS'       => $substituteWith['NEW_STATUS'] ?? "Grace Period",
+      'DAYS_TO_EXPIRY'   => $substituteWith['DAYS_TO_EXPIRY'] ?? "5",
+      'POLICY_DESC'      => $substituteWith['POLICY_DESC'] ?? "Expiration Policy Description",
+      'SPONSOR'          => $substituteWith['SPONSOR'] ?? "Bob Builder",
+      'TITLE'            => $substituteWith['TITLE'] ?? "Mr",
+      'VALID_FROM'       => $substituteWith['VALID_FROM'] ?? "YYYY/MM/DD",
+      'VALID_THROUGH'    => $substituteWith['VALID_THROUGH'] ?? "YYYY/MM/DD",
+      'TOKEN'            => $substituteWith['TOKEN'] ?? "123456"
     );
 
     try {
