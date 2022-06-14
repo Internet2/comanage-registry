@@ -339,6 +339,12 @@ class ApiController extends Controller {
       // Default to Created
       $responseCode = 201;
       $results = array();
+      
+      // For multi-role format, we don't need pipelines to rerun matching once
+      // we have a CO Person ID. This gets a bit more complicated if a new role
+      // shows up in the message _before_ an existing one -- in that case
+      // hopefully the match policy correctly links the person.
+      $cachedCoPersonId = null;
 
       foreach($requests as $sorkey => $rjson) {
         // We shouldn't get here if params['sorid'] is null
@@ -347,7 +353,8 @@ class ApiController extends Controller {
                                       $this->cur_api_src['OrgIdentitySource']['id'],
                                       $this->cur_api_src['OrgIdentitySource']['co_id'],
                                       $sorkey,
-                                      $rjson);
+                                      $rjson,
+                                      $cachedCoPersonId);
         
         if(!$r['new']) {
           // Update. In a multi-role context, we simply consider if the main
@@ -411,6 +418,10 @@ class ApiController extends Controller {
               'type' => $id['Identifier']['type']
             );
           }
+        }
+        
+        if(!empty($r['co_person_id'])) {
+          $cachedCoPersonId = $r['co_person_id'];
         }
       }
       
