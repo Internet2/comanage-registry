@@ -50,6 +50,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
       return {
         emailAddresses: {},
         error: '',
+        success: false,
         core: {
           coPersonId: '<?php print $vv_co_person_id; ?>',
           coId: '<?php print $vv_co_id; ?>',
@@ -74,6 +75,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           done:         "<?php print _txt('op.done'); ?>",
           edit :        "<?php print _txt('op.edit'); ?>",
           email:        "<?php print _txt('pl.email_widget.fd.email'); ?>",
+          emailAdded:   "<?php print _txt('pl.email_widget.added')?>",
           error401:     "<?php print _txt('pl.email_widget.error.401');?>",
           error500:     "<?php print _txt('pl.email_widget.error.500');?>",
           errorInvalid: "<?php print _txt('pl.email_widget.error.invalid');?>",
@@ -122,10 +124,13 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
 </script>
 
 <div id="email-widget<?php print $divid ?>" class="cm-ssw" v-cloak>
-  <div v-if="this.error != ''" id="email-widget<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
+  <div v-if="this.error != ''" id="email-widget-error<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
     {{ this.error }}
   </div>
-  <email-panel 
+  <div v-if="this.success" id="email-widget-success<?php print $divid ?>-alert" class="alert alert-success" role="alert">
+    {{ this.txt.emailAdded }}
+  </div>
+  <email-panel
     :emails="emailAddresses" 
     :core="core" 
     :txt="txt">

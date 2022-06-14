@@ -128,6 +128,7 @@ export default {
         this.verifying = false;
         this.clearInvalid();
         this.refreshDisplay();
+        this.$parent.success = true;
       } else {
         this.tokenInvalid = true;
         this.tokenInvalidClass = 'is-invalid';
@@ -194,6 +195,7 @@ export default {
       this.verifying = false;
       this.$parent.setError('');
       this.clearInvalid();
+      this.$parent.success = false;
     },
     clearInvalid() {
       this.newEmailInvalid = false;
