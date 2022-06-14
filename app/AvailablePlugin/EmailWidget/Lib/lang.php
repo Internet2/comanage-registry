@@ -38,6 +38,7 @@ $cm_email_widget_texts['en_US'] = array(
   
   // Plugin texts
   'pl.email_widget.add' => 'Add an email address',
+  'pl.email_widget.added' => 'Email address added',
   'pl.email_widget.email.subject' => 'Your email verification code',
   'pl.email_widget.email.body' => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
   'pl.email_widget.error.status' => 'HTTP Status: ',
