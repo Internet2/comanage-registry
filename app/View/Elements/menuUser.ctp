@@ -217,6 +217,8 @@
 
         // Plugin submenus
         // This rendering is a bit different from how render_plugin_menus() does it...
+        // Each plugin will appear by name (e.g. "Announcements") with all appropriate 
+        // COs listed beneath it. Each CO title will link to the plugin within that CO.
         if(!empty($menuContent['plugins'])) {
           $userPluginsExist = false;
           foreach(array_keys($menuContent['plugins']) as $plugin) {
@@ -241,11 +243,19 @@
                         continue;
                       }
   
+                      // Get the plugin link array
                       $args = $menuContent['plugins'][$plugin]['coperson'][$label];
   
+                      // Always include the co_person_id and the co_id
                       $args[] = 'copersonid:' . $co['co_person_id'];
-                      $args['plugin'] = Inflector::underscore($plugin);
-  
+                      $args[] = 'co:' . $co['co_id'];
+                      
+                      // Generate the plugin path if $args['plugin'] hasn't been passed 
+                      if(!isset($args['plugin'])) {
+                        $args['plugin'] = Inflector::underscore($plugin);  
+                      }
+                      
+                      // Generate the link
                       print '<li>' . $this->Html->link($co['co_name'], $args) . "</li>\n";
                     }
   
