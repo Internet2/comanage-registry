@@ -700,7 +700,7 @@
                         $badge_list[] = array(
                           'order' => $this->Badge->getBadgeOrder('Owner'),
                           'text' => _txt('fd.group.own'),
-                          'color' => $this->Badge->getBadgeColor('Primary'),
+                          'color' => $this->Badge->getBadgeColor('Light'),
                         );
                         // Member Badge
                         $badge_list[] = array(
@@ -712,7 +712,7 @@
                         $badge_list[] = array(
                           'order' => $this->Badge->getBadgeOrder('Owner'),
                           'text' => _txt('fd.group.own.only'),
-                          'color' => $this->Badge->getBadgeColor('Primary'),
+                          'color' => $this->Badge->getBadgeColor('Light'),
                         );
                       }
                     } elseif($g['member']) {
@@ -819,7 +819,7 @@
                     $badge_list[] = array(
                       'order' => $this->Badge->getBadgeOrder('Owner'),
                       'text' => _txt('fd.group.own'),
-                      'color' => $this->Badge->getBadgeColor('Primary'),
+                      'color' => $this->Badge->getBadgeColor('Light'),
                     );
                   }
                   if(!empty($group_memberships[$auto_group_format['key']])) {
@@ -1288,7 +1288,8 @@
                   $badge_list_org[] = array(
                     'order' => $this->Badge->getBadgeOrder('Status'),
                     'text' => _txt('op.login'),
-                    'color' => $this->Badge->getBadgeColor('Primary'),
+                    'color' => $this->Badge->getBadgeColor('Light'),
+                    'outline' => true,
                   );
                 }
                 if(!empty($link["OrgIdentity"]["affiliation"])) {
