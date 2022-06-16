@@ -476,6 +476,9 @@ class CoExpirationPolicy extends AppModel {
               'CO_PERSON'         => (!empty($role['CoPerson']['PrimaryName'])
                                       ? generateCn($role['CoPerson']['PrimaryName'])
                                       : null),
+              'CO_PERSON_ID'      => (!empty($role['CoPerson']['id'])
+                                      ? $role['CoPerson']['id']
+                                      : null),
               'ORIG_COU'          => (!empty($role['Cou']['name'])
                                       ? $role['Cou']['name']
                                       : null),
@@ -500,6 +503,9 @@ class CoExpirationPolicy extends AppModel {
               'POLICY_DESC'       => $p['CoExpirationPolicy']['description'],
               'SPONSOR'           => (!empty($role['SponsorCoPerson']['PrimaryName'])
                                       ? generateCn($role['SponsorCoPerson']['PrimaryName'])
+                                      : null),
+              'SPONSOR_ID'        => (!empty($role['SponsorCoPerson']['id'])
+                                      ? $role['SponsorCoPerson']['id']
                                       : null),
               'TITLE'             => $role['CoPersonRole']['title'],
               'VALID_FROM'        => $role['CoPersonRole']['valid_from'],

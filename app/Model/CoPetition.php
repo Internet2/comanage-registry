@@ -2499,10 +2499,13 @@ class CoPetition extends AppModel {
         'APPROVER_COMMENT' => (!empty($pt['CoPetition']['approver_comment'])
                                ? $pt['CoPetition']['approver_comment'] : null),
         'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
+        'CO_PERSON_ID' => $pt['EnrolleeCoPerson']['id'],
         'NEW_COU'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'])
                         ? $pt['EnrolleeCoPerson']['CoPersonRole'][0]['Cou']['name'] : null),
         'SPONSOR'   => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName'])
-                        ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null)
+                        ? generateCn($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['PrimaryName']) : null),
+        'SPONSOR_ID' => (!empty($pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['id'])
+                        ? $pt['EnrolleeCoPerson']['CoPersonRole'][0]['SponsorCoPerson']['id'] : null),
       );
       
       // Create substitution rules for any defined identifiers.
