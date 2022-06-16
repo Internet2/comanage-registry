@@ -48,7 +48,7 @@ class CoGroupNesting extends AppModel {
   );
   
   // Default display field for cake generated views
-  public $displayField = "co_person_id";
+  public $displayField = "co_group_id";
   
   // Default ordering for find operations
 // XXX CO-296 Toss default order?

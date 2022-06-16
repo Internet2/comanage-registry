@@ -91,6 +91,18 @@ class CoGroupNestingsController extends StandardController {
   }
   
   /**
+   * Generate a display key to be used in messages such as "Item Added".
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Array A cached object (eg: from prior to a delete)
+   * @return string A string to be included for display.
+   */
+  function generateDisplayKey($c = null) {
+    // Here it's simplest to return the string "Group"
+    return _txt('ct.co_groups.1');
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
