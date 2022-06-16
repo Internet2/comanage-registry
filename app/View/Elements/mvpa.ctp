@@ -173,7 +173,6 @@
                         'order' => $this->Badge->getBadgeOrder('Other'),
                         'text' => $m['CoProvisioningTarget']['description'],
                         'color' => $this->Badge->getBadgeColor('Light'),
-                        'outline' => true,
                       );
                     }
                   }
@@ -187,7 +186,6 @@
                   'order' => $this->Badge->getBadgeOrder('Source'),
                   'text' => filter_var($m[$smodel]['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'],FILTER_SANITIZE_SPECIAL_CHARS),
                   'color' => $this->Badge->getBadgeColor('Light'),
-                  'outline' => true,
                 );
             }
             
