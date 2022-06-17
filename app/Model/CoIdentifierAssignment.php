@@ -187,7 +187,7 @@ class CoIdentifierAssignment extends AppModel {
    * @throws RuntimeException
    */
   
-  public function assign($coIdentifierAssignment, $objType, $objId, $actorCoPersonID, $provision=true, $actorApiUserId=null) {
+  public function assign($coIdentifierAssignment, $objType, $objId, $actorCoPersonId, $provision=true, $actorApiUserId=null) {
     $ret = null;
 
     // Determine if we are actually assigning an email address instead of an identifier.
@@ -255,6 +255,7 @@ class CoIdentifierAssignment extends AppModel {
     
     if($coIdentifierAssignment['CoIdentifierAssignment']['algorithm'] == IdentifierAssignmentEnum::Plugin) {
       if(empty($coIdentifierAssignment['CoIdentifierAssignment']['plugin'])) {
+        $dbc->commit();
         throw new InvalidArgumentException(_txt('er.ia.plugin'));
       }
       
@@ -273,13 +274,21 @@ class CoIdentifierAssignment extends AppModel {
         );
         
         if(empty($candidate)) {
+          $dbc->commit();
           throw new InvalidArgumentException("No identifier received"); // XXX I18n
         }
         
         // We only try once, pretty much any failure should throw an Exception.
         // If checkInsert() returns null we'll catch it below.
         
-        $ret = $this->checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonId, $provision);
+        $ret = $this->checkInsert($coIdentifierAssignment,
+                                  $objType,
+                                  $assignEmail,
+                                  $obj,
+                                  $candidate,
+                                  $actorCoPersonId,
+                                  $provision,
+                                  $actorApiUserId);
       }
       catch(Exception $e) {
         $dbc->rollback();
@@ -334,7 +343,14 @@ class CoIdentifierAssignment extends AppModel {
           // We have a new candidate (ie: one that wasn't generated on a previous loop),
           // so let's see if it is already in use.
           
-          $ret = $this->checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonID, $provision);
+          $ret = $this->checkInsert($coIdentifierAssignment,
+                                    $objType,
+                                    $assignEmail,
+                                    $obj,
+                                    $candidate,
+                                    $actorCoPersonId,
+                                    $provision,
+                                    $actorApiUserId);
         }
         
         if($ret)
@@ -462,10 +478,18 @@ class CoIdentifierAssignment extends AppModel {
    * @param  string $candidate              Candidate identifier
    * @param  int    $actorCoPersonId        Actor CoPerson ID
    * @param  bool   $provision              Whether to trigger provisioning
+   * @param  int    $actorApiUserId         Actor API User ID
    * @return int                            Identifier ID, or false
    */
   
-  private function checkInsert($coIdentifierAssignment, $objType, $assignEmail, $obj, $candidate, $actorCoPersonId, $provision) {
+  private function checkInsert($coIdentifierAssignment,
+                               $objType,
+                               $assignEmail,
+                               $obj,
+                               $candidate,
+                               $actorCoPersonId,
+                               $provision,
+                               $actorApiUserId=null) {
     $ret = null;
     
     try {
@@ -499,7 +523,7 @@ class CoIdentifierAssignment extends AppModel {
     
     $coId = $coIdentifierAssignment['CoIdentifierAssignment']['co_id'];
     $fk = Inflector::underscore($objType) . "_id";
-    
+
     if($assignEmail) {
       $emailAddressData = array();
       $emailAddressData['EmailAddress']['mail'] = $candidate;
@@ -559,15 +583,15 @@ class CoIdentifierAssignment extends AppModel {
                                                      $actorCoPersonId,
                                                      ActionEnum::IdentifierAutoAssigned,
                                                      $txt,
-                                                     $coGroupId);
+                                                     $coGroupId,
+                                                     null, null,
+                                                     $actorApiUserId);
         }
         catch(Exception $e) {
-          $dbc->rollback();
           throw new RuntimeException(_txt('er.db.save'));
         }
       }
     } else {
-      $dbc->rollback();
       throw new RuntimeException(_txt('er.db.save'));
     }
     
