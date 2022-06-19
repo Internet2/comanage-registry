@@ -285,6 +285,7 @@ class ChangelogBehavior extends ModelBehavior {
    * @param  Model $model Model instance
    * @return boolean true on success, false on failure
    * @throws RuntimeException
+   * @throws NotFoundException
    */
   
   public function beforeSave(Model $model, $options = array()) {
@@ -355,8 +356,8 @@ class ChangelogBehavior extends ModelBehavior {
         if(!$curRecord) {
           $dataSource->rollback();
           
-          throw new RuntimeException(_txt('er.notfound',
-                                          array($malias, $model->data[$malias]['id'])));
+          throw new NotFoundException(_txt('er.notfound',
+                                           array($malias, $model->data[$malias]['id'])));
         }
         
         $curRevision = $curRecord[$malias]['revision'];
@@ -492,7 +493,7 @@ class ChangelogBehavior extends ModelBehavior {
    * @param  Integer $id Record ID to check
    * @param  Boolean $archived If true, consider archived records as deleted as well
    * @return boolean true if record is flagged as deleted, false otherwise
-   * @throws InvalidArgumentException
+   * @throws NotFoundException
    */
   
   protected function isDeleted($model, $id, $archived=false) {
@@ -510,7 +511,7 @@ class ChangelogBehavior extends ModelBehavior {
     $curRecord = $model->find('first', $args);
     
     if(empty($curRecord)) {
-      throw new InvalidArgumentException(_txt('er.notfound', array($malias, $id)));
+      throw new NotFoundException(_txt('er.notfound', array($malias, $id)));
     }
 
     return ((isset($curRecord[$malias]['deleted'])
