@@ -71,16 +71,7 @@ Router::connect(
   )
 );
 
-// Scoped identifiers are not parsed properly because they are perceived as file extensions
-// Enable extensions parse to resolve this problem
-Router::parseExtensions('json', 'xml');
-
-
-/*
-
 Router::connect(
-// XXX This needs to trigger identifier assignment and maybe some other stuff
-//     provisioning should only fire after all models are saved
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
@@ -89,4 +80,8 @@ Router::connect(
     '[method]'   => 'POST'
   )
 );
-*/
+
+
+// Scoped identifiers are not parsed properly because they are perceived as file extensions
+// Enable extensions parse to resolve this problem
+Router::parseExtensions('json', 'xml');

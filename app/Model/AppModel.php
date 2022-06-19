@@ -1206,7 +1206,76 @@ class AppModel extends Model {
     
     return false;
   }
-  
+
+  /**
+   * This is copied by the framework itself but we take into consideration the soft delete functionality COmanage
+   * has in place.
+   *
+   * Returns false if any fields passed match any (by default, all if $or = false) of their matching values.
+   *
+   * Can be used as a validation method. When used as a validation method, the `$or` parameter
+   * contains an array of fields to be validated.
+   *
+   * @param array $fields Field/value pairs to search (if no values specified, they are pulled from $this->data)
+   * @param bool|array $or If false, all fields specified must match in order for a false return value
+   * @return bool False if any records matching any fields are found
+   */
+  public function isUniqueChangelog($fields, $or = true) {
+    if (is_array($or)) {
+      $isRule = (
+        array_key_exists('rule', $or) &&
+        array_key_exists('required', $or) &&
+        array_key_exists('message', $or)
+      );
+      if (!$isRule) {
+        $args = func_get_args();
+        $fields = $args[1];
+        $or = isset($args[2]) ? $args[2] : true;
+      }
+    }
+    if (!is_array($fields)) {
+      $fields = func_get_args();
+      $fieldCount = count($fields) - 1;
+      if (is_bool($fields[$fieldCount])) {
+        $or = $fields[$fieldCount];
+        unset($fields[$fieldCount]);
+      }
+    }
+
+    foreach ($fields as $field => $value) {
+      if (is_numeric($field)) {
+        unset($fields[$field]);
+
+        $field = $value;
+        $value = null;
+        if (isset($this->data[$this->alias][$field])) {
+          $value = $this->data[$this->alias][$field];
+        }
+      }
+
+      if (strpos($field, '.') === false) {
+        unset($fields[$field]);
+        $fields[$this->alias . '.' . $field] = $value;
+      }
+    }
+
+    if ($or) {
+      $fields = array('or' => $fields);
+    }
+
+    if (!empty($this->id)) {
+      $fields[$this->alias . '.' . $this->primaryKey . ' !='] = $this->id;
+    }
+
+    // We are searching for records that are not deleted. This means that deleted could be either null or false
+    $fields[$this->alias . '.deleted' . ' !='] = true;
+    $args = array();
+    $args['conditions'] = $fields;
+    $args['recursive'] = -1;
+
+    return !$this->find('count', $args);
+  }
+
   /**
    * Determine which plugins of a given type are available, and load them if not already loaded.
    *

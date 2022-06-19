@@ -50,6 +50,7 @@ $cm_core_api_texts['en_US'] = array(
 
   // Error messages
   'er.coreapi.coperson'        => 'CoPerson object not found in inbound document',
+  'er.coreapi.coperson.exists' => 'CoPerson exists',
   'er.coreapi.id.invalid'      => 'Invalid record id %1$s',
   'er.coreapi.json'            => 'No JSON document found in request, or document did not successfully parse',
   
