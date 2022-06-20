@@ -1292,10 +1292,12 @@
                     'outline' => true,
                   );
                 }
+                // XXX  For OrgIdentity.affiliation we want to use the CoPersonRole values
+                //      AppModel::types($coId, $attribute)
                 if(!empty($link["OrgIdentity"]["affiliation"])) {
                   $badge_list_org[] = array(
                     'order' => $this->Badge->getBadgeOrder('Title'),
-                    'text' => ucfirst(filter_var($link["OrgIdentity"]["affiliation"], FILTER_SANITIZE_SPECIAL_CHARS)),
+                    'text' => filter_var($vv_copr_affiliation_types[$link["OrgIdentity"]["affiliation"]], FILTER_SANITIZE_SPECIAL_CHARS),
                     'color' => $this->Badge->getBadgeColor('Light'),
                   );
                 }
@@ -1324,7 +1326,7 @@
                       'vv_badge_list' =>
                         array(
                           array(
-                            'text' => $type,
+                            'text' => $vv_identifiers_types[$type],
                             'color' => $this->Badge->getBadgeColor('Secondary'),
                             'outline' => true,
                           ),
@@ -1443,7 +1445,7 @@
                                                         $cm_texts[ $cm_lang ]['en.status.org'][ $link['OrgIdentity']['status'] ],
                                                         FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.affiliation')] = !empty($link['OrgIdentity']['affiliation'])
-                                               ? filter_var($link['OrgIdentity']['affiliation'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                                               ? filter_var($vv_copr_affiliation_types[$link["OrgIdentity"]["affiliation"]], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.date_of_birth')] = !empty($link['OrgIdentity']['date_of_birth'])
                                                ? filter_var($link['OrgIdentity']['date_of_birth'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.valid_from.tz', array($vv_tz))] = (isset($link['OrgIdentity']['valid_from']) && $link['OrgIdentity']['valid_from'] > 0)
