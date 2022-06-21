@@ -195,7 +195,7 @@
           'class' => 'spinner-grow spinner-grow-sm mr-2 align-middle invisible btn-submit-with-loader',
           'escape' => false,
           'role' => 'status',
-          'aria-hidden' => "true"
+          'aria-hidden' => 'true'
         )
       );
 
