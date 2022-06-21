@@ -192,16 +192,25 @@
         'span',
         '',
         array(
-          'class' => 'spinner-grow spinner-grow-sm mr-1 align-middle invisible btn-submit-with-loader',
+          'class' => 'spinner-grow spinner-grow-sm mr-2 align-middle invisible btn-submit-with-loader',
           'escape' => false,
           'role' => 'status',
-          'aria-hidden' => true
+          'aria-hidden' => 'true'
         )
       );
 
-      print $this->Form->button($loader . _txt('op.expunge'),array(
+      $button_text = $this->Html->tag(
+        'span',
+        _txt('op.expunge'),
+        array(
+          'escape' => false,
+          'role' => 'status'
+        )
+      );
+
+      print $this->Form->button($loader . $button_text, array(
         'type' => 'submit',
-        'class' => 'btn btn-primary',
+        'class' => 'btn btn-primary d-flex align-items-center',
         'disabled' => true,
         'onclick' => 'javascript:showBtnSpinnerLightbox()'
       ));
