@@ -49,13 +49,13 @@ class BadgeHelper extends AppHelper {
       // This is CO auto group
       $fname_group['key'] = 'AUTO';
       $fname_group['name']['name'] = '<span class="mr-1">' . filter_var($cur_co["Co"]["name"], FILTER_SANITIZE_SPECIAL_CHARS) . '</span>';
-      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cos.1'), $this->getBadgeColor('Secondary'), false, true);
+      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cos.1'), $this->getBadgeColor('Light'), false, false);
       $auto_group_parts = array_slice($auto_group_parts, 1);
     } else {
       // This is CO:COU auto group
       $fname_group['key'] = $auto_group_parts[2];
       $fname_group['name']['name'] = "<span class='mr-1'>" . filter_var($auto_group_parts[2], FILTER_SANITIZE_SPECIAL_CHARS) . '</span>';
-      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cous.1'), $this->getBadgeColor('Secondary'), false, true);
+      $fname_group['name']['badge'] = $this->badgeIt(_txt('ct.cous.1'), $this->getBadgeColor('Light'), false, false);
       $auto_group_parts = array_slice($auto_group_parts, 3);
     }
 
@@ -64,7 +64,7 @@ class BadgeHelper extends AppHelper {
       $fname_group['name'] =
         $fname_group['name']['name']
         . $fname_group['name']['badge']
-        . $this->badgeIt(_txt('fd.el.gr.admins'), $this->getBadgeColor('Secondary'));
+        . $this->badgeIt(_txt('fd.el.gr.admins'), $this->getBadgeColor('Light'));
       return $fname_group;
     }
 
@@ -81,7 +81,7 @@ class BadgeHelper extends AppHelper {
         $fname_group['badge'][] = array(
           'order' => $this->getBadgeOrder('Owner'),
           'text' => ucfirst($part),
-          'color' => $this->getBadgeColor('Primary'),
+          'color' => $this->getBadgeColor('Light'),
         );
       }
     }
@@ -89,7 +89,7 @@ class BadgeHelper extends AppHelper {
     $fname_group['name'] =
       $fname_group['name']['name']
       . $fname_group['name']['badge']
-      . $this->badgeIt(_txt('fd.co_group.auto'), $this->getBadgeColor('Secondary'), false, true);
+      . $this->badgeIt(_txt('fd.co_group.auto'), $this->getBadgeColor('Light'), false, false);
     return $fname_group;
   }
 
