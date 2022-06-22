@@ -284,9 +284,17 @@ class LdapSourceBackend extends OrgIdentitySourceBackend {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
     
+    // JSON_PRETTY_PRINT requires PHP 5.4+ but that's the minimum supported version in 2.0.0
+    $jsonopts = JSON_PRETTY_PRINT;
+    
+    if(defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+      // JSON_INVALID_UTF8_SUBSTITUTE is only available in PHP 7.2+, and is mostly
+      // useful for dealing with AD (CO-2386)
+      $jsonopts |= JSON_INVALID_UTF8_SUBSTITUTE;
+    }
+    
     return array(
-      // JSON_PRETTY_PRINT requires PHP 5.4+ but that's the minimum supported version in 2.0.0
-      'raw'         => json_encode($nres, JSON_PRETTY_PRINT),
+      'raw'         => json_encode($nres, $jsonopts),
       'orgidentity' => $this->resultToOrgIdentity($res[0]),
     );
   }
