@@ -736,8 +736,7 @@ class CoInvitesController extends AppController {
         {
           if($this->request->is('restful'))
           {
-            // $this->Api->restResultHeader(201, "Sent");
-            $this->Api->restResultHeader(501, "Not Implemented");
+            $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED, "Sent");
             $this->set('co_invite_id', $this->CoInvite->id);
           }
           else
