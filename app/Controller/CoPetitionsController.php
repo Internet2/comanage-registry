@@ -2891,9 +2891,7 @@ class CoPetitionsController extends StandardController {
         'co'            => $this->cur_co['Co']['id'],
         'sort'          => 'created',
         'direction'     => 'desc',
-        'search.status' => array(
-          StatusEnum::PendingApproval
-        )
+        'search.status' => StatusEnum::PendingApproval
       ));
     } else {
       $coPersonId = $this->Session->read('Auth.User.co_person_id');
