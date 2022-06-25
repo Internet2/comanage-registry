@@ -390,7 +390,8 @@ class StandardController extends AppController {
     
     $args = array();
     $args['conditions'][$req.'.id'] = $id;
-    
+    $args['contain'] = false;
+
     if(isset($this->delete_contains)) {
       // Use containable behavior
       
