@@ -287,6 +287,10 @@ class Identifier extends AppModel {
           // An identifier already exists of this type for this CO Person/CO Group
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 2;
         }
+        catch(UnderflowException $e) {
+          // The CO Person is not a member of the configured CO Group
+          $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = 3;
+        }
         catch(Exception $e) {
           $ret[ $ia['CoIdentifierAssignment']['identifier_type'] ] = $e->getMessage();
         }

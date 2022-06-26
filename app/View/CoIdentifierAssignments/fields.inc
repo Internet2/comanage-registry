@@ -69,12 +69,15 @@
     }
     
     // But only CO People can have Login identifiers (but not for email addresses)
+    // and Group membership requirements
     
     if(context == '<?php print IdentifierAssignmentContextEnum::CoPerson; ?>'
        && idtype != 'mail') {
       $('#CoIdentifierAssignmentLogin').closest("li").show('fade');
+      $('#CoIdentifierAssignmentCoGroupId').closest("li").show('fade');
     } else {
       $('#CoIdentifierAssignmentLogin').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentCoGroupId').closest("li").hide('fade');
     }
     
     if(algorithm == '<?php print IdentifierAssignmentEnum::Plugin; ?>') {
@@ -172,6 +175,37 @@
         }
       ?>
     </div>
+    <ul class="field-children">
+      <li>
+        <div class="field-name">
+          <div class="field-title">
+            <?php print ($e ? $this->Form->label('co_group_id', _txt('fd.ia.group')) : _txt('fd.ia.group')); ?>
+          </div>
+          <div class="field-desc"><?php print _txt('fd.ia.group.desc'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php
+            $attrs = array();
+            $attrs['value'] = (!empty($co_identifier_assignments[0]['CoIdentifierAssignment']['co_group_id'])
+                               ? $co_identifier_assignments[0]['CoIdentifierAssignment']['co_group_id']
+                               : "");
+            $attrs['empty'] = true;
+            
+            if($e) {
+              print $this->Form->select('co_group_id',
+                                        $vv_available_groups,
+                                        $attrs);
+              
+              if($this->Form->isFieldError('co_group_id')) {
+                print $this->Form->error('co_group_id');
+              }
+            } else {
+              print $vv_available_groups[ $co_identifier_assignments[0]['CoIdentifierAssignment']['co_group_id'] ];
+            }
+          ?>
+        </div>
+      </li>
+    </ul>
   </li>
   <li>
     <div class="field-name">

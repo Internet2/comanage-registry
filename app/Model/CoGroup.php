@@ -77,6 +77,7 @@ class CoGroup extends AppModel {
       'className' => 'CoExpirationPolicy',
       'foreignKey' => 'act_notify_co_group_id'
     ),
+    "CoIdentifierAssignment",
     "CoNotificationRecipientGroup" => array(
       'className' => 'CoNotification',
       'foreignKey' => 'recipient_co_group_id'

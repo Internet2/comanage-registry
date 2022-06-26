@@ -1399,6 +1399,16 @@ class CoreApi extends AppModel {
         }
       }
       
+      // Assign Identifiers. We do this on update (not just create) because
+      // the CO Person might have been given a CO Group Membership that grants
+      // eligibility for an Identifier Assignment. (This is basically equivalent
+      // to all Enrollment Flows triggering Identifier Assignments, even if it
+      // might be eg an account linking flow.)
+      // Disable provisioning since we will bulk provision at the end
+      // This will return an array describing which, if any, identifiers were assigned,
+      // but we don't do anything with the result here
+      $this->Co->CoPerson->Identifier->assign('CoPerson', $current['CoPerson']['id'], null, false, $actorApiUserId);
+      
       // Handle plugin models (Authenticator, Cluster)
       
       $plugins = $this->loadApiPlugins();
@@ -1442,10 +1452,10 @@ class CoreApi extends AppModel {
         }
       }
       
+      $dbc->commit();
+      
       // Trigger provisioning
       $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
-      
-      $dbc->commit();
     }
     catch(Exception $e) {
       $dbc->rollback();

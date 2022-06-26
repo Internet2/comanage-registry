@@ -2412,6 +2412,9 @@
     </field>
     <field name="status" type="C" size="2" />
     <field name="context" type="C" size="2" />
+    <field name="co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
     <field name="identifier_type" type="C" size="32">
       <notnull />
     </field>

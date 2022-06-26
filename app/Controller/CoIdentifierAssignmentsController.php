@@ -128,6 +128,16 @@ class CoIdentifierAssignmentsController extends StandardController {
     parent::beforeRender();
     
     $this->set('plugins', $this->loadAvailablePlugins('identifierassigner'));
+    
+    if(!$this->request->is('restful')) {
+      $args = array();
+      $args['conditions']['CoGroup.co_id'] = $this->cur_co['Co']['id'];
+      $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+      $args['order'] = array('CoGroup.name ASC');
+      $args['contain'] = false;
+
+      $this->set('vv_available_groups', $this->CoIdentifierAssignment->CoGroup->find("list", $args));
+    }
   }
   
   /**

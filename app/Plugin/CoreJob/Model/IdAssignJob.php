@@ -60,6 +60,13 @@ class IdAssignJob extends CoJobBackend {
                                            $coPersonId,
                                            null,
                                            JobStatusEnum::Notice);
+      } elseif($r === 3) {
+        $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                           $rkey,
+                                           _txt('er.ia.gr.mem'),
+                                           $coPersonId,
+                                           null,
+                                           JobStatusEnum::Notice);
       } else {
         $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                            $rkey,

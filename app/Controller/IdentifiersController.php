@@ -128,15 +128,23 @@ class IdentifiersController extends MVPAController {
         $errArray = array();    // ... and as an array for the API
         $assigned = array();    // Identifiers that were assigned
         $existed = array();     // Identifiers that already existed
+        $ineligible = array();  // Identifiers that are not eligible to be assigned
         
         foreach(array_keys($res) as $type) {
-          if($res[$type] == 2) {
-            $existed[] = $type;
-          } elseif($res[$type] == 1) {
-            $assigned[] = $type;
-          } else {
-            $errs .= $type . ": " . $res[$type] . "<br />\n";
-            $errArray[$type] = $res[$type];
+          switch($res[$type]) {
+            case 1:
+              $assigned[] = $type;
+              break;
+            case 2:
+              $existed[] = $type;
+              break;
+            case 3:
+              $ineligible[] = $type;
+              break;
+            default:
+              $errs .= $type . ": " . $res[$type] . "<br />\n";
+              $errArray[$type] = $res[$type];
+              break;
           }
         }
         
@@ -159,6 +167,11 @@ class IdentifiersController extends MVPAController {
           
           if(!empty($existed)) {
             $this->Flash->set(_txt('er.ia.already') . " (" . implode(',', $existed) . ")",
+                              array('key' => 'information'));
+          }
+          
+          if(!empty($ineligible)) {
+            $this->Flash->set(_txt('er.ia.gr.mem') . " (" . implode(',', $ineligible) . ")",
                               array('key' => 'information'));
           }
         }

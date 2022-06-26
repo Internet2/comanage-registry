@@ -36,7 +36,10 @@ class CoIdentifierAssignment extends AppModel {
   public $actsAs = array('Containable');
   
   // Association rules from this model to other models
-  public $belongsTo = array("Co");     // A CO Identifier Assignment is attached to a CO
+  public $belongsTo = array(
+    "Co",
+    "CoGroup"
+  );
   
   public $hasMany = array(
     "CoSequentialIdentifierAssignment" => array('dependent' => true)
@@ -76,6 +79,13 @@ class CoIdentifierAssignment extends AppModel {
       ),
       'required' => true,
       'allowEmpty' => false
+    ),
+    'co_group_id' => array(
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'identifier_type' => array(
       'content' => array(
@@ -184,6 +194,7 @@ class CoIdentifierAssignment extends AppModel {
    * @return Integer ID of newly created Identifier
    * @throws InvalidArgumentException
    * @throws OverflowException (identifier already exists)
+   * @throws UnderflowException (subject not eligible)
    * @throws RuntimeException
    */
   
@@ -199,7 +210,16 @@ class CoIdentifierAssignment extends AppModel {
        && $objType != 'CoGroup') {
       $assignEmail = true;
     }
-
+    
+    if($objType == 'CoPerson' 
+       && !empty($coIdentifierAssignment['CoIdentifierAssignment']['co_group_id'])) {
+      // Check to see if the subject is in the configured group.
+      
+      if(!$this->CoGroup->CoGroupMember->isMember($coIdentifierAssignment['CoIdentifierAssignment']['co_group_id'], $objId)) {
+        throw new UnderflowException(_txt(_txt('er.ia.gr.mem')));
+      }
+    } 
+    
     // Begin a transaction. This is more because we need to ensure the integrity of
     // data between SELECT and INSERT/UPDATE than that we expect to rollback.
     
