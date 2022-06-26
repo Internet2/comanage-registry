@@ -858,7 +858,8 @@ The request may be viewed at
   'en.server' => array(
     ServerEnum::HttpServer   => 'HTTP',
     ServerEnum::KafkaServer  => 'Kafka',
-    ServerEnum::LdapServer   => 'LDAP',
+// CO-1320
+//    ServerEnum::LdapServer   => 'LDAP',
     ServerEnum::MatchServer  => 'Match',
     ServerEnum::Oauth2Server => 'OAuth2',
     ServerEnum::SqlServer    => 'SQL'

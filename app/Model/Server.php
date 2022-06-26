@@ -38,7 +38,8 @@ class Server extends AppModel {
   public $hasOne = array(
     "HttpServer" => array('dependent' => true),
     "KafkaServer" => array('dependent' => true),
-    "LdapServer" => array('dependent' => true),
+// CO-1320
+//    "LdapServer" => array('dependent' => true),
     "MatchServer" => array('dependent' => true),
     "Oauth2Server" => array('dependent' => true),
     "SqlServer" => array('dependent' => true)
@@ -71,7 +72,8 @@ class Server extends AppModel {
     'server_type' => array(
       'rule' => array('inList', array(ServerEnum::HttpServer,
                                       ServerEnum::KafkaServer,
-                                      ServerEnum::LdapServer,
+// CO-1320
+//                                      ServerEnum::LdapServer,
                                       ServerEnum::MatchServer,
                                       ServerEnum::Oauth2Server,
                                       ServerEnum::SqlServer)),
@@ -90,7 +92,8 @@ class Server extends AppModel {
   public $serverTypeModels = array(
     ServerEnum::HttpServer   => 'HttpServer',
     ServerEnum::KafkaServer  => 'KafkaServer',
-    ServerEnum::LdapServer   => 'LdapServer',
+// CO-1320
+//    ServerEnum::LdapServer   => 'LdapServer',
     ServerEnum::MatchServer  => 'MatchServer',
     ServerEnum::Oauth2Server => 'Oauth2Server',
     ServerEnum::SqlServer    => 'SqlServer'
