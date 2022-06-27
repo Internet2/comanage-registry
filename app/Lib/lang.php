@@ -2194,6 +2194,7 @@ The request may be viewed at
   'op.grm.my.groups' => 'My Groups',
   'op.grm.my.groupmems' => 'My Group Memberships',
   'op.grm.my.memberships' => 'My Memberships',
+  'op.grm.join' =>  'Groups I Can Join',
   'op.grm.regular' =>  'Regular Groups',
   'op.grm.select' =>    'Select Members of %1$s Group %2$s',
   'op.grm.system' =>  'System Groups',
