@@ -504,24 +504,46 @@ class CoInvitesController extends AppController {
         
         $enrollmentFlow = $this->CoInvite->CoPetition->CoEnrollmentFlow->find('first', $args);
         
-        // Record the view to the petition history as well
-        $this->CoInvite->CoPetition->CoPetitionHistoryRecord->record($invite['CoPetition']['id'],
-                                                                     $invitee['CoPerson']['id'],
-                                                                     PetitionActionEnum::InviteViewed);
+        // Further complicating this code, as of v4.1.0 if the Enrollment Flow has
+        // regenerate_expired_verification set to true, and the invite has
+        // expired, we need to generate a new invitation here. (Normally, the
+        // validation of the invitation will check for the expiration.)
         
-        // Before we do anything else, check the verification mode. If it's Automatic,
-        // we simply redirect into confirm or authconfirm as appropriate. Otherwise,
-        // we want to render the confirmation page. (If the mode is now None, ie: the
-        // admin changed the mode for this enrollment flow, we could probably act like
-        // Automatic mode, but for now we'll leave it as Review.)
-        
-        if(isset($enrollmentFlow['CoEnrollmentFlow']['email_verification_mode'])
-           && $enrollmentFlow['CoEnrollmentFlow']['email_verification_mode'] == VerificationModeEnum::Automatic) {
-          $this->redirect(array(
-            'controller' => 'co_invites',
-            'action'     => $enrollmentFlow['CoEnrollmentFlow']['require_authn'] ? 'authconfirm' : 'confirm',
-            $inviteid
-          ));
+        if($enrollmentFlow['CoEnrollmentFlow']['regenerate_expired_verification']
+           && (time() > strtotime($invite['CoInvite']['expires']))) {
+          // Add a note to the petition history as well
+          $this->CoInvite->CoPetition->CoPetitionHistoryRecord->record($invite['CoPetition']['id'],
+                                                                       $invitee['CoPerson']['id'],
+                                                                       PetitionActionEnum::InviteViewed,
+                                                                       _txt('er.pt.conf.exp'));
+          
+          // This will expire the current invitation
+          $this->CoInvite->CoPetition->sendConfirmation($invite['CoPetition']['id'], $this->Session->read('Auth.User.co_person_id'));
+          
+          // Let the view render, but with a note
+          $this->set('vv_confirmation_expired', true);
+        } else {
+          // Record the view to the petition history as well
+          $this->CoInvite->CoPetition->CoPetitionHistoryRecord->record($invite['CoPetition']['id'],
+                                                                       $invitee['CoPerson']['id'],
+                                                                       PetitionActionEnum::InviteViewed);
+          
+          // Next, check the verification mode. If it's Automatic, we simply redirect
+          // into confirm or authconfirm as appropriate. Otherwise, we want to render
+          // the confirmation page. (If the mode is now None, ie: the admin changed
+          // the mode for this enrollment flow, we could probably act like Automatic
+          // mode, but for now we'll leave it as Review.)
+          
+          if(isset($enrollmentFlow['CoEnrollmentFlow']['email_verification_mode'])
+             && $enrollmentFlow['CoEnrollmentFlow']['email_verification_mode'] == VerificationModeEnum::Automatic) {
+            $this->redirect(array(
+              'controller' => 'co_invites',
+              'action'     => $enrollmentFlow['CoEnrollmentFlow']['require_authn'] ? 'authconfirm' : 'confirm',
+              $inviteid
+            ));
+          }
+          
+          $this->set('vv_confirmation_expired', false);
         }
         
         // Not in Automatic mode, so prep for the view to render

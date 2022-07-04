@@ -25,6 +25,12 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 ?>
+<?php if(isset($vv_confirmation_expired) && $vv_confirmation_expired): ?>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <?php print _txt('in.inv.exp.resent'); ?>
+</div>
+<?php else: /* $vv_confirmation_expired */ ?>
 <?php if(!empty($invite)): ?>
 <?php
   $params = array('title' => $title_for_layout);
@@ -47,7 +53,9 @@
     print "<p>" . _txt('em.invite.body', array($invitee['Co']['name'])) . "</p>";
   }
   
-  include "buttons.inc";
+  if(!isset($vv_confirmation_expired) || !$vv_confirmation_expired) {
+    include "buttons.inc";
+  }
 ?>
 </div>
 
@@ -58,4 +66,5 @@
     include ("petition-attributes.inc");
   }
 ?>
-<?php endif;
+<?php endif; // empty($invite) ?>
+<?php endif; // vv_confirmation_expired ?>

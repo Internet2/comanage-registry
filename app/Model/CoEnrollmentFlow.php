@@ -212,6 +212,9 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'regenerate_expired_verification' => array(
+      'rule' => array('boolean')
+    ),
     'require_authn' => array(
       'rule' => array('boolean'),
       'required' => false,

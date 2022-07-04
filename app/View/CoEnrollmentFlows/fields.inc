@@ -556,6 +556,20 @@
       </li>
       <li>
         <div class="field-name">
+          <div class="field-title">
+            <?php print ($e ? $this->Form->label('regenerate_expired_verification', _txt('fd.ef.inv.regen')) :_txt('fd.ef.inv.regen')); ?>
+          </div>
+          <div class="field-desc"><?php print _txt('fd.ef.inv.regen.desc'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php print ($e
+            ? $this->Form->input('regenerate_expired_verification') . ' ' .
+            $this->Form->label('regenerate_expired_verification', _txt('fd.ef.inv.regen'))
+            : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['regenerate_expired_verification'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </div>
+      </li>
+      <li>
+        <div class="field-name">
           <div class="field-title"><?php print _txt('fd.ef.vmt'); ?></div>
           <div class="field-desc"><?php print _txt('fd.ef.vmt.desc'); ?></div>
         </div>

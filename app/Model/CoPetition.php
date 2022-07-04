@@ -2815,7 +2815,9 @@ class CoPetition extends AppModel {
     // Should we proceed with Email Confirmation or not?
     if(!$toEmail) {
       throw new RuntimeException(_txt('er.pt.mail',
-        array(generateCn($pt['EnrolleeCoPerson']['PrimaryName']))));
+        array(!empty($pt['EnrolleeCoPerson']['PrimaryName']) 
+              ? generateCn($pt['EnrolleeCoPerson']['PrimaryName'])
+              : _txt('fd.enrollee.new'))));
     }
 
     // Pull the message components from the template (as of v2.0.0) or configuration

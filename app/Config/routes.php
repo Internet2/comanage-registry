@@ -108,7 +108,9 @@ Router::connect(
   array(
     'named' => array(
       'co' => '[0-9]+',
-      'mode' => '[' . implode("|", $modes) . ']{1}'
+      'mode' => '[' . implode("|", $modes) . ']{1}',
+			'petitionid' => '[0-9]+',
+			'token' => '[a-z0-9]+'
     )
   )
 );
