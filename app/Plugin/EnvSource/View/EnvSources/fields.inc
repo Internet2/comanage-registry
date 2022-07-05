@@ -65,7 +65,6 @@
       <div class="field-title">
         <?php print _txt('pl.envsource.mode.dupe'); ?>
         <span class="required">*</span><br />
-        <span class="descr"><?php print _txt('pl.apisource.sor.desc'); ?></span>
       </div>
     </div>
     <div class="field-info">

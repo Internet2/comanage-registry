@@ -2237,6 +2237,7 @@
     </index>
     <index name="co_petitions_i10">
       <col>vetting_request_id</col>
+    </index>
   </table>
   
   <table name="co_petition_attributes">
