@@ -230,7 +230,10 @@
                     $attrs['value'] = (isset($co_person_roles[0]['CoPersonRole']['cou_id'])
                       ? $co_person_roles[0]['CoPersonRole']['cou_id']
                       : 0);
-                    $attrs['empty'] = $vv_allow_empty_cou;
+                    $attrs['empty'] = '';
+                    if(!$vv_allow_empty_cou) {
+                      $attrs['required'] = 'required';
+                    }
                     $attrs['autofocus'] = true;
 
                     if($e && !$es) {

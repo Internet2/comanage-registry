@@ -167,7 +167,13 @@ class Co extends AppModel {
   public function readOnly($id) {
     // A CO is read only if the status field is 'TR'.
 
-    return (bool)$this->inTrash($id);
+    // Refer to CO-2385
+    try{
+      return (bool)$this->inTrash($id);
+    } catch (InvalidArgumentException $e) {
+      return false;
+    }
+
   }
 
   /**

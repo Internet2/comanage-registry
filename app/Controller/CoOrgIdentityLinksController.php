@@ -278,6 +278,15 @@ class CoOrgIdentityLinksController extends StandardController {
                             'action' => 'canvas',
                             $this->request->data['CoOrgIdentityLink']['co_person_id']));
     } else {
+      if(isset($this->CoOrgIdentityLink->id)
+         && $this->CoOrgIdentityLink->field('deleted')) {
+        // We just unlinked the OrgIdentity from the CO Person. Get us back canvas
+        $this->redirect(array('controller' => 'co_people',
+                          'action' => 'canvas',
+                          $this->CoOrgIdentityLink->field('co_person_id')));
+      }
+
+      // Fallback. If all the rest fail, redirect to MyPopulation
       $this->redirect(array('controller' => 'co_people',
                             'action' => 'index',
                             'co' => filter_var($this->cur_co['Co']['id'],FILTER_SANITIZE_SPECIAL_CHARS)));

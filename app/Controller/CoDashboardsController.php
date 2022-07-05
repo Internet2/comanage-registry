@@ -442,7 +442,8 @@ class CoDashboardsController extends StandardController {
     
     foreach(array_keys($models) as $m) {
       foreach($models[$m]['parent'] as $p) {
-        if($p == 'Co') {
+        if($p == 'Co'
+           && isset($results[$m])) {
           $c[$p] += count($results[$m]);
         } elseif($p == 'CoGroup') {
           $c['CoGroup'] = array_filter(array_unique(array_merge($c['CoGroup'], Hash::extract($results, $m.'.{n}.'.$m.'.co_group_id'))));

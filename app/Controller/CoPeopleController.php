@@ -1239,25 +1239,26 @@ class CoPeopleController extends StandardController {
     
     // Filter by COU
     if(!empty($this->request->params['named']['search.cou'])) {
-      // If a CO Person has more than one role, this search will cause them go show up once
-      // per role in the results (select co_people.id,co_person_roles.id where co_person_role.cou_id=#
-      // will generate one row per co_person_role_id). In order to fix this, we can use
-      // aggregate functions and grouping, like this:
-      //      $pagcond['fields'] = array('CoPerson.id',
-      //                                 'MIN(CoPersonRole.id)');
-      //      $pagcond['group'] = array('CoPerson.id', 'Co.id', 'PrimaryName.family', 'PrimaryName.given');
-      // This produces the correct results, however Cake then goes into an infinite loop
-      // For that reason we will use DISTINCT instead.
-
-      // CO-1091, we need at least the following fields for the View to render properly
-      $this->paginate['fields'] = array( "DISTINCT CoPerson.id","PrimaryName.given","PrimaryName.family","CoPerson.status");
-
       $pagcond['joins'][$jcnt]['table'] = 'co_person_roles';
       $pagcond['joins'][$jcnt]['alias'] = 'CoPersonRole';
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
       $pagcond['joins'][$jcnt]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
       $pagcond['conditions']['CoPersonRole.cou_id'] = $this->request->params['named']['search.cou'];
     }
+
+    // If a CO Person has more than one roles or more than one partial matches that are identical,
+    // this search will cause them go show up once
+    // per match in the results (select co_people.id,co_person_roles.id where co_person_role.cou_id=#
+    // will generate one row per co_person_role_id). In order to fix this, we can use
+    // aggregate functions and grouping, like this:
+    //      $pagcond['fields'] = array('CoPerson.id',
+    //                                 'MIN(CoPersonRole.id)');
+    //      $pagcond['group'] = array('CoPerson.id', 'Co.id', 'PrimaryName.family', 'PrimaryName.given');
+    // This produces the correct results, however Cake then goes into an infinite loop
+    // For that reason we will use DISTINCT instead.
+
+    // CO-1091, CO-2371, we need at least the following fields for the View to render properly
+    $this->paginate['fields'] = $this->CoPerson->getPaginateFields();
     
     // We need to manually add this in for some reason. (It should have been
     // added automatically by Cake based on the CoPerson Model definition of

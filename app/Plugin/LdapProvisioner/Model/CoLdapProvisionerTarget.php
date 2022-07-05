@@ -1825,7 +1825,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       // Delete any previous entry. For now, ignore any error, unless we don't
       // have an olddn and newdnerr is set.
       
-      if(!$dns['olddn'] && $dns['newdnserr']) {
+      if(!$dns['olddn'] && $dns['newdnerr']) {
         throw new RuntimeException(_txt('er.ldapprovisioner.dn.none',
                                         array($person ? _txt('ct.co_people.1') : _txt('ct.co_groups.1'),
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],

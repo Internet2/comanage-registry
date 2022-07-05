@@ -361,14 +361,13 @@
       <div class="field-desc"><?php print _txt('fd.ia.format.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('format') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e ? $this->Form->input('format',array('default'=>'(#)')) : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['format'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
       <?php if($e): ?>
         <label for="CoIdentifierAssignmentPrefabricatedFormats"><?php print  _txt('fd.ia.format.pattern') . ': '; ?></label>
         <select
           id="CoIdentifierAssignmentPrefabricatedFormats"
           onchange="javascript:document.getElementById('CoIdentifierAssignmentFormat').value=this.value">
-          <option value=""><?php print _txt('fd.ia.format.prefab'); ?></option>
-          <option value=""><?php print _txt('fd.ia.format.p0'); ?></option>
+          <option value="(#)"><?php print _txt('fd.ia.format.p0'); ?></option>
           <option value="(g).(f)[1:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p1'); ?></option>
           <option value="(g)[1:.(m:1)].(f)[2:.(#)]@myvo.org"><?php print _txt('fd.ia.format.p2'); ?></option>
           <option value="(g:1)(m:1)(f:1)(#)@myvo.org"><?php print _txt('fd.ia.format.p3'); ?></option>

@@ -457,10 +457,6 @@ form#notificationStatus {
   float: left;
   margin: 0.3em 0.3em 0 0;
 }
-.co-alert { /* alert icon */
-  float:left;
-  margin:0 7px 20px 0;
-}
 .co-info-topbox {
   clear: both;
   padding: 1em;

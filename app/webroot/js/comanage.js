@@ -411,6 +411,26 @@ function validate_date_input(flashmsg, errormsg) {
   });
 }
 
+// Identify if the lightbox rendered using `open in new tab` action
+// redirect_url   - where to redirect if standalone render is detected (string, required)
+function whereami(redirect_url) {
+  // Hide lightbox Content
+  document.getElementById('lightboxContent').style.display = 'none';
+
+  let is_lightbox = document.getElementsByClassName("light-box").length;
+  let is_logged_in = document.getElementsByClassName("logged-in").length;
+
+  if(is_lightbox > 0 && is_logged_in == 0) {
+    // Add a spinner into the body
+    document.body.innerHTML = '<div id="co-loading"><span></span><span></span><span></span></div>';
+    // reload my parent
+    window.location.assign(redirect_url);
+  } else {
+    // Show the content
+    document.getElementById('lightboxContent').style.display = 'block';
+  }
+}
+
 // CO-2263, Format CO Person autocomplete widget items for easier disambiguation
 // Depends on jQuery UI - this function is fed to the _renderItem extension point for the autocomplete widget
 // ul            - list for the jQuery UI autocomplete selection menu                  (DOM element)

@@ -170,6 +170,8 @@ class PrivacyIdea extends AppModel {
     
     $params = array(
       'type' => 'totp',
+      'user' => $identifier,
+      'realm' => $privacyIdeaAuthenticator['realm'],
       'genkey' => '1',
       'optlen' => '6'
     );
@@ -180,20 +182,6 @@ class PrivacyIdea extends AppModel {
     
     if(!$jresponse->result->status) {
       throw new RuntimeException($jresponse->result->error->message);
-    }
-    
-    $params = array(
-      'serial' => $jresponse->detail->serial,
-      'user' => $identifier,
-      'realm' => $privacyIdeaAuthenticator['realm']
-    );
-    
-    $response = $Http->post("/token/assign", $params, $this->requestCfg);
-    
-    $j2response = json_decode($response);
-    
-    if(!$j2response->result->status) {
-      throw new RuntimeException($j2response->result->error->message);
     }
     
     $token = array(
