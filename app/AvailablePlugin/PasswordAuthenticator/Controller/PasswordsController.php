@@ -83,6 +83,16 @@ class PasswordsController extends SAMController {
       if(($passwordSource == PasswordAuthPasswordSourceEnum::SelfSelect) && $ssrenabled) {
         $this->Auth->allow();
       }
+    } elseif($this->action == 'remind'
+       && !empty($this->request->params['named']['authenticatorid'])) {
+      // Is Username Reminder enabled for this authenticator? If so, allow
+      // access without authentication.
+
+      $reminderenabled = false;
+      $reminderenabled = $this->Password->PasswordAuthenticator->field('enable_username_reminder', array('PasswordAuthenticator.authenticator_id' => $this->request->params['named']['authenticatorid']));
+      if($reminderenabled) {
+        $this->Auth->allow();
+      }
     }
   }
   
@@ -221,7 +231,7 @@ class PasswordsController extends SAMController {
             
             // We render success but let the form render again anyway, in case the
             // user wants to try again.
-            $this->Flash->set(_txt('pl.passwordauthenticator.ssr.sent'), array('key' => 'success'));
+            $this->Flash->set(_txt('pl.passwordauthenticator.ssrorreminder.sent'), array('key' => 'success'));
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -291,6 +301,37 @@ class PasswordsController extends SAMController {
     // requester to enter an identifier or email address of some form.
   }
   
+
+  /**
+   * Remind User of Username.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function remind() {
+    if($this->request->is('post')) {
+      if(!empty($this->request->params['named']['authenticatorid'])) {
+        $authenticatorId = $this->request->params['named']['authenticatorid'];
+
+        if(!empty($this->request->data['Remind']['q'])) {
+          // We're back from the search form, try to generate a username reminder
+
+          try {
+            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Remind']['q']);
+
+            // We render success but let the form render again anyway, in case the
+            // user wants to try again.
+            $this->Flash->set(_txt('pl.passwordauthenticator.ssrorreminder.sent'), array('key' => 'success'));
+          }
+          catch(Exception $e) {
+            $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          }
+        }
+      }
+    }
+  }
+
+
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions

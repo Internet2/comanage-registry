@@ -78,12 +78,23 @@
       $("#PasswordAuthenticatorSsrValidity").closest("li").hide('fade');
       $("#PasswordAuthenticatorCoMessageTemplateId").closest("li").hide('fade');;
     }
+
+    var remind = document.getElementById('PasswordAuthenticatorEnableUsernameReminder').checked;
+
+    if(remind) {
+      $("#username-reminder-url").show('fade');
+      $("#PasswordAuthenticatorCoUsernameReminderMessageTemplateId").closest("li").show('fade');
+    } else {
+      $("#username-reminder-url").hide('fade');
+      $("#PasswordAuthenticatorCoUsernameReminderMessageTemplateId").closest("li").hide('fade');
+    }
   }
   
   function js_local_onload() {
     fields_update_gadgets();
   }
 </script>
+
 <ul id="<?php print $this->action; ?>_password_authenticator" class="fields form-list form-list-admin">
   <li>
     <div class="field-name">
@@ -196,7 +207,7 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print _txt('ct.co_message_templates.1'); ?>
+        <?php print _txt('pl.passwordauthenticator.ssr.mt'); ?>
         <span class="required">*</span>
       </div>
       <div class="field-desc"><?php print _txt('pl.passwordauthenticator.ssr.mt.desc'); ?></div>
@@ -233,6 +244,56 @@
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('redirect_on_success_ssr') : filter_var($password_authenticators[0]['PasswordAuthenticator']['redirect_on_success_ssr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.usernamereminder'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.usernamereminder.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if($e) print $this->Form->input('enable_username_reminder', array('onChange' => 'fields_update_gadgets()')); ?>
+    </div>
+  </li>
+  <li id="username-reminder-url">
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.passwordauthenticator.usernamereminder.url'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php if(!empty($vv_username_reminder_url)) print $this->Html->link($vv_username_reminder_url, $vv_username_reminder_url); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.passwordauthenticator.usernamereminder.mt'); ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.passwordauthenticator.usernamereminder.mt.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+        $rattrs = array();
+        $rattrs['value'] = (!empty($password_authenticators[0]['PasswordAuthenticator']['co_username_reminder_message_template_id'])
+                          ? $password_authenticators[0]['PasswordAuthenticator']['co_username_reminder_message_template_id']
+                          : null);
+        // This should be true, but since we don't validate based on multiple
+        // fields yet (required only if Username Reminder is enabled) this will prevent an
+        // empty value
+        $rattrs['empty'] = false;
+
+        if($e) {
+          print $this->Form->select('co_username_reminder_message_template_id',
+            (!empty($vv_message_templates[MessageTemplateEnum::Authenticator])
+                    ? $vv_message_templates[MessageTemplateEnum::Authenticator]
+                    : array()),
+            $rattrs);
+
+          if($this->Form->isFieldError('co_username_reminder_message_template_id')) {
+            print $this->Form->error('co_username_reminder_message_template_id');
+          }
+        }
+      ?>
     </div>
   </li>
   <?php if($e): ?>
