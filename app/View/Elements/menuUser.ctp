@@ -247,10 +247,11 @@
                       $args = $menuContent['plugins'][$plugin]['coperson'][$label];
   
                       // Always include the co_person_id and the co_id
-                      $args[] = 'copersonid:' . $co['co_person_id'];
-                      $args[] = 'co:' . $co['co_id'];
+                      $args['copersonid'] = $co['co_person_id'];
+                      $args['co'] = $co['co_id'];
                       
                       // Generate the plugin path if $args['plugin'] hasn't been passed 
+                      // (it can be passed as empty '' to allow for non-plugin URLs).
                       if(!isset($args['plugin'])) {
                         $args['plugin'] = Inflector::underscore($plugin);  
                       }
