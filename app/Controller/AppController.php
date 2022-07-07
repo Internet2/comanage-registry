@@ -252,18 +252,20 @@ class AppController extends Controller {
       
       try {
         $coid = $this->parseCOID($this->Api->getData());
-        
-        if($coid != -1) {
-          $this->loadModel('Co');
-          
-          $args = array();
-          $args['conditions']['Co.id'] = $coid;
-          $args['contain'] = false;
-          
-          $this->cur_co = $this->Co->find('first', $args);
+        $roles = $this->Role->calculateCMRoles();
+        if($this->requires_co
+           && $coid === -1
+           && !$roles['cmadmin']) {
+          throw new InvalidArgumentException(_txt('er.co.specify'), HttpStatusCodesEnum::HTTP_UNAUTHORIZED);
         }
-      }
-      catch(RuntimeException $e) {
+        $this->loadModel('Co');
+
+        $args = array();
+        $args['conditions']['Co.id'] = $coid;
+        $args['contain'] = false;
+
+        $this->cur_co = $this->Co->find('first', $args);
+      } catch(RuntimeException $e) {
         // This is probably $id not found... strictly speaking we should somehow
         // check authorization before returning id not found, but we can't really
         // authorize a request for an invalid id.
