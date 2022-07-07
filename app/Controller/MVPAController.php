@@ -387,7 +387,7 @@ class MVPAController extends StandardController {
                                                       $actorCoPersonId,
                                                       ActionEnum::CoPersonEditedManual,
                                                       $cstr,
-                                                      null, null,
+                                                      null, null, null,
                                                       $actorApiUserId);
         } elseif(!empty($olddata[$req]['co_person_id'])) {
           $model->CoPerson->HistoryRecord->record($olddata[$req]['co_person_id'],
@@ -396,7 +396,7 @@ class MVPAController extends StandardController {
                                                   $actorCoPersonId,
                                                   ActionEnum::CoPersonEditedManual,
                                                   $cstr,
-                                                  null, null,
+                                                  null, null, null,
                                                   $actorApiUserId);
         }
         break;
