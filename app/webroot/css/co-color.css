@@ -1,8 +1,8 @@
 :root {
   --cmg-color-blue-primary: #0c75c0;
   --cmg-color-infobox-yellow: #fbec88;
-  --cmg-color-warn-yellow: #fcc;
-  --cmg-color-warn-red: #f5f5bb;
+  --cmg-color-warn-yellow: #f5f5bb;
+  --cmg-color-warn-red: #fcc;
   --cmg-color-gray-secondary: #555;
   --cmg-color-gray-disabled: #666;
   --cmg-color-gray-border: #ccc;
@@ -10,7 +10,7 @@
   --cmg-color-black-001: #000;
   --cmg-color-black-002: #222;
 
-  --cmg-color-lightgray-001: #fafafa; /* background color */
+  --cmg-color-lightgray-001: #fafafa; /* background color, drawer */
   --cmg-color-lightgray-002: #f8f8f8; /* background color */
   --cmg-color-lightgray-003: #f5f5f5; /* background color */
   --cmg-color-lightgray-004: #f2f2f2; /* background color */
@@ -20,4 +20,6 @@
   --cmg-color-lightgray-008: #bbb;    /* border color */
   --cmg-color-lightgray-009: #ededed; /* data-list background color */
   --cmg-color-lightgray-010: #e8e8e8; /* co-grid background color */
+
+  --cmg-color-green-003: #dfd;       /* matching fields for reconciliation */
 }
