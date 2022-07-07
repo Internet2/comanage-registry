@@ -86,7 +86,7 @@ class GarbageCollectorJob extends CoJobBackend {
 
       // Send notification
       $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $params['object_type'] ]['name']));
-      $this->notify($coId, $CoJob, $params, $done_job_id, $comment);
+      $this->notify($coId, $CoJob, $params, $CoJob->id, $comment);
     }
   }
 
