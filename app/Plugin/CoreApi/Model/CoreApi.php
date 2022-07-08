@@ -50,7 +50,9 @@ class CoreApi extends AppModel {
     'limit' => array('integer' => array('range' => array(1, 1000))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
-    'co_person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/')))
+    'co_person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+    // XXX For consistency, even if we do not have a custom rule the string has to be followed by an empty array
+    'identifier' => array('string' => array()),
   );
 
   // Document foreign keys
@@ -1498,13 +1500,16 @@ class CoreApi extends AppModel {
         unset($queryParams[$param]);
         continue;
       }
-      // Parameter validation rule
-      $param_validation_rule = key($validation_rule[$param_type]);
-      // Parameter validation rule options
-      $param_validation_options = $validation_rule[$param_type][$param_validation_rule];
-       if (!Validation::$param_validation_rule($queryParams[$param], ...$param_validation_options)) {
-         unset($queryParams[$param]);
-       }
+      // We have no custom validation rule for this query param
+      if(!is_null(key($validation_rule[$param_type]))) {
+        // Parameter validation rule
+        $param_validation_rule = key($validation_rule[$param_type]);
+        // Parameter validation rule options
+        $param_validation_options = $validation_rule[$param_type][$param_validation_rule];
+        if (!Validation::$param_validation_rule($queryParams[$param], ...$param_validation_options)) {
+          unset($queryParams[$param]);
+        }
+      }
     }
     return $queryParams;
   }
