@@ -838,7 +838,8 @@ The request may be viewed at
                                PermittedNameFieldsEnum::HGFS  => 'Honorific, Given, Family, Suffix',
                                PermittedNameFieldsEnum::HGMFS => 'Honorific, Given, Middle, Family, Suffix'),
 
-  'en.people.picker.mode' => array(PeoplePickerModeEnum::Sponsor   => 'Sponsor',
+  'en.people.picker.mode' => array(PeoplePickerModeEnum::Manager   => 'Manager',
+                                   PeoplePickerModeEnum::Sponsor   => 'Sponsor',
                                    PeoplePickerModeEnum::All       => 'All'),
 
   'en.required' =>    array(RequiredEnum::Required => 'Required',
