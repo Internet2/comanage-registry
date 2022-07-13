@@ -59,7 +59,7 @@
   <li>
     <div class="field-name vtop">
       <div class="field-title">
-        <?php print _txt('pl.passwordauthenticator.ssrorreminder.q'); ?>
+        <?php print _txt('pl.passwordauthenticator.ssr.q'); ?>
       </div>
     </div>
     <div class="field-info">

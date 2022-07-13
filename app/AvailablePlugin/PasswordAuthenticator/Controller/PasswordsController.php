@@ -88,9 +88,9 @@ class PasswordsController extends SAMController {
       // Is Username Reminder enabled for this authenticator? If so, allow
       // access without authentication.
 
-      $reminderenabled = false;
-      $reminderenabled = $this->Password->PasswordAuthenticator->field('enable_username_reminder', array('PasswordAuthenticator.authenticator_id' => $this->request->params['named']['authenticatorid']));
-      if($reminderenabled) {
+      $reminderMT = null;
+      $reminderMT = $this->Password->PasswordAuthenticator->field('username_reminder_message_template_id', array('PasswordAuthenticator.authenticator_id' => $this->request->params['named']['authenticatorid']));
+      if($reminderMT) {
         $this->Auth->allow();
       }
     }
@@ -227,11 +227,11 @@ class PasswordsController extends SAMController {
           // We're back from the search form, try to generate a reset request
           
           try {
-            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Password']['q']);
+            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Password']['q'], 'reset');
             
             // We render success but let the form render again anyway, in case the
             // user wants to try again.
-            $this->Flash->set(_txt('pl.passwordauthenticator.ssrorreminder.sent'), array('key' => 'success'));
+            $this->Flash->set(_txt('pl.passwordauthenticator.ssr.sent'), array('key' => 'success'));
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));
@@ -317,11 +317,11 @@ class PasswordsController extends SAMController {
           // We're back from the search form, try to generate a username reminder
 
           try {
-            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Remind']['q']);
+            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Remind']['q'], 'remind');
 
             // We render success but let the form render again anyway, in case the
             // user wants to try again.
-            $this->Flash->set(_txt('pl.passwordauthenticator.ssrorreminder.sent'), array('key' => 'success'));
+            $this->Flash->set(_txt('pl.passwordauthenticator.ssr.sent'), array('key' => 'success'));
           }
           catch(Exception $e) {
             $this->Flash->set($e->getMessage(), array('key' => 'error'));

@@ -122,11 +122,12 @@ class PasswordResetToken extends AppModel {
    * @since  COmanage Registry v4.0.0
    * @param  int    $authenticatorId Authenticator ID
    * @param  string $q               Search query (email or identifier)
+   * @param  string $mode	     'reset' for ssr or 'remind' for username reminder
    * @return bool                    True on success
    * @throws InvalidArgumentException
    */
   
-  public function generateRequest($authenticatorId, $q) {
+  public function generateRequest($authenticatorId, $q, $mode='reset') {
     // First, search for a CO Person record that matches $q. Note that both
     // EmailAddress and Identifier implement exact searching only, so we don't
     // need to handle that specially here. We do need to know the CO to search
@@ -159,14 +160,14 @@ class PasswordResetToken extends AppModel {
             $coPersonId = $m['CoPerson']['id'];
           } elseif($coPersonId != $m['CoPerson']['id']) {
             // We found at least two different CO People, so throw an error
-            throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssrorreminder.multiple', $q));
+            throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssr.multiple', $q));
           }
         }
       }
     }
     
     if(!$coPersonId) {
-      throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssrorreminder.notfound', array($q)));
+      throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssr.notfound', array($q)));
     }
     
     // Take the CO Person and look for associated verified email addresses.
@@ -191,7 +192,7 @@ class PasswordResetToken extends AppModel {
     }
     
     if(empty($verifiedEmails)) {
-      throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssrorreminder.notfound', array($q)));
+      throw new InvalidArgumentException(_txt('er.passwordauthenticator.ssr.notfound', array($q)));
     }
     
     // Map the Authenticator ID to a Password Authenticator ID
@@ -205,18 +206,15 @@ class PasswordResetToken extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.authenticators.1'), $authenticatorId)));
     }
     
-    // Get the name of the calling function to determine whether we're sending Reset Token Request or Username Reminder
-    $trace = debug_backtrace();
-    $caller = $trace[1];
-    
-    //Finally, send the message
-    if($caller['function'] == "ssr") {
+    // Use $mode to determine whether we're sending Reset Token Request or Username Reminder
+    // and send the message
+    if( $mode == 'reset') {
       //  generate a token in order to send it
       $token = $this->generate($passwordAuthenticator['PasswordAuthenticator']['id'], $coPersonId);
     
       $this->sendRequest($passwordAuthenticator, $coPerson, $token, $verifiedEmails, $coPersonId);
-    } elseif($caller['function'] == "remind") {
-      $this->send($passwordAuthenticator, $coPerson, $verifiedEmails, $coPersonId, null);
+    } elseif( $mode == 'remind') {
+      $this->send($passwordAuthenticator, $coPerson, $verifiedEmails, $coPersonId, null, 'remind');
     }
     return true;
   }
@@ -251,7 +249,7 @@ class PasswordResetToken extends AppModel {
       'LINK_EXPIRY'       => $expiry
     );
 
-    $this->send($passwordAuthenticator, $coPerson, $recipients, $actorCoPersonId, $substitutions);
+    $this->send($passwordAuthenticator, $coPerson, $recipients, $actorCoPersonId, $substitutions, 'reset');
 
     // Also store the recipient list in the token
     $this->clear();
@@ -270,15 +268,19 @@ class PasswordResetToken extends AppModel {
    * @param  array                 $recipients            Array of email addresses to send token to
    * @param  int                   $actorCoPersonId       Actor CO Person ID
    * @param  array		   $substitutions	  substitutions for the message template
+   * @param  string		   $mode		  'reset' for ssr or 'remind' for username reminder
    * @throws InvalidArgumentException
    */
-  protected function send($passwordAuthenticator, $coPerson, $recipients, $actorCoPersonId, $substitutions=null) {
+  protected function send($passwordAuthenticator, $coPerson, $recipients, $actorCoPersonId, $substitutions=null, $mode='reset') {
 
-    // If $substitutions are null, this is a username reminder. Set the message template type and text for history record, to be used later, appropriately based on this
-    if ($substitutions == null) {
-      $mtType = 'co_username_reminder_message_template_id';
+    // Use the value of $mode to set the message template type and text for history record
+    $mtType = null;
+    $historyText = null;
+
+    if ($mode == 'remind') {
+      $mtType = 'username_reminder_message_template_id';
       $historyText = 'pl.passwordauthenticator.usernamereminder.hr.sent';
-    } else {
+    } elseif($mode == 'reset') {
       $mtType = 'co_message_template_id';
       $historyText = 'pl.passwordauthenticator.ssr.hr.sent';
     }

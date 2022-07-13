@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v4.1.0
@@ -27,7 +27,7 @@
 
   $params = array('title' => _txt('pl.passwordauthenticator.token.usernamereminder'));
   print $this->element("pageTitle", $params);
-  
+
   $options = array(
     'type' => 'post',
     'url' => array(
@@ -36,15 +36,15 @@
       'action'          => 'remind'
     )
   );
-  
+
   if(!empty($this->request->params['named']['authenticatorid'])
      && empty($vv_token)) {
     // Initial "enter an email or identifier" form
     $options['url']['authenticatorid'] = $this->request->params['named']['authenticatorid'];
   }
-  
+
   print $this->Form->create('Remind', $options);
-  
+
   if(!empty($vv_token)) {
     print $this->Form->hidden('token', array('default' => $vv_token)) . "\n";
   }
@@ -59,7 +59,7 @@
   <li>
     <div class="field-name vtop">
       <div class="field-title">
-        <?php print _txt('pl.passwordauthenticator.ssrorreminder.q'); ?>
+        <?php print _txt('pl.passwordauthenticator.ssr.q'); ?>
       </div>
     </div>
     <div class="field-info">
