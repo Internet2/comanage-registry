@@ -53,6 +53,10 @@
   $params['title'] = $title_for_layout;
   
   print $this->element("pageTitleAndButtons", $params);
+  
+  // Some browsers will inject this, breaking the security field check.
+  // We don't need the field, we just need SecurityComponent to not choke on it.
+  $this->Form->unlockField('file.full_path');
 ?>
 
 <div class="table-container">
