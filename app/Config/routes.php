@@ -188,6 +188,17 @@ Router::connect(
   )
 );
 
+// Vetting Steps
+Router::connect(
+  '/vetting_steps/reorder/*',
+  array('controller' => 'vetting_steps', 'action' => 'reorder', '[method]' => 'POST'),
+  array(
+    'named' => array(
+      'co' => '[0-9]+'
+    )
+  )
+);
+
 Router::parseExtensions('json', 'xml');
 
 // ApplicationPreferences uses non-standard REST routes
