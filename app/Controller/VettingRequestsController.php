@@ -351,9 +351,7 @@ class VettingRequestsController extends StandardController {
     $vetterGroups = array();
     $vetterForRequest = false;
     
-    if(!empty($this->request->params['named']['copersonid']) && !empty($roles['copersonid'])) {
-      $vetterGroups = $this->Role->vetterForGroups($roles['copersonid']);
-    } elseif(!empty($this->request->params['pass'][0])) {
+    if(!empty($this->request->params['pass'][0])) {
       // Check the current step via the VettingRequest
       $args = array();
       $args['conditions']['VettingRequest.id'] = $this->request->params['pass'][0];
@@ -367,6 +365,10 @@ class VettingRequestsController extends StandardController {
         if(!empty($vettingRequest['VettingStep']['vetter_co_group_id'])) {
           $vetterForRequest = $this->VettingRequest->CoPerson->CoGroupMember->isMember($vettingRequest['VettingStep']['vetter_co_group_id'], $roles['copersonid']);
         }
+      }
+    } elseif($this->action == 'index' || $this->action == 'search') {
+      if(!empty($roles['copersonid'])) {
+        $vetterGroups = $this->Role->vetterForGroups($roles['copersonid']);
       }
     }
 
