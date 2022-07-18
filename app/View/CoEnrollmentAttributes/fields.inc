@@ -115,7 +115,7 @@
     var attrtype = curattr[0];
     
     if(attrtype == "r" || attrtype == "o" || attrtype == "x" || attrtype == "g") {
-      $("#attr_def_div").show("fade", { "direction" : "up" });
+      $("#attr_def_div").show("fade");
       
       // Adjust the gadgets shown
       
@@ -200,7 +200,7 @@
         $("#attr_def_val_div").show("fade");
       }
     } else {
-      $("#attr_def_div").hide("fade", { "direction" : "up" });
+      $("#attr_def_div").hide("fade");
     }
   }
   
