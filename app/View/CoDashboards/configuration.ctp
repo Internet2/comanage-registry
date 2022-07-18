@@ -220,6 +220,8 @@
   );
 ?>
 
+<?php print _txt('coordinate.version', array(chop(file_get_contents(CONFIG . "VERSION")))); ?>
+
 <section class="inner-content">
   <?php
     // Configuration Dashboard

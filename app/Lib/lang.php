@@ -40,7 +40,7 @@ $cm_texts['en_US'] = array(
 
   // Application name
   'coordinate'         => 'COmanage Registry',
-  'coordinate.version' => 'Version',
+  'coordinate.version' => 'COmanage Registry v%1$s',
 
   // What a CO is called (abbreviated)
   'co' =>             'CO',

@@ -45,7 +45,7 @@
     <!-- <?php
       // Include version number, but only if logged in
       if($this->Session->check('Auth.User')) {
-        print _txt('coordinate.version') . ' ' . chop(file_get_contents(APP . "Config/VERSION"));
+        print _txt('coordinate.version', array(chop(file_get_contents(CONFIG . "VERSION"))));
       }
     ?> -->
 
