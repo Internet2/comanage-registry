@@ -2091,10 +2091,10 @@ ul.form-list li.fields-submit {
   background-color: unset;
 }
 ul.form-list li.warn-level-a {
-  background-color: var(--cmg-color-warn-yellow);
+  background-color: var(--cmg-color-warn-red);
 }
 ul.form-list li.warn-level-b {
-  background-color: var(--cmg-color-warn-red);
+  background-color: var(--cmg-color-warn-yellow);
 }
 ul.form-list .field-name {
   display: block;
