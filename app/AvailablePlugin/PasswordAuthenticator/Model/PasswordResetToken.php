@@ -117,16 +117,17 @@ class PasswordResetToken extends AppModel {
   }
   
   /**
-   * Attempt to generate (and send) a Possword Reset Token request.
+   * Attempt to generate (and send) a Password Reset Token request or UserName Reminder
    *
    * @since  COmanage Registry v4.0.0
    * @param  int    $authenticatorId Authenticator ID
    * @param  string $q               Search query (email or identifier)
+   * @param  string $mode	     'reset' for ssr or 'remind' for username reminder
    * @return bool                    True on success
    * @throws InvalidArgumentException
    */
   
-  public function generateRequest($authenticatorId, $q) {
+  public function generateRequest($authenticatorId, $q, $mode='reset') {
     // First, search for a CO Person record that matches $q. Note that both
     // EmailAddress and Identifier implement exact searching only, so we don't
     // need to handle that specially here. We do need to know the CO to search
@@ -174,7 +175,7 @@ class PasswordResetToken extends AppModel {
     
     $args = array();
     $args['conditions']['CoPerson.id'] = $coPersonId;
-    $args['contain'] = array('EmailAddress');
+    $args['contain'] = array('EmailAddress', 'Identifier');
 
     $coPerson = $this->CoPerson->find('first', $args);
     
@@ -205,12 +206,16 @@ class PasswordResetToken extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.authenticators.1'), $authenticatorId)));
     }
     
-    // Next, generate a token in order to send it
-    $token = $this->generate($passwordAuthenticator['PasswordAuthenticator']['id'], $coPersonId);
+    // Use $mode to determine whether we're sending Reset Token Request or Username Reminder
+    // and send the message
+    if( $mode == 'reset') {
+      //  generate a token in order to send it
+      $token = $this->generate($passwordAuthenticator['PasswordAuthenticator']['id'], $coPersonId);
     
-    // Finally, send the message
-    $this->send($passwordAuthenticator, $coPersonId, $token, $verifiedEmails, $coPersonId);
-    
+      $this->sendRequest($passwordAuthenticator, $coPerson, $token, $verifiedEmails, $coPersonId);
+    } elseif( $mode == 'remind') {
+      $this->send($passwordAuthenticator, $coPerson, $verifiedEmails, $coPersonId, null, 'remind');
+    }
     return true;
   }
   
@@ -219,35 +224,19 @@ class PasswordResetToken extends AppModel {
    *
    * @since  COmanage Registry v4.0.0
    * @param  PasswordAuthenticator $passwordAuthenticator Password Authenticator configuration
-   * @param  int                   $coPersonId            CO Person ID
+   * @param  array                 $coPerson              CO Person with associated email addresses and identifiers
    * @param  string                $token                 Password Reset Token
    * @param  array                 $recipients            Array of email addresses to send token to
    * @param  int                   $actorCoPersonId       Actor CO Person ID
    * @throws InvalidArgumentException
    */
   
-  protected function send($passwordAuthenticator, $coPersonId, $token, $recipients, $actorCoPersonId) {
-    // Pull the message template
-    $mt = null;
-    
-    if(!empty($passwordAuthenticator['PasswordAuthenticator']['co_message_template_id'])) {
-      $args = array();
-      $args['conditions']['CoMessageTemplate.id'] = $passwordAuthenticator['PasswordAuthenticator']['co_message_template_id'];
-      $args['conditions']['CoMessageTemplate.status'] = SuspendableStatusEnum::Active;
-      $args['contain'] = false;
-      
-      $mt = $this->PasswordAuthenticator->CoMessageTemplate->find('first', $args);
-    }
-    
-    if(empty($mt)) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_message_templates.1'), $passwordAuthenticator['PasswordAuthenticator']['co_message_template_id'])));
-    }
-    
-    // And the expiration time
+  protected function sendRequest($passwordAuthenticator, $coPerson, $token, $recipients, $actorCoPersonId) {
+
+    // get the expiration time
     $expiry = $this->field('expires', array('PasswordResetToken.token' => $token));
     
-    // Create the message subject and body based on the templates.
-
+    // set substitutions
     $rurl = array(
       'plugin'      => 'password_authenticator',
       'controller'  => 'passwords',
@@ -260,9 +249,64 @@ class PasswordResetToken extends AppModel {
       'LINK_EXPIRY'       => $expiry
     );
 
-    // Construct subject and body
+    $this->send($passwordAuthenticator, $coPerson, $recipients, $actorCoPersonId, $substitutions, 'reset');
 
-    $msgSubject = processTemplate($mt['CoMessageTemplate']['message_subject'], $substitutions);
+    // Also store the recipient list in the token
+    $this->clear();
+    $this->updateAll(
+      array('PasswordResetToken.recipients' => "'" . substr(implode(',', $recipients), 0, 256) . "'"),
+      array('PasswordResetToken.token' => "'" . $token . "'")
+    );
+  }
+
+  /**
+   * Send a Password Reset  or Username Reminder
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  PasswordAuthenticator $passwordAuthenticator Password Authenticator configuration
+   * @param  array                 $coPerson              CO Person with associated email addresses and identifiers
+   * @param  array                 $recipients            Array of email addresses to send token to
+   * @param  int                   $actorCoPersonId       Actor CO Person ID
+   * @param  array		   $substitutions	  substitutions for the message template
+   * @param  string		   $mode		  'reset' for ssr or 'remind' for username reminder
+   * @throws InvalidArgumentException
+   */
+  protected function send($passwordAuthenticator, $coPerson, $recipients, $actorCoPersonId, $substitutions=null, $mode='reset') {
+
+    // Use the value of $mode to set the message template type and text for history record
+    $mtType = null;
+    $historyText = null;
+
+    if ($mode == 'remind') {
+      $mtType = 'username_reminder_message_template_id';
+      $historyText = 'pl.passwordauthenticator.usernamereminder.hr.sent';
+    } elseif($mode == 'reset') {
+      $mtType = 'co_message_template_id';
+      $historyText = 'pl.passwordauthenticator.ssr.hr.sent';
+    }
+
+    // Pull the message template
+    $mt = null;
+
+    if(!empty($passwordAuthenticator['PasswordAuthenticator'][$mtType])) {
+      $args = array();
+      $args['conditions']['CoMessageTemplate.id'] = $passwordAuthenticator['PasswordAuthenticator'][$mtType];
+      $args['conditions']['CoMessageTemplate.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = false;
+
+      $mt = $this->PasswordAuthenticator->CoMessageTemplate->find('first', $args);
+    }
+
+    if(empty($mt)) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_message_templates.1'), $passwordAuthenticator['PasswordAuthenticator'][$mtType])));
+    }
+
+    // pull out the identifiers from the coPerson
+
+    $ids = null;
+    $ids = $coPerson['Identifier'];
+
+    $msgSubject = processTemplate($mt['CoMessageTemplate']['message_subject'], $substitutions, $ids);
     $format = $mt['CoMessageTemplate']['format'];
     
     // We don't try/catch, but instead let any exceptions bubble up.
@@ -287,11 +331,11 @@ class PasswordResetToken extends AppModel {
     
     if($format != MessageFormatEnum::Plaintext
        && !empty($mt['CoMessageTemplate']['message_body_html'])) {
-      $msgBody[MessageFormatEnum::HTML] = processTemplate($mt['CoMessageTemplate']['message_body_html'], $substitutions);
+      $msgBody[MessageFormatEnum::HTML] = processTemplate($mt['CoMessageTemplate']['message_body_html'], $substitutions, $ids);
     }
     if($format != MessageFormatEnum::HTML
        && !empty($mt['CoMessageTemplate']['message_body'])) {
-      $msgBody[MessageFormatEnum::Plaintext] = processTemplate($mt['CoMessageTemplate']['message_body'], $substitutions);
+      $msgBody[MessageFormatEnum::Plaintext] = processTemplate($mt['CoMessageTemplate']['message_body'], $substitutions, $ids);
     }
     if(empty($msgBody[MessageFormatEnum::Plaintext])) {
       $msgBody[MessageFormatEnum::Plaintext] = "unknown message";
@@ -305,20 +349,12 @@ class PasswordResetToken extends AppModel {
     $email->send();
     
     // Record a HistoryRecord
-    $this->CoPerson->HistoryRecord->record($coPersonId,
+    $this->CoPerson->HistoryRecord->record($coPerson['CoPerson']['id'],
                                            null,
                                            null,
                                            $actorCoPersonId,
                                            ActionEnum::AuthenticatorEdited,
-                                           _txt('pl.passwordauthenticator.ssr.hr.sent', array(implode(",", $recipients))));
-    
-    // Also store the recipient list in the token
-    $this->clear();
-    
-    $this->updateAll(
-      array('PasswordResetToken.recipients' => "'" . substr(implode(',', $recipients), 0, 256) . "'"),
-      array('PasswordResetToken.token' => "'" . $token . "'")
-    );
+                                           _txt($historyText, array(implode(",", $recipients))));
   }
   
   /**

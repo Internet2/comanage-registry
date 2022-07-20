@@ -44,6 +44,9 @@
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
     <field name="redirect_on_success_ssr" type="C" size="1024" />
+    <field name="username_reminder_message_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

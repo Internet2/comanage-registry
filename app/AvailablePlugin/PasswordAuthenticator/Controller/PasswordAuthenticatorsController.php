@@ -73,6 +73,10 @@ class PasswordAuthenticatorsController extends SAuthController {
       );
       
       $this->set('vv_ssr_initiation_url', Router::url($url, true));
+
+      // Construct the Username Reminder URL, reusing the array from above and changing the action
+      $url['action'] = 'remind';
+      $this->set('vv_username_reminder_url', Router::url($url, true));
     }
   }
   

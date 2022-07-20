@@ -86,6 +86,7 @@ $cm_password_authenticator_texts['en_US'] = array(
   'pl.passwordauthenticator.ssr.for'        => 'Select a new password for %1$s.',
   'pl.passwordauthenticator.ssr.hr.sent'    => 'Password reset request sent to "%1$s"',
   'pl.passwordauthenticator.ssr.info'       => 'Enter a verified email address or registered identifier to proceed.</p>If you still know your password, click <a href="%1$s">here</a> to directly select a new password.',
+  'pl.passwordauthenticator.ssr.mt'         => 'Reset Message Template',
   'pl.passwordauthenticator.ssr.mt.desc'    => 'Message template used for email to send reset instructions to',
   'pl.passwordauthenticator.ssr.q'          => 'Email Address or Identifier',
   'pl.passwordauthenticator.ssr.redirect'   => 'Redirect on Self Service Reset',
@@ -96,5 +97,11 @@ $cm_password_authenticator_texts['en_US'] = array(
   'pl.passwordauthenticator.ssr.validity.desc' => 'Time in minutes the reset token is valid for',
   'pl.passwordauthenticator.token.confirm'  => 'Are you sure you wish to generate a new token?',
   'pl.passwordauthenticator.token.gen'      => 'Generate Token',
-  'pl.passwordauthenticator.token.ssr'      => 'Self Service Password Reset'
+  'pl.passwordauthenticator.token.ssr'      => 'Self Service Password Reset',
+  'pl.passwordauthenticator.token.usernamereminder' => 'Username Reminder',
+  'pl.passwordauthenticator.usernamereminder.info' => 'Enter a verified email address or registered identifier to proceed.',
+  'pl.passwordauthenticator.usernamereminder.mt' => 'Username Reminder Message Template',
+  'pl.passwordauthenticator.usernamereminder.mt.desc' => 'Message template used for email to send username reminder to',
+  'pl.passwordauthenticator.usernamereminder.hr.sent' => 'Username Reminder sent to "%1$s"',
+  'pl.passwordauthenticator.usernamereminder.url' => 'Username Reminder URL'
 );
