@@ -440,6 +440,9 @@ form#notificationStatus {
 .noty_icon{
   margin-right: 4px;
 }
+.noty_close { /* always show */
+  opacity: 0.7 !important;
+}
 .warbg{
   background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_826262_256x240.png") !important;
 }
