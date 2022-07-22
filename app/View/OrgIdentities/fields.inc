@@ -578,7 +578,7 @@
               <?php print _txt('fd.manager'); ?>
             </div>
             <div class="field-info">
-              <?php print filter_var($org_identities[0]['OrgIdentity']['manager_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+              <?php if(!empty($org_identities[0]['OrgIdentity']['manager_identifier'])) print filter_var($org_identities[0]['OrgIdentity']['manager_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
             </div>
           </li>
           <li>
@@ -586,7 +586,7 @@
               <?php print _txt('fd.sponsor'); ?>
             </div>
             <div class="field-info">
-              <?php print filter_var($org_identities[0]['OrgIdentity']['sponsor_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+              <?php if(!empty($org_identities[0]['OrgIdentity']['sponsor_identifier'])) print filter_var($org_identities[0]['OrgIdentity']['sponsor_identifier'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
             </div>
           </li>
           <?php if($e): ?>
