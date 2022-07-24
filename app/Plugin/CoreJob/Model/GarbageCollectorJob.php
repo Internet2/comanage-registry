@@ -40,6 +40,14 @@ class GarbageCollectorJob extends CoJobBackend {
   private $_mdl_inst = null;
 
   /**
+   * All supported object types
+   *
+   */
+  const  OBJECT_TYPES = array(
+    'Co'
+  );
+
+  /**
    * Execute the requested Job.
    *
    * @param int $coId CO ID
@@ -58,34 +66,39 @@ class GarbageCollectorJob extends CoJobBackend {
     try {
       // Validate the parameters
       $this->validateParams($coId, $params);
-      // Construct the table name
-      $modelpl = Inflector::tableize($params['object_type']);
-      // Get all instances of the Object Type marked as trash
-      $mdl_instances = $this->mdlInstances($params);
-      // We have nothing to collect
-      if(empty($mdl_instances)) {
-        $CoJob->finish($CoJob->id, _txt('pl.garbagecollectorjob.none'));
-        return;
+      $object_types = empty($params['object_type']) ? GarbageCollectorJob::OBJECT_TYPES
+                                                    : array($params['object_type']);
+
+      foreach ($object_types as $object_type) {
+        // Construct the table name
+        $modelpl = Inflector::tableize($object_type);
+        // Get all instances of the Object Type marked as trash
+        $mdl_instances = $this->mdlInstances($object_type);
+        // We have nothing to collect
+        if(empty($mdl_instances)) {
+          $CoJob->finish($CoJob->id, _txt('pl.garbagecollectorjob.none'));
+          return;
+        }
+
+        foreach($mdl_instances as $instance) {
+          $this->trash($CoJob, $object_type, $instance);
+
+          $comment = ($CoJob->failed($CoJob->id))
+            ? $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $object_type ]['name']))
+            : $comment = _txt('rs.deleted-a2', array( _txt('ct.' . $modelpl . '.1'), $instance[ $object_type ]['name']));
+        }
+
+        $done_job_id = $CoJob->id;
+        $CoJob->finish($CoJob->id, _txt('pl.garbagecollectorjob.done'));
+        // Send notification
+        $this->notify($coId, $CoJob, $params, $done_job_id, $comment);
       }
-
-      foreach($mdl_instances as $instance) {
-        $this->trash($CoJob, $params, $instance);
-
-        $comment = ($CoJob->failed($CoJob->id))
-          ? $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $params['object_type'] ]['name']))
-          : $comment = _txt('rs.deleted-a2', array( _txt('ct.' . $modelpl . '.1'), $instance[ $params['object_type'] ]['name']));
-      }
-
-      $done_job_id = $CoJob->id;
-      $CoJob->finish($CoJob->id, _txt('pl.garbagecollectorjob.done'));
-      // Send notification
-      $this->notify($coId, $CoJob, $params, $done_job_id, $comment);
     }
     catch(Exception $e) {
       $CoJob->finish($CoJob->id, $e->getMessage(), JobStatusEnum::Failed);
 
       // Send notification
-      $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $params['object_type'] ]['name']));
+      $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $object_type ]['name']));
       $this->notify($coId, $CoJob, $params, $CoJob->id, $comment);
     }
   }
@@ -155,7 +168,7 @@ class GarbageCollectorJob extends CoJobBackend {
       'object_type' => array(
         'help'     => _txt('pl.garbagecollectorjob.arg.object_type'),
         'type'     => 'select',
-        'required' => true,
+        'required' => false,
         'choices'  => array('Co')
       ),
     );
@@ -168,26 +181,26 @@ class GarbageCollectorJob extends CoJobBackend {
    *
    * @since  COmanage Registry v4.0.0
    * @param  CoJob   $CoJob       CO Job
-   * @param  array   $params      Parameters passed into the Job
+   * @param  String  $object_type Type of Object to Delete
    * @param  array   $object      Object to delete
    */
 
-  protected function trash($CoJob, $params, $object) {
+  protected function trash($CoJob, $object_type, $object) {
 
-    $mdl = $this->mdlObj($params['object_type']);
-    $modelpl = Inflector::tableize($params['object_type']);
+    $mdl = $this->mdlObj($object_type);
+    $modelpl = Inflector::tableize($object_type);
 
-    if(!empty($object[$params['object_type']]['name'])) {
-      $name = $object[$params['object_type']]['name'];
+    if(!empty($object[$object_type]['name'])) {
+      $name = $object[$object_type]['name'];
     } else {
       $name = "Unknown";
     }
 
     // Delete the CO and record the Job into the history
-    $mdl->delete($object[ $params['object_type'] ]['id']);
+    $mdl->delete($object[ $object_type ]['id']);
     $CoJob->CoJobHistoryRecord->record(
       $CoJob->id,
-      $object[ $params['object_type'] ]['id'],
+      $object[ $object_type ]['id'],
       _txt('rs.deleted-a2', array(_txt('ct.' . $modelpl . '.1'), $name))
     );
 
@@ -204,12 +217,13 @@ class GarbageCollectorJob extends CoJobBackend {
    */
 
   protected function validateParams($coId, $params) {
-    $object_types = array(
-      'Co'
-    );
+    // Since no object_type is provided we will run the GC for all the supportedones.
+    if(empty($params['object_type'])) {
+      return true;
+    }
 
     // Do we support this object_type
-    if(!in_array($params['object_type'], $object_types)) {
+    if(!in_array($params['object_type'], GarbageCollectorJob::OBJECT_TYPES)) {
       $this->log(__METHOD__ . "::message " . _txt('er.garbagecollectorjob.object_type.invalid', array($params['object_type'], 'status')), LOG_ERROR);
       throw new InvalidArgumentException(_txt('er.garbagecollectorjob.object_type.unknown', array($params['object_type'])));
     }
@@ -232,19 +246,19 @@ class GarbageCollectorJob extends CoJobBackend {
   }
 
   /**
-   * @param $params
+   * @param $object_type
    * @return null
    */
-  protected function mdlInstances($params) {
+  protected function mdlInstances($object_type) {
     if(is_null($this->_mdl_inst)) {
-      $mdl = $this->mdlObj($params['object_type']);
+      $mdl = $this->mdlObj($object_type);
       // Check if the Model has a `status` column
       $mdl_columns = array_keys($mdl->schema());
       if(!in_array('status', $mdl_columns)) {
         return null;
       }
       $this->_mdl_inst = $mdl->find('all', array(
-        'conditions' => array($params['object_type'] . '.status' => TemplateableStatusEnum::InTrash),
+        'conditions' => array($object_type . '.status' => TemplateableStatusEnum::InTrash),
         'contain' => false,
       ));
     }
