@@ -438,22 +438,16 @@ form#notificationStatus {
   font-weight: bold;
 }
 .noty_icon{
-  margin-right: 4px;
+  display: none;
 }
 .noty_close { /* always show */
   opacity: 0.7 !important;
 }
-.warbg{
-  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_826262_256x240.png") !important;
+.noty_type_error {
+  background-color: #d00;
 }
-.sucbg{
-  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_006400_256x240.png") !important;
-}
-.errbg{
-  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png") !important;
-}
-.notbg{
-  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_444444_256x240.png") !important;
+.warbg, .sucbg, .errbg, .notbg {
+  background-image: none !important;
 }
 /* General icon and box styling */
 .co-info { /* info icon */
@@ -913,13 +907,13 @@ body.co_people.canvas .titleNavContainer {
 #enrollmentFlowSteps li.incomplete {
   font-style: italic;
   text-indent: 0;
-  color: #999;
+  color: #666;
 }
 #enrollmentFlowSteps li.selected .material-icons {
-  color: #53B1F4;
+  color: #0c75c0;
 }
 #enrollmentFlowSteps li.complete .material-icons {
-  color: #6eac2c;
+  color: #070;
 }
 #enrollmentFlowSteps li.stopped .material-icons {
   color: #cd0a0a;
@@ -1145,7 +1139,7 @@ iframe#tandc_content {
 }
 #view_co_petition .status.Y,  /* approved */
 #view_co_petition .status.F { /* finalized */
-  background-color: #2a2;
+  background-color: #282;
   color: var(--cmg-color-white);
 }
 #view_co_petition .status.N { /* denied */
@@ -1210,10 +1204,6 @@ body.petitionerAttributes td {
   margin: 0.5em 0;
   float: right !important;
 }
-body.co_petitions .approve-button .ui-icon,
-body.co_petitions .deny-button .ui-icon {
-  background-image: url("../js/jquery/jquery-ui-1.12.1.custom/images-comanage/ui-icons_ffffff_256x240.png");
-}
 body.co_petitions .approve-button,
 body.co_petitions .deny-button,
 #vetting-plugin-wrapper .approve-button,
@@ -1226,21 +1216,21 @@ body.co_petitions .deny-button,
 body.co_petitions .approve-button,
 #vetting-plugin-wrapper .approve-button {
   float: left;
-  background-color: #2a2 !important;
+  background-color: #070;
   background-image: none;
 }
 body.co_petitions .approve-button:hover,
 #vetting-plugin-wrapper .approve-button:hover {
-  background-color: #3b3;
+  background-color: #181;
 }
 body.co_petitions .deny-button,
 #vetting-plugin-wrapper .deny-button {
-  background-color: #c33 !important;
+  background-color: #b00;
   background-image: none;
 }
 body.co_petitions .deny-button:hover,
 #vetting-plugin-wrapper .deny-button:hover {
-  background-color: #d44 !important;
+  background-color: #c33;
 }
 /* for T&Cs */
 .tc-checkbox-and-label {
