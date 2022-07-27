@@ -66,7 +66,7 @@ class HttpServer extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    'authtype' => array(
+    'auth_type' => array(
       'rule' => array('inList', array(HttpServerAuthType::Basic,
                                       HttpServerAuthType::Bearer,
                                       HttpServerAuthType::None)),
