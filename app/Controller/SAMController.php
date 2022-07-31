@@ -113,6 +113,10 @@ class SAMController extends StandardController {
         // Load the Authenticator plugin
         $this->setViewVars($this->request->params['named']['authenticatorid'], $pt['CoPetition']['enrollee_co_person_id']);
         
+        // We need vv_co_enrollment_authenticator populated, so we call
+        // calculateParentPermissions though we ignore the results.
+        $this->calculateParentPermissions(false);
+        
         // Set permissions for views
         $this->set('permissions', array($this->action => true));
       }
