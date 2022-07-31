@@ -1022,18 +1022,36 @@ class CoPerson extends AppModel {
         
         foreach($cous as $couId) {
           // Find the admin group ID
-          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $couId);
+          try {
+            $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $couId);
+          }
+          catch(InvalidArgumentException $e) {
+            // Group is inactive or missing for some reason
+          }
         }
         // Fall through, we want the CO Admin group as well
       case SponsorEligibilityEnum::CoAdmin:
         // Find the admin group ID
-        $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId);
+        try {
+          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId);
+        }
+        catch(InvalidArgumentException $e) {
+          // Group is inactive or missing for some reason
+        }
         break; 
       case SponsorEligibilityEnum::CoGroupMember:
         // Find the configured group
         $groupId = $this->Co->CoSetting->getSponsorEligibilityCoGroup($coId);
         
         if($groupId) {
+          // Make sure the group is still Active
+          $gStatus = $this->Co->CoGroup->field('status', array('CoGroup.id' => $groupId));
+          
+          if($gStatus != SuspendableStatusEnum::Active) {
+            // Return an empty array
+            return array();
+          }
+          
           $groupIds[] = $groupId;
         }
         break;
@@ -1103,18 +1121,36 @@ class CoPerson extends AppModel {
         
         foreach($cous as $couId) {
           // Find the admin group ID
-          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $couId);
+          try {
+            $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId, $couId);
+          }
+          catch(InvalidArgumentException $e) {
+            // Group is inactive or missing for some reason
+          }
         }
         // Fall through, we want the CO Admin group as well
       case SponsorEligibilityEnum::CoAdmin:
         // Find the admin group ID
-        $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId);
+        try {
+          $groupIds[] = $this->Co->CoGroup->adminCoGroupId($coId);
+        }
+        catch(InvalidArgumentException $e) {
+          // Group is inactive or missing for some reason
+        }
         break;
       case SponsorEligibilityEnum::CoGroupMember:
         // Find the configured group
         $groupId = $this->Co->CoSetting->getSponsorEligibilityCoGroup($coId);
         
         if($groupId) {
+          // Make sure the group is still Active
+          $gStatus = $this->Co->CoGroup->field('status', array('CoGroup.id' => $groupId));
+          
+          if($gStatus != SuspendableStatusEnum::Active) {
+            // Return an empty array so we don't render the people picker
+            return array();
+          }
+          
           $groupIds[] = $groupId;
         }
         break;
