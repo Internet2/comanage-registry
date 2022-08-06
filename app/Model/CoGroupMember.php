@@ -930,17 +930,13 @@ class CoGroupMember extends AppModel {
     foreach($nestings as $n) {
       if($n['CoGroupNesting']['negate']) {
         // If this is the current nesting we don't need to look anything up
-        if((($n['CoGroupNesting']['id'] == $coGroupNestingId) && $sourceMember)
-           ||
-           $this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
+        if($this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
           $negated = true;
         }
       } else {
         $pAvail++;
         
-        if((($n['CoGroupNesting']['id'] == $coGroupNestingId) && $sourceMember)
-           ||
-           $this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
+        if($this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
           $isAny = true;
           $pCount++;
         }
