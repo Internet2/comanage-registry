@@ -252,9 +252,9 @@ class Co extends AppModel {
       );
     }
 
-    // We are in the middle of an expunge so disable Changelog
-    // Disable Changelog behaviors. Skipping callbacks is not enough for a Shell Job
-    foreach ( App::objects('Model') as $m) {
+    // We are in the middle of an expunge so disable Changelog behaviors.
+    // Skipping callbacks is not enough for a Shell Job
+    foreach(App::objects('Model') as $m) {
       try {
         // Not all Models are associated to CO model
         $modell = ClassRegistry::init($m);
@@ -288,11 +288,10 @@ class Co extends AppModel {
                                                array('CoGroupMember.co_group_id' => array_keys($groups)));
 
       // Disable Changelog behaviors. Skipping callbacks is not enough for a Shell Job
-      $this->CoGroup->Behaviors->unload('Changelog');
       $this->CoGroup->CoGroupNesting->deleteAll(array('CoGroupNesting.co_group_id' => array_keys($groups)));
     }
     
-    // Unload TreeBehavior from Cou, since it throws errors and we don't need to
+    // Unload TreeBehavior from Cou, since it throws errors, and we don't need to
     // rebalance a tree that we're about to remove entirely.
     $this->Cou->Behaviors->unload('Tree');
     
