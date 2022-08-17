@@ -40,6 +40,30 @@ Router::connect(
   )
 );
 
+// COmanage CO Person API DELETE
+// /api/co/:coid/core/v1/people?identifier=1234567890@example.com
+Router::connect(
+  '/api/co/:coid/core/v1/people',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Api',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+  // COmanage CO Person API PUT
+  // /api/co/:coid/core/v1/people?identifier=1234567890@example.com
+  Router::connect(
+    '/api/co/:coid/core/v1/people',
+    array(
+      'plugin'     => 'core_api',
+      'controller' => 'Api',
+      'action'     => 'update',
+      '[method]'   => 'PUT',
+    )
+  );
+
 // COmanage CO Person Read API
 Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',

@@ -252,21 +252,29 @@ class ApiController extends Controller {
 
   public function delete() {
     try {
-      if(empty($this->request->params['identifier'])) {
+      if(empty($this->request->params['identifier'])
+         && empty($this->request->query["identifier"])) {
         // We shouldn't really get here since routes.php shouldn't allow it
         throw new InvalidArgumentException(_txt('er.notprov'));
       }
 
+      $req_identifier = !empty($this->request->params["identifier"])
+                        ? $this->request->params["identifier"]
+                        : (!empty($this->request->query["identifier"])
+                           ? $this->request->query["identifier"]
+                           : null);
+
+
       $expunge_on_delete = !isset($this->cur_api['CoreApi']['expunge_on_delete'])
-                         ? false : $this->cur_api['CoreApi']['expunge_on_delete'];
+                           ? false : $this->cur_api['CoreApi']['expunge_on_delete'];
       if($expunge_on_delete) {
         $ret = $this->CoreApi->expungeV1($this->cur_api['CoreApi']['co_id'],
-                                         $this->request->params['identifier'],
+                                         $req_identifier,
                                          $this->cur_api['CoreApi']['identifier_type'],
                                          $this->cur_api['CoreApi']['api_user_id']);
       } else {
         $ret = $this->CoreApi->deleteV1($this->cur_api['CoreApi']['co_id'],
-                                        $this->request->params['identifier'],
+                                        $req_identifier,
                                         $this->cur_api['CoreApi']['identifier_type']);
       }
 
@@ -304,6 +312,9 @@ class ApiController extends Controller {
       $this->Paginator->settings['conditions']['Identifier.type'] = $this->cur_api['CoreApi']['identifier_type'];
       $this->Paginator->settings['conditions']['Identifier.deleted'] = false;
       $this->Paginator->settings['conditions']['Identifier.identifier_id'] = null;
+      if(!empty($this->request->query['identifier'])) {
+        $this->Paginator->settings['conditions']['Identifier.identifier'] = $this->request->query['identifier'];
+      }
       $this->Paginator->settings['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
       $this->Paginator->settings['conditions']['CoPerson.co_id'] = $this->cur_api['CoreApi']['co_id'];
       if(!empty($this->request->query['CoPerson.status'])) {
@@ -443,13 +454,20 @@ class ApiController extends Controller {
   
   public function update() {
     try {
-      if(empty($this->request->params['identifier'])) {
+      if(empty($this->request->params['identifier'])
+        && empty($this->request->query["identifier"])) {
         // We shouldn't really get here since routes.php shouldn't allow it
         throw new InvalidArgumentException(_txt('er.notprov'));
       }
-      
-      $ret = $this->CoreApi->upsertV1($this->cur_api['CoreApi']['co_id'], 
-                                      $this->request->params['identifier'],
+
+      $req_identifier = !empty($this->request->params["identifier"])
+                        ? $this->request->params["identifier"]
+                        : (!empty($this->request->query["identifier"])
+                          ? $this->request->query["identifier"]
+                          : null);
+
+      $ret = $this->CoreApi->upsertV1($this->cur_api['CoreApi']['co_id'],
+                                      $req_identifier,
                                       $this->cur_api['CoreApi']['identifier_type'],
                                       $this->request->data,
                                       $this->cur_api['CoreApi']['api_user_id']);
