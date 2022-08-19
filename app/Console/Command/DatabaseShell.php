@@ -118,7 +118,7 @@
             $xml->load($schemaFile);
   
             $xsl = new DOMDocument;
-            $xsl->load(APP . '/Config/Schema/boolean_mysql.xsl');
+            $xsl->load(APP . '/Config/Schema/transform_mysql.xsl');
   
             $proc = new XSLTProcessor;
             $proc->importStyleSheet($xsl);
