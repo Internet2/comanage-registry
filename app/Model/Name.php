@@ -28,6 +28,9 @@
 class Name extends AppModel {
   // Define class name for cake
   public $name = "Name";
+
+  // CM Model type
+  public $cmModelType = "mvpa";
   
   // Current schema version for API
   public $version = "1.0";

@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Elector Data Filter Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  @link          http://www.internet2.edu/comanage COmanage Project
+  @package       registry
+  @since         COmanage Registry v4.1.0
+  @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+    <table name="elector_data_filters">
+        <field name="id" type="I">
+            <key />
+            <autoincrement />
+        </field>
+        <field name="data_filter_id" type="I">
+            <constraint>REFERENCES cm_data_filters(id)</constraint>
+        </field>
+        <field name="attribute_name" type="C" size="32" />
+        <field name="outbound_attribute_type" type="C" size="32" />
+        <!--    oldest/newest    -->
+        <field name="tie_break_mode" type="C" size="1" />
+        <!--   insert/replace     -->
+        <field name="replacement_mode" type="C" size="1" />
+        <field name="created" type="T" />
+        <field name="modified" type="T" />
+        <field name="elector_data_filter_id" type="I">
+            <constraint>REFERENCES cm_elector_data_filters(id)</constraint>
+        </field>
+        <field name="revision" type="I" />
+        <field name="deleted" type="L" />
+        <field name="actor_identifier" type="C" size="256" />
+
+        <index name="elector_data_filters_i1">
+            <col>data_filter_id</col>
+        </index>
+        <index name="elector_data_filters_i2">
+            <col>elector_data_filter_id</col>
+        </index>
+    </table>
+
+    <table name="elector_data_filter_precedences">
+        <field name="id" type="I">
+            <key />
+            <autoincrement />
+        </field>
+        <!--    Required    -->
+        <field name="elector_data_filter_id" type="I">
+            <constraint>REFERENCES cm_elector_data_filters(id)</constraint>
+        </field>
+        <!--    Required.The inbound type to consider    -->
+        <field name="inbound_attribute_type" type="C" size="32" />
+        <!--    Optional    -->
+        <field name="org_identity_source_id" type="I" >
+            <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+        </field>
+        <field name="ordr" type="I" />
+        <field name="created" type="T" />
+        <field name="modified" type="T" />
+        <field name="elector_data_filter_precedence_id" type="I">
+            <constraint>REFERENCES cm_elector_data_filter_precedences(id)</constraint>
+        </field>
+        <field name="revision" type="I" />
+        <field name="deleted" type="L" />
+        <field name="actor_identifier" type="C" size="256" />
+
+        <index name="elector_data_filter_precedences_i1">
+            <col>elector_data_filter_id</col>
+        </index>
+        <index name="elector_data_filter_precedences_i2">
+            <col>elector_data_filter_precedence_id</col>
+        </index>
+    </table>
+</schema>
