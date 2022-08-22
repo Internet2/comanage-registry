@@ -589,23 +589,25 @@
       }
     });
 
-    // Add loading animation when a form is submitted
-    // or when any item with a "spin" class is clicked.
-    // XXX we might consider applying this to all anchors except for those marked for exclusion
-    $("input[type='submit'], .spin").click(function() {
-      displaySpinner();
-
-      // XXX This is a workaround. Currently the sidebar actions in CO Person Canvas
-      //     are part of the form. As a result the spinner is dismissed immediately after
-      if($(this).hasClass('ignore-invalid')) {
-        return;
+    // Add loading animation when a form is submitted or when any item with a "spin" class is clicked.
+    $("input[type='submit'], .spin").click(function(e) {
+      
+      // Start a spinner only if CTRL, CMD, or SHIFT is not pressed (which loads a new tab or window).
+      if(!(e.ctrlKey || e.metaKey || e.shiftKey)) {
+        displaySpinner();
+  
+        // XXX This is a workaround. Currently the sidebar actions in CO Person Canvas
+        //     are part of the form. As a result the spinner is dismissed immediately after
+        if($(this).hasClass('ignore-invalid')) {
+          return;
+        }
+  
+        // Test for invalid fields (HTML5) and turn off spinner explicitly if found.
+        if(document.querySelectorAll(":invalid").length) {
+          stopSpinner();
+        }
       }
-
-      // Test for invalid fields (HTML5) and turn off spinner explicitly if found
-      if(document.querySelectorAll(":invalid").length) {
-        stopSpinner();
-      }
-
+      
     });
 
     // Flash Messages
