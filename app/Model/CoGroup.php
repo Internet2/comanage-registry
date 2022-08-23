@@ -715,7 +715,7 @@ class CoGroup extends AppModel {
         continue;
       }
       
-      if(!isset($nMembers[ $t['CoGroupMember']['co_group_nesting_id'] ][ $t['CoGroupMember']['co_person_id'] ])) {
+      if(isset($nMembers[ $t['CoGroupMember']['co_group_nesting_id'] ][ $t['CoGroupMember']['co_person_id'] ])) {
         // Remove the CoGroupMember record
         $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $t['CoGroupMember']['co_group_nesting_id'], $t['CoGroupMember']['co_person_id'], false);
       } else {
