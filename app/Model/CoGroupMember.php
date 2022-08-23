@@ -928,6 +928,19 @@ class CoGroupMember extends AppModel {
     $pCount = 0;    // Actual positive memberships
     
     foreach($nestings as $n) {
+      // Ignore suspended nested source groups
+      $args = array();
+      $args['conditions']['CoGroup.id'] = $n['CoGroupNesting']['co_group_id'];
+      $args['contain'] = false;
+      $sourceGroup = $this->CoGroup->find('first', $args);
+      if(!$sourceGroup) {
+        throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_group_nestings.1'), $n['CoGroupNesting']['co_group_id'])));
+      }
+      if($sourceGroup['CoGroup']['status'] === SuspendableStatusEnum::Suspended) {
+        // ignore suspended nested group
+        continue;
+      }
+
       if($n['CoGroupNesting']['negate']) {
         // If this is the current nesting we don't need to look anything up
         if($this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {
