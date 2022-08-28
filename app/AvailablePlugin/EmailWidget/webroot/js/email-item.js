@@ -27,7 +27,6 @@ import EmailDialog from './email-dialog.js';
 export default {
   props: {
     mail: String,
-    primary: Boolean,
     id: String,
     editing: Boolean,
     core: Object,
@@ -57,38 +56,18 @@ export default {
       } else {
         this.$parent.$parent.generalXhrFailCallback(xhr);
       }
-    },
-    makePrimaryEmail(e,id) {
-      alert("Unimplemented.");
     }
   },
   template: `
     <li :key="id" :data-entity-id="id">
-      <div v-if="editing && (this.core.editEmails || (!primary || this.core.deletePrimary))" class="cm-ssw-edit-container">
+      <div v-if="editing" class="cm-ssw-edit-container">
         <div class="field-actions-menu dropdown">
           <button class="cm-ssw-dropdown-toggle btn btn-primary" data-toggle="dropdown" aria-haspopup="1" aria-expanded="false">
             <em className="material-icons" aria-hidden="true">settings</em>
             {{ this.mail }}
-            <span v-if="primary" class="mr-1 badge badge-outline-primary">{{ txt.primary }}</span>
           </button>  
           <ul class="dropdown-menu">
-            <li v-if="this.core.editEmails">
-              <button 
-                @click="editEmail($event, this.id)" 
-                class="cm-ssw-edit-item-button btn btn-small dropdown-item">
-                <em className="material-icons" aria-hidden="true">edit</em>
-                {{ txt.edit }}
-              </button>    
-            </li>
-            <li v-if="!primary">
-              <button 
-                @click="makePrimaryEmail($event, this.id)" 
-                class="cm-ssw-edit-item-button btn btn-small dropdown-item">
-                <em className="material-icons" aria-hidden="true">check</em>
-                {{ txt.makePrimary }}
-              </button>    
-            </li>
-            <li v-if="!primary || this.core.deletePrimary">
+            <li>
               <button 
                 @click="deleteConfirm($event, this.core.widget, this.id)" 
                 class="cm-ssw-delete-item-button btn btn-small dropdown-item">
@@ -98,7 +77,6 @@ export default {
             </li>
           </ul>         
           <email-dialog
-            v-if="!primary || this.core.deletePrimary"
             ref="modal"
             type="delete"
             :title="this.txt.deleteModalTitle"
@@ -111,7 +89,6 @@ export default {
       </div> 
       <div v-else class="cm-ssw-view-container">     
         <span v-else class="email-address">{{ this.mail }}</span> 
-        <span v-if="primary" class="mr-1 badge badge-outline-primary">{{ txt.primary }}</span>
       </div>
     </li>
   `

@@ -60,8 +60,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           // Fallback to 'official' email type if no default is set in configuration
           defaultEmailType: '<?php print !empty($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : 'official'; ?>',
           messageTemplateId: '<?php print !empty($vv_config['CoEmailWidget']['co_message_template_id']) ? $vv_config['CoEmailWidget']['co_message_template_id'] : ''; ?>',
-          editEmails: false,  // TODO: determine this from configuration - can email be edited?
-          deletePrimary: false // TODO: determine this from configuration - can primary email be deleted?
+          deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
         },
         txt: {
           add:          "<?php print _txt('op.add'); ?>",

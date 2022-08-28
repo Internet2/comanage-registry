@@ -67,7 +67,6 @@ export default {
       const url = '/registry/email_widget/email_widget_emails/gentoken';
       const gen_data = {
         email: this.$refs.newAddress.value,
-        primary: this.$refs.newAddressPrimary.checked,
         configid: this.core.configId,
         copersonid: this.core.coPersonId,
         coid: this.core.coId
@@ -215,8 +214,7 @@ export default {
           :core="core"
           v-for="email in this.emails"
           :mail="email.Mail"
-          :id="email.Id"
-          :primary="false"><!-- XXX set primary when it exists, e.g. email.primary -->
+          :id="email.Id">
         </email-item>    
       </ul>
       <div v-if="!editing" class="cm-self-service-submit-buttons">
@@ -280,17 +278,6 @@ export default {
                 :id="generateId('cm-ssw-email-type-new')"
                 :value="core.defaultEmailType"
                 ref="newAddressType"/>
-              <span class="cm-ssw-form-field form-check">
-                <input 
-                  type="checkbox"
-                  :id="generateId('cm-ssw-email-make-primary')"
-                  class="form-check-input cm-ssw-form-field-primary" 
-                  name="cm-ssw-email-make-primary"
-                  ref="newAddressPrimary"/>
-                <label class="form-check-label" :for="generateId('cm-ssw-email-make-primary')">
-                  {{ txt.makePrimary }}
-                </label>
-              </span>
             </span>
             <div class="cm-ssw-submit-buttons">
               <button @click.prevent="genToken" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ txt.add }}</button>
