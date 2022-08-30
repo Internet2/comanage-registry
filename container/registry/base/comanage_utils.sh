@@ -129,6 +129,7 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_ADMIN_GIVEN_NAME
         COMANAGE_REGISTRY_ADMIN_FAMILY_NAME
         COMANAGE_REGISTRY_ADMIN_USERNAME
+        COMANAGE_REGISTRY_CRON_USER
         COMANAGE_REGISTRY_CRONTAB
         COMANAGE_REGISTRY_DATASOURCE
         COMANAGE_REGISTRY_DATABASE
@@ -177,6 +178,7 @@ function comanage_utils::consume_injected_environment() {
 # Deploy crontab file
 # Globals:
 #   COMANAGE_REGISTRY_DIR
+#   COMANAGE_REGISTRY_CRON_USER
 #   COMANAGE_REGISTRY_CRONTAB
 #   OUTPUT
 # Arguments:
@@ -187,16 +189,26 @@ function comanage_utils::consume_injected_environment() {
 function comanage_utils::deploy_crontab() {
 
     local crontab
+    local cronuser
     
-    if [[ -n "$COMANAGE_REGISTRY_CRONTAB" ]]; then
-        crontab="$COMANAGE_REGISTRY_CRONTAB"
+    if [[ -n "${COMANAGE_REGISTRY_CRONTAB}" ]]; then
+        crontab="${COMANAGE_REGISTRY_CRONTAB}"
     else
-        crontab="$COMANAGE_REGISTRY_DIR/local/crontab"
+        crontab="${COMANAGE_REGISTRY_DIR}/local/crontab"
     fi
 
-    if [[ -f "$crontab" ]]; then
-        echo "Deploying crontab $crontab..." > "$OUTPUT" 2>&1
-        /usr/bin/crontab -u www-data $crontab > "$OUTPUT" 2>&1
+    if [[ -n "${COMANAGE_REGISTRY_CRON_USER}" ]]; then
+        cronuser="${COMANAGE_REGISTRY_CRON_USER}"
+
+        echo "Removing image default crontab for user www-data ..." > "${OUTPUT}" 2>&1
+        /usr/bin/crontab -u www-data -r > "${OUTPUT}" 2>&1
+    else
+        cronuser="www-data"
+    fi
+
+    if [[ -f "${crontab}" ]]; then
+        echo "Deploying crontab ${crontab} for user ${cronuser} ..." > "${OUTPUT}" 2>&1
+        /usr/bin/crontab -u "${cronuser}" "${crontab}" > "${OUTPUT}" 2>&1
     fi
 }
 
