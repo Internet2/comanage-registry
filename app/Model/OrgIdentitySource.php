@@ -542,11 +542,11 @@ class OrgIdentitySource extends AppModel {
         $value = null;
         
         if(!empty($ret['orgidentity']['Identifier'])) {
-          foreach($ret['orgidentity']['Identifier'] as $id) {
-            if(!empty($id['type'])) {
-              if($id['type'] == $this->cdata['OrgIdentitySource']['eppn_identifier_type']) {
-                $value = $id['identifier'];
-              } elseif($id['type'] == IdentifierEnum::ePPN) {
+          foreach($ret['orgidentity']['Identifier'] as $identifier) {
+            if(!empty($identifier['type'])) {
+              if($identifier['type'] == $this->cdata['OrgIdentitySource']['eppn_identifier_type']) {
+                $value = $identifier['identifier'];
+              } elseif($identifier['type'] == IdentifierEnum::ePPN) {
                 $existing = true;
                 break;
               }
