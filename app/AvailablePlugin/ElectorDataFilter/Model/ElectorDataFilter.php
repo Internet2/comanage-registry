@@ -157,16 +157,16 @@ class ElectorDataFilter extends AppModel
       throw new InvalidArgumentException(_txt('er.elector_data_filter.cfg'));
     }
 
-    // No preferences are configured
+    // No precedences are configured
     if(empty($cfg['ElectorDataFilterPrecedence'])
        || empty($provisioningData[ $cfg["ElectorDataFilter"]["attribute_name"] ])) {
       return $provisioningData;
     }
 
-    // Sort the preferences
-    $edtf_preferences_sorted = Hash::sort($cfg['ElectorDataFilterPrecedence'], "{n}.ordr", 'asc', 'numeric');
+    // Sort the precedences
+    $edtf_precedences_sorted = Hash::sort($cfg['ElectorDataFilterPrecedence'], "{n}.ordr", 'asc', 'numeric');
     // Extract the list of inbound types
-    $inbound_types = Hash::extract($edtf_preferences_sorted, '{n}.inbound_attribute_type');
+    $inbound_types = Hash::extract($edtf_precedences_sorted, '{n}.inbound_attribute_type');
 
     foreach ($inbound_types as $idx => $attr_type) {
       // Extract the Models with matching attribute types

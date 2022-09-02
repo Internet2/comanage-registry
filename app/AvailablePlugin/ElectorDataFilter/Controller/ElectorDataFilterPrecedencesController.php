@@ -59,12 +59,12 @@ class ElectorDataFilterPrecedencesController extends StandardController
     parent::beforeRender();
 
     // Pull the types from the parent table
-    $args = array();
     if($this->action == 'add') {
       if(empty($this->request->params["named"]["electfilterid"])) {
         throw new InvalidArgumentException(_txt('er.elector_data_filter.electfilterid.specify'), HttpStatusCodesEnum::HTTP_BAD_REQUEST);
       }
 
+      $args = array();
       $args['conditions']['ElectorDataFilter.id'] = $this->request->params["named"]["electfilterid"];
       $args['contain'] = array('DataFilter');
 
@@ -128,14 +128,14 @@ class ElectorDataFilterPrecedencesController extends StandardController
     $args['conditions']['ElectorDataFilter.id'] = $this->request->params["named"]["electfilterid"];
     $args['contain'] = array('DataFilter');
 
-    $elector_data_filters = $this->ElectorDataFilter->find('all', $args);
+    $elector_data_filters = $this->ElectorDataFilter->find('first', $args);
     if(empty($elector_data_filters)) {
       throw new InvalidArgumentException(_txt('er.notfound',
                                               array(_txt('ct.elector_data_filters.1'),
                                                 filter_var($this->request->params["named"]["electfilterid"],FILTER_SANITIZE_SPECIAL_CHARS))));
     }
 
-     $coId = $elector_data_filters[0]['DataFilter']['co_id'];
+     $coId = $elector_data_filters['DataFilter']['co_id'];
      if($coId) {
        return $coId;
      }
