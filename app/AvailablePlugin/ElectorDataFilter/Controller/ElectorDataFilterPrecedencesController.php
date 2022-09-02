@@ -111,31 +111,39 @@ class ElectorDataFilterPrecedencesController extends StandardController
    */
 
   protected function calculateImpliedCoId($data = null) {
-    if(!empty($this->request->params["named"]["co"])) {
-      return $this->request->params["named"]["co"];
-    }
-
-    if(!empty($this->request->query["coid"])) {
-      return $this->request->query["coid"];
-    }
-
-    if(empty($this->request->params["named"]["electfilterid"])) {
+    if(empty($this->request->params["named"]["electfilterid"]) && $this->action == "add") {
       throw new InvalidArgumentException(_txt('er.elector_data_filter.electfilterid.specify'), HttpStatusCodesEnum::HTTP_BAD_REQUEST);
     }
 
-    // Pull the types from the parent table
+    if(empty($this->request->params["pass"][0]) && in_array($this->action, array("delete", "edit"))) {
+      throw new InvalidArgumentException(_txt('er.elector_data_filter.id.specify'), HttpStatusCodesEnum::HTTP_BAD_REQUEST);
+    }
+
     $args = array();
-    $args['conditions']['ElectorDataFilter.id'] = $this->request->params["named"]["electfilterid"];
+    if(!empty($this->request->params["pass"][0])) {
+      $args['joins'][0]['table']                            = 'cm_elector_data_filter_precedences';
+      $args['joins'][0]['alias']                            = 'ElectorDataFilterPrecedence';
+      $args['joins'][0]['type']                             = 'INNER';
+      $args['joins'][0]['conditions'][0]                    = 'ElectorDataFilter.id=ElectorDataFilterPrecedence.elector_data_filter_id';
+      $args['conditions']['ElectorDataFilterPrecedence.id'] = $this->request->params["pass"][0];
+    } else {
+      $args['conditions']['ElectorDataFilter.id'] = $this->request->params["named"]["electfilterid"];
+    }
     $args['contain'] = array('DataFilter');
 
-    $elector_data_filters = $this->ElectorDataFilter->find('first', $args);
-    if(empty($elector_data_filters)) {
+    $elector_data_filter = $this->ElectorDataFilter->find('first', $args);
+    if(empty($elector_data_filter)) {
+      if(!empty($this->request->params["pass"][0])) {
+        throw new InvalidArgumentException(_txt('er.notfound',
+                                                array(_txt('ct.elector_data_filter_precedences.1'),
+                                                  filter_var($this->request->params["pass"][0],FILTER_SANITIZE_SPECIAL_CHARS))));
+      }
       throw new InvalidArgumentException(_txt('er.notfound',
                                               array(_txt('ct.elector_data_filters.1'),
                                                 filter_var($this->request->params["named"]["electfilterid"],FILTER_SANITIZE_SPECIAL_CHARS))));
     }
 
-     $coId = $elector_data_filters['DataFilter']['co_id'];
+     $coId = $elector_data_filter['DataFilter']['co_id'];
      if($coId) {
        return $coId;
      }

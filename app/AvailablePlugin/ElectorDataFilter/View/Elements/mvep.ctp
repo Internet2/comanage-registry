@@ -109,10 +109,7 @@ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuI
                 array(
                   'controller' => $lmveppl,
                   'action' => $laction,
-                  $m['id'],
-                  '?' => array(
-                    'coid' => $this->viewVars["cur_co"]["Co"]["id"]
-                  ))
+                  $m['id'])
               ),
               'label' => _txt('op.'.$laction),
             );

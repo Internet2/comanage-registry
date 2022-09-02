@@ -52,7 +52,8 @@ $cm_elector_data_filter_texts['en_US'] = array(
 
   // Error messages
   'er.elector_data_filter.electfilterid.specify'    => 'Named parameter electfilterid was not found',
-  'er.elector_data_filter.cfg' => 'Configuration parameters are missing',
+  'er.elector_data_filter.id.specify'               => 'Named parameter Id was not found',
+  'er.elector_data_filter.cfg'                      => 'Configuration parameters are missing',
 
   // Plugin texts
   'pl.elector_data_filter.attribute_name'                          => "Attribute Name",
