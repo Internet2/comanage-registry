@@ -480,3 +480,18 @@ function cmg_urldecode($param) {
                                                      array("+", "/", "="),
                                                      $param) );
 }
+
+/**
+ * Compare dates
+ *
+ * @since  COmanage Registry v4.1.0
+ * @param  Array    $element1 First element to compare
+ * @param  Arrat    $elelent2 Second element to compare
+ * @return Array
+ */
+
+function cmg_date_compare($element1, $element2) {
+  $datetime1 = strtotime($element1['created']);
+  $datetime2 = strtotime($element2['created']);
+  return $datetime1 - $datetime2;
+}

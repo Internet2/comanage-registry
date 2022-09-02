@@ -108,21 +108,6 @@ class ElectorDataFilter extends AppModel
   }
 
   /**
-   * Compare dates
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param  Array    $element1 First element to compare
-   * @param  Arrat    $elelent2 Second element to compare
-   * @return Array
-   */
-
-  public function date_compare($element1, $element2) {
-    $datetime1 = strtotime($element1['created']);
-    $datetime2 = strtotime($element2['created']);
-    return $datetime1 - $datetime2;
-  }
-
-  /**
    * Perform the data filter operation.
    *
    * @since  COmanage Registry v4.1.0
@@ -196,11 +181,11 @@ class ElectorDataFilter extends AppModel
         // Sort by date and use the first element
         if($cfg["ElectorDataFilter"]["tie_break_mode"] === TieBreakReplacementModeEnum::Newest) {
           // Newest first
-          usort($attr, 'date_compare');
+          usort($attr, 'cmg_date_compare');
           $attr = array_reverse($attr);
         } elseif($cfg["ElectorDataFilter"]["tie_break_mode"] === TieBreakReplacementModeEnum::Oldest) {
           // Oldest first
-          usort($attr, 'date_compare');
+          usort($attr, 'cmg_date_compare');
         }
 
         // Translate the type to the outbound configuration
