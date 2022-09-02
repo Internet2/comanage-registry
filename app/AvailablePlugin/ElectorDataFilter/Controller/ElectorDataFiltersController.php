@@ -69,30 +69,20 @@ class ElectorDataFiltersController extends StandardController {
    */
 
   function beforeRender() {
-    $attribute_names_list = array();
     $attribute_types = array();
 
-    foreach(App::objects('Model') as $m) {
-      try {
-        // Not all Models are associated to CO model
-        $modell = ClassRegistry::init($m);
-        if(property_exists($modell, 'cmModelType')
-           && $modell->cmModelType == 'mvpa') {
-          $attribute_names_list[$m] = $modell->name;
-
-          $available_types = $modell->types($this->cur_co["Co"]["id"], 'type');
-          foreach ($available_types as $type) {
-            $attribute_types[$m][$type] = $type;
-          }
-        }
-      } catch(Exception $e) {
-        // Do nothing
-        // App::objects('Model) will fetch every Model, even the abstract ones which we can not
-        // initialize. Catch the error and continue to the next one
+    foreach($this->ElectorDataFilter->validate["attribute_name"]["content"]["rule"][1] as $m) {
+      $modell = ClassRegistry::init($m);
+      $available_types = $modell->types($this->cur_co["Co"]["id"], 'type');
+      foreach ($available_types as $type) {
+        $attribute_types[$m][$type] = $type;
       }
     }
 
-    $this->set('vv_attribute_names', $attribute_names_list);
+    $this->set('vv_attribute_names', array_combine(
+      $this->ElectorDataFilter->validate["attribute_name"]["content"]["rule"][1],
+      $this->ElectorDataFilter->validate["attribute_name"]["content"]["rule"][1]
+    ));
     $this->set('vv_attribute_types', $attribute_types);
     parent::beforeRender();
   }
