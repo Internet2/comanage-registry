@@ -28,9 +28,6 @@
 class Url extends AppModel {
   // Define class name for cake
   public $name = "Url";
-
-  // CM Model type
-  public $cmModelType = "mvpa";
   
   // Current schema version for API
   public $version = "1.0";
