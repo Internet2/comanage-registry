@@ -64,7 +64,7 @@ export default {
         return;
       }
 
-      const url = '/registry/email_widget/email_widget_emails/gentoken';
+      const url = '/registry/email_address_widget/email_address_widget_emails/gentoken';
       const gen_data = {
         email: this.$refs.newAddress.value,
         configid: this.core.configId,
@@ -108,7 +108,7 @@ export default {
         copersonid: this.core.coPersonId,
         coid: this.core.coId
       }
-      let url = '/registry/email_widget/email_widget_emails/verify';
+      let url = '/registry/email_address_widget/email_address_widget_emails/verify';
 
       callRegistryAPI(
         url,

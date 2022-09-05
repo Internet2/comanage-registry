@@ -33,8 +33,8 @@ global $cm_lang, $cm_texts;
 
 $cm_email_address_widget_texts['en_US'] = array(
   // Titles, per-controller
-  'ct.co_email_widgets.1'  => 'Self Service Email Widget',
-  'ct.co_email_widgets.pl' => 'Self Service Email Widgets',
+  'ct.co_email_address_widgets.1'  => 'Self Service Email Widget',
+  'ct.co_email_address_widgets.pl' => 'Self Service Email Widgets',
   
   // Plugin texts
   'pl.email_address_widget.add' => 'Add an email address',
