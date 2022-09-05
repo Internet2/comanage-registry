@@ -51,17 +51,17 @@
   $args['plugin'] = null;
   $args['controller'] = 'co_dashboards';
   $args['action'] = 'edit';
-  $args[] = $co_email_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
+  $args[] = $co_email_address_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
   $this->Html->addCrumb(_txt('ct.co_dashboards.1'), $args);
   
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_dashboard_widgets';
   $args['action'] = 'index';
-  $args['codashboard'] = $co_email_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
+  $args['codashboard'] = $co_email_adderss_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
   $this->Html->addCrumb(_txt('ct.co_dashboard_widgets.1'), $args);
   
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(filter_var($co_email_widgets[0]['CoDashboardWidget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)));
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(filter_var($co_email_address_widgets[0]['CoDashboardWidget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)));
   $this->Html->addCrumb($crumbTxt);
   
   print $this->Form->hidden('co_dashboard_widget_id', array('default' => $vv_dwid)) . "\n";

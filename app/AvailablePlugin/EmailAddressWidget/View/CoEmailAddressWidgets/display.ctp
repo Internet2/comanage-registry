@@ -40,9 +40,9 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
 
 <script type="module">
   <?php if(Configure::read('debug') > 0): ?>
-    import EmailPanel from '<?php print $this->webroot ?>email_widget/js/email-panel.js?time=<?php print time()?>';
+    import EmailPanel from '<?php print $this->webroot ?>email_address_widget/js/email-panel.js?time=<?php print time()?>';
   <?php else: ?>
-    import EmailPanel from '<?php print $this->webroot ?>email_widget/js/email-panel.js';
+    import EmailPanel from '<?php print $this->webroot ?>email_address_widget/js/email-panel.js';
   <?php endif; ?>
 
   const app = Vue.createApp({
