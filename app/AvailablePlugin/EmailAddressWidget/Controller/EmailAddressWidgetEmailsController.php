@@ -63,8 +63,8 @@ class EmailAddressWidgetEmailsController extends StandardController {
    */
   public function gentoken() {
     if(!empty($this->request->data['email'])
-       && !empty($this->request->data["configid"])) {
-      $this->CoEmailAddressWidget->id = $this->request->data["configid"];
+       && !empty($this->request->data["email_address_widget_id"])) {
+      $this->CoEmailAddressWidget->id = $this->request->data["email_address_widget_id"];
 
       $email = $this->request->data['email'];
       
