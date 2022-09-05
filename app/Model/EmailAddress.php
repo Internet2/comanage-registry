@@ -332,8 +332,12 @@ class EmailAddress extends AppModel {
         $this->clear();
         $this->id = $m['EmailAddress']['id'];
         
-        // Make sure to disable callbacks since beforeSave will try to update this field, too
-        if(!$this->saveField('verified', true, array('callbacks' => false))) {
+        // Pass the option 'safeties' with value 'off' so that the logic this model's
+        // beforeSave() method is short circuited and does not interfere with the updating
+        // of the verified field. This approach still allows the beforeSave() and afterSave()
+        // methods of the Provisioning behavior to fire and provision the updated
+        // EmailAddress.
+        if(!$this->saveField('verified', true, array('safeties' => 'off'))) {
           throw new RuntimeException(_txt('er.db.save-a', array('EmailAddress::verify()')));
         }
         
