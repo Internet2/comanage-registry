@@ -72,10 +72,10 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_address_widget.fd.type.default')) : _txt('pl.email_address_widget.fd.type.default')); ?>
+        <?php print ($e ? $this->Form->label('default_type', _txt('pl.emailaddresswidget.fd.type.default')) : _txt('pl.emailaddresswidget.fd.type.default')); ?>
       </div>
       <div class="field-desc">
-        <?php print _txt('pl.email_address_widget.fd.type.default.desc'); ?>
+        <?php print _txt('pl.emailaddresswidget.fd.type.default.desc'); ?>
       </div>
     </div>
     <div class="field-info">
@@ -92,7 +92,7 @@
           print $this->Form->error('default_type');
         }
       } else {
-        print _txt('pl.email_address_widget.fd.type.default', null, filter_var($vv_config['default_type'],FILTER_SANITIZE_SPECIAL_CHARS));
+        print _txt('pl.emailaddresswidget.fd.type.default', null, filter_var($vv_config['default_type'],FILTER_SANITIZE_SPECIAL_CHARS));
       }
       ?>
     </div>
@@ -100,19 +100,19 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_address_widget.fd.message.template')) : _txt('pl.email_address_widget.fd.message.template')); ?>
+        <?php print ($e ? $this->Form->label('default_type', _txt('pl.emailaddresswidget.fd.message.template')) : _txt('pl.emailaddresswidget.fd.message.template')); ?>
       </div>
       <div class="field-desc">
         <p>
-          <?php print _txt('pl.email_address_widget.fd.message.template.desc'); ?>
+          <?php print _txt('pl.emailaddresswidget.fd.message.template.desc'); ?>
         </p>
         <p>
           <strong><?php print _txt('fd.subject');?></strong> 
-          "<?php print _txt('pl.email_address_widget.email.subject');?>"
+          "<?php print _txt('pl.emailaddresswidget.email.subject');?>"
         </p>
         <p>
-          <strong><?php print _txt('pl.email_address_widget.fd.body');?></strong>
-          "<?php print _txt('pl.email_address_widget.email.body');?>"
+          <strong><?php print _txt('pl.emailaddresswidget.fd.body');?></strong>
+          "<?php print _txt('pl.emailaddresswidget.email.body');?>"
         </p>
       </div>
     </div>
@@ -130,7 +130,7 @@
           print $this->Form->error('co_message_template_id');
         }
       } else {
-        print _txt('pl.email_address_widget.fd.message.template', null, filter_var($vv_config['co_message_template_id'],FILTER_SANITIZE_SPECIAL_CHARS));
+        print _txt('pl.emailaddresswidget.fd.message.template', null, filter_var($vv_config['co_message_template_id'],FILTER_SANITIZE_SPECIAL_CHARS));
       }
       ?>
     </div>  
