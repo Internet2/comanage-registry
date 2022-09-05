@@ -33,7 +33,7 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="default_type" type="C" size="128" />
-    <field name="hide_type" type="L" />
+    <field name="type_hidden" type="L" />
     <field name="co_message_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
@@ -58,7 +58,6 @@
     <field name="modified" type="T" />
     <field name="email" type="C" size="128" />
     <field name="type" type="C" size="32" />
-    <field name="primary_email" type="L" />
     <field name="token" type="C" size="8" />
   </table>
 </schema>

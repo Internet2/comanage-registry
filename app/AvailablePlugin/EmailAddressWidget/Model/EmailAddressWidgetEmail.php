@@ -149,9 +149,9 @@ class EmailAddressWidgetEmail extends AppModel {
       );
     } else {
       // Send the default message
-      $msgSubject = _txt('pl.email_address_widget.email.subject');
+      $msgSubject = _txt('pl.emailaddresswidget.email.subject');
       $format = MessageFormatEnum::Plaintext;
-      $msgBody[MessageFormatEnum::Plaintext] = _txt('pl.email_address_widget.email.body') . PHP_EOL . PHP_EOL . $token;
+      $msgBody[MessageFormatEnum::Plaintext] = _txt('pl.emailaddresswidget.email.body') . PHP_EOL . PHP_EOL . $token;
 
       $email->template('custom', 'basic')
         ->emailFormat($format)
