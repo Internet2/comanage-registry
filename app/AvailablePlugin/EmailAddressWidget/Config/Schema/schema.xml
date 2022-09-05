@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!--
-  COmanage Registry Self Service Email Widget Plugin Database Schema
+  COmanage Registry Email Address Widget Plugin Database Schema
 
   Portions licensed to the University Corporation for Advanced Internet
   Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,7 +25,7 @@
   must be specified in raw SQL, which needs the prefixed table name.
 -->
 <schema version="0.3">
-  <table name="co_email_widgets">
+  <table name="co_email_address_widgets">
     <field name="id" type="I">
       <key />
       <autoincrement />
@@ -41,17 +41,17 @@
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
     
-    <index name="co_email_widgets_i1">
+    <index name="co_email_address_widgets_i1">
       <col>co_dashboard_widget_id</col>
       <unique />
     </index>
   </table>
-  <table name="email_widget_emails">
+  <table name="email_address_widget_emails">
     <field name="id" type="I">
       <key />
       <autoincrement />
     </field>
-    <field name="email_widget_email_id" type="I">
+    <field name="email_address_widget_email_id" type="I">
       <constraint>REFERENCES cm_email_widget_emails(id)</constraint>
     </field>
     <field name="created" type="T" />
@@ -61,7 +61,7 @@
     <field name="primary_email" type="L" />
     <field name="token" type="C" size="8" />
 
-    <index name="email_widget_emails_i1">
+    <index name="email_address_widget_emails_i1">
       <col>id</col>
       <unique />
     </index>

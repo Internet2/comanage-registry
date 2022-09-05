@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Email Widget Display View
+ * COmanage Registry Email Address Widget Display View
  *
  * This widget repurposes the Service Portal by directly
  * rendering the service portal URL (as provided by the controller).
@@ -29,7 +29,7 @@
  */
 
   // Figure out the widget ID so we can overwrite the dashboard's widget div
-  $divid = $vv_config['CoEmailWidget']['co_dashboard_widget_id'];
+  $divid = $vv_config['CoEmailAddressWidget']['co_dashboard_widget_id'];
 ?>
 
 <?php
@@ -55,36 +55,36 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           coPersonId: '<?php print $vv_co_person_id; ?>',
           coId: '<?php print $vv_co_id; ?>',
           widget: 'widget<?php print $divid; ?>',
-          configId: '<?php print $vv_config['CoEmailWidget']['id']; ?>',
+          configId: '<?php print $vv_config['CoEmailAddressWidget']['id']; ?>',
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
-          defaultEmailType: '<?php print !empty($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : 'official'; ?>',
-          messageTemplateId: '<?php print !empty($vv_config['CoEmailWidget']['co_message_template_id']) ? $vv_config['CoEmailWidget']['co_message_template_id'] : ''; ?>',
+          defaultEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['default_type']) ? $vv_config['CoEmailAddressWidget']['default_type'] : 'official'; ?>',
+          messageTemplateId: '<?php print !empty($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : ''; ?>',
           deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
         },
         txt: {
           add:          "<?php print _txt('op.add'); ?>",
-          addFail:      "<?php print _txt('pl.email_widget.modal.body.add.fail'); ?>",
+          addFail:      "<?php print _txt('pl.email_address_widget.modal.body.add.fail'); ?>",
           cancel:       "<?php print _txt('op.cancel'); ?>",
           confirm:      "<?php print _txt('op.confirm'); ?>",
           delete:       "<?php print _txt('op.delete'); ?>",
-          deleteModalTitle: "<?php print _txt('pl.email_widget.modal.title.delete'); ?>",
-          deleteModalMessage: "<?php print _txt('pl.email_widget.modal.body.delete'); ?>",
-          deleteFail:   "<?php print _txt('pl.email_widget.modal.title.delete.fail'); ?>",
+          deleteModalTitle: "<?php print _txt('pl.email_address_widget.modal.title.delete'); ?>",
+          deleteModalMessage: "<?php print _txt('pl.email_address_widget.modal.body.delete'); ?>",
+          deleteFail:   "<?php print _txt('pl.email_address_widget.modal.title.delete.fail'); ?>",
           done:         "<?php print _txt('op.done'); ?>",
           edit :        "<?php print _txt('op.edit'); ?>",
-          email:        "<?php print _txt('pl.email_widget.fd.email'); ?>",
-          emailAdded:   "<?php print _txt('pl.email_widget.added')?>",
-          error401:     "<?php print _txt('pl.email_widget.error.401');?>",
-          error500:     "<?php print _txt('pl.email_widget.error.500');?>",
-          errorInvalid: "<?php print _txt('pl.email_widget.error.invalid');?>",
-          makePrimary:  "<?php print _txt('pl.email_widget.make.primary');?>",
+          email:        "<?php print _txt('pl.email_address_widget.fd.email'); ?>",
+          emailAdded:   "<?php print _txt('pl.email_address_widget.added')?>",
+          error401:     "<?php print _txt('pl.email_address_widget.error.401');?>",
+          error500:     "<?php print _txt('pl.email_address_widget.error.500');?>",
+          errorInvalid: "<?php print _txt('pl.email_address_widget.error.invalid');?>",
+          makePrimary:  "<?php print _txt('pl.email_address_widget.make.primary');?>",
           ok:           "<?php print _txt('op.ok'); ?>",
           primary:      "<?php print _txt('fd.name.primary_name'); ?>",
-          timeout:      "<?php print _txt('pl.email_widget.timeout'); ?>",
-          token:        "<?php print _txt('pl.email_widget.fd.token'); ?>",
-          tokenMsg:     "<?php print _txt('pl.email_widget.fd.token.msg'); ?>",
-          tokenError:   "<?php print _txt('pl.email_widget.fd.token.error'); ?>",
+          timeout:      "<?php print _txt('pl.email_address_widget.timeout'); ?>",
+          token:        "<?php print _txt('pl.email_address_widget.fd.token'); ?>",
+          tokenMsg:     "<?php print _txt('pl.email_address_widget.fd.token.msg'); ?>",
+          tokenError:   "<?php print _txt('pl.email_address_widget.fd.token.error'); ?>",
           verify:       "<?php print _txt('op.verify'); ?>"
         }
       }

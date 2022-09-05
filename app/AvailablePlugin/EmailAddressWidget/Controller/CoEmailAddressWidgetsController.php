@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Email Widgets Controller
+ * COmanage Registry CO Email Address Widgets Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,12 +27,12 @@
 
 App::uses("SDWController", "Controller");
 
-class CoEmailWidgetsController extends SDWController {
+class CoEmailAddressWidgetsController extends SDWController {
   // Class name, used by Cake
-  public $name = "CoEmailWidgets";
+  public $name = "CoEmailAddressWidgets";
   
   public $uses = array(
-    'EmailWidget.CoEmailWidget',
+    'EmailAddressWidget.CoEmailAddressWidget',
     'EmailAddress',
     'CO',
     'CoMessageTemplate'
@@ -46,7 +46,7 @@ class CoEmailWidgetsController extends SDWController {
    */
   
   public function display($id) {
-    $cfg = $this->CoEmailWidget->getConfig();
+    $cfg = $this->CoEmailAddressWidget->getConfig();
     
     // Pass the config so we know which div to overwrite
     $this->set('vv_config', $cfg);
@@ -66,7 +66,7 @@ class CoEmailWidgetsController extends SDWController {
     parent::edit($id);
     
     // Pass the config
-    $cfg = $this->CoEmailWidget->getConfig();
+    $cfg = $this->CoEmailAddressWidget->getConfig();
     $this->set('vv_config', $cfg);
     
     // Gather the available email address types for the config form

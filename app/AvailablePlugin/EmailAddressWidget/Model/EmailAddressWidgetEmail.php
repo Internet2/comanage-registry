@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Email Widget Model
+ * COmanage Registry Email Address Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -29,9 +29,9 @@ App::uses("EmailAddress", "Model");
 App::uses("CoMessageTemplate", "Model");
 App::uses("CakeEmail", "Network/Email");
 
-class EmailWidgetEmail extends AppModel {
+class EmailAddressWidgetEmail extends AppModel {
   // Define class name for cake
-  public $name = "EmailWidgetEmail";
+  public $name = "EmailAddressWidgetEmail";
 
   // Validation rules for table elements
   // XXX These are not in use
@@ -93,15 +93,14 @@ class EmailWidgetEmail extends AppModel {
     $args = array();
     $args['conditions']['id'] = $id;
     $rec = $this->find('first',$args);
-    if($rec['EmailWidgetEmail']['token'] == $token) {
+    if($rec['EmailAddressWidgetEmail']['token'] == $token) {
       // If more than 10 minutes have elapsed (600 seconds) fail with "timeout".
-      $timeElapsed =  time() - strtotime($rec['EmailWidgetEmail']['created']);
+      $timeElapsed =  time() - strtotime($rec['EmailAddressWidgetEmail']['created']);
       if($timeElapsed < 600) {
         $emailAttrs = array(
-          'mail' => $rec['EmailWidgetEmail']['email'],
-          'type' => $rec['EmailWidgetEmail']['type'],
+          'mail' => $rec['EmailAddressWidgetEmail']['email'],
+          'type' => $rec['EmailAddressWidgetEmail']['type'],
           'verified' => true,
-          // 'primary_email' => $rec['EmailWidgetEmail']['primary_email'], // TODO uncomment when available
           'co_person_id' => $coPersonId
         );
         try {
@@ -150,9 +149,9 @@ class EmailWidgetEmail extends AppModel {
       );
     } else {
       // Send the default message
-      $msgSubject = _txt('pl.email_widget.email.subject');
+      $msgSubject = _txt('pl.email_address_widget.email.subject');
       $format = MessageFormatEnum::Plaintext;
-      $msgBody[MessageFormatEnum::Plaintext] = _txt('pl.email_widget.email.body') . PHP_EOL . PHP_EOL . $token;
+      $msgBody[MessageFormatEnum::Plaintext] = _txt('pl.email_address_widget.email.body') . PHP_EOL . PHP_EOL . $token;
 
       $email->template('custom', 'basic')
         ->emailFormat($format)

@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Email Widget Email Address Controller
+ * COmanage Registry Email Address Widget Email Address Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,9 +27,9 @@
 
 App::uses("StandardController", "Controller");
 
-class EmailWidgetEmailsController extends StandardController {
+class EmailAddressWidgetEmailsController extends StandardController {
   // Class name, used by Cake
-  public $name = "EmailWidgetEmails";
+  public $name = "EmailAddressWidgetEmails";
 
   private static $actions = array(
     'gentoken',
@@ -37,15 +37,15 @@ class EmailWidgetEmailsController extends StandardController {
   );
 
   public $uses = array(
-    'EmailWidget.CoEmailWidget',
-    'EmailWidget.EmailWidgetEmail',
+    'EmailAddressWidget.CoEmailAddressWidget',
+    'EmailAddressWidget.EmailAddressWidgetEmail',
     'CoMessageTemplate'
   );
 
   public function beforeFilter() {
     parent::beforeFilter();
 
-    if(in_array($this->action, EmailWidgetEmailsController::$actions)) {
+    if(in_array($this->action, EmailAddressWidgetEmailsController::$actions)) {
       $this->Security->validatePost = false;
       $this->Security->enabled = false;
       $this->Security->csrfCheck = false;
@@ -64,18 +64,18 @@ class EmailWidgetEmailsController extends StandardController {
   public function gentoken() {
     if(!empty($this->request->data['email'])
        && !empty($this->request->data["configid"])) {
-      $this->CoEmailWidget->id = $this->request->data["configid"];
+      $this->CoEmailAddressWidget->id = $this->request->data["configid"];
 
       $email = $this->request->data['email'];
       $primary = $this->request->data['primary'];
       
-      $results = $this->EmailWidgetEmail->generateToken($email,$this->CoEmailWidget->field('default_type'),$primary);
+      $results = $this->EmailAddressWidgetEmail->generateToken($email,$this->CoEmailAddressWidget->field('default_type'),$primary);
       if(!empty($results['id'])) { // XXX Ensure this test is adequate.
         // We have a valid result. Provide the row ID to the verification form,
         // and send the token to the new email address for round-trip verification by the user.
         $this->set('vv_response_type', 'ok');
         $this->set('vv_id', $results['id']);
-        $this->EmailWidgetEmail->send($email,$results['token'], $this->CoEmailWidget->field('co_message_template_id'));
+        $this->EmailAddressWidgetEmail->send($email,$results['token'], $this->CoEmailAddressWidget->field('co_message_template_id'));
       } else {
         $this->set('vv_response_type','error');
       }
@@ -98,7 +98,7 @@ class EmailWidgetEmailsController extends StandardController {
       $token = $this->request->data['token'];
       $id = $this->request->data['id'];
       $coPersonId = $this->request->data['copersonid'];
-      $outcome = $this->EmailWidgetEmail->verify($token,$id,$coPersonId);
+      $outcome = $this->EmailAddressWidgetEmail->verify($token,$id,$coPersonId);
       $this->set('vv_outcome', $outcome);
       if($outcome == 'success') {
         $this->set('vv_response_type','ok');
@@ -122,7 +122,7 @@ class EmailWidgetEmailsController extends StandardController {
   public function parseCOID($data = null) {
     if($this->request->method() == "POST"
        && isset($this->request->data["coid"])
-       && in_array($this->action, EmailWidgetEmailsController::$actions)) {
+       && in_array($this->action, EmailAddressWidgetEmailsController::$actions)) {
       return $this->request->data["coid"];
     }
 
