@@ -27,9 +27,9 @@
 
 App::uses("StandardController", "Controller");
 
-class EmailAddressWidgetEmailsController extends StandardController {
+class EmailAddressWidgetVerificationRequestsController extends StandardController {
   // Class name, used by Cake
-  public $name = "EmailAddressWidgetEmails";
+  public $name = "EmailAddressWidgetVerificationRequests";
 
   private static $actions = array(
     'gentoken',
@@ -38,14 +38,14 @@ class EmailAddressWidgetEmailsController extends StandardController {
 
   public $uses = array(
     'EmailAddressWidget.CoEmailAddressWidget',
-    'EmailAddressWidget.EmailAddressWidgetEmail',
+    'EmailAddressWidget.EmailAddressWidgetVerificationRequest',
     'CoMessageTemplate'
   );
 
   public function beforeFilter() {
     parent::beforeFilter();
 
-    if(in_array($this->action, EmailAddressWidgetEmailsController::$actions)) {
+    if(in_array($this->action, EmailAddressWidgetVerificationRequestsController::$actions)) {
       $this->Security->validatePost = false;
       $this->Security->enabled = false;
       $this->Security->csrfCheck = false;
@@ -68,13 +68,13 @@ class EmailAddressWidgetEmailsController extends StandardController {
 
       $email = $this->request->data['email'];
       
-      $results = $this->EmailAddressWidgetEmail->generateToken($email,$this->CoEmailAddressWidget->field('default_type'));
+      $results = $this->EmailAddressWidgetVerificationRequest->generateToken($email,$this->CoEmailAddressWidget->field('default_type'));
       if(!empty($results['id'])) {
         // We have a valid result. Provide the row ID to the verification form,
         // and send the token to the new email address for round-trip verification by the user.
         $this->set('vv_response_type', 'ok');
         $this->set('vv_id', $results['id']);
-        $this->EmailAddressWidgetEmail->send($email,$results['token'], $this->CoEmailAddressWidget->field('co_message_template_id'));
+        $this->EmailAddressWidgetVerificationRequest->send($email,$results['token'], $this->CoEmailAddressWidget->field('co_message_template_id'));
       } else {
         $this->set('vv_response_type','error');
       }
@@ -97,7 +97,7 @@ class EmailAddressWidgetEmailsController extends StandardController {
       $token = $this->request->data['token'];
       $id = $this->request->data['id'];
       $coPersonId = $this->request->data['copersonid'];
-      $outcome = $this->EmailAddressWidgetEmail->verify($token,$id,$coPersonId);
+      $outcome = $this->EmailAddressWidgetVerificationRequest->verify($token,$id,$coPersonId);
       $this->set('vv_outcome', $outcome);
       if($outcome == 'success') {
         $this->set('vv_response_type','ok');
@@ -121,7 +121,7 @@ class EmailAddressWidgetEmailsController extends StandardController {
   public function parseCOID($data = null) {
     if($this->request->method() == "POST"
        && isset($this->request->data["coid"])
-       && in_array($this->action, EmailAddressWidgetEmailsController::$actions)) {
+       && in_array($this->action, EmailAddressWidgetVerificationRequestsController::$actions)) {
       return $this->request->data["coid"];
     }
 
