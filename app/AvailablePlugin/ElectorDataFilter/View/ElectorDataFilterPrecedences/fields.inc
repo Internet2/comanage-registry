@@ -136,7 +136,7 @@ $this->Html->addCrumb($crumbTxt);
     <li>
       <div class="field-name">
         <div class="field-title">
-          <?php print ($e ? $this->Form->label('org_identity_source_id', _txt('fd.plugin')) : _txt('fd.plugin')); ?>
+          <?php print ($e ? $this->Form->label('org_identity_source_id', _txt('ct.org_identity_sources.1')) : _txt('ct.org_identity_source.1')); ?>
         </div>
         <div class="field-desc"><?php print _txt('pl.elector_data_filter_precedence.plugin.desc'); ?></div>
       </div>

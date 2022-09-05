@@ -47,8 +47,8 @@ $cm_elector_data_filter_texts['en_US'] = array(
   'ct.elector_data_filters.1'  => 'Elector Data Filter',
   'ct.elector_data_filters.pl' => 'Elector Data Filters',
 
-  'ct.elector_data_filter_precedences.1'  => 'Elector Data Precedence',
-  'ct.elector_data_filter_precedences.pl' => 'Elector Data Precedences',
+  'ct.elector_data_filter_precedences.1'  => 'Elector Data Precedence Rule',
+  'ct.elector_data_filter_precedences.pl' => 'Elector Data Precedence Rules',
 
   // Error messages
   'er.elector_data_filter.electfilterid.specify'    => 'Named parameter electfilterid was not found',
@@ -56,18 +56,18 @@ $cm_elector_data_filter_texts['en_US'] = array(
   'er.elector_data_filter.cfg'                      => 'Configuration parameters are missing',
 
   // Plugin texts
-  'pl.elector_data_filter.attribute_name'                          => "Attribute Name",
-  'pl.elector_data_filter.attribute_name.desc'                     => "Pick the Multi Value Person Attribute Name from the list",
-  'pl.elector_data_filter.outbound_attribute_type'                 => "Outbound Attribute Type",
-  'pl.elector_data_filter.outbound_attribute_type.desc'            => "Pick the Multi Value Person Attribute Type from the list",
+  'pl.elector_data_filter.attribute_name'                          => "Subject Attribute",
+  'pl.elector_data_filter.attribute_name.desc'                     => "The Subject Attribute to elect a value for",
+  'pl.elector_data_filter.outbound_attribute_type'                 => "Elected Attribute Type",
+  'pl.elector_data_filter.outbound_attribute_type.desc'            => "The Extended Type that will be assigned to the Elected Attribute Value",
   'pl.elector_data_filter.tie_break_mode'                          => "Tie Break Mode",
   'pl.elector_data_filter.tie_break_mode.desc'                     => "Choose what will happen when more than one attribute matches a preference.",
-  'pl.elector_data_filter.replacement_mode'                        => "Elector Mode",
-  'pl.elector_data_filter.replacement_mode.desc'                   => "In insert mode, the elected value is added to the existing set of MVPA values (result set = n+1). In replace mode, only the elected value is provided for the MVPA (result set = 1)",
+  'pl.elector_data_filter.replacement_mode'                        => "Election Mode",
+  'pl.elector_data_filter.replacement_mode.desc'                   => "In insert mode, the elected value is added to the existing set of values (result set = n+1). In replace mode, only the elected value is provided (result set = 1)",
   'pl.elector_data_filter_precedence.precedence'                   => '%1$s Precedence',
   'pl.elector_data_filter_precedence.order'                        => 'Order #%1$s',
-  'pl.elector_data_filter_precedence.order.desc'                   => 'The order in which this Data Filter Precedence will be processed',
-  'pl.elector_data_filter_precedence.plugin.desc'                  => 'Choose OrgIdentity Source Plugin',
-  'pl.elector_data_filter_precedence.inbound_attribute_type'       => "Inbound Attribute Type",
-  'pl.elector_data_filter_precedence.inbound_attribute_type.desc'  => "Pick the Multi Value Person Attribute Type from the list",
+  'pl.elector_data_filter_precedence.order.desc'                   => 'The order in which this Precedence Rule will be processed',
+  'pl.elector_data_filter_precedence.plugin.desc'                  => 'If set, this Rule only applies to Attribute Values that originated from this Organizational Identity Source',
+  'pl.elector_data_filter_precedence.inbound_attribute_type'       => "Source Attribute Type",
+  'pl.elector_data_filter_precedence.inbound_attribute_type.desc'  => "The Extended Type this Precedence Rule applies to",
 );
