@@ -39,6 +39,20 @@ class CoEmailAddressWidgetsController extends SDWController {
   );
   
   /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+  
+  public function beforeRender() {
+    parent::beforeRender();
+  
+    // Pass the config
+    $cfg = $this->CoEmailAddressWidget->getConfig();
+    $this->set('vv_config', $cfg);
+  }
+  
+  /**
    * Render the widget according to the requested user and current configuration.
    *
    * @since  COmanage Registry v4.1.0
@@ -46,11 +60,6 @@ class CoEmailAddressWidgetsController extends SDWController {
    */
   
   public function display($id) {
-    $cfg = $this->CoEmailAddressWidget->getConfig();
-    
-    // Pass the config so we know which div to overwrite
-    $this->set('vv_config', $cfg);
-  
     // We need only the CoPerson ID - with that we can look up the Email Addresses via 
     // ajax against the API in the web client.
     $coPersonId = $this->reqCoPersonId;
@@ -64,10 +73,6 @@ class CoEmailAddressWidgetsController extends SDWController {
   
   public function edit($id) {
     parent::edit($id);
-    
-    // Pass the config
-    $cfg = $this->CoEmailAddressWidget->getConfig();
-    $this->set('vv_config', $cfg);
     
     // Gather the available email address types for the config form
     $this->set('vv_available_types', $this->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
