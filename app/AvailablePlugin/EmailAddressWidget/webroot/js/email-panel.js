@@ -67,7 +67,7 @@ export default {
       const url = '/registry/email_address_widget/email_address_widget_emails/gentoken';
       const gen_data = {
         email: this.$refs.newAddress.value,
-        configid: this.core.configId,
+        email_address_widget_id: this.core.emailAddressWidgetId,
         copersonid: this.core.coPersonId,
         coid: this.core.coId
       }
