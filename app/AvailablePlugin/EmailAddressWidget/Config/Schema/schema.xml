@@ -46,13 +46,13 @@
       <unique />
     </index>
   </table>
-  <table name="email_address_widget_emails">
+  <table name="email_address_widget_verification_requests">
     <field name="id" type="I">
       <key />
       <autoincrement />
     </field>
-    <field name="email_address_widget_email_id" type="I">
-      <constraint>REFERENCES cm_email_address_widget_emails(id)</constraint>
+    <field name="email_address_widget_verification_request_id" type="I">
+      <constraint>REFERENCES cm_email_address_widget_verification_requests(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />

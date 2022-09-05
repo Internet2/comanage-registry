@@ -29,9 +29,9 @@ App::uses("EmailAddress", "Model");
 App::uses("CoMessageTemplate", "Model");
 App::uses("CakeEmail", "Network/Email");
 
-class EmailAddressWidgetEmail extends AppModel {
+class EmailAddressWidgetVerificationRequest extends AppModel {
   // Define class name for cake
-  public $name = "EmailAddressWidgetEmail";
+  public $name = "EmailAddressWidgetVerificationRequest";
 
   // Validation rules for table elements
   public $validate = array(
@@ -91,13 +91,13 @@ class EmailAddressWidgetEmail extends AppModel {
     $args = array();
     $args['conditions']['id'] = $id;
     $rec = $this->find('first',$args);
-    if($rec['EmailAddressWidgetEmail']['token'] == $token) {
+    if($rec['EmailAddressWidgetVerificationRequest']['token'] == $token) {
       // If more than 10 minutes have elapsed (600 seconds) fail with "timeout".
-      $timeElapsed = time() - strtotime($rec['EmailAddressWidgetEmail']['created']);
+      $timeElapsed = time() - strtotime($rec['EmailAddressWidgetVerificationRequest']['created']);
       if($timeElapsed < 600) {
         $emailAttrs = array(
-          'mail' => $rec['EmailAddressWidgetEmail']['email'],
-          'type' => $rec['EmailAddressWidgetEmail']['type'],
+          'mail' => $rec['EmailAddressWidgetVerificationRequest']['email'],
+          'type' => $rec['EmailAddressWidgetVerificationRequest']['type'],
           'verified' => true,
           'co_person_id' => $coPersonId
         );
