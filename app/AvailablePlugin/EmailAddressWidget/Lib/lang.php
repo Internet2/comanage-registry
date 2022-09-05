@@ -71,7 +71,6 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.modal.title.update.success' => 'Update successful',
   'pl.emailaddresswidget.modal.title.delete' => 'Delete email address?',
   'pl.emailaddresswidget.modal.title.delete.success' => 'Address deleted',
-  'pl.emailaddresswidget.make.primary'   => 'Make Primary',
   'pl.emailaddresswidget.noconfig' => 'This widget requires no configuration.',
   'pl.emailaddresswidget.none'     => 'No email addresses',
   'pl.emailaddresswidget.return'   => 'Return'

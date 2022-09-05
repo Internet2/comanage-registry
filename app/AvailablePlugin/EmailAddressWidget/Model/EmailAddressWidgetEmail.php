@@ -34,7 +34,6 @@ class EmailAddressWidgetEmail extends AppModel {
   public $name = "EmailAddressWidgetEmail";
 
   // Validation rules for table elements
-  // XXX These are not in use
   public $validate = array(
     'email' => 'email',
     'type' => array(
@@ -42,7 +41,7 @@ class EmailAddressWidgetEmail extends AppModel {
       'required' => true
     ),
     'token' => array(
-      'rule' => 'alphaNumeric',
+      'rule' => '/^[a-zA-Z0-9\-]+$/',
       'required' => true
     )
   );
@@ -57,14 +56,13 @@ class EmailAddressWidgetEmail extends AppModel {
    * @param string $emailType    Type of email address to be added 
    * @return integer id of the new row
    */
-  public function generateToken($emailAddress, $emailType, $primary) {
-    $token = bin2hex(random_bytes(3));
+  public function generateToken($emailAddress, $emailType) {
+    $token = generateRandomToken(8);
     
     $fields = array(
       'email' => $emailAddress,
       'type' => $emailType,
-      'token' => $token,
-      'primary_email' => $primary
+      'token' => $token
     );
     
     $this->save($fields);
@@ -95,7 +93,7 @@ class EmailAddressWidgetEmail extends AppModel {
     $rec = $this->find('first',$args);
     if($rec['EmailAddressWidgetEmail']['token'] == $token) {
       // If more than 10 minutes have elapsed (600 seconds) fail with "timeout".
-      $timeElapsed =  time() - strtotime($rec['EmailAddressWidgetEmail']['created']);
+      $timeElapsed = time() - strtotime($rec['EmailAddressWidgetEmail']['created']);
       if($timeElapsed < 600) {
         $emailAttrs = array(
           'mail' => $rec['EmailAddressWidgetEmail']['email'],
