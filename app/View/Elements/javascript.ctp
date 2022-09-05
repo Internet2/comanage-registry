@@ -659,6 +659,6 @@
   var defaultConfirmTitle = "<?php print _txt('op.confirm'); ?>";
   
   // Define default text for session timeout and unknown errors
-  var defaultHttp500 = "<?php print _txt('er.unknown.er'); ?>";
+  var defaultHttp500 = "<?php print _txt('er.500'); ?>";
   var defaultHttp401 = "<?php print _txt('er.timeout'); ?>";
 </script>
