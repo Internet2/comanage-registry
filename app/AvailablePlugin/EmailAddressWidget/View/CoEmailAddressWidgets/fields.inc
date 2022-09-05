@@ -1,6 +1,6 @@
 <!--
 /**
- * COmanage Registry CO Email Widgets Fields
+ * COmanage Registry CO Email Address Widgets Fields
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -72,15 +72,15 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_widget.fd.type.default')) : _txt('pl.email_widget.fd.type.default')); ?>
+        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_address_widget.fd.type.default')) : _txt('pl.email_address_widget.fd.type.default')); ?>
       </div>
       <div class="field-desc">
-        <?php print _txt('pl.email_widget.fd.type.default.desc'); ?>
+        <?php print _txt('pl.email_address_widget.fd.type.default.desc'); ?>
       </div>
     </div>
     <div class="field-info">
       <?php
-      $attrs['value'] = (isset($vv_config['CoEmailWidget']['default_type']) ? $vv_config['CoEmailWidget']['default_type'] : "");
+      $attrs['value'] = (isset($vv_config['CoEmailAddressWidget']['default_type']) ? $vv_config['CoEmailAddressWidget']['default_type'] : "");
       $attrs['empty'] = false;
   
       if($e) {
@@ -92,7 +92,7 @@
           print $this->Form->error('default_type');
         }
       } else {
-        print _txt('pl.email_widget.fd.type.default', null, filter_var($vv_config['default_type'],FILTER_SANITIZE_SPECIAL_CHARS));
+        print _txt('pl.email_address_widget.fd.type.default', null, filter_var($vv_config['default_type'],FILTER_SANITIZE_SPECIAL_CHARS));
       }
       ?>
     </div>
@@ -100,25 +100,25 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_widget.fd.message.template')) : _txt('pl.email_widget.fd.message.template')); ?>
+        <?php print ($e ? $this->Form->label('default_type', _txt('pl.email_address_widget.fd.message.template')) : _txt('pl.email_address_widget.fd.message.template')); ?>
       </div>
       <div class="field-desc">
         <p>
-          <?php print _txt('pl.email_widget.fd.message.template.desc'); ?>
+          <?php print _txt('pl.email_address_widget.fd.message.template.desc'); ?>
         </p>
         <p>
           <strong><?php print _txt('fd.subject');?></strong> 
-          "<?php print _txt('pl.email_widget.email.subject');?>"
+          "<?php print _txt('pl.email_address_widget.email.subject');?>"
         </p>
         <p>
-          <strong><?php print _txt('pl.email_widget.fd.body');?></strong>
-          "<?php print _txt('pl.email_widget.email.body');?>"
+          <strong><?php print _txt('pl.email_address_widget.fd.body');?></strong>
+          "<?php print _txt('pl.email_address_widget.email.body');?>"
         </p>
       </div>
     </div>
     <div class="field-info">
       <?php
-      $attrs['value'] = (isset($vv_config['CoEmailWidget']['co_message_template_id']) ? $vv_config['CoEmailWidget']['co_message_template_id'] : "");
+      $attrs['value'] = (isset($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : "");
       $attrs['empty'] = true;
 
       if($e) {
@@ -130,7 +130,7 @@
           print $this->Form->error('co_message_template_id');
         }
       } else {
-        print _txt('pl.email_widget.fd.message.template', null, filter_var($vv_config['co_message_template_id'],FILTER_SANITIZE_SPECIAL_CHARS));
+        print _txt('pl.email_address_widget.fd.message.template', null, filter_var($vv_config['co_message_template_id'],FILTER_SANITIZE_SPECIAL_CHARS));
       }
       ?>
     </div>  

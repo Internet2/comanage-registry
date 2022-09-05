@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry CO Email Widget Model
+ * COmanage Registry Email Address Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -18,53 +18,49 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-App::uses("CoDashboardWidgetBackend", "Model");
-
-class CoEmailWidget extends CoDashboardWidgetBackend {
+class EmailAddressWidget extends AppModel {
   // Define class name for cake
-  public $name = "CoEmailWidget";
-  
+  public $name = "EmailAddressWidget";
+
+  // Required by COmanage Plugins
+  public $cmPluginType = "dashboardwidget";
+
   // Add behaviors
-  public $actsAs = array('Containable');
+  // public $actsAs = array('Containable');
+
+  // Document foreign keys
+  public $cmPluginHasMany = array();
 
   // Association rules from this model to other models
   public $belongsTo = array(
-    "CoDashboardWidget"
+  );
+
+  public $hasOne = array(
+    'CoMessageTemplate' => array(
+      'className' => 'CoMessageTemplate',
+      'conditions' => array('CoMessageTemplate.status' => SuspendableStatusEnum::Active)
+    )
   );
 
   // Validation rules for table elements
   public $validate = array(
-    'co_dashboard_widget_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    'type' => array(
-      'content' => array(
-        'rule' => array('validateExtendedType',
-          array('attribute' => 'EmailAddress.type',
-            'default' => array(EmailAddressEnum::Delivery,
-              EmailAddressEnum::Forwarding,
-              EmailAddressEnum::MailingList,
-              EmailAddressEnum::Official,
-              EmailAddressEnum::Personal,
-              EmailAddressEnum::Preferred,
-              EmailAddressEnum::Recovery))),
-        'required' => false,
-        'allowEmpty' => false
-      )
-    ),
-    'co_message_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
-    )
   );
+
+  /**
+   * Expose menu items.
+   *
+   * @ since COmanage Registry v3.2.0
+   * @ return Array with menu location type as key and array of labels, controllers, actions as values.
+   */
+
+  public function cmPluginMenus() {
+    return array();
+  }
 }
