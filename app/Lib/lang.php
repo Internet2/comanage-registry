@@ -1060,6 +1060,7 @@ The request may be viewed at
   ),
   
   // Errors
+  'er.500' =>         'Internal server error (500)',
   'er.ae.defined' =>  'An Attribute Enumeration is already defined for the attribute "%1$s"',
   'er.ae.val.inv' =>  'The current value is not a valid selection. Any change to this record will remove the current value.',
   'er.ae.value' =>    'Value not permitted by Attribute Enumeration (%1$s)',
@@ -1287,7 +1288,6 @@ The request may be viewed at
   'er.ug.version' =>  'Unknown version "%1$s"',
   'er.unknown' =>     'Unknown value "%1$s"',
   'er.unknown.def' =>  'Unknown value',
-  'er.unknown.er' =>  'An unknown error occurred.',
   'er.url' =>         'Please supply a valid URL. Include "http://" (or similar) for off-site links.',
   'er.validation' =>  'Validation failed',
   'er.validation.date' =>  '"Valid From" date MUST precede "Valid Through" date',
