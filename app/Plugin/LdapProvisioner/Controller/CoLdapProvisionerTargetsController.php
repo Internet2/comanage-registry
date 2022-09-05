@@ -38,6 +38,13 @@ class CoLdapProvisionerTargetsController extends SPTController {
       'serverurl' => 'asc'
     )
   );
+
+  // Edit needs CoLdapProvisionerAttribute and CoLdapProvisionerAttrGrouping
+  // but not CoLdapProvisionerDn.
+  public $edit_contains = array(
+    'CoLdapProvisionerAttribute',
+    'CoLdapProvisionerAttrGrouping',
+  );
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
