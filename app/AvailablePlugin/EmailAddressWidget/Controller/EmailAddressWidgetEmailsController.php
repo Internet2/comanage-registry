@@ -67,10 +67,9 @@ class EmailAddressWidgetEmailsController extends StandardController {
       $this->CoEmailAddressWidget->id = $this->request->data["configid"];
 
       $email = $this->request->data['email'];
-      $primary = $this->request->data['primary'];
       
-      $results = $this->EmailAddressWidgetEmail->generateToken($email,$this->CoEmailAddressWidget->field('default_type'),$primary);
-      if(!empty($results['id'])) { // XXX Ensure this test is adequate.
+      $results = $this->EmailAddressWidgetEmail->generateToken($email,$this->CoEmailAddressWidget->field('default_type'));
+      if(!empty($results['id'])) {
         // We have a valid result. Provide the row ID to the verification form,
         // and send the token to the new email address for round-trip verification by the user.
         $this->set('vv_response_type', 'ok');
