@@ -209,7 +209,10 @@ class NoviSourceBackend extends OrgIdentitySourceBackend {
     
     if($results->TotalCount > 0) {
       foreach($results->Results as $r) {
-        $ret[ $r->UniqueID ] = $this->resultToOrgIdentity($r);
+        // Track the same behavior as retrieve() for Active && MemberStatus
+        if($r->Active && in_array($r->MemberStatus, array('current', 'grace_period'))) {
+          $ret[ $r->UniqueID ] = $this->resultToOrgIdentity($r);
+        }
       }
     }
     
