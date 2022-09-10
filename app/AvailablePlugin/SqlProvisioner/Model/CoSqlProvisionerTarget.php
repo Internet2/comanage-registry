@@ -638,11 +638,15 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       $parentids = array();
       
       if($m['parent'] == 'CoPersonRole') {
-        $records = Hash::extract($provisioningData['CoPersonRole'], '{n}.' . $m['source'] . '.{n}');
+        if(!empty($provisioningData['CoPersonRole'])) {
+          $records = Hash::extract($provisioningData['CoPersonRole'], '{n}.' . $m['source'] . '.{n}');
+          $parentids = array_unique(Hash::extract($provisioningData['CoPersonRole'], '{n}.co_person_role_id'));
+        }
         $parentfk = 'co_person_role_id';
-        $parentids = array_unique(Hash::extract($records, '{n}.co_person_role_id'));
       } else {
-        $records = $provisioningData[ $m['source'] ];
+        if(!empty($provisioningData[ $m['source'] ])) {
+          $records = $provisioningData[ $m['source'] ];
+        }
         $parentids[] = $provisioningData['CoPerson']['id'];
       }
       
