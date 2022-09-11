@@ -31,6 +31,9 @@ class CoJobsController extends StandardController {
   // Class name, used by Cake
   public $name = "CoJobs";
   
+  // When using additional models, we must also specify our own
+  public $uses = array('CoJob', 'Lock');
+  
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 50,
@@ -102,10 +105,10 @@ class CoJobsController extends StandardController {
 
   function beforeRender()
   {
-    if (!$this->request->is('restful')) {
-      if ($this->action == 'index') {
+    if(!$this->request->is('restful')) {
+      if($this->action == 'index') {
         $vv_job_type = array();
-        foreach ($this->Co->loadAvailablePlugins('job') as $jPlugin) {
+        foreach($this->Co->loadAvailablePlugins('job') as $jPlugin) {
           $job_models_keys = $job_models_values = array();
           $pluginModel = ClassRegistry::init($jPlugin->name . "." . $jPlugin->name);
           $plugin_name = $jPlugin->name;
@@ -127,14 +130,18 @@ class CoJobsController extends StandardController {
           $vv_job_type = array_merge($vv_job_type, $job_type);
         }
         $this->set('vv_job_type', $vv_job_type);
-      } elseif ($this->action == 'view'
-                && in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+      } elseif($this->action == 'view'
+               && in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
         // Request the page auto-refresh
 
         $this->set('vv_refresh_interval', 15);
       }
-      parent::beforeRender();
+      
+      // Determine if the Job Queue is locked, and if so render a message
+      $this->set('vv_lock_info', $this->Lock->check($this->cur_co['Co']['id'], 'jobshell'));
     }
+    
+    parent::beforeRender();
   }
   
   /**

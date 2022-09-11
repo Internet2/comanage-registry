@@ -40,7 +40,7 @@ class Lock extends AppModel {
   // Default display field for cake generated views
   public $displayField = "label";
   
-//  public $actsAs = array('Containable');
+  public $actsAs = array('Containable');
   
   // Validation rules for table elements
   public $validate = array(
@@ -60,6 +60,34 @@ class Lock extends AppModel {
       'allowEmpty' => false
     )
   );
+  
+  /**
+   * Check if a lock is already held.
+   *
+   * @sice  COmanage Registry v4.1.0
+   * @param  int    $coId   CO ID
+   * @param  string $label  Lock label
+   * @return Lock           Lock info, or null if no lock          
+   */
+  
+  public function check($coId, $label) {
+    $args = array();
+    $args['conditions']['Lock.co_id'] = $coId;
+    $args['conditions']['Lock.label'] = $label;
+    $args['contain'] = false;
+    
+    $l = $this->find('first', $args);
+    
+    /* We don't do this because it assumes the web server and the cron job
+       run on the same host, which is decreasingly likely over time (containers
+       and multi-node queue runners).
+    if(!empty($l)) {
+      // Verify if the lock pid is still running
+      $l['pidstatus'] = posix_kill($l['Lock']['pid'], 0);
+    }*/
+    
+    return empty($l) ? null : $l;
+  }
   
   /**
    * Obtain a lock.
