@@ -48,7 +48,7 @@ export default {
   },
   methods: {
     generateId(prefix) {
-      return  prefix + '-' + this.core.widget;
+      return prefix + '-' + this.core.widget;
     },
     genToken() {
       const newEmailAddress = this.$refs.newAddress.value.trim();
@@ -64,29 +64,25 @@ export default {
         return;
       }
 
-      const url = '/registry/email_address_widget/email_address_widget_verification_requests/gentoken';
-      const gen_data = {
-        email: this.$refs.newAddress.value,
-        email_address_widget_id: this.core.emailAddressWidgetId,
-        copersonid: this.core.coPersonId,
-        coid: this.core.coId
-      }
+      // URL: /donations/view/recent/2001
+      // Mapping: DonationsController->view('recent', '2001');
+      // XXX Is the copersonid part of the CO?
+      const url = `/registry/email_address_widget/co_email_address_widgets/gentoken/${this.core.emailAddressWidgetId}?email=${encodeURIComponent(this.$refs.newAddress.value)}&copersonid=${this.core.coPersonId}`;
       displaySpinner();
       callRegistryAPI(
         url,
-        'POST',
+        'GET',
         'json',
         this.genTokenSuccessCallback,
         '',
-        this.genTokenFailCallback,
-        gen_data);
+        this.genTokenFailCallback);
     },
     genTokenSuccessCallback(xhr) {
       stopSpinner();
       this.tokenId = xhr.responseJSON['id'];
-      if(this.tokenId != '') {
+      if (this.tokenId != '') {
         this.verifying = true;
-        this.$nextTick(() => this.$refs['token'].focus()); 
+        this.$nextTick(() => this.$refs['token'].focus());
       } else {
         this.newEmailInvalid = true;
         this.newEmailInvalidClass = 'is-invalid';
@@ -102,25 +98,19 @@ export default {
       if (token == '') {
         return;
       }
-      const ver_data = {
-        id: this.tokenId,
-        token: token,
-        copersonid: this.core.coPersonId,
-        coid: this.core.coId
-      }
-      let url = '/registry/email_address_widget/email_address_widget_verification_requests/verify';
+
+      let url = `/registry/email_address_widget/email_address_widget_verifications/verify/${encodeURIComponent(token)}`;
 
       callRegistryAPI(
         url,
-        'POST',
+        'GET',
         'json',
         this.verifySuccessCallback,
         '',
-        this.verifyFailCallback,
-        ver_data);
+        this.verifyFailCallback);
     },
     verifySuccessCallback(xhr) {
-      if(xhr.responseJSON['result'] == 'success') {
+      if (xhr.responseJSON['result'] == 'success') {
         this.tokenInvalid = false;
         this.tokenInvalidClass = '';
         this.$refs.token.value = '';
@@ -131,9 +121,9 @@ export default {
       } else {
         this.tokenInvalid = true;
         this.tokenInvalidClass = 'is-invalid';
-        if(xhr.responseJSON['result'] == 'fail') {
+        if (xhr.responseJSON['result'] == 'fail') {
           this.tokenErrorMessage = this.txt.tokenError;
-        } else if(xhr.responseJSON['result'] == 'timeout') {
+        } else if (xhr.responseJSON['result'] == 'timeout') {
           this.tokenErrorMessage = this.txt.timeout;
         } else {
           this.tokenErrorMessage = this.txt.error500;
