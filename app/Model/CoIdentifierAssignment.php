@@ -232,11 +232,11 @@ class CoIdentifierAssignment extends AppModel {
     $args['conditions'][$objType.'.id'] = $objId;
     $args['contain'][] = 'Identifier';
     if($objType == 'CoPerson') {
-      $args['contain'][] = 'PrimaryName';
+      $args['contain'][] = 'Name';
     }
     
     $obj = $this->Co->$objType->find('first', $args);
-    
+
     if(empty($obj)) {
       $dbc->rollback();
       throw new InvalidArgumentException(_txt('er.notfound',
@@ -317,7 +317,6 @@ class CoIdentifierAssignment extends AppModel {
     } else {
       // Generate the new identifier. This requires several steps. First, substitute
       // non-collision number parameters. If no format is specified, default to "(#)".
-      // We'll use PrimaryName in case there is more than one.
       
       $iaFormat = "(#)";
       
@@ -325,10 +324,23 @@ class CoIdentifierAssignment extends AppModel {
          && $coIdentifierAssignment['CoIdentifierAssignment']['format'] != '') {
         $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
       }
-      
+
+      // For CoPerson use the primary Name if there is one, else the last Name.
+      // For CoDepartment and CoGroup use the name.
+      if($objType == 'CoPerson') {
+        $primaryNameIndex = array_search(true, array_column($obj['Name'], 'primary_name'), true);
+        if(empty($primaryNameIndex)) {
+          $name = end($obj['Name']);
+        } else {
+          $name = $obj['Name'][$primaryNameIndex];
+        }
+      } else {
+        $name = $obj[$objType]['name'];
+      }
+
       try {
         $base = $this->substituteParameters($iaFormat,
-                                            (!empty($obj['PrimaryName']) ? $obj['PrimaryName'] : $obj[$objType]['name']),
+                                            $name,
                                             $obj['Identifier'],
                                             $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
       }
