@@ -41,6 +41,8 @@ class CoDashboardWidgetsController extends StandardController {
       'CoDashboardWidget.ordr' => 'asc'
     )
   );
+
+  public $delete_contains = array();
   
   // We don't directly require a CO, but indirectly we do.
   public $requires_co = true;
@@ -65,10 +67,13 @@ class CoDashboardWidgetsController extends StandardController {
     // data to figure out which type of Plugin we should bind).
 
     foreach(array_values($plugins) as $plugin) {
-      $relation = array('hasOne' => array("Co" . $plugin => array('dependent' => true)));
+      $pmodel = "Co" . $plugin;
+      $relation = array('hasOne' => array($pmodel => array('dependent' => true)));
       
       // Set reset to false so the bindings don't disappear after the first find
       $this->CoDashboardWidget->bindModel($relation, false);
+
+      $this->delete_contains[] = $pmodel;
     }
 
     $this->set('plugins', $plugins);
@@ -147,7 +152,41 @@ class CoDashboardWidgetsController extends StandardController {
     // Or try the default behavior
     return parent::calculateImpliedCoId();
   }
-  
+
+  /**
+   * Perform any dependency checks required prior to a delete operation.
+   * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Array Current data
+   * @return boolean true if dependency checks succeed, false otherwise.
+   */
+
+  function checkDeleteDependencies($curdata) {
+    // Annoyingly, the read() call in standardController resets the associations made
+    // by the bindModel() call in beforeFilter(), above. Beyond that, deep down in
+    // Cake's Model, a find() is called as part of the delete() which also resets the associations.
+    // So we have to manually delete any dependencies.
+
+    // Use the previously obtained list of plugins as a guide
+    $plugins = $this->viewVars['plugins'];
+
+    foreach(array_values($plugins) as $plugin) {
+      $model = "Co" . $plugin;
+
+      if(!empty($curdata[$model]['id'])) {
+        // (CO-1988)Remove the plugin object from the instance and enforce the creation of a new one
+        if (!empty(ClassRegistry::getObject($model))) {
+          ClassRegistry::removeObject($model);
+        }
+        $this->loadModel($plugin . "." . $model);
+        $this->$model->delete($curdata[$model]['id']);
+      }
+    }
+
+    return true;
+  }
+
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
