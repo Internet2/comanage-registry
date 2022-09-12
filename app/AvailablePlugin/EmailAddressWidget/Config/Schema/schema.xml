@@ -30,34 +30,51 @@
       <key />
       <autoincrement />
     </field>
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
     <field name="default_type" type="C" size="128" />
     <field name="type_hidden" type="L" />
+    <field name="disable_provisioning" type="L" />
+    <field name="verification_validity" type="I" />
     <field name="co_message_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
     <field name="co_dashboard_widget_id" type="I">
       <constraint>REFERENCES cm_co_dashboard_widgets(id)</constraint>
     </field>
-    
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
     <index name="co_email_address_widgets_i1">
       <col>co_dashboard_widget_id</col>
       <unique />
     </index>
+    <index name="co_email_address_widgets_i2">
+      <col>co_message_template_id</col>
+    </index>
   </table>
-  <table name="email_address_widget_verification_requests">
+
+
+  <table name="email_address_widget_verifications">
     <field name="id" type="I">
       <key />
       <autoincrement />
     </field>
-    <field name="email_address_widget_verification_request_id" type="I">
-      <constraint>REFERENCES cm_email_address_widget_verification_requests(id)</constraint>
-    </field>
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
     <field name="email" type="C" size="128" />
     <field name="type" type="C" size="32" />
     <field name="token" type="C" size="16" />
+    <field name="co_email_address_widget_id" type="I">
+      <constraint>REFERENCES cm_co_email_address_widgets(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="email_address_widget_verifications_i1">
+      <col>co_email_address_widget_id</col>
+    </index>
+    <index name="email_address_widget_verifications_i2">
+      <col>co_person_id</col>
+    </index>
   </table>
 </schema>

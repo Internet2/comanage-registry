@@ -45,11 +45,56 @@ class CoEmailAddressWidgetsController extends SDWController {
    */
   
   public function beforeRender() {
-    parent::beforeRender();
+    if($this->action == 'gentoken') {
+      // Return if one of the required query parameters is missing
+      if(empty($this->request->query['email'])
+         || empty($this->request->query['copersonid'])) {
+        $this->set('vv_response_type','badParams');
+        return;
+      }
+
+      $email = $this->request->query['email'];
+
+      // I need to verify that the CO Person is part of the CO
+      $copersonid = $this->request->query['copersonid'];
+      if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
+        $this->set('vv_response_type','badParams');
+        return;
+      }
+
+      $results = $this->CoEmailAddressWidget->generateToken(
+        $email,
+        $this->CoEmailAddressWidget->field('default_type'),
+        $copersonid
+      );
+      // Return if we fail to create and save the token
+      if(empty($results['id'])) {
+        $this->set('vv_response_type','error');
+        return;
+      }
+
+      // We have a valid result. Provide the row ID to the verification form,
+      // and send the token to the new email address for round-trip verification by the user.
+      $this->set('vv_response_type', 'ok');
+      $this->set('vv_id', $results['id']);
+      $this->CoEmailAddressWidget->send($email,$results['token'], $this->CoEmailAddressWidget->field('co_message_template_id'));
+      return;
+    }
+
+    // Gather the available email address types for the config form
+    $this->set('vv_available_types', $this->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
+
+    // Gather message templates for the config form
+    $args = array();
+    $args['conditions']['status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    $this->set('vv_message_templates', $this->CoMessageTemplate->find('list',$args));
   
     // Pass the config
     $cfg = $this->CoEmailAddressWidget->getConfig();
     $this->set('vv_config', $cfg);
+
+    parent::beforeRender();
   }
   
   /**
@@ -70,20 +115,19 @@ class CoEmailAddressWidgetsController extends SDWController {
     $availableTypes = $this->EmailAddress->types($this->cur_co['Co']['id'], 'type');
     $this->set('vv_available_types', $availableTypes);
   }
-  
-  public function edit($id) {
-    parent::edit($id);
-    
-    // Gather the available email address types for the config form
-    $this->set('vv_available_types', $this->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
-  
-    // Gather message templates for the config form
-    $args = array();
-    $args['conditions']['status'] = SuspendableStatusEnum::Active;
-    $args['contain'] = false;
-    $this->set('vv_message_templates', $this->CoMessageTemplate->find('list',$args));
-    
-  }  
+
+  /**
+   * Step 1 in adding an email address:
+   * Generate and mail a token for email verification.
+   * Return the row id back for use in step two.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+  public function gentoken($id) {
+    $this->CoEmailAddressWidget->id = $id;
+    $this->layout = 'ajax';
+    $this->render("gentoken");
+  }
   
   /**
    * Authorization for this Controller, called by Auth component
@@ -112,6 +156,9 @@ class CoEmailAddressWidgetsController extends SDWController {
 
     // View an existing CO Email Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+
+    // Generate an email verification token
+    $p['gentoken'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
 
     $this->set('permissions', $p);
     return($p[$this->action]);

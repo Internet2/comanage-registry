@@ -5,5 +5,5 @@ $a = array(
   "id" => $vv_id
 );
 
-print json_encode($a) . PHP_EOL;
+print json_encode($a);
   
