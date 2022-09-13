@@ -58,7 +58,7 @@
   $args['plugin'] = null;
   $args['controller'] = 'co_dashboard_widgets';
   $args['action'] = 'index';
-  $args['codashboard'] = $co_email_adderss_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
+  $args['codashboard'] = $co_email_address_widgets[0]['CoDashboardWidget']['co_dashboard_id'];
   $this->Html->addCrumb(_txt('ct.co_dashboard_widgets.1'), $args);
   
   $crumbTxt = _txt('op.' . $this->action . '-a', array(filter_var($co_email_address_widgets[0]['CoDashboardWidget']['description'],FILTER_SANITIZE_SPECIAL_CHARS)));
@@ -135,7 +135,34 @@
       ?>
     </div>  
   </li>
-  
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.emailaddresswidget.fd.provision.dis'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.emailaddresswidget.fd.provision.dis.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+        ? $this->Form->input('disable_provisioning')
+        : (isset($vv_config['CoEmailAddressWidget']['disable_provisioning'])
+        && $vv_config['CoEmailAddressWidget']['disable_provisioning']
+          ? _txt('fd.yes') : _txt('fd.no')));
+      print ' ' . $this->Form->label('disable_provisioning', _txt('pl.emailaddresswidget.fd.provision.dis'));
+      ?>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('verification_validity', _txt('pl.emailaddresswidget.fd.verification.validity')) :_txt('pl.emailaddresswidget.fd.verification.validity')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.emailaddresswidget.fd.verification.validity.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('verification_validity', array('default' => 10))
+        : filter_var($vv_config['CoEmailAddressWidget']['verification_validity'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

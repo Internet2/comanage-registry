@@ -36,7 +36,7 @@ $cm_email_address_widget_texts['en_US'] = array(
   'ct.co_email_address_widgets.1'  => 'Self Service Email Widget',
   'ct.co_email_address_widgets.pl' => 'Self Service Email Widgets',
   
-  // Plugin texts
+  // Error
   'er.emailaddresswidget.401' => 'Your session has timed out. Please log in.',
   'er.emailaddresswidget.500' => 'There was an unknown error.',
   'er.emailaddresswidget.fd.token' => 'The token you have entered does not match. Please try again or start over.',
@@ -45,10 +45,16 @@ $cm_email_address_widget_texts['en_US'] = array(
   'er.emailaddresswidget.modal.title.delete.fail' => 'Delete failed',
   'er.emailaddresswidget.timeout'  => 'The token has expired. Please start over.',
 
+  // Actions
   'pl.emailaddresswidget.add' => 'Add an email address',
   'pl.emailaddresswidget.added' => 'Email address added',
   'pl.emailaddresswidget.email.subject' => 'Your email verification code',
   'pl.emailaddresswidget.email.body' => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
+  'pl.emailaddresswidget.noconfig' => 'This widget requires no configuration.',
+  'pl.emailaddresswidget.none'     => 'No email addresses',
+  'pl.emailaddresswidget.return'   => 'Return',
+
+  // Fields
   'pl.emailaddresswidget.fd.body' => 'Body',
   'pl.emailaddresswidget.fd.email' => 'Add Email Address',
   'pl.emailaddresswidget.fd.message.template' => 'Message template',
@@ -60,6 +66,12 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.fd.type.hide.desc' => 'Don\'t display the email type field in the Add Email form.',
   'pl.emailaddresswidget.fd.token'   => 'Verification Token',
   'pl.emailaddresswidget.fd.token.msg'   => 'Please check your email at the address you just submitted. Enter the email verification token in the field below and click \"Verify\" to finish adding your new email address.',
+  'pl.emailaddresswidget.fd.provision.dis' => 'Disable Provisioning',
+  'pl.emailaddresswidget.fd.provision.dis.desc' => 'Check this option if you want to disable provisioning.',
+  'pl.emailaddresswidget.fd.verification.validity' => 'Verfication Validity (Minutes)',
+  'pl.emailaddresswidget.fd.verification.validity.desc' => 'When verifing an email address, the length of time (in minutes) the verification code is valid for (default is 10 minutes)',
+
+  //  Modal
   'pl.emailaddresswidget.modal.body.add.success' => 'The email address was added.',
   'pl.emailaddresswidget.modal.body.delete' => 'Are you sure you want to delete this email address?',
   'pl.emailaddresswidget.modal.body.delete.success' => 'The email address was deleted.',
@@ -70,8 +82,5 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.modal.title.update.nochange' => 'Email addresses unchanged',
   'pl.emailaddresswidget.modal.title.update.success' => 'Update successful',
   'pl.emailaddresswidget.modal.title.delete' => 'Delete email address?',
-  'pl.emailaddresswidget.modal.title.delete.success' => 'Address deleted',
-  'pl.emailaddresswidget.noconfig' => 'This widget requires no configuration.',
-  'pl.emailaddresswidget.none'     => 'No email addresses',
-  'pl.emailaddresswidget.return'   => 'Return'
+  'pl.emailaddresswidget.modal.title.delete.success' => 'Address deleted'
 );
