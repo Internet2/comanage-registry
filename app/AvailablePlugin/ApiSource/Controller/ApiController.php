@@ -107,26 +107,21 @@ class ApiController extends Controller {
        && !empty($_SERVER['PHP_AUTH_PW'])
        && !empty($this->request->params['coid'])
        && !empty($this->request->params['sor'])) {
-      // Cake is doing some unexpected auto-joining which breaks changelog
-      // on the related models, so make sure we account for ChangelogBehavior
-      
       $args = array();
-      $args['conditions']['ApiSource.sor_label'] = $this->request->params['sor'];
-      $args['joins'][0]['table'] = 'cos';
-      $args['joins'][0]['alias'] = 'Co';
-      $args['joins'][0]['type'] = 'INNER';
-      $args['joins'][0]['conditions'][0] = 'OrgIdentitySource.co_id=Co.id';
-      $args['conditions']['Co.id'] = $this->request->params['coid'];
-      $args['conditions']['OrgIdentitySource.deleted'] = false;
-      $args['conditions']['OrgIdentitySource.org_identity_source_id'] = null;
-      $args['contain'] = array('ApiUser', 'OrgIdentitySource');
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->request->params['coid'];
+      $args['conditions']['OrgIdentitySource.sor_label'] = $this->request->params['sor'];
+      $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+      $args['contain'] = array('ApiSource' => array('ApiUser'));
       
-      $this->cur_api_src = $this->ApiSource->find('first', $args);
+      // Bind ApiSource to OrgIdentitySource
+      $this->OrgIdentitySource->bindModel(array('hasOne' => array('ApiSource.ApiSource')), false);
+      
+      $this->cur_api_src = $this->OrgIdentitySource->find('first', $args);
       
       // If no API User is set, then Push Mode is disabled
       
-      if(!empty($this->cur_api_src['ApiUser']['username'])) {
-        if(strcmp($_SERVER['PHP_AUTH_USER'], $this->cur_api_src['ApiUser']['username'])==0) {
+      if(!empty($this->cur_api_src['ApiSource']['ApiUser']['username'])) {
+        if(strcmp($_SERVER['PHP_AUTH_USER'], $this->cur_api_src['ApiSource']['ApiUser']['username'])==0) {
           // This is similar to the configuration in AppController for general API Auth
           $this->Auth->authenticate = array(
             'Basic' => array(
@@ -166,10 +161,10 @@ class ApiController extends Controller {
             $username = $this->Auth->user('username');
             
             if(!empty($username)
-               && $username == $this->cur_api_src['ApiUser']['username']
+               && $username == $this->cur_api_src['ApiSource']['ApiUser']['username']
                // Maybe check remote IP, if configured
-               && (empty($this->cur_api_src['ApiUser']['remote_ip'])
-                   || preg_match($this->cur_api_src['ApiUser']['remote_ip'], $_SERVER['REMOTE_ADDR']))) {
+               && (empty($this->cur_api_src['ApiSource']['ApiUser']['remote_ip'])
+                   || preg_match($this->cur_api_src['ApiSource']['ApiUser']['remote_ip'], $_SERVER['REMOTE_ADDR']))) {
               $authok = true;
             }
           }
@@ -427,6 +422,11 @@ class ApiController extends Controller {
       
       $this->set('results', $results);
       $this->Api->restResultHeader($responseCode);
+    }
+    catch(UnexpectedValueException $e) {
+      // This is a 202 Accepted response from the Match Server
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(202);
     }
     catch(Exception $e) {
       $this->set('results', array('error' => $e->getMessage()));

@@ -65,11 +65,6 @@ class ApiSource extends AppModel {
       'required' => true,
       'message' => 'An Org Identity Source ID must be provided'
     ),
-    'sor_label' => array(
-      'rule' => 'alphaNumeric',
-      'required' => true,
-      'allowEmpty' => false
-    ),
     'api_user_id' => array(
       'content' => array(
         'rule' => 'notBlank',
@@ -139,40 +134,6 @@ class ApiSource extends AppModel {
     foreach(array('kafka_server_id', 'kafka_groupid', 'kafka_topic') as $f) {
       $this->validate[$f]['required'] = false;
       $this->validate[$f]['allowEmpty'] = true;
-    }
-    
-    return true;
-  }
-  
-  /**
-   * Actions to take before a save operation is executed.
-   *
-   * @since  COmanage Registry v3.3.0
-   */
-
-  public function beforeSave($options = array()) {
-    if(!empty($this->data['ApiSource']['sor_label'])) {
-      // Make sure sor_label isn't already in use in this CO
-      
-      $coId = $this->OrgIdentitySource->field('co_id', array('OrgIdentitySource.id' => 
-                                                             $this->data['ApiSource']['org_identity_source_id']));
-      
-      $args = array();
-      $args['joins'][0]['table'] = 'org_identity_sources';
-      $args['joins'][0]['alias'] = 'OrgIdentitySource';
-      $args['joins'][0]['type'] = 'INNER';
-      $args['joins'][0]['conditions'][0] = 'OrgIdentitySource.id=ApiSource.org_identity_source_id';
-      $args['conditions']['OrgIdentitySource.co_id'] = $coId;
-      $args['conditions']['ApiSource.sor_label'] = $this->data['ApiSource']['sor_label'];
-      // We don't want to test against our own record
-      $args['conditions']['ApiSource.id NOT'] = $this->data['ApiSource']['id'];
-      $args['contain'] = false;
-      
-      $recs = $this->find('count', $args);
-      
-      if($recs > 0) {
-        throw new InvalidArgumentException(_txt('er.apisource.label.inuse', array($this->data['ApiSource']['sor_label'])));
-      }
     }
     
     return true;

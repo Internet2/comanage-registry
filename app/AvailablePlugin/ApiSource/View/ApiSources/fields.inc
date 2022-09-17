@@ -80,18 +80,6 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print _txt('pl.apisource.sor'); ?>
-        <span class="required">*</span><br />
-        <span class="descr"><?php print _txt('pl.apisource.sor.desc'); ?></span>
-      </div>
-    </div>
-    <div class="field-info">
-      <?php print ($e ? $this->Form->input('sor_label', array('size' => 50)) : filter_var($api_sources[0]['ApiSource']['sor_label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
         <?php print _txt('pl.apisource.mode.push'); ?>
       </div>
     </div>

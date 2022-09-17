@@ -56,6 +56,7 @@
   function core_api_toggle() {
     response_config_field();
     expunge_on_del_toggle();
+    identifier_toggle();
   }
 
   function expunge_on_del_toggle() {
@@ -70,6 +71,19 @@
 
       // clear the value
       $('#CoreApiExpungeOnDelete').prop( "checked", false );
+    }
+  }
+  
+  function identifier_toggle() {
+    // Identifier type is required for Core Person APIs only
+    
+    var api = document.getElementById('CoreApiApi').value;
+
+    if(api == "<?php print CoreApiEnum::CoPersonRead; ?>"
+       || api == "<?php print CoreApiEnum::CoPersonWrite; ?>") {
+      $("#CoreApiIdentifierType").closest("li").show('fade');
+    } else {
+      $("#CoreApiIdentifierType").closest("li").hide('fade');
     }
   }
 
@@ -94,6 +108,10 @@
       $('#CoreApiIndexResponseType > option:selected').removeAttr("selected");
       $('#CoreApiIndexResponseType option[value=""]').attr("selected", "selected");
     }
+  }
+  
+  function js_local_onload() {
+    core_api_toggle();
   }
 </script>
 <?php if(!empty($vv_api_endpoint)): ?>
@@ -237,6 +255,7 @@
     <div class="field-name">
       <div class="field-title">
         <?php print _txt('pl.coreapi.response.type'); ?>
+        <span class="required">*</span>
       </div>
       <div class="field-desc"><?php print _txt('pl.coreapi.response.type.desc'); ?></div>
     </div>

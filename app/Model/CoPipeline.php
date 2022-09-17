@@ -393,15 +393,19 @@ class CoPipeline extends AppModel {
         // request. Note we might not actually be updating any relevant attributes, but
         // for the moment this seems like the most logical place to do this.
         
-        $referenceId = $this->Co->OrgIdentity->OrgIdentitySourceRecord->field('reference_identifier',
-                                                                              array('OrgIdentitySourceRecord.id' => $oisRecordId));
+        $args = array();
+        $args['conditions']['OrgIdentitySourceRecord.id'] = $oisRecordId;
+        $args['contain'] = array('OrgIdentitySource');
         
-        if($referenceId) {
+        $oisRecord = $this->Co->OrgIdentity->OrgIdentitySourceRecord->find('first', $args);
+        
+        if(!empty($oisRecord['OrgIdentitySourceRecord']['reference_identifier'])) {
           // We use $referenceId as an indicator that this was a pipeline initiated
           // match request, but don't actually use it in the request.
           
           $this->Co->Server->MatchServer->updateMatchAttributes(
             $pipeline['CoPipeline']['match_server_id'],
+            $oisRecord['OrgIdentitySource']['sor_label'],
             $orgIdentityId
           );
         }
@@ -550,8 +554,22 @@ class CoPipeline extends AppModel {
       // On error, including 202, an exception is thrown and we don't continue.
       // If we get a Reference ID back, look for an existing CO Person with it.
       
+      $args = array();
+      $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
+      $args['contain'] = array('OrgIdentitySourceRecord' => array('OrgIdentitySource'));
+      
+      $orgIdentity = $this->Co->OrgIdentity->find('first', $args);
+      
+      // We shouldn't get an error here since we already pulled the CO ID above.
+      // Maybe just move this call up there?
+      
+      if(empty($orgIdentity['OrgIdentitySourceRecord']['OrgIdentitySource']['sor_label'])) {
+        throw new InvalidArgumentException(_txt('er.match.attr.sor_label'));
+      }
+
       $referenceId = $this->Co->Server->MatchServer->requestReferenceIdentifier(
         $pipeline['CoPipeline']['match_server_id'],
+        $orgIdentity['OrgIdentitySourceRecord']['OrgIdentitySource']['sor_label'],
         $orgIdentityId
       );
       
@@ -614,7 +632,7 @@ class CoPipeline extends AppModel {
                                                  null,
                                                  $orgIdentityId,
                                                  $actorCoPersonId,
-                                                 ActionEnum::CoPersonMatchedPipelne,
+                                                 ActionEnum::CoPersonMatchedPipeline,
                                                  _txt('rs.pi.match', array($pipeline['CoPipeline']['name'],
                                                                            $pipeline['CoPipeline']['id'],
                                                                            _txt('en.match.strategy',

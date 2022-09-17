@@ -433,6 +433,30 @@
     </index>
   </table>
   
+  <table name="api_users">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="privileged" type="L" />
+    <field name="status" type="C" size="2" />
+    <field name="username" type="C" size="50" />
+    <field name="password" type="C" size="40" />
+    <field name="valid_from" type="T" />
+    <field name="valid_through" type="T" />
+    <field name="remote_ip" type="C" size="80" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="api_users_i1">
+      <col>username</col>
+      <unique />
+    </index>
+  </table>
+  
   <table name="servers">
     <field name="id" type="I">
       <key />
@@ -531,7 +555,6 @@
     <field name="serverurl" type="C" size="256" />
     <field name="username" type="C" size="128" />
     <field name="password" type="C" size="80" />
-    <field name="sor_label" type="C" size="40" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -1030,6 +1053,7 @@
       <autoincrement />
     </field>
     <field name="name" type="C" size="128" />
+    <field name="sor_label" type="C" size="40" />
     <field name="co_id" type="I">
       <notnull />
       <constraint>REFERENCES cm_cos(id)</constraint>
@@ -1185,6 +1209,7 @@
       <constraint>REFERENCES cm_cos(id)</constraint>
     </field>
     <field name="description" type="C" size="256" />
+    <field name="sor_label" type="C" size="40" />
     <field name="plugin" type="C" size="32" />
     <field name="co_pipeline_id" type="I">
       <constraint>REFERENCES cm_co_pipelines(id)</constraint>
@@ -1212,6 +1237,10 @@
      
     <index name="org_identity_sources_i2">
       <col>org_identity_source_id</col>
+    </index>
+    
+    <index name="org_identity_sources_i3">
+      <col>source_label</col>
     </index>
   </table>
   
@@ -1622,30 +1651,6 @@
     </index>
     <index name="ad_hoc_attributes_i5">
       <col>organization_id</col>
-    </index>
-  </table>
-  
-  <table name="api_users">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="privileged" type="L" />
-    <field name="status" type="C" size="2" />
-    <field name="username" type="C" size="50" />
-    <field name="password" type="C" size="40" />
-    <field name="valid_from" type="T" />
-    <field name="valid_through" type="T" />
-    <field name="remote_ip" type="C" size="80" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="api_users_i1">
-      <col>username</col>
-      <unique />
     </index>
   </table>
   

@@ -67,11 +67,6 @@ class MatchServer extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
-    ),
-    'sor_label' => array(
-      'rule' => 'notBlank',
-      'required' => true,
-      'allowEmpty' => false
     )
   );
   
@@ -202,6 +197,7 @@ class MatchServer extends AppModel {
    *
    * @since  COmanage Registry v3.3.0
    * @param  integer $serverId      Server ID
+   * @param  string  $sorLabel      System of Record Label
    * @param  integer $orgIdentityId Org Identity ID to pull attributes from for match request
    * @param  integer $coPersonId    CO Person ID to pull attributes from for match request
    * @param  string  $action        'request' or 'update'
@@ -209,9 +205,14 @@ class MatchServer extends AppModel {
    * @return mixed                  Reference ID (for request). Array (for request/300), or boolean true (for update)
    * @throws InvalidArgumentException
    * @throws RuntimeException
+   * @throws UnexpectedValueException
    */
   
-  protected function doRequest($serverId, $orgIdentityId, $coPersonId, $action, $referenceId=null) {
+  protected function doRequest($serverId, $sorLabel, $orgIdentityId, $coPersonId, $action, $referenceId=null) {
+    if(!$sorLabel || ctype_space($sorLabel)) {
+      throw new InvalidArgumentException(_txt('er.match.attr.sor_label'));
+    }
+
     // Pull the Match Server configuration.
     
     $args = array();
@@ -302,7 +303,7 @@ class MatchServer extends AppModel {
       $srvr['MatchServer']['password']
     );
     
-    $url = "/people/" . urlencode($srvr['MatchServer']['sor_label']) . "/" . urlencode($sorId);
+    $url = "/people/" . urlencode($sorLabel) . "/" . urlencode($sorId);
     
     if($action == 'request') {
       // Before we submit the PUT, we do a GET (Request Current Values) to see
@@ -344,7 +345,7 @@ class MatchServer extends AppModel {
         $matchRequest = $body->matchRequest;
       }
       
-      throw new RuntimeException(_txt('rs.match.accepted', array($matchRequest)));
+      throw new UnexpectedValueException(_txt('rs.match.accepted', array($matchRequest)));
     }
     
     if($response->code == 300) {
@@ -391,6 +392,7 @@ class MatchServer extends AppModel {
    *
    * @since  COmanage Registry v3.3.0
    * @param  integer $serverId      Server ID
+   * @param  string  $sorLabel      System of Record Label
    * @param  integer $orgIdentityId Org Identity ID to pull attributes from for match request
    * @param  integer $coPersonId    CO Person ID to pull attributes from for match request
    * @param  string  $referenceId   Reference ID, for forced reconciliation request
@@ -399,8 +401,8 @@ class MatchServer extends AppModel {
    * @throws RuntimeException
    */
   
-  public function requestReferenceIdentifier($serverId, $orgIdentityId, $coPersonId=null, $referenceId=null) {
-    return $this->doRequest($serverId, $orgIdentityId, $coPersonId, 'request', $referenceId);
+  public function requestReferenceIdentifier($serverId, $sorLabel, $orgIdentityId, $coPersonId=null, $referenceId=null) {
+    return $this->doRequest($serverId, $sorLabel, $orgIdentityId, $coPersonId, 'request', $referenceId);
   }
   
   /**
@@ -408,15 +410,16 @@ class MatchServer extends AppModel {
    *
    * @since  COmanage Registry v3.3.0
    * @param  integer $serverId      Server ID
+   * @param  string  $sorLabel      System of Record Label
    * @param  array   $orgIdentityId Org Identity ID to pull attributes from for match request
    * @return boolean                true on success
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function updateMatchAttributes($serverId, $orgIdentityId) {
+  public function updateMatchAttributes($serverId, $sorLabel, $orgIdentityId) {
     // This is basically the same request as requestReferenceIdentifier().
     
-    return $this->doRequest($serverId, $orgIdentityId, null, 'update');
+    return $this->doRequest($serverId, $sorLabel, $orgIdentityId, null, 'update');
   }
 }

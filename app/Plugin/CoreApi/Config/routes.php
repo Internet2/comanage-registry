@@ -105,6 +105,16 @@ Router::connect(
   )
 );
 
+// COmanage Match Resolution Callback API
+Router::connect(
+  '/api/co/:coid/core/v1/resolution',
+  array(
+    'plugin'      => 'core_api',
+    'controller'  => 'Api',
+    'action'      => 'resolveMatch',
+    '[method]'    => 'POST'
+  )
+);
 
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem

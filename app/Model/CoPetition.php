@@ -1342,6 +1342,7 @@ class CoPetition extends AppModel {
     try {
       $referenceId = $this->Co->Server->MatchServer->requestReferenceIdentifier(
         $pt['CoEnrollmentFlow']['match_server_id'],
+        $pt['CoEnrollmentFlow']['sor_label'],
         null,
         $pt['CoPetition']['enrollee_co_person_id'],
         $requestedReferenceId

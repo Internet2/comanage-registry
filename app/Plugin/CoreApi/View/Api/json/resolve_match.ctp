@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Core API Enumerations
+ * COmanage Registry Core API JSON View
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -20,21 +20,11 @@
  * limitations under the License.
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
- * @since         COmanage Registry v4.0.0
+ * @package       registry-plugin
+ * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class CoreApiEnum
-{
-  const CoPersonRead      = "CR";
-  // Write implies Read
-  const CoPersonWrite     = "CW";
-  const MatchCallback     = "MC";
-}
-
-class ResponseTypeEnum
-{
-  const Full              = 'FL';
-  const IdentifierList    = 'IL';
+if(isset($results)) {
+  print json_encode($results);
 }

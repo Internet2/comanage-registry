@@ -169,36 +169,40 @@ print $this->element("pageTitleAndButtons", $params);
                   // Only output values for the current key (derived from $matchAttributeNames).
                   if($k == $n) {
                     print '<div class="match-attr-list-container">';
-                    foreach($v as $obj) {
-                      // Skip SOR Identifiers (if Identifiers are being listed at all).
-                      if (!($k == 'identifiers' && $obj->type == 'sor')) {
-                        print '<ul class="match-attr-list">' . "\n";
-                        // Convert the object to associative array and sort by key values.
-                        // XXX This assumes that our object will *always* be a simple associative array by this point.
-                        $attrsArr = json_decode(json_encode($obj), true);
-                        ksort($attrsArr);
-                        // Finally, output the key/value pairs:
-                        foreach ($attrsArr as $key => $val) {
-                          if (!empty($val)) {
-                            $matchClass = '';
-                            if($m->referenceId == 'new') {
-                              // Save the new attribute.
-                              $newAttributes[$key] = $val;
-                            } else {
-                              // Do we have a match? Compare the new attribute with the current attribute.
-                              // We will convert both strings to lowercase for a case-insensitive match.
-                              if(strtolower($newAttributes[$key]) == strtolower($val)) {
-                                $matchClass = ' class="match"';
-                              } elseif(!empty($newAttributes[$key])) {
-                                $matchClass = ' class="no-match"';
+                    if(is_array($v)) {
+                      foreach($v as $obj) {
+                        // Skip SOR Identifiers (if Identifiers are being listed at all).
+                        if (!($k == 'identifiers' && $obj->type == 'sor')) {
+                          print '<ul class="match-attr-list">' . "\n";
+                          // Convert the object to associative array and sort by key values.
+                          // XXX This assumes that our object will *always* be a simple associative array by this point.
+                          $attrsArr = json_decode(json_encode($obj), true);
+                          ksort($attrsArr);
+                          // Finally, output the key/value pairs:
+                          foreach ($attrsArr as $key => $val) {
+                            if (!empty($val)) {
+                              $matchClass = '';
+                              if($m->referenceId == 'new') {
+                                // Save the new attribute.
+                                $newAttributes[$key] = $val;
+                              } else {
+                                // Do we have a match? Compare the new attribute with the current attribute.
+                                // We will convert both strings to lowercase for a case-insensitive match.
+                                if(strtolower($newAttributes[$key]) == strtolower($val)) {
+                                  $matchClass = ' class="match"';
+                                } elseif(!empty($newAttributes[$key])) {
+                                  $matchClass = ' class="no-match"';
+                                }
                               }
+                              print "<li" . $matchClass . ">$key: <strong>$val</strong></li>\n";
                             }
-                            print "<li" . $matchClass . ">$key: <strong>$val</strong></li>\n";
                           }
+                          print "</ul>\n";
                         }
-                        print "</ul>\n";
                       }
-                    }  
+                    } else {
+                      print "<strong>$v</strong>\n";
+                    }
                     print "</div>\n";
                   }
                 }  

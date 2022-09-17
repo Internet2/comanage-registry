@@ -123,7 +123,7 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
         $n = array();
         
         if(!empty($name['prefix']))
-          $n['prefix'] = $name['prefix'];
+          $n['honorific'] = $name['prefix'];
         if(!empty($attrs['sorAttributes']['names'][0]['given']))
           $n['given'] = $name['given'];
         if(!empty($attrs['sorAttributes']['names'][0]['middle']))

@@ -84,6 +84,11 @@ class OrgIdentitySource extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'sor_label' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'plugin' => array(
       // XXX This should be a dynamically generated list based on available plugins
       'rule' => 'notBlank',
@@ -183,6 +188,43 @@ class OrgIdentitySource extends AppModel {
   }
 
   /**
+   * Actions to take before a save operation is executed.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @throws InvalidArgumentException
+   */
+
+  public function beforeSave($options = array()) {
+    if(empty($this->data['OrgIdentitySource']['co_id'])) {
+      throw new InvalidArgumentException(_txt('er.notprov.id', array('ct.cos.1')));
+    }
+    
+    if(!empty($this->data['OrgIdentitySource']['sor_label'])) {
+      // Make sure sor_label isn't already in use in this CO. This isn't strictly
+      // required for Match Servers, but it is for ApiSource, which needs to map
+      // the SOR Label back to a specific configuration.
+      // XXX note we don't currently crosscheck against Enrollment Flows
+      
+      $args = array();
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->data['OrgIdentitySource']['co_id'];
+      $args['conditions']['OrgIdentitySource.sor_label'] = $this->data['OrgIdentitySource']['sor_label'];
+      // We don't want to test against our own record
+      if(!empty($this->data['OrgIdentitySource']['id'])) {
+        $args['conditions']['OrgIdentitySource.id NOT'] = $this->data['OrgIdentitySource']['id'];
+      }
+      $args['contain'] = false;
+      
+      $recs = $this->find('count', $args);
+      
+      if($recs > 0) {
+        throw new InvalidArgumentException(_txt('er.ois.label.inuse', array($this->data['OrgIdentitySource']['sor_label'])));
+      }
+    }
+    
+    return true;
+  }
+  
+  /**
    * Bind the specified plugin's backend model
    *
    * @since COmanage Registry v2.0.0
@@ -267,6 +309,7 @@ class OrgIdentitySource extends AppModel {
    * @throws InvalidArgumentException
    * @throws OverflowException
    * @throws RuntimeException
+   * @throws UnexpectedValueException
    */
   
   public function createOrgIdentity($id,
@@ -411,6 +454,15 @@ class OrgIdentitySource extends AppModel {
                              $provision,
                              $brec['raw'],
                              $this->OrgIdentitySourceRecord->OrgIdentity->OrgIdentitySourceRecord->id);
+    }
+    catch(UnexpectedValueException $e) {
+      // The pipeline received a 202 response from the Match Server, which we
+      // want to report differently. Note we _still_ rollback here... that
+      // leaves the OrgIdentitySourceRecord in place but not the OrgIdentity
+      // so on the next try we can call createOrgIdentity again.
+      // (OverflowException was already in use...)
+      $dbc->rollback();
+      throw new UnexpectedValueException($e->getMessage());
     }
     catch(Exception $e) {
       $dbc->rollback();

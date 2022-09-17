@@ -118,14 +118,15 @@ class CoreApi extends AppModel {
                                                  IdentifierEnum::SORID,
                                                  IdentifierEnum::StudentSOR,
                                                  IdentifierEnum::UID))),
-        'required' => true,
-        'allowEmpty' => false
+        'required' => false,
+        'allowEmpty' => true
       )
     ),
     'api' => array(
       'content' => array(
         'rule' => array('inList', array(CoreApiEnum::CoPersonRead,
-                                        CoreApiEnum::CoPersonWrite)),
+                                        CoreApiEnum::CoPersonWrite,
+                                        CoreApiEnum::MatchCallback)),
         'required' => true,
         'allowEmpty' => false
       )
@@ -134,8 +135,8 @@ class CoreApi extends AppModel {
       'content' => array(
         'rule' => array('inList', array(ResponseTypeEnum::Full,
                                         ResponseTypeEnum::IdentifierList)),
-        'required' => true,
-        'allowEmpty' => false
+        'required' => false,
+        'allowEmpty' => true
       )
     ),
     'expunge_on_delete' => array(

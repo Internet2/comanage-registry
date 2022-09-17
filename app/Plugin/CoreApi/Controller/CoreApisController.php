@@ -94,7 +94,7 @@ class CoreApisController extends StandardController {
     // and identifier types
     $this->set('vv_identifier_types', $this->CoreApi->Co->CoPerson->Identifier->types($this->cur_co['Co']['id'], 'type'));
     
-    $this->set('vv_api_endpoint', Router::url('/', true) . 'api/co/' . $this->cur_co['Co']['id'] . '/core/v1/people');
+    $this->set('vv_api_endpoint', Router::url('/', true) . 'api/co/' . $this->cur_co['Co']['id'] . '/core/v1');
   }
   
   /**

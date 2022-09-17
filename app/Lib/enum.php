@@ -67,7 +67,7 @@ class ActionEnum
   const CoPersonEditedPipeline          = 'ECPL';
   const CoPersonManuallyProvisioned     = 'PCPM';
   const CoPersonMatchedPetition         = 'MCPP';
-  const CoPersonMatchedPipelne          = 'MCPL';
+  const CoPersonMatchedPipeline         = 'MCPL';
   const CoPersonProvisioned             = 'PCPA';
   const CoPersonStatusRecalculated      = 'RCPS';
   const CoPersonRoleAddedManual         = 'ACRM';

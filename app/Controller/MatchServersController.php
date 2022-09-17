@@ -47,6 +47,21 @@ class MatchServersController extends StandardController {
   );
   
   /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+  
+  function beforeRender() {
+    parent::beforeRender();
+
+    // Pull the list of available API Users
+    $this->set('vv_api_users', $this->Co->ApiUser->availableApiUsers($this->cur_co['Co']['id']));
+    
+    $this->set('vv_api_endpoint', Router::url('/', true) . 'api/co/' . $this->cur_co['Co']['id'] . '/core/v1/resolution');
+  }
+  
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

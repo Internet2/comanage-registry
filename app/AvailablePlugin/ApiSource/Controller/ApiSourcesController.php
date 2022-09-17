@@ -38,6 +38,10 @@ class ApiSourcesController extends SOISController {
       'sor_label' => 'asc'
     )
   );
+  
+  public $edit_contains = array(
+    'OrgIdentitySource'
+  );
 
   /**
    * Callback before views are rendered.
@@ -53,8 +57,8 @@ class ApiSourcesController extends SOISController {
     
     $sorLabel = "";
     
-    if(!empty($this->viewVars['api_sources'][0]['ApiSource']['sor_label'])) {
-      $sorLabel = "/" . $this->viewVars['api_sources'][0]['ApiSource']['sor_label'];
+    if(!empty($this->viewVars['api_sources'][0]['OrgIdentitySource']['sor_label'])) {
+      $sorLabel = "/" . $this->viewVars['api_sources'][0]['OrgIdentitySource']['sor_label'];
     }
     
     $this->set('vv_api_endpoint', Router::url('/', true) . 'api_source/' . $this->cur_co['Co']['id'] . '/v1/sorPeople' . $sorLabel);

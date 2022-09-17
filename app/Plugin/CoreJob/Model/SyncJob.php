@@ -63,7 +63,96 @@ class SyncJob extends CoJobBackend {
           throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.org_identity_sources.1'), $params['ois_id'])));
         }
         
-        $OrgIdentitySource->syncOrgIdentitySource($ois, (isset($params['force']) && $params['force']), $CoJob->id);
+        if(!empty($params['source_key'])) {
+          $targetCoPersonId = null;
+          $orgIdentityId = null;
+          $coPersonId = null;
+          
+          if(!empty($params['reference_id'])) {
+            // See if there is already a CO Person ID with this Reference ID,
+            // in which case we want to link to that identity.
+            // This is similar to CoPipeline::findTargetCoPersonId().
+            
+            $args = array();
+            $args['conditions']['Identifier.identifier'] = $params['reference_id'];
+            $args['conditions']['Identifier.type'] = IdentifierEnum::Reference;
+            $args['conditions']['CoPerson.co_id'] = $ois['OrgIdentitySource']['co_id'];
+            $args['joins'][0]['table'] = 'co_people';
+            $args['joins'][0]['alias'] = 'CoPerson';
+            $args['joins'][0]['type'] = 'INNER';
+            $args['joins'][0]['conditions'][0] = 'CoPerson.id=Identifier.co_person_id';
+            // Make this a distinct select so we don't get tripped on (eg) the same identifier
+            // address being listed twice for the same CO Person (eg from multiple OIS records)
+            $args['fields'] = array('DISTINCT Identifier.co_person_id');
+            $args['contain'] = false;
+
+            $matchingRecords = $OrgIdentitySource->Co->CoPerson->Identifier->find('all', $args);
+
+            if(count($matchingRecords) == 1) {
+              $targetCoPersonId = $matchingRecords[0]['Identifier']['co_person_id'];
+            } elseif(count($matchingRecords) > 1) {
+              // Multiple matching records shouldn't happen, throw an error
+              throw new InvalidArgumentException(_txt('er.syncjob.match', array($params['reference_id'])));
+            }
+            // else No Match
+          }
+          
+          // We'll try createOrgIdentity first. If we get an OverflowException,
+          // there is already a record so we'll try syncOrgIdentity instead.
+          
+          try {
+            $orgIdentityId = $OrgIdentitySource->createOrgIdentity($params['ois_id'],
+                                                                   $params['source_key'],
+                                                                   null,
+                                                                   $ois['OrgIdentitySource']['co_id'],
+                                                                   $targetCoPersonId);
+          }
+          catch(OverflowException $e) {
+            $result = $OrgIdentitySource->syncOrgIdentity($params['ois_id'],
+                                                          $params['source_key'],
+                                                          null,
+                                                          $CoJob->id,
+                                                          true);
+            
+            $orgIdentityId = $result['id'];
+          }
+          catch(Exception $e) {
+            $OrgIdentitySource->Co->CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                                                      $params['source_key'],
+                                                                      $e->getMessage(),
+                                                                      null,
+                                                                      null,
+                                                                      JobStatusEnum::Failed);
+            
+            throw new RuntimeException($e->getMessage());
+          }
+          
+          $coPersonId = $OrgIdentitySource->Co
+                                          ->CoPerson
+                                          ->CoOrgIdentityLink
+                                          ->field('co_person_id', array('CoOrgIdentityLink.org_identity_id' => $orgIdentityId));
+          
+          // Insert a Job History Record, note that syncOrgIdentity() will update Job History
+          $OrgIdentitySource->Co->CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                                                    $params['source_key'],
+                                                                    _txt('rs.org.src.synced'),
+                                                                    $coPersonId,
+                                                                    $orgIdentityId);
+          
+          if(!empty($params['reference_id'])) {
+            // Record History that there was a Manual Resolution Notification
+            
+            $OrgIdentitySource->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                                    null,
+                                                                    $orgIdentityId,
+                                                                    null,
+                                                                    ActionEnum::CoPersonMatchedPipeline,
+                                                                    _txt('pl.syncjob.match.resolved'));
+          }
+        } else {
+          // Sync all records
+          $OrgIdentitySource->syncOrgIdentitySource($ois, (isset($params['force']) && $params['force']), $CoJob->id);
+        }
       } else {
         // Sync all sources
         $OrgIdentitySource->syncAll($CoJob->id, $coId, (isset($params['force']) && $params['force']));
@@ -93,6 +182,16 @@ class SyncJob extends CoJobBackend {
       'ois_id' => array(
         'help'     => _txt('pl.syncjob.arg.ois_id'),
         'type'     => 'int',
+        'required' => false
+      ),
+      'reference_id' => array(
+        'help'     => _txt('pl.syncjob.arg.reference_id'),
+        'type'     => 'string',
+        'required' => false
+      ),
+      'source_key' => array(
+        'help'     => _txt('pl.syncjob.arg.source_key'),
+        'type'     => 'string',
         'required' => false
       )
     );

@@ -43,7 +43,9 @@ class ApiController extends Controller {
   
   public $uses = array(
     "Co",
-    "CoreApi.CoreApi"
+    "CoJob",
+    "CoreApi.CoreApi",
+    "OrgIdentitySource"
   );
 
   /**
@@ -179,6 +181,9 @@ class ApiController extends Controller {
             case 'update':
             case 'delete':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::CoPersonWrite;
+              break;
+            case 'resolveMatch':
+              $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;
               break;
             default:
               throw new RuntimeException('NOT IMPLEMENTED');
@@ -444,6 +449,70 @@ class ApiController extends Controller {
       $this->set('results', array('error' => $e->getMessage()));
       $this->Api->restResultHeader(500);
     }
+  }
+  
+  /**
+   * Handle a Match Resolution Callback Notification
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+  
+  public function resolveMatch() {
+    if(empty($this->request->data['sor'])
+       || empty($this->request->data['sorid'])
+       || empty($this->request->data['referenceId'])) {
+      $this->set('results', array('error' => _txt('er.coreapi.json.invalid')));
+      $this->Api->restResultHeader(400);
+      return;
+    }
+    
+    // Find the OIS associated with this sor label. There should be exactly one.
+    
+    $args = array();
+    $args['conditions']['OrgIdentitySource.co_id'] = $this->request->params['coid'];
+    $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['OrgIdentitySource.sor_label'] = $this->request->data['sor'];
+    $args['contain'] = false;
+    
+    $ois = $this->OrgIdentitySource->find('first', $args);
+    
+    if(empty($ois)) {
+      $this->set('results', array('error' => _txt('er.coreapi.sor.notfound', array($this->request->data['sor']))));
+      $this->Api->restResultHeader(400);
+      return;
+    }
+    
+    // If an OrgIdentitySource Create Org Identity operations fails because of
+    // multiple choices returned by the Match server, there is no record maintained
+    // (except that ApiSource will maintain its own record), so we basically
+    // need to queue a new job to start the process over. This implies we don't
+    // have a way to validate SORID, but the Job can do that. We also don't
+    // try to map the Reference ID here, since that could theoretically change
+    // before the Job actually runs (but probably it won't).
+    
+    try {
+      $params = array(
+        'ois_id'        => $ois['OrgIdentitySource']['id'],
+        'source_key'    => $this->request->data['sorid'],
+        'reference_id'  => $this->request->data['referenceId']
+      );
+      
+      $this->CoJob->register($this->request->params['coid'],
+                             'CoreJob.Sync',
+                             null,
+                             null,
+                             _txt('pl.coreapi.match.resolved'),
+                             true,
+                             true,
+                             $params);
+      $this->Api->restResultHeader(202);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(500);
+    }
+    
+    // Note there's nothing to attach a history record to yet, so we don't
   }
   
   /**

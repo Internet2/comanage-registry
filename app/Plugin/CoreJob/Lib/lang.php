@@ -41,7 +41,7 @@ $cm_core_job_texts['en_US'] = array(
   'er.bulkjob.recordType'  => 'Action "%1$s" does not support record type "%2$s"',
   'er.garbagecollectorjob.object_type.invalid' => 'No "%1$s" Object qualifies for Garbage Collection.',
   'er.garbagecollectorjob.object_type.unknown' => 'Object Type "%1$s" is not supported',
-
+  'er.syncjob.match'       => 'Multiple CO Person records found for Reference ID "%1$s"',
 
   // Plugin texts
   'pl.bulkjob.arg.action'  => 'Bulk task action',
@@ -81,7 +81,10 @@ For more information, see the Job review at
   'pl.provisionerjob.start'  => 'Reprovisioning target id %1$s for record type %2$s',
   'pl.syncjob.arg.force'  => 'Force processing',
   'pl.syncjob.arg.ois_id' => 'Org Identity Source ID to process (or all, by default)',
+  'pl.syncjob.arg.reference_id' => 'Match Reference Identifier (requires source_key)',
+  'pl.syncjob.arg.source_key'   => 'Org Identity Source Key to process (requires ois_id)',
   'pl.syncjob.done'       => 'Sync Finished',
+  'pl.syncjob.match.resolved' => 'Match resolution notification processed',
   'pl.syncjob.job'        => 'Sync Organizational Identity Sources',
   'pl.vetjob.job'         => 'Process Vetting Requests'
 );

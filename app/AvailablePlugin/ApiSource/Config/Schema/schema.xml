@@ -37,7 +37,6 @@
     <field name="org_identity_source_id" type="I">
       <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
     </field>
-    <field name="sor_label" type="C" size="32" />
     <!-- For use in push mode -->
     <field name="api_user_id" type="I">
       <constraint>REFERENCES cm_api_users(id)</constraint>

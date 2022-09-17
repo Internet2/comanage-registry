@@ -115,6 +115,15 @@ class CoEnrollmentFlow extends AppModel {
       'required' => true,
       'message' => 'A name must be provided'
     ),
+    // Note that, unlike OrgIdentitySource, we DO permit multiple enrollment flows
+    // to have the same sor_label, since there's no inbound reconciliation to worry
+    // about. But maybe we shouldn't, since in the future EFs might support 202
+    // responses?
+    'sor_label' => array(
+      'rule' => 'notBlank',
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'co_id' => array(
       'rule' => 'numeric',
       'required' => true,
