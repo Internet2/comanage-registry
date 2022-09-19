@@ -72,33 +72,42 @@ class EmailAddressWidgetVerification extends AppModel {
    * @return string outcome of verification
    */
   public function verify($token, $requester, $coid) {
-    if(empty($this->rec)) {
+    if(empty($token)) {
+      return "fail"; // token doesn't exist
+    }
+
+    $args = array();
+    $args['conditions']['token'] = $token;
+    $args['contain'] = array('CoEmailAddressWidget');
+    $rec = $this->find('first',$args);
+
+    if(empty($rec)) {
       return "fail"; // token doesn't match
     }
 
     $CoPerson = ClassRegistry::init('CoPerson');
     $co_person_id = $CoPerson->idForIdentifier($coid, $requester);
 
-    if($this->rec['EmailAddressWidgetVerification']['co_person_id'] != $co_person_id) {
+    if($rec['EmailAddressWidgetVerification']['co_person_id'] != $co_person_id) {
       return "fail"; // copersonid does not match
     }
 
     // Check if the verification token is still valid or expired
-    $timeElapsed = time() - strtotime($this->rec['EmailAddressWidgetVerification']['created']);
-    $timeWindow = (int)$this->rec["CoEmailAddressWidget"]["verification_validity"] * 60;
+    $timeElapsed = time() - strtotime($rec['EmailAddressWidgetVerification']['created']);
+    $timeWindow = (int)$rec["CoEmailAddressWidget"]["verification_validity"] * 60;
 
     if($timeElapsed > $timeWindow) {
       // Delete the record and return
-      $this->delete($this->rec['EmailAddressWidgetVerification']['id']);
+      $this->delete($rec['EmailAddressWidgetVerification']['id']);
       return "timeout"; // token timed out
     }
 
     // Create the new CO Person Email record
     $emailAttrs = array(
-      'mail' => $this->rec['EmailAddressWidgetVerification']['email'],
-      'type' => $this->rec['EmailAddressWidgetVerification']['type'],
+      'mail' => $rec['EmailAddressWidgetVerification']['email'],
+      'type' => $rec['EmailAddressWidgetVerification']['type'],
       'verified' => true,
-      'co_person_id' => $this->rec['EmailAddressWidgetVerification']['co_person_id']
+      'co_person_id' => $rec['EmailAddressWidgetVerification']['co_person_id']
     );
 
     try {
@@ -108,7 +117,7 @@ class EmailAddressWidgetVerification extends AppModel {
         return "nosave";
       }
       // Delete the Verification Request table record and return
-      $this->delete($this->rec['EmailAddressWidgetVerification']['id']);
+      $this->delete($rec['EmailAddressWidgetVerification']['id']);
       return "success";
     } catch(Exception $e) {
       throw new RuntimeException($e->getMessage());

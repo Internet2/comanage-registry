@@ -58,7 +58,6 @@ class EmailAddressWidgetVerificationsController extends StandardController {
       $args['contain'] = array('CoEmailAddressWidget' => array('CoDashboardWidget' => array('CoDashboard')));
       $rec = $this->EmailAddressWidgetVerification->find('first',$args);
       if(isset($rec['CoEmailAddressWidget']["CoDashboardWidget"]["CoDashboard"]["co_id"])) {
-        $this->EmailAddressWidgetVerification->rec = $rec;
         return $rec['CoEmailAddressWidget']["CoDashboardWidget"]["CoDashboard"]["co_id"];
       }
     }
