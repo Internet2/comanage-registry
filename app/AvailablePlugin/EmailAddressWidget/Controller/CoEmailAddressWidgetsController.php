@@ -68,7 +68,7 @@ class CoEmailAddressWidgetsController extends SDWController {
         $copersonid
       );
       // Return if we fail to create and save the token
-      if(empty($results['id'])) {
+      if(empty($results['token'])) {
         $this->set('vv_response_type','error');
         return;
       }
@@ -76,7 +76,7 @@ class CoEmailAddressWidgetsController extends SDWController {
       // We have a valid result. Provide the row ID to the verification form,
       // and send the token to the new email address for round-trip verification by the user.
       $this->set('vv_response_type', 'ok');
-      $this->set('vv_id', $results['id']);
+      $this->set('vv_token', $results['token']);
       $this->CoEmailAddressWidget->send($email,$results['token'], $this->CoEmailAddressWidget->field('co_message_template_id'));
       return;
     }

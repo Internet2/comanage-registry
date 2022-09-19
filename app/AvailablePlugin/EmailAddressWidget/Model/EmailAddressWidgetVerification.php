@@ -53,11 +53,6 @@ class EmailAddressWidgetVerification extends AppModel {
       'rule' => '/^[a-zA-Z0-9\-]+$/',
       'required' => true
     ),
-    'disable_provisioning' => array(
-      'rule' => 'boolean',
-      'required' => false,
-      'allowEmpty' => true
-    ),
     'co_email_address_widget_id' => array(
       'rule' => 'numeric',
       'required' => true,
@@ -108,7 +103,7 @@ class EmailAddressWidgetVerification extends AppModel {
 
     try {
       $EmailAddress = ClassRegistry::init('EmailAddress');
-      if(!$EmailAddress->save($emailAttrs, array("provision" => !filter_var($this->rec["CoEmailAddressWidget"]["disable_provisioning"], FILTER_VALIDATE_BOOLEAN),
+      if(!$EmailAddress->save($emailAttrs, array("provision" => true,
                                                  "trustVerified" => true))) {
         return "nosave";
       }
