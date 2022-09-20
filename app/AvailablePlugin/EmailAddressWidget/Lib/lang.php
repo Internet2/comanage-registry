@@ -38,7 +38,6 @@ $cm_email_address_widget_texts['en_US'] = array(
 
   // Error
   'er.emailaddresswidget.401'                           => 'Your session has timed out. Please log in.',
-  'er.emailaddresswidget.500'                           => 'There was an unknown error.',
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
   'er.emailaddresswidget.invalid'                       => 'Please enter a valid email address.',
   'er.emailaddresswidget.modal.body.add.fail'           => 'Adding email address failed.',
