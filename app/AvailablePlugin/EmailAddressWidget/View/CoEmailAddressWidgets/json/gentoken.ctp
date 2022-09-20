@@ -2,7 +2,7 @@
 
 $a = array(
   "response" => $vv_response_type,
-  "id" => $vv_id
+  "token" => $vv_token
 );
 
 print json_encode($a);

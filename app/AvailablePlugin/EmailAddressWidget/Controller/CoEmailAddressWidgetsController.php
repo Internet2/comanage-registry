@@ -37,23 +37,23 @@ class CoEmailAddressWidgetsController extends SDWController {
     'CO',
     'CoMessageTemplate'
   );
-  
+
   /**
-   * Callback before views are rendered.
+   * Callback before other controller methods are invoked or views are rendered.
    *
    * @since  COmanage Registry v4.1.0
    */
-  
-  public function beforeRender() {
+
+  public function beforeFilter() {
+    parent::beforeFilter();
     if($this->action == 'gentoken') {
       // Return if one of the required query parameters is missing
-      if(empty($this->request->query['email'])
-         || empty($this->request->query['copersonid'])) {
-        $this->set('vv_response_type','badParams');
+      if (empty($this->request->query['email'])
+          || empty($this->request->query['copersonid'])) {
+        $this->set('vv_response_type', 'badParams');
+
         return;
       }
-
-      $email = $this->request->query['email'];
 
       // I need to verify that the CO Person is part of the CO
       $copersonid = $this->request->query['copersonid'];
@@ -61,14 +61,25 @@ class CoEmailAddressWidgetsController extends SDWController {
         $this->set('vv_response_type','badParams');
         return;
       }
+    }
+  }
 
+  /**
+   * Callback before views are rendered.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function beforeRender() {
+    if($this->action == 'gentoken') {
       $results = $this->CoEmailAddressWidget->generateToken(
-        $email,
+        $this->request->query['email'],
         $this->CoEmailAddressWidget->field('default_type'),
-        $copersonid
+        $this->request->query['copersonid']
       );
+
       // Return if we fail to create and save the token
-      if(empty($results['id'])) {
+      if(empty($results['token'])) {
         $this->set('vv_response_type','error');
         return;
       }
@@ -76,8 +87,10 @@ class CoEmailAddressWidgetsController extends SDWController {
       // We have a valid result. Provide the row ID to the verification form,
       // and send the token to the new email address for round-trip verification by the user.
       $this->set('vv_response_type', 'ok');
-      $this->set('vv_id', $results['id']);
-      $this->CoEmailAddressWidget->send($email,$results['token'], $this->CoEmailAddressWidget->field('co_message_template_id'));
+      $this->set('vv_token', $results['token']);
+      $this->CoEmailAddressWidget->send($this->request->query['email'],
+                                        $results['token'],
+                                        $this->CoEmailAddressWidget->field('co_message_template_id'));
       return;
     }
 

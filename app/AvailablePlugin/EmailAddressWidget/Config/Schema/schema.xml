@@ -32,7 +32,6 @@
     </field>
     <field name="default_type" type="C" size="128" />
     <field name="type_hidden" type="L" />
-    <field name="disable_provisioning" type="L" />
     <field name="verification_validity" type="I" />
     <field name="co_message_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
@@ -46,9 +45,6 @@
     <index name="co_email_address_widgets_i1">
       <col>co_dashboard_widget_id</col>
       <unique />
-    </index>
-    <index name="co_email_address_widgets_i2">
-      <col>co_message_template_id</col>
     </index>
   </table>
 
@@ -74,7 +70,7 @@
       <col>co_email_address_widget_id</col>
     </index>
     <index name="email_address_widget_verifications_i2">
-      <col>co_person_id</col>
+      <col>token</col>
     </index>
   </table>
 </schema>

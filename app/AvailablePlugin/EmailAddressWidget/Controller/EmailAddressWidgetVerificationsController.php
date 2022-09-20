@@ -53,12 +53,8 @@ class EmailAddressWidgetVerificationsController extends StandardController {
 
   protected function calculateImpliedCoId($data = null) {
     if(!empty($this->request->params['pass'][0])) {
-      $args = array();
-      $args['conditions']['token'] = $this->request->params['pass'][0];
-      $args['contain'] = array('CoEmailAddressWidget' => array('CoDashboardWidget' => array('CoDashboard')));
-      $rec = $this->EmailAddressWidgetVerification->find('first',$args);
+      $rec = $this->EmailAddressWidgetVerification->getRecordToVerify($this->request->params['pass'][0]);
       if(isset($rec['CoEmailAddressWidget']["CoDashboardWidget"]["CoDashboard"]["co_id"])) {
-        $this->EmailAddressWidgetVerification->rec = $rec;
         return $rec['CoEmailAddressWidget']["CoDashboardWidget"]["CoDashboard"]["co_id"];
       }
     }
@@ -79,13 +75,25 @@ class EmailAddressWidgetVerificationsController extends StandardController {
       return;
     }
 
-    // Get the identifier of the logged in user
-    $identifier = $this->Session->read('Auth.User.username');
+    // Retrieve the Verification record and the configuration
+    $rec = $this->EmailAddressWidgetVerification->getRecordToVerify($token);
+    // Check if the person owns the records and can proceed with the verification
+    $CoPerson = ClassRegistry::init('CoPerson');
+    $actorCoPersonId = $CoPerson->idForIdentifier($this->cur_co["Co"]["id"], $this->Session->read('Auth.User.username'));
 
-    $outcome = $this->EmailAddressWidgetVerification->verify($token, $identifier, $this->cur_co["Co"]["id"]);
-    $this->set('vv_outcome', $outcome);
-    $this->set('vv_response_type','ok');
-    if($outcome != 'success') {
+    if($rec['EmailAddressWidgetVerification']['co_person_id'] != $actorCoPersonId) {
+      return "fail"; // copersonid does not match
+    }
+
+    try {
+      if(!$this->EmailAddressWidgetVerification->checkValidity($token)) {
+        $this->set('vv_outcome', 'timeout');
+      }
+      $this->EmailAddressWidgetVerification->addEmailToPerson($token, $actorCoPersonId);
+
+      $this->set('vv_outcome', "success");
+      $this->set('vv_response_type','ok');
+    } catch (Exception $e) {
       $this->set('vv_response_type','error');
     }
   }

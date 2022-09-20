@@ -65,7 +65,7 @@ class CoEmailAddressWidget extends CoDashboardWidgetBackend {
               EmailAddressEnum::Personal,
               EmailAddressEnum::Preferred,
               EmailAddressEnum::Recovery))),
-        'required' => false,
+        'required' => true,
         'allowEmpty' => false
       )
     ),
@@ -103,14 +103,10 @@ class CoEmailAddressWidget extends CoDashboardWidgetBackend {
       throw new RuntimeException($this->validationErrors);
     }
 
-    // Return the id for success testing and
-    // the token to pass along via email
-    $results = array(
-      'id' => $this->EmailAddressWidgetVerification->id,
+    // Return the token to pass along via email
+    return array(
       'token' => $token
     );
-
-    return $results;
   }
 
   /**
