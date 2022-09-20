@@ -76,7 +76,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           email:        "<?php print _txt('pl.emailaddresswidget.fd.email'); ?>",
           emailAdded:   "<?php print _txt('pl.emailaddresswidget.added')?>",
           error401:     "<?php print _txt('er.emailaddresswidget.401');?>",
-          error500:     "<?php print _txt('er.emailaddresswidget.500');?>",
+          error500:     "<?php print _txt('er.500');?>",
           errorInvalid: "<?php print _txt('er.emailaddresswidget.invalid');?>",
           ok:           "<?php print _txt('op.ok'); ?>",
           timeout:      "<?php print _txt('er.emailaddresswidget.timeout'); ?>",
