@@ -126,7 +126,7 @@ class EmailAddressWidgetVerification extends AppModel {
                                          null,
                                          $actorCoPersonId,
                                          ActionEnum::CoPersonEditedManual,
-                                         _txt('rs.added-a2', array(_txt(_txt('ct.email_addresses.1')), $rec['EmailAddressWidgetVerification']['email'])));
+                                         _txt('pl.emailaddresswidget.rs.added-a', array($rec['EmailAddressWidgetVerification']['email'])));
 
         // History Record for the verification
         $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
@@ -134,7 +134,7 @@ class EmailAddressWidgetVerification extends AppModel {
                                          null,
                                          $actorCoPersonId,
                                          ActionEnum::EmailAddressVerified,
-                                         _txt('rs.mail.verified', array($rec['EmailAddressWidgetVerification']['email'])));
+                                         _txt('pl.emailaddresswidget.rs.mail.verified', array($rec['EmailAddressWidgetVerification']['email'])));
       }
       catch(Exception $e) {
         throw new RuntimeException($e->getMessage());
