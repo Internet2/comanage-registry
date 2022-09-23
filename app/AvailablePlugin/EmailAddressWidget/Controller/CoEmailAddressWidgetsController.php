@@ -74,7 +74,7 @@ class CoEmailAddressWidgetsController extends SDWController {
     if($this->action == 'gentoken') {
       $results = $this->CoEmailAddressWidget->generateToken(
         $this->request->query['email'],
-        $this->CoEmailAddressWidget->field('default_type'),
+        $this->CoEmailAddressWidget->field('type'),
         $this->request->query['copersonid']
       );
 

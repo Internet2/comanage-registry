@@ -95,7 +95,7 @@ class EmailAddressWidgetVerification extends AppModel {
    *
    * @since  COmanage Registry v4.1.0
    * @param  string $token     Token used for verification
-   * @return boolean outcome of verification
+   * @return integer           ID of the new EmailAddress Record
    * @throws RuntimeException
    */
 
@@ -135,6 +135,8 @@ class EmailAddressWidgetVerification extends AppModel {
                                          $actorCoPersonId,
                                          ActionEnum::EmailAddressVerified,
                                          _txt('pl.emailaddresswidget.rs.mail.verified', array($rec['EmailAddressWidgetVerification']['email'])));
+
+        return $EmailAddress->id;
       }
       catch(Exception $e) {
         throw new RuntimeException($e->getMessage());

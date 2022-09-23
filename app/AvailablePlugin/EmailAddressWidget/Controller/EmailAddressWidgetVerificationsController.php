@@ -31,11 +31,6 @@ class EmailAddressWidgetVerificationsController extends StandardController {
   // Class name, used by Cake
   public $name = "EmailAddressWidgetVerifications";
 
-  private static $actions = array(
-    'gentoken',
-    'verify'
-  );
-
   public $uses = array(
     'EmailAddressWidget.CoEmailAddressWidget',
     'EmailAddressWidget.EmailAddressWidgetVerification',
@@ -71,8 +66,8 @@ class EmailAddressWidgetVerificationsController extends StandardController {
    */
   public function verify($token) {
     if(empty($token)) {
-      $this->set('vv_response_type','badParams');
-      return;
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.token'));
+      return false;
     }
 
     // Retrieve the Verification record and the configuration
@@ -82,19 +77,22 @@ class EmailAddressWidgetVerificationsController extends StandardController {
     $actorCoPersonId = $CoPerson->idForIdentifier($this->cur_co["Co"]["id"], $this->Session->read('Auth.User.username'));
 
     if($rec['EmailAddressWidgetVerification']['co_person_id'] != $actorCoPersonId) {
-      return "fail"; // copersonid does not match
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND,
+                                   _txt('er.cop.nf', array($actorCoPersonId)));
+      return false;
     }
 
     try {
       if(!$this->EmailAddressWidgetVerification->checkValidity($token)) {
-        $this->set('vv_outcome', 'timeout');
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE,
+                                     _txt('er.emailaddresswidget.timeout'));
+        return false;
       }
-      $this->EmailAddressWidgetVerification->addEmailToPerson($token, $actorCoPersonId);
+      $this->set('email_address_id', $this->EmailAddressWidgetVerification->addEmailToPerson($token, $actorCoPersonId));
 
-      $this->set('vv_outcome', "success");
-      $this->set('vv_response_type','ok');
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED, _txt('rs.added-a3', array($rec['EmailAddressWidgetVerification']['email'])));
     } catch (Exception $e) {
-      $this->set('vv_response_type','error');
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, $e->getMessage());
     }
   }
   
