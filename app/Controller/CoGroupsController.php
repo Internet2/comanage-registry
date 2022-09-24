@@ -417,6 +417,17 @@ class CoGroupsController extends StandardController {
     if(!empty($this->request->params['pass'][0])) {
       $readonly = $this->CoGroup->readOnly(filter_var($this->request->params['pass'][0], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK));
     }
+    
+    // If this is a read only record and edit was requested, try redirecting to
+    // view instead. (We're probably coming back from editing an MVPA attached
+    // to an automatic group, see CO-1829.)
+    if($readonly && $this->action == 'edit') {
+      $this->redirect(array(
+        'controller'  => 'co_groups',
+        'action'      => 'view',
+        filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS)
+      ));
+    }
 
     // Calculate managed for the API User
     $managed = $managed || ($roles["apiuser"] && $roles["coadmin"]);

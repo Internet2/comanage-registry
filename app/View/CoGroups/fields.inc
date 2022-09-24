@@ -225,13 +225,7 @@
 <?php if ($permissions['viewids'] && ($this->action != 'add')): ?>
   <h2 class="subtitle"><?php print _txt('ct.identifiers.pl'); ?></h2>
   <?php if($permissions['editids']
-    && !empty($co_groups[0]['CoGroup']['id'])
-    // XXX It's not clear why we don't permit related models (eg: identifiers,
-    // nested groups, email lists) to be added to automatic groups...
-    && !$co_groups[0]['CoGroup']['auto']
-    && $permissions['edit']
-  ): ?>
-
+        && !empty($co_groups[0]['CoGroup']['id'])): ?>
     <ul class="widget-actions">
       <li>
         <?php
