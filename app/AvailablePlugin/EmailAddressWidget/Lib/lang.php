@@ -37,16 +37,12 @@ $cm_email_address_widget_texts['en_US'] = array(
   'ct.co_email_address_widgets.pl'                      => 'Email Address Widgets',
 
   // Error
-  'er.emailaddresswidget.401'                           => 'Your session has timed out. Please log in.',
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
-  'er.emailaddresswidget.invalid'                       => 'Please enter a valid email address.',
-  'er.emailaddresswidget.modal.body.add.fail'           => 'Adding email address failed.',
-  'er.emailaddresswidget.modal.title.delete.fail'       => 'Delete failed',
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
+  'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
-  'pl.emailaddresswidget.added'                         => 'Email address added',
   'pl.emailaddresswidget.email.subject'                 => 'Your email verification code',
   'pl.emailaddresswidget.email.body'                    => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
   'pl.emailaddresswidget.noconfig'                      => 'This widget requires no configuration.',

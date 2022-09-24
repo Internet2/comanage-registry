@@ -50,7 +50,7 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
       return {
         emailAddresses: {},
         error: '',
-        success: false,
+        successTxt: '',
         core: {
           coPersonId: '<?php print $vv_co_person_id; ?>',
           coId: '<?php print $vv_co_id; ?>',
@@ -58,32 +58,30 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
           emailAddressWidgetId: '<?php print $vv_config['CoEmailAddressWidget']['id']; ?>',
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
-          defaultEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['default_type']) ? $vv_config['CoEmailAddressWidget']['default_type'] : 'official'; ?>',
+          defaultEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : 'official'; ?>',
           messageTemplateId: '<?php print !empty($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : ''; ?>',
           deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
         },
         txt: {
-          add:          "<?php print _txt('op.add'); ?>",
-          addFail:      "<?php print _txt('er.emailaddresswidget.modal.body.add.fail'); ?>",
-          cancel:       "<?php print _txt('op.cancel'); ?>",
-          confirm:      "<?php print _txt('op.confirm'); ?>",
-          delete:       "<?php print _txt('op.delete'); ?>",
-          deleteModalTitle: "<?php print _txt('pl.emailaddresswidget.modal.title.delete'); ?>",
-          deleteModalMessage: "<?php print _txt('pl.emailaddresswidget.modal.body.delete'); ?>",
-          deleteFail:   "<?php print _txt('er.emailaddresswidget.modal.title.delete.fail'); ?>",
-          done:         "<?php print _txt('op.done'); ?>",
-          edit :        "<?php print _txt('op.edit'); ?>",
-          email:        "<?php print _txt('pl.emailaddresswidget.fd.email'); ?>",
-          emailAdded:   "<?php print _txt('pl.emailaddresswidget.added')?>",
-          error401:     "<?php print _txt('er.emailaddresswidget.401');?>",
-          error500:     "<?php print _txt('er.500');?>",
-          errorInvalid: "<?php print _txt('er.emailaddresswidget.invalid');?>",
-          ok:           "<?php print _txt('op.ok'); ?>",
-          timeout:      "<?php print _txt('er.emailaddresswidget.timeout'); ?>",
-          token:        "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
-          tokenMsg:     "<?php print _txt('pl.emailaddresswidget.fd.token.msg'); ?>",
-          tokenError:   "<?php print _txt('er.emailaddresswidget.fd.token'); ?>",
-          verify:       "<?php print _txt('op.verify'); ?>"
+          add:                 "<?php print _txt('op.add'); ?>",
+          addFail:             "<?php print _txt('er.db.save-a', array('EmailAddress')) ?>",
+          cancel:              "<?php print _txt('op.cancel'); ?>",
+          confirm:             "<?php print _txt('op.confirm'); ?>",
+          delete:              "<?php print _txt('op.delete'); ?>",
+          deleteModalTitle:    "<?php print _txt('pl.emailaddresswidget.modal.title.delete'); ?>",
+          deleteModalMessage:  "<?php print _txt('pl.emailaddresswidget.modal.body.delete'); ?>",
+          deleteFail:          "<?php print _txt('er.delete'); ?>",
+          done:                "<?php print _txt('op.done'); ?>",
+          edit :               "<?php print _txt('op.edit'); ?>",
+          email:               "<?php print _txt('pl.emailaddresswidget.fd.email'); ?>",
+          error401:            "<?php print _txt('er.http.401.unauth');?>",
+          error500:            "<?php print _txt('er.http.500');?>",
+          errorInvalid:        "<?php print _txt('er.mt.invalid', array("Email Format"));?>",
+          ok:                  "<?php print _txt('op.ok'); ?>",
+          token:               "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
+          tokenMsg:            "<?php print _txt('pl.emailaddresswidget.fd.token.msg'); ?>",
+          tokenError:          "<?php print _txt('er.emailaddresswidget.fd.token'); ?>",
+          verify:              "<?php print _txt('op.verify'); ?>"
         }
       }
     },
@@ -103,13 +101,12 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
       },
       generalXhrFailCallback(xhr) {
         stopSpinner();
-        console.error(xhr);
-        switch(xhr.status) {
-          case 401:
-            this.setError(this.txt.error401);
-            break;
-          default:
-            this.setError(this.txt.error500);
+        if(xhr.statusText != undefined && xhr.statusText != '') {
+          this.setError(xhr.statusText)
+          console.log('Status Code:', xhr.status)
+        } else {
+          console.error(xhr);
+          this.setError(this.txt.error500);
         }
       }
     },
@@ -124,8 +121,8 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
   <div v-if="this.error != ''" id="email-widget-error<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
     {{ this.error }}
   </div>
-  <div v-if="this.success" id="email-widget-success<?php print $divid ?>-alert" class="alert alert-success" role="alert">
-    {{ this.txt.emailAdded }}
+  <div v-if="this.successTxt != ''" id="email-widget-success<?php print $divid ?>-alert" class="alert alert-success" role="alert">
+    {{ this.successTxt }}
   </div>
   <email-panel
     :emails="emailAddresses" 

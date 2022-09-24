@@ -72,7 +72,7 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('default_type', _txt('pl.emailaddresswidget.fd.type.default')) : _txt('pl.emailaddresswidget.fd.type.default')); ?>
+        <?php print ($e ? $this->Form->label('type', _txt('pl.emailaddresswidget.fd.type.default')) : _txt('pl.emailaddresswidget.fd.type.default')); ?>
       </div>
       <div class="field-desc">
         <?php print _txt('pl.emailaddresswidget.fd.type.default.desc'); ?>
@@ -80,19 +80,19 @@
     </div>
     <div class="field-info">
       <?php
-      $attrs['value'] = (isset($vv_config['CoEmailAddressWidget']['default_type']) ? $vv_config['CoEmailAddressWidget']['default_type'] : "");
+      $attrs['value'] = (isset($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : "");
       $attrs['empty'] = false;
   
       if($e) {
-        print $this->Form->select('default_type',
+        print $this->Form->select('type',
           $vv_available_types,
           $attrs);
     
-        if($this->Form->isFieldError('default_type')) {
-          print $this->Form->error('default_type');
+        if($this->Form->isFieldError('type')) {
+          print $this->Form->error('type');
         }
       } else {
-        print _txt('pl.emailaddresswidget.fd.type.default', null, filter_var($vv_config['default_type'],FILTER_SANITIZE_SPECIAL_CHARS));
+        print _txt('pl.emailaddresswidget.fd.type.default', null, filter_var($vv_config['type'],FILTER_SANITIZE_SPECIAL_CHARS));
       }
       ?>
     </div>
@@ -100,7 +100,7 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('default_type', _txt('pl.emailaddresswidget.fd.message.template')) : _txt('pl.emailaddresswidget.fd.message.template')); ?>
+        <?php print ($e ? $this->Form->label('co_message_template_id', _txt('pl.emailaddresswidget.fd.message.template')) : _txt('pl.emailaddresswidget.fd.message.template')); ?>
       </div>
       <div class="field-desc">
         <p>
@@ -118,7 +118,9 @@
     </div>
     <div class="field-info">
       <?php
-      $attrs['value'] = (isset($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : "");
+      $attrs['value'] = isset($vv_config['CoEmailAddressWidget']['co_message_template_id'])
+                        ? $vv_config['CoEmailAddressWidget']['co_message_template_id']
+                        : "";
       $attrs['empty'] = true;
 
       if($e) {

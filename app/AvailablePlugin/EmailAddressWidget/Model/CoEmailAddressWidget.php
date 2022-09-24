@@ -58,15 +58,15 @@ class CoEmailAddressWidget extends CoDashboardWidgetBackend {
       'content' => array(
         'rule' => array('validateExtendedType',
           array('attribute' => 'EmailAddress.type',
-            'default' => array(EmailAddressEnum::Delivery,
-              EmailAddressEnum::Forwarding,
-              EmailAddressEnum::MailingList,
-              EmailAddressEnum::Official,
-              EmailAddressEnum::Personal,
-              EmailAddressEnum::Preferred,
-              EmailAddressEnum::Recovery))),
-        'required' => true,
-        'allowEmpty' => false
+                'default' => array(EmailAddressEnum::Delivery,
+                  EmailAddressEnum::Forwarding,
+                  EmailAddressEnum::MailingList,
+                  EmailAddressEnum::Official,
+                  EmailAddressEnum::Personal,
+                  EmailAddressEnum::Preferred,
+                  EmailAddressEnum::Recovery))),
+        'required' => false,
+        'allowEmpty' => true
       )
     ),
     'co_message_template_id' => array(
