@@ -40,7 +40,7 @@ export default {
       newEmailInvalid: false,
       newEmailInvalidClass: '',
       newEmailErrorMessage: this.txt.addFail,
-      tokenId: '',
+      token: '',
       tokenInvalid: false,
       tokenInvalidClass: '',
       tokenErrorMessage: this.txt.tokenError
@@ -79,8 +79,8 @@ export default {
     },
     genTokenSuccessCallback(xhr) {
       stopSpinner();
-      this.tokenId = xhr.responseJSON['id'];
-      if(this.tokenId != '') {
+      this.token = xhr.responseJSON['token'];
+      if(this.token != undefined && this.token != '') {
         this.verifying = true;
         this.$nextTick(() => this.$refs['token'].focus());
       } else {
@@ -90,6 +90,9 @@ export default {
       }
     },
     genTokenFailCallback(xhr) {
+      stopSpinner();
+      this.newEmailInvalid = true;
+      this.newEmailInvalidClass = 'is-invalid';
       this.$parent.generalXhrFailCallback(xhr);
     },
     verifyEmail() {
@@ -99,8 +102,8 @@ export default {
         return;
       }
 
-      let url = `/registry/email_address_widget/email_address_widget_verifications/verify/${encodeURIComponent(token)}`;
-
+      const url = `/registry/email_address_widget/email_address_widget_verifications/verify/${encodeURIComponent(token)}`;
+      displaySpinner();
       callRegistryAPI(
         url,
         'GET',
@@ -110,27 +113,18 @@ export default {
         this.verifyFailCallback);
     },
     verifySuccessCallback(xhr) {
-      if(xhr.responseJSON['result'] == 'success') {
-        this.tokenInvalid = false;
-        this.tokenInvalidClass = '';
-        this.$refs.token.value = '';
-        this.verifying = false;
-        this.clearInvalid();
-        this.refreshDisplay();
-        this.$parent.success = true;
-      } else {
-        this.tokenInvalid = true;
-        this.tokenInvalidClass = 'is-invalid';
-        if(xhr.responseJSON['result'] == 'fail') {
-          this.tokenErrorMessage = this.txt.tokenError;
-        } else if(xhr.responseJSON['result'] == 'timeout') {
-          this.tokenErrorMessage = this.txt.timeout;
-        } else {
-          this.tokenErrorMessage = this.txt.error500;
-        }
-      }
+      stopSpinner();
+      // Only 201 will be returned on success
+      this.tokenInvalid = false;
+      this.tokenInvalidClass = '';
+      this.$refs.token.value = '';
+      this.verifying = false;
+      this.clearInvalid();
+      this.refreshDisplay();
+      this.$parent.successTxt = xhr.statusText;
     },
     verifyFailCallback(xhr) {
+      stopSpinner();
       this.$parent.generalXhrFailCallback(xhr);
     },
     /* //Keep to show how we'd send email directly to the API without verification 

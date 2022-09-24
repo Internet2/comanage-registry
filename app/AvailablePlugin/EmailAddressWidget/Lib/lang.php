@@ -39,6 +39,7 @@ $cm_email_address_widget_texts['en_US'] = array(
   // Error
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
+  'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',

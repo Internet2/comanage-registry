@@ -50,15 +50,15 @@ class CoEmailAddressWidgetsController extends SDWController {
       // Return if one of the required query parameters is missing
       if (empty($this->request->query['email'])
           || empty($this->request->query['copersonid'])) {
-        $this->set('vv_response_type', 'badParams');
-
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.req.params'));
         return;
       }
 
       // I need to verify that the CO Person is part of the CO
       $copersonid = $this->request->query['copersonid'];
       if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
-        $this->set('vv_response_type','badParams');
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND,
+                                     _txt('er.cop.nf', array($copersonid)));
         return;
       }
     }
@@ -80,13 +80,13 @@ class CoEmailAddressWidgetsController extends SDWController {
 
       // Return if we fail to create and save the token
       if(empty($results['token'])) {
-        $this->set('vv_response_type','error');
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.token'));
         return;
       }
 
       // We have a valid result. Provide the row ID to the verification form,
       // and send the token to the new email address for round-trip verification by the user.
-      $this->set('vv_response_type', 'ok');
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,  _txt('fd.created'));
       $this->set('vv_token', $results['token']);
       $this->CoEmailAddressWidget->send($this->request->query['email'],
                                         $results['token'],
