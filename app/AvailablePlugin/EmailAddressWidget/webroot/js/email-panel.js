@@ -127,45 +127,6 @@ export default {
       stopSpinner();
       this.$parent.generalXhrFailCallback(xhr);
     },
-    /* //Keep to show how we'd send email directly to the API without verification 
-    addEmail(email,type) {
-      // Pass the new address to the server.
-      let url = this.core.webRoot + 'email_addresses.json';
-      let data = {
-        "RequestType":"EmailAddresses",
-        "Version":"1.0",
-        "EmailAddresses":
-          [
-            {
-              "Version":"1.0",
-              "Mail":email,
-              "Type":type,
-              "Verified":false,
-              "Person":
-                {
-                  "Type":"CO",
-                  "Id":this.core.coPersonId
-                }
-            }
-          ]
-      };
-
-      callRegistryAPI(url, 'POST', 'json', this.addSuccessEmailCallback, '', this.addFailEmailCallback, data);
-    },
-    addSuccessEmailCallback(xhr) {
-      this.$refs.newAddress.value = '';
-      this.clearInvalid();
-      this.refreshDisplay();
-    },
-    addFailEmailCallback(xhr) {
-      if(xhr.status == 400) {
-        this.newEmailInvalid = true;
-        this.newEmailInvalidClass = 'is-invalid';
-        this.newEmailErrorMessage = xhr.responseJSON.InvalidFields.mail[0];  
-      } else {
-        this.$parent.generalXhrFailCallback(xhr); 
-      }
-    }, */
     refreshDisplay() {
       this.$parent.getEmailAddresses(); // reload the addresses from the server
     },
@@ -178,7 +139,7 @@ export default {
       this.verifying = false;
       this.$parent.setError('');
       this.clearInvalid();
-      this.$parent.success = false;
+      this.$parent.successTxt = '';
     },
     clearInvalid() {
       this.newEmailInvalid = false;
