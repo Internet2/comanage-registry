@@ -1220,6 +1220,7 @@ The request may be viewed at
   'er.nt.send-a' =>     'Notification to %1$s failed',
   'er.nt.send-b' =>     'Notification to %1$s failed (%2$s)',
   'er.notfound' =>    '%1$s "%2$s" Not Found',
+  'er.notfound-b' =>  '%1$s Not Found',
   'er.notimpl' =>     'Not Implemented',
   'er.notprov' =>     'Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
