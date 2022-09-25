@@ -118,10 +118,10 @@ print $this->Html->script('vue/vue-3.2.31.global.prod.js');
 </script>
 
 <div id="email-widget<?php print $divid ?>" class="cm-ssw" v-cloak>
-  <div v-if="this.error != ''" id="email-widget-error<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
+  <div v-if=" this.error != undefined && this.error != '' && (this.successTxt == undefined || this.successTxt == '')" id="email-widget-error<?php print $divid ?>-alert" class="alert alert-danger" role="alert">
     {{ this.error }}
   </div>
-  <div v-if="this.successTxt != ''" id="email-widget-success<?php print $divid ?>-alert" class="alert alert-success" role="alert">
+  <div v-if="this.successTxt != undefined && this.successTxt != ''" id="email-widget-success<?php print $divid ?>-alert" class="alert alert-success" role="alert">
     {{ this.successTxt }}
   </div>
   <email-panel
