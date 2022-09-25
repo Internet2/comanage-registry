@@ -77,20 +77,19 @@ class EmailAddressWidgetVerificationsController extends StandardController {
     $actorCoPersonId = $CoPerson->idForIdentifier($this->cur_co["Co"]["id"], $this->Session->read('Auth.User.username'));
 
     if($rec['EmailAddressWidgetVerification']['co_person_id'] != $actorCoPersonId) {
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND,
-                                   _txt('er.cop.nf', array($actorCoPersonId)));
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.cop.nf', array($actorCoPersonId)));
       return false;
     }
 
     try {
       if(!$this->EmailAddressWidgetVerification->checkValidity($token)) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE,
-                                     _txt('er.emailaddresswidget.timeout'));
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE, _txt('er.emailaddresswidget.timeout'));
         return false;
       }
       $this->set('email_address_id', $this->EmailAddressWidgetVerification->addEmailToPerson($token, $actorCoPersonId));
 
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED, _txt('rs.added-a3', array($rec['EmailAddressWidgetVerification']['email'])));
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,
+                                   _txt('rs.added-a3', array($rec['EmailAddressWidgetVerification']['email'])));
     } catch (Exception $e) {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, $e->getMessage());
     }
