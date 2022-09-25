@@ -48,10 +48,13 @@ export default {
       callRegistryAPI(url, 'DELETE', 'html', this.deleteSuccessEmailCallback, '', this.deleteFailEmailCallback);
     },
     deleteSuccessEmailCallback(xhr) {
+      this.$parent.$parent.setError('');
+      this.$parent.$parent.successTxt = 'Deleted';
       this.$parent.refreshDisplay();
     },
     deleteFailEmailCallback(xhr) {
       if(xhr.status == 400 || xhr.status == 404) {
+        this.$parent.$parent.successTxt = '';
         this.$parent.$parent.setError(this.txt.deleteFail);
       } else {
         this.$parent.$parent.generalXhrFailCallback(xhr);
