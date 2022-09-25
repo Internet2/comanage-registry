@@ -57,8 +57,7 @@ class CoEmailAddressWidgetsController extends SDWController {
       // I need to verify that the CO Person is part of the CO
       $copersonid = $this->request->query['copersonid'];
       if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND,
-                                     _txt('er.cop.nf', array($copersonid)));
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.cop.nf', array($copersonid)));
         return;
       }
     }

@@ -118,31 +118,26 @@ class EmailAddressWidgetVerification extends AppModel {
         throw new RuntimeException(_txt('er.db.save'));
       }
 
-      try {
-        $CoPerson = ClassRegistry::init('CoPerson');
-        // History record for the new record
-        $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
-                                         null,
-                                         null,
-                                         $actorCoPersonId,
-                                         ActionEnum::CoPersonEditedManual,
-                                         _txt('pl.emailaddresswidget.rs.added-a', array($rec['EmailAddressWidgetVerification']['email'])));
+      $CoPerson = ClassRegistry::init('CoPerson');
+      // History record for the new record
+      $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
+                                       null,
+                                       null,
+                                       $actorCoPersonId,
+                                       ActionEnum::CoPersonEditedManual,
+                                       _txt('pl.emailaddresswidget.rs.added-a', array($rec['EmailAddressWidgetVerification']['email'])));
 
-        // History Record for the verification
-        $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
-                                         null,
-                                         null,
-                                         $actorCoPersonId,
-                                         ActionEnum::EmailAddressVerified,
-                                         _txt('pl.emailaddresswidget.rs.mail.verified', array($rec['EmailAddressWidgetVerification']['email'])));
+      // History Record for the verification
+      $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
+                                       null,
+                                       null,
+                                       $actorCoPersonId,
+                                       ActionEnum::EmailAddressVerified,
+                                       _txt('pl.emailaddresswidget.rs.mail.verified', array($rec['EmailAddressWidgetVerification']['email'])));
 
-        return $EmailAddress->id;
-      }
-      catch(Exception $e) {
-        throw new RuntimeException($e->getMessage());
-      }
-      // Delete the Verification Request table record and return
       $this->delete($rec['EmailAddressWidgetVerification']['id']);
+      return $EmailAddress->id;
+      // Delete the Verification Request table record and return
     } catch(Exception $e) {
       throw new RuntimeException($e->getMessage());
     }
