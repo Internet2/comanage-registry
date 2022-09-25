@@ -122,6 +122,7 @@ export default {
       this.clearInvalid();
       this.refreshDisplay();
       this.$parent.successTxt = xhr.statusText;
+      this.$parent.setError('');
     },
     verifyFailCallback(xhr) {
       stopSpinner();
@@ -138,8 +139,8 @@ export default {
       this.editing = false;
       this.verifying = false;
       this.$parent.setError('');
-      this.clearInvalid();
       this.$parent.successTxt = '';
+      this.clearInvalid();
     },
     clearInvalid() {
       this.newEmailInvalid = false;

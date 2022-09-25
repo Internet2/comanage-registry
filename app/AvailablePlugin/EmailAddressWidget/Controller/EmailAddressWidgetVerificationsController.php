@@ -73,7 +73,7 @@ class EmailAddressWidgetVerificationsController extends StandardController {
     // Retrieve the Verification record and the configuration
     $rec = $this->EmailAddressWidgetVerification->getRecordToVerify($token);
     if(empty($rec)) {
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.notfound-b', array($token)));
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.token'));
       return false;
     }
     // Check if the person owns the records and can proceed with the verification
