@@ -64,9 +64,9 @@ export default {
         return;
       }
 
-      // URL: /donations/view/recent/2001
-      // Mapping: DonationsController->view('recent', '2001');
-      // XXX Is the copersonid part of the CO?
+      this.$parent.setError('');
+      this.$parent.successTxt = '';
+
       const url = `/registry/email_address_widget/co_email_address_widgets/gentoken/${this.core.emailAddressWidgetId}?email=${encodeURIComponent(this.$refs.newAddress.value)}&copersonid=${this.core.coPersonId}`;
       displaySpinner();
       callRegistryAPI(

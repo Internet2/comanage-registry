@@ -31,7 +31,6 @@ App::uses("CoMessageTemplate", "Model");
 class EmailAddressWidgetVerification extends AppModel {
   // Cache the record to verify
   private $_recordToVerify = null;
-
   // Define class name for cake
   public $name = "EmailAddressWidgetVerification";
 
@@ -51,8 +50,7 @@ class EmailAddressWidgetVerification extends AppModel {
       'content' => array(
         'rule' => array('email'),
         'required' => false,
-        'allowEmpty' => false,
-        'message' => 'Please enter a valid email address'
+        'allowEmpty' => true
       ),
       'filter' => array(
         'rule' => array('validateInput',
@@ -119,21 +117,14 @@ class EmailAddressWidgetVerification extends AppModel {
       }
 
       $CoPerson = ClassRegistry::init('CoPerson');
-      // History record for the new record
-      $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
-                                       null,
-                                       null,
-                                       $actorCoPersonId,
-                                       ActionEnum::CoPersonEditedManual,
-                                       _txt('pl.emailaddresswidget.rs.added-a', array($rec['EmailAddressWidgetVerification']['email'])));
-
-      // History Record for the verification
+      // History Record for the new record + verification
       $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
                                        null,
                                        null,
                                        $actorCoPersonId,
                                        ActionEnum::EmailAddressVerified,
-                                       _txt('pl.emailaddresswidget.rs.mail.verified', array($rec['EmailAddressWidgetVerification']['email'])));
+                                       _txt('pl.emailaddresswidget.rs.mail.added.verified',
+                                            array($rec['EmailAddressWidgetVerification']['email'])));
 
       $this->delete($rec['EmailAddressWidgetVerification']['id']);
       return $EmailAddress->id;
@@ -141,24 +132,6 @@ class EmailAddressWidgetVerification extends AppModel {
     } catch(Exception $e) {
       throw new RuntimeException($e->getMessage());
     }
-  }
-
-  /**
-   * Get Verification Record Singleton
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param  string $token     Token used for verification
-   * @return EmailAddressWidgetVerification Verification Record
-   */
-
-  public function getRecordToVerify($token) {
-    if(empty($this->_recordToVerify)) {
-      $args = array();
-      $args['conditions']['token'] = $token;
-      $args['contain'] = array('CoEmailAddressWidget' => array('CoDashboardWidget' => array('CoDashboard')));
-      $this->_recordToVerify = $this->find('first',$args);
-    }
-    return $this->_recordToVerify;
   }
 
   /**
@@ -189,5 +162,54 @@ class EmailAddressWidgetVerification extends AppModel {
     }
 
     return true;
+  }
+
+  /**
+   * Create the email and history recordw
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  string $token       Token used for verification
+   * @param  intt   $coid        CO Id
+   * @param  string $username    Username from Session
+   * @return integer             ID of the new EmailAddress Record
+   * @throws RuntimeException
+   * @throws InvalidArgumentException
+   */
+
+  public function execute_verify($token, $coid, $username) {
+    $rec = $this->getRecordToVerify($token);
+
+    // Check if the person owns the records and can proceed with the verification
+    $CoPerson = ClassRegistry::init('CoPerson');
+    $actorCoPersonId = $CoPerson->idForIdentifier($coid, $username);
+
+    if($rec['EmailAddressWidgetVerification']['co_person_id'] != $actorCoPersonId) {
+      throw new InvalidArgumentException( _txt('er.cop.nf', array($username)),
+                                          HttpStatusCodesEnum::HTTP_NOT_FOUND);
+    }
+
+    if(!$this->checkValidity($token)) {
+      throw new RuntimeException(_txt('er.emailaddresswidget.timeout'), HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE);
+    }
+
+    return $this->addEmailToPerson($token, $actorCoPersonId);
+  }
+
+  /**
+   * Get Verification Record Singleton
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  string $token     Token used for verification
+   * @return EmailAddressWidgetVerification Verification Record
+   */
+
+  public function getRecordToVerify($token) {
+    if(empty($this->_recordToVerify)) {
+      $args = array();
+      $args['conditions']['token'] = $token;
+      $args['contain'] = array('CoEmailAddressWidget' => array('CoDashboardWidget' => array('CoDashboard')));
+      $this->_recordToVerify = $this->find('first',$args);
+    }
+    return $this->_recordToVerify;
   }
 }

@@ -65,38 +65,31 @@ class EmailAddressWidgetVerificationsController extends StandardController {
    * @since  COmanage Registry v4.1.0
    */
   public function verify($token) {
+    // The token value is empty
     if(empty($token)) {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.token'));
-      return false;
+      return;
     }
-
-    // Retrieve the Verification record and the configuration
-    $rec = $this->EmailAddressWidgetVerification->getRecordToVerify($token);
-    if(empty($rec)) {
+    // The token does not exist in the database
+    if(empty($this->EmailAddressWidgetVerification->getRecordToVerify($token))) {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.token'));
-      return false;
-    }
-    // Check if the person owns the records and can proceed with the verification
-    $CoPerson = ClassRegistry::init('CoPerson');
-    $actorCoPersonId = $CoPerson->idForIdentifier($this->cur_co["Co"]["id"], $this->Session->read('Auth.User.username'));
-
-    if($rec['EmailAddressWidgetVerification']['co_person_id'] != $actorCoPersonId) {
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND,
-                                   _txt('er.cop.nf', array($this->Session->read('Auth.User.username'))));
-      return false;
+      return;
     }
 
     try {
-      if(!$this->EmailAddressWidgetVerification->checkValidity($token)) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE, _txt('er.emailaddresswidget.timeout'));
-        return false;
-      }
-      $this->set('email_address_id', $this->EmailAddressWidgetVerification->addEmailToPerson($token, $actorCoPersonId));
+      $email_address_id = $this->EmailAddressWidgetVerification->execute_verify($token,
+                                                                                $this->cur_co["Co"]["id"],
+                                                                                $this->Session->read('Auth.User.username'));
+
+      $this->set('email_address_id', $email_address_id);
+      $EmailAddress = ClassRegistry::init('EmailAddress');
+      $EmailAddress->id = $email_address_id;
 
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,
-                                   _txt('rs.added-a3', array($rec['EmailAddressWidgetVerification']['email'])));
+                                   _txt('rs.added-a3', array($EmailAddress->field('mail'))));
     } catch (Exception $e) {
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, $e->getMessage());
+      $this->Api->restResultHeader($e->getCode(), $e->getMessage());
+      return;
     }
   }
   

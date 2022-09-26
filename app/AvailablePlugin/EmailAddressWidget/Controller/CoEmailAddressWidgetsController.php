@@ -39,60 +39,12 @@ class CoEmailAddressWidgetsController extends SDWController {
   );
 
   /**
-   * Callback before other controller methods are invoked or views are rendered.
-   *
-   * @since  COmanage Registry v4.1.0
-   */
-
-  public function beforeFilter() {
-    parent::beforeFilter();
-    if($this->action == 'gentoken') {
-      // Return if one of the required query parameters is missing
-      if (empty($this->request->query['email'])
-          || empty($this->request->query['copersonid'])) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.req.params'));
-        return;
-      }
-
-      // I need to verify that the CO Person is part of the CO
-      $copersonid = $this->request->query['copersonid'];
-      if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.cop.nf', array($copersonid)));
-        return;
-      }
-    }
-  }
-
-  /**
    * Callback before views are rendered.
    *
    * @since  COmanage Registry v4.1.0
    */
 
   public function beforeRender() {
-    if($this->action == 'gentoken') {
-      $results = $this->CoEmailAddressWidget->generateToken(
-        $this->request->query['email'],
-        $this->CoEmailAddressWidget->field('type'),
-        $this->request->query['copersonid']
-      );
-
-      // Return if we fail to create and save the token
-      if(empty($results['token'])) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.token'));
-        return;
-      }
-
-      // We have a valid result. Provide the row ID to the verification form,
-      // and send the token to the new email address for round-trip verification by the user.
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,  _txt('fd.created'));
-      $this->set('vv_token', $results['token']);
-      $this->CoEmailAddressWidget->send($this->request->query['email'],
-                                        $results['token'],
-                                        $this->CoEmailAddressWidget->field('co_message_template_id'));
-      return;
-    }
-
     // Gather the available email address types for the config form
     $this->set('vv_available_types', $this->EmailAddress->types($this->cur_co['Co']['id'], 'type'));
 
@@ -119,8 +71,7 @@ class CoEmailAddressWidgetsController extends SDWController {
   public function display($id) {
     // We need only the CoPerson ID - with that we can look up the Email Addresses via 
     // ajax against the API in the web client.
-    $coPersonId = $this->reqCoPersonId;
-    $this->set('vv_co_person_id', $coPersonId);
+    $this->set('vv_co_person_id', $this->reqCoPersonId);
     $this->set('vv_co_id', $this->cur_co['Co']['id']);
 
     // Gather the available email address types
@@ -138,7 +89,39 @@ class CoEmailAddressWidgetsController extends SDWController {
   public function gentoken($id) {
     $this->CoEmailAddressWidget->id = $id;
     $this->layout = 'ajax';
-    $this->render("gentoken");
+
+    if (empty($this->request->query['email'])
+       || empty($this->request->query['copersonid'])) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.req.params'));
+      return;
+    }
+
+    // I need to verify that the CO Person is part of the CO
+    $copersonid = $this->request->query['copersonid'];
+    if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.cop.nf', array($copersonid)));
+      return;
+    }
+
+    $results = $this->CoEmailAddressWidget->generateToken(
+      $this->request->query['email'],
+      $this->CoEmailAddressWidget->field('type'),
+      $this->request->query['copersonid']
+    );
+
+    // Return if we fail to create and save the token
+    if(empty($results['token'])) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.token'));
+      return;
+    }
+
+    // We have a valid result. Provide the row ID to the verification form,
+    // and send the token to the new email address for round-trip verification by the user.
+    $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,  _txt('fd.created'));
+    $this->set('vv_token', $results['token']);
+    $this->CoEmailAddressWidget->send($this->request->query['email'],
+                                      $results['token'],
+                                      $this->CoEmailAddressWidget->field('co_message_template_id'));
   }
   
   /**

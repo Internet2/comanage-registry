@@ -48,7 +48,7 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.noconfig'                      => 'This widget requires no configuration.',
   'pl.emailaddresswidget.none'                          => 'No email addresses',
   'pl.emailaddresswidget.return'                        => 'Return',
-  'pl.emailaddresswidget.rs.mail.verified'              => 'Email Address "%1$s" verified via Email Address Widget',
+  'pl.emailaddresswidget.rs.mail.added.verified'        => 'Added Verified Email Address %1$s',
   'pl.emailaddresswidget.rs.added-a'                    => '"%1$s" Added via Email Address Widget',
 
   // Fields
