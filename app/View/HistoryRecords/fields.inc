@@ -249,6 +249,26 @@
   </li>
   <li>
     <div class="field-name">
+      <?php print _txt('fd.actor.api'); ?>
+    </div>
+    <div class="field-info">
+      <?php
+      if(!empty($history_records[0]['ActorApiUser']['id'])) {
+        print $this->Html->link(
+          $history_records[0]['ActorApiUser']['username'],
+          array(
+            'controller' => 'api_users',
+            'action' => 'edit',
+            $history_records[0]['ActorApiUser']['id']
+          ),
+          array('target' => '_top')
+        );
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <?php print _txt('fd.created'); ?>
     </div>
     <div class="field-info">

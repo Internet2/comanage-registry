@@ -1308,6 +1308,7 @@ The request may be viewed at
   'fd.action' =>      'Action',
   'fd.actions' =>     'Actions',
   'fd.actor' =>       'Actor',
+  'fd.actor.api' =>   'API Actor',
   'fd.actor.self' =>  'Self Signup',
   'fd.actor.shell' => 'Shell user "%1$s"',
   'fd.ad_hoc_attribute.tag' => 'Tag',

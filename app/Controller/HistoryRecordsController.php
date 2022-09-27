@@ -46,6 +46,7 @@ class HistoryRecordsController extends StandardController {
     ),
     'contain' => array(
       'ActorCoPerson' => array('PrimaryName'),
+      'ActorApiUser',
       'CoEmailList',
       'CoPerson' => array('PrimaryName'),
       'CoPersonRole',
@@ -57,6 +58,7 @@ class HistoryRecordsController extends StandardController {
   
   public $view_contains = array(
     'ActorCoPerson' => 'PrimaryName',
+    'ActorApiUser',
     'CoEmailList',
     'CoGroup',
     'CoPerson' => 'PrimaryName',

@@ -118,7 +118,8 @@
         <th><?php print $this->Paginator->sort('id', _txt('fd.id.seq')); ?></th>
         <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
         <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
-        <th><?php print $this->Paginator->sort('Actor.PrimaryName.family', _txt('fd.actor')); ?></th>
+        <th><?php print $this->Paginator->sort('ActorCoPerson.PrimaryName.family', _txt('fd.actor')); ?></th>
+        <th><?php print $this->Paginator->sort('ActorApiUser.username', _txt('fd.actor.api')); ?></th>
         <?php if(!empty($this->request->params['named']['coemaillistid'])): ?>
         <th><?php print $this->Paginator->sort('CoEmailList.name', _txt('ct.co_email_lists.1')); ?></th>
         <?php else: ?>
@@ -148,6 +149,20 @@
                 )
               );
             }
+          ?>
+        </td>
+        <td>
+          <?php
+          if(!empty($h['ActorApiUser']['id'])) {
+            print $this->Html->link(
+              (!empty($h['ActorApiUser']['username']) ? filter_var($h['ActorApiUser']['username'],FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.deleted')),
+              array(
+                'controller' => 'api_users',
+                'action' => 'edit',
+                $h['ActorApiUser']['id']
+              )
+            );
+          }
           ?>
         </td>
         <?php if(!empty($this->request->params['named']['coemaillistid'])): ?>
