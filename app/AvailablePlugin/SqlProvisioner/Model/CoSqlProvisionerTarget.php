@@ -579,6 +579,10 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    */
   
   protected function syncPerson($provisioningData) {
+    if(empty($provisioningData['CoPerson'])) {
+      return;
+    }
+
     // Before we do anything, pull the OrgIdentity set for use in populating
     // org_identity_source_id references. Note the provisioning data does have
     // limited OrgIdentity data, but we'll need the full set of associated
