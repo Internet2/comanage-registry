@@ -112,16 +112,16 @@ class CoPerson extends AppModel {
       'dependent' => true,
       'foreignKey' => 'co_person_id'
     ),
-    "HistoryRecordActor" => array(
-      'className' => 'HistoryRecord',
-      'foreignKey' => 'actor_co_person_id'
-    ),
     // XXX CoPerson Role HAS TO be deleted after the history records
     //     since it has many history_records but they are not dependent.
     //     As a result, if we try to delete the CO Person Role before the
     //     History Record then we will get a foreign key exception
     // A person can have one or more person roles
     "CoPersonRole" => array('dependent' => true),
+    "HistoryRecordActor" => array(
+      'className' => 'HistoryRecord',
+      'foreignKey' => 'actor_co_person_id'
+    ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),
     "IdentityDocument" => array('dependent' => true),
