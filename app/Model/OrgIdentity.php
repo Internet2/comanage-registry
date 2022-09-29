@@ -77,6 +77,7 @@ class OrgIdentity extends AppModel {
     "EmailAddress" => array('dependent' => true),
     // It's probably not right to delete history records, but generally org identities shouldn't be deleted
     "HistoryRecord" => array('dependent' => true),
+    "CoJobHistoryRecord" => array('dependent' => true),
     // A person can have many identifiers within an organization
     "Identifier" => array('dependent' => true),
     "Name" => array('dependent' => true),

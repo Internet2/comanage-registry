@@ -108,10 +108,8 @@ class CoPerson extends AppModel {
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
     // We allow dependent=true for co_person_id but not for actor_co_person_id (see CO-404).
-    "HistoryRecord" => array(
-      'dependent' => true,
-      'foreignKey' => 'co_person_id'
-    ),
+    "HistoryRecord" => array('dependent' => true),
+    "CoJobHistoryRecord" => array('dependent' => true),
     // XXX CoPerson Role HAS TO be deleted after the history records
     //     since it has many history_records but they are not dependent.
     //     As a result, if we try to delete the CO Person Role before the
