@@ -112,6 +112,13 @@
 
 <div class="fields">
   <?php
+  // Render conclusion text for new petitions
+  if(!empty($vv_introduction_text_pa)) {
+    print '<div class="modelbox d-flex"><div class="petition-attr-introduction">' . $vv_introduction_text_pa . "</div></div>";
+  }
+  ?>
+
+  <?php
     // Render introductory text for new petitions
     
     if($this->action == 'add' && !empty($vv_introduction_text)) {
