@@ -212,8 +212,7 @@ class CoGroupMember extends AppModel {
         foreach($nestings as $n) {
           $this->syncNestedMembership($n['TargetCoGroup'],
                                       $n['CoGroupNesting']['id'],
-                                      $person,
-                                      false);
+                                      $person);
         }
       }
     }
@@ -255,8 +254,7 @@ class CoGroupMember extends AppModel {
         foreach($nestings as $n) {
           $this->syncNestedMembership($n['TargetCoGroup'],
                                       $n['CoGroupNesting']['id'],
-                                      $groupMember['co_person_id'],
-                                      $groupMember['member']);
+                                      $groupMember['co_person_id']);
         }
       }
     }
@@ -606,8 +604,7 @@ class CoGroupMember extends AppModel {
               
               $this->syncNestedMembership($ng['TargetCoGroup'],
                                           $ng['CoGroupNesting']['id'],
-                                          $grm['CoGroupMember']['co_person_id'],
-                                          $grm['CoGroupMember']['member']);
+                                          $grm['CoGroupMember']['co_person_id']);
             }
           }
           
@@ -865,10 +862,9 @@ class CoGroupMember extends AppModel {
    * @param  Array     $targetGroup      Array describing CO Group to add the membership to
    * @param  Array     $coGroupNestingId CO Group Nesting ID
    * @param  Integer   $coPersonId       CO Person ID of member
-   * @param  Boolean   $sourceMember     Whether the CO Person is a member of the source CoGroup
    */
   
-  public function syncNestedMembership($targetGroup, $coGroupNestingId, $coPersonId, $sourceMember) {
+  public function syncNestedMembership($targetGroup, $coGroupNestingId, $coPersonId) {
     // The operation we perform (add or delete) may be inverted by the CoGroupNesting
     // configuration.
     
@@ -916,11 +912,11 @@ class CoGroupMember extends AppModel {
     // All nestings for $targetGroup
     $args = array();
     $args['conditions']['CoGroupNesting.target_co_group_id'] = $targetGroup['id'];
-    $args['contain'] = false;
+    $args['contain'] = array('CoGroup');
     
     // This should always have at least the current nesting
     $nestings = $this->CoGroupNesting->find('all', $args);
-    
+
     // Walk all nestings to determine negation and current memberships. To track
     // $isAll, we need at least one positive membership. In other words, a Target
     // Group with only one Nesting, and that one Nesting is negative, does not
@@ -929,6 +925,11 @@ class CoGroupMember extends AppModel {
     $pCount = 0;    // Actual positive memberships
     
     foreach($nestings as $n) {
+      // Ignore nestings build on suspended groups
+      if($n['CoGroup']['status'] == SuspendableStatusEnum::Suspended) {
+        continue;
+      }
+
       if($n['CoGroupNesting']['negate']) {
         // If this is the current nesting we don't need to look anything up
         if($this->isMember($n['CoGroupNesting']['co_group_id'], $coPersonId)) {

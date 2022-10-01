@@ -646,10 +646,10 @@ class CoGroup extends AppModel {
     // First find the group
     $args = array();
     $args['conditions']['CoGroup.id'] = $id;
-    $args['contain'][] = 'CoGroupNesting';
+    $args['contain'] = array('CoGroupNesting' => 'CoGroup');
     
     $group = $this->find('first', $args);
-    
+
     if(empty($group['CoGroup'])) {
       throw new InvalidArgumentException(_txt('er.gr.nf', array($id)));
     }
@@ -679,6 +679,11 @@ class CoGroup extends AppModel {
     $nMembers = array();
     
     foreach($group['CoGroupNesting'] as $n) {
+      // If this group is Suspended, we act as if it has no members
+      if($n['CoGroup']['status'] == SuspendableStatusEnum::Suspended) {
+        continue;
+      }
+
       // Pull the list of members of each nested group. This approach won't scale
       // well to very large groups, but we can't use subselects because Cake doesn't
       // support them natively, and buildStatement isn't directly supported by
@@ -715,25 +720,23 @@ class CoGroup extends AppModel {
         continue;
       }
       
-      if(!isset($nMembers[ $t['CoGroupMember']['co_group_nesting_id'] ][ $t['CoGroupMember']['co_person_id'] ])) {
-        // Remove the CoGroupMember record
-        $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $t['CoGroupMember']['co_group_nesting_id'], $t['CoGroupMember']['co_person_id'], false);
-      } else {
-        $tMembersByPerson[ $t['CoGroupMember']['co_person_id'] ] = $t['CoGroupMember']['id'];
-      }
+      // We always have to fully recalculate the membership due to ALL mode complexities
+      $tMembersByPerson[ $t['CoGroupMember']['co_person_id'] ] = $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $t['CoGroupMember']['co_group_nesting_id'], $t['CoGroupMember']['co_person_id']);
     }
     
     // Pull the list of members of the nested group ($n) that are not already in
     // the target group ($id) and add them.
     
     foreach($group['CoGroupNesting'] as $n) {
-      foreach($nMembers[ $n['id'] ] as $ncopid => $gmid) {
-        if(!isset($tMembersByPerson[$ncopid])) {
-          // For each person in $nMembers but not $tMembers, add them.
-          $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $n['id'], $ncopid, true);
-          
-          // Also update $tMembers so we don't add them again from another group.
-          $tMembersByPerson[$ncopid] = $gmid;
+      if(!empty($nMembers[ $n['id'] ])) {
+        foreach($nMembers[ $n['id'] ] as $ncopid => $gmid) {
+          if(!isset($tMembersByPerson[$ncopid])) {
+            // For each person in $nMembers but not $tMembers, add them.
+            $this->CoGroupMember->syncNestedMembership($group['CoGroup'], $n['id'], $ncopid, true);
+            
+            // Also update $tMembers so we don't add them again from another group.
+            $tMembersByPerson[$ncopid] = $gmid;
+          }
         }
       }
     }
