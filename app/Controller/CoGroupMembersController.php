@@ -386,29 +386,44 @@ class CoGroupMembersController extends StandardController {
    */
   
   function index() {
-    if($this->request->is('restful') && !empty($this->params['url']['cogroupid']) && $this->isCmpCoAdmin) {
-      // We need to retrieve via a join, which StandardController::index() doesn't
-      // currently support.
+    if(!$this->request->is('restful')) {
+      // Render the member list to the browser
+      $this->listMembers();
+      return;
+    }
 
-      $this->set('vv_model_version', $this->CoGroupMember->version);
+    if (!$this->isCmpCoAdmin) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_UNAUTHORIZED, _txt('er.http.401'));
+    }
 
-      try {
-        $groups = $this->CoGroupMember->findForCoGroup($this->params['url']['cogroupid']);
-        
-        if(!empty($groups)) {
-          $this->set('co_group_members', $this->Api->convertRestResponse($groups));
-        } else {
-          $this->Api->restResultHeader(204, "CO Person Has No Groups");
+    $this->set('vv_model_version', $this->CoGroupMember->version);
+
+    try {
+      if(!empty($this->params['url']['cogroupid'])) {
+        $group_members = $this->CoGroupMember->findForCoGroup($this->params['url']['cogroupid']);
+        $searching_for = 'CoGroup';
+        if(!empty($group_members)) {
+          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
           return;
         }
       }
-      catch(InvalidArgumentException $e) {
-        $this->Api->restResultHeader(404, "CO Person Unknown");
+
+
+
+      $group_members = $this->CoGroupMember->findForAll();
+      $searching_for = 'Platform';
+      if(!empty($group_members)) {
+        $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
         return;
       }
-    } else {
-      // Render the member list to the browser
-      $this->listMembers();
+
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NO_CONTENT, _txt('er.mt.unknown', array($searching_for)));
+      return;
+
+    }
+    catch(InvalidArgumentException $e) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.mt.unknown', array("Configuration")));
+      return;
     }
   }
   
