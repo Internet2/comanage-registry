@@ -145,6 +145,65 @@ function build_basic_auth() {
 }
 
 ###########################################################################
+# Build the Registry cron image.
+# Globals:
+#   None
+# Arguments:
+#   Full image name prefix, a string.
+#   Tag label, a string.
+#   Tag suffix, a string.
+#   Docker build flags, other flags for docker build.
+# Outputs:
+#   None
+###########################################################################
+function build_crond() {
+    local docker_build_command
+    local docker_build_flags
+    local label
+    local prefix
+    local suffix
+
+    prefix="$1"
+    label="$2"
+    suffix="$3"
+
+    if [[ -z "${label}" ]]; then
+        err "ERROR:build_crond: label cannot be empty"
+        return 1
+    fi
+
+    if [[ -z "${suffix}" ]]; then
+        err "ERROR:build_crond: suffix cannot be empty"
+        return 1
+    fi
+
+    declare -a docker_build_flags=("${@:4}")
+
+    tag="comanage-registry-cron:${label}-${suffix}"
+
+    docker_build_command=(docker build)
+
+    if ((${#docker_build_flags[@]})); then
+        for flag in "${docker_build_flags[@]}"; do
+            docker_build_command+=("${flag}")
+        done
+    fi
+
+    docker_build_command+=(--tag "${tag}")
+    docker_build_command+=(--build-arg COMANAGE_REGISTRY_VERSION="${label}")
+    docker_build_command+=(--build-arg COMANAGE_REGISTRY_BASE_IMAGE_VERSION="${suffix}")
+    docker_build_command+=(--file container/registry/crond/Dockerfile)
+    docker_build_command+=(.)
+
+    "${docker_build_command[@]}"
+
+    if [[ -n "${prefix}" ]]; then
+        target="${prefix}${tag}"
+        docker tag "${tag}" "${target}"
+    fi
+}
+
+###########################################################################
 # Build the Registry mod_auth_openidc image.
 # Globals:
 #   None
@@ -387,7 +446,7 @@ DESCRIPTION
 
     PRODUCT is one of 
         registry AUTHENTICATION
-        cron
+        crond
         slapd
 
     where AUTHENTICATION is one of
@@ -586,6 +645,10 @@ function main() {
     product="$1"
 
     case "${product}" in
+        crond )
+            build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
+            build_crond "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
+            ;;
         registry )
             authentication="$2"
             case "${authentication}" in

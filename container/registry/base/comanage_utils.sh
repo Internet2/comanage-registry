@@ -321,7 +321,13 @@ function comanage_utils::exec_cron() {
         comanage_utils::prepare_database_config
     fi
 
+    if [[ -z ${COMANAGE_REGISTRY_NO_EMAIL_CONFIG} ]]; then
+        comanage_utils::prepare_email_config
+    fi
+
     comanage_utils::wait_database_connectivity
+
+    comanage_utils::enable_plugins
 
     comanage_utils::registry_clear_cache
 
