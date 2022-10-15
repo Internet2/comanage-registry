@@ -54,7 +54,7 @@ class CoPerson extends AppModel {
   );
   
   public $hasMany = array(
-    "ApplicationPreference",
+    "ApplicationPreference" => array('dependent' => true),
     "AuthenticatorStatus",
     // A person can have one or more groups
     "CoGroupMember" => array('dependent' => true),
@@ -78,8 +78,6 @@ class CoPerson extends AppModel {
     ),
     // A person can have more than one org identity
     "CoOrgIdentityLink" => array('dependent' => true),
-    // A person can have one or more person roles
-    "CoPersonRole" => array('dependent' => true),
     "CoPetitionApprover" => array(
       'className' => 'CoPetition',
       'dependent' => false,
@@ -110,10 +108,14 @@ class CoPerson extends AppModel {
     // A person can have one or more email address
     "EmailAddress" => array('dependent' => true),
     // We allow dependent=true for co_person_id but not for actor_co_person_id (see CO-404).
-    "HistoryRecord" => array(
-      'dependent' => true,
-      'foreignKey' => 'co_person_id'
-    ),
+    "HistoryRecord" => array('dependent' => true),
+    "CoJobHistoryRecord" => array('dependent' => true),
+    // XXX CoPerson Role HAS TO be deleted after the history records
+    //     since it has many history_records but they are not dependent.
+    //     As a result, if we try to delete the CO Person Role before the
+    //     History Record then we will get a foreign key exception
+    // A person can have one or more person roles
+    "CoPersonRole" => array('dependent' => true),
     "HistoryRecordActor" => array(
       'className' => 'HistoryRecord',
       'foreignKey' => 'actor_co_person_id'

@@ -36,7 +36,7 @@ class CoJob extends AppModel {
   public $belongsTo = array("Co");
   
   public $hasMany = array(
-    "CoJobHistoryRecord",
+    "CoJobHistoryRecord" => array('dependent' => true),
     "VettingRequest"
   );
   

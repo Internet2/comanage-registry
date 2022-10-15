@@ -251,7 +251,23 @@ class Co extends AppModel {
         true
       );
     }
-    
+
+    // We are in the middle of an expunge so disable Changelog behaviors.
+    // Skipping callbacks is not enough for a Shell Job
+    foreach(App::objects('Model') as $m) {
+      try {
+        // Not all Models are associated to CO model
+        $modell = ClassRegistry::init($m);
+        if($modell->Behaviors->enabled('Changelog')) {
+          $modell->reloadBehavior('Changelog', array('expunge' => true));
+        }
+      } catch(Exception $e) {
+        // Do nothing
+        // App::objects('Model) will fetch every Model, even the abstract ones which we can not
+        // initialize. Catch the error and continue to the next one
+      }
+    }
+
     // CoGroupNestings have two parent CoGroup pointers, which makes them hard
     // to delete, so we'll delete them manually. They also have a foreign key
     // into co_group_members that needs to be cleared as well. We'll clean up
@@ -272,11 +288,10 @@ class Co extends AppModel {
                                                array('CoGroupMember.co_group_id' => array_keys($groups)));
 
       // Disable Changelog behaviors. Skipping callbacks is not enough for a Shell Job
-      $this->CoGroup->Behaviors->unload('Changelog');
       $this->CoGroup->CoGroupNesting->deleteAll(array('CoGroupNesting.co_group_id' => array_keys($groups)));
     }
     
-    // Unload TreeBehavior from Cou, since it throws errors and we don't need to
+    // Unload TreeBehavior from Cou, since it throws errors, and we don't need to
     // rebalance a tree that we're about to remove entirely.
     $this->Cou->Behaviors->unload('Tree');
     
