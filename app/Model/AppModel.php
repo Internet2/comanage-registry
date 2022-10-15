@@ -1859,20 +1859,24 @@ class AppModel extends Model {
       }
 
       // Check the existence of the evaluation field
-      if(isset($this->data[$this->name][$eval_field])) {
+      if(isset($this->data[$this->name])
+         && is_array($this->data[$this->name])
+         && array_key_exists($eval_field, $this->data[$this->name])) {
         $eval_field_value = $this->data[$this->name][$eval_field];
         if(empty($eval_field_value)) {
           return true;
         }
         $eval_field_timestamp = strtotime($eval_field_value);
-      } elseif(isset($this->data[$this->alias][$eval_field])) {
+      } elseif(isset($this->data[$this->alias])
+               && is_array($this->data[$this->alias])
+               && array_key_exists($eval_field, $this->data[$this->alias])) {
         $eval_field_value = $this->data[$this->alias][$eval_field];
         if(empty($eval_field_value)) {
           return true;
         }
         $eval_field_timestamp = strtotime($eval_field_value);
       } elseif (isset($this->data[$this->alias]['id'])
-                && empty($this->data[$this->alias][$eval_field])) {  // Fix for saveField operation with validateion option enabled
+                && !array_key_exists($eval_field, $this->data[$this->alias])) {  // Fix for saveField operation with validation option enabled
         $id = $this->data[$this->alias]['id'];
         $this->id = $id;
         $eval_field_value = $this->field($eval_field);
@@ -1883,7 +1887,7 @@ class AppModel extends Model {
 
         $eval_field_timestamp = strtotime($eval_field_value);
       } elseif (isset($this->data[$this->name]['id'])
-                && empty($this->data[$this->name][$eval_field])) {  // Fix for saveField operation with validateion option enabled
+                && !array_key_exists($eval_field, $this->data[$this->name])) {  // Fix for saveField operation with validateion option enabled
         $id = $this->data[$this->name]['id'];
         $this->id = $id;
         $eval_field_value = $this->field($eval_field);
@@ -1893,7 +1897,7 @@ class AppModel extends Model {
         }
 
         $eval_field_timestamp = strtotime($eval_field_value);
-      } elseif(empty($this->data[$this->name][$eval_field]) // OrgIdentitySource case were date fields could be absent
+      } elseif(empty($this->data[$this->name][$eval_field]) // OrgIdentitySource case where date fields could be absent
                && empty($this->data[$this->alias][$eval_field])) {
         return true;
       } else {
