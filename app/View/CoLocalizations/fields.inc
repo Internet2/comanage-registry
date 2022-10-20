@@ -57,7 +57,11 @@
       // Populate the array with the current translation strings
       
       foreach(array_keys($vv_cm_texts) as $k) {
-        $filtered_k = str_replace('"', '\"', $vv_cm_texts[$k]); // escape quotes
+        // The notation (?<!A)B is a "negative look behind", which looks for cases of B
+        // that are not preceeded by A. We want to escape quotes that are not already
+        // escaped (ie we want to match '"' and not '\"'). There are three \ characters
+        // to handle escaping within the regex.
+        $filtered_k = preg_replace('/(?<!\\\)"/', '\"', $vv_cm_texts[$k]); // escape quotes unless already escaped
         $filtered_k = str_replace(PHP_EOL, '<br/>', $filtered_k); // html-ize line breaks
         print 'cm_texts["' . $k . '"] = "' . $filtered_k . '";' . "\n";
       }
