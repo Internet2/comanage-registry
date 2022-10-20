@@ -60,7 +60,7 @@ RUN LOG4SHIB_URL="https://shibboleth.net/downloads/log4shib/${LOG4SHIB_VERSION}/
       && tar -zxf log4shib.tar.gz -C src --strip-components=1 \
       && rm -f log4shib.tar.gz \
       && cd src \
-      && LD_FLAGS=-lpthread CXXFLAGS="-fPIC -std=gnu++98" ./configure --disable-static \
+      && LD_FLAGS=-lpthread CXXFLAGS="-fPIC" ./configure --disable-static \
             --disable-doxygen \ 
             --prefix=/opt/shibboleth-sp \
             --build=x86_64 \
@@ -84,7 +84,7 @@ RUN XERCESC_DIST_URLS="\
       && tar -zxf xerces.tar.gz -C src --strip-components=1 \
       && rm -f xerces.tar.gz \
       && cd src \
-      && CXXFLAGS="-std=gnu++98" ./configure --prefix=/opt/shibboleth-sp \
+      && ./configure --prefix=/opt/shibboleth-sp \
       && make -j 2 \
       && make install \
       && cd .. \
@@ -106,7 +106,7 @@ RUN XMLSECC_DIST_URLS="\
       && tar -zxf xmlsecc.tar.gz -C src --strip-components=1 \
       && rm -f xmlsecc.tar.gz \
       && cd src \
-      && CXXFLAGS="-std=gnu++98" PKG_CONFIG_PATH=/opt/shibboleth-sp/lib/pkgconfig ./configure --prefix=/opt/shibboleth-sp \
+      && PKG_CONFIG_PATH=/opt/shibboleth-sp/lib/pkgconfig ./configure --prefix=/opt/shibboleth-sp \
             --with-openssl=/usr \
             --disable-static \
             --without-xalan \
@@ -121,7 +121,7 @@ RUN XMLTOOLING_URL="https://shibboleth.net/downloads/c++-opensaml/${XMLTOOLING_V
       && tar -zxf xmltooling.tar.gz -C src --strip-components=1 \
       && rm -f xmltooling.tar.gz \
       && cd src \
-      && CXXFLAGS="-fPIC -std=gnu++98" \
+      && CXXFLAGS="-fPIC" \
             PKG_CONFIG_PATH=/opt/shibboleth-sp/lib/pkgconfig \
             ./configure --prefix=/opt/shibboleth-sp \
             --with-log4shib=/opt/shibboleth-sp \
@@ -137,8 +137,7 @@ RUN OPENSAMLC_URL="https://shibboleth.net/downloads/c++-opensaml/${OPENSAMLC_VER
       && tar -zxf opensamlc.tar.gz -C src --strip-components=1 \
       && rm -f opensamlc.tar.gz \
       && cd src \
-      && CXXFLAGS="-std=gnu++98" \
-            PKG_CONFIG_PATH=/opt/shibboleth-sp/lib/pkgconfig \
+      && PKG_CONFIG_PATH=/opt/shibboleth-sp/lib/pkgconfig \
             ./configure --prefix=/opt/shibboleth-sp \
             --with-log4shib=/opt/shibboleth-sp \
             -C \
@@ -153,7 +152,7 @@ RUN SHIBBOLETH_SP_URL="https://shibboleth.net/downloads/service-provider/${SHIBB
       && tar -zxf shibboleth-sp.tar.gz -C src --strip-components=1 \
       && rm -f shibboleth-sp.tar.gz \
       && cd src \
-      && CXXFLAGS="-std=gnu++98 -Wno-unused-parameter" \
+      && CXXFLAGS="-Wno-unused-parameter" \
             PKG_CONFIG_PATH=/opt/shibboleth-sp/lib/pkgconfig \
             ./configure --prefix=/opt/shibboleth-sp \
             --with-log4shib=/opt/shibboleth-sp \
