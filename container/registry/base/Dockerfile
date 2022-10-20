@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y \
          zlib1g \
          libpcre3-dev \
       && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-      && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
+      && docker-php-ext-configure ldap \
       && docker-php-ext-configure mysqli \
       && docker-php-ext-install xsl pdo pdo_mysql pdo_pgsql mysqli pgsql ldap \
       && docker-php-source delete \
