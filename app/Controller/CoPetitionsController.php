@@ -101,7 +101,9 @@ class CoPetitionsController extends StandardController {
         'PrimaryName'
       )
     ),
-    'CoEnrollmentFlow',
+    'CoEnrollmentFlow' => array(
+      'CoEnrollmentFlowWedge'
+    ),
     'CoInvite',
     'Cou',
     'OrgIdentitySourceRecord' => array(
