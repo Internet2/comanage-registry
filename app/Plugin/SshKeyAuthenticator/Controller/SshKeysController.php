@@ -44,60 +44,97 @@ class SshKeysController extends SAMController {
    */
 
   public function add() {
-    if($this->request->is('get')) {
+    if($this->request->is('get')
+       || $this->request->is('restful')) {
       parent::add();
-
       return;
     }
-    
-    if($this->request->is('restful')) {
-      parent::add();
-    } else {
-      // We need a CO Person ID
 
-      $p = $this->parsePersonID();
+    // We need a CO Person ID
+    $p = $this->parsePersonID();
 
-      if(!empty($p['copersonid'])) {
-        // Access the uploaded file as processed by PHP and presented by Cake
-        if(!empty($this->request->data['SshKey']['keyFile']['tmp_name'])
-           && (!isset($this->request->data['SshKey']['keyFile']['error'])
-               || !$this->request->data['SshKey']['keyFile']['error'])) {
-          try {
-            $sk = $this->SshKey->addFromKeyFile($this->request->data['SshKey']['keyFile']['tmp_name'],
-                                                $p['copersonid'],
-                                                $this->request->data['SshKey']['ssh_key_authenticator_id']);
-            $this->generateHistory('upload',
-                                   array('SshKey' => $sk),
-                                   null);
-
-            $this->Flash->set(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), array('key' => 'success'));
-
-            if(!empty($this->request->params['named']['onFinish'])) {
-              $this->redirect(urldecode($this->request->params['named']['onFinish']));
-            } else {
-              $this->redirect(array(
-                                'action'          => 'index',
-                                'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
-                                'copersonid'      => $p['copersonid']
-                              ));
-            }
-          }
-          catch(InvalidArgumentException $e) {
-            $this->Flash->set($e->getMessage(), array('key' => 'error'));
-          }
-        } else {
-          $this->Flash->set(_txt('er.file.none'), array('key' => 'error'));
-        }
-      } else {
-        $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
-      }
-
-      $this->redirect(array(
-                        'action'     => 'add',
-                        'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
-                        'copersonid' => $p['copersonid']
-                      ));
+    // No person ID exists
+    if(empty($p['copersonid'])) {
+      $this->Flash->set(_txt('er.cop.unk'), array('key' => 'error'));
+      $this->redirect("/");
     }
+
+    // File error
+    if(empty($this->request->data['SshKey']['keyFile']['tmp_name'])
+       || !empty($this->request->data['SshKey']['keyFile']['error'])) {
+      $this->Flash->set(_txt('er.file.none'), array('key' => 'error'));
+      $this->redirect($this->calculateRedirectOnFailure($p));
+    }
+
+    // Access the uploaded file as processed by PHP and presented by Cake
+    try {
+      $sk = $this->SshKey->addFromKeyFile($this->request->data['SshKey']['keyFile']['tmp_name'],
+                                          $p['copersonid'],
+                                          $this->request->data['SshKey']['ssh_key_authenticator_id']);
+      $this->generateHistory('upload',
+                             array('SshKey' => $sk),
+                             null);
+
+      $this->Flash->set(_txt('rs.added-a3', array(_txt('ct.ssh_keys.1'))), array('key' => 'success'));
+      $this->redirect($this->calculateRedirectOnSuccess($p));
+    } catch(InvalidArgumentException $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      $this->redirect($this->calculateRedirectOnFailure($p));
+    }
+  }
+
+  /**
+   * Calculate where to redirect on Failure
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Array    $person CO Person ID
+   * @return Array            Redirect route
+   */
+
+  protected function calculateRedirectOnFailure($person) {
+    // Redirect on Failure
+    if(empty($this->request->params['named']['onFinish'])) {
+      // CO Person Canvas/Authenticator
+      return array(
+        'plugin'          => 'ssh_key_authenticator',
+        'controller'      => 'ssh_keys',
+        'action'          => 'index',
+        'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
+        'copersonid'      => $person['copersonid']);
+    }
+    // Enrollment Flow
+    return array(
+      'plugin'          => 'ssh_key_authenticator',
+      'controller'      => 'ssh_keys',
+      'action'          => 'add',
+      'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
+      'copetitionid'    => $this->request->params["named"]["copetitionid"],
+      'token'           => $this->request->params["named"]["token"],
+      'onFinish'        => $this->request->params["named"]["onFinish"]
+    );
+  }
+
+  /**
+   * Calculate where to redirect on Success
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Array    $person CO Person ID
+   * @return Array            Redirect route
+   */
+
+  protected function calculateRedirectOnSuccess($person) {
+    // Redirect on success
+    if(empty($this->request->params['named']['onFinish'])) {
+      // CO Person Canvas/Authenticator
+      return array(
+        'plugin'          => 'ssh_key_authenticator',
+        'controller'      => 'ssh_keys',
+        'action'          => 'index',
+        'authenticatorid' => $this->request->data['SshKey']['authenticator_id'],
+        'copersonid'      => $person['copersonid']);
+    }
+    // Enrollment Flow
+    return urldecode($this->request->params['named']['onFinish']);
   }
 
   /**
