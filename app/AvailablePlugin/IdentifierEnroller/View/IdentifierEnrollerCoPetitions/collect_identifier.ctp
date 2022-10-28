@@ -61,6 +61,10 @@
           $args = array();
           $args['label'] = false;
           $args['required'] = true;
+
+          if(!empty($vv_default_env_values[ $id['id'] ])) {
+            $args['value'] = $vv_default_env_values[ $id['id'] ];
+          }
           
           print $this->Form->input($id['id'], $args);
         ?>

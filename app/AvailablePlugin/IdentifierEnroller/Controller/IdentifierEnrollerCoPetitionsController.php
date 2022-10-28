@@ -53,88 +53,97 @@ class IdentifierEnrollerCoPetitionsController extends CoPetitionsController {
     $args['contain'] = array('IdentifierEnrollerIdentifier');
     
     $identifiers = $this->IdentifierEnroller->find('first', $args);
-    
-    if(!empty($identifiers['IdentifierEnrollerIdentifier'])) {
-      // We have some identifiers, render a form
-      $this->set('vv_identifiers', $identifiers['IdentifierEnrollerIdentifier']);
-      
-      if($this->request->is('post')) {
-        // Post, process the request
-        
-        // Get the CO Person ID
-        $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
 
-        // Walk through the list of configured identifiers and save any we find.
-        // (While the form enforces "required", we don't bother here -- it's not even clear if we should.)
-        
-        // Run everything in a single transaction. If any identifier fails to save,
-        // we want the form to rerender, and the easiest thing is to make all
-        // identifiers editable (rather than just whichever failed).
-        
-        $dbc = $this->CoPetition->EnrolleeCoPerson->Identifier->getDataSource();
-        $dbc->begin();
-        
-        $err = false;
-        
-        foreach($identifiers['IdentifierEnrollerIdentifier'] as $ie) {
-          // For simplicity in form management, the identifiers are submitted under 'CoPetition'
-          if(!empty($this->request->data['CoPetition'][ $ie['id'] ])) {
-            // We have the type and the proposed identifier
-            
-            $identifier = array(
-              'Identifier' => array(
-                'identifier'   => $this->request->data['CoPetition'][ $ie['id'] ],
-                'type'         => $ie['identifier_type'],
-                'login'        => false,
-                'co_person_id' => $coPersonId,
-                'status'       => SuspendableStatusEnum::Active
-              )
-            );
-            
-            try {
-              $this->CoPetition->EnrolleeCoPerson->Identifier->create();
-              $this->CoPetition->EnrolleeCoPerson->Identifier->save($identifier, array('provision' => false));
-              
-              // Create some history
-              $actorCoPersonId = $this->Session->read('Auth.User.co_person_id');
-              
-              $txt = _txt('pl.identifierenroller.selected',
-                          array($this->request->data['CoPetition'][ $ie['id'] ],
-                                $ie['identifier_type']));
-              
-              $this->CoPetition->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
-                                                                         null,
-                                                                         null,
-                                                                         $actorCoPersonId,
-                                                                         ActionEnum::CoPersonEditedManual,
-                                                                         $txt);
-
-              $this->CoPetition->CoPetitionHistoryRecord->record($id,
-                                                                 $actorCoPersonId,
-                                                                 PetitionActionEnum::AttributesUpdated,
-                                                                 $txt);
-            }
-            catch(Exception $e) {
-              $dbc->rollback();
-              $err = true;
-              $this->Flash->set($e->getMessage(), array('key' => 'error'));
-              break;
-            }
-          }
-        }
-        
-        if(!$err) {
-          // We're done, commit and redirect
-          $dbc->commit();
-          $this->redirect($onFinish);
-        }
-        // else fall through to let the error and form render
-      }
-      // else nothing to do, just let the form render
-    } else {
+    if(empty($identifiers['IdentifierEnrollerIdentifier'])) {
       // There are no attributes to collect, redirect
-      
       $this->redirect($onFinish);
     }
+
+    if($this->request->is('post')) {
+      // Post, process the request
+
+      // Get the CO Person ID
+      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+
+      // Walk through the list of configured identifiers and save any we find.
+      // (While the form enforces "required", we don't bother here -- it's not even clear if we should.)
+
+      // Run everything in a single transaction. If any identifier fails to save,
+      // we want the form to rerender, and the easiest thing is to make all
+      // identifiers editable (rather than just whichever failed).
+
+      $dbc = $this->CoPetition->EnrolleeCoPerson->Identifier->getDataSource();
+      $dbc->begin();
+
+      $err = false;
+
+      foreach($identifiers['IdentifierEnrollerIdentifier'] as $ie) {
+        if(empty($this->request->data['CoPetition'][ $ie['id'] ])) {
+          continue;
+        }
+
+        // For simplicity in form management, the identifiers are submitted under 'CoPetition'
+        // We have the type and the proposed identifier
+
+        $identifier = array(
+          'Identifier' => array(
+            'identifier'   => $this->request->data['CoPetition'][ $ie['id'] ],
+            'type'         => $ie['identifier_type'],
+            'login'        => false,
+            'co_person_id' => $coPersonId,
+            'status'       => SuspendableStatusEnum::Active
+          )
+        );
+
+        try {
+          $this->CoPetition->EnrolleeCoPerson->Identifier->create();
+          $this->CoPetition->EnrolleeCoPerson->Identifier->save($identifier, array('provision' => false));
+
+          // Create some history
+          $actorCoPersonId = $this->Session->read('Auth.User.co_person_id');
+
+          $txt = _txt('pl.identifierenroller.selected',
+                      array($this->request->data['CoPetition'][ $ie['id'] ],
+                        $ie['identifier_type']));
+
+          $this->CoPetition->EnrolleeCoPerson->HistoryRecord->record($coPersonId,
+                                                                     null,
+                                                                     null,
+                                                                     $actorCoPersonId,
+                                                                     ActionEnum::CoPersonEditedManual,
+                                                                     $txt);
+
+          $this->CoPetition->CoPetitionHistoryRecord->record($id,
+                                                             $actorCoPersonId,
+                                                             PetitionActionEnum::AttributesUpdated,
+                                                             $txt);
+        } catch(Exception $e) {
+          $dbc->rollback();
+          $err = true;
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          break;
+        }
+      } // foreach
+
+      if(!$err) {
+        // We're done, commit and redirect
+        $dbc->commit();
+        $this->redirect($onFinish);
+      }
+
+    } // is POST
+
+    // We have some identifiers, render a form
+    $this->set('vv_identifiers', $identifiers['IdentifierEnrollerIdentifier']);
+
+    // Check for default ENV
+    $default_env = Hash::combine($identifiers['IdentifierEnrollerIdentifier'], '{n}.id', '{n}.default_env');
+    $default_env_values = array();
+    foreach($default_env as $idx => $env_key) {
+      $default_env_values[$idx] = getenv($env_key);
+    }
+
+    $this->set('vv_default_env', $default_env);
+    $this->set('vv_default_env_values', $default_env_values);
   }
 }
