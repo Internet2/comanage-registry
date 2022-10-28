@@ -305,6 +305,11 @@ class CoEnrollmentFlow extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'introduction_text_pa' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'conclusion_text' => array(
       'rule' => 'notBlank',
       'required' => false,

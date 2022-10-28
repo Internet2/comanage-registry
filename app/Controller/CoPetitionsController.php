@@ -1687,6 +1687,10 @@ class CoPetitionsController extends StandardController {
     if(!empty($conclusionText)) {
       $this->set('vv_conclusion_text', $conclusionText);
     }
+    $introductoryText = $this->CoPetition->CoEnrollmentFlow->field('introduction_text_pa', array('CoEnrollmentFlow.id' => $this->enrollmentFlowID()));
+    if(!empty($introductoryText)) {
+      $this->set('vv_introduction_text_pa', $introductoryText);
+    }
   }
   
   /**

@@ -1109,6 +1109,7 @@
     </field>
     <field name="introduction_text" type="X" size="4000" />
     <field name="conclusion_text" type="X" size="4000" />
+    <field name="introduction_text_pa" type="X" size="4000" />
     <field name="t_and_c_mode" type="C" size="2" />
     <field name="redirect_on_submit" type="C" size="1024" />
     <field name="redirect_on_confirm" type="C" size="1024" />
