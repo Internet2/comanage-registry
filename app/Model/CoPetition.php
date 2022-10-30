@@ -442,6 +442,53 @@ class CoPetition extends AppModel {
     
     return true;
   }
+
+  /**
+   * Petition Attributes Before Save Wedge Plugin Hook
+   *
+   * @param  Integer $id CO Petition ID
+   * @param  Integer $enrollmentFlowId Enrollment Flow ID
+   * @param  Array   $requestData Attributes from submitted Petition
+   * @param  Integer $petitionerId  CO Person ID of the petitioner
+   *
+   * @since  COmanage Registry v4.1.0
+   * @return bool
+   * @throws RuntimeException
+   */
+
+  protected function beforeSavePetitionAttributes($id, $enrollmentFlowId, &$requestData, $petitionerId) {
+    $args = array();
+    $args['conditions']['CoEnrollmentFlowWedge.co_enrollment_flow_id'] = $enrollmentFlowId;
+    $args['conditions']['CoEnrollmentFlowWedge.status'] = SuspendableStatusEnum::Active;
+    $args['order'] = array('ordr' => 'asc');
+
+    $wedges = $this->CoEnrollmentFlow->CoEnrollmentFlowWedge->find('all', $args);
+
+    foreach($wedges as $wedge) {
+      $pluginName = $wedge["CoEnrollmentFlowWedge"]["plugin"];
+      // We need to load the dependency for the next call
+      $this->CoEnrollmentFlow->CoEnrollmentFlowWedge->bindModel(
+        array('hasMany' => array(
+          $pluginName => array(
+            'className' => $pluginName . '.' . $pluginName
+          )))
+      );
+      if(method_exists($this->CoEnrollmentFlow->CoEnrollmentFlowWedge->$pluginName, 'beforeSaveAttributes')) {
+        try {
+          $response = $this->CoEnrollmentFlow
+                           ->CoEnrollmentFlowWedge
+                           ->$pluginName
+                           ->beforeSaveAttributes($id, $enrollmentFlowId, $requestData, $petitionerId);
+          if(!$response) {
+            throw new RuntimeException(_txt('er.pt.interrupt'));
+          }
+        } catch (Exception $e) {
+          throw new RuntimeException($e->getMessage());
+        }
+      }
+
+    }
+  }
   
   /**
    * Check the eligibility for a CO Petition.
@@ -1983,7 +2030,10 @@ class CoPetition extends AppModel {
     if(!$id) {
       throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.petitions.1'))));
     }
-    
+
+    // Execute any Enroller plugin hooks
+    $this->beforeSavePetitionAttributes($id, $enrollmentFlowId, $requestData, $petitionerId);
+
     // Start a transaction
     $dbc = $this->getDataSource();
     $dbc->begin();
