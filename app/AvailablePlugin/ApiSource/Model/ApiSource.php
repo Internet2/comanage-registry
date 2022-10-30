@@ -61,9 +61,11 @@ class ApiSource extends AppModel {
   // NOTE: We update these rules in beforeValidate()
   public $validate = array(
     'org_identity_source_id' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'message' => 'An Org Identity Source ID must be provided'
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => true,
+        'allowEmpty' => false
+      )
     ),
     'api_user_id' => array(
       'content' => array(
@@ -80,16 +82,6 @@ class ApiSource extends AppModel {
         'allowEmpty' => true,
         'unfreeze' => 'CO'
       )
-    ),
-    'kafka_groupid' => array(
-      'rule' => array('validateInput'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'kafka_topic' => array(
-      'rule' => array('validateInput'),
-      'required' => false,
-      'allowEmpty' => true
     )
   );
   
@@ -131,9 +123,14 @@ class ApiSource extends AppModel {
     // won't be visible).
     
     // Flip the required fields appropriately
-    foreach(array('kafka_server_id', 'kafka_groupid', 'kafka_topic') as $f) {
-      $this->validate[$f]['required'] = false;
-      $this->validate[$f]['allowEmpty'] = true;
+    foreach(array('kafka_server_id', 
+                  'kafka_groupid', 
+                  'kafka_topic',
+                  'kafka_batch_size',
+                  'kafka_partition',
+                  'kafka_timeout') as $f) {
+      $this->validate[$f]['content']['required'] = false;
+      $this->validate[$f]['content']['allowEmpty'] = true;
     }
     
     return true;
@@ -151,9 +148,14 @@ class ApiSource extends AppModel {
     if(!empty($this->data['ApiSource']['poll_mode'])
        && $this->data['ApiSource']['poll_mode'] == ApiSourcePollModeEnum::Kafka) {
       // Flip the required fields appropriately
-      foreach(array('kafka_server_id', 'kafka_groupid', 'kafka_topic') as $f) {
-        $this->validate[$f]['required'] = true;
-        $this->validate[$f]['allowEmpty'] = false;
+      foreach(array('kafka_server_id', 
+                    'kafka_groupid', 
+                    'kafka_topic',
+                    'kafka_batch_size',
+                    'kafka_partition',
+                    'kafka_timeout') as $f) {
+        $this->validate[$f]['content']['required'] = true;
+        $this->validate[$f]['content']['allowEmpty'] = false;
       }
     }
     
@@ -170,7 +172,7 @@ class ApiSource extends AppModel {
    * @throws RuntimeException
    */
   
-  public function poll($CoJob, $apiSourceId, $max=100) {
+  public function poll($CoJob, $apiSourceId, $max=10) {
     // Pull the API Source config
     $args = array();
     $args['conditions']['ApiSource.id'] = $apiSourceId;
@@ -196,108 +198,123 @@ class ApiSource extends AppModel {
     $failed = 0;
     
     // XXX This will need refactoring for technologies other than Kafka.
-    $KafkaConsumer = $this->ServerKafka->KafkaServer->establishConsumer($cfg['ApiSource']['kafka_server_id'],
-                                                                        $cfg['ApiSource']['kafka_groupid'],
-                                                                        $cfg['ApiSource']['kafka_topic']);
+    $KafkaConsumer = $this->ServerKafka->KafkaServer->establishConsumer($cfg['ApiSource']['kafka_server_id']);
     
     for($i = 0;$i < $max;$i++) {
       if($CoJob->canceled($CoJob->id)) {
-        $KafkaConsumer->close();
+        $this->ServerKafka->KafkaServer->closeConsumer();
         return false;
       }
       
-      // Parameter is timeout in milliseconds
-      $message = $KafkaConsumer->consume(5000);
-      
-      // Kafka's handling of EOFs and timeouts can be a bit confusing, see eg
-      // https://github.com/confluentinc/confluent-kafka-python/issues/283
-      if($message->err == RD_KAFKA_RESP_ERR__PARTITION_EOF) {
-        // If we see an EOF, we basically ignore it since it just means this
-        // message was EOF at some point (which doesn't seem like useful
-        // information in any way...). We'll try consuming again until we time
-        // out...
-        continue;
-      } elseif($message->err == RD_KAFKA_RESP_ERR__TIMED_OUT) {
-        // This is not a bad timeout, it just means "topic is empty".
-        // We'll stop the job here.
-        $CoJob->CoJobHistoryRecord->record($CoJob->id,
-                                           null,
-                                           _txt('pl.apisource.job.poll.eof'));
-        break;
-      } elseif($message->err != RD_KAFKA_RESP_ERR_NO_ERROR) {
-        // Throw an error that will bubble up the stack
-        $KafkaConsumer->close();
-        throw new RuntimeException($message->errstr());
-      }
-      
-      // Process the record, which is available in $message->payload. On error,
-      // we want to keep going (up to $max)
       try {
-        // Parse JSON
-        $json = json_decode($message->payload, true);
-        
-        if(empty($json)) {
-          // XXX It might be useful to store/log $message->payload somewhere
-          // for diagnostic purposes, but we don't really have a good place to
-          // store it, so for now we'll just log it.
-          $this->log(_txt('er.apisource.kafka.json', array($message->offset)));
-          $this->log($message->payload);
-          $KafkaConsumer->close();
-          throw new Exception(_txt('er.apisource.kafka.json', array($message->offset)));
+        $messages = $this->ServerKafka->KafkaServer->consumeBatch();
+
+        if(empty($messages)) {
+          // Nothing to do, so break the loop and stop the job
+          $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                             null,
+                                             _txt('pl.apisource.job.poll.eof'));
+          break;
         }
-        
-        // Check metadata
-        foreach(array('resource' => 'sorPersonRole',
-                      'version' => '1',
-                      'sor' => $cfg['ApiSource']['sor_label'])
-                as $a => $v) {
-          if(empty($json['meta'][$a]) || $json['meta'][$a] != $v) {
-            $KafkaConsumer->close();
-            throw new Exception(_txt('er.apisource.kafka.meta', array($a,
-                                                                      $message->offset,
-                                                                      !empty($json['meta'][$a]) ? $json['meta'][$a] : "",
-                                                                      $v)));
+
+        // Process whatever messages we received. If any individual message throws
+        // an error, we want to keep processing the remaining ones.
+
+        foreach($messages as $message) {
+          // First check for errors
+
+          // Kafka's handling of EOFs and timeouts can be a bit confusing, see eg
+          // https://github.com/confluentinc/confluent-kafka-python/issues/283
+          if($message->err == RD_KAFKA_RESP_ERR__PARTITION_EOF) {
+            // If we see an EOF, we basically ignore it since it just means this
+            // message was EOF at some point (which doesn't seem like useful
+            // information in any way...). We'll try consuming again until we time
+            // out...
+            continue;
+          } elseif($message->err == RD_KAFKA_RESP_ERR__TIMED_OUT) {
+            // This is not a bad timeout, it just means "topic is empty".
+            // We'll stop the job here.
+            $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                              null,
+                                              _txt('pl.apisource.job.poll.eof'));
+            break 2;
+          } elseif($message->err != RD_KAFKA_RESP_ERR_NO_ERROR) {
+            throw new RuntimeException($message->errstr());
+          }
+          
+          try {
+            // Parse JSON
+            $json = json_decode($message->payload, true);
+            
+            if(empty($json)) {
+              // XXX It might be useful to store/log $message->payload somewhere
+              // for diagnostic purposes, but we don't really have a good place to
+              // store it, so for now we'll just log it.
+              $this->log(_txt('er.apisource.kafka.json', array($message->offset)));
+              $this->log($message->payload);
+              $this->ServerKafka->KafkaServer->closeConsumer();
+              throw new Exception(_txt('er.apisource.kafka.json', array($message->offset)));
+            }
+            
+            // Check metadata
+            foreach(array('resource' => 'sorPersonRole',
+                          'version' => '1',
+                          'sor' => $cfg['ApiSource']['sor_label'])
+                    as $a => $v) {
+              if(empty($json['meta'][$a]) || $json['meta'][$a] != $v) {
+                $this->ServerKafka->KafkaServer->closeConsumer();
+                throw new Exception(_txt('er.apisource.kafka.meta', array($a,
+                                                                          $message->offset,
+                                                                          !empty($json['meta'][$a]) ? $json['meta'][$a] : "",
+                                                                          $v)));
+              }
+            }
+            
+            // Find SORID
+            if(empty($json['meta']['sorid'])) {
+              $this->ServerKafka->KafkaServer->closeConsumer();
+              throw new Exception(_txt('er.apisource.kafka.sorid', array($message->offset)));
+            }
+            
+            $r = $this->upsert($cfg['ApiSource']['id'], 
+                              $cfg['ApiSource']['org_identity_source_id'], 
+                              $cfg['OrgIdentitySource']['co_id'],
+                              $json['meta']['sorid'], 
+                              $json);
+            
+            $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                              $json['meta']['sorid'],
+                                              _txt('pl.apisource.job.poll.msg', array($message->offset)),
+                                              null,
+                                              $r['org_identity_id']);
+            
+            $success++;
+          }
+          catch(Exception $e) {
+            $CoJob->CoJobHistoryRecord->record($CoJob->id,
+                                              !empty($json['meta']['sorid']) ? $json['meta']['sorid'] : null,
+                                              $e->getMessage(),
+                                              null,
+                                              null,
+                                              JobStatusEnum::Failed);
+            
+            $failed++;
           }
         }
-        
-        // Find SORID
-        if(empty($json['meta']['sorid'])) {
-          $KafkaConsumer->close();
-          throw new Exception(_txt('er.apisource.kafka.sorid', array($message->offset)));
-        }
-        
-        $r = $this->upsert($cfg['ApiSource']['id'], 
-                           $cfg['ApiSource']['org_identity_source_id'], 
-                           $cfg['OrgIdentitySource']['co_id'],
-                           $json['meta']['sorid'], 
-                           $json);
-        
-        $CoJob->CoJobHistoryRecord->record($CoJob->id,
-                                           $json['meta']['sorid'],
-                                           _txt('pl.apisource.job.poll.msg', array($message->offset)),
-                                           null,
-                                           $r['org_identity_id']);
-        
-        $success++;
       }
       catch(Exception $e) {
-        $CoJob->CoJobHistoryRecord->record($CoJob->id,
-                                           !empty($json['meta']['sorid']) ? $json['meta']['sorid'] : null,
-                                           $e->getMessage(),
-                                           null,
-                                           null,
-                                           JobStatusEnum::Failed);
-        
-        $failed++;
+        // Throw an error that will bubble up the stack
+        $this->ServerKafka->KafkaServer->closeConsumer();
+        throw new RuntimeException($e->getMessage());
       }
-      
+
       if($max > 0) {
         $pctDone = (($i + 1) * 100)/$max;
         $CoJob->setPercentComplete($CoJob->id, $pctDone);
       }
     }
     
-    $KafkaConsumer->close();
+    $this->ServerKafka->KafkaServer->closeConsumer();
     
     $CoJob->finish($CoJob->id,
                    _txt('pl.apisource.job.poll.finish', array(($success + $failed), $success, $failed)));

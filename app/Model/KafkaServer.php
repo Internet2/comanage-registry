@@ -75,9 +75,53 @@ class KafkaServer extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
+    ),
+    'groupid' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'topic' => array(
+      'content' => array(
+        'rule' => array('validateInput'),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'batch_size' => array(
+      'content' => array(
+        'rule' => array('range', 1, null),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'partition' => array(
+      'content' => array(
+        'rule' => array('range', 0, null),
+        'required' => false,
+        'allowEmpty' => true
+      )
+    ),
+    'timeout' => array(
+      'content' => array(
+        'rule' => array('range', 1, null),
+        'required' => false,
+        'allowEmpty' => true
+      )
     )
   );
   
+  // The server configuration
+  protected $srvr = null;
+
+  // Kafka Consumer
+  protected $consumer = null;
+
+  // Kafka Topic
+  protected $topic = null;
+
   /**
    * Actions to take before a save operation is executed.
    *
@@ -92,50 +136,87 @@ class KafkaServer extends AppModel {
   }*/
   
   /**
+   * Close the consumer.
+   * 
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function closeConsumer() {
+    if($this->consumer) {
+      // No close() call in low level consumer
+      // $this->consumer->close();
+    }
+
+    $this->srvr = null;
+    $this->consumer = null;
+    $this->topic = null;
+  }
+
+  /**
+   * Consume a batch of messages from the active consumer/topic.
+   * 
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function consumeBatch() {
+    if($this->topic) {
+      return $this->topic->consumeBatch($this->srvr['KafkaServer']['partition'],
+                                        $this->srvr['KafkaServer']['timeout'] * 1000,
+                                        $this->srvr['KafkaServer']['batch_size']);
+    }
+
+    return array();
+  }
+
+  /**
    * Establish a Kafka Consumer.
    *
    * @since  COmanage Registry v4.0.0
    * @param  integer $serverId Server ID
-   * @param  string  $groupid  Kafka Group ID
-   * @param  string  $topic    Kafka Topic to subscribe to
-   * @return RdKafkaConsumer   Kafka Consumer
+   * @return bool              true on success
    */
   
-  public function establishConsumer($serverId, $groupid, $topic) {
+  public function establishConsumer($serverId) {
     $args = array();
     $args['conditions']['Server.id'] = $serverId;
     $args['contain'] = array('KafkaServer');
     
-    $srvr = $this->Server->find('first', $args);
+    $this->srvr = $this->Server->find('first', $args);
     
-    if(!$srvr) {
+    if(!$this->srvr) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.servers.1', $serverId))));
     }
     
     // https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     $conf = new RdKafka\Conf();
     
-    $conf->set('security.protocol', $srvr['KafkaServer']['security_protocol']);
-    $conf->set('sasl.mechanism', $srvr['KafkaServer']['sasl_mechanism']);
-    $conf->set('sasl.username', $srvr['KafkaServer']['username']);
-    $conf->set('sasl.password', $srvr['KafkaServer']['password']);
-    
+// XXX note in initial testing security_protocol was ALL_CAPS but is now lowercase (as per the documentation)
+    $conf->set('security.protocol', $this->srvr['KafkaServer']['security_protocol']);
+    $conf->set('sasl.mechanism', $this->srvr['KafkaServer']['sasl_mechanism']);
+    $conf->set('sasl.username', $this->srvr['KafkaServer']['username']);
+    $conf->set('sasl.password', $this->srvr['KafkaServer']['password']);
+
     // Configure the group.id. All consumer with the same group.id will consume
     // different partitions.
-    $conf->set('group.id', $groupid);
+    $conf->set('group.id', $this->srvr['KafkaServer']['groupid']);
     
-    // Initial list of Kafka brokers
-    $conf->set('metadata.broker.list', $srvr['KafkaServer']['brokers']);
-    
+    $this->consumer = new RdKafka\Consumer($conf);
+
+    // Add the configured set of Kafka brokers
+    $this->consumer->addBrokers($this->srvr['KafkaServer']['brokers']);
+
+    // Configuration for the topic
+    $topicConf = new RdKafka\TopicConf();
+
     // Set where to start consuming messages when there is no initial offset in
     // offset store or the desired offset is out of range.
-    // 'smallest': start from the beginning
-    $conf->set('auto.offset.reset', 'smallest');
-    
-    $consumer = new RdKafka\KafkaConsumer($conf);
-    
-    $consumer->subscribe(array($topic));
-    
-    return $consumer;
+    // 'earliest': start from the beginning
+    $topicConf->set('auto.offset.reset', 'earliest');
+
+    $this->topic = $this->consumer->newTopic($this->srvr['KafkaServer']['topic'], $topicConf);
+
+    $this->topic->consumeStart($this->srvr['KafkaServer']['partition'], RD_KAFKA_OFFSET_STORED);
+
+    return true;
   }
 }

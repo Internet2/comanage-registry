@@ -195,28 +195,6 @@
         <?php endif; // vv_servers ?>
         </div>
       </li>
-      <li>
-        <div class="field-name">
-          <div class="field-title">
-            <?php print _txt('pl.apisource.kafka.groupid'); ?>
-            <span class="required">*</span>
-          </div>
-        </div>
-        <div class="field-info">
-          <?php print ($e ? $this->Form->input('kafka_groupid', array('size' => 50)) : filter_var($api_sources[0]['ApiSource']['kafka_groupid'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-      </li>
-      <li>
-        <div class="field-name">
-          <div class="field-title">
-            <?php print _txt('pl.apisource.kafka.topic'); ?>
-            <span class="required">*</span>
-          </div>
-        </div>
-        <div class="field-info">
-          <?php print ($e ? $this->Form->input('kafka_topic', array('size' => 50)) : filter_var($api_sources[0]['ApiSource']['kafka_topic'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
-        </div>
-      </li>
       </div>
     </ul>
   </li>

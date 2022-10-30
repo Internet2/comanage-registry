@@ -46,8 +46,6 @@
     <field name="kafka_server_id" type="I">
       <constraint>REFERENCES cm_servers(id)</constraint>
     </field>
-    <field name="kafka_groupid" type="C" size="80" />
-    <field name="kafka_topic" type="C" size="80" />
 
     <field name="created" type="T" />
     <field name="modified" type="T" />

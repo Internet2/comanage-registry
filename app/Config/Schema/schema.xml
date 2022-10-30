@@ -516,6 +516,11 @@
     <field name="sasl_mechanism" type="C" size="24" />
     <field name="username" type="C" size="128" />
     <field name="password" type="C" size="400" />
+    <field name="groupid" type="C" size="80" />
+    <field name="topic" type="C" size="80" />
+    <field name="batch_size" type="I" />
+    <field name="partition" type="I" />
+    <field name="timeout" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

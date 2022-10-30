@@ -147,6 +147,61 @@
       <?php print ($e ? $this->Form->input('password') : filter_var($kafka_servers[0]['KafkaServer']['password'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.server.kafka.groupid'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('groupid', array('size' => 50)) : filter_var($kafka_servers[0]['KafkaServer']['groupid'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.server.kafka.topic'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('topic', array('size' => 50)) : filter_var($kafka_servers[0]['KafkaServer']['topic'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.server.kafka.batch_size'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('batch_size', array('default' => 10)) : $kafka_servers[0]['KafkaServer']['batch_size']); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.server.kafka.partition'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('partition', array('default' => 0)) : $kafka_servers[0]['KafkaServer']['partition']); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.server.kafka.timeout'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('timeout', array('default' => 30)) : $kafka_servers[0]['KafkaServer']['timeout']); ?>
+    </div>
+  </li>
   <?php if($e): ?>
   <li class="fields-submit">
     <div class="field-name">

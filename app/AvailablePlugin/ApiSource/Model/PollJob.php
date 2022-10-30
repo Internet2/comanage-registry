@@ -70,7 +70,7 @@ class PollJob extends CoJobBackend {
         'help'     => _txt('pl.apisource.job.poll.max'),
         'type'     => 'int',
         'required' => false,
-        'default'  => 100
+        'default'  => 10
       )
     );
 
