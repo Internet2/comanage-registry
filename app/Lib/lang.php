@@ -1426,6 +1426,8 @@ The request may be viewed at
   'fd.default'    =>  'Default',
   'fd.df.context' => 'Context',
   'fd.dict.mode'  => 'Dictionary Mode',
+  'fd.nonadmin.grp.create.disable' => 'Disable Non-Admin CO Group Creation',
+  'fd.nonadmin.grp.create.disable.desc' => 'Prevent the creation of new groups from all users except by CO/U Admins.',
   'fd.dp.group.admin' => 'Administrative Group',
   'fd.dp.group.admin.desc' => 'Group containing the Department administrators',
   'fd.dp.group.leader' => 'Leadership Group',

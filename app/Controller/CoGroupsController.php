@@ -434,8 +434,15 @@ class CoGroupsController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new Group?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
+    $p['add'] = $roles['cmadmin']
+                || $roles['coadmin']
+                || $roles['couadmin']
+                || ($this->CoGroup->Co->CoSetting->allowGroupCreationByNonAdmins($this->cur_co['Co']['id'])
+                    && $roles['comember']); // XXX CO-1637
+
+    // Manage the Group memberships
+    $p['groupmanage'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
     

@@ -108,6 +108,20 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.nonadmin.grp.create.disable'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.nonadmin.grp.create.disable.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                   ? $this->Form->input('group_create_admin_only')
+                   : (isset($co_settings[0]['CoSetting']['group_create_admin_only'])
+                   && $co_settings[0]['CoSetting']['group_create_admin_only']
+                     ? _txt('fd.yes') : _txt('fd.no')));
+      print ' ' . $this->Form->label('group_create_admin_only',_txt('fd.nonadmin.grp.create.disable'));
+      ?>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('group_validity_sync_window',_txt('fd.co_group_member.sync.window'),array('class' => 'fieldTitle'));?></div>
       <div class="field-desc"><?php print _txt('fd.co_group_member.sync.window.desc'); ?></div>
     </div>
