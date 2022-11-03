@@ -71,6 +71,10 @@ function build_base() {
 
     "${docker_build_command[@]}"
 
+    if (( $? != 0 )); then
+        exit 1
+    fi
+
     if [[ -n "${prefix}" ]]; then
         target="${prefix}${tag}"
         docker tag "${tag}" "${target}"
@@ -129,6 +133,10 @@ function build_basic_auth() {
     docker_build_command+=(.)
 
     "${docker_build_command[@]}"
+
+    if (( $? != 0 )); then
+        exit 1
+    fi
 
     if [[ -n "${prefix}" ]]; then
         target="${prefix}${tag}"
@@ -189,6 +197,10 @@ function build_mod_auth_openidc() {
 
     "${docker_build_command[@]}"
 
+    if (( $? != 0 )); then
+        exit 1
+    fi
+
     if [[ -n "${prefix}" ]]; then
         target="${prefix}${tag}"
         docker tag "${tag}" "${target}"
@@ -246,6 +258,10 @@ function build_shibboleth_sp_base() {
     docker_build_command+=(.)
 
     "${docker_build_command[@]}"
+
+    if (( $? != 0 )); then
+        exit 1
+    fi
 
     if [[ -n "${prefix}" ]]; then
         target="${prefix}${tag}"
@@ -323,6 +339,10 @@ function build_shibboleth_sp_supervisor() {
     docker_build_command+=(.)
 
     "${docker_build_command[@]}"
+
+    if (( $? != 0 )); then
+        exit 1
+    fi
 
     if [[ -n "${prefix}" ]]; then
         target="${prefix}${tag}"
@@ -570,24 +590,24 @@ function main() {
             authentication="$2"
             case "${authentication}" in
                 all )
-                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
-                    build_basic_auth "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
-                    build_mod_auth_openidc "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
-                    build_shibboleth_sp_base "${prefix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}"
-                    build_shibboleth_sp_supervisor "${prefix}" "${label}" "${suffix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}"
+                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_basic_auth "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_mod_auth_openidc "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_shibboleth_sp_base "${prefix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_shibboleth_sp_supervisor "${prefix}" "${label}" "${suffix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}"
                     ;;
                 basic-auth )
-                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
-                    build_basic_auth "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
+                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_basic_auth "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
                     ;;
                 mod_auth_openidc )
-                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
-                    build_mod_auth_openidc "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
+                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_mod_auth_openidc "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
                     ;;
                 shibboleth-sp-supervisor )
-                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}"
-                    build_shibboleth_sp_base "${prefix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}"
-                    build_shibboleth_sp_supervisor "${prefix}" "${label}" "${suffix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}"
+                    build_base "${prefix}" "${label}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_shibboleth_sp_base "${prefix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}" \
+                    && build_shibboleth_sp_supervisor "${prefix}" "${label}" "${suffix}" "${SHIBBOLETH_SP_VERSION}" "${suffix}" "${docker_build_flags[@]}"
                     ;;
                 *)
                     err "ERROR: Unrecognized authentication"
