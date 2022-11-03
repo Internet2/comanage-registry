@@ -28,13 +28,13 @@ ARG XMLSECC_VERSION
 ENV XMLSECC_VERSION=${XMLSECC_VERSION:-2.0.4}
 
 ARG XMLTOOLING_VERSION
-ENV XMLTOOLING_VERSION=${XMLTOOLING_VERSION:-3.2.1}
+ENV XMLTOOLING_VERSION=${XMLTOOLING_VERSION:-3.2.2}
 
 ARG OPENSAMLC_VERSION
 ENV OPENSAMLC_VERSION=${OPENSAMLC_VERSION:-3.2.1}
 
 ARG SHIBBOLETH_SP_VERSION
-ENV SHIBBOLETH_SP_VERSION=${SHIBBOLETH_SP_VERSION:-3.3.0}
+ENV SHIBBOLETH_SP_VERSION=${SHIBBOLETH_SP_VERSION:-3.4.0}
 
 RUN apt-get update \
       && apt-get install -y --no-install-recommends \
@@ -115,7 +115,7 @@ RUN XMLSECC_DIST_URLS="\
       && cd .. \
       && rm -r src 
 
-RUN XMLTOOLING_URL="https://shibboleth.net/downloads/c++-opensaml/${XMLTOOLING_VERSION}/xmltooling-${XMLTOOLING_VERSION}.tar.gz" \
+RUN XMLTOOLING_URL="https://shibboleth.net/downloads/c++-opensaml/${OPENSAMLC_VERSION}/xmltooling-${XMLTOOLING_VERSION}.tar.gz" \
       && wget -O xmltooling.tar.gz "${XMLTOOLING_URL}" \
       && mkdir -p src \
       && tar -zxf xmltooling.tar.gz -C src --strip-components=1 \
