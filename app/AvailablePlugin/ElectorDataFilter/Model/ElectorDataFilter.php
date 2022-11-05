@@ -41,7 +41,7 @@ class ElectorDataFilter extends AppModel
   public $belongsTo = array("DataFilter");
 
   public $hasMany = array(
-    "ElectorDataFilterPrecedence" => array('dependent' => true)
+    "ElectorDataFilter.ElectorDataFilterPrecedence" => array('dependent' => true)
   );
 
   // The context(s) this filter supports

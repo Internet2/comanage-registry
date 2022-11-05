@@ -77,12 +77,14 @@ class ElectorDataFiltersController extends StandardController {
       foreach ($available_types as $type) {
         $attribute_types[$m][$type] = $type;
       }
+      natsort($attribute_types[$m]);
     }
-
-    $this->set('vv_attribute_names', array_combine(
+    $attribute_names = array_combine(
       $this->ElectorDataFilter->validate["attribute_name"]["content"]["rule"][1],
       $this->ElectorDataFilter->validate["attribute_name"]["content"]["rule"][1]
-    ));
+    );
+    natsort($attribute_names);
+    $this->set('vv_attribute_names', $attribute_names);
     $this->set('vv_attribute_types', $attribute_types);
     parent::beforeRender();
   }
@@ -126,11 +128,13 @@ class ElectorDataFiltersController extends StandardController {
    */
 
   public function performRedirect() {
+    $modelName = $pluginName = Inflector::singularize($this->name);
+
     $target = array();
-    $target['plugin'] = null;
-    $target['controller'] = "data_filters";
-    $target['action'] = 'index';
-    $target['co'] = $this->cur_co['Co']['id'];
+    $target['plugin'] = Inflector::underscore($pluginName);
+    $target['controller'] = Inflector::tableize($modelName);
+    $target['action'] = 'edit';
+    $target[] = $this->request->data['ElectorDataFilter']['id'];
 
     $this->redirect($target);
   }

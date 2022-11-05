@@ -40,9 +40,9 @@
         <field name="attribute_name" type="C" size="32" />
         <field name="outbound_attribute_type" type="C" size="32" />
         <!--    oldest/newest    -->
-        <field name="tie_break_mode" type="C" size="1" />
+        <field name="tie_break_mode" type="C" size="2" />
         <!--   insert/replace     -->
-        <field name="replacement_mode" type="C" size="1" />
+        <field name="replacement_mode" type="C" size="2" />
         <field name="created" type="T" />
         <field name="modified" type="T" />
         <field name="elector_data_filter_id" type="I">

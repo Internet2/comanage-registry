@@ -1,12 +1,12 @@
 <?php
 
 class ReplacementModeEnum {
-  const Insert     = 'I';
-  const Replace    = 'R';
+  const Insert     = 'IN';
+  const Replace    = 'RL';
 }
 
 
 class TieBreakReplacementModeEnum {
-  const Oldest     = 'O';
-  const Newest     = 'N';
+  const Oldest     = 'OL';
+  const Newest     = 'NW';
 }
