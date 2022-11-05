@@ -944,7 +944,9 @@ class CoPipeline extends AppModel {
             $args['conditions']['Identifier.type'] = $coPipeline['CoPipeline']['sync_identifier_type'];
           }
           $args['conditions'][] = 'Identifier.co_person_id IS NOT NULL';
-          $args['contain'] = false;
+          $args['conditions']['CoPerson.co_id'] = $orgIdentity['OrgIdentity']['co_id'];
+          // We don't really need CoPerson but it makes it easier to filter on co_id
+          $args['contain'] = array('CoPerson');
           
           // The above conditions might match more than one Identifier, so we only
           // look at the first.
