@@ -413,8 +413,12 @@ class Co extends AppModel {
       
       foreach(App::objects('plugin') as $p) {
         $m = ClassRegistry::init($p . "." . $p);
-        
-        $plugins[$m->cmPluginType][$p] = $m;
+
+        // XXX As of v2.0.0, $cmPluginType may also be an array.
+        //     If it is an array, pick up the first
+        $pluginType = is_array($m->cmPluginType) ? $m->cmPluginType[0] : $m->cmPluginType;
+
+        $plugins[$pluginType][$p] = $m;
       }
       
       // Make sure to update this list in delete() as well
@@ -538,7 +542,9 @@ class Co extends AppModel {
           'lft',
           'rght'
         ) as $field) {
-          unset($o[$model->name][$field]);
+          if(isset($o[$model->name][$field])) {
+            unset($o[$model->name][$field]);
+          }
         }
         
         if(!empty($model->belongsTo)) {
