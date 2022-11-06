@@ -161,7 +161,8 @@ class CoAnnouncementsController extends StandardController {
       
       if(!empty($ann['CoAnnouncementChannel']['id'])) {
         $author = in_array($ann['CoAnnouncementChannel']['author_co_group_id'], $memberGroupIds);
-        $reader = in_array($ann['CoAnnouncementChannel']['reader_co_group_id'], $memberGroupIds);
+        $reader = empty($ann['CoAnnouncementChannel']['reader_co_group_id'])
+                  || in_array($ann['CoAnnouncementChannel']['reader_co_group_id'], $memberGroupIds);
       }
     } else {
       // For add purposes, a person has author position if they are in any author
