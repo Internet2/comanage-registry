@@ -267,6 +267,7 @@
     <div class="field-name">
       <div class="field-title">
         <?php print ($e ? $this->Form->label('name',_txt('fd.name')) : _txt('fd.name')); ?>
+        <span class="required">*</span>
       </div>
     </div>
     <div class="field-info">
@@ -279,6 +280,7 @@
     <div class="field-name">
       <div class="field-title">
         <?php print $this->Form->label('sor_label',_txt('fd.sor_label')); ?>
+        <span class="required">*</span>
       </div>
     </div>
     <div class="field-info">
@@ -1251,7 +1253,9 @@
 
   <?php if($e): ?>
     <li class="fields-submit">
-      <div class="field-name"></div>
+      <div class="field-name">
+        <span class="required"><?php print _txt('fd.req'); ?></span>
+      </div>
       <div class="field-info">
         <?php print $this->Form->submit($submit_label); ?>
       </div>
