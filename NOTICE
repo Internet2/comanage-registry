@@ -126,6 +126,10 @@ files and utilities for further information:
  MIT License
  http://dimsemenov.com/plugins/magnific-popup
  
+ Metismenu (app/webroot/js/jquery/metismenu)
+ MIT License
+ https://github.com/onokumus/metismenu
+ 
  noty (app/webroot/js/jquery/noty)
  MIT License
  http://ned.im/noty
@@ -137,14 +141,6 @@ files and utilities for further information:
  Shibboleth Embedded Discovery Service (app/webroot/js/eds)
  Apache 2.0
  https://shibboleth.net/products/embedded-discovery-service.html
- 
- spin.js (app/webroot/js/jquery/spin*)
- MIT License
- http://spin.js.org
- 
- Superfish (app/webroot/js/superfish)
- MIT License
- https://superfish.joelbirch.co
 
  Guzzle 6 HTTP Adapter (php-http/guzzle6-adapter)
  MIT License
@@ -153,5 +149,17 @@ files and utilities for further information:
  Filesystem PSR-6 Cache pool (php-cache/filesystem-adapter)
  MIT License
  https://github.com/php-cache/filesystem-adapter
+ 
+ Material Icons (app/webroot/css/fonts/material-icons)
+ Apache 2.0
+ https://fonts.google.com/icons?selected=Material+Icons 
+  
+ Open Sans (app/webroot/css/fonts/opensans)
+ Apache 2.0
+ https://fonts.google.com/specimen/Open+Sans
+ 
+ vuejs
+ MIT License
+ https://vuejs.org/
  
 ---------------------------------------------------------------------------
