@@ -58,7 +58,8 @@ class CoGroupMembersController extends StandardController {
   private $gid = null;
   
   // Determined during isAuthorized() and used for applying restrictions on rest operations 
-  private $isCmpCoAdmin = false;
+  private $isCoAdmin = false;
+  private $isCmpAdmin = false;
 
   /**
    * Add one or more CO Group Members.
@@ -386,29 +387,68 @@ class CoGroupMembersController extends StandardController {
    */
   
   function index() {
-    if($this->request->is('restful') && !empty($this->params['url']['cogroupid']) && $this->isCmpCoAdmin) {
-      // We need to retrieve via a join, which StandardController::index() doesn't
-      // currently support.
+    if(!$this->request->is('restful')) {
+      // Render the member list to the browser
+      $this->listMembers();
+      return;
+    }
 
-      $this->set('vv_model_version', $this->CoGroupMember->version);
+    if (!$this->isCoAdmin && !$this->isCmpAdmin) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_UNAUTHORIZED, _txt('er.http.401'));
+    }
 
-      try {
-        $groups = $this->CoGroupMember->findForCoGroup($this->params['url']['cogroupid']);
-        
-        if(!empty($groups)) {
-          $this->set('co_group_members', $this->Api->convertRestResponse($groups));
-        } else {
-          $this->Api->restResultHeader(204, "CO Person Has No Groups");
+    $this->set('vv_model_version', $this->CoGroupMember->version);
+
+    try {
+      if(!empty($this->params['url']['cogroupid'])
+         && empty($this->params['url']['copersonid'])) {
+        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['cogroupid'] => 'CoGroup'));
+        $searching_for = 'CoGroup';
+        if(!empty($group_members)) {
+          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
+          return;
+        }
+      } elseif(!empty($this->params['url']['copersonid'])
+               && empty($this->params['url']['cogroupid'])) {
+        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson'));
+        $searching_for = 'CoPerson';
+        if(!empty($group_members)) {
+          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
+          return;
+        }
+      } elseif(!empty($this->params['url']['copersonid'])
+               && !empty($this->params['url']['cogroupid'])) {
+        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson',
+                                                                $this->params['url']['cogroupid'] => 'CoGroup'));
+        $searching_for = 'CoPerson/CoGroup';
+        if(!empty($group_members)) {
+          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
           return;
         }
       }
-      catch(InvalidArgumentException $e) {
-        $this->Api->restResultHeader(404, "CO Person Unknown");
-        return;
+
+      if((!empty($this->params['url']['copersonid'])
+             || !empty($this->params['url']['cogroupid']))
+          && empty($group_members)) {
+        $this->Api->restResultHeader(204, _txt('er.grm.none-a'));
       }
-    } else {
-      // Render the member list to the browser
-      $this->listMembers();
+
+      if($this->isCmpAdmin) {
+        $group_members = $this->CoGroupMember->findRecord();
+        $searching_for = 'Platform';
+        if(!empty($group_members)) {
+          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
+          return;
+        }
+      }
+
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NO_CONTENT, _txt('er.mt.unknown', array($searching_for)));
+      return;
+
+    }
+    catch(InvalidArgumentException $e) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.mt.unknown', array("Configuration")));
+      return;
     }
   }
   
@@ -457,8 +497,9 @@ class CoGroupMembersController extends StandardController {
     $readOnly = ($this->gid ? $this->CoGroupMember->CoGroup->readOnly($this->gid) : false);
     
     // If this user is an CMP or CO admin, make this known to the controller:
-    $this->isCmpCoAdmin = ($roles['cmadmin'] || $roles['coadmin']);
-    
+    $this->isCmpAdmin = $roles['cmadmin'];
+    $this->isCoAdmin = $roles['coadmin'];
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
     

@@ -384,22 +384,21 @@ class CoGroupMember extends AppModel {
     
     return $ret;
   }
-  
+
   /**
-   * Obtain all group members for a CO Group.
+   * Obtain all group members for a CO.
    * NOTE: If this function is called within a transaction, a read lock will be obtained (SELECT FOR UPDATE).
    *
-   * @since  COmanage Registry v0.9.2
-   * @param  Integer CO Group ID
+   * @since  COmanage Registry v4.1.0
+   * @param  Array   List of Model relations
    * @param  Integer Maximium number of results to retrieve (or null)
    * @param  Integer Offset to start retrieving results from (or null)
    * @param  String Field to sort by (or null)
    * @param  Boolean Whether to only return valid (validfrom/through) entries
    * @return Array Group information, as returned by find
-   * @todo   Rewrite to a custom find type
    */
-  
-  public function findForCoGroup($coGroupId, $limit=null, $offset=null, $order=null, $validOnly=false) {
+
+  public function findRecord($model=array(), $limit=null, $offset=null, $order=null, $validOnly=false) {
     $args = array();
     $args['joins'][0]['table'] = 'co_groups';
     $args['joins'][0]['alias'] = 'CoGroup';
@@ -409,24 +408,25 @@ class CoGroupMember extends AppModel {
       'id', 'co_group_id', 'co_person_id', 'member', 'owner'
     );
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
-    $args['conditions']['CoGroup.id'] = $coGroupId;
+    foreach ($model as $modelId => $modelNAme) {
+      $args['conditions']['CoGroupMember.' . Inflector::underscore($modelNAme).'_id'] = $modelId;
+    }
     if($validOnly) {
       // Only pull currently valid group memberships
       $args['conditions']['AND'][] = array(
         'OR' => array(
           'CoGroupMember.valid_from IS NULL',
-          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s', time())
+          'CoGroupMember.valid_from < ' => date('Y-m-d H:i:s')
         )
       );
       $args['conditions']['AND'][] = array(
         'OR' => array(
           'CoGroupMember.valid_through IS NULL',
-          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s', time())
+          'CoGroupMember.valid_through > ' => date('Y-m-d H:i:s')
         )
       );
     }
-    $args['contain'] = false;
-    
+
     return $this->findForUpdate($args['conditions'],
                                 $args['fields'],
                                 $args['joins'],
