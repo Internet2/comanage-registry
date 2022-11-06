@@ -387,7 +387,7 @@
             </ul>
           </li>
         <?php endif; // action != add ?>
-
+        
         <li id="tabs-attributes" class="fieldGroup">
           <a href="#tabs-attributes" class="fieldGroupName">
             <em class="material-icons">indeterminate_check_box</em>
@@ -398,6 +398,60 @@
             <?php include('petition-attributes.inc'); ?>
           </div>
         </li>
+
+        <?php if($this->action == 'view'): ?>
+          <!-- Enroller plugin -->
+          <?php
+          if(!empty($co_petitions[0]["CoEnrollmentFlow"]["CoEnrollmentFlowWedge"])) {
+            // Sort by the order field
+            $wedges = Hash::sort($co_petitions[0]["CoEnrollmentFlow"]["CoEnrollmentFlowWedge"], '{n}.ordr', 'asc');
+            foreach ($wedges as $wedge) {
+              $file_path = APP
+                . "Plugin/"
+                . $wedge["plugin"]
+                . "/View/Elements"
+                . "/petitionAttributes.ctp";
+
+              if(file_exists($file_path)) {
+                print $this->element($wedge["plugin"] . '.petitionAttributes',
+                                     array('vv_wedge' => $wedge,
+                                           'vv_petition' => $co_petitions[0]['CoPetition']));
+              }
+            }
+          }
+          ?>
+
+          <!--    Petition History    -->
+          <a href="#tabs-history" class="fieldGroupName">
+            <em class="material-icons">indeterminate_check_box</em>
+            <?php print _txt('fd.history.pt'); ?>
+          </a>
+          <ul id="tabs-history" class="fields data-list data-table">
+            <li>
+              <div class="table-container">
+                <table id="<?php print $this->action; ?>_co_petition_attrs">
+                  <tbody>
+                  <tr>
+                    <th><?php print _txt('fd.action'); ?></th>
+                    <th><?php print _txt('fd.actor'); ?></th>
+                    <th><?php print _txt('fd.comment'); ?></th>
+                    <th><?php print _txt('fd.timestamp.tz', array($vv_tz)); ?></th>
+                  </tr>
+
+                  <?php foreach ($co_petitions[0]['CoPetitionHistoryRecord'] as $hr): ?>
+                    <tr class="line<?php print ($l % 2); $l++; ?>">
+                      <td><?php print $hr['action']; ?></td>
+                      <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
+                      <td><?php print $hr['comment']; ?></td>
+                      <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
+                    </tr>
+                  <?php endforeach; // CoPetitionHistoryRecord ?>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+          </ul>
+        <?php endif; // action == view ?>
       </ul>
     </div>
   </div>
