@@ -59,7 +59,8 @@ class ElectorDataFilterPrecedence extends AppModel
     ),
     'ordr' => array(
       'rule' => 'numeric',
-      'required' => true
+      'required' => false, // XXX We disable presence validation since we will handle it manually in the beforeSave Callback
+      'allowEmpty' => true,
     ),
     'elector_data_filter_id' => array(
       'rule' => 'numeric',

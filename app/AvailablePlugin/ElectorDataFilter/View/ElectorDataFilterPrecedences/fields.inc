@@ -168,7 +168,6 @@ $this->Html->addCrumb($crumbTxt);
       <div class="field-name">
         <div class="field-title">
           <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?>
-          <span class="required">*</span>
         </div>
         <div class="field-desc"><?php print _txt('pl.elector_data_filter_precedence.order.desc'); ?></div>
       </div>
