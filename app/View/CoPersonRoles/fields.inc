@@ -123,10 +123,6 @@
         }
       });
       <?php endif; // vv_sponsor_mode ?>
-
-      <?php if($vv_sponsor_mode != SponsorEligibilityEnum::None && !isset($vv_sponsors)): ?>
-        reset_sponsor();
-      <?php endif; // vv_sponsor_mode ?>
       
       // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
       $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
