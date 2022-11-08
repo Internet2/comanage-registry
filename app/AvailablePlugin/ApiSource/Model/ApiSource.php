@@ -53,7 +53,7 @@ class ApiSource extends AppModel {
   );
   
   // Default display field for cake generated views
-  public $displayField = "sor_label";
+  public $displayField = "id";
   
   public $actsAs = array('Containable');
   
