@@ -56,10 +56,6 @@
               $a['Person'] = array('Type' => 'Dept',
                                    'Id' => $m[$req][$k]);
               break;
-            case 'CoGroupId':
-              $a['Person'] = array('Type' => 'Group',
-                                   'Id' => $m[$req][$k]);
-              break;
             case 'CoPersonId':
               $a['Person'] = array('Type' => 'CO',
                                    'Id' => $m[$req][$k]);
