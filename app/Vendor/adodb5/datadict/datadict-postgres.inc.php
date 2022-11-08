@@ -236,6 +236,10 @@ class ADODB2_postgres extends ADODB_DataDict
 
 				$existing = $this->metaColumns($tabname);
 				list(,$colname,$default) = $matches;
+				// The column did not exist in the table so there is nothing to alter.
+				if(!isset($existing[strtoupper($colname)])) {
+					continue;
+				}
 				$alter .= $colname;
 				if ($this->connection) {
 					$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
