@@ -45,6 +45,10 @@ class HistoryRecord extends AppModel {
     "ActorCoPerson" => array(
       'className' => 'CoPerson',
       'foreignKey' => 'actor_co_person_id'
+    ),
+    "ActorApiUser" => array(
+      'className' => 'ApiUser',
+      'foreignKey' => 'actor_api_user_id'
     )
   );
 
