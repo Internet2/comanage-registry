@@ -4,6 +4,8 @@ DocumentRoot /var/www/html
 
 RedirectMatch ^/$ /registry/
 
+LogFormat "%a %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+
 LogLevel warn
 
 Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"

@@ -126,6 +126,7 @@ function comanage_utils::consume_injected_environment() {
     local injectable_config_vars
 
     injectable_config_vars=( 
+        COMANAGE_REGISTRY_BEHIND_PROXY
         COMANAGE_REGISTRY_ADMIN_GIVEN_NAME
         COMANAGE_REGISTRY_ADMIN_FAMILY_NAME
         COMANAGE_REGISTRY_ADMIN_USERNAME
@@ -150,6 +151,14 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
         HTTPS_CERT_FILE
         HTTPS_PRIVKEY_FILE
+        COMANAGE_REGISTRY_REMOTE_IP_HEADER
+        COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY
+        COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY_LIST
+        COMANAGE_REGISTRY_REMOTE_IP_PROXIES_HEADER
+        COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL
+        COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL_EXCEPTIONS
+        COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY
+        COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST
         SERVER_NAME
     )
 
@@ -279,6 +288,8 @@ function comanage_utils::exec_apache_http_server() {
     comanage_utils::prepare_https_cert_key
 
     comanage_utils::prepare_server_name
+
+    comanage_utils::prepare_mod_remoteip
 
     comanage_utils::wait_database_connectivity
 
@@ -611,6 +622,64 @@ function comanage_utils::prepare_local_directory() {
             echo "Created directory ${full_path}"
         fi
     done
+}
+
+##########################################
+# Prepare mod_remoteip
+# Globals:
+#   COMANAGE_REGISTRY_BEHIND_PROXY
+#   COMANAGE_REGISTRY_REMOTE_IP
+#   COMANAGE_REGISTRY_REMOTE_IP_HEADER
+#   COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY
+#   COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY_LIST
+#   COMANAGE_REGISTRY_REMOTE_IP_PROXIES_HEADER
+#   COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL
+#   COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL_EXCEPTIONS
+#   COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY
+#   COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
+function comanage_utils::prepare_mod_remoteip() {
+
+    local remoteip_config
+    remoteip_config="/etc/apache2/mods-available/remoteip.conf"
+
+    if [[ -n "${COMANAGE_REGISTRY_BEHIND_PROXY}" ]]; then
+        echo "RemoteIPHeader ${COMANAGE_REGISTRY_REMOTE_IP_HEADER:-X-Forwarded-For}" >> $remoteip_config
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY}" ]]; then
+            echo "RemoteIPInternalProxy ${COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY}" >> $remoteip_config
+        fi
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY_LIST}" ]]; then
+            echo "RemoteIPInternalProxyList ${COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY_LIST}" >> $remoteip_config
+        fi
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_PROXIES_HEADER}" ]]; then
+            echo "RemoteIPProxiesHeader ${COMANAGE_REGISTRY_REMOTE_IP_PROXIES_HEADER}" >> $remoteip_config
+        fi
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL}" ]]; then
+            echo "RemoteIPProxyProtocol ${COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL}" >> $remoteip_config
+        fi
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL_EXCEPTIONS}" ]]; then
+            echo "RemoteIPProxyProcotolException ${COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL_EXCEPTIONS}" >> $remoteip_config
+        fi
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY}" ]]; then
+            echo "RemoteIPTrustedProxy ${COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY}" >> $remoteip_config
+        fi
+
+        if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST}" ]]; then
+            echo "RemoteIPTrustedProxyList ${COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST}" >> $remoteip_config
+        fi
+
+        /usr/sbin/a2enmod remoteip > "$OUTPUT" 2>&1
+    fi
 }
 
 ##########################################
