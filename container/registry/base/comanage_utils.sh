@@ -170,6 +170,8 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST
         COMANAGE_REGISTRY_SECURITY_SALT
         COMANAGE_REGISTRY_SECURITY_SEED
+        COMANAGE_REGISTRY_SKIP_SETUP
+        COMANAGE_REGISTRY_SKIP_UPGRADE
         COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
         COMANAGE_REGISTRY_VIRTUAL_HOST_REDIRECT_HTTP_NO
         COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME
@@ -872,6 +874,7 @@ function comanage_utils::registry_clear_cache() {
 #   COMANAGE_REGISTRY_ENABLE_POOLING
 #   COMANAGE_REGISTRY_SECURITY_SALT
 #   COMANAGE_REGISTRY_SECURITY_SEED
+#   COMANAGE_REGISTRY_SKIP_SETUP
 #   OUTPUT
 # Arguments:
 #   None
@@ -880,11 +883,17 @@ function comanage_utils::registry_clear_cache() {
 ##########################################
 function comanage_utils::registry_setup() {
 
+    local setup_already_script
+
+    if [[ -n "${COMANAGE_REGISTRY_SKIP_SETUP}" ]]; then
+        echo "Skipping database setup step" > "$OUTPUT" 2>&1
+        return 0
+    fi
+
     # We only want to run the setup script once since it creates
     # state in the database. Until COmanage Registry has a better
     # mechanism for telling us if setup has already been run
     # we create an ephemeral CakePHP script to tell us.
-    local setup_already_script
     setup_already_script="$COMANAGE_REGISTRY_DIR/app/Console/Command/SetupAlreadyShell.php"
 
     cat > $setup_already_script <<"EOF"
@@ -958,6 +967,7 @@ EOF
 # Run COmanage Registry upgradeVersion shell command
 # Globals:
 #   COMANAGE_REGISTRY_DATABASE_SCHEMA_FORCE
+#   COMANAGE_REGISTRY_DATABASE_SKIP_UPGRADE
 #   COMANAGE_REGISTRY_DIR
 #   OUTPUT
 # Arguments:
@@ -966,6 +976,11 @@ EOF
 #   None
 ##########################################
 function comanage_utils::registry_upgrade() {
+
+    if [[ -n "${COMANAGE_REGISTRY_SKIP_UPGRADE}" ]]; then
+        echo "Skipping upgrade step" > "$OUTPUT" 2>&1
+        return 0
+    fi
 
     # We always run upgradeVersion since it will not make any changes
     # if the current and target versions are the same or if
