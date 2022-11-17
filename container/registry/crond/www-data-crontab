@@ -1,0 +1,7 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+# Deprecated job to run expirations, syncorgsources, and groupvalidity tasks (until Registry v4.0.0)
+0 1 * * * cd /srv/comanage-registry/app && ./Console/cake job -q
+# Run the job queue for CO 1 every 5 minutes starting at minute 0
+0-59/5 * * * * cd /srv/comanage-registry/app && ./Console/cake job -q -r -c 1
