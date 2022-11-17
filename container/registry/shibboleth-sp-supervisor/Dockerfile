@@ -18,7 +18,7 @@
 # limitations under the License.
 ARG COMANAGE_REGISTRY_VERSION=develop
 ARG COMANAGE_REGISTRY_BASE_IMAGE_VERSION=1
-ARG COMANAGE_REGISTRY_SHIBBOLETH_SP_VERSION="3.3.0"
+ARG COMANAGE_REGISTRY_SHIBBOLETH_SP_VERSION="3.4.0"
 ARG COMANAGE_REGISTRY_SHIBBOLETH_SP_BASE_IMAGE_VERSION=1
 
 FROM comanage-registry-shibboleth-sp-base:${COMANAGE_REGISTRY_SHIBBOLETH_SP_VERSION}-${COMANAGE_REGISTRY_SHIBBOLETH_SP_BASE_IMAGE_VERSION} AS shib-base
@@ -59,10 +59,6 @@ RUN /usr/sbin/useradd --system _shibd \
       && a2enmod shib2
 
 COPY container/registry/shibboleth-sp-supervisor/supervisord.conf /usr/local/etc/supervisord.conf
-
-COPY container/registry/shibboleth-sp-supervisor/000-comanage.conf /etc/apache2/sites-available/
-RUN a2ensite 000-comanage
-
 COPY container/registry/shibboleth-sp-supervisor/docker-comanage-shibboleth-sp-entrypoint /usr/local/bin/
 
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/usr/local/etc/supervisord.conf"]

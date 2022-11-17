@@ -1,6 +1,0 @@
-<VirtualHost *:80>
-ServerName http://${COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN}:80
-RewriteEngine On
-RewriteCond %{HTTPS} off
-RewriteRule ^ https://%{HTTP_HOST}:443%{REQUEST_URI} [R=302,L,QSA]
-</VirtualHost>

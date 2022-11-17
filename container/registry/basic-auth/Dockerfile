@@ -25,6 +25,3 @@ ENV COMANAGE_REGISTRY_BASE_IMAGE_VERSION ${COMANAGE_REGISTRY_BASE_IMAGE_VERSION}
 LABEL comanage_registry_base_image_version=${COMANAGE_REGISTRY_BASE_IMAGE_VERSION}
 
 COPY container/registry/basic-auth/basic-auth /etc/apache2/
-COPY container/registry/basic-auth/000-comanage.conf /etc/apache2/sites-available/
-
-RUN a2ensite 000-comanage

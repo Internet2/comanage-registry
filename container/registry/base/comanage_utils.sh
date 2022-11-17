@@ -126,7 +126,6 @@ function comanage_utils::consume_injected_environment() {
     local injectable_config_vars
 
     injectable_config_vars=( 
-        COMANAGE_REGISTRY_BEHIND_PROXY
         COMANAGE_REGISTRY_ADMIN_GIVEN_NAME
         COMANAGE_REGISTRY_ADMIN_FAMILY_NAME
         COMANAGE_REGISTRY_ADMIN_USERNAME
@@ -144,13 +143,23 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_EMAIL_PORT
         COMANAGE_REGISTRY_EMAIL_ACCOUNT
         COMANAGE_REGISTRY_EMAIL_ACCOUNT_PASSWORD
+        COMANAGE_REGISTRY_HTTP_LISTEN_PORT
+        COMANAGE_REGISTRY_HTTP_NO
+        COMANAGE_REGISTRY_HTTPS_LISTEN_PORT
+        COMANAGE_REGISTRY_HTTPS_NO
+        COMANAGE_REGISTRY_OIDC_AUTH_REQUEST_PARAMS
+        COMANAGE_REGISTRY_OIDC_CLIENT_ID
+        COMANAGE_REGISTRY_OIDC_CLIENT_SECRET
+        COMANAGE_REGISTRY_OIDC_CRYPTO_PASSPHRASE
+        COMANAGE_REGISTRY_OIDC_FORWARD_HEADERS
+        COMANAGE_REGISTRY_OIDC_PROVIDER_METADATA_URL
+        COMANAGE_REGISTRY_OIDC_REMOTE_USER_CLAIM
+        COMANAGE_REGISTRY_OIDC_SCOPES
+        COMANAGE_REGISTRY_OIDC_SESSION_INACTIVITY_TIMEOUT
+        COMANAGE_REGISTRY_OIDC_SESSION_MAX_DURATION
         COMANAGE_REGISTRY_NO_DATABASE_CONFIG
         COMANAGE_REGISTRY_NO_EMAIL_CONFIG
-        COMANAGE_REGISTRY_SECURITY_SALT
-        COMANAGE_REGISTRY_SECURITY_SEED
-        COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
-        HTTPS_CERT_FILE
-        HTTPS_PRIVKEY_FILE
+        COMANAGE_REGISTRY_REMOTE_IP
         COMANAGE_REGISTRY_REMOTE_IP_HEADER
         COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY
         COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY_LIST
@@ -159,6 +168,14 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_REMOTE_IP_PROXY_PROTOCOL_EXCEPTIONS
         COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY
         COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST
+        COMANAGE_REGISTRY_SECURITY_SALT
+        COMANAGE_REGISTRY_SECURITY_SEED
+        COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
+        COMANAGE_REGISTRY_VIRTUAL_HOST_REDIRECT_HTTP_NO
+        COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME
+        COMANAGE_REGISTRY_VIRTUAL_HOST_PORT
+        HTTPS_CERT_FILE
+        HTTPS_PRIVKEY_FILE
         SERVER_NAME
     )
 
@@ -219,6 +236,24 @@ function comanage_utils::deploy_crontab() {
         echo "Deploying crontab ${crontab} for user ${cronuser} ..." > "${OUTPUT}" 2>&1
         /usr/bin/crontab -u "${cronuser}" "${crontab}" > "${OUTPUT}" 2>&1
     fi
+}
+
+##########################################
+# Enable the Apache HTTP Server virtual host
+# Globals:
+#   OUTPUT
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
+function comanage_utils::enable_virtual_host() {
+
+    local a2site
+
+    a2site="000-comanage"
+
+    /usr/sbin/a2ensite "${a2site}" > "${OUTPUT}" 2>&1
 }
 
 ##########################################
@@ -290,6 +325,10 @@ function comanage_utils::exec_apache_http_server() {
     comanage_utils::prepare_server_name
 
     comanage_utils::prepare_mod_remoteip
+
+    comanage_utils::prepare_virtual_host
+
+    comanage_utils::enable_virtual_host
 
     comanage_utils::wait_database_connectivity
 
@@ -627,7 +666,6 @@ function comanage_utils::prepare_local_directory() {
 ##########################################
 # Prepare mod_remoteip
 # Globals:
-#   COMANAGE_REGISTRY_BEHIND_PROXY
 #   COMANAGE_REGISTRY_REMOTE_IP
 #   COMANAGE_REGISTRY_REMOTE_IP_HEADER
 #   COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY
@@ -647,7 +685,7 @@ function comanage_utils::prepare_mod_remoteip() {
     local remoteip_config
     remoteip_config="/etc/apache2/mods-available/remoteip.conf"
 
-    if [[ -n "${COMANAGE_REGISTRY_BEHIND_PROXY}" ]]; then
+    if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP}" ]]; then
         echo "RemoteIPHeader ${COMANAGE_REGISTRY_REMOTE_IP_HEADER:-X-Forwarded-For}" >> $remoteip_config
 
         if [[ -n "${COMANAGE_REGISTRY_REMOTE_IP_INTERNAL_PROXY}" ]]; then
@@ -740,9 +778,73 @@ EOF
 }
 
 ##########################################
+# Prepare web server virtual host configuration
+# Globals:
+#   COMANAGE_REGISTRY_HTTP_LISTEN_PORT
+#   COMANAGE_REGISTRY_HTTP_NO
+#   COMANAGE_REGISTRY_HTTPS_LISTEN_PORT
+#   COMANAGE_REGISTRY_HTTPS_NO
+#   COMANAGE_REGISTRY_VIRTUAL_HOST_REDIRECT_HTTP_NO
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
+function comanage_utils::prepare_virtual_host() {
+
+    local ports_config
+    local virtual_host_config
+
+    ports_config="/etc/apache2/ports.conf"
+    virtual_host_config="/etc/apache2/sites-available/000-comanage.conf"
+
+    # Configure the listening ports.
+    /bin/rm -f $ports_config > "${OUTPUT}" 2>&1
+
+    if [[ -z "${COMANAGE_REGISTRY_HTTP_NO}" ]]; then
+        echo "Listen ${COMANAGE_REGISTRY_HTTP_LISTEN_PORT:-80}" >> $ports_config
+    fi
+
+    if [[ -z "${COMANAGE_REGISTRY_HTTPS_NO}" ]]; then
+        echo "Listen ${COMANAGE_REGISTRY_HTTPS_LISTEN_PORT:-443}" >> $ports_config
+    fi
+
+    # Do not overwrite an existing virtual host configuration.
+    if [[ -e $virtual_host_config ]]; then
+        return 0
+    fi
+
+    if [[ -z "${COMANAGE_REGISTRY_HTTP_NO}" ]]; then
+        # Write configuration for HTTP virtual host.
+        comanage_utils::virtual_host_http_opening $virtual_host_config
+
+        if [[ -z "${COMANAGE_REGISTRY_VIRTUAL_HOST_REDIRECT_HTTP_NO}" ]]; then
+            # Write configuration for redirecting HTTP to HTTPS.
+            comanage_utils::virtual_host_http_redirect $virtual_host_config
+        else
+            # Write full configuration for HTTP including authentication.
+            comanage_utils::virtual_host_general_config $virtual_host_config
+            comanage_utils::virtual_host_authentication $virtual_host_config
+        fi
+
+        # Write close for virtual host.
+        comanage_utils::virtual_host_close $virtual_host_config
+
+    fi
+
+    if [[ -z "${COMANAGE_REGISTRY_HTTPS_NO}" ]]; then
+        # Write configuration for HTTPS.
+        comanage_utils::virtual_host_https_opening $virtual_host_config
+        comanage_utils::virtual_host_general_config $virtual_host_config
+        comanage_utils::virtual_host_authentication $virtual_host_config
+        comanage_utils::virtual_host_close $virtual_host_config
+    fi
+}
+
+##########################################
 # Clear CakePHP cache files
 # Globals:
-#   None
+#   COMANAGE_REGISTRY_DIR
 # Arguments:
 #   None
 # Returns:
@@ -940,6 +1042,280 @@ function comanage_utils::tmp_ownership() {
     echo "Recursively set ownership of ${tmp_dir} to ${ownership}" > "$OUTPUT"
 
 }
+
+##########################################
+# Write virtual host authentication stanza
+# Globals:
+#  COMANAGE_REGISTRY_OIDC_AUTH_REQUEST_PARAMS
+#  COMANAGE_REGISTRY_OIDC_CLIENT_ID
+#  COMANAGE_REGISTRY_OIDC_CLIENT_SECRET
+#  COMANAGE_REGISTRY_OIDC_CRYPTO_PASSPHRASE
+#  COMANAGE_REGISTRY_OIDC_FORWARD_HEADERS
+#  COMANAGE_REGISTRY_OIDC_PROVIDER_METADATA_URL
+#  COMANAGE_REGISTRY_OIDC_REMOTE_USER_CLAIM
+#  COMANAGE_REGISTRY_OIDC_SCOPES
+#  COMANAGE_REGISTRY_OIDC_SESSION_INACTIVITY_TIMEOUT
+#  COMANAGE_REGISTRY_OIDC_SESSION_MAX_DURATION
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
+# Arguments:
+#   Path to file
+# Returns:
+#   None
+##########################################
+function comanage_utils::virtual_host_authentication() {
+        local a2query_out
+        local mod_auth_openidc
+        local shib
+        local virtual_host_config
+
+        virtual_host_config="$1"
+
+        mod_auth_openidc=0
+        shib=0
+
+        # Test for mod_auth_openidc module.
+        (a2query -m auth_openidc) > /dev/null 2>&1
+        a2query_out=$?
+        if [[ $a2query_out -eq 0 ]]; then
+            mod_auth_openidc=1
+        fi
+
+        # Test for shib2 module.
+        (a2query -m shib2) > /dev/null 2>&1
+        a2query_out=$?
+        if [[ $a2query_out -eq 0 ]]; then
+            shib=1
+        fi
+
+        # Write mod_auth_openidc if module enabled.
+        if [[ $mod_auth_openidc -eq 1 ]]; then
+            cat >> $virtual_host_config <<EOF
+
+OIDCProviderMetadataURL ${COMANAGE_REGISTRY_OIDC_PROVIDER_METADATA_URL}
+OIDCRemoteUserClaim ${COMANAGE_REGISTRY_OIDC_REMOTE_USER_CLAIM:-sub}
+
+OIDCClientID ${COMANAGE_REGISTRY_OIDC_CLIENT_ID}
+OIDCClientSecret ${COMANAGE_REGISTRY_OIDC_CLIENT_SECRET}
+
+OIDCScope "${COMANAGE_REGISTRY_OIDC_SCOPES:-openid}"
+OIDCCryptoPassphrase ${COMANAGE_REGISTRY_OIDC_CRYPTO_PASSPHRASE}
+
+OIDCRedirectURI https://${COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN}/secure/redirect
+
+OIDCSessionInactivityTimeout ${COMANAGE_REGISTRY_OIDC_SESSION_INACTIVITY_TIMEOUT:-3600}
+OIDCSessionMaxDuration ${COMANAGE_REGISTRY_OIDC_SESSION_MAX_DURATION:-3600}
+EOF
+
+            if [[ -n "${COMANAGE_REGISTRY_OIDC_FORWARD_HEADERS}" ]]; then
+                cat >> $virtual_host_config <<EOF
+OIDCXForwardedHeaders X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto
+EOF
+            fi
+
+            if [[ -n "${COMANAGE_REGISTRY_OIDC_AUTH_REQUEST_PARAMS}" ]]; then
+                cat >> $virtual_host_config <<EOF
+OIDCAuthRequestParams ${COMANAGE_REGISTRY_OIDC_AUTH_REQUEST_PARAMS}
+EOF
+            fi
+
+            cat >> $virtual_host_config <<EOF
+
+<Location /secure/redirect>
+  AuthType openid-connect
+  Require valid-user
+</Location>
+
+<Directory /var/www/html/registry>
+Options Indexes FollowSymLinks
+DirectoryIndex index.php
+AllowOverride All
+AuthType openid-connect
+OIDCUnAuthAction pass
+Require valid-user
+</Directory>
+
+<Directory /var/www/html/registry/auth/login>
+AuthType openid-connect
+OIDCUnAuthAction auth
+Require valid-user
+</Directory>
+
+RewriteEngine On
+RewriteCond %{QUERY_STRING} !after_redirect
+RewriteRule ^/registry/auth/logout.* https://%{HTTP_HOST}/secure/redirect?logout=https://%{HTTP_HOST}/registry/auth/logout/?after_redirect [L,R]
+EOF
+
+        # Write shib if module enabled.
+        elif [[ $shib -eq 1 ]]; then
+            cat >> $virtual_host_config <<EOF
+
+<Location "/Shibboleth.sso">
+SetHandler shib
+</Location>
+
+<Directory /var/www/html/registry/auth/login>
+AuthType shibboleth
+ShibRequestSetting requireSession 1
+Require valid-user
+</Directory>
+
+<Location />
+AuthType shibboleth
+Require shibboleth
+</Location>
+
+RewriteEngine On
+RewriteCond %{QUERY_STRING} !after_redirect
+RewriteRule ^/registry/auth/logout.* https://%{HTTP_HOST}/Shibboleth.sso/Logout?return=https://%{HTTP_HOST}/registry/auth/logout/?after_redirect [L,R]
+EOF
+
+        # Else assume basic authentication.
+        else
+            cat >> $virtual_host_config <<EOF
+
+<Directory /var/www/html/registry/auth/login>
+AuthType Basic
+AuthName "COmanage Registry Login"
+AuthBasicProvider file
+AuthUserFile "/etc/apache2/basic-auth"
+Require valid-user
+</Directory>
+EOF
+        fi
+}
+
+##########################################
+# Write virtual host closing stanza
+# Globals:
+# Arguments:
+#   Path to file
+# Returns:
+#   None
+##########################################
+function comanage_utils::virtual_host_close() {
+        local virtual_host_config
+
+        virtual_host_config="$1"
+
+        cat >> $virtual_host_config <<EOF
+
+</VirtualHost>
+EOF
+}
+
+##########################################
+# Write virtual host general configuration
+# Globals:
+# Arguments:
+#   Path to file
+# Returns:
+#   None
+##########################################
+function comanage_utils::virtual_host_general_config() {
+
+        local virtual_host_config
+        virtual_host_config="$1"
+
+        cat >> $virtual_host_config <<"EOF"
+DocumentRoot /var/www/html
+
+RedirectMatch ^/$ /registry/
+
+LogFormat "%a %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogLevel warn
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+<Directory /var/www/html/registry>
+Options Indexes FollowSymLinks
+DirectoryIndex index.php
+AllowOverride All
+Require all granted
+</Directory>
+EOF
+
+}
+
+##########################################
+# Write virtual host HTTP opening stanza
+# Globals:
+#  COMANAGE_REGISTRY_HTTP_LISTEN_PORT
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_PORT
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME
+# Arguments:
+#   Path to file
+# Returns:
+#   None
+##########################################
+function comanage_utils::virtual_host_http_opening() {
+
+        local virtual_host_config
+        virtual_host_config="$1"
+
+        cat >> $virtual_host_config <<EOF
+<VirtualHost *:${COMANAGE_REGISTRY_HTTP_LISTEN_PORT:-80}>
+ServerName ${COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME:-http}://${COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN}:${COMANAGE_REGISTRY_VIRTUAL_HOST_PORT:-80}
+UseCanonicalName On
+EOF
+}
+
+##########################################
+# Write virtual host HTTPS opening stanza
+# Globals:
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
+#  COMANAGE_REGISTRY_VIRTUAL_HOST_PORT
+#  COMANAGE_REGISTRY_HTTPS_LISTEN_PORT
+# Arguments:
+#   Path to file
+# Returns:
+#   None
+##########################################
+function comanage_utils::virtual_host_https_opening() {
+
+        local virtual_host_config
+        virtual_host_config="$1"
+
+        cat >> $virtual_host_config <<EOF
+<VirtualHost *:${COMANAGE_REGISTRY_HTTPS_LISTEN_PORT:-443}>
+ServerName ${COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME:-https}://${COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN}:${COMANAGE_REGISTRY_VIRTUAL_HOST_PORT:-443}
+UseCanonicalName On
+
+Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
+
+SSLEngine on
+SSLProtocol all -SSLv2 -SSLv3
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+SSLHonorCipherOrder on
+
+SSLCertificateFile /etc/apache2/cert.pem
+SSLCertificateKeyFile /etc/apache2/privkey.pem
+EOF
+
+}
+
+##########################################
+# Write virtual host HTTP redirect stanza
+# Globals:
+# Arguments:
+#   Path to file
+# Returns:
+#   None
+##########################################
+function comanage_utils::virtual_host_http_redirect() {
+
+        local virtual_host_config
+        virtual_host_config="$1"
+
+        cat >> $virtual_host_config <<"EOF"
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}:443%{REQUEST_URI} [R=302,L,QSA]
+EOF
+
+}
+
 
 ##########################################
 # Wait until able to connect to database

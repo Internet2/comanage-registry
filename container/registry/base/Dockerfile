@@ -82,7 +82,6 @@ RUN a2enmod headers \
       && ln -s /etc/ssl/certs/ssl-cert-snakeoil.pem cert.pem \
       && ln -s /etc/ssl/private/ssl-cert-snakeoil.key privkey.pem
 
-COPY container/registry/base/apache-* /etc/apache2/
 COPY container/registry/base/comanage_utils.sh /usr/local/lib/
 COPY container/registry/base/comanage_shibboleth_sp_utils.sh /usr/local/lib/
 COPY container/registry/base/docker-comanage-entrypoint /usr/local/bin/

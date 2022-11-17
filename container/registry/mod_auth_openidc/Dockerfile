@@ -70,7 +70,4 @@ COPY --from=building /usr/lib/apache2/modules/mod_auth_openidc.so /usr/lib/apach
 RUN echo "LoadModule auth_openidc_module /usr/lib/apache2/modules/mod_auth_openidc.so" > /etc/apache2/mods-available/auth_openidc.load \
       && a2enmod auth_openidc 
 
-COPY container/registry/mod_auth_openidc/000-comanage.conf /etc/apache2/sites-available/
-RUN a2ensite 000-comanage
-
 COPY container/registry/mod_auth_openidc/htaccess /srv/comanage-registry/app/webroot/.htaccess
