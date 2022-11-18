@@ -173,6 +173,7 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_PHP_SESSION_REDIS_URL
         COMANAGE_REGISTRY_SKIP_SETUP
         COMANAGE_REGISTRY_SKIP_UPGRADE
+        COMANAGE_REGISTRY_SLASH_ROOT_DIRECTORY
         COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
         COMANAGE_REGISTRY_VIRTUAL_HOST_REDIRECT_HTTP_NO
         COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME
@@ -312,6 +313,8 @@ function comanage_utils::exec_apache_http_server() {
     comanage_utils::consume_injected_environment
 
     comanage_utils::configure_console_logging
+
+    comanage_utils::process_slash_root
 
     comanage_utils::prepare_local_directory
 
@@ -871,6 +874,42 @@ function comanage_utils::prepare_virtual_host() {
         comanage_utils::virtual_host_authentication $virtual_host_config
         comanage_utils::virtual_host_close $virtual_host_config
     fi
+}
+
+##########################################
+# Process slash root directory if exists
+# Globals:
+#   COMANAGE_REGISTRY_SLASH_ROOT_DIRECTORY
+#   OUTPUT
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
+function comanage_utils::process_slash_root() {
+
+    local slash_root
+
+    slash_root="${COMANAGE_REGISTRY_SLASH_ROOT_DIRECTORY:-/opt/registry/slashRoot}"
+
+    # Exit if directory does not exist.
+    if [[ ! -d "${slash_root}" ]]; then
+        return 0
+    fi
+
+    echo "Processing slash root directory ${slash_root}..."
+
+    pushd "${slash_root}"
+
+    # Copy all files and preserve all details but exclude any files
+    # for the Shibboleth SP if they exist to allow the Shib SP
+    # entrypoint script to process that path and prevent a race
+    # condition.
+    find . -type f -not -path "./etc/shibboleth/*" | xargs -I{} cp --preserve=all --parents {} / > ${OUTPUT} 2>&1
+
+    popd
+
+    echo "Done processing slash root directory ${slash_root}"
 }
 
 ##########################################

@@ -202,6 +202,42 @@ function comanage_shibboleth_sp_utils::prepare_saml_cert_key() {
 }
 
 ##########################################
+# Process ect/shibboleth in slash root directory if exists
+# Globals:
+#   COMANAGE_REGISTRY_SLASH_ROOT_DIRECTORY
+#   OUTPUT
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
+function comanage_shibboleth_sp_utils::process_slash_root() {
+
+    local slash_root
+
+    slash_root="${COMANAGE_REGISTRY_SLASH_ROOT_DIRECTORY:-/opt/registry/slashRoot}"
+
+    # Exit if directory does not exist.
+    if [[ ! -d "${slash_root}/etc/shibboleth" ]]; then
+        return 0
+    fi
+
+    echo "Processing slash root directory ${slash_root}/etc/shibboleth..."
+
+    pushd "${slash_root}"
+
+    # Copy all files and preserve all details but exclude any files
+    # for the Shibboleth SP if they exist to allow the Shib SP
+    # entrypoint script to process that path and prevent a race
+    # condition.
+    find etc/shibboleth -type f | xargs -I{} cp --preserve=all --parents {} / > ${OUTPUT} 2>&1
+
+    popd
+
+    echo "Done processing slash root directory ${slash_root}/etc/shibboleth"
+}
+
+##########################################
 # Manage UID and GID on files
 # Globals:
 #   None
@@ -292,6 +328,8 @@ function comanage_shibboleth_sp_utils::exec_shibboleth_sp_daemon() {
     local pidfile
 
     comanage_shibboleth_sp_utils::consume_injected_environment
+
+    comanage_shibboleth_sp_utils::process_slash_root
 
     comanage_shibboleth_sp_utils::prepare_shibboleth2xml
 
