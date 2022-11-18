@@ -170,6 +170,7 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_REMOTE_IP_TRUSTED_PROXY_LIST
         COMANAGE_REGISTRY_SECURITY_SALT
         COMANAGE_REGISTRY_SECURITY_SEED
+        COMANAGE_REGISTRY_PHP_SESSION_REDIS_URL
         COMANAGE_REGISTRY_SKIP_SETUP
         COMANAGE_REGISTRY_SKIP_UPGRADE
         COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN
@@ -331,6 +332,8 @@ function comanage_utils::exec_apache_http_server() {
     comanage_utils::prepare_virtual_host
 
     comanage_utils::enable_virtual_host
+
+    comanage_utils::prepare_php_session
 
     comanage_utils::wait_database_connectivity
 
@@ -724,6 +727,28 @@ function comanage_utils::prepare_mod_remoteip() {
         fi
 
         /usr/sbin/a2enmod remoteip > "$OUTPUT" 2>&1
+    fi
+}
+
+##########################################
+# Prepare PHP session storage
+# Globals:
+#   COMANAGE_REGISTRY_PHP_SESSION_REDIS_URL
+#   OUTPUT
+# Arguments:
+#   None
+# Returns:
+#   None
+##########################################
+function comanage_utils::prepare_php_session() {
+
+    local php_ini
+    php_ini="/usr/local/etc/php"
+
+    # Configure Redis for sessions if so configured.
+    if [[ -n "${COMANAGE_REGISTRY_PHP_SESSION_REDIS_URL}" ]]; then
+        sed -i -e '/session.save_handler/ s+files+redis+' $php_ini > ${OUTPUT} 2>&1
+        sed -i -e "/session.save_handler/a session.save_path = ${COMANAGE_REGISTRY_PHP_SESSION_REDIS_URL}" $phi_ini > ${OUTPUT} 2>&1
     fi
 }
 
