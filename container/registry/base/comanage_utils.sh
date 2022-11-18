@@ -553,14 +553,19 @@ EOF
         php_string+="'from' => 'you@localhost',"
     fi
 
-    if [[ -n "${COMANAGE_REGISTRY_EMAIL_TRANSPORT}" ]]; then
-        php_string+=$'\n\t\t'
-        php_string+="'transport' => '${COMANAGE_REGISTRY_EMAIL_TRANSPORT}',"
-    fi
-
     if [[ -n "${COMANAGE_REGISTRY_EMAIL_HOST}" ]]; then
         php_string+=$'\n\t\t'
         php_string+="'host' => '${COMANAGE_REGISTRY_EMAIL_HOST}',"
+
+        if [[ "${COMANAGE_REGISTRY_EMAIL_HOST}" =~ ^tls:// && -z "${COMANAGE_REGISTRY_EMAIL_TRANSPORT}" ]]; then
+            COMANAGE_REGISTRY_EMAIL_TRANSPORT="Smtp"
+            export COMANAGE_REGISTRY_EMAIL_TRANSPORT
+        fi
+    fi
+
+    if [[ -n "${COMANAGE_REGISTRY_EMAIL_TRANSPORT}" ]]; then
+        php_string+=$'\n\t\t'
+        php_string+="'transport' => '${COMANAGE_REGISTRY_EMAIL_TRANSPORT}',"
     fi
 
     # The value of port is an integer.
