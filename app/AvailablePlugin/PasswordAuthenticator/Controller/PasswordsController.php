@@ -44,54 +44,32 @@ class PasswordsController extends SAMController {
   public function beforeFilter() {
     parent::beforeFilter();
     
-    if($this->action == 'ssr' 
-       && (!empty($this->request->params['named']['authenticatorid'])
-           || !empty($this->request->params['named']['token'])
-           || !empty($this->request->data['Password']['token']))) {
-      // Is Self Service Reset enabled for this authenticator? If so, allow
-      // access without authentication.
-      
-      $passwordSource = null;
-      $ssrenabled = false;
-      
+    if($this->action == 'ssr') {
+      // Check that we have a valid token
       $token = null;
       
-      if(!empty($this->request->params['named']['token'])) {
+      if($this->request->is('get')
+         && !empty($this->request->params['named']['token'])) {
         $token = $this->request->params['named']['token'];
-      } elseif(!empty($this->request->data['Password']['token'])) {
+      } elseif($this->request->is('post')
+               && !empty($this->request->data['Password']['token'])) {
         $token = $this->request->data['Password']['token'];
       }
       
       if($token) {
-        // Map the token to the authenticator ID. Note if both params are provided
-        // (which they shouldn't be) we check the token since it's more specific.
-        
-        $this->passwordAuthenticatorId = $this->Password->PasswordAuthenticator->PasswordResetToken->field('password_authenticator_id', array('token' => $token));
-        
-        if(!empty($this->passwordAuthenticatorId)) {
-          $passwordSource = $this->Password->PasswordAuthenticator->field('password_source', array('PasswordAuthenticator.id' => $this->passwordAuthenticatorId));
-          $ssrenabled = $this->Password->PasswordAuthenticator->field('enable_ssr', array('PasswordAuthenticator.id' => $this->passwordAuthenticatorId));
-        }
-      } elseif(!empty($this->request->params['named']['authenticatorid'])) {
-        $passwordSource = $this->Password->PasswordAuthenticator->field('password_source', array('PasswordAuthenticator.authenticator_id' => $this->request->params['named']['authenticatorid']));
-        $ssrenabled = $this->Password->PasswordAuthenticator->field('enable_ssr', array('PasswordAuthenticator.authenticator_id' => $this->request->params['named']['authenticatorid']));
-      }
-      
-      // For now, we only support Self Select since it's not clear what our flow
-      // should be for External, and we haven't tested Autogenerate.
-      
-      if(($passwordSource == PasswordAuthPasswordSourceEnum::SelfSelect) && $ssrenabled) {
-        $this->Auth->allow();
-      }
-    } elseif($this->action == 'remind'
-       && !empty($this->request->params['named']['authenticatorid'])) {
-      // Is Username Reminder enabled for this authenticator? If so, allow
-      // access without authentication.
+        $AuthenticatorResetToken = ClassRegistry::init('RecoveryWidget.AuthenticatorResetToken');
 
-      $reminderMT = null;
-      $reminderMT = $this->Password->PasswordAuthenticator->field('username_reminder_message_template_id', array('PasswordAuthenticator.authenticator_id' => $this->request->params['named']['authenticatorid']));
-      if($reminderMT) {
-        $this->Auth->allow();
+        try {
+          // Test the token without invalidating it
+          $AuthenticatorResetToken->validateToken($token, false);
+          
+          // We need the form to render without authentication
+          $this->Auth->allow();
+        }
+        catch(InvalidArgumentException $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+          $this->redirect('/');
+        }
       }
     }
   }
@@ -122,19 +100,16 @@ class PasswordsController extends SAMController {
       }
       
       if($token) {
-        $args = array();
-        $args['conditions']['PasswordResetToken.token'] = $token;
-        $args['contain'] = array('CoPerson');
-        
-        $prt = $this->Password->PasswordAuthenticator->PasswordResetToken->find('first', $args);
-        
-        if(!empty($prt['CoPerson']['co_id'])) {
-          return $prt['CoPerson']['co_id'];
+        $AuthenticatorResetToken = ClassRegistry::init('RecoveryWidget.AuthenticatorResetToken');
+
+        try {
+          return $AuthenticatorResetToken->getCoIdForToken($token);
         }
-        
-        // Force a different error to be slightly less confusing
-        $this->Flash->set(_txt('er.passwordauthenticator.token.notfound'), array('key' => 'error'));
-        $this->redirect('/');
+        catch(Exception $e) {
+          // Force a different error to be slightly less confusing
+          $this->Flash->set(_txt('er.passwordauthenticator.token.notfound'), array('key' => 'error'));
+          $this->redirect('/');
+        }
       }
     }
     
@@ -186,23 +161,23 @@ class PasswordsController extends SAMController {
   public function ssr() {
     $authenticatorId = null;
     
+    $AuthenticatorResetToken = ClassRegistry::init('RecoveryWidget.AuthenticatorResetToken');
+
     if($this->request->is('get')) {
       if(!empty($this->request->named['token'])) {
         // We're back from the email message. Verify that the token is valid.
         // If so, pass the token to the view for embedding in the reset form.
         
         try {
-          $coPersonId = $this->Password
-                             ->PasswordAuthenticator
-                             ->PasswordResetToken->validateToken($this->request->named['token'], false);
+          $tokenInfo = $AuthenticatorResetToken->validateToken($this->request->named['token'], false);
           
-          if($coPersonId) {
+          if(!empty($tokenInfo['co_person_id'])) {
             // The form will embed the token for the actual reset request
             $this->set('vv_token', $this->request->named['token']);
             
             // Also pass the CO Person name to the view
             $args = array();
-            $args['conditions']['Name.co_person_id'] = $coPersonId;
+            $args['conditions']['Name.co_person_id'] = $tokenInfo['co_person_id'];
             $args['conditions']['Name.primary_name'] = true;
             $args['contain'] = false;
             
@@ -213,44 +188,29 @@ class PasswordsController extends SAMController {
         } catch(Exception $e) {
           $this->Flash->set($e->getMessage(), array('key' => 'error'));
         }
-      }
-      // else fall through and let the search form render
-      
-      if(!empty($this->request->params['named']['authenticatorid'])) {
-        $authenticatorId = $this->request->params['named']['authenticatorid'];
+      } else {
+        $this->Flash->set('er.passwordauthenticator.token.notfound', array('key' => 'error'));
       }
     } elseif($this->request->is('post')) {
-      if(!empty($this->request->params['named']['authenticatorid'])) {
-        $authenticatorId = $this->request->params['named']['authenticatorid'];
-        
-        if(!empty($this->request->data['Password']['q'])) {
-          // We're back from the search form, try to generate a reset request
-          
-          try {
-            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Password']['q'], 'reset');
-            
-            // We render success but let the form render again anyway, in case the
-            // user wants to try again.
-            $this->Flash->set(_txt('pl.passwordauthenticator.ssr.sent'), array('key' => 'success'));
-          }
-          catch(Exception $e) {
-            $this->Flash->set($e->getMessage(), array('key' => 'error'));
-          }
-        }
-      } elseif(!empty($this->request->data['Password'])) {
+      if(!empty($this->request->data['Password'])) {
         try {
+          // Before we try to set the password we need to grab the redirect URL
+          // associated with the token (if configured)
+
+          $tokenInfo = $AuthenticatorResetToken->validateToken($this->request->data['Password']['token'], false);
+          
           $r = $this->Password->PasswordAuthenticator->manage($this->request->data, null);
           
+          // Trigger provisioning
+          $this->Password->PasswordAuthenticator->Authenticator->provision($tokenInfo['co_person_id']);
+
+          // And register a notification
+          $this->Password->PasswordAuthenticator->notify($tokenInfo['co_person_id']);
+
           $this->Flash->set($r, array('key' => 'success'));
           
-          if($this->passwordAuthenticatorId) {
-            // See if there is a redirect URL configured
-            
-            $redirect = $this->Password->PasswordAuthenticator->field('redirect_on_success_ssr', array('PasswordAuthenticator.id' => $this->passwordAuthenticatorId));
-            
-            if($redirect) {
-              $this->redirect($redirect);
-            }
+          if(!empty($tokenInfo['redirect_url'])) {
+            $this->redirect($tokenInfo['redirect_url']);
           }
         }
         catch(Exception $e) {
@@ -262,17 +222,15 @@ class PasswordsController extends SAMController {
             
             // We need to re-populate vv_name here
             
-            $coPersonId = $this->Password
-                               ->PasswordAuthenticator
-                               ->PasswordResetToken->validateToken($this->request->data['Password']['token'], false);
+            $tokenInfo = $AuthenticatorResetToken->validateToken($this->request->data['Password']['token'], false);
             
-            if($coPersonId) {
+            if(!empty($tokenInfo['co_person_id'])) {
               // The form will embed the token for the actual reset request
               $this->set('vv_token', $this->request->data['Password']['token']);
               
               // Also pass the CO Person name to the view
               $args = array();
-              $args['conditions']['Name.co_person_id'] = $coPersonId;
+              $args['conditions']['Name.co_person_id'] = $tokenInfo['co_person_id'];
               $args['conditions']['Name.primary_name'] = true;
               $args['contain'] = false;
               
@@ -284,54 +242,8 @@ class PasswordsController extends SAMController {
         }
       }
     }
-    
-    if(!empty($authenticatorId)) {
-      // Construct the SSR initiation URL
-      $url = array(
-        'plugin'          => 'password_authenticator',
-        'controller'      => 'passwords',
-        'action'          => 'manage',
-        'authenticatorid' => $authenticatorId
-      );
-      
-      $this->set('vv_ssr_authenticated_url', Router::url($url, true));
-    }
-    
-    // If we don't have a CO Person ID, we want to render a form to allow the
-    // requester to enter an identifier or email address of some form.
   }
   
-
-  /**
-   * Remind User of Username.
-   *
-   * @since  COmanage Registry v4.1.0
-   */
-
-  public function remind() {
-    if($this->request->is('post')) {
-      if(!empty($this->request->params['named']['authenticatorid'])) {
-        $authenticatorId = $this->request->params['named']['authenticatorid'];
-
-        if(!empty($this->request->data['Remind']['q'])) {
-          // We're back from the search form, try to generate a username reminder
-
-          try {
-            $this->Password->PasswordAuthenticator->PasswordResetToken->generateRequest($authenticatorId, $this->request->data['Remind']['q'], 'remind');
-
-            // We render success but let the form render again anyway, in case the
-            // user wants to try again.
-            $this->Flash->set(_txt('pl.passwordauthenticator.ssr.sent'), array('key' => 'success'));
-          }
-          catch(Exception $e) {
-            $this->Flash->set($e->getMessage(), array('key' => 'error'));
-          }
-        }
-      }
-    }
-  }
-
-
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -354,7 +266,7 @@ class PasswordsController extends SAMController {
     
     $p['generate'] = isset($p['manage']) ? $p['manage'] : false;
     
-    // We default to ssr being denied. If enabled, beforeFilter() will allow access.
+    // beforeFilter() will determine if ssr() is permitted
     $p['ssr'] = false;
     
     $this->set('permissions', $p);

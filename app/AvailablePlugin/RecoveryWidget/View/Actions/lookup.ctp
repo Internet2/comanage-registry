@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Passwords SSR (Self Service Reset) View
+ * COmanage Registry Recovery Widget Lookup View
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -19,60 +19,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
- * @since         COmanage Registry v4.0.0
+ * @link          https://www.internet2.edu/comanage COmanage Project
+ * @package       registry-plugin
+ * @since         COmanage Registry v4.1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-  $params = array('title' => _txt('pl.passwordauthenticator.token.ssr'));
+  $params = array('title' => $vv_title);
   print $this->element("pageTitle", $params);
   
   $options = array(
     'type' => 'post',
     'url' => array(
-      'plugin'          => 'password_authenticator',
-      'controller'      => 'passwords',
-      'action'          => 'ssr'
+      'plugin'            => 'recovery_widget',
+      'controller'        => 'actions',
+      'action'            => 'lookup',
+      'recoverywidgetid'  => $this->request->params['named']['recoverywidgetid'],
+      'task'              => $this->request->params['named']['task']
     )
   );
   
-  print $this->Form->create('Password', $options);
-  
-  if(!empty($vv_token)) {
-    print $this->Form->hidden('token', array('default' => $vv_token)) . "\n";
-  }
-?>
-<?php 
-  // This should merge with fields.inc to render password constraints, but we
-  // don't currently have access to vv_authenticator (since we only have a token)
+  print $this->Form->create(false, $options);
 ?>
 <div class="ui-state-highlight ui-corner-all co-info-topbox">
   <span class="ui-icon ui-icon-info co-info"></span>
-  <strong><?php print _txt('pl.passwordauthenticator.ssr.for', array($vv_name)); ?></strong>
+  <strong><?php 
+    // For the password reset action, we pass in a link to direct password change
+    if(!empty($vv_authenticator_change_url)) {
+      print _txt("pl.recoverywidget.lookup.$vv_task.info", array($this->Html->url($vv_authenticator_change_url)));
+    } else {
+      print _txt("pl.recoverywidget.lookup.$vv_task.info");
+    }
+  ?></strong>
 </div>
 
-<ul id="<?php print $this->action; ?>_ssr" class="fields form-list">
+<ul id="<?php print $this->action; ?>_recovery" class="fields form-list">
   <li>
-    <div class="field-name">
+    <div class="field-name vtop">
       <div class="field-title">
-        <?php print _txt('pl.passwordauthenticator.password.new'); ?>
-        <span class="required">*</span>
+        <?php print _txt('pl.recoverywidget.lookup.q'); ?>
       </div>
     </div>
     <div class="field-info">
-      <?php print $this->Form->input('password', array('label' => false)); ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <div class="field-title">
-        <?php print _txt('pl.passwordauthenticator.password.again'); ?>
-        <span class="required">*</span>
-      </div>
-    </div>
-    <div class="field-info">
-      <?php print $this->Form->input('password2', array('type' => 'password', 'label' => false)); ?>
+      <?php print $this->Form->input('q', array('label' => false)); ?>
     </div>
   </li>
   <li class="fields-submit">
@@ -80,7 +69,7 @@
       <span class="required"><?php print _txt('fd.req'); ?></span>
     </div>
     <div class="field-info">
-      <?php print $this->Form->submit(_txt('op.submit')); ?>
+      <?php print $this->Form->submit(_txt('op.search')); ?>
     </div>
   </li>
 </ul>

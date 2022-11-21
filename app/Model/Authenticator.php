@@ -138,6 +138,37 @@ class Authenticator extends AppModel {
   }
   
   /**
+   * Determine which Authenticators are available for Self Service Reset.
+   * 
+   * @since  COmanage Registry v4.1.0
+   * @param  int $coId  CO ID
+   * @return array      Array of Authenticators in list format
+   */
+
+  public function getSelfServiceEnabled($coId) {
+    $ret = array();
+
+    // Determine the set of available Authenticators
+    $args = array();
+    $args['conditions']['co_id'] = $coId;
+    $args['conditions']['status'] = SuspendableStatusEnum::Active;
+    $args['order'] = array('Authenticator.description ASC');
+    $args['contain'] = false;
+
+    $authenticators = $this->find('all', $args);
+
+    foreach($authenticators as $a) {
+      $plugin = ClassRegistry::init($a['Authenticator']['plugin'] . "." . $a['Authenticator']['plugin']);
+
+      if(isset($plugin->enableSSR) && $plugin->enableSSR) {
+        $ret[ $a['Authenticator']['id'] ] = $a['Authenticator']['description'];
+      }
+    }
+
+    return $ret;
+  }
+
+  /**
    * Lock an Authenticator for a CO Person.
    * 
    * @since  COmanage Registry v3.1.0

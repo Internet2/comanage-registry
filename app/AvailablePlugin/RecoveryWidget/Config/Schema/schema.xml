@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+<!--
+  COmanage Registry Recovery Widget Plugin Database Schema
+
+  Portions licensed to the University Corporation for Advanced Internet
+  Development, Inc. ("UCAID") under one or more contributor license agreements.
+  See the NOTICE file distributed with this work for additional information
+  regarding copyright ownership.
+
+  UCAID licenses this file to you under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the
+  License. You may obtain a copy of the License at:
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+-->
+<!--
+  While this schema mostly works with database prefixes, foreign key constraints
+  must be specified in raw SQL, which needs the prefixed table name.
+-->
+<schema version="0.3">
+  <table name="co_recovery_widgets">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_dashboard_widget_id" type="I">
+      <constraint>REFERENCES cm_co_dashboard_widgets(id)</constraint>
+    </field>
+    <field name="enable_confirmation_resend" type="L" />
+    <!-- field name="enable_reenter_flow" type="L" / -->
+    <!-- field name="identifier_type" type="C" size="32" / -->
+    <field name="identifier_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
+    <!-- We specifically point to authenticator_id and not password_authenticator_id
+         so we don't require the Password Authenticator to be enabled to use the
+         other functions.
+         
+         This could work with any type of plugin actually, can we somehow pass
+         a token to the plugin? Authenticators can flag that they support SSR.
+         If enabled, they should prompt for a token then validate it against
+         a RecoveryWidget (PHP) API.
+    -->
+    <field name="authenticator_id" type="I">
+      <constraint>REFERENCES cm_authenticators(id)</constraint>
+    </field>
+    <field name="authenticator_reset_validity" type="I" />
+    <field name="authenticator_reset_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
+    <field name="authenticator_success_redirect" type="C" size="1024" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="co_recovery_widgets_i1">
+      <col>co_dashboard_widget_id</col>
+      <unique />
+    </index>
+  </table>
+  
+  <table name="authenticator_reset_tokens">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_recovery_widget_id" type="I">
+      <constraint>REFERENCES cm_co_recovery_widgets(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="token" type="C" size="48" />
+    <field name="recipients" type="C" size="256" />
+    <field name="expires" type="T" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    
+    <index name="authenticator_reset_tokens_i1">
+      <col>token</col>
+    </index>
+    
+    <index name="authenticator_reset_tokens_i2">
+      <col>co_recovery_widget_id</col>
+      <col>co_person_id</col>
+    </index>
+  </table>
+</schema>

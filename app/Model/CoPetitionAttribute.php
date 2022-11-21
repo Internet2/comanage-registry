@@ -32,7 +32,7 @@ class CoPetitionAttribute extends AppModel {
   // Add behaviors
   // We add Changelog so that if a petition is deleted (archived), the related
   // attributes are archived as well (and not physically removed from the database)
-  public $actsAs = array('Changelog' => array('priority' => 5));
+  public $actsAs = array('Changelog' => array('priority' => 5), 'Containable');
   
   // Association rules from this model to other models
   public $belongsTo = array(

@@ -50,8 +50,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   );
 
   public $hasMany = array(
-    "PasswordAuthenticator.Password",
-    "PasswordAuthenticator.PasswordResetToken"
+    "PasswordAuthenticator.Password"
   );
 
   // Default display field for cake generated views
@@ -122,6 +121,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 
   // Do we support multiple authenticators per instantiation?
   public $multiple = false;
+
+  // Do we support Self Service Reset?
+  public $enableSSR = true;
   
   /**
    * Expose menu items.
@@ -152,7 +154,8 @@ class PasswordAuthenticator extends AuthenticatorBackend {
   }
   
   /**
-   * Manage Authenticator data, as submitted from the view.
+   * Manage Authenticator data, as submitted from the view. Note this function does
+   * not trigger provisioning of the new authenticator.
    *
    * @since  COmanage Registry v3.1.0
    * @param  Array   $data            Array of Authenticator data submitted from the view
@@ -163,30 +166,34 @@ class PasswordAuthenticator extends AuthenticatorBackend {
    */
 
   public function manage($data, $actorCoPersonId, $actorApiUserId=null) {
+    $AuthenticatorResetToken = null;
+
     if(!empty($data['Password']['token'])) {
       // Me're here from a Self Service Password Reset operation (ssr), which
       // means all we have are the token and the new password. First, we'll need
       // to pull our own configuration, by looking up the token. We're not
       // going to validate the token yet, we'll do that later in the transaction
       // so we can invalidate it.
-      
+
+      $AuthenticatorResetToken = ClassRegistry::init('RecoveryWidget.AuthenticatorResetToken');
+
       $args = array();
-      $args['conditions']['PasswordResetToken.token'] = $data['Password']['token'];
-      $args['contain'] = array('PasswordAuthenticator' => 'Authenticator');
+      $args['conditions']['AuthenticatorResetToken.token'] = $data['Password']['token'];
+      $args['contain'] = array('CoRecoveryWidget');
       
-      $token = $this->PasswordResetToken->find('first', $args);
+      $token = $AuthenticatorResetToken->find('first', $args);
       
       if(empty($token)) {
         throw new InvalidArgumentException(_txt('er.passwordauthenticator.token.notfound'));
       }
       
-      // We can set our configuration based on $token, though note the containable
-      // result will be a slightly different structure than we normally get so
-      // we have to fix that here.
+      // Build our configuration
       
-      $this->pluginCfg['PasswordAuthenticator'] = $token['PasswordAuthenticator'];
-      $this->pluginCfg['Authenticator'] = $token['PasswordAuthenticator']['Authenticator'];
-      unset($this->pluginCfg['PasswordAuthenticator']['Authenticator']);
+      $args = array();
+      $args['conditions']['PasswordAuthenticator.authenticator_id'] = $token['CoRecoveryWidget']['authenticator_id'];
+      $args['contain'] = array('Authenticator');
+
+      $this->pluginCfg = $this->find('first', $args);
       
       // We only support SSR for self selected passwords
       if($this->pluginCfg['PasswordAuthenticator']['password_source'] != PasswordAuthPasswordSourceEnum::SelfSelect) {
@@ -194,11 +201,11 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       }
       
       // Stuff additional info we need into $data
-      $data['Password']['co_person_id'] = $token['PasswordResetToken']['co_person_id'];
+      $data['Password']['co_person_id'] = $token['AuthenticatorResetToken']['co_person_id'];
       $data['Password']['password_authenticator_id'] = $this->pluginCfg['PasswordAuthenticator']['id'];
       
       // Force the $actorCoPersonId to be the CO Person ID associated with the token.
-      $actorCoPersonId = $token['PasswordResetToken']['co_person_id'];
+      $actorCoPersonId = $token['AuthenticatorResetToken']['co_person_id'];
     }
     
     $minlen = $this->pluginCfg['PasswordAuthenticator']['min_length'] ?: 8;
@@ -233,7 +240,7 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       // If we have a token, validate it before processing anything
       
       // This will throw InvalidArgumentException on error
-      $this->PasswordResetToken->validateToken($data['Password']['token'], true);
+      $AuthenticatorResetToken->validateToken($data['Password']['token'], true);
     } elseif($this->pluginCfg['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
       // If there is an existing password make sure it was provided and matches
       $args = array();
@@ -259,6 +266,8 @@ class PasswordAuthenticator extends AuthenticatorBackend {
     // plugin configuration is changed. We skip callbacks so as to not trigger
     // provisioning (and they aren't required since this table is not Changelog
     // enabled).
+// XXX table is now changelog enabled, but we still don't want provisioning
+// as currently implemented, this will delete changelog records ... maybe that's OK?
     $args = array(
       'Password.co_person_id' => $data['Password']['co_person_id'],
       'Password.password_authenticator_id' => $data['Password']['password_authenticator_id']
@@ -315,9 +324,9 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       );
     }
 
-    // saveMany() won't trigger provisioning, but in general the calling code
-    // (SAMController) will (but see more below)
-    if(!$this->Password->saveMany($pData)) {
+    // We don't want to trigger provisioning because in general the calling code
+    // (SAMController or PasswordsController) will do it.
+    if(!$this->Password->saveMany($pData, array('provision' => false))) {
       $this->_rollback();
       throw new RuntimeException(_txt('er.db.save-a', array('Password')));
     }
@@ -338,18 +347,6 @@ class PasswordAuthenticator extends AuthenticatorBackend {
                                  $actorApiUserId);
 
     $this->_commit();
-    
-    // SSR needs to trigger provisioning, but the calling code (PasswordsController)
-    // doesn't have access to the CO Person ID, so we need to figure out that we
-    // need to provision here. We do this after commit to mimic when SAMController
-    // would trigger provisioning.
-    
-    if(!empty($data['Password']['token']) && !empty($data['Password']['co_person_id'])) {
-      $this->Authenticator->provision($data['Password']['co_person_id']);
-    }
-    
-    // We also need to manually trigger notification for much the same reason.
-    $this->notify($data['Password']['co_person_id']);
 
     return $comment;
   }

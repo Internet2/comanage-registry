@@ -51,6 +51,10 @@ class CoEmailAddressWidgetsController extends SDWController {
     // Gather message templates for the config form
     $args = array();
     $args['conditions']['status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['context'] = array(
+      MessageTemplateEnum::EnrollmentVerification,
+      MessageTemplateEnum::Plugin
+    );
     $args['contain'] = false;
     $this->set('vv_message_templates', $this->CoMessageTemplate->find('list',$args));
   

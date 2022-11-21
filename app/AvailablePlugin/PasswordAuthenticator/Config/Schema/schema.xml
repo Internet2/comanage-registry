@@ -38,15 +38,6 @@
     <field name="format_crypt_php" type="L" />
     <field name="format_plaintext" type="L" />
     <field name="format_sha1_ldap" type="L" />
-    <field name="enable_ssr" type="L" />
-    <field name="ssr_validity" type="I" />
-    <field name="co_message_template_id" type="I">
-      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
-    </field>
-    <field name="redirect_on_success_ssr" type="C" size="1024" />
-    <field name="username_reminder_message_template_id" type="I">
-      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
-    </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
@@ -84,43 +75,6 @@
     </index>
     <index name="passwords_i2">
       <col>password_id</col>
-    </index>
-  </table>
-  
-  <table name="password_reset_tokens">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="password_authenticator_id" type="I">
-      <constraint>REFERENCES cm_password_authenticators(id)</constraint>
-    </field>
-    <field name="co_person_id" type="I">
-      <constraint>REFERENCES cm_co_people(id)</constraint>
-    </field>
-    <field name="token" type="C" size="48" />
-    <field name="recipients" type="C" size="256" />
-    <field name="expires" type="T" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    <field name="password_reset_token_id" type="I">
-      <constraint>REFERENCES cm_passwords(id)</constraint>
-    </field>
-    <field name="revision" type="I" />
-    <field name="deleted" type="L" />
-    <field name="actor_identifier" type="C" size="256" />
-    
-    <index name="password_reset_tokens_i1">
-      <col>token</col>
-    </index>
-    
-    <index name="password_reset_tokens_i2">
-      <col>password_authenticator_id</col>
-      <col>co_person_id</col>
-    </index>
-    
-    <index name="password_reset_tokens_i3">
-      <col>password_reset_token_id</col>
     </index>
   </table>
 </schema>
