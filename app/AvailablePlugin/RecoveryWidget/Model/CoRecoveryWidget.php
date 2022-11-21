@@ -58,11 +58,6 @@ class CoRecoveryWidget extends CoDashboardWidgetBackend {
 			'required' => true,
 			'allowEmpty' => false
 		),
-		'enable_reenter_flow' => array(
-      'rule' => 'boolean',
-			'required' => true,
-			'allowEmpty' => false
-		),
     'identifier_template_id' => array(
       'content' => array(
         'rule' => 'numeric',

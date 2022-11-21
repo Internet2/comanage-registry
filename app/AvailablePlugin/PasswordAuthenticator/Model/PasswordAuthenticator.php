@@ -94,28 +94,6 @@ class PasswordAuthenticator extends AuthenticatorBackend {
       'rule' => array('boolean'),
       'required' => false,
       'allowEmpty' => true
-    ),
-    'enable_ssr' => array(
-      'rule' => array('boolean'),
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'ssr_validity' => array(
-      'rule' => 'numeric',
-      'required' => true,
-      'allowEmpty' => false
-    ),
-    // XXX This should be required if enable_ssr is true, but for now we don't
-    // have a conditional validation rule
-    'co_message_template_id' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
-    ),
-    'redirect_on_success_ssr' => array(
-      'rule' => array('url', true),
-      'required' => false,
-      'allowEmpty' => true
     )
   );
 
