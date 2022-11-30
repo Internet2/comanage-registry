@@ -13,9 +13,9 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u0z2s2z8
       - echo Logging in to Docker Hub
-      - docker login --username skoranda --password $HUB_DOCKER_COM_TOKEN
+      - echo $HUB_DOCKER_COM_TOKEN | docker login --username skoranda --password-stdin
       - echo Logging in to GitHub
-      - docker login --username skoranda --password $GITHUB_COM_TOKEN
+      - echo $GITHUB_COM_TOKEN | docker login ghcr.io --username skoranda --password-stdin
   build:
     commands:
       - echo Build started on `date`
