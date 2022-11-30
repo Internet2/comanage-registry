@@ -1,0 +1,39 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    LABEL: "4.1.0-rc1"
+  exported-variables:
+    - LABEL
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u0z2s2z8
+      - echo Logging in to Docker Hub
+      - docker login --username skoranda --password $HUB_DOCKER_COM_TOKEN
+      - echo Logging in to GitHub
+      - docker login --username skoranda --password $GITHUB_COM_TOKEN
+  build:
+    commands:
+      - echo Build started on `date`
+      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER registry all
+      - container/build.sh --image_registry=docker.io --repository=comanageproject --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER registry all
+      - container/build.sh --image_registry=ghcr.io --repository=cilogon --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER registry all
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images to AWS public repository...
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$CODEBUILD_BUILD_NUMBER
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
+      - echo Pushing the Docker images to Docker Hub public repository...
+      - docker push docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$CODEBUILD_BUILD_NUMBER
+      - docker push docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
+      - docker push docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
+      - echo Pushing the Docker images to GitHub public repository...
+      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$CODEBUILD_BUILD_NUMBER
+      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
+      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
