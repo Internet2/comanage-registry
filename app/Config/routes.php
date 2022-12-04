@@ -103,7 +103,7 @@ Router::mapResources(array(
 // CO Group
 Router::connect(
   '/co_groups/reconcile/:id',
-  array('controller' => 'co_groups', 'action' => 'reconcile', '[method]' => 'POST'),
+  array('controller' => 'co_groups', 'action' => 'reconcile', '[method]' => 'PUT'),
   array(
     'pass' => array('id'),
     'id' => '[0-9]+'
@@ -112,7 +112,7 @@ Router::connect(
 
 Router::connect(
   '/co_groups/reconcile',
-  array('controller' => 'co_groups', 'action' => 'reconcile', '[method]' => 'PUT'),
+  array('controller' => 'co_groups', 'action' => 'reconcile', '[method]' => 'POST'),
 );
 
 // CO People find
