@@ -23,12 +23,12 @@ class Comments extends AbstractApi
      * @param string|null $bodyType
      * @param string|null $apiVersion
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null, $apiVersion = null)
     {
         if ($apiVersion !== 'squirrel-girl-preview') {
-            $apiVersion = $this->client->getApiVersion();
+            $apiVersion = $this->getApiVersion();
         }
 
         if (!in_array($bodyType, ['text', 'html', 'full'])) {

@@ -4,8 +4,8 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php?/$1 [QSA,L]
 
-    RewriteRule .* - [E=OIDC_CLAIM_NAME_GIVEN:%{HTTP:OIDC_CLAIM_given_name}]
-    RewriteRule .* - [E=OIDC_CLAIM_NAME_FAMILY:%{HTTP:OIDC_CLAIM_family_name}]
-    RewriteRule .* - [E=OIDC_CLAIM_NAME_MIDDLE:%{HTTP:OIDC_CLAIM_middle_name}]
+    RewriteRule .* - [E=REDIRECT_OIDC_CLAIM_NAME_GIVEN:%{HTTP:OIDC_CLAIM_given_name}]
+    RewriteRule .* - [E=REDIRECT_OIDC_CLAIM_NAME_FAMILY:%{HTTP:OIDC_CLAIM_family_name}]
+    RewriteRule .* - [E=REDIRECT_OIDC_CLAIM_NAME_MIDDLE:%{HTTP:OIDC_CLAIM_middle_name}]
 
 </IfModule>

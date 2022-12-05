@@ -2,7 +2,7 @@
 
 namespace Github;
 
-use Github\Api\ApiInterface;
+use Github\Api\AbstractApi;
 use Github\Exception\BadMethodCallException;
 use Github\Exception\InvalidArgumentException;
 use Github\HttpClient\Builder;
@@ -10,11 +10,12 @@ use Github\HttpClient\Plugin\Authentication;
 use Github\HttpClient\Plugin\GithubExceptionThrower;
 use Github\HttpClient\Plugin\History;
 use Github\HttpClient\Plugin\PathPrepend;
-use Http\Client\Common\HttpMethodsClient;
+use Http\Client\Common\HttpMethodsClientInterface;
 use Http\Client\Common\Plugin;
-use Http\Client\HttpClient;
-use Http\Discovery\UriFactoryDiscovery;
+use Http\Discovery\Psr17FactoryDiscovery;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Simple yet very cool PHP GitHub client.
@@ -31,8 +32,6 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method Api\Gists                             gist()
  * @method Api\Gists                             gists()
  * @method Api\Miscellaneous\Gitignore           gitignore()
- * @method Api\Integrations                      integration() (deprecated)
- * @method Api\Integrations                      integrations() (deprecated)
  * @method Api\Apps                              apps()
  * @method Api\Issue                             issue()
  * @method Api\Issue                             issues()
@@ -63,6 +62,8 @@ use Psr\Cache\CacheItemPoolInterface;
  * @method Api\Authorizations                    authorizations()
  * @method Api\Meta                              meta()
  * @method Api\GraphQL                           graphql()
+ * @method Api\Deployment                        deployment()
+ * @method Api\Deployment                        deployments()
  *
  * @author Joseph Bielawski <stloyd@gmail.com>
  *
@@ -71,52 +72,34 @@ use Psr\Cache\CacheItemPoolInterface;
 class Client
 {
     /**
-     * Constant for authentication method. Indicates the default, but deprecated
-     * login with username and token in URL.
-     *
-     * @deprecated Use `Client::AUTH_ACCESS_TOKEN` instead. See https://developer.github.com/changes/2019-11-05-deprecated-passwords-and-authorizations-api/#authenticating-using-query-parameters
-     */
-    const AUTH_URL_TOKEN = 'url_token';
-
-    /**
-     * Constant for authentication method. Not indicates the new login, but allows
-     * usage of unauthenticated rate limited requests for given client_id + client_secret.
-     *
-     * @deprecated Use `Client::AUTH_CLIENT_ID` instead. See https://developer.github.com/changes/2019-11-05-deprecated-passwords-and-authorizations-api/#authenticating-using-query-parameters
-     */
-    const AUTH_URL_CLIENT_ID = 'url_client_id';
-
-    /**
-     * Constant for authentication method. Indicates the new favored login method
-     * with username and password via HTTP Authentication.
-     *
-     * @deprecated Use `Client::AUTH_ACCESS_TOKEN` instead. See https://developer.github.com/changes/2019-11-05-deprecated-passwords-and-authorizations-api/#authenticating-using-query-parameters
-     */
-    const AUTH_HTTP_PASSWORD = 'http_password';
-
-    /**
-     * Constant for authentication method. Indicates the new login method with
-     * with username and token via HTTP Authentication.
-     *
-     * @deprecated Use `Client::AUTH_ACCESS_TOKEN` instead.
-     */
-    const AUTH_HTTP_TOKEN = 'http_token';
-
-    /**
      * Authenticate using a client_id/client_secret combination.
+     *
+     * @var string
+     *
+     * @deprecated Use the AuthMethod const
      */
-    const AUTH_CLIENT_ID = 'client_id_header';
+    const AUTH_CLIENT_ID = AuthMethod::CLIENT_ID;
 
     /**
      * Authenticate using a GitHub access token.
+     *
+     * @var string
+     *
+     * @deprecated Use the AuthMethod const
      */
-    const AUTH_ACCESS_TOKEN = 'access_token_header';
+    const AUTH_ACCESS_TOKEN = AuthMethod::ACCESS_TOKEN;
 
     /**
-     * Constant for authentication method. Indicates JSON Web Token
-     * authentication required for GitHub apps access to the API.
+     * Constant for authentication method.
+     *
+     * Indicates JSON Web Token authentication required for GitHub apps access
+     * to the API.
+     *
+     * @var string
+     *
+     * @deprecated Use the AuthMethod const
      */
-    const AUTH_JWT = 'jwt';
+    const AUTH_JWT = AuthMethod::JWT;
 
     /**
      * @var string
@@ -143,18 +126,17 @@ class Client
     public function __construct(Builder $httpClientBuilder = null, $apiVersion = null, $enterpriseUrl = null)
     {
         $this->responseHistory = new History();
-        $this->httpClientBuilder = $builder = $httpClientBuilder ?: new Builder();
+        $this->httpClientBuilder = $builder = $httpClientBuilder ?? new Builder();
+        $this->apiVersion = $apiVersion ?: 'v3';
 
         $builder->addPlugin(new GithubExceptionThrower());
         $builder->addPlugin(new Plugin\HistoryPlugin($this->responseHistory));
         $builder->addPlugin(new Plugin\RedirectPlugin());
-        $builder->addPlugin(new Plugin\AddHostPlugin(UriFactoryDiscovery::find()->createUri('https://api.github.com')));
+        $builder->addPlugin(new Plugin\AddHostPlugin(Psr17FactoryDiscovery::findUriFactory()->createUri('https://api.github.com')));
         $builder->addPlugin(new Plugin\HeaderDefaultsPlugin([
             'User-Agent' => 'php-github-api (http://github.com/KnpLabs/php-github-api)',
+            'Accept' => sprintf('application/vnd.github.%s+json', $this->apiVersion),
         ]));
-
-        $this->apiVersion = $apiVersion ?: 'v3';
-        $builder->addHeaderValue('Accept', sprintf('application/vnd.github.%s+json', $this->apiVersion));
 
         if ($enterpriseUrl) {
             $this->setEnterpriseUrl($enterpriseUrl);
@@ -162,13 +144,13 @@ class Client
     }
 
     /**
-     * Create a Github\Client using a HttpClient.
+     * Create a Github\Client using a HTTP client.
      *
-     * @param HttpClient $httpClient
+     * @param ClientInterface $httpClient
      *
      * @return Client
      */
-    public static function createWithHttpClient(HttpClient $httpClient)
+    public static function createWithHttpClient(ClientInterface $httpClient): self
     {
         $builder = new Builder($httpClient);
 
@@ -180,9 +162,9 @@ class Client
      *
      * @throws InvalidArgumentException
      *
-     * @return ApiInterface
+     * @return AbstractApi
      */
-    public function api($name)
+    public function api($name): AbstractApi
     {
         switch ($name) {
             case 'me':
@@ -221,11 +203,6 @@ class Client
 
             case 'gitignore':
                 $api = new Api\Miscellaneous\Gitignore($this);
-                break;
-
-            case 'integration':
-            case 'integrations':
-                $api = new Api\Integrations($this);
                 break;
 
             case 'apps':
@@ -335,26 +312,22 @@ class Client
      * Authenticate a user for all next requests.
      *
      * @param string      $tokenOrLogin GitHub private token/username/client ID
-     * @param null|string $password     GitHub password/secret (optionally can contain $authMethod)
-     * @param null|string $authMethod   One of the AUTH_* class constants
+     * @param string|null $password     GitHub password/secret (optionally can contain $authMethod)
+     * @param string|null $authMethod   One of the AUTH_* class constants
      *
      * @throws InvalidArgumentException If no authentication method was given
      *
      * @return void
      */
-    public function authenticate($tokenOrLogin, $password = null, $authMethod = null)
+    public function authenticate($tokenOrLogin, $password = null, $authMethod = null): void
     {
-        if (null === $password && null === $authMethod) {
-            throw new InvalidArgumentException('You need to specify authentication method!');
-        }
-
-        if (null === $authMethod && in_array($password, [self::AUTH_URL_TOKEN, self::AUTH_URL_CLIENT_ID, self::AUTH_HTTP_PASSWORD, self::AUTH_HTTP_TOKEN, self::AUTH_ACCESS_TOKEN, self::AUTH_JWT], true)) {
+        if (null === $authMethod && (AuthMethod::JWT === $password || AuthMethod::ACCESS_TOKEN === $password)) {
             $authMethod = $password;
             $password = null;
         }
 
         if (null === $authMethod) {
-            $authMethod = self::AUTH_HTTP_PASSWORD;
+            throw new InvalidArgumentException('You need to specify authentication method!');
         }
 
         $this->getHttpClientBuilder()->removePlugin(Authentication::class);
@@ -368,20 +341,27 @@ class Client
      *
      * @return void
      */
-    private function setEnterpriseUrl($enterpriseUrl)
+    private function setEnterpriseUrl($enterpriseUrl): void
     {
         $builder = $this->getHttpClientBuilder();
         $builder->removePlugin(Plugin\AddHostPlugin::class);
         $builder->removePlugin(PathPrepend::class);
 
-        $builder->addPlugin(new Plugin\AddHostPlugin(UriFactoryDiscovery::find()->createUri($enterpriseUrl)));
-        $builder->addPlugin(new PathPrepend(sprintf('/api/%s', $this->getApiVersion())));
+        $builder->addPlugin(new Plugin\AddHostPlugin(Psr17FactoryDiscovery::findUriFactory()->createUri($enterpriseUrl)));
+
+        // For GHE, v4 API endpoint is at `api/graphql` so we don't want to add the version number
+        // For earlier versions add the version number after /api
+        if ($this->getApiVersion() === 'v4') {
+            $builder->addPlugin(new PathPrepend('/api'));
+        } else {
+            $builder->addPlugin(new PathPrepend(sprintf('/api/%s', $this->getApiVersion())));
+        }
     }
 
     /**
      * @return string
      */
-    public function getApiVersion()
+    public function getApiVersion(): string
     {
         return $this->apiVersion;
     }
@@ -394,7 +374,7 @@ class Client
      *
      * @return void
      */
-    public function addCache(CacheItemPoolInterface $cachePool, array $config = [])
+    public function addCache(CacheItemPoolInterface $cachePool, array $config = []): void
     {
         $this->getHttpClientBuilder()->addCache($cachePool, $config);
     }
@@ -404,7 +384,7 @@ class Client
      *
      * @return void
      */
-    public function removeCache()
+    public function removeCache(): void
     {
         $this->getHttpClientBuilder()->removeCache();
     }
@@ -413,9 +393,9 @@ class Client
      * @param string $name
      * @param array  $args
      *
-     * @return ApiInterface
+     * @return AbstractApi
      */
-    public function __call($name, $args)
+    public function __call($name, $args): AbstractApi
     {
         try {
             return $this->api($name);
@@ -427,15 +407,15 @@ class Client
     /**
      * @return null|\Psr\Http\Message\ResponseInterface
      */
-    public function getLastResponse()
+    public function getLastResponse(): ?ResponseInterface
     {
         return $this->responseHistory->getLastResponse();
     }
 
     /**
-     * @return HttpMethodsClient
+     * @return HttpMethodsClientInterface
      */
-    public function getHttpClient()
+    public function getHttpClient(): HttpMethodsClientInterface
     {
         return $this->getHttpClientBuilder()->getHttpClient();
     }
@@ -443,7 +423,7 @@ class Client
     /**
      * @return Builder
      */
-    protected function getHttpClientBuilder()
+    protected function getHttpClientBuilder(): Builder
     {
         return $this->httpClientBuilder;
     }

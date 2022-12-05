@@ -2,6 +2,8 @@
 
 namespace Github\Api;
 
+use Github\Api\App\Hook;
+
 /**
  * @link   https://developer.github.com/v3/apps/
  *
@@ -82,7 +84,7 @@ class Apps extends AbstractApi
     {
         $this->configurePreviewHeader();
 
-        return $this->get('/org/'.rawurldecode($org).'/installation');
+        return $this->get('/orgs/'.rawurldecode($org).'/installation');
     }
 
     /**
@@ -185,5 +187,29 @@ class Apps extends AbstractApi
         $this->configurePreviewHeader();
 
         return $this->delete('/installations/'.$installationId.'/repositories/'.$repositoryId);
+    }
+
+    /**
+     * Get the currently authenticated app.
+     *
+     * @link https://docs.github.com/en/rest/reference/apps#get-the-authenticated-app
+     *
+     * @return array
+     */
+    public function getAuthenticatedApp()
+    {
+        return $this->get('/app');
+    }
+
+    /**
+     * Manage the hook of an app.
+     *
+     * @link https://docs.github.com/en/rest/apps/webhooks
+     *
+     * @return Hook
+     */
+    public function hook()
+    {
+        return new Hook($this->getClient());
     }
 }

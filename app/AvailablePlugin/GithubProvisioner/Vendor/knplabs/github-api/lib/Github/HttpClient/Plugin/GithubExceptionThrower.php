@@ -17,16 +17,13 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @author Joseph Bielawski <stloyd@gmail.com>
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
- * @final since 2.19
  */
-class GithubExceptionThrower implements Plugin
+final class GithubExceptionThrower implements Plugin
 {
-    use Plugin\VersionBridgePlugin;
-
     /**
      * @return Promise
      */
-    public function doHandleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         return $next($request)->then(function (ResponseInterface $response) use ($request) {
             if ($response->getStatusCode() < 400 || $response->getStatusCode() > 600) {
@@ -121,6 +118,21 @@ class GithubExceptionThrower implements Plugin
                 $url = substr((string) ResponseMediator::getHeader($response, 'X-GitHub-SSO'), 14);
 
                 throw new SsoRequiredException($url);
+            }
+
+            $remaining = ResponseMediator::getHeader($response, 'X-RateLimit-Remaining');
+            if ((403 === $response->getStatusCode()) && null !== $remaining && 1 > $remaining && isset($content['message']) && (0 === strpos($content['message'], 'API rate limit exceeded'))) {
+                $limit = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Limit');
+                $reset = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Reset');
+
+                throw new ApiLimitExceedException($limit, $reset);
+            }
+
+            $reset = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Reset');
+            if ((403 === $response->getStatusCode()) && 0 < $reset && isset($content['message']) && (0 === strpos($content['message'], 'You have exceeded a secondary rate limit.'))) {
+                $limit = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Limit');
+
+                throw new ApiLimitExceedException($limit, $reset);
             }
 
             throw new RuntimeException(isset($content['message']) ? $content['message'] : $content, $response->getStatusCode());
