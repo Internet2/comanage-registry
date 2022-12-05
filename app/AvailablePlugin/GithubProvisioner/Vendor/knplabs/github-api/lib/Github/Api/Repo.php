@@ -8,7 +8,6 @@ use Github\Api\Repository\Actions\SelfHostedRunners;
 use Github\Api\Repository\Actions\WorkflowJobs;
 use Github\Api\Repository\Actions\WorkflowRuns;
 use Github\Api\Repository\Actions\Workflows;
-use Github\Api\Repository\Checks;
 use Github\Api\Repository\Checks\CheckRuns;
 use Github\Api\Repository\Checks\CheckSuites;
 use Github\Api\Repository\Collaborators;
@@ -40,22 +39,6 @@ use Github\Api\Repository\Traffic;
 class Repo extends AbstractApi
 {
     use AcceptHeaderTrait;
-
-    /**
-     * Search repositories by keyword.
-     *
-     * @deprecated This method is deprecated use the Search api instead. See https://developer.github.com/v3/search/legacy/#legacy-search-api-is-deprecated
-     * @link http://developer.github.com/v3/search/#search-repositories
-     *
-     * @param string $keyword the search query
-     * @param array  $params
-     *
-     * @return array list of found repositories
-     */
-    public function find($keyword, array $params = [])
-    {
-        return $this->get('/legacy/repos/search/'.rawurlencode($keyword), array_merge(['start_page' => 1], $params));
-    }
 
     /**
      * List all public repositories.
@@ -191,13 +174,14 @@ class Repo extends AbstractApi
      * @param string      $description  repository description
      * @param string      $homepage     homepage url
      * @param bool        $public       `true` for public, `false` for private
-     * @param null|string $organization username of organization if applicable
+     * @param string|null $organization username of organization if applicable
      * @param bool        $hasIssues    `true` to enable issues for this repository, `false` to disable them
      * @param bool        $hasWiki      `true` to enable the wiki for this repository, `false` to disable it
      * @param bool        $hasDownloads `true` to enable downloads for this repository, `false` to disable them
      * @param int         $teamId       The id of the team that will be granted access to this repository. This is only valid when creating a repo in an organization.
      * @param bool        $autoInit     `true` to create an initial commit with empty README, `false` for no initial commit
      * @param bool        $hasProjects  `true` to enable projects for this repository or false to disable them.
+     * @param string|null $visibility
      *
      * @return array returns repository data
      */
@@ -212,7 +196,8 @@ class Repo extends AbstractApi
         $hasDownloads = false,
         $teamId = null,
         $autoInit = false,
-        $hasProjects = true
+        $hasProjects = true,
+        $visibility = null
     ) {
         $path = null !== $organization ? '/orgs/'.$organization.'/repos' : '/user/repos';
 
@@ -220,13 +205,17 @@ class Repo extends AbstractApi
             'name'          => $name,
             'description'   => $description,
             'homepage'      => $homepage,
-            'private'       => !$public,
+            'private'       => ($visibility ?? ($public ? 'public' : 'private')) === 'private',
             'has_issues'    => $hasIssues,
             'has_wiki'      => $hasWiki,
             'has_downloads' => $hasDownloads,
             'auto_init'     => $autoInit,
             'has_projects' => $hasProjects,
         ];
+
+        if ($visibility) {
+            $parameters['visibility'] = $visibility;
+        }
 
         if ($organization && $teamId) {
             $parameters['team_id'] = $teamId;
@@ -274,12 +263,20 @@ class Repo extends AbstractApi
      * @param string $username   the user who owns the repository
      * @param string $repository the name of the repository
      * @param string $format     one of formats: "raw", "html", or "v3+json"
+     * @param string $dir        The alternate path to look for a README file
+     * @param array  $params     additional query params like "ref" to fetch readme for branch/tag
      *
      * @return string|array the readme content
      */
-    public function readme($username, $repository, $format = 'raw')
+    public function readme($username, $repository, $format = 'raw', $dir = null, $params = [])
     {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/readme', [], [
+        $path = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/readme';
+
+        if (null !== $dir) {
+            $path .= '/'.rawurlencode($dir);
+        }
+
+        return $this->get($path, $params, [
             'Accept' => "application/vnd.github.$format",
         ]);
     }
@@ -289,14 +286,19 @@ class Repo extends AbstractApi
      *
      * @link https://developer.github.com/v3/repos/#create-a-repository-dispatch-event
      *
-     * @param string $username   the user who owns the repository
-     * @param string $repository the name of the repository
-     * @param string $eventType  A custom webhook event name
+     * @param string       $username      the user who owns the repository
+     * @param string       $repository    the name of the repository
+     * @param string       $eventType     A custom webhook event name
+     * @param array|object $clientPayload The payload to pass to Github.
      *
      * @return mixed null on success, array on error with 'message'
      */
-    public function dispatch($username, $repository, $eventType, array $clientPayload)
+    public function dispatch($username, $repository, $eventType, $clientPayload)
     {
+        if (is_array($clientPayload)) {
+            $clientPayload = (object) $clientPayload;
+        }
+
         return $this->post(\sprintf('/repos/%s/%s/dispatches', rawurlencode($username), rawurlencode($repository)), [
             'event_type' => $eventType,
             'client_payload' => $clientPayload,
@@ -312,7 +314,7 @@ class Repo extends AbstractApi
      */
     public function collaborators()
     {
-        return new Collaborators($this->client);
+        return new Collaborators($this->getClient());
     }
 
     /**
@@ -324,7 +326,7 @@ class Repo extends AbstractApi
      */
     public function comments()
     {
-        return new Comments($this->client);
+        return new Comments($this->getClient());
     }
 
     /**
@@ -336,38 +338,23 @@ class Repo extends AbstractApi
      */
     public function commits()
     {
-        return new Commits($this->client);
+        return new Commits($this->getClient());
     }
 
     /**
-     * Manage checks on a repository.
-     *
-     * @link https://developer.github.com/v3/checks/
-     * @deprecated since 2.17 and will be removed in 3.0. Use the "checkRuns" or "checkSuites" api's instead.
-     *
-     * @return Checks
-     */
-    public function checks()
-    {
-        @trigger_error(sprintf('The "%s" is deprecated since knp-labs/php-github-api 2.17 and will be removed in knp-labs/php-github-api 3.0. Use the "checkRuns" or "checkSuites" api\'s instead.', __METHOD__), E_USER_DEPRECATED);
-
-        return new Checks($this->client);
-    }
-
-    /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/checks#check-runs
+     * @link https://docs.github.com/en/rest/reference/checks#check-runs
      */
     public function checkRuns(): CheckRuns
     {
-        return new CheckRuns($this->client);
+        return new CheckRuns($this->getClient());
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/checks#check-suites
+     * @link https://docs.github.com/en/rest/reference/checks#check-suites
      */
     public function checkSuites(): CheckSuites
     {
-        return new CheckSuites($this->client);
+        return new CheckSuites($this->getClient());
     }
 
     /**
@@ -375,47 +362,47 @@ class Repo extends AbstractApi
      */
     public function artifacts(): Artifacts
     {
-        return new Artifacts($this->client);
+        return new Artifacts($this->getClient());
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#workflows
+     * @link https://docs.github.com/en/rest/reference/actions#workflows
      */
     public function workflows(): Workflows
     {
-        return new Workflows($this->client);
+        return new Workflows($this->getClient());
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#workflow-runs
+     * @link https://docs.github.com/en/rest/reference/actions#workflow-runs
      */
     public function workflowRuns(): WorkflowRuns
     {
-        return new WorkflowRuns($this->client);
+        return new WorkflowRuns($this->getClient());
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#workflow-jobs
+     * @link https://docs.github.com/en/rest/reference/actions#workflow-jobs
      */
     public function workflowJobs(): WorkflowJobs
     {
-        return new WorkflowJobs($this->client);
+        return new WorkflowJobs($this->getClient());
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#self-hosted-runners
+     * @link https://docs.github.com/en/rest/reference/actions#self-hosted-runners
      */
     public function selfHostedRunners(): SelfHostedRunners
     {
-        return new SelfHostedRunners($this->client);
+        return new SelfHostedRunners($this->getClient());
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#secrets
+     * @link https://docs.github.com/en/rest/reference/actions#secrets
      */
     public function secrets(): Secrets
     {
-        return new Secrets($this->client);
+        return new Secrets($this->getClient());
     }
 
     /**
@@ -427,7 +414,7 @@ class Repo extends AbstractApi
      */
     public function contents()
     {
-        return new Contents($this->client);
+        return new Contents($this->getClient());
     }
 
     /**
@@ -439,7 +426,7 @@ class Repo extends AbstractApi
      */
     public function downloads()
     {
-        return new Downloads($this->client);
+        return new Downloads($this->getClient());
     }
 
     /**
@@ -451,7 +438,7 @@ class Repo extends AbstractApi
      */
     public function releases()
     {
-        return new Releases($this->client);
+        return new Releases($this->getClient());
     }
 
     /**
@@ -463,7 +450,7 @@ class Repo extends AbstractApi
      */
     public function keys()
     {
-        return new DeployKeys($this->client);
+        return new DeployKeys($this->getClient());
     }
 
     /**
@@ -475,7 +462,7 @@ class Repo extends AbstractApi
      */
     public function forks()
     {
-        return new Forks($this->client);
+        return new Forks($this->getClient());
     }
 
     /**
@@ -487,7 +474,7 @@ class Repo extends AbstractApi
      */
     public function stargazers()
     {
-        return new Stargazers($this->client);
+        return new Stargazers($this->getClient());
     }
 
     /**
@@ -499,7 +486,7 @@ class Repo extends AbstractApi
      */
     public function hooks()
     {
-        return new Hooks($this->client);
+        return new Hooks($this->getClient());
     }
 
     /**
@@ -511,7 +498,7 @@ class Repo extends AbstractApi
      */
     public function labels()
     {
-        return new Labels($this->client);
+        return new Labels($this->getClient());
     }
 
     /**
@@ -523,7 +510,7 @@ class Repo extends AbstractApi
      */
     public function statuses()
     {
-        return new Statuses($this->client);
+        return new Statuses($this->getClient());
     }
 
     /**
@@ -534,17 +521,33 @@ class Repo extends AbstractApi
      * @param string $username   the username
      * @param string $repository the name of the repository
      * @param string $branch     the name of the branch
+     * @param array  $parameters parameters for the query string
      *
      * @return array list of the repository branches
      */
-    public function branches($username, $repository, $branch = null)
+    public function branches($username, $repository, $branch = null, array $parameters = [])
     {
         $url = '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/branches';
         if (null !== $branch) {
             $url .= '/'.rawurlencode($branch);
         }
 
-        return $this->get($url);
+        return $this->get($url, $parameters);
+    }
+
+    /**
+     * Sync a fork branch with the upstream repository.
+     *
+     * @link https://docs.github.com/en/rest/branches/branches#sync-a-fork-branch-with-the-upstream-repository
+     *
+     * @return array|string
+     */
+    public function mergeUpstream(string $username, string $repository, string $branchName)
+    {
+        return $this->post(
+            '/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/merge-upstream',
+            ['branch' => $branchName]
+        );
     }
 
     /**
@@ -556,7 +559,7 @@ class Repo extends AbstractApi
      */
     public function protection()
     {
-        return new Protection($this->client);
+        return new Protection($this->getClient());
     }
 
     /**
@@ -625,22 +628,6 @@ class Repo extends AbstractApi
     }
 
     /**
-     * @deprecated see subscribers method
-     *
-     * @param string $username
-     * @param string $repository
-     * @param int    $page
-     *
-     * @return array
-     */
-    public function watchers($username, $repository, $page = 1)
-    {
-        return $this->get('/repos/'.rawurlencode($username).'/'.rawurlencode($repository).'/watchers', [
-            'page' => $page,
-        ]);
-    }
-
-    /**
      * @param string $username
      * @param string $repository
      * @param int    $page
@@ -665,7 +652,7 @@ class Repo extends AbstractApi
      * @param string $head       The head to merge. This can be a branch name or a commit SHA1.
      * @param string $message    Commit message to use for the merge commit. If omitted, a default message will be used.
      *
-     * @return array|null
+     * @return array|string
      */
     public function merge($username, $repository, $base, $head, $message = null)
     {
@@ -694,7 +681,7 @@ class Repo extends AbstractApi
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#enable-automated-security-fixes
+     * @link https://docs.github.com/en/rest/reference/repos#enable-automated-security-fixes
      *
      * @param string $username
      * @param string $repository
@@ -709,7 +696,7 @@ class Repo extends AbstractApi
     }
 
     /**
-     * @link https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#disable-automated-security-fixes
+     * @link https://docs.github.com/en/rest/reference/repos#disable-automated-security-fixes
      *
      * @param string $username
      * @param string $repository
@@ -725,17 +712,17 @@ class Repo extends AbstractApi
 
     public function projects()
     {
-        return new Projects($this->client);
+        return new Projects($this->getClient());
     }
 
     public function traffic()
     {
-        return new Traffic($this->client);
+        return new Traffic($this->getClient());
     }
 
     public function pages()
     {
-        return new Pages($this->client);
+        return new Pages($this->getClient());
     }
 
     /**
@@ -840,5 +827,20 @@ class Repo extends AbstractApi
     public function transfer($username, $repository, $newOwner, $teamId = [])
     {
         return $this->post('/repos/'.rawurldecode($username).'/'.rawurldecode($repository).'/transfer', ['new_owner' => $newOwner, 'team_id' => $teamId]);
+    }
+
+    /**
+     * Create a repository using a template.
+     *
+     * @link https://developer.github.com/v3/repos/#create-a-repository-using-a-template
+     *
+     * @return array
+     */
+    public function createFromTemplate(string $templateOwner, string $templateRepo, array $parameters = [])
+    {
+        //This api is in preview mode, so set the correct accept-header
+        $this->acceptHeaderValue = 'application/vnd.github.baptiste-preview+json';
+
+        return $this->post('/repos/'.rawurldecode($templateOwner).'/'.rawurldecode($templateRepo).'/generate', $parameters);
     }
 }

@@ -3,16 +3,16 @@
 namespace Github\HttpClient;
 
 use Http\Client\Common\HttpMethodsClient;
+use Http\Client\Common\HttpMethodsClientInterface;
 use Http\Client\Common\Plugin;
 use Http\Client\Common\Plugin\Cache\Generator\HeaderCacheKeyGenerator;
 use Http\Client\Common\PluginClientFactory;
-use Http\Client\HttpClient;
-use Http\Discovery\HttpClientDiscovery;
-use Http\Discovery\MessageFactoryDiscovery;
-use Http\Discovery\StreamFactoryDiscovery;
-use Http\Message\RequestFactory;
-use Http\Message\StreamFactory;
+use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 /**
  * A builder that builds the API client.
@@ -25,24 +25,24 @@ class Builder
     /**
      * The object that sends HTTP messages.
      *
-     * @var HttpClient
+     * @var ClientInterface
      */
     private $httpClient;
 
     /**
      * A HTTP client with all our plugins.
      *
-     * @var HttpMethodsClient
+     * @var HttpMethodsClientInterface
      */
     private $pluginClient;
 
     /**
-     * @var RequestFactory
+     * @var RequestFactoryInterface
      */
     private $requestFactory;
 
     /**
-     * @var StreamFactory
+     * @var StreamFactoryInterface
      */
     private $streamFactory;
 
@@ -73,24 +73,24 @@ class Builder
     private $headers = [];
 
     /**
-     * @param HttpClient     $httpClient
-     * @param RequestFactory $requestFactory
-     * @param StreamFactory  $streamFactory
+     * @param ClientInterface|null         $httpClient
+     * @param RequestFactoryInterface|null $requestFactory
+     * @param StreamFactoryInterface|null  $streamFactory
      */
     public function __construct(
-        HttpClient $httpClient = null,
-        RequestFactory $requestFactory = null,
-        StreamFactory $streamFactory = null
+        ClientInterface $httpClient = null,
+        RequestFactoryInterface $requestFactory = null,
+        StreamFactoryInterface $streamFactory = null
     ) {
-        $this->httpClient = $httpClient ?: HttpClientDiscovery::find();
-        $this->requestFactory = $requestFactory ?: MessageFactoryDiscovery::find();
-        $this->streamFactory = $streamFactory ?: StreamFactoryDiscovery::find();
+        $this->httpClient = $httpClient ?? Psr18ClientDiscovery::find();
+        $this->requestFactory = $requestFactory ?? Psr17FactoryDiscovery::findRequestFactory();
+        $this->streamFactory = $streamFactory ?? Psr17FactoryDiscovery::findStreamFactory();
     }
 
     /**
-     * @return HttpMethodsClient
+     * @return HttpMethodsClientInterface
      */
-    public function getHttpClient()
+    public function getHttpClient(): HttpMethodsClientInterface
     {
         if ($this->httpClientModified) {
             $this->httpClientModified = false;
@@ -102,7 +102,8 @@ class Builder
 
             $this->pluginClient = new HttpMethodsClient(
                 (new PluginClientFactory())->createClient($this->httpClient, $plugins),
-                $this->requestFactory
+                $this->requestFactory,
+                $this->streamFactory
             );
         }
 
@@ -116,7 +117,7 @@ class Builder
      *
      * @return void
      */
-    public function addPlugin(Plugin $plugin)
+    public function addPlugin(Plugin $plugin): void
     {
         $this->plugins[] = $plugin;
         $this->httpClientModified = true;
@@ -129,7 +130,7 @@ class Builder
      *
      * @return void
      */
-    public function removePlugin($fqcn)
+    public function removePlugin(string $fqcn): void
     {
         foreach ($this->plugins as $idx => $plugin) {
             if ($plugin instanceof $fqcn) {
@@ -144,7 +145,7 @@ class Builder
      *
      * @return void
      */
-    public function clearHeaders()
+    public function clearHeaders(): void
     {
         $this->headers = [];
 
@@ -157,7 +158,7 @@ class Builder
      *
      * @return void
      */
-    public function addHeaders(array $headers)
+    public function addHeaders(array $headers): void
     {
         $this->headers = array_merge($this->headers, $headers);
 
@@ -171,7 +172,7 @@ class Builder
      *
      * @return void
      */
-    public function addHeaderValue($header, $headerValue)
+    public function addHeaderValue(string $header, string $headerValue): void
     {
         if (!isset($this->headers[$header])) {
             $this->headers[$header] = $headerValue;
@@ -191,7 +192,7 @@ class Builder
      *
      * @return void
      */
-    public function addCache(CacheItemPoolInterface $cachePool, array $config = [])
+    public function addCache(CacheItemPoolInterface $cachePool, array $config = []): void
     {
         if (!isset($config['cache_key_generator'])) {
             $config['cache_key_generator'] = new HeaderCacheKeyGenerator(['Authorization', 'Cookie', 'Accept', 'Content-type']);
@@ -205,7 +206,7 @@ class Builder
      *
      * @return void
      */
-    public function removeCache()
+    public function removeCache(): void
     {
         $this->cachePlugin = null;
         $this->httpClientModified = true;

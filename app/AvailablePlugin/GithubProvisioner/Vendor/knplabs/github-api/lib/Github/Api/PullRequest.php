@@ -27,12 +27,12 @@ class PullRequest extends AbstractApi
      * @param string|null $bodyType
      * @param string|null $apiVersion
      *
-     * @return self
+     * @return $this
      */
     public function configure($bodyType = null, $apiVersion = null)
     {
         if (null === $apiVersion) {
-            $apiVersion = $this->client->getApiVersion();
+            $apiVersion = $this->getApiVersion();
         }
 
         if (!in_array($bodyType, ['text', 'html', 'full', 'diff', 'patch'])) {
@@ -108,19 +108,28 @@ class PullRequest extends AbstractApi
         return $this->get($link);
     }
 
+    /**
+     * @return Comments
+     */
     public function comments()
     {
-        return new Comments($this->client);
+        return new Comments($this->getClient());
     }
 
+    /**
+     * @return Review
+     */
     public function reviews()
     {
-        return new Review($this->client);
+        return new Review($this->getClient());
     }
 
+    /**
+     * @return ReviewRequest
+     */
     public function reviewRequests()
     {
-        return new ReviewRequest($this->client);
+        return new ReviewRequest($this->getClient());
     }
 
     /**
