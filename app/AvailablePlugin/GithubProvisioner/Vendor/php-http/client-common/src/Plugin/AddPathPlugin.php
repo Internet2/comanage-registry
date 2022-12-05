@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Http\Client\Common\Plugin;
 
 use Http\Client\Common\Plugin;
+use Http\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -18,16 +21,6 @@ final class AddPathPlugin implements Plugin
      */
     private $uri;
 
-    /**
-     * Stores identifiers of the already altered requests.
-     *
-     * @var array
-     */
-    private $alteredRequests = [];
-
-    /**
-     * @param UriInterface $uri
-     */
     public function __construct(UriInterface $uri)
     {
         if ('' === $uri->getPath()) {
@@ -69,7 +62,7 @@ final class AddPathPlugin implements Plugin
      *
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, callable $next, callable $first)
+    public function handleRequest(RequestInterface $request, callable $next, callable $first): Promise
     {
         $prepend = $this->uri->getPath();
         $path = $request->getUri()->getPath();
@@ -77,7 +70,7 @@ final class AddPathPlugin implements Plugin
         if (substr($path, 0, strlen($prepend)) !== $prepend) {
             $request = $request->withUri($request->getUri()
                  ->withPath($prepend.$path)
-             );
+            );
         }
 
         return $next($request);
