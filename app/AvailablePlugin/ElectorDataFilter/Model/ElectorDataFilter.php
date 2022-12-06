@@ -125,7 +125,7 @@ class ElectorDataFilter extends AppModel
 
     // Pull our configuration
     $args = array();
-    $args['ElectorDataFilter.data_filter_id'] = $dataFilterId;
+    $args['conditions']['ElectorDataFilter.data_filter_id'] = $dataFilterId;
     $args['contain'] = array(
       'ElectorDataFilterPrecedence' => array(
         'conditions' => array(
@@ -189,7 +189,7 @@ class ElectorDataFilter extends AppModel
         }
 
         // Translate the type to the outbound configuration
-        $attr[0]["type"] = $cfg["ElectorDataFilter"]["outbound_attribute_type"];
+        $attr[0]["type"] = strtolower($cfg["ElectorDataFilter"]["outbound_attribute_type"]);
         // XXX This is a record we configure on the fly. As a result we set the id to null
         //     in order to protect any other plugin that might make use of the data. At the same
         //     time we pass the id to the refid column.
