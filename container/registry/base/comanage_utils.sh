@@ -373,6 +373,8 @@ function comanage_utils::exec_cron() {
 
     comanage_utils::configure_console_logging
 
+    comanage_utils::process_slash_root
+
     comanage_utils::prepare_local_directory
 
     if [[ -z ${COMANAGE_REGISTRY_NO_DATABASE_CONFIG} ]]; then
