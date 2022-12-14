@@ -123,12 +123,7 @@ class ApiSource extends AppModel {
     // won't be visible).
     
     // Flip the required fields appropriately
-    foreach(array('kafka_server_id', 
-                  'kafka_groupid', 
-                  'kafka_topic',
-                  'kafka_batch_size',
-                  'kafka_partition',
-                  'kafka_timeout') as $f) {
+    foreach(array('kafka_server_id') as $f) {
       $this->validate[$f]['content']['required'] = false;
       $this->validate[$f]['content']['allowEmpty'] = true;
     }
@@ -148,12 +143,7 @@ class ApiSource extends AppModel {
     if(!empty($this->data['ApiSource']['poll_mode'])
        && $this->data['ApiSource']['poll_mode'] == ApiSourcePollModeEnum::Kafka) {
       // Flip the required fields appropriately
-      foreach(array('kafka_server_id', 
-                    'kafka_groupid', 
-                    'kafka_topic',
-                    'kafka_batch_size',
-                    'kafka_partition',
-                    'kafka_timeout') as $f) {
+      foreach(array('kafka_server_id') as $f) {
         $this->validate[$f]['content']['required'] = true;
         $this->validate[$f]['content']['allowEmpty'] = false;
       }
