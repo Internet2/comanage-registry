@@ -404,27 +404,21 @@ class CoGroupMembersController extends StandardController {
          && empty($this->params['url']['copersonid'])) {
         $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['cogroupid'] => 'CoGroup'));
         $searching_for = 'CoGroup';
-        if(!empty($group_members)) {
-          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
-          return;
-        }
+        $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
+        return;
       } elseif(!empty($this->params['url']['copersonid'])
                && empty($this->params['url']['cogroupid'])) {
         $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson'));
         $searching_for = 'CoPerson';
-        if(!empty($group_members)) {
-          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
-          return;
-        }
+        $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
+        return;
       } elseif(!empty($this->params['url']['copersonid'])
                && !empty($this->params['url']['cogroupid'])) {
         $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson',
                                                                 $this->params['url']['cogroupid'] => 'CoGroup'));
         $searching_for = 'CoPerson/CoGroup';
-        if(!empty($group_members)) {
-          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
-          return;
-        }
+        $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
+        return;
       }
 
       if((!empty($this->params['url']['copersonid'])
@@ -436,10 +430,8 @@ class CoGroupMembersController extends StandardController {
       if($this->isCmpAdmin) {
         $group_members = $this->CoGroupMember->findRecord();
         $searching_for = 'Platform';
-        if(!empty($group_members)) {
-          $this->set('co_group_members', $this->Api->convertRestResponse($group_members));
-          return;
-        }
+        $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
+        return;
       }
 
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NO_CONTENT, _txt('er.mt.unknown', array($searching_for)));
@@ -467,13 +459,18 @@ class CoGroupMembersController extends StandardController {
     // Store the group ID in the controller object since performRedirect may need it
     
     if(($this->action == 'add' || $this->action == 'updateGroup' || $this->action == 'addMemberById')
-       && isset($this->request->data['CoGroupMember']['co_group_id']))
+       && isset($this->request->data['CoGroupMember']['co_group_id'])) {
       $this->gid = filter_var($this->request->data['CoGroupMember']['co_group_id'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
-    elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
-           && isset($this->request->params['pass'][0]))
+    } elseif(($this->action == 'delete' || $this->action == 'edit' || $this->action == 'view')
+           && isset($this->request->params['pass'][0])) {
       $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
-    elseif(($this->action == 'select' || $this->action == 'index') && isset($this->request->params['named']['cogroup']))
-      $this->gid = filter_var($this->request->params['named']['cogroup'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+    } elseif(($this->action == 'select' || $this->action == 'index')) {
+      if(!empty($this->request->params['named']['cogroup'])) {
+        $this->gid = filter_var($this->request->params['named']['cogroup'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+      } elseif(!empty($this->request->params['pass'][0])) {
+        $this->gid = $this->CoGroupMember->field('co_group_id', array('CoGroupMember.id' => $this->request->params['pass'][0]));
+      }
+    }
     
     $managed = false;
     $owner = false;

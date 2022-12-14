@@ -524,7 +524,6 @@
                                         array('class' => 'viewbutton'));
               }
             ?>
-            <?php ; ?>
           </td>
         </tr>
         <?php $i++; ?>
