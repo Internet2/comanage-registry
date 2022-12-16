@@ -114,4 +114,42 @@ class ElectorDataFilterPrecedence extends AppModel
 
     return true;
   }
+
+  /**
+   * Obtain the CO ID for a record.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer Record to retrieve for
+   * @return integer Corresponding CO ID, or NULL if record has no corresponding CO ID
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+
+  public function findCoForRecord($id) {
+    $pre_rule = $this->findRecord($id);
+
+    if(!empty($pre_rule["ElectorDataFilter"]["DataFilter"]["co_id"])) {
+      return $pre_rule["ElectorDataFilter"]["DataFilter"]["co_id"];
+    }
+
+    return parent::findCoForRecord($id);
+  }
+
+  /**
+   * Obtain the record.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer  Id to retrieve for
+   * @return array    Corresponding Record and linked models
+   * @throws InvalidArgumentException
+   * @throws RunTimeException
+   */
+
+  public function findRecord($id) {
+    $args = array();
+    $args['conditions']['ElectorDataFilterPrecedence.id'] = $id;
+    $args['contain'] = array('ElectorDataFilter' => array('DataFilter'));
+
+    return $this->find('first', $args);
+  }
 }
