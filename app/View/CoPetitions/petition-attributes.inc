@@ -127,7 +127,7 @@
     
     // If a token was passed in, submit it as part of the form
     if(!empty($vv_petition_token)) {
-      print $this->Form->hidden('token', array('default' => $vv_petition_token)) . "\n";
+      print $this->Form->hidden('token', array('default' => $vv_petition_token)) . PHP_EOL;
     }
   ?>
 
@@ -167,7 +167,7 @@
     
     // Use isset() instead of !empty() here since some default values are 0.
     if(isset($ea['default'])) {
-      print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . "\n";
+      print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . PHP_EOL;
     }
   }
 
@@ -204,7 +204,7 @@
           // should all be the same.
           if(($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view')
               || (!$mvpa && $coe_attributes[0]['CoEnrollmentAttribute']['required'])) {
-            print "<span class=\"required\">*</span>\n";
+            print '<span class="required">*</span>' . PHP_EOL;
           }
           
           // Only print the description once if it's the same for all items
@@ -230,14 +230,14 @@
              // just hardcode a list here.
              && ($coe_attributes[0]['attribute'] != 'g:co_group_member'
              && strncmp($coe_attributes[0]['attribute'], 'i:identifier:', 13))) {
-            print "<br /><span class=\"required\">" . _txt('fd.pt.required') . "</span>\n";
+            print '<br /><span class="required">' . _txt('fd.pt.required') . '</span>' . PHP_EOL;
           }
           
           if(!empty($ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
-            print "<br /><span class=\"required\">" . _txt('fd.pt.archived') . "</span>\n";
+            print '<br /><span class="required">' . _txt('fd.pt.archived') . '</span>' . PHP_EOL;
           } elseif(isset($ea['CoEnrollmentAttribute']['deleted'])
                    && $ea['CoEnrollmentAttribute']['deleted']) {
-            print "<br /><span class=\"required\">" . _txt('fd.pt.deleted') . "</span>\n";
+            print '<br /><span class="required">' . _txt('fd.pt.deleted') . '</span>' . PHP_EOL;
           }
         ?>
       </div>
@@ -257,7 +257,7 @@
             $hfieldName = $ea['model'] . '.' . $ea['field'];
             $fieldName = $hfieldName . "-disabled";
 
-            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . "\n";
+            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
           } else {
             $fieldName = $ea['model'] . '.' . $ea['field'];
           }
@@ -447,13 +447,20 @@
                   if ($inlineEditableFields['sponsor-val']['set']) {
                     $iefClasses .= " hidden";
                   }
+                  $requiredHtml = "";
+                  $requiredLabel = "";
+                  if($args['required']) {
+                    $requiredHtml = ' required="required"';
+                    $requiredLabel = '<span class="required">*</span>';
+                  }
 
                   print '<div class="' . $iefClasses . '">';
                   print ' <label for="sponsors">'
                         .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
+                        .   $requiredLabel
                         . '</label>
                            <div class="ui-widget">
-                             <input id="sponsors" type="text" class="form-control"/>'
+                             <input id="sponsors" type="text" class="form-control"' . $requiredHtml . '/>'
                         . $this->Form->hidden($fieldName,
                                               array(
                                                 // We don't support two sponsors, but if we did this id would break
@@ -468,7 +475,7 @@
                   print '</div>'; // cm-ief-widget
                   print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
-                  $this->Form->unlockField('EnrolleeCoPersonRole.sponsor_co_person_id');
+                  $this->Form->unlockField($fieldName);
                 } elseif(!empty($vv_default_sponsor)) {
                   // Just print out the name
                   print generateCn($vv_default_sponsor['PrimaryName']);
@@ -498,13 +505,20 @@
                   if ($inlineEditableFields['manager-val']['set']) {
                     $iefClasses .= " hidden";
                   }
+                  $requiredHtml = "";
+                  $requiredLabel = "";
+                  if($args['required']) {
+                    $requiredHtml = ' required="required"';
+                    $requiredLabel = '<span class="required">*</span>';
+                  }
 
                   print '<div class="' . $iefClasses . '">';
                   print ' <label for="managers">'
                         .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
+                        .   $requiredLabel
                         . '</label>
                            <div class="ui-widget">
-                             <input id="managers" type="text" class="form-control"/>'
+                             <input id="sponsors" type="text" class="form-control"' . $requiredHtml . '/>'
                         . $this->Form->hidden($fieldName,
                                               array(
                                                 // We don't support two managers, but if we did this id would break
@@ -519,7 +533,7 @@
                   print '</div>'; // cm-ief-widget
                   print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
-                  $this->Form->unlockField('EnrolleeCoPersonRole.manager_co_person_id');
+                  $this->Form->unlockField($fieldName);
                 } elseif(!empty($vv_default_manager)) {
                   // Just print out the name
                   print generateCn($vv_default_manager['PrimaryName']);
@@ -537,7 +551,7 @@
                 print $this->Form->input($fieldName, $args);
               }
 
-              print "</div>\n";
+              print "</div>" . PHP_EOL;
 
               if ($matchable) {
                 print '<div class="matchable-output" id="' . $matchableInfoId . '">';
@@ -546,13 +560,13 @@
               break;
             }
 
-            print "\n";
+            print PHP_EOL;
 
             // If there is a description for the field, render it under the field and label
             if(isset($ea['description'])
               && !$groupDesc
               && $ea['description'] != "") {
-              print "\n<div class=\"desc\">" . $ea['description'] . "</div>\n";
+              print PHP_EOL . '<div class="desc">' . $ea['description'] . '</div>' . PHP_EOL;
             }
           } else {
 

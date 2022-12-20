@@ -387,14 +387,12 @@ class CoEnrollmentAttribute extends AppModel {
         // An attribute is required if the enrollment flow requires it OR if it is
         // type 'o' or 'r' and is required by the data model.
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
-        $attr['mvpa_required'] = false; // does not apply
 
-        // We check if the attribute is requested by the Model's validation rules
-        // If this is true then it does not matter if we choose required or not
-        // Also it does not matter if we want it empty or not
+        // Enrollment configuration has to prevail over default model validation
         if($attrCode == 'c' || $attrCode == 'o' || $attrCode == 'r') {
-          $attr['required'] = (bool)$attrModel->validate[$attrName]['content']['required'];
-          $attr['allow_empty'] = (bool)$attrModel->validate[$attrName]['content']['allowEmpty'];
+          $attrModel->validate[$attrName]['content']['required'] = (bool)$attr['required'];
+          $attr['allow_empty'] = !$attr['required'];
+          $attrModel->validate[$attrName]['content']['allowEmpty'] = (bool)$attr['allow_empty'];
         }
         
         // Label
@@ -810,7 +808,6 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['id'] = $efAttr['CoEnrollmentAttribute']['id'];
         $attr['attribute'] = $efAttr['CoEnrollmentAttribute']['attribute'];
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
-        $attr['mvpa_required'] = false; // does not apply
         $attr['group'] = $efAttr['CoEnrollmentAttribute']['label'];
         $attr['label'] = _txt('ct.co_groups.1');
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
