@@ -49,7 +49,6 @@ class Co extends AppModel {
     "CoProvisioningTarget" => array('dependent' => true),
     "CoService" => array('dependent' => true),
     "CoDashboard" => array('dependent' => true),
-    "CoDepartment" => array('dependent' => true),
     "CoEmailList" => array('dependent' => true),
     // A CO has zero or more enrollment flows
     "CoEnrollmentFlow" => array('dependent' => true),
@@ -60,7 +59,6 @@ class Co extends AppModel {
     // A CO has zero or more groups
     "CoIdentifierAssignment" => array('dependent' => true),
     "CoIdentifierValidator" => array('dependent' => true),
-    "CoJob" => array('dependent' => true),
     "CoLocalization" => array('dependent' => true),
     "CoMessageTemplate" => array('dependent' => true),
     "CoNavigationLink" => array('dependent' => true),
@@ -80,11 +78,16 @@ class Co extends AppModel {
     "OrgIdentity" => array('dependent' => true),
     "OrgIdentitySource" => array('dependent' => true),
     "CoPipeline" => array('dependent' => true),
-    "CoGroup" => array('dependent' => true),
     // A CO has zero or more COUs
+    // XXX A COU has dependent Groups. Delete the COUs before the Groups
+    // XXX A COU has dependent Departments. Delete the COUs before the Departments
     "Cou" => array('dependent' => true),
+    "CoDepartment" => array('dependent' => true),
+    "CoGroup" => array('dependent' => true),
     "Server" => array('dependent' => true),
-    "VettingStep" => array('dependent' => true)
+    "VettingStep" => array('dependent' => true),
+    "Lock" => array('dependent' => true),
+    "CoJob" => array('dependent' => true),
   );
   
   public $hasOne = array(
@@ -238,11 +241,36 @@ class Co extends AppModel {
                   "DataFilter",
                   "OrgIdentitySource") as $m) {
       // If set, we use duplicatableModels as a sort of inverse logic for cleanup
-      
+
+      // Reset the Changelog Behavior foreign keys
       if($this->$m->Behaviors->enabled('Changelog')) {
         $this->$m->reloadBehavior('Changelog', array('expunge' => true));
       }
-      
+
+      // Load all the Configured plugins and disable the Changelog Behavior config if any
+      // XXX For the case of CoDashboardWidget plugins we will call the beforeDelete callback in the Model itself
+      $modelPluginTypes = !empty($this->$m->hasManyPlugins)
+                          ? array_keys($this->$m->hasManyPlugins)
+                          : array();
+      foreach($modelPluginTypes as $pluginType) {
+        $plugins = $this->loadAvailablePlugins($pluginType);
+        foreach($plugins as $pluginName => $plugin) {
+          $relation = array('hasMany' => array($pluginName => array('dependent' => true)));
+          if(!empty($this->$m->hasManyPlugins)
+             && isset($this->$m->hasManyPlugins[$pluginType]['coreModelFormat'])) {
+            $corem = sprintf($this->$m->hasManyPlugins[$pluginType]['coreModelFormat'], $plugin->name);
+            $relation = array('hasMany' => array( "{$plugin->name}.{$corem}" => array('dependent' => true)));
+          }
+
+          // Set reset to false so the bindings don't disappear after the first find
+          $this->$m->bindModel($relation, false);
+
+          if($plugin->Behaviors->enabled('Changelog')) {
+            $plugin->reloadBehavior('Changelog', array('expunge' => true));
+          }
+        }
+      }
+
       $this->$m->deleteAll(
         array($m.'.co_id' => $id),
         true,
@@ -294,7 +322,14 @@ class Co extends AppModel {
     // Unload TreeBehavior from Cou, since it throws errors, and we don't need to
     // rebalance a tree that we're about to remove entirely.
     $this->Cou->Behaviors->unload('Tree');
-    
+    // Delete all parent_id foreign keys since they will generate errors. We do not
+    // need them anymore since we are about to delete everything.
+    $this->Cou->updateAll(array('Cou.parent_id' => null),
+                          array(
+                            "Cou.co_id={$id}",
+                            "Cou.parent_id IS NOT null"
+                          ));
+
     return parent::delete($id, $cascade);
   }
 

@@ -108,7 +108,7 @@ class CoGroup extends AppModel {
       'className' => 'CoEmailList',
       'foreignKey' => 'moderators_co_group_id'
     ),
-    "HistoryRecord",
+    "HistoryRecord" => array('dependent' => true),
     "Identifier" => array('dependent' => true),
     "VetterCoGroup" => array(
       'className' => 'VettingStep',
