@@ -751,6 +751,7 @@ class CoPeopleController extends StandardController {
   public function index() {
     $req = $this->modelClass;
     $model = $this->$req;
+    $requestKeys = array();
 
     if(!empty($this->request->query)) {
       $requestKeys = array_keys($this->request->query);
@@ -773,7 +774,7 @@ class CoPeopleController extends StandardController {
     } else {
       parent::index();
       // Set page title
-      $this->set('title_for_layout', _txt('fd.people', array($this->cur_co['Co']['name'])));
+      $this->set('title_for_layout', _txt('fd.people', array($this->cur_co['Co']['name'] ?? '')));
     }
   }
   
@@ -1055,7 +1056,8 @@ class CoPeopleController extends StandardController {
     
     // Determine which COUs a person can manage.
     
-    if($roles['cmadmin'] || $roles['coadmin'])
+    if( ($roles['cmadmin'] || $roles['coadmin'])
+         && !$this->request->is('restful'))
       $p['cous'] = $this->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
     elseif(!empty($roles['admincous']))
       $p['cous'] = $roles['admincous'];
@@ -1126,19 +1128,17 @@ class CoPeopleController extends StandardController {
       return;
     }
     // Validate the request data
-    // TODO: move to the format below as soon as we upgrade to php7.1 or greater
-    // list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
-    $criteria = $this->CoPerson->validateRequestData($reqData);
-    if ($criteria[1] > 0 && $this->request->is('restful')) {
+     list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
+    if ($invalidFields > 0 && $this->request->is('restful')) {
       $this->Api->restResultHeader(400, 'Invalid fields');
       return;
     }
-    if ($criteria[2] > 0 && $this->request->is('restful')) {
+    if ($unProcessedFields > 0 && $this->request->is('restful')) {
       $this->Api->restResultHeader(422, 'Unprocessable Entity');
       return;
     }
     // Get the matches
-    $matches = $this->CoPerson->match($coId, $criteria[0]);
+    $matches = $this->CoPerson->match($coId, $criteria);
 
     // Assign the matches
     if($this->request->is('restful')) {
