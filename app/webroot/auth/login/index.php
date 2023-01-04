@@ -51,7 +51,7 @@ $_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
 $re = '/(.*)\/auth\/login(.*)/m';
 $subst = '$1/users/login$2';
 $redirect_location = preg_replace($re, $subst, $_SERVER["REQUEST_URI"]);
-$redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . $redirect_location;
+$redirect_url = $_SERVER["REQUEST_SCHEME"] . '://' . $_SERVER["SERVER_NAME"] . ':' . $_SERVER["SERVER_PORT"] . $redirect_location;
 
 ?>
 <!DOCTYPE html>
