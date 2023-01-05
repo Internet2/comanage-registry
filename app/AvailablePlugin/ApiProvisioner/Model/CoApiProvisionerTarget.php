@@ -220,18 +220,21 @@ class CoApiProvisionerTarget extends CoProvisionerPluginTarget {
    * @param  array            $coApiProvisionerTarget CoApiProvisioningTarget
    * @param  Integer          $coPersonId             CoPerson ID
    * @param  Array            $identifiers            Array of person's identifiers
-   * @return boolean          true
+   * @return boolean
    * @throws RuntimeException
    */
   
   protected function deletePerson($coApiProvisionerTarget,
                                   $coPersonId,
                                   $identifiers) {
+    if(empty($identifiers)) {
+      return false;
+    }
+
     // Find the identifier of the requested identifier type
     // Note similar logic in deletePerson
     
     $identifierType = $coApiProvisionerTarget['identifier_type'];
-    $identifier = null;
     
     $ids = Hash::extract($identifiers, '{n}[type='.$identifierType.']');
 
