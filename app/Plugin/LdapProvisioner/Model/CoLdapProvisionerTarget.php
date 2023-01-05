@@ -1620,6 +1620,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $rename   = false;
     $person   = false;
     $group    = false;
+    $errorlevel = error_reporting();
     
     if(!empty($provisioningData['CoGroup']['id'])) {
       $group = true;
@@ -1835,11 +1836,15 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       if($dns['olddn'] && ($rename || !$dns['newdn'])) {
         // Use the old DN if we're renaming or if there is no new DN
         // (which should be the case for a delete operation).
-        @ldap_delete($cxn, $dns['olddn']);
+        error_reporting(0);
+        ldap_delete($cxn, $dns['olddn']);
+        error_reporting($errorlevel);
       } elseif($dns['newdn']) {
         // It's actually not clear when we'd get here -- perhaps cleaning up
         // a record that exists in LDAP even though it's new to Registry?
-        @ldap_delete($cxn, $dns['newdn']);
+        error_reporting(0);
+        ldap_delete($cxn, $dns['newdn']);
+        error_reporting($errorlevel);
       }
       
       if($deletedn) {
