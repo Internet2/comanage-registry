@@ -47,8 +47,6 @@
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $args['sort'] = 'created';
-    $args['search.status'][] = PetitionStatusEnum::PendingApproval;
-    $args['search.status'][] = PetitionStatusEnum::PendingConfirmation;
 
     $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
     $this->Html->addCrumb(_txt('op.' . $this->action . '-a', array(_txt('ct.petitions.1'))));
