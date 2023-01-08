@@ -341,7 +341,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
         'ds'    => 'targetdb'
       ));
       
-      if($m['parent'] == 'CoPersonRole') {
+      if($m['parent'] == 'CoPersonRole' && isset($provisioningData['CoPersonRole'])) {
         foreach($provisioningData['CoPersonRole'] as $pr) {
           if(!empty($pr[ $m['source'] ])) {
             foreach($pr[ $m['source'] ] as $r) {
@@ -552,6 +552,9 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    */
   
   protected function syncGroup($provisioningData, $dataSource='targetdb') {
+    if(empty($provisioningData['CoGroup']))
+      return;
+
     $SpCoGroup = new Model(array(
       'table'  => $this->parentModels['CoGroup']['table'],
       'name'   => $this->parentModels['CoGroup']['name'],
@@ -688,7 +691,9 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
           
           if($sourceOrgIdentityId) {
             $oisRecord = Hash::extract($orgIdentities, '{n}.OrgIdentitySourceRecord[org_identity_id='.$sourceOrgIdentityId.']');
-            
+            if(empty($oisRecord)) {
+              continue;
+            }
             // We finally have the OIS ID, inject it into the data to save
             $data[ $m['name'] ]['org_identity_source_id'] = $oisRecord[0]['org_identity_source_id'];
           }
