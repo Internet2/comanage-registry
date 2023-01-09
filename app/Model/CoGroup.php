@@ -791,7 +791,6 @@ class CoGroup extends AppModel {
       // Determine the set of people currently in the target group
       $args = array();
       $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
-      $args['conditions']['CoGroupMember.co_group_id'] = $group['CoGroup']['id'];
       $args['fields'] = array('CoGroupMember.co_person_id', 'CoGroupMember.id' );
       $args['contain'] = false;
       

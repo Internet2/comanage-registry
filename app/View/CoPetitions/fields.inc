@@ -47,8 +47,6 @@
     $args['action'] = 'index';
     $args['co'] = $cur_co['Co']['id'];
     $args['sort'] = 'created';
-    $args['search.status'][] = PetitionStatusEnum::PendingApproval;
-    $args['search.status'][] = PetitionStatusEnum::PendingConfirmation;
 
     $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
     $this->Html->addCrumb(_txt('op.' . $this->action . '-a', array(_txt('ct.petitions.1'))));
@@ -402,20 +400,23 @@
         <?php if($this->action == 'view'): ?>
           <!-- Enroller plugin -->
           <?php
+          // CO-2541, CO-2571
           if(!empty($co_petitions[0]["CoEnrollmentFlow"]["CoEnrollmentFlowWedge"])) {
             // Sort by the order field
             $wedges = Hash::sort($co_petitions[0]["CoEnrollmentFlow"]["CoEnrollmentFlowWedge"], '{n}.ordr', 'asc');
             foreach ($wedges as $wedge) {
-              $file_path = APP
-                . "Plugin/"
-                . $wedge["plugin"]
-                . "/View/Elements"
-                . "/petitionAttributes.ctp";
+              foreach (['LOCAL', 'APP'] as $plugin_path) {
+                $file_path = constant($plugin_path)
+                  . "Plugin/"
+                  . $wedge["plugin"]
+                  . "/View/Elements"
+                  . "/petitionAttributes.ctp";
 
-              if(file_exists($file_path)) {
-                print $this->element($wedge["plugin"] . '.petitionAttributes',
-                                     array('vv_wedge' => $wedge,
-                                           'vv_petition' => $co_petitions[0]['CoPetition']));
+                if(file_exists($file_path)) {
+                  print $this->element($wedge["plugin"] . '.petitionAttributes',
+                                       array('vv_wedge' => $wedge,
+                                             'vv_petition' => $co_petitions[0]['CoPetition']));
+                }
               }
             }
           }

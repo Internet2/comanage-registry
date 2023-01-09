@@ -69,6 +69,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'group_create_admin_only' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'group_validity_sync_window' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -194,6 +199,7 @@ class CoSetting extends AppModel {
   protected $defaultSettings = array(
     'disable_expiration'         => false,
     'disable_ois_sync'           => false,
+    'group_create_admin_only'    => false,
     'enable_normalization'       => true,
     'enable_nsf_demo'            => false,
     'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
@@ -241,7 +247,21 @@ class CoSetting extends AppModel {
     
     return $this->id;
   }
-  
+
+  /**
+   * Determine if Non-Admin Users can create Groups for the specified CO.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+
+  public function allowGroupCreationByNonAdmins($coId) {
+    // Note we flip the value. The data model specifies "disabled" so that
+    // the default (ie: no value present in the table) is enabled.
+    return !$this->lookupValue($coId, 'group_create_admin_only');
+  }
+
   /**
    * Determine if Empty COUs are enabled for the specified CO.
    *
@@ -474,7 +494,7 @@ class CoSetting extends AppModel {
   public function getTAndCLoginMode($coId) {
     return $this->lookupValue($coId, 't_and_c_login_mode');
   }
-  
+
   /**
    * Obtain a single CO setting.
    *

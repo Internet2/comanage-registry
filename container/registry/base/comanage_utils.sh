@@ -373,6 +373,8 @@ function comanage_utils::exec_cron() {
 
     comanage_utils::configure_console_logging
 
+    comanage_utils::process_slash_root
+
     comanage_utils::prepare_local_directory
 
     if [[ -z ${COMANAGE_REGISTRY_NO_DATABASE_CONFIG} ]]; then
@@ -1341,6 +1343,8 @@ function comanage_utils::virtual_host_http_opening() {
 <VirtualHost *:${COMANAGE_REGISTRY_HTTP_LISTEN_PORT:-80}>
 ServerName ${COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME:-http}://${COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN}:${COMANAGE_REGISTRY_VIRTUAL_HOST_PORT:-80}
 UseCanonicalName On
+UseCanonicalPhysicalPort On
+
 EOF
 }
 
@@ -1365,6 +1369,7 @@ function comanage_utils::virtual_host_https_opening() {
 <VirtualHost *:${COMANAGE_REGISTRY_HTTPS_LISTEN_PORT:-443}>
 ServerName ${COMANAGE_REGISTRY_VIRTUAL_HOST_SCHEME:-https}://${COMANAGE_REGISTRY_VIRTUAL_HOST_FQDN}:${COMANAGE_REGISTRY_VIRTUAL_HOST_PORT:-443}
 UseCanonicalName On
+UseCanonicalPhysicalPort On
 
 Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains"
 

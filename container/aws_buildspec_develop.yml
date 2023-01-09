@@ -15,6 +15,7 @@ phases:
       - echo Build started on `date`
       - SHORT_COMMIT_HASH="${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
       - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=develop-$SHORT_COMMIT_HASH --suffix=$CODEBUILD_BUILD_NUMBER registry all
+      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=develop-$SHORT_COMMIT_HASH --suffix=$CODEBUILD_BUILD_NUMBER crond
   post_build:
     commands:
       - echo Build completed on `date`
@@ -22,3 +23,4 @@ phases:
       - docker push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$CODEBUILD_BUILD_NUMBER
       - docker push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
       - docker push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$CODEBUILD_BUILD_NUMBER

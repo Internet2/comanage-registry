@@ -104,6 +104,11 @@ class OrganizationsController extends StandardController {
     
     // Add a new Organization?
     $p['add'] = ($roles['cmadmin'] || $roles['coadmin']);
+
+    // Assign (autogenerate) Identifiers?
+    // Note that CoIdentifierAssignments Controller allows couadmin even though
+    // we don't. Probably need to rationalize this.
+    $p['assign'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // Delete an existing Organization?
     $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -116,7 +121,12 @@ class OrganizationsController extends StandardController {
     
     // View an existing Organization?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
+
+    // View identifiers? This correlates with IdentifiersController
+    $p['identifiers'] = ($roles['cmadmin']
+                         || $roles['coadmin']
+                         || $roles['couadmin']);
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }

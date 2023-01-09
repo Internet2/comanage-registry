@@ -362,13 +362,9 @@ class CoGroupsController extends StandardController {
       
       try {
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
-        
-        if(!empty($groups)) {
-          $this->set('co_groups', $this->Api->convertRestResponse($groups));
-        } else {
-          $this->Api->restResultHeader(204, "CO Person Has No Groups");
-          return;
-        }
+        $this->set('co_groups', $this->Api->convertRestResponse(
+          empty($groups) ? [] : $groups
+        ));
       }
       catch(InvalidArgumentException $e) {
         $this->Api->restResultHeader(404, "CO Person Unknown");
@@ -438,8 +434,15 @@ class CoGroupsController extends StandardController {
     // Determine what operations this user can perform
     
     // Add a new Group?
-    $p['add'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
-    
+    $p['add'] = $roles['cmadmin']
+                || $roles['coadmin']
+                || $roles['couadmin']
+                || ($this->CoGroup->Co->CoSetting->allowGroupCreationByNonAdmins($this->cur_co['Co']['id'])
+                    && $roles['comember']); // XXX CO-1637
+
+    // Manage the Group memberships
+    $p['groupmanage'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
     

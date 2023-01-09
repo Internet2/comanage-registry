@@ -54,8 +54,6 @@
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
   $args['sort'] = 'created';
-  $args['Search.status'][] = StatusEnum::PendingApproval;
-  $args['Search.status'][] = StatusEnum::PendingConfirmation;
   $this->Html->addCrumb(_txt('ct.petitions.pl'), $args);
 
   $args = array(
