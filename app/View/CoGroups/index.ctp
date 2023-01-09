@@ -61,20 +61,22 @@
         ),
         array('class' => 'addbutton')
       );
+    }
 
-      if($permissions['reconcile']) {
-        $url = array();
-        $url['controller'] = 'co_groups';
-        $url['action'] = 'reconcile';
-        $url['ext'] = 'json';
-        $url['?'] = array('coid' => $cur_co['Co']['id']);
-        $jsLink = $this->Html->url($url);
-        $options = array();
-        $options['class'] = 'reconcilebutton';
-        $options['onclick'] = "javascript:js_confirm_reconcile('$jsLink');";
-        $params['topLinks'][] = $this->Html->tag('a',_txt('op.gr.reconcile.all'), $options);
-      }
+    if($permissions['reconcile']) {
+      $url = array();
+      $url['controller'] = 'co_groups';
+      $url['action'] = 'reconcile';
+      $url['ext'] = 'json';
+      $url['?'] = array('coid' => $cur_co['Co']['id']);
+      $jsLink = $this->Html->url($url);
+      $options = array();
+      $options['class'] = 'reconcilebutton';
+      $options['onclick'] = "javascript:js_confirm_reconcile('$jsLink');";
+      $params['topLinks'][] = $this->Html->tag('a',_txt('op.gr.reconcile.all'), $options);
+    }
 
+    if($permissions['groupmanage']) {
       $params['topLinks'][] = $this->Html->link(
         _txt('op.grm.manage'),
         array(

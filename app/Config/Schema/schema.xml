@@ -3087,6 +3087,7 @@
     <field name="enable_nsf_demo" type="L" />
     <field name="disable_expiration" type="L" />
     <field name="disable_ois_sync" type="L" />
+    <field name="group_create_admin_only" type="L" />
     <field name="group_validity_sync_window" type="I" />
     <field name="garbage_collection_interval" type="I" />
     <field name="enable_normalization" type="L" />
