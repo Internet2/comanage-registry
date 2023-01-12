@@ -690,6 +690,6 @@ function main() {
 }
 
 # Globals
-SHIBBOLETH_SP_VERSION=3.3.0
+SHIBBOLETH_SP_VERSION=3.4.1
 
 main "$@"
