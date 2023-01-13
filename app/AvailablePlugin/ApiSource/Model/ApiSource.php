@@ -30,7 +30,10 @@ class ApiSource extends AppModel {
   public $cmPluginType = array("orgidsource", "job");
   
   // Document foreign keys
-  public $cmPluginHasMany = array();
+  public $cmPluginHasMany = array(
+    "ApiUser" => array("ApiSource"),
+    "KafkaServer" => array("ApiSource")
+  );
   
   // Request Kafka servers
   // XXX How will this work when we support other server types? Probably need to
@@ -49,7 +52,7 @@ class ApiSource extends AppModel {
   );
   
   public $hasMany = array(
-    "ApiSourceRecord"
+    "ApiSourceRecord" => array('dependent' => true)
   );
   
   // Default display field for cake generated views

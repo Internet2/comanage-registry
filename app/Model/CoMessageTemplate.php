@@ -40,7 +40,7 @@ class CoMessageTemplate extends AppModel {
   );
   
   public $hasMany = array(
-    "Authenticator",
+    "Authenticator" => array('dependent' => true),
     // "Expiration" makes the label too long
     "CoExpActNotifyMessageTemplate" => array(
       'className' => 'CoExpirationPolicy',

@@ -118,7 +118,8 @@ class CoPerson extends AppModel {
     "CoPersonRole" => array('dependent' => true),
     "HistoryRecordActor" => array(
       'className' => 'HistoryRecord',
-      'foreignKey' => 'actor_co_person_id'
+      'foreignKey' => 'actor_co_person_id',
+      'dependent' => true
     ),
     // A person can have many identifiers within a CO
     "Identifier" => array('dependent' => true),

@@ -37,7 +37,7 @@ class RecoveryWidget extends AppModel {
 
   // Document foreign keys
   public $cmPluginHasMany = array(
-    "Authenticator" => "CoRecoveryWidget"
+    "Authenticator" => array("CoRecoveryWidget")
   );
 
   // Association rules from this model to other models
