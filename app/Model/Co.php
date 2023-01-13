@@ -197,6 +197,29 @@ class Co extends AppModel {
 
     return ($curStatus == TemplateableStatusEnum::InTrash);
   }
+
+
+  /**
+   * Unload Changelog Behavior retrospectively
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Object         $plugin
+   */
+
+  public function unloadChangelogBehavior($plugin, $pluginClassName) {
+    if($plugin->Behaviors->enabled('Changelog')) {
+      $plugin->reloadBehavior('Changelog', array('expunge' => true));
+    }
+
+    // Get the prefix by the full Class Name
+    list($pluginName, $pluginParentModel) = explode('.', $pluginClassName);
+
+    foreach($plugin->hasMany as $pluginModelName => $options) {
+      $pluginModel = ClassRegistry::init($pluginName . '.' . $pluginModelName);
+      $this->unloadChangelogBehavior($pluginModel, $pluginClassName);
+    }
+
+  }
   
   /**
    * Delete a CO.
@@ -235,8 +258,8 @@ class Co extends AppModel {
     // data structures they might point to
     
     // Make sure to update this list in duplicate() as well
-    foreach(array("Authenticator",
-                  "CoDashboard", // triggers CoDashboardWidget
+    foreach(array("CoDashboard", // triggers CoDashboardWidget
+                  "Authenticator",
                   "CoProvisioningTarget",
                   "DataFilter",
                   "OrgIdentitySource") as $m) {
@@ -247,6 +270,15 @@ class Co extends AppModel {
         $this->$m->reloadBehavior('Changelog', array('expunge' => true));
       }
 
+      // Reset all the Changelog Behaviors from hasMany Relations
+      foreach($this->$m->hasMany as $modelName => $options) {
+        $modelRelation = ClassRegistry::init($modelName);
+
+        if($modelRelation->Behaviors->enabled('Changelog')) {
+          $modelRelation->reloadBehavior('Changelog', array('expunge' => true));
+        }
+      }
+
       // Load all the Configured plugins and disable the Changelog Behavior config if any
       // XXX For the case of CoDashboardWidget plugins we will call the beforeDelete callback in the Model itself
       $modelPluginTypes = !empty($this->$m->hasManyPlugins)
@@ -255,19 +287,19 @@ class Co extends AppModel {
       foreach($modelPluginTypes as $pluginType) {
         $plugins = $this->loadAvailablePlugins($pluginType);
         foreach($plugins as $pluginName => $plugin) {
-          $relation = array('hasMany' => array($pluginName => array('dependent' => true)));
+          $pluginClassName = $pluginName;
           if(!empty($this->$m->hasManyPlugins)
              && isset($this->$m->hasManyPlugins[$pluginType]['coreModelFormat'])) {
             $corem = sprintf($this->$m->hasManyPlugins[$pluginType]['coreModelFormat'], $plugin->name);
-            $relation = array('hasMany' => array( "{$plugin->name}.{$corem}" => array('dependent' => true)));
+            $pluginClassName = "{$plugin->name}.{$corem}";
           }
+
+          $relation = array('hasMany' => array( $pluginClassName => array('dependent' => true)));
 
           // Set reset to false so the bindings don't disappear after the first find
           $this->$m->bindModel($relation, false);
-
-          if($plugin->Behaviors->enabled('Changelog')) {
-            $plugin->reloadBehavior('Changelog', array('expunge' => true));
-          }
+          // Unload the Changelog Behavior for all the descendants
+          $this->unloadChangelogBehavior($plugin, $pluginClassName);
         }
       }
 

@@ -180,9 +180,9 @@ class CoDashboardWidget extends AppModel {
       }
     }
 
-    return true;
+    parent::beforeDelete($cascade);
   }
-  
+
   /**
    * Obtain the CO ID for a record, overriding AppModel behavior.
    *
