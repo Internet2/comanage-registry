@@ -34,7 +34,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'People',
     'action'     => 'index',
     '[method]'   => 'GET',
   )
@@ -46,7 +46,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'People',
     'action'     => 'delete',
     '[method]'   => 'DELETE',
   )
@@ -58,7 +58,7 @@ Router::connect(
     '/api/co/:coid/core/v1/people',
     array(
       'plugin'     => 'core_api',
-      'controller' => 'Api',
+      'controller' => 'People',
       'action'     => 'update',
       '[method]'   => 'PUT',
     )
@@ -69,7 +69,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'People',
     'action'     => 'read',
     '[method]'   => 'GET'
   )
@@ -79,7 +79,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'People',
     'action'     => 'update',
     '[method]'   => 'PUT'
   )
@@ -89,7 +89,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'People',
     'action'     => 'delete',
     '[method]'   => 'DELETE'
   )
@@ -99,7 +99,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'People',
     'action'     => 'create',
     '[method]'   => 'POST'
   )
