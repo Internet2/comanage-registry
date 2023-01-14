@@ -154,29 +154,7 @@ class PeopleController extends ApiController {
       // We need all the relational data for the full mode
       if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
         // While we're here pull the data we need
-        $this->Paginator->settings['contain'] = array(
-          'CoPersonRole' => array(
-            'Address',
-            'AdHocAttribute',
-            'TelephoneNumber'
-          ),
-          'CoGroupMember',
-          'CoOrgIdentityLink' => array(
-            'OrgIdentity' => array(
-              'Address',
-              'AdHocAttribute',
-              'EmailAddress',
-              'Identifier',
-              'Name',
-              'TelephoneNumber',
-              'Url'
-            ),
-          ),
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'Url'
-        );
+        $this->Paginator->settings['contain'] = $this->Person->index_contains;
       } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
         $this->Paginator->settings['contain'] = array(
           'Identifier' => array(

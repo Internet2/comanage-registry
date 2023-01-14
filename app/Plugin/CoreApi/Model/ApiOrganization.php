@@ -31,6 +31,24 @@ class ApiOrganization extends CoreApi {
   // Define class name for cake
   public $name = "ApiOrganization";
 
+  public $index_contains = array(
+    "Address",
+    "AdHocAttribute",
+    "EmailAddress",
+    "Identifier",
+    "TelephoneNumber",
+    "Url"
+  );
+
+  public $view_contains = array(
+    "Address",
+    "AdHocAttribute",
+    "EmailAddress",
+    "Identifier",
+    "TelephoneNumber",
+    "Url"
+  );
+
   /**
    * Perform a CO Person Read API v1 request.
    *
@@ -75,14 +93,7 @@ class ApiOrganization extends CoreApi {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'Identifier.organization_id=Organization.id';
     // While we're here pull the data we need
-    $args['contain'] = array(
-      "Address",
-      "AdHocAttribute",
-      "EmailAddress",
-      "Identifier",
-      "TelephoneNumber",
-      "Url"
-    );
+    $args['contain'] = $this->view_contains;
 
     // find('first') won't result in two records, though if identifier is not
     // unique it's non-deterministic as to which record we'll retrieve.

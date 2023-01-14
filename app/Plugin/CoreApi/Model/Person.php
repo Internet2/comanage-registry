@@ -31,6 +31,54 @@ class Person extends CoreApi {
   // Define class name for cake
   public $name = "Person";
 
+  public $index_contains = array(
+    'CoPersonRole' => array(
+      'Address',
+      'AdHocAttribute',
+      'TelephoneNumber'
+    ),
+    'CoGroupMember',
+    'CoOrgIdentityLink' => array(
+      'OrgIdentity' => array(
+        'Address',
+        'AdHocAttribute',
+        'EmailAddress',
+        'Identifier',
+        'Name',
+        'TelephoneNumber',
+        'Url'
+      ),
+    ),
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'Url'
+  );
+
+  public $view_contains = array(
+    'CoPersonRole' => array(
+      'Address',
+      'AdHocAttribute',
+      'TelephoneNumber'
+    ),
+    'CoGroupMember',
+    'CoOrgIdentityLink' => array(
+      'OrgIdentity' => array(
+        'Address',
+        'AdHocAttribute',
+        'EmailAddress',
+        'Identifier',
+        'Name',
+        'TelephoneNumber',
+        'Url'
+      ),
+    ),
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    'Url'
+  );
+
   /**
    * Perform a CO Person Read API v1 request.
    *
@@ -77,29 +125,7 @@ class Person extends CoreApi {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
     // While we're here pull the data we need
-    $args['contain'] = array(
-      'CoPersonRole' => array(
-        'Address',
-        'AdHocAttribute',
-        'TelephoneNumber'
-      ),
-      'CoGroupMember',
-      'CoOrgIdentityLink' => array(
-        'OrgIdentity' => array(
-          'Address',
-          'AdHocAttribute',
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'TelephoneNumber',
-          'Url'
-        ),
-      ),
-      'EmailAddress',
-      'Identifier',
-      'Name',
-      'Url'
-    );
+    $args['contain'] = $this->view_contains;
 
     // find('first') won't result in two records, though if identifier is not
     // unique it's non-deterministic as to which record we'll retrieve.

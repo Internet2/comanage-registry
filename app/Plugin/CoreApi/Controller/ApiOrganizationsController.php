@@ -69,14 +69,7 @@ class ApiOrganizationsController extends ApiController {
       // We need all the relational data for the full mode
       if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
         // While we're here pull the data we need
-        $this->Paginator->settings['contain'] = array(
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'Url',
-          'Addresses',
-          'AdHocAttributes'
-        );
+        $this->Paginator->settings['contain'] = $this->ApiOrganization->index_contains;
       } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
         $this->Paginator->settings['contain'] = array(
           'Identifier' => array(
