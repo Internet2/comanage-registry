@@ -25,13 +25,17 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-// This is based heavily on ApiSource::ApiController... maybe merge them,
-// possibly with the hypothetical API plugin type
-
 App::uses('ApiController', 'CoreApi.Controller');
 class PeopleController extends ApiController {
   // Class name, used by Cake
   public $name = "People";
+
+  public $uses = array(
+    "Co",
+    "CoJob",
+    "CoreApi.CoreApi",
+    "CoreApi.Person",
+  );
 
   /**
    * Handle a Core API CO Person record create

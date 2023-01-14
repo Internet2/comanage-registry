@@ -116,6 +116,50 @@ Router::connect(
   )
 );
 
+
+// Organizations
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Organizations',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/rganizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Organizations',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Organizations',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Organizations',
+    'action'     => 'create',
+    '[method]'   => 'POST'
+  )
+);
+
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem
 Router::parseExtensions('json', 'xml');
