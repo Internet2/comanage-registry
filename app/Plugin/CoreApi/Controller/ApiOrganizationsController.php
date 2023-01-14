@@ -26,10 +26,16 @@
  */
 
 App::uses('ApiController', 'CoreApi.Controller');
-class OrganizationsController extends ApiController
-{
+class ApiOrganizationsController extends ApiController {
   // Class name, used by Cake
-  public $name = "Organizations";
+  public $name = "ApiOrganizations";
+
+  public $uses = array(
+    "Co",
+    "CoJob",
+    "CoreApi.CoreApi",
+    "CoreApi.ApiOrganization",
+  );
 
   /**
    * Handle a Core API CO Organizations Read API request.
@@ -129,5 +135,4 @@ class OrganizationsController extends ApiController
       $this->Api->restResultHeader(500);
     }
   }
-
 }

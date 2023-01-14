@@ -232,4 +232,39 @@ class ApiController extends Controller {
     
     return true;
   }
+
+  /**
+   * Handle a Core API CO Read API request.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function read() {
+    // We basically just pull the current record and return it.
+    // We could inject some metadata (modified time, etc) but currently we don't.
+
+    try {
+      if(empty($this->request->params['identifier'])) {
+        // We shouldn't really get here since routes.php shouldn't allow it
+        throw new InvalidArgumentException(_txt('er.notprov'));
+      }
+
+
+      $apiModelName = Inflector::singularize($this->name);
+      $ret = $this->$apiModelName->readV1($this->cur_api['CoreApi']['co_id'],
+                                            $this->request->params['identifier'],
+                                            $this->cur_api['CoreApi']['identifier_type']);
+
+      $this->set('results', $ret);
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(500);
+    }
+  }
 }

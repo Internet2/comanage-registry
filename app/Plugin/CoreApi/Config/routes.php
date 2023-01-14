@@ -123,7 +123,7 @@ Router::connect(
   '/api/co/:coid/core/v1/organizations',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Organizations',
+    'controller' => 'ApiOrganizations',
     'action'     => 'index',
     '[method]'   => 'GET',
   )
@@ -133,7 +133,7 @@ Router::connect(
   '/api/co/:coid/core/v1/rganizations',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Organizations',
+    'controller' => 'ApiOrganizations',
     'action'     => 'delete',
     '[method]'   => 'DELETE',
   )
@@ -144,7 +144,7 @@ Router::connect(
   '/api/co/:coid/core/v1/organizations',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Organizations',
+    'controller' => 'ApiOrganizations',
     'action'     => 'update',
     '[method]'   => 'PUT',
   )
@@ -154,9 +154,39 @@ Router::connect(
   '/api/co/:coid/core/v1/organizations',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Organizations',
+    'controller' => 'ApiOrganizations',
     'action'     => 'create',
     '[method]'   => 'POST'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'ApiOrganizations',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'ApiOrganizations',
+    'action'     => 'update',
+    '[method]'   => 'PUT'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'ApiOrganizations',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE'
   )
 );
 
