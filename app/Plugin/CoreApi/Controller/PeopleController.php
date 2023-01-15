@@ -69,15 +69,18 @@ class PeopleController extends ApiController {
   }
 
   /**
-   * Handle a Core API CO People delete request
-   * /api/co/:coid/core/v1/people/:identifier
-   * The action has two possible outcomes. Either transition the user to status delete or expunge the user
-   * 1. Transition to status delete implies the transition of CoPerson Roles to status deleted
+   * Handle a Core API CO Record delete request
+   * /api/co/:coid/core/v1/<model>/:identifier e.g.
+   * /api/co/:coid/core/v1/organizations/:identifier
+   * /api/co/:coid/core/v1/departments/:identifier
    *
-   * @since  COmanage Registry v4.1.0
+   * @since  COmanage Registry v4.2.0
    */
 
   public function delete() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
+
     try {
       if(empty($this->request->params['identifier'])
         && empty($this->request->query["identifier"])) {

@@ -38,8 +38,8 @@ $cm_core_api_texts['en_US'] = array(
   
   // Enumeration language texts
   'pl.coreapi.en.api' => array(
-    CoreApiEnum::CoPersonRead     => 'COmanage CO Person Read API',
-    CoreApiEnum::CoPersonWrite    => 'COmanage CO Person Write API',
+    CoreApiEnum::Read             => 'COmanage Read API',
+    CoreApiEnum::Write            => 'COmanage Write API',
     CoreApiEnum::MatchCallback    => 'Match Callback API'
   ),
 
@@ -55,6 +55,7 @@ $cm_core_api_texts['en_US'] = array(
   'er.coreapi.id.invalid'      => 'Invalid record id %1$s',
   'er.coreapi.json'            => 'No JSON document found in request, or document did not successfully parse',
   'er.coreapi.json.invalid'    => 'JSON document missing required fields',
+  'er.coreapi.notfound'        => 'No record found for "%1$s"',
   'er.coreapi.sor.notfound'    => 'Organizational Identity Source for SOR Label "%1$s" not found',
   'er.coreapi.sorid.notfound'  => 'No record found for SORID "%1$s"',
   
@@ -68,5 +69,5 @@ $cm_core_api_texts['en_US'] = array(
   'pl.coreapi.response.type.desc'   => 'Define the response content granularity',
   'pl.coreapi.rs.edited-a4'         => '%1$s Edited via Core API: %2$s',
   'pl.coreapi.rs.linked'            => 'New Org Identity Linked via Core API',
-  'pl.coreapi.expunge.on.del'       => 'Expunge on Delete',
+  'pl.coreapi.expunge.on.del'       => 'Person Expunge on Delete',
 );

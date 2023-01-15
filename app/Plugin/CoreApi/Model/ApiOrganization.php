@@ -52,27 +52,6 @@ class ApiOrganization extends CoreApi {
   );
 
   /**
-   * Perform a CO Person Read API v1 request.
-   *
-   * @since  COmanage Registry v4.0.0
-   * @param  integer $coId           CO ID
-   * @param  string  $identifier     Identifier to search on
-   * @param  string  $identifierType Identifier type
-   * @return array                   Array of CO Person data
-   * @throws InvalidArgumentException
-   */
-
-  public function readV1($coId, $identifier, $identifierType) {
-    // First try to map the requested information to a CO Person record.
-    // This is similar to CoPerson::idsForIdentifier, but that has some old
-    // legacy code we want to avoid.
-
-    $org = $this->filterMetadataOutbound($this->pull($coId, $identifier, $identifierType), "Organization");
-
-    return $org;
-  }
-
-  /**
    * Pull a CO Person record, including associated models.
    *
    * @since  COmanage Registry v4.0.0

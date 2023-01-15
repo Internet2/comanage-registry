@@ -27,9 +27,9 @@
 
 class CoreApiEnum
 {
-  const CoPersonRead      = "CR";
+  const Read      = "CR";
   // Write implies Read
-  const CoPersonWrite     = "CW";
+  const Write     = "CW";
   const MatchCallback     = "MC";
 }
 

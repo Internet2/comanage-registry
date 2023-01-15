@@ -61,7 +61,7 @@
 
   function expunge_on_del_toggle() {
     let core_api = $('#CoreApiApi > option:selected').val();
-    let person_write = '<?php print CoreApiEnum::CoPersonWrite;?>';
+    let person_write = '<?php print CoreApiEnum::Write;?>';
     if (core_api != undefined
         && core_api == person_write) {
       $('.core-api-expunge-on-del').show();
@@ -79,8 +79,8 @@
     
     var api = document.getElementById('CoreApiApi').value;
 
-    if(api == "<?php print CoreApiEnum::CoPersonRead; ?>"
-       || api == "<?php print CoreApiEnum::CoPersonWrite; ?>") {
+    if(api == "<?php print CoreApiEnum::Read; ?>"
+       || api == "<?php print CoreApiEnum::Write; ?>") {
       $("#CoreApiIdentifierType").closest("li").show('fade');
     } else {
       $("#CoreApiIdentifierType").closest("li").hide('fade');
@@ -90,7 +90,7 @@
   // Response config is only for CO Person API. For other APIs we will need to hide this configuration
   function response_config_field() {
     let core_apis = <?php
-      print json_encode(array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite));
+      print json_encode(array(CoreApiEnum::Read, CoreApiEnum::Write));
       ?>;
     let core_api = $('#CoreApiApi > option:selected').val();
     if (core_api != undefined

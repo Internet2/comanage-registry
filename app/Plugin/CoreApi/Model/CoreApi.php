@@ -125,8 +125,8 @@ class CoreApi extends AppModel {
     ),
     'api' => array(
       'content' => array(
-        'rule' => array('inList', array(CoreApiEnum::CoPersonRead,
-                                        CoreApiEnum::CoPersonWrite,
+        'rule' => array('inList', array(CoreApiEnum::Read,
+                                        CoreApiEnum::Write,
                                         CoreApiEnum::MatchCallback)),
         'required' => true,
         'allowEmpty' => false
@@ -159,7 +159,7 @@ class CoreApi extends AppModel {
       return false;
     }
 
-    $person_core_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    $person_core_api_keys = array(CoreApiEnum::Read, CoreApiEnum::Write);
     if(!in_array($this->data['CoreApi']["api"], $person_core_api_keys)) {
       $this->validate["index_response_type"]["content"]["required"] = false;
       $this->validate["index_response_type"]["content"]["allowEmpty"] = true;
@@ -391,80 +391,6 @@ class CoreApi extends AppModel {
   }
 
   /**
-   * Transition CO Person to status delete. This implies that all CO Person Roles
-   * will be transitioned to status deleted as well
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param  integer $coId           CO ID
-   * @param  string  $identifier     Identifier to query
-   * @param  string  $identifierType Identifier type
-   * @return void
-   */
-  public function deleteV1($coId, $identifier, $identifierType) {
-    // Start a transaction
-    $dbc = $this->getDataSource();
-    $dbc->begin();
-
-    try {
-      // Start by trying to retrieve the current record. This will throw an error
-      // if not found
-
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
-
-      if(empty($current['CoPerson']['id'])) {
-        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
-      }
-
-      // If the CO Person has no Role
-      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
-         && empty($current["CoPersonRole"])) {
-        // Clear here and below in case we're run in a loop
-        $person_data = array(
-          'id'      => $current['CoPerson']['id'],
-          'co_id'   => $coId,   // Required field
-          'status'  => StatusEnum::Deleted
-        );
-        $this->Co->CoPerson->clear();
-        if(!$this->Co->CoPerson->save($person_data, array('provision' => false))) {
-          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
-        }
-      }
-
-      // If the CO Person has at least one Role
-      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
-         && !empty($current["CoPersonRole"])) {
-        $values = array();
-        foreach($current["CoPersonRole"] as $role) {
-          // Unless we do not provide the required fields the model validation will fail
-          $values[] = array(
-            'id'           => $role['id'],
-            'co_person_id' => $role['co_person_id'],   // Required field
-            'affiliation'  => $role['affiliation'],    // Required field
-            'status'       => StatusEnum::Deleted
-          );
-        }
-
-        $this->Co->CoPerson->CoPersonRole->clear();
-        // Disable Model validation. We do not provide co_person_id and affiliation which are required
-        if(!$this->Co->CoPerson->CoPersonRole->saveMany($values, array('provision' => false))) {
-          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
-        }
-      }
-
-      // Commit all changes to the databases
-      $dbc->commit();
-
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
-    }
-    catch(Exception $e) {
-      $dbc->rollback();
-      $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
-      throw new RuntimeException($e->getMessage(), $ecode);
-    }
-  }
-
-  /**
    * Delete associated models that were not provided in the update request.
    *
    * @since  COmanage Registry v4.0.0
@@ -542,33 +468,39 @@ class CoreApi extends AppModel {
   }
 
   /**
-   * This is a wrapper around CoPerson->expunge. Regardless of its status the CoPerson
-   * will be expunged
+   * Delete record
    *
    * @since  COmanage Registry v4.1.0
-   * @param  integer $coId               CO ID
-   * @param  string  $identifier         Identifier to query
-   * @param  string  $identifierType     Identifier type
-   * @param  integer $actorApiUserId Identifier of CO Person performing expunge
-   * @return boolean True on success
-   * @throws InvalidArgumentException
+   * @param  integer $coId           CO ID
+   * @param  string  $identifier     Identifier to query
+   * @param  string  $identifierType Identifier type
+   * @return void
    */
-  public function expungeV1($coId, $identifier, $identifierType, $actorApiUserId) {
+  public function deleteV1($coId, $identifier, $identifierType) {
+    $modelMapperName = $this->mapper;
+    // Start a transaction
+    $dbc = $this->Co->$modelMapperName->getDataSource();
+    $dbc->begin();
+
     try {
       // Start by trying to retrieve the current record. This will throw an error
       // if not found
+      $current = $this->pull($coId, $identifier, $identifierType);
 
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
-
-      if(empty($current['CoPerson']['id'])) {
-        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      if(empty($current[$modelMapperName]['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.notfound', array($modelMapperName)));
       }
 
-      return $this->Co->CoPerson->expunge($current['CoPerson']['id'],
-                                          null,
-                                          $actorApiUserId);
+      // Delete the record
+      $ret = $this->Co->$modelMapperName->delete($current[$modelMapperName]['id'], true);
+
+      // Commit all changes to the databases
+      $dbc->commit();
+
+      return $ret;
     }
     catch(Exception $e) {
+      $dbc->rollback();
       $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
       throw new RuntimeException($e->getMessage(), $ecode);
     }
@@ -846,6 +778,27 @@ class CoreApi extends AppModel {
     }
     
     return $ret;
+  }
+
+  /**
+   * Perform a Read API v1 request.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId           CO ID
+   * @param  string  $identifier     Identifier to search on
+   * @param  string  $identifierType Identifier type
+   * @return array                   Array of data
+   * @throws InvalidArgumentException
+   */
+
+  public function readV1($coId, $identifier, $identifierType) {
+    // First try to map the requested information to a CO Person record.
+    // This is similar to CoPerson::idsForIdentifier, but that has some old
+    // legacy code we want to avoid.
+
+    $cop = $this->filterMetadataOutbound($this->pull($coId, $identifier, $identifierType), $this->mapper);
+
+    return $cop;
   }
 
   /**

@@ -177,15 +177,15 @@ class ApiController extends Controller {
             case 'read':    // Read single record
             case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
-                CoreApiEnum::CoPersonRead,
+                CoreApiEnum::Read,
                 // ApiUsers with Write permission can also read
-                CoreApiEnum::CoPersonWrite
+                CoreApiEnum::Write
               );
               break;
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = CoreApiEnum::CoPersonWrite;
+              $args['conditions']['CoreApi.api'] = CoreApiEnum::Write;
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;
@@ -219,6 +219,57 @@ class ApiController extends Controller {
       $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
       // Parse query parameters
       $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
+    }
+  }
+
+  /**
+   * Handle a Core API CO Record delete request
+   * /api/co/:coid/core/v1/<model>/:identifier e.g.
+   * /api/co/:coid/core/v1/organizations/:identifier
+   * /api/co/:coid/core/v1/departments/:identifier
+   *
+   * @since  COmanage Registry v4.2.0
+   */
+
+  public function delete() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
+
+    try {
+      if(empty($this->request->params['identifier'])
+         && empty($this->request->query["identifier"])) {
+        // We shouldn't really get here since routes.php shouldn't allow it
+        throw new InvalidArgumentException(_txt('er.notprov'));
+      }
+
+      $req_identifier = !empty($this->request->params["identifier"])
+                        ? $this->request->params["identifier"]
+                        : (!empty($this->request->query["identifier"])
+                           ? $this->request->query["identifier"]
+                           : null);
+
+
+
+      $ret = $this->$modelApiName->deleteV1($this->cur_api['CoreApi']['co_id'],
+                                            $req_identifier,
+                                            $this->cur_api['CoreApi']['identifier_type']);
+
+      if(!empty($ret) && !is_bool($ret)) {
+        $this->set('results', $ret);
+      }
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      if(isset(_txt('en.http.status.codes')[$e->getCode()])) {
+        $this->Api->restResultHeader($e->getCode());
+      } else {
+        $this->Api->restResultHeader(500);
+      }
     }
   }
 
