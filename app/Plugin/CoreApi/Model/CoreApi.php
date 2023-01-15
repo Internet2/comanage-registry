@@ -195,8 +195,9 @@ class CoreApi extends AppModel {
    * @throws RuntimeException
    */
   public function createV1($coId, $reqData, $actorApiUserId) {
+    $modelMapperName = $this->mapper;
     // Start a transaction
-    $dbc = $this->getDataSource();
+    $dbc = $this->Co->$modelMapperName->getDataSource();
     $dbc->begin();
 
     if(empty($reqData)) {
@@ -275,25 +276,7 @@ class CoreApi extends AppModel {
         }
       }
 
-      // Next handle related models for CoPersonRole and OrgIdentity.
-
-      $related = array(
-        'CoPersonRole' => array(
-          'Address',
-          'AdHocAttribute',
-          'TelephoneNumber'
-        ),
-        'OrgIdentity' => array(
-          'Address',
-          'AdHocAttribute',
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'TelephoneNumber'
-        )
-      );
-
-      foreach($related as $parentModel => $relatedModels) {
+      foreach($this->related_models as $parentModel => $relatedModels) {
         // We use the $accessedRecords version rather than $reqData because it will
         // have newly created parent keys (eg: for a CO Person Role that was
         // added during this operation).
@@ -338,6 +321,7 @@ class CoreApi extends AppModel {
       // Disable provisioning since we will bulk provision at the end
       // This will return an array describing which, if any, identifiers were assigned,
       // but we don't do anything with the result here
+      // XXX Organizations do not support assign identifiers
       $this->Co->CoPerson->Identifier->assign('CoPerson', $co_person_id, null, false, $actorApiUserId);
 
       // Handle plugin models
@@ -485,7 +469,7 @@ class CoreApi extends AppModel {
     try {
       // Start by trying to retrieve the current record. This will throw an error
       // if not found
-      $current = $this->pull($coId, $identifier, $identifierType);
+      $current = $this->pullRecord($coId, $identifier, $identifierType);
 
       if(empty($current[$modelMapperName]['id'])) {
         throw new InvalidArgumentException(_txt('er.coreapi.notfound', array($modelMapperName)));
@@ -796,7 +780,7 @@ class CoreApi extends AppModel {
     // This is similar to CoPerson::idsForIdentifier, but that has some old
     // legacy code we want to avoid.
 
-    $cop = $this->filterMetadataOutbound($this->pull($coId, $identifier, $identifierType), $this->mapper);
+    $cop = $this->filterMetadataOutbound($this->pullRecord($coId, $identifier, $identifierType), $this->mapper);
 
     return $cop;
   }
@@ -1000,14 +984,16 @@ class CoreApi extends AppModel {
         $orgId = $parentValue;
       }
 
-      $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                 $roleId,
-                                                 $orgId,
-                                                 null,
-                                                 ActionEnum::CoPersonEditedApi,
-                                                 _txt('pl.coreapi.rs.edited-a4', array(_txt("ct.$table.1"), $cstr)),
-                                                 null, null, null,
-                                                 $actorApiUserId);
+      if(in_array($modelName, array('CoPersonRole', 'OrgIdentity', 'CoPerson'))) {
+        $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                   $roleId,
+                                                   $orgId,
+                                                   null,
+                                                   ActionEnum::CoPersonEditedApi,
+                                                   _txt('pl.coreapi.rs.edited-a4', array(_txt("ct.$table.1"), $cstr)),
+                                                   null, null, null,
+                                                   $actorApiUserId);
+      }
     }
     
     return $id;
@@ -1028,8 +1014,9 @@ class CoreApi extends AppModel {
    */
   
   public function upsertV1($coId, $identifier, $identifierType, $reqData, $actorApiUserId) {
+    $modelMapperName = $this->mapper;
     // Start a transaction
-    $dbc = $this->getDataSource();
+    $dbc = $this->Co->$modelMapperName->getDataSource();
     $dbc->begin();
     
     if(empty($reqData)) {
@@ -1050,7 +1037,7 @@ class CoreApi extends AppModel {
       // We'll also use the same storage for determining which records to delete.
       $seenRecords = array();
       
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+      $current = $this->pullRecord($coId, $identifier, $identifierType);
       
       if(empty($current['CoPerson']['id'])) {
         throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
@@ -1163,23 +1150,7 @@ class CoreApi extends AppModel {
       
       // Next handle related models for CoPersonRole and OrgIdentity.
       
-      $related = array(
-        'CoPersonRole' => array(
-          'Address',
-          'AdHocAttribute',
-          'TelephoneNumber'
-        ),
-        'OrgIdentity' => array(
-          'Address',
-          'AdHocAttribute',
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'TelephoneNumber'
-        )
-      );
-      
-      foreach($related as $parentModel => $relatedModels) {
+      foreach($this->related_models as $parentModel => $relatedModels) {
         // Note at this point we've validated CoPersonRole['meta']['id'] and
         // OrgIdentity['meta']['id'], since if the request included an invalid
         // foreign key upsertRecord would have thrown an error.

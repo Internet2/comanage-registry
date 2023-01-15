@@ -33,6 +33,14 @@ class ApiOrganization extends CoreApi {
 
   public $mapper = "Organization";
 
+  public $associated_models = array(
+    "Address",
+    "AdHocAttribute",
+    "EmailAddress",
+    "Identifier",
+    "TelephoneNumber",
+    "Url");
+
   public $index_contains = array(
     "Address",
     "AdHocAttribute",
@@ -41,6 +49,8 @@ class ApiOrganization extends CoreApi {
     "TelephoneNumber",
     "Url"
   );
+
+  public $related_models = array();
 
   public $view_contains = array(
     "Address",
@@ -52,7 +62,7 @@ class ApiOrganization extends CoreApi {
   );
 
   /**
-   * Pull a CO Person record, including associated models.
+   * Pull an Organization record, including associated models.
    *
    * @since  COmanage Registry v4.0.0
    * @param  integer $coId           CO ID
@@ -60,10 +70,9 @@ class ApiOrganization extends CoreApi {
    * @param  string  $identifierType Identifier type
    * @return array                   Array of CO Person data
    * @throws InvalidArgumentException
-   * @todo This probably belongs in CoPerson.php
    */
 
-  protected function pull($coId, $identifier, $identifierType) {
+  protected function pullRecord($coId, $identifier, $identifierType) {
     $args = array();
     $args['conditions']['Identifier.identifier'] = $identifier;
     $args['conditions']['Identifier.type'] = $identifierType;

@@ -51,6 +51,7 @@ $cm_core_api_texts['en_US'] = array(
 
   // Error messages
   'er.coreapi.coperson'        => 'CoPerson object not found in inbound document',
+  'er.coreapi.record'          => '%1$s object not found in inbound document',
   'er.coreapi.coperson.exists' => 'CoPerson exists',
   'er.coreapi.id.invalid'      => 'Invalid record id %1$s',
   'er.coreapi.json'            => 'No JSON document found in request, or document did not successfully parse',
@@ -58,7 +59,7 @@ $cm_core_api_texts['en_US'] = array(
   'er.coreapi.notfound'        => 'No record found for "%1$s"',
   'er.coreapi.sor.notfound'    => 'Organizational Identity Source for SOR Label "%1$s" not found',
   'er.coreapi.sorid.notfound'  => 'No record found for SORID "%1$s"',
-  
+
   // Plugin texts
   'pl.coreapi.api'                  => 'API',
   'pl.coreapi.api_user.desc'        => 'The API User authorized to make requests to this endpoint',

@@ -223,6 +223,36 @@ class ApiController extends Controller {
   }
 
   /**
+   * Handle a Core API CO Person record create
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function create() {
+    $modelApiName = $this->modelName;
+    try {
+      $ret = $this->$modelApiName->createV1($this->cur_api['CoreApi']['co_id'],
+                                            $this->request->data,
+                                            $this->cur_api['CoreApi']['api_user_id']);
+
+      $this->set('results', array_values($ret));
+      $this->Api->restResultHeader(201);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      if(isset(_txt('en.http.status.codes')[$e->getCode()])) {
+        $this->Api->restResultHeader($e->getCode());
+      } else {
+        $this->Api->restResultHeader(500);
+      }
+    }
+  }
+
+  /**
    * Handle a Core API CO Record delete request
    * /api/co/:coid/core/v1/<model>/:identifier e.g.
    * /api/co/:coid/core/v1/organizations/:identifier
@@ -415,6 +445,50 @@ class ApiController extends Controller {
     catch(Exception $e) {
       $this->set('results', array('error' => $e->getMessage()));
       $this->Api->restResultHeader(500);
+    }
+  }
+
+  /**
+   * Handle a Core API Write API Update request.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function update() {
+    try {
+      if(empty($this->request->params['identifier'])
+          && empty($this->request->query["identifier"])) {
+        // We shouldn't really get here since routes.php shouldn't allow it
+        throw new InvalidArgumentException(_txt('er.notprov'));
+      }
+
+      $req_identifier = !empty($this->request->params["identifier"])
+        ? $this->request->params["identifier"]
+        : (!empty($this->request->query["identifier"])
+          ? $this->request->query["identifier"]
+          : null);
+
+      $apiModelName = $this->modelName;
+      $ret = $this->$apiModelName->upsertV1($this->cur_api['CoreApi']['co_id'],
+                                            $req_identifier,
+                                            $this->cur_api['CoreApi']['identifier_type'],
+                                            $this->request->data,
+                                            $this->cur_api['CoreApi']['api_user_id']);
+
+      $this->set('results', $ret);
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      if(isset(_txt('en.http.status.codes')[$e->getCode()])) {
+        $this->Api->restResultHeader($e->getCode());
+      } else {
+        $this->Api->restResultHeader(500);
+      }
     }
   }
 }

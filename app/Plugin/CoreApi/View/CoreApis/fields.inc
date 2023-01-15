@@ -247,7 +247,7 @@
   <li
     class="core-api-reponse-type"
     style="<?php
-    $person_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    $person_api_keys = array(CoreApiEnum::Read, CoreApiEnum::Write);
     print (!empty($core_apis[0]['CoreApi']['api'])
            && in_array($core_apis[0]['CoreApi']['api'], $person_api_keys))
            ? '' :  'display: none'; ?>"
@@ -289,7 +289,7 @@
     class="core-api-expunge-on-del"
     style="<?php
     print (!empty($core_apis[0]['CoreApi']['api'])
-           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonWrite)
+           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::Write)
       ? '' :  'display: none'; ?>"
   >
     <div class="field-name">

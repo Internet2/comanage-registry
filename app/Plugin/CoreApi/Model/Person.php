@@ -33,6 +33,18 @@ class Person extends CoreApi {
 
   public $mapper = "CoPerson";
 
+  public $associated_models = array('CoGroupMember',
+    // CoPersonRole here (and OrgIdentity above) will only process
+    // the top level record. We'll handle related models below.
+    'CoPersonRole',
+    'EmailAddress',
+    'Identifier',
+    'Name',
+    // In the current data model, OrgIdentity actually has CO
+    // as a parent (though this will change)
+    //'OrgIdentity',
+    'Url');
+
   public $index_contains = array(
     'CoPersonRole' => array(
       'Address',
@@ -55,6 +67,22 @@ class Person extends CoreApi {
     'Identifier',
     'Name',
     'Url'
+  );
+
+  public $related_models = array(
+    'CoPersonRole' => array(
+      'Address',
+      'AdHocAttribute',
+      'TelephoneNumber'
+    ),
+    'OrgIdentity' => array(
+      'Address',
+      'AdHocAttribute',
+      'EmailAddress',
+      'Identifier',
+      'Name',
+      'TelephoneNumber'
+    )
   );
 
   public $view_contains = array(
@@ -93,14 +121,14 @@ class Person extends CoreApi {
    */
   public function deleteV1($coId, $identifier, $identifierType) {
     // Start a transaction
-    $dbc = $this->getDataSource();
+    $dbc = $this->Co->CoPerson->getDataSource();
     $dbc->begin();
 
     try {
       // Start by trying to retrieve the current record. This will throw an error
       // if not found
 
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+      $current = $this->pullRecord($coId, $identifier, $identifierType);
 
       if(empty($current['CoPerson']['id'])) {
         throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
@@ -172,7 +200,7 @@ class Person extends CoreApi {
       // Start by trying to retrieve the current record. This will throw an error
       // if not found
 
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+      $current = $this->pullRecord($coId, $identifier, $identifierType);
 
       if(empty($current['CoPerson']['id'])) {
         throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
@@ -241,7 +269,7 @@ class Person extends CoreApi {
    * @todo This probably belongs in CoPerson.php
    */
 
-  protected function pull($coId, $identifier, $identifierType) {
+  protected function pullRecord($coId, $identifier, $identifierType) {
     $args = array();
     $args['conditions']['Identifier.identifier'] = $identifier;
     $args['conditions']['Identifier.type'] = $identifierType;
