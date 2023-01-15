@@ -33,7 +33,9 @@ App::uses("StandardController", "Controller");
 class ApiController extends Controller {
   // Class name, used by Cake
   public $name = "Api";
-  
+
+  public $modelName = null;
+
   // Since we don't extend AppController we need to enumerate the components
   // we want to use.
   public $components = array('Api',
@@ -78,7 +80,9 @@ class ApiController extends Controller {
     // We want json views in responses
     $this->RequestHandler->renderAs($this, 'json');
     $this->layout = 'CoreApi.json';
-    
+
+    $this->modelName = Inflector::singularize($this->name);
+
     // Since we're not calling parent::beforeFilter(), we have to validate the CO
     
     // This should be provided by routes.php
@@ -217,7 +221,103 @@ class ApiController extends Controller {
       $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
     }
   }
-  
+
+  /**
+   * Handle a Core API CO People Read API request.
+   * /api/co/:coid/core/v1/people
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function index() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
+    try {
+      $query_filters = array();
+      // Load the default ordering and pagination settings
+      $this->Paginator->settings = $this->paginate;
+      $this->Paginator->settings['conditions']['Identifier.type'] = $this->cur_api['CoreApi']['identifier_type'];
+      $this->Paginator->settings['conditions']['Identifier.deleted'] = false;
+      $this->Paginator->settings['conditions']['Identifier.identifier_id'] = null;
+      if(!empty($this->request->query['identifier'])) {
+        $this->Paginator->settings['conditions']['Identifier.identifier'] = $this->request->query['identifier'];
+      }
+      $this->Paginator->settings['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+      $this->Paginator->settings['conditions']["{$modelMapperName}.co_id"] = $this->cur_api['CoreApi']['co_id'];
+      if(!empty($this->request->query["{$modelMapperName}.status"])) {
+        $query_filters[] = 'status';
+        $this->Paginator->settings['conditions']["{$modelMapperName}.status"] = $this->request->query["{$modelMapperName}.status"];
+      }
+      $modelMapper_underscore = Inflector::underscore($modelMapperName);
+      $this->Paginator->settings['joins'][0]['table'] = 'identifiers';
+      $this->Paginator->settings['joins'][0]['alias'] = 'Identifier';
+      $this->Paginator->settings['joins'][0]['type'] = 'INNER';
+      $this->Paginator->settings['joins'][0]['conditions'][0] = "Identifier.{$modelMapper_underscore}_id={$modelMapperName}.id";
+
+      // We need all the relational data for the full mode
+      if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
+        // While we're here pull the data we need
+        $this->Paginator->settings['contain'] = $this->$modelApiName->index_contains;
+      } elseif($this->modelName == "Person"
+               && $this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
+        $this->Paginator->settings['contain'] = array(
+          'Identifier' => array(
+            'conditions' => array(
+              'type ' => $this->cur_api['CoreApi']['identifier_type'],
+              'deleted' => false,
+              'identifier_id' => null
+            )));
+      }
+
+      // Query offset
+      if(!empty($this->request->query['limit'])) {
+        $this->Paginator->settings['limit'] = $this->request->query['limit'];
+      }
+      // Order Direction
+      if(!empty($this->request->query['direction'])) {
+        $this->Paginator->settings['order']["{$modelMapperName}.id"] = $this->request->query['direction'];
+      }
+      // Page
+      if(!empty($this->request->query['page'])) {
+        $this->Paginator->settings['page'] = $this->request->query['page'];
+      }
+
+      $modelObj = $this->Paginator->paginate($modelMapperName);
+
+      if(empty($modelObj)) {
+        $modelObj = ClassRegistry::init($modelMapperName);
+        // The model has a status enum type hint. I use the existing type hint and append the postfix
+        $attr_human_readable = array();
+        foreach ($query_filters as $filter) {
+          $attr_human_readable[] = _txt($modelObj->cm_enum_txt[$filter], null, $this->request->query["{$modelMapperName}." . $filter]);
+        }
+        throw new InvalidArgumentException(
+          _txt('er.notfound', array($modelApiName, implode(',', $attr_human_readable)))
+        );
+      }
+
+      $ret = array();
+      if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
+        $ret = $this->$modelApiName->readV1Index($this->cur_api['CoreApi']['co_id'], $modelObj);
+      } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
+        // Would it make sense to return the person id as well?
+        $ret = Hash::extract($modelObj, '{n}.Identifier.{n}.identifier');
+      }
+
+      // Set the results
+      $this->set('results', $ret);
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(500);
+    }
+  }
+
   /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
@@ -249,8 +349,7 @@ class ApiController extends Controller {
         throw new InvalidArgumentException(_txt('er.notprov'));
       }
 
-
-      $apiModelName = Inflector::singularize($this->name);
+      $apiModelName = $this->modelName;
       $ret = $this->$apiModelName->readV1($this->cur_api['CoreApi']['co_id'],
                                             $this->request->params['identifier'],
                                             $this->cur_api['CoreApi']['identifier_type']);

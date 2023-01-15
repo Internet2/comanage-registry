@@ -31,6 +31,8 @@ class Person extends CoreApi {
   // Define class name for cake
   public $name = "Person";
 
+  public $mapper = "CoPerson";
+
   public $index_contains = array(
     'CoPersonRole' => array(
       'Address',
@@ -98,6 +100,47 @@ class Person extends CoreApi {
     $cop = $this->filterMetadataOutbound($this->pull($coId, $identifier, $identifierType), "CoPerson");
 
     return $cop;
+  }
+
+  /**
+   * Perform a CO People Read API v1 request.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId           CO ID
+   * @param  array   $co_people      Paginators Query Result Set
+   * @return array                   Array of CO People data
+   * @throws InvalidArgumentException
+   */
+
+  public function readV1Index($coId, $co_people) {
+    // First try to map the requested information to a CO Person record.
+    // This is similar to CoPerson::idsForIdentifier, but that has some old
+    // legacy code we want to avoid.
+
+    $cop_index = array();
+    foreach ($co_people as $person) {
+      // Promote OrgIdentity to top level. This interface doesn't permit relinking
+      // identities, and in v5 CoOrgIdentityLink goes away anyway.
+
+      if(!empty($person['CoOrgIdentityLink'])) {
+        foreach($person['CoOrgIdentityLink'] as $link) {
+          if(!empty($link['OrgIdentity'])) {
+            $person['OrgIdentity'][] = $link['OrgIdentity'];
+          }
+        }
+      }
+
+      unset($person['CoOrgIdentityLink']);
+
+      // We need to manually pull Authenticator and Cluster data.
+      $person = array_merge($person, $this->Co->Authenticator->marshallProvisioningData($coId, $person['CoPerson']['id']));
+      $person = array_merge($person, $this->Co->Cluster->marshallProvisioningData($coId, $person['CoPerson']['id'], false));
+
+      $cop = $this->filterMetadataOutbound($person, "CoPerson");
+      $cop_index[] = $cop;
+    }
+
+    return $cop_index;
   }
 
   /**

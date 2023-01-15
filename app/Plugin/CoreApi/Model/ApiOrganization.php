@@ -31,6 +31,8 @@ class ApiOrganization extends CoreApi {
   // Define class name for cake
   public $name = "ApiOrganization";
 
+  public $mapper = "Organization";
+
   public $index_contains = array(
     "Address",
     "AdHocAttribute",
