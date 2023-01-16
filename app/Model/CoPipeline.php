@@ -54,7 +54,7 @@ class CoPipeline extends AppModel {
     'CoSetting' => array(
       'foreignKey' => 'default_co_pipeline_id'
     ),
-    'OrgIdentitySource'=> array('dependent' => true)
+    'OrgIdentitySource'
   );
   
   // Default display field for cake generated views

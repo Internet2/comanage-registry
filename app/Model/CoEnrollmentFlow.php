@@ -91,7 +91,7 @@ class CoEnrollmentFlow extends AppModel {
     "CoEnrollmentFlowWedge" => array('dependent' => true),
     // A CO Enrollment Flow may have zero or more CO Petitions
     "CoPetition" => array('dependent' => true),
-    "CoPipeline" => array('dependent' => true)
+    "CoPipeline"
   );
   
   // Associated models that should be relinked to the archived attribute during Changelog archiving

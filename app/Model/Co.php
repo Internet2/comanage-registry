@@ -199,27 +199,6 @@ class Co extends AppModel {
   }
 
 
-  /**
-   * Unload Changelog Behavior retrospectively
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param  Object         $plugin
-   */
-
-  public function unloadChangelogBehavior($plugin, $pluginClassName) {
-    if($plugin->Behaviors->enabled('Changelog')) {
-      $plugin->reloadBehavior('Changelog', array('expunge' => true));
-    }
-
-    // Get the prefix by the full Class Name
-    list($pluginName, $pluginParentModel) = explode('.', $pluginClassName);
-
-    foreach($plugin->hasMany as $pluginModelName => $options) {
-      $pluginModel = ClassRegistry::init($pluginName . '.' . $pluginModelName);
-      $this->unloadChangelogBehavior($pluginModel, $pluginClassName);
-    }
-
-  }
   
   /**
    * Delete a CO.
@@ -693,5 +672,27 @@ class Co extends AppModel {
     }
     
     return true;
+  }
+
+  /**
+   * Unload Changelog Behavior retrospectively
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Object         $plugin
+   */
+
+  public function unloadChangelogBehavior($plugin, $pluginClassName) {
+    if($plugin->Behaviors->enabled('Changelog')) {
+      $plugin->reloadBehavior('Changelog', array('expunge' => true));
+    }
+
+    // Get the prefix by the full Class Name
+    list($pluginName, $pluginParentModel) = explode('.', $pluginClassName);
+
+    foreach($plugin->hasMany as $pluginModelName => $options) {
+      $pluginModel = ClassRegistry::init($pluginName . '.' . $pluginModelName);
+      $this->unloadChangelogBehavior($pluginModel, $pluginClassName);
+    }
+
   }
 }
