@@ -117,7 +117,7 @@ $hasActiveFilters = false;
                      }
                    }
                  } else {
-                   print filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+                   print filter_var(urldecode($value), FILTER_SANITIZE_SPECIAL_CHARS);
                  }
                  ?>
                </span>
@@ -144,7 +144,7 @@ $hasActiveFilters = false;
         $formParams = array(
           'label' => $options['label'],
           'type' => !empty($options['type']) ? $options['type'] : 'text',
-          'value' => (!empty($this->request->params['named'][$key]) ? $this->request->params['named'][$key] : ''),
+          'value' => (!empty($this->request->params['named'][$key]) ? urldecode($this->request->params['named'][$key]) : ''),
           'required' => false,
         );
         if(isset($options['empty'])) {
