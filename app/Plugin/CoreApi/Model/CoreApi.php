@@ -185,196 +185,6 @@ class CoreApi extends AppModel {
   }
 
   /**
-   * Create a new CO Person record
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param integer  $coId     CO ID
-   * @param array    $reqData  Array of request data
-   * @param integer  $actorApiUserId  Core API User ID making the request
-   * @throws InvalidArgumentException
-   * @throws RuntimeException
-   */
-  public function createV1($coId, $reqData, $actorApiUserId) {
-    $modelMapperName = $this->mapper;
-    // Start a transaction
-    $dbc = $this->Co->$modelMapperName->getDataSource();
-    $dbc->begin();
-
-    if(empty($reqData)) {
-      // This probably means JSON failed to parse, or that the Content-Type
-      // header is NOT application/json
-      throw new InvalidArgumentException(_txt('er.coreapi.json'));
-    }
-
-    try {
-      // This is somewhat similar to OrgIdentitySource and CoPipeline
-
-      $co_person_id = null;
-      foreach(array('CoPerson') as $model) {
-        $co_person_id = $this->upsertRecord($coId,
-                                            null,
-                                            $this->Co->$model,
-                                            $reqData[$model],
-                                            null,
-                                            'co_id',
-                                            $coId,
-                                            $actorApiUserId);
-      }
-
-      // Related models are multi-valued, start with OrgIdentity on its own,
-      // since it actually has a parent key of CO in the current data model.
-
-      foreach(array('OrgIdentity') as $model) {
-        $accessedRecords[$model] = array();
-
-        if(!empty($reqData[$model])) {
-          foreach($reqData[$model] as $m) {
-            $recordId = $this->upsertRecord($coId,
-                                            $co_person_id,
-                                            $this->Co->$model,
-                                            $m,
-                                            null,
-                                            'co_id',
-                                            $coId,
-                                            $actorApiUserId);
-
-            // Track that we've seen this record
-            $accessedRecords[$model][$recordId] = $m;
-
-            // We also need to insert a new CoOrgIdentityLink.
-            $this->linkOrgIdentity($co_person_id, $recordId, $actorApiUserId);
-          }
-        }
-      }
-
-      foreach(array('CoGroupMember',
-                // CoPersonRole here (and OrgIdentity above) will only process
-                // the top level record. We'll handle related models below.
-                'CoPersonRole',
-                'EmailAddress',
-                'Identifier',
-                'Name',
-                // In the current data model, OrgIdentity actually has CO
-                // as a parent (though this will change)
-                //'OrgIdentity',
-                'Url') as $model) {
-        $accessedRecords[$model] = array();
-
-        if(!empty($reqData[$model])) {
-          foreach($reqData[$model] as $m) {
-            $recordId = $this->upsertRecord($coId,
-                                            $co_person_id,
-                                            $this->Co->CoPerson->$model,
-                                            $m,
-                                            null,
-                                            'co_person_id',
-                                            $co_person_id,
-                                            $actorApiUserId);
-            // Track that we've seen this record, for checking what to delete
-            $accessedRecords[$model][$recordId] = $m;
-          }
-        }
-      }
-
-      foreach($this->related_models as $parentModel => $relatedModels) {
-        // We use the $accessedRecords version rather than $reqData because it will
-        // have newly created parent keys (eg: for a CO Person Role that was
-        // added during this operation).
-
-        if(!empty($accessedRecords[$parentModel])) {
-          foreach($accessedRecords[$parentModel] as $id => $accessed) {
-            if($parentModel == 'OrgIdentity') {
-              // Skip read-only Org Identities
-              if($this->Co->OrgIdentity->readOnly($id)) {
-                continue;
-              }
-            }
-
-            foreach($relatedModels as $model) {
-              // While there can be multiple associated models across multiple roles,
-              // $current will have them attached to each role. Thus, we can track
-              // $accessedIds on a per-role basis, as opposed to across all roles.
-
-              $accessedIds = array();
-
-              if(!empty($accessed[$model])) {
-                foreach($accessed[$model] as $m) {
-                  $accessedIds[] = $this->upsertRecord($coId,
-                                                       $co_person_id,
-                                                       // We just need the associated model, it
-                                                       // doesn't matter how we got there so we
-                                                       // use OrgIdentity since it is the superset
-                                                        $this->Co->OrgIdentity->$model,
-                                                        $m,
-                                                        null,
-                                                        Inflector::underscore($parentModel).'_id',
-                                                        $id,
-                                                        $actorApiUserId);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Assign Identifiers
-      // Disable provisioning since we will bulk provision at the end
-      // This will return an array describing which, if any, identifiers were assigned,
-      // but we don't do anything with the result here
-      // XXX Organizations do not support assign identifiers
-      $this->Co->CoPerson->Identifier->assign('CoPerson', $co_person_id, null, false, $actorApiUserId);
-
-      // Handle plugin models
-      $plugins = $this->loadApiPlugins();
-
-      foreach(array_keys($plugins) as $pluginName) {
-        if(!empty($plugins[$pluginName]['permittedModels'])) {
-          foreach($plugins[$pluginName]['permittedModels'] as $model) {
-            // Note we're not checking here that the plugin is instantiated.
-            // As a proxy for that, we'll use $current[$model] since that is
-            // based on instantiations. (If we don't get back at least an empty
-            // $model, then the plugin is not instantiated.)
-            if(isset($reqData[$model])) {
-              $pModel = ClassRegistry::init($pluginName . "." . $model);
-              $authenticator_fk = Inflector::underscore($pluginName) . '_id';
-
-              if(!empty($reqData[$model])) {
-                foreach($reqData[$model] as $m) {
-                  // The CoreAPI client has to provide the authenticator foreign key in order
-                  // for the record to be saved.
-                  if(!empty($m[$authenticator_fk])) {
-                    $recordId = $this->upsertRecord($coId,
-                                                    $co_person_id,
-                                                    $pModel,
-                                                    $m,
-                                                    $reqData[$model],
-                                                    'co_person_id',
-                                                    $co_person_id,
-                                                    $actorApiUserId);
-                    $accessedRecords[$model][$recordId] = $m;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      $dbc->commit();
-
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
-      // Return the identifier
-      return $accessedRecords["Identifier"];
-    }
-    catch(Exception $e) {
-      $dbc->rollback();
-      $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
-      throw new RuntimeException($e->getMessage(), $ecode);
-    }
-  }
-
-  /**
    * Delete associated models that were not provided in the update request.
    *
    * @since  COmanage Registry v4.0.0
@@ -521,6 +331,7 @@ class CoreApi extends AppModel {
                                   // MVPA keys
                                   'co_department_id',
                                   'co_person_id',
+                                  'co_person_role_id',
                                   'org_identity_id',
                                   'organization_id',
                                   'source_ad_hoc_attribute_id',
@@ -530,6 +341,7 @@ class CoreApi extends AppModel {
                                   'source_name_id',
                                   'source_org_identity_id',
                                   'source_telephone_number_id',
+                                  'source_url_id',
                                   $mfk))) {
         // Skip metadata that might have been included in the record, along
         // with mvpa foreign keys which are frozen, and will be re-inserted by
@@ -572,7 +384,7 @@ class CoreApi extends AppModel {
         foreach($a as $k => $v) {
           if(is_array($v)) {
             // Related model
-            if(is_integer($k)) {
+            if(is_int($k)) {
               // HasMany
               $f = $this->filterMetadataOutbound(array($k => $v), $m);
               $newa[$k] = $f[$k];
@@ -588,7 +400,9 @@ class CoreApi extends AppModel {
                                       'id',
                                       'modified',
                                       'revision',
+                                      'co_person_role_id',
                                       'source_ad_hoc_attribute_id',
+                                      'source_url_id',
                                       'source_address_id',
                                       'source_email_address_id',
                                       'source_identifier_id',
@@ -1039,27 +853,26 @@ class CoreApi extends AppModel {
       
       $current = $this->pullRecord($coId, $identifier, $identifierType);
       
-      if(empty($current['CoPerson']['id'])) {
-        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      if(empty($current[$modelMapperName]['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.record', array($modelMapperName)));
       }
       
       // This is somewhat similar to OrgIdentitySource and CoPipeline
-      
-      foreach(array('CoPerson') as $model) {
-        $this->upsertRecord($coId,
-                            $current['CoPerson']['id'],
-                            $this->Co->$model, 
-                            $reqData[$model], 
-                            array($current[$model]),
-                            'co_id',
-                            $coId,
-                            $actorApiUserId);
-      }
+      $this->upsertRecord($coId,
+                          $current[$modelMapperName]['id'],
+                          $this->Co->$modelMapperName,
+                          $reqData[$modelMapperName],
+                          array($current[$modelMapperName]),
+                          'co_id',
+                          $coId,
+                          $actorApiUserId);
       
       // Related models are multi-valued, start with OrgIdentity on its own,
       // since it actually has a parent key of CO in the current data model.
-      
-      foreach(array('OrgIdentity') as $model) {
+
+      // XXX OrgIdentity only for CoPerson
+      if($modelMapperName == "CoPerson") {
+        $model = 'OrgIdentity';
         $seenRecords[$model] = array();
 
         if(!empty($reqData[$model])) {
@@ -1100,17 +913,7 @@ class CoreApi extends AppModel {
                              $actorApiUserId);
       }
 
-      foreach(array('CoGroupMember', 
-                    // CoPersonRole here (and OrgIdentity above) will only process
-                    // the top level record. We'll handle related models below.
-                    'CoPersonRole',
-                    'EmailAddress',
-                    'Identifier',
-                    'Name',
-                    // In the current data model, OrgIdentity actually has CO
-                    // as a parent (though this will change)
-                    //'OrgIdentity',
-                    'Url') as $model) {
+      foreach($this->associated_models as $model) {
         $seenRecords[$model] = array();
         
         if(!empty($reqData[$model])) {
@@ -1127,12 +930,12 @@ class CoreApi extends AppModel {
             }
             
             $recordId = $this->upsertRecord($coId,
-                                            $current['CoPerson']['id'], 
-                                            $this->Co->CoPerson->$model,
+                                            $current[$modelMapperName]['id'],
+                                            $this->Co->$modelMapperName->$model,
                                             $m,
                                             (!empty($current[$model]) ? $current[$model] : array()),
-                                            'co_person_id',
-                                            $current['CoPerson']['id'],
+                                            Inflector::underscore($modelMapperName).'_id',
+                                            $current[$modelMapperName]['id'],
                                             $actorApiUserId);
             
             // Track that we've seen this record, for checking what to delete
@@ -1141,8 +944,8 @@ class CoreApi extends AppModel {
         }
         
         // See if any of the current entries were omitted, if so delete them
-        $this->deleteOmitted($current['CoPerson']['id'], 
-                             $this->Co->CoPerson->$model,
+        $this->deleteOmitted($current[$modelMapperName]['id'],
+                             $this->Co->$modelMapperName->$model,
                              (!empty($current[$model]) ? $current[$model] : array()),
                              array_keys($seenRecords[$model]),
                              $actorApiUserId);
@@ -1181,10 +984,12 @@ class CoreApi extends AppModel {
               if(!empty($seen[$model])) {
                 foreach($seen[$model] as $m) {
                   $seenIds[] = $this->upsertRecord($coId,
-                                                   $current['CoPerson']['id'], 
+                                                   $current[$modelMapperName]['id'],
                                                    // We just need the associated model, it
                                                    // doesn't matter how we got there so we
                                                    // use OrgIdentity since it is the superset
+                                                   // XXX Currently only the Person Model supports this
+                                                   //     So this will not break
                                                    $this->Co->OrgIdentity->$model,
                                                    $m,
                                                    $currentSet,
@@ -1196,7 +1001,7 @@ class CoreApi extends AppModel {
               
               if(!empty($seen[$model])) {
                 // See if any of the current entries were omitted, if so delete them
-                $this->deleteOmitted($current['CoPerson']['id'], 
+                $this->deleteOmitted($current[$modelMapperName]['id'],
                                      $this->Co->OrgIdentity->$model,
                                      // Note we're potentially passing in new related
                                      // models here, if we processed an entirely new
@@ -1218,8 +1023,11 @@ class CoreApi extends AppModel {
       // Disable provisioning since we will bulk provision at the end
       // This will return an array describing which, if any, identifiers were assigned,
       // but we don't do anything with the result here
-      $this->Co->CoPerson->Identifier->assign('CoPerson', $current['CoPerson']['id'], null, false, $actorApiUserId);
-      
+      // XXX Assigne Identifier only for CoPerson
+      if($modelMapperName == "CoPerson") {
+        $this->Co->CoPerson->Identifier->assign('CoPerson', $current['CoPerson']['id'], null, false, $actorApiUserId);
+      }
+
       // Handle plugin models (Authenticator, Cluster)
       
       $plugins = $this->loadApiPlugins();
@@ -1239,12 +1047,12 @@ class CoreApi extends AppModel {
               if(!empty($reqData[$model])) {
                 foreach($reqData[$model] as $m) {
                   $recordId = $this->upsertRecord($coId,
-                                                  $current['CoPerson']['id'], 
+                                                  $current[$modelMapperName]['id'],
                                                   $pModel,
                                                   $m,
                                                   $current[$model],
-                                                  'co_person_id',
-                                                  $current['CoPerson']['id'],
+                                                  Inflector::underscore($modelMapperName). '_id',
+                                                  $current[$modelMapperName]['id'],
                                                   $actorApiUserId);
                   
                   // Track that we've seen this record, for checking what to delete
@@ -1253,7 +1061,7 @@ class CoreApi extends AppModel {
               }
 
               // See if any of the current entries were omitted, if so delete them
-              $this->deleteOmitted($current['CoPerson']['id'], 
+              $this->deleteOmitted($current[$modelMapperName]['id'],
                                    $pModel,
                                    $current[$model],
                                    array_keys($seenRecords[$model]),
@@ -1265,8 +1073,13 @@ class CoreApi extends AppModel {
       
       $dbc->commit();
       
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
+      // Trigger provisioning if the action is allowed
+      if(defined("ProvisioningActionEnum::{$modelMapperName}Updated")) {
+        $this->Co->$modelMapperName->manualProvision(null,
+                                                     $current[$modelMapperName]['id'],
+                                                     null,
+                                                     constant("ProvisioningActionEnum::{$modelMapperName}Updated"));
+      }
     }
     catch(Exception $e) {
       $dbc->rollback();

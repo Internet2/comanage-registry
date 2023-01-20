@@ -62,6 +62,116 @@ class ApiOrganization extends CoreApi {
   );
 
   /**
+   * Create a new Organization record
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param integer  $coId     CO ID
+   * @param array    $reqData  Array of request data
+   * @param integer  $actorApiUserId  Core API User ID making the request
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  public function createV1($coId, $reqData, $actorApiUserId) {
+    $modelMapperName = $this->mapper;
+    // Start a transaction
+    $dbc = $this->Co->$modelMapperName->getDataSource();
+    $dbc->begin();
+
+    if(empty($reqData)) {
+      // This probably means JSON failed to parse, or that the Content-Type
+      // header is NOT application/json
+      throw new InvalidArgumentException(_txt('er.coreapi.json'));
+    }
+
+    try {
+      // This is somewhat similar to OrgIdentitySource and CoPipeline
+
+      $organization_id = $this->upsertRecord($coId,
+                                             null,
+                                             $this->Co->Organization,
+                                             $reqData['Organization'],
+                                             null,
+                                             'co_id',
+                                             $coId,
+                                             $actorApiUserId);
+
+      // Related models are multi-valued, start with OrgIdentity on its own,
+      // since it actually has a parent key of CO in the current data model.
+
+      foreach(array(
+                "Address",
+                "AdHocAttribute",
+                "EmailAddress",
+                "Identifier",
+                "TelephoneNumber",
+                "Url") as $model) {
+        $accessedRecords[$model] = array();
+
+        if(!empty($reqData[$model])) {
+          foreach($reqData[$model] as $m) {
+            $recordId = $this->upsertRecord($coId,
+                                            $organization_id,
+                                            $this->Co->Organization->$model,
+                                            $m,
+                                            null,
+                                            'organization_id',
+                                            $organization_id,
+                                            $actorApiUserId);
+            // Track that we've seen this record, for checking what to delete
+            $accessedRecords[$model][$recordId] = $m;
+          }
+        }
+      }
+
+      // Handle plugin models
+      $plugins = $this->loadApiPlugins();
+
+      foreach(array_keys($plugins) as $pluginName) {
+        if(!empty($plugins[$pluginName]['permittedModels'])) {
+          foreach($plugins[$pluginName]['permittedModels'] as $model) {
+            // Note we're not checking here that the plugin is instantiated.
+            // As a proxy for that, we'll use $current[$model] since that is
+            // based on instantiations. (If we don't get back at least an empty
+            // $model, then the plugin is not instantiated.)
+            if(isset($reqData[$model])) {
+              $pModel = ClassRegistry::init($pluginName . "." . $model);
+              $authenticator_fk = Inflector::underscore($pluginName) . '_id';
+
+              if(!empty($reqData[$model])) {
+                foreach($reqData[$model] as $m) {
+                  // The CoreAPI client has to provide the authenticator foreign key in order
+                  // for the record to be saved.
+                  if(!empty($m[$authenticator_fk])) {
+                    $recordId = $this->upsertRecord($coId,
+                                                    $organization_id,
+                                                    $pModel,
+                                                    $m,
+                                                    $reqData[$model],
+                                                    'organization_id',
+                                                    $organization_id,
+                                                    $actorApiUserId);
+                    $accessedRecords[$model][$recordId] = $m;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      $dbc->commit();
+
+      // Return the identifier
+      return $accessedRecords["Identifier"];
+    }
+    catch(Exception $e) {
+      $dbc->rollback();
+      $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
+      throw new RuntimeException($e->getMessage(), $ecode);
+    }
+  }
+
+  /**
    * Pull an Organization record, including associated models.
    *
    * @since  COmanage Registry v4.0.0

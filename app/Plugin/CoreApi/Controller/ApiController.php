@@ -223,7 +223,7 @@ class ApiController extends Controller {
   }
 
   /**
-   * Handle a Core API CO Person record create
+   * Handle a Core API CO record create
    *
    * @since  COmanage Registry v4.1.0
    */
