@@ -130,7 +130,7 @@ Router::connect(
 );
 
 Router::connect(
-  '/api/co/:coid/core/v1/rganizations',
+  '/api/co/:coid/core/v1/organizations',
   array(
     'plugin'     => 'core_api',
     'controller' => 'ApiOrganizations',
@@ -189,6 +189,85 @@ Router::connect(
     '[method]'   => 'DELETE'
   )
 );
+
+
+// Departments
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'create',
+    '[method]'   => 'POST'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'update',
+    '[method]'   => 'PUT'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'Departments',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE'
+  )
+);
+
+
+
+
+
 
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem

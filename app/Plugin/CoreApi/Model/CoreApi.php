@@ -594,9 +594,9 @@ class CoreApi extends AppModel {
     // This is similar to CoPerson::idsForIdentifier, but that has some old
     // legacy code we want to avoid.
 
-    $cop = $this->filterMetadataOutbound($this->pullRecord($coId, $identifier, $identifierType), $this->mapper);
+    $rec = $this->filterMetadataOutbound($this->pullRecord($coId, $identifier, $identifierType), $this->mapper);
 
-    return $cop;
+    return $rec;
   }
 
   /**
