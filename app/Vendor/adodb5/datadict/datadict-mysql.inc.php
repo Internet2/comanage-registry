@@ -27,6 +27,8 @@ class ADODB2_mysql extends ADODB_DataDict {
 	var $alterCol = ' MODIFY COLUMN';
 	var $addFk = ' ADD FOREIGN KEY';
 	var $alterTableAddIndex = true;
+  var $changeCol = ' CHANGE COLUMN';
+  var $addConstraint = "CONSTRAINT %s FOREIGN KEY (%s) ";
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
 	var $dropIndex = 'DROP INDEX %s ON %s';
@@ -143,6 +145,17 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
+  function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
+  {
+    $line = array();
+    $fk_name = $tabname . '_' . $fname . '_fk';
+    $line[] = $fname . ' ' . $ftype;
+    if($fconstraint) {
+      $line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
+    }
+    return $line;
+  }
+
 	// return string must begin with space
 	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
@@ -151,7 +164,6 @@ class ADODB2_mysql extends ADODB_DataDict {
 		if ($fnotnull) $suffix .= ' NOT NULL';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
 		if ($fautoinc) $suffix .= ' AUTO_INCREMENT';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		return $suffix;
 	}
 

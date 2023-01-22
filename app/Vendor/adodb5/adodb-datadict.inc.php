@@ -518,14 +518,22 @@ class ADODB_DataDict {
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		foreach($lines as $v) {
-      $alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
-      // For mysql databases use the syntax:
-      // ALTER TABLE <tabname> ADD FOREIGN KEY (<fk_column_name>) REFERENCES <table>(<column>);
-      if($this->databaseType === "mysql"
-         && strpos($v, 'REFERENCES') !== false) {
-        $alter = 'ALTER TABLE ' . $tabname . $this->addFk . ' ';
-      }
-			$sql[] = $alter . $v;
+			$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
+			// For mysql databases use the syntax:
+			// ALTER TABLE <tabname> ADD FOREIGN KEY (<fk_column_name>) REFERENCES <table>(<column>);
+			// ALTER TABLE <tabname> CHANGE <field> <field> <type> NOT NULL;
+			if($this->databaseType === "mysql"
+				 && strpos($v, 'REFERENCES') !== false) {
+				$alter = 'ALTER TABLE ' . $tabname . $this->addFk . ' ';
+				list($field, $type, $reference) = explode(' ', $v, 3);
+				if(strpos($reference, 'NOT NULL') !== false) {
+					$reference = str_replace('NOT NULL', '', $reference);
+					$sql[] = 'ALTER TABLE ' . $tabname . $this->changeCol . ' ' . $field . ' ' . $field . ' ' . $type . ' NOT NULL';
+				}
+				$sql[] = $alter . "({$field})" . ' ' . $reference;
+			} else {
+				$sql[] = $alter . $v;
+			}
 		}
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
@@ -598,7 +606,7 @@ class ADODB_DataDict {
 	*/
 	function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
-		list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
+		list($lines,$pkey,$idxs, $constraints) = $this->_genFields($flds, true, $tabname);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 
@@ -625,12 +633,20 @@ class ADODB_DataDict {
 			}
 		}
 
+    if (is_array($constraints) && !empty($constraints)) {
+      $sql_con = array();
+      foreach($constraints as $idx => $con) {
+        $sql_con[] = "ALTER TABLE {$tabname} ADD {$con}";
+      }
+      $sql = array_merge($sql, $sql_con);
+    }
+
 		return $sql;
 	}
 
 
 
-	function _genFields($flds,$widespacing=false)
+	function _genFields($flds,$widespacing=false, $tabname=null)
 	{
 		if (is_string($flds)) {
 			$padding = '     ';
@@ -678,14 +694,10 @@ class ADODB_DataDict {
 		$lines = array();
 		$pkey = array();
 		$idxs = array();
+		$constraints = array();
 		foreach($flds as $fld) {
 			if (is_array($fld))
 				$fld = array_change_key_case($fld,CASE_UPPER);
-      if($this->databaseType === "mysql"
-        && !empty($fld["CONSTRAINT"])
-        && strpos($fld["CONSTRAINT"], 'REFERENCES') !== false) {
-        unset($fld["CONSTRAINT"]);
-      }
 			$fname = false;
 			$fdefault = false;
 			$fautoinc = false;
@@ -853,19 +865,26 @@ class ADODB_DataDict {
 			$suffix = $this->_createSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned);
 
 			// add index creation
-			if ($widespacing) $fname = str_pad($fname,24);
+//			if ($widespacing) $fname = str_pad($fname,24);
 
 			 // check for field names appearing twice
-            if (array_key_exists($fid, $lines)) {
-            	 ADOConnection::outp("Field '$fname' defined twice");
-            }
+			if (array_key_exists($fid, $lines)) {
+				 ADOConnection::outp("Field '$fname' defined twice");
+			}
 
-			$lines[$fid] = $fname.' '.$ftype.$suffix;
+      // XXX NOT NULL??
+			foreach ($this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname) as $ln) {
+        if(strpos($ln, 'CONSTRAINT') !== false) {
+          $constraints[] = $ln;
+        } else {
+          $lines[$fid] = $ln;
+        }
+      }
 
 			if ($fautoinc) $this->autoIncrement = true;
 		} // foreach $flds
 
-		return array($lines,$pkey,$idxs);
+		return array($lines, $pkey, $idxs, $constraints);
 	}
 
 	/**
@@ -964,7 +983,7 @@ class ADODB_DataDict {
 
 		$s = "CREATE TABLE $tabname (\n";
 		$s .= implode(",\n", $lines);
-		if (sizeof($pkey)>0) {
+		if (count($pkey)>0) {
 			$s .= ",\n                 PRIMARY KEY (";
 			$s .= implode(", ",$pkey).")";
 		}

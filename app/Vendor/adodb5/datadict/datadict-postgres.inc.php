@@ -408,6 +408,14 @@ class ADODB2_postgres extends ADODB_DataDict
 		return $sql;
 	}
 
+  function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
+  {
+    if ($fconstraint) {
+      $suffix .= ' ' . $fconstraint;
+    }
+    return [$fname . ' ' . $ftype . $suffix];
+  }
+
 	// return string must begin with space
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
 	{
@@ -418,7 +426,6 @@ class ADODB2_postgres extends ADODB_DataDict
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
 		if ($fnotnull) $suffix .= ' NOT NULL';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		return $suffix;
 	}
 
