@@ -20,8 +20,8 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- Kafka servers use the column name "partition" which is reserved for MySQL -->
-  <xsl:template match="field[@type='I']">
+  <!-- Partition is a reserved word for MySql -->
+  <xsl:template match="field[@name='partition']">
     <xsl:copy>
       <xsl:apply-templates select="@*"/>
       <xsl:attribute name="name">`<xsl:value-of select="@name" />`</xsl:attribute>
