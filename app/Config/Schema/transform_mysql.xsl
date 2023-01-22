@@ -20,6 +20,14 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- Kafka servers use the column name "partition" which is reserved for MySQL -->
+  <xsl:template match="field[@type='I']">
+    <xsl:copy>
+      <xsl:apply-templates select="@*"/>
+      <xsl:attribute name="name">`<xsl:value-of select="@name" />`</xsl:attribute>
+    </xsl:copy>
+  </xsl:template>
+
   <!-- match all <field type="L"> elements and add
      the attribute 'size="1"' so that when used with
      MySQL the boolean is cast to TINYINT(1) and
