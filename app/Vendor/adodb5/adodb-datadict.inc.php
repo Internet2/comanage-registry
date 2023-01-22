@@ -607,14 +607,16 @@ class ADODB_DataDict {
 		$sql = $this->_tableSQL($tabname,$lines,$pkey,$taboptions);
 
 		// ggiunta - 2006/10/12 - KLUDGE:
-        // if we are on autoincrement, and table options includes REPLACE, the
-        // autoincrement sequence has already been dropped on table creation sql, so
-        // we avoid passing REPLACE to trigger creation code. This prevents
-        // creating sql that double-drops the sequence
-        if ($this->autoIncrement && isset($taboptions['REPLACE']))
-        	unset($taboptions['REPLACE']);
+    // if we are on autoincrement, and table options includes REPLACE, the
+    // autoincrement sequence has already been dropped on table creation sql, so
+    // we avoid passing REPLACE to trigger creation code. This prevents
+    // creating sql that double-drops the sequence
+    if ($this->autoIncrement && isset($taboptions['REPLACE']))
+      unset($taboptions['REPLACE']);
 		$tsql = $this->_triggers($tabname,$taboptions);
-		foreach($tsql as $s) $sql[] = $s;
+		foreach($tsql as $s) {
+      $sql[] = $s;
+    }
 
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
