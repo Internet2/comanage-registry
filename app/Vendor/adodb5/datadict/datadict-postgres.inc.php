@@ -227,49 +227,59 @@ class ADODB2_postgres extends ADODB_DataDict
 					$v = preg_replace('/(?<!DEFAULT)\sNULL/i','',$v);
 				}
 
+				$has_default = false;
 				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
-					$existing = $this->metaColumns($tabname);
-					list(,$colname,$default) = $matches;
-					$alter .= $colname;
-					if ($this->connection) {
-						$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
-					} else {
-						$old_coltype = $t;
-					}
-					$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
-					$t = trim(str_replace('DEFAULT '.$default,'',$v));
-
-					// Type change from bool to int
-					if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
-						$sql[] = $alter . ' DROP DEFAULT';
-						$sql[] = $alter . " TYPE $t USING ($colname::BOOL)::INT";
-						$sql[] = $alter . " SET DEFAULT $default";
-					}
-					// Type change from int to bool
-					else if ( $old_coltype == 'I' && $t == 'BOOLEAN' ) {
-						if( strcasecmp('NULL', trim($default)) != 0 ) {
-							$default = $this->connection->qstr($default);
-						}
-						$sql[] = $alter . ' DROP DEFAULT';
-						$sql[] = $alter . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
-						$sql[] = $alter . " SET DEFAULT $default";
-					}
-					// Any other column types conversion
-					else {
-						$sql[] = $alter . " TYPE $t";
-						$sql[] = $alter . " SET DEFAULT $default";
-					}
-
-				}
-				else {
-					// drop default?
+					$has_default = true;
+				} else {
 					preg_match ('/^\s*(\S+)\s+(.*)$/',$v,$matches);
-					list (,$colname,$rest) = $matches;
-					$alter .= $colname;
-					$sql[] = $alter . ' TYPE ' . $rest;
 				}
 
-				#list($colname) = explode(' ',$v);
+				$existing = $this->metaColumns($tabname);
+				list(,$colname,$default) = $matches;
+				// The column did not exist in the table so there is nothing to alter.
+				if(!isset($existing[strtoupper($colname)])) {
+					continue;
+				}
+				$alter .= $colname;
+				if ($this->connection) {
+					$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
+				} else {
+					adodb_throw('ADOdb_Active_Record', __FUNCTION__, -1, 'Disconnected', 0, 0, false);
+				}
+				$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
+				$t = trim(str_replace('DEFAULT ' . $default, '', $v));
+
+				// Type change from bool to int
+				if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
+					if($has_default) {
+						$sql[] = $alter . ' DROP DEFAULT';
+					}
+					$sql[] = $alter . " TYPE $t USING ($colname::BOOL)::INT";
+					if($has_default) {
+						$sql[] = $alter . " SET DEFAULT $default";
+					}
+				}	else if ( $old_coltype == 'I' && $t == 'BOOLEAN' ) { // Type change from int to bool
+					if( strcasecmp('NULL', trim($default)) != 0 ) {
+						$default = $this->connection->qstr($default);
+					}
+					if($has_default) {
+						$sql[] = $alter . ' DROP DEFAULT';
+					}
+					$sql[] = $alter . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
+					if($has_default) {
+						$sql[] = $alter . " SET DEFAULT $default";
+					}
+				} else { // Any other column types conversion
+					if(strpos($t, 'REFERENCES') !== false
+						 || strpos($t, 'SERIAL') !== false) {
+						continue;
+					}
+					$sql[] = $alter . " TYPE $t";
+					if($has_default) {
+						$sql[] = $alter . " SET DEFAULT $default";
+					}
+				}
+
 				if ($not_null) {
 					// this does not error out if the column is already not null
 					$sql[] = $alter . ' SET NOT NULL';
