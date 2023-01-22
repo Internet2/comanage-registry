@@ -514,34 +514,28 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
-		list($lines,$pkey,$idxs) = $this->_genFields($flds);
+		list($lines,$pkey,$idxs, $constraints) = $this->_genFields($flds, false, $tabname);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		foreach($lines as $v) {
-			$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
-			// For mysql databases use the syntax:
-			// ALTER TABLE <tabname> ADD FOREIGN KEY (<fk_column_name>) REFERENCES <table>(<column>);
-			// ALTER TABLE <tabname> CHANGE <field> <field> <type> NOT NULL;
-			if($this->databaseType === "mysql"
-				 && strpos($v, 'REFERENCES') !== false) {
-				$alter = 'ALTER TABLE ' . $tabname . $this->addFk . ' ';
-				list($field, $type, $reference) = explode(' ', $v, 3);
-				if(strpos($reference, 'NOT NULL') !== false) {
-					$reference = str_replace('NOT NULL', '', $reference);
-					$sql[] = 'ALTER TABLE ' . $tabname . $this->changeCol . ' ' . $field . ' ' . $field . ' ' . $type . ' NOT NULL';
-				}
-				$sql[] = $alter . "({$field})" . ' ' . $reference;
-			} else {
-				$sql[] = $alter . $v;
-			}
+			$sql[] = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ' . $v;
 		}
+
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
 				$sql_idxs = $this->createIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
 				$sql = array_merge($sql, $sql_idxs);
 			}
-
 		}
+
+		if (is_array($constraints) && !empty($constraints)) {
+			$sql_con = array();
+			foreach($constraints as $idx => $con) {
+				$sql_con[] = "ALTER TABLE {$tabname} ADD {$con}";
+			}
+			$sql = array_merge($sql, $sql_con);
+		}
+
 		return $sql;
 	}
 
@@ -606,7 +600,7 @@ class ADODB_DataDict {
 	*/
 	function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
-		list($lines,$pkey,$idxs, $constraints) = $this->_genFields($flds, true, $tabname);
+		list($lines,$pkey,$idxs, $constraints) = $this->_genFields($flds, false, $tabname);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 
@@ -615,16 +609,16 @@ class ADODB_DataDict {
 		$sql = $this->_tableSQL($tabname,$lines,$pkey,$taboptions);
 
 		// ggiunta - 2006/10/12 - KLUDGE:
-    // if we are on autoincrement, and table options includes REPLACE, the
-    // autoincrement sequence has already been dropped on table creation sql, so
-    // we avoid passing REPLACE to trigger creation code. This prevents
-    // creating sql that double-drops the sequence
-    if ($this->autoIncrement && isset($taboptions['REPLACE']))
-      unset($taboptions['REPLACE']);
+		// if we are on autoincrement, and table options includes REPLACE, the
+		// autoincrement sequence has already been dropped on table creation sql, so
+		// we avoid passing REPLACE to trigger creation code. This prevents
+		// creating sql that double-drops the sequence
+		if ($this->autoIncrement && isset($taboptions['REPLACE']))
+			unset($taboptions['REPLACE']);
 		$tsql = $this->_triggers($tabname,$taboptions);
 		foreach($tsql as $s) {
-      $sql[] = $s;
-    }
+			$sql[] = $s;
+		}
 
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
@@ -633,13 +627,13 @@ class ADODB_DataDict {
 			}
 		}
 
-    if (is_array($constraints) && !empty($constraints)) {
-      $sql_con = array();
-      foreach($constraints as $idx => $con) {
-        $sql_con[] = "ALTER TABLE {$tabname} ADD {$con}";
-      }
-      $sql = array_merge($sql, $sql_con);
-    }
+		if (is_array($constraints) && !empty($constraints)) {
+			$sql_con = array();
+			foreach($constraints as $idx => $con) {
+				$sql_con[] = "ALTER TABLE {$tabname} ADD {$con}";
+			}
+			$sql = array_merge($sql, $sql_con);
+		}
 
 		return $sql;
 	}
@@ -865,21 +859,21 @@ class ADODB_DataDict {
 			$suffix = $this->_createSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned);
 
 			// add index creation
-//			if ($widespacing) $fname = str_pad($fname,24);
+			if ($widespacing) $fname = str_pad($fname,24);
 
 			 // check for field names appearing twice
 			if (array_key_exists($fid, $lines)) {
 				 ADOConnection::outp("Field '$fname' defined twice");
 			}
 
-      // XXX NOT NULL??
+			// XXX NOT NULL??
 			foreach ($this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname) as $ln) {
-        if(strpos($ln, 'CONSTRAINT') !== false) {
-          $constraints[] = $ln;
-        } else {
-          $lines[$fid] = $ln;
-        }
-      }
+				if(strpos($ln, 'CONSTRAINT') !== false) {
+					$constraints[] = $ln;
+				} else {
+					$lines[$fid] = $ln;
+				}
+			}
 
 			if ($fautoinc) $this->autoIncrement = true;
 		} // foreach $flds
