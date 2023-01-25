@@ -1547,13 +1547,10 @@ if (!defined('_ADODB_LAYER')) {
 			}
 			$this->_queryID = _adodb_debug_execute($this, $sql,$inputarr);
 		} else {
-			// Disable error reporting directly from the library. Report according
-			// to ADOdb debug configuration
+			$errorlevel = error_reporting();
 			error_reporting(0);
-			ini_set('display_errors',0);
 			$this->_queryID = $this->_query($sql,$inputarr);
-			error_reporting(E_ALL);
-			ini_set('display_errors',1);
+			error_reporting($errorlevel);
 		}
 
 		// ************************

@@ -27,8 +27,8 @@ class ADODB2_mysql extends ADODB_DataDict {
 	var $alterCol = ' MODIFY COLUMN';
 	var $addFk = ' ADD FOREIGN KEY';
 	var $alterTableAddIndex = true;
-  var $changeCol = ' CHANGE COLUMN';
-  var $addConstraint = "CONSTRAINT %s FOREIGN KEY (%s) ";
+	var $changeCol = ' CHANGE COLUMN';
+	var $addConstraint = "CONSTRAINT %s FOREIGN KEY (%s) ";
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
 	var $dropIndex = 'DROP INDEX %s ON %s';
@@ -145,16 +145,74 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
-  function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
-  {
-    $line = array();
-    $fk_name = $tabname . '_' . $fname . '_fk';
-    $line[] = $fname . ' ' . $ftype;
-    if($fconstraint) {
-      $line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
-    }
-    return $line;
-  }
+	/**
+	 * This function changes/adds new fields to your table.
+	 *
+	 * You don't have to know if the col is new or not. It will check on its own.
+	 *
+	 * @param string   $tablename
+	 * @param string   $flds
+	 * @param string[] $tableoptions
+	 * @param bool     $dropOldFlds
+	 *
+	 * @return string[] Array of SQL Commands
+	 */
+	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
+	{
+		global $ADODB_FETCH_MODE;
+
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		if ($this->connection->fetchMode !== false) {
+			$savem = $this->connection->setFetchMode(false);
+		}
+		// check table exists
+		$save_handler = $this->connection->raiseErrorFn;
+		$this->connection->raiseErrorFn = '';
+		$cols = $this->metaColumns($tablename);
+		$this->connection->raiseErrorFn = $save_handler;
+
+		if (isset($savem)) {
+			$this->connection->setFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		if ( empty($cols)) {
+			return $this->createTableSQL($tablename, $flds, $tableoptions);
+		} else {
+			$sqlResultAdd = $this->addColumnSQL($tablename, $flds);
+			$sqlResultAlter = $this->alterColumnSQL($tablename, $flds, '', $tableoptions);
+			$sqlResult = array_merge((array)$sqlResultAdd, (array)$sqlResultAlter);
+
+			if ($dropOldFlds) {
+				// already exists, alter table instead
+				list($lines,$pkey,$idxs) = $this->_genFields($flds);
+				// genfields can return FALSE at times
+				if ($lines == null) {
+					$lines = array();
+				}
+				$alter = 'ALTER TABLE ' . $this->tableName($tablename);
+				foreach ( $cols as $id => $v ) {
+					if ( !isset($lines[$id]) ) {
+						$sqlResult[] = $alter . $this->dropCol . ' ' . $v->name;
+					}
+				}
+			}
+		}
+
+		return $sqlResult;
+	}
+
+	function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
+	{
+		$line = array();
+		$fk_name = $tabname . '_' . $fname . '_fk';
+		$line[] = $fname . ' ' . $ftype;
+		if($fconstraint) {
+			$line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
+		}
+		return $line;
+	}
 
 	// return string must begin with space
 	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)

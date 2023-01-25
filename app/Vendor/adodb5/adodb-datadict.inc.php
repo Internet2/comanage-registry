@@ -514,7 +514,7 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
-		list($lines,$pkey,$idxs, $constraints) = $this->_genFields($flds, false, $tabname);
+		list($lines, $pkey, $idxs, $constraints) = $this->_genFields($flds, false, $tabname);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		foreach($lines as $v) {
