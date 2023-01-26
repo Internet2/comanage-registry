@@ -136,7 +136,13 @@ class CoPerson extends AppModel {
   public $displayField = "PrimaryName.family";
 
   // Select clause for the paginator
-  private $paginate_fields = array( "DISTINCT CoPerson.id","PrimaryName.given","PrimaryName.family","CoPerson.status");
+  private $paginate_fields = array( "DISTINCT CoPerson.id",
+                                    "PrimaryName.given",
+                                    "PrimaryName.family",
+                                    "CoPerson.status",
+                                    "CoPerson.created",
+                                    "CoPerson.modified"
+                                  );
   
   // Validation rules for table elements
   // Validation rules must be named 'content' for petition dynamic rule adjustment
