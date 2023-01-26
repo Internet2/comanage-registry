@@ -145,6 +145,33 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
+  function addColumnSQL($tabname, $flds)
+  {
+    $tabname = $this->tableName($tabname);
+    $existing = $this->metaColumns($tabname);
+    $sql = array();
+    list($lines, $pkey, $idxs) = $this->_genFields($flds);
+    // genfields can return FALSE at times
+    if ($lines  == null) $lines = array();
+    $alter = 'ALTER TABLE ' . $tabname . $this->addCol . ' ';
+    foreach($lines as $v) {
+      // Skip if the column already in the database
+      list($colname) = explode(' ',$v);
+      if(isset($existing[strtoupper($colname)])) {
+        continue;
+      }
+      $sql[] = $alter . $v;
+    }
+
+    if (is_array($idxs)) {
+      foreach($idxs as $idx => $idxdef) {
+        $sql_idxs = $this->createIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
+        $sql = array_merge($sql, $sql_idxs);
+      }
+    }
+    return $sql;
+  }
+
 	/**
 	 * This function changes/adds new fields to your table.
 	 *
