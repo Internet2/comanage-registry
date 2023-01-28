@@ -873,7 +873,7 @@ class OrgIdentitiesController extends StandardController {
     // example.com/registry/co_people/index/search.givenName:albert/search.familyName:einstein
     foreach($this->data['search'] as $field=>$value){
       if(!empty($value)) {
-        $url['search.'.$field] = $value;
+        $url['search.'.$field] = urlencode($value);
       }
     }
 
