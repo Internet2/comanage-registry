@@ -234,7 +234,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 	{
 		$line = array();
 		$fk_name = $tabname . '_' . $fname . '_fk';
-		$line[] = $fname . ' ' . $ftype;
+		$line[] = $fname . ' ' . $ftype . ' ' . $suffix;
 		if($fconstraint) {
 			$line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
 		}
