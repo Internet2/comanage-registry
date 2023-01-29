@@ -607,7 +607,15 @@
                 break;
               case 'date':
               case 'validateTimestamp':
-                print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
+                // Not all fields should render with timezone adjustment.
+                // In particular, date_of_birth is referenced independent of timezones.
+                // There may be others over time, but for now we just hardcode it.
+
+                if($ea['field'] == 'date_of_birth') {
+                  print $this->Time->format($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], '%F');
+                } else {
+                  print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
+                }
                 break;
               default:
                 if($ea['field'] == 'sponsor_co_person_id'
