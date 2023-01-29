@@ -322,8 +322,8 @@
 
               if($ea['field'] == 'valid_from') {
                 $args['class'] .= ' datepicker-f';
-              } elseif($ea['field'] == 'valid_until') {
-                $args['class'] .= ' datepicker-c';
+              } elseif($ea['field'] == 'valid_through') {
+                $args['class'] .= ' datepicker-u';
               } else {
                 $args['class'] .= ' datepicker';
               }
@@ -614,7 +614,17 @@
                 if($ea['field'] == 'date_of_birth') {
                   print $this->Time->format($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], '%F');
                 } else {
-                  print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
+                  // CO-2573 We *should* adjust for timezone here but we don't.
+                  // CoPetition was never updated to adjust valid_from/valid_through dates
+                  // for timezones on save (even though CoPersonRoles was). As such, the
+                  // attribute saved was in the browser local timezone and not UTC.
+                  // Fixing the save at this point will result in inconsistent attributes
+                  // depending on when the petition was created, so we simply drop the
+                  // timezone adjustment here and render the original value, which in most
+                  // cases will be good enough. (And the operational value in CoPersonRoles
+                  // is correct, so the actual impact of this is minimal.)
+                  // This shoud be fixed in PE, however.
+                  print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]); //$vv_tz);
                 }
                 break;
               default:
