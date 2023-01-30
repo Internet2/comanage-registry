@@ -249,7 +249,7 @@ class ApiSource extends AppModel {
             // Check metadata
             foreach(array('resource' => 'sorPersonRole',
                           'version' => '1',
-                          'sor' => $cfg['ApiSource']['sor_label'])
+                          'sor' => $cfg['OrgIdentitySource']['sor_label'])
                     as $a => $v) {
               if(empty($json['meta'][$a]) || $json['meta'][$a] != $v) {
                 $this->ServerKafka->KafkaServer->closeConsumer();
