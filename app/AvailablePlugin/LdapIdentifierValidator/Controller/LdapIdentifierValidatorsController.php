@@ -29,7 +29,7 @@
 
 class LdapIdentifierValidatorsController extends SIVController {
   // Class name, used by Cake
-  public $name = "LdapIdentifierValidator";
+  public $name = "LdapIdentifierValidators";
   
   // Establish pagination parameters for HTML views
   public $paginate = array(
