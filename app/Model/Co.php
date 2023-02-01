@@ -49,7 +49,6 @@ class Co extends AppModel {
     "CoProvisioningTarget" => array('dependent' => true),
     "CoService" => array('dependent' => true),
     "CoDashboard" => array('dependent' => true),
-    "CoDepartment" => array('dependent' => true),
     "CoEmailList" => array('dependent' => true),
     // A CO has zero or more enrollment flows
     "CoEnrollmentFlow" => array('dependent' => true),
@@ -60,7 +59,6 @@ class Co extends AppModel {
     // A CO has zero or more groups
     "CoIdentifierAssignment" => array('dependent' => true),
     "CoIdentifierValidator" => array('dependent' => true),
-    "CoJob" => array('dependent' => true),
     "CoLocalization" => array('dependent' => true),
     "CoMessageTemplate" => array('dependent' => true),
     "CoNavigationLink" => array('dependent' => true),
@@ -80,11 +78,16 @@ class Co extends AppModel {
     "OrgIdentity" => array('dependent' => true),
     "OrgIdentitySource" => array('dependent' => true),
     "CoPipeline" => array('dependent' => true),
-    "CoGroup" => array('dependent' => true),
     // A CO has zero or more COUs
+    // XXX A COU has dependent Groups. Delete the COUs before the Groups
+    // XXX A COU has dependent Departments. Delete the COUs before the Departments
     "Cou" => array('dependent' => true),
+    "CoDepartment" => array('dependent' => true),
+    "CoGroup" => array('dependent' => true),
     "Server" => array('dependent' => true),
-    "VettingStep" => array('dependent' => true)
+    "VettingStep" => array('dependent' => true),
+    "Lock" => array('dependent' => true),
+    "CoJob" => array('dependent' => true),
   );
   
   public $hasOne = array(
@@ -194,6 +197,8 @@ class Co extends AppModel {
 
     return ($curStatus == TemplateableStatusEnum::InTrash);
   }
+
+
   
   /**
    * Delete a CO.
@@ -232,17 +237,51 @@ class Co extends AppModel {
     // data structures they might point to
     
     // Make sure to update this list in duplicate() as well
-    foreach(array("Authenticator",
-                  "CoDashboard", // triggers CoDashboardWidget
+    foreach(array("CoDashboard", // triggers CoDashboardWidget
+                  "Authenticator",
                   "CoProvisioningTarget",
                   "DataFilter",
                   "OrgIdentitySource") as $m) {
       // If set, we use duplicatableModels as a sort of inverse logic for cleanup
-      
+
+      // Reset the Changelog Behavior foreign keys
       if($this->$m->Behaviors->enabled('Changelog')) {
         $this->$m->reloadBehavior('Changelog', array('expunge' => true));
       }
-      
+
+      // Reset all the Changelog Behaviors from hasMany Relations
+      foreach($this->$m->hasMany as $modelName => $options) {
+        $modelRelation = ClassRegistry::init($modelName);
+
+        if($modelRelation->Behaviors->enabled('Changelog')) {
+          $modelRelation->reloadBehavior('Changelog', array('expunge' => true));
+        }
+      }
+
+      // Load all the Configured plugins and disable the Changelog Behavior config if any
+      // XXX For the case of CoDashboardWidget plugins we will call the beforeDelete callback in the Model itself
+      $modelPluginTypes = !empty($this->$m->hasManyPlugins)
+                          ? array_keys($this->$m->hasManyPlugins)
+                          : array();
+      foreach($modelPluginTypes as $pluginType) {
+        $plugins = $this->loadAvailablePlugins($pluginType);
+        foreach($plugins as $pluginName => $plugin) {
+          $pluginClassName = $pluginName;
+          if(!empty($this->$m->hasManyPlugins)
+             && isset($this->$m->hasManyPlugins[$pluginType]['coreModelFormat'])) {
+            $corem = sprintf($this->$m->hasManyPlugins[$pluginType]['coreModelFormat'], $plugin->name);
+            $pluginClassName = "{$plugin->name}.{$corem}";
+          }
+
+          $relation = array('hasMany' => array( $pluginClassName => array('dependent' => true)));
+
+          // Set reset to false so the bindings don't disappear after the first find
+          $this->$m->bindModel($relation, false);
+          // Unload the Changelog Behavior for all the descendants
+          $this->unloadChangelogBehavior($plugin, $pluginClassName);
+        }
+      }
+
       $this->$m->deleteAll(
         array($m.'.co_id' => $id),
         true,
@@ -294,7 +333,14 @@ class Co extends AppModel {
     // Unload TreeBehavior from Cou, since it throws errors, and we don't need to
     // rebalance a tree that we're about to remove entirely.
     $this->Cou->Behaviors->unload('Tree');
-    
+    // Delete all parent_id foreign keys since they will generate errors. We do not
+    // need them anymore since we are about to delete everything.
+    $this->Cou->updateAll(array('Cou.parent_id' => null),
+                          array(
+                            "Cou.co_id={$id}",
+                            "Cou.parent_id IS NOT null"
+                          ));
+
     return parent::delete($id, $cascade);
   }
 
@@ -626,5 +672,27 @@ class Co extends AppModel {
     }
     
     return true;
+  }
+
+  /**
+   * Unload Changelog Behavior retrospectively
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  Object         $plugin
+   */
+
+  public function unloadChangelogBehavior($plugin, $pluginClassName) {
+    if($plugin->Behaviors->enabled('Changelog')) {
+      $plugin->reloadBehavior('Changelog', array('expunge' => true));
+    }
+
+    // Get the prefix by the full Class Name
+    list($pluginName, $pluginParentModel) = explode('.', $pluginClassName);
+
+    foreach($plugin->hasMany as $pluginModelName => $options) {
+      $pluginModel = ClassRegistry::init($pluginName . '.' . $pluginModelName);
+      $this->unloadChangelogBehavior($pluginModel, $pluginClassName);
+    }
+
   }
 }

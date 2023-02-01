@@ -31,26 +31,28 @@ class RecoveryWidget extends AppModel {
 
   // Required by COmanage Plugins
   public $cmPluginType = "dashboardwidget";
-	
-	// Add behaviors
+
+  // Add behaviors
 //  public $actsAs = array('Containable');
-	
+
   // Document foreign keys
-  public $cmPluginHasMany = array();
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
-	);
-	
-	public $hasMany = array(
-	);
-	
+  public $cmPluginHasMany = array(
+    "Authenticator" => array("CoRecoveryWidget")
+  );
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
+  );
+
+  public $hasMany = array(
+  );
+
   // Default display field for cake generated views
 //  public $displayField = "description";
-	
+
   // Validation rules for table elements
   public $validate = array(
-	);
+  );
   
   /**
    * Expose menu items.
@@ -58,9 +60,9 @@ class RecoveryWidget extends AppModel {
    * @since COmanage Registry v4.2.0
    * @return Array with menu location type as key and array of labels, controllers, actions as values.
    */
-	
+
   public function cmPluginMenus() {
-  	return array();
+    return array();
   }
 
   /**

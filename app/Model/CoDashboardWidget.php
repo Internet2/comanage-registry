@@ -149,7 +149,40 @@ class CoDashboardWidget extends AppModel {
 
     return true;
   }
-  
+
+  /**
+   * Actions before deleting a model.
+   *
+   * @since  COmanage Registry v4.1.0
+   */
+
+  public function beforeDelete($cascade = true) {
+    $modelPluginTypes = array_keys($this->hasManyPlugins);
+    foreach($modelPluginTypes as $pluginType) {
+      $plugins = $this->loadAvailablePlugins($pluginType);
+
+      // Bind the models so Cake can magically pull associated data. Note this will
+      // create associations with *all* data filter plugins, not just the one that
+      // is actually associated with this Data Filter. Given that most installations
+      // will only have a handful of plugins, that seems OK (vs parsing the request
+      // data to figure out which type of Plugin we should bind).
+
+      foreach($plugins as $pluginName => $plugin) {
+        $corem = sprintf($this->hasManyPlugins[$pluginType]['coreModelFormat'], $plugin->name);
+        $relation = array('hasMany' => array( "{$plugin->name}.{$corem}" => array('dependent' => true)));
+
+        // Set reset to false so the bindings don't disappear after the first find
+        $this->bindModel($relation, false);
+
+        if($plugin->Behaviors->enabled('Changelog')) {
+          $plugin->reloadBehavior('Changelog', array('expunge' => true));
+        }
+      }
+    }
+
+    parent::beforeDelete($cascade);
+  }
+
   /**
    * Obtain the CO ID for a record, overriding AppModel behavior.
    *

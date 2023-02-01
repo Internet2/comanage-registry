@@ -39,18 +39,16 @@ class PasswordAuthenticator extends AuthenticatorBackend {
 
   // Document foreign keys
   public $cmPluginHasMany = array(
-    "CoPerson" => array("Password"),
-    "CoMessageTemplate" => array("PasswordAuthenticator")
+    "CoPerson" => array("Password")
   );
 
   // Association rules from this model to other models
   public $belongsTo = array(
-    "Authenticator",
-    "CoMessageTemplate"
+    "Authenticator"
   );
 
   public $hasMany = array(
-    "PasswordAuthenticator.Password"
+    "PasswordAuthenticator.Password" => array('dependent' => true)
   );
 
   // Default display field for cake generated views

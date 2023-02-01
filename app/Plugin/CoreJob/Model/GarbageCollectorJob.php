@@ -83,15 +83,19 @@ class GarbageCollectorJob extends CoJobBackend {
         foreach($mdl_instances as $instance) {
           $this->trash($CoJob, $object_type, $instance);
 
-          $comment = ($CoJob->failed($CoJob->id))
+          // XXX Jobs running from command line are registered under the deleted CO. As a result
+          //     after the delete there is no Job to track and use
+          $comment = ($CoJob->id && $CoJob->failed($CoJob->id))
             ? $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $object_type ]['name']))
             : $comment = _txt('rs.deleted-a2', array( _txt('ct.' . $modelpl . '.1'), $instance[ $object_type ]['name']));
         }
 
-        $done_job_id = $CoJob->id;
-        $CoJob->finish($CoJob->id, _txt('pl.garbagecollectorjob.done'));
-        // Send notification
-        $this->notify($coId, $CoJob, $params, $done_job_id, $comment);
+        if($CoJob->id) {
+          $done_job_id = $CoJob->id;
+          $CoJob->finish($CoJob->id, _txt('pl.garbagecollectorjob.done'));
+          // Send notification
+          $this->notify($coId, $CoJob, $params, $done_job_id, $comment);
+        }
       }
     }
     catch(Exception $e) {
@@ -186,7 +190,6 @@ class GarbageCollectorJob extends CoJobBackend {
    */
 
   protected function trash($CoJob, $object_type, $object) {
-
     $mdl = $this->mdlObj($object_type);
     $modelpl = Inflector::tableize($object_type);
 
@@ -198,12 +201,15 @@ class GarbageCollectorJob extends CoJobBackend {
 
     // Delete the CO and record the Job into the history
     $mdl->delete($object[ $object_type ]['id']);
-    $CoJob->CoJobHistoryRecord->record(
-      $CoJob->id,
-      $object[ $object_type ]['id'],
-      _txt('rs.deleted-a2', array(_txt('ct.' . $modelpl . '.1'), $name))
-    );
-
+    // XXX Jobs running from command line are registered under the deleted CO. As a result
+    //     after the delete there is no Job to track and use
+    if($CoJob->id) {
+      $CoJob->CoJobHistoryRecord->record(
+        $CoJob->id,
+        $object[ $object_type ]['id'],
+        _txt('rs.deleted-a2', array(_txt('ct.' . $modelpl . '.1'), $name))
+      );
+    }
   }
 
   /**

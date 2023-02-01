@@ -31,33 +31,34 @@ class CoRecoveryWidget extends CoDashboardWidgetBackend {
   // Define class name for cake
   public $name = "CoRecoveryWidget";
   
-	// Add behaviors
+  // Add behaviors
   public $actsAs = array('Containable');
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
-		"CoDashboardWidget"
-	);
-	
-	public $hasMany = array(
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
+    "CoDashboardWidget",
+    "Authenticator"
+  );
+
+  public $hasMany = array(
     "AuthenticatorResetToken" => array('dependent' => true)
-	);
-	
+  );
+
   // Default display field for cake generated views
   public $displayField = "id";
-	
+
   // Validation rules for table elements
   public $validate = array(
     'co_dashboard_widget_id' => array(
       'rule' => 'numeric',
       'required' => true,
-			'allowEmpty' => false
-		),
-		'enable_confirmation_resend' => array(
+      'allowEmpty' => false
+    ),
+    'enable_confirmation_resend' => array(
       'rule' => 'boolean',
-			'required' => true,
-			'allowEmpty' => false
-		),
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'identifier_template_id' => array(
       'content' => array(
         'rule' => 'numeric',
@@ -91,6 +92,6 @@ class CoRecoveryWidget extends CoDashboardWidgetBackend {
       'rule' => array('url', true),
       'required' => false,
       'allowEmpty' => true
-	  )
+    )
   );
 }

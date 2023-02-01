@@ -204,6 +204,38 @@ class AppModel extends Model {
       }
     }
 
+    // Hard Delete all hasMany associations that are not chained with dependent
+    // This refers to non-plugin models
+    if(!empty($this->id)) {
+      $class_name = get_class($this);
+
+      try {
+        if(!empty($this->hasMany)) {
+          foreach ($this->hasMany as $model => $options) {
+            if(!isset($options['dependent']) || !$options['dependent']) {
+              $mmodel = $options['className'] ?: $model;
+              $fk = $options['foreignKey'] ?: Inflector::underscore($class_name) . '_id';
+
+              $mmodel_ob = ClassRegistry::init($mmodel);
+              if(!$mmodel_ob->Behaviors->enabled('Changelog')
+                || ($mmodel_ob->Behaviors->enabled('Changelog')
+                  && $mmodel_ob->Behaviors->Changelog->settings[get_class($mmodel_ob)]['expunge'])
+              ) {
+                // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+                $mmodel_ob->updateAll(
+                  array($mmodel . '.' . $fk => null),
+                  array($mmodel . '.' . $fk => $this->id)
+                );
+              }
+            }
+          }
+        }
+      }
+      catch(Exception $e) {
+        // Do nothing
+      }
+    }
+
     return true;
   }
   
