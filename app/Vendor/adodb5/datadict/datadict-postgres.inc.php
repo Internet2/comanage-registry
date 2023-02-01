@@ -147,6 +147,9 @@ class ADODB2_postgres extends ADODB_DataDict
 
 	/**
 	 * Adding a new Column
+	 * This functions constructs an one-liner so as to add a foreign key or a sequence
+	 * This is very useful on the initial creation but creates many constraint
+	 * duplicates since it runs always before the Table alter function.
 	 *
 	 * reimplementation of the default function as postgres does NOT allow to set the default in the same statement
 	 *
@@ -157,6 +160,7 @@ class ADODB2_postgres extends ADODB_DataDict
 	function addColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->tableName($tabname);
+		$existing = $this->metaColumns($tabname);
 		$sql = array();
 		$not_null = false;
 		list($lines,$pkey) = $this->_genFields($flds);
@@ -167,18 +171,33 @@ class ADODB2_postgres extends ADODB_DataDict
 				$v = preg_replace('/NOT NULL/i','',$v);
 			}
 			if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
+				// Skip if the column already in the database
 				list(,$colname,$default) = $matches;
+				if(isset($existing[strtoupper($colname)])) {
+					continue;
+				}
 				$sql[] = $alter . str_replace('DEFAULT '.$default,'',$v);
 				$sql[] = 'UPDATE '.$tabname.' SET '.$colname.'='.$default.' WHERE '.$colname.' IS NULL ';
 				$sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT ' . $default;
 			} else {
+				// Skip if the column already in the database
+				list($colname) = explode(' ',$v);
+				if(isset($existing[strtoupper($colname)])) {
+					continue;
+				}
 				$sql[] = $alter . $v;
 			}
+
+			// Not null
 			if ($not_null) {
+				// Skip if the column already in the database
 				list($colname) = explode(' ',$v);
+				if(isset($existing[strtoupper($colname)])) {
+					continue;
+				}
 				$sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET NOT NULL';
 			}
-		}
+		} // foreach
 		return $sql;
 	}
 
@@ -408,6 +427,14 @@ class ADODB2_postgres extends ADODB_DataDict
 		return $sql;
 	}
 
+  function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
+  {
+    if ($fconstraint) {
+      $suffix .= ' ' . $fconstraint;
+    }
+    return [$fname . ' ' . $ftype . $suffix];
+  }
+
 	// return string must begin with space
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
 	{
@@ -418,7 +445,6 @@ class ADODB2_postgres extends ADODB_DataDict
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
 		if ($fnotnull) $suffix .= ' NOT NULL';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		return $suffix;
 	}
 

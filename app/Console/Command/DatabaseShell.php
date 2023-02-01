@@ -57,6 +57,12 @@
       }
 
       $dbc = ADONewConnection($db_driverName);
+      if (Configure::read('debug') >= 2) {
+        $dbc->debug = true;
+      }
+      if(isset($db->config['port'])) {
+        $dbc->port = (int)$db->config['port'];
+      }
       
       if($dbc->Connect($db->config['host'],
                        $db->config['login'],
