@@ -1221,8 +1221,8 @@
                   $card_role_args[_txt('fd.title')] = !empty($r['title']) ? filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.affiliation')] = !empty($r['affiliation']) ? filter_var($vv_copr_affiliation_types[$r['affiliation']], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.o')] = !empty($r['o']) ? filter_var($r['o'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
-                  $card_role_args[_txt('fd.valid_from')] = !empty($r['valid_from']) ? filter_var($r['valid_from'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
-                  $card_role_args[_txt('fd.valid_through')] = !empty($r['valid_through']) ? filter_var($r['valid_through'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.valid_from')] = !empty($r['valid_from']) ? filter_var($this->Time->format($r['valid_from'], "%F %T", false, $vv_tz), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.valid_through')] = !empty($r['valid_through']) ? filter_var($this->Time->format($r['valid_through'], "%F %T", false, $vv_tz), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.status')] = $status;
                   ?>
                   <!-- Collapsed data -->

@@ -514,20 +514,28 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
-		list($lines,$pkey,$idxs) = $this->_genFields($flds);
+		list($lines, $pkey, $idxs, $constraints) = $this->_genFields($flds, false, $tabname);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
-		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 		foreach($lines as $v) {
-			$sql[] = $alter . $v;
+			$sql[] = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ' . $v;
 		}
+
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
 				$sql_idxs = $this->createIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
 				$sql = array_merge($sql, $sql_idxs);
 			}
-
 		}
+
+		if (is_array($constraints) && !empty($constraints)) {
+			$sql_con = array();
+			foreach($constraints as $idx => $con) {
+				$sql_con[] = "ALTER TABLE {$tabname} ADD {$con}";
+			}
+			$sql = array_merge($sql, $sql_con);
+		}
+
 		return $sql;
 	}
 
@@ -592,7 +600,7 @@ class ADODB_DataDict {
 	*/
 	function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
-		list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
+		list($lines,$pkey,$idxs, $constraints) = $this->_genFields($flds, false, $tabname);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 
@@ -601,14 +609,16 @@ class ADODB_DataDict {
 		$sql = $this->_tableSQL($tabname,$lines,$pkey,$taboptions);
 
 		// ggiunta - 2006/10/12 - KLUDGE:
-        // if we are on autoincrement, and table options includes REPLACE, the
-        // autoincrement sequence has already been dropped on table creation sql, so
-        // we avoid passing REPLACE to trigger creation code. This prevents
-        // creating sql that double-drops the sequence
-        if ($this->autoIncrement && isset($taboptions['REPLACE']))
-        	unset($taboptions['REPLACE']);
+		// if we are on autoincrement, and table options includes REPLACE, the
+		// autoincrement sequence has already been dropped on table creation sql, so
+		// we avoid passing REPLACE to trigger creation code. This prevents
+		// creating sql that double-drops the sequence
+		if ($this->autoIncrement && isset($taboptions['REPLACE']))
+			unset($taboptions['REPLACE']);
 		$tsql = $this->_triggers($tabname,$taboptions);
-		foreach($tsql as $s) $sql[] = $s;
+		foreach($tsql as $s) {
+			$sql[] = $s;
+		}
 
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
@@ -617,12 +627,20 @@ class ADODB_DataDict {
 			}
 		}
 
+		if (is_array($constraints) && !empty($constraints)) {
+			$sql_con = array();
+			foreach($constraints as $idx => $con) {
+				$sql_con[] = "ALTER TABLE {$tabname} ADD {$con}";
+			}
+			$sql = array_merge($sql, $sql_con);
+		}
+
 		return $sql;
 	}
 
 
 
-	function _genFields($flds,$widespacing=false)
+	function _genFields($flds,$widespacing=false, $tabname=null)
 	{
 		if (is_string($flds)) {
 			$padding = '     ';
@@ -670,6 +688,7 @@ class ADODB_DataDict {
 		$lines = array();
 		$pkey = array();
 		$idxs = array();
+		$constraints = array();
 		foreach($flds as $fld) {
 			if (is_array($fld))
 				$fld = array_change_key_case($fld,CASE_UPPER);
@@ -843,16 +862,23 @@ class ADODB_DataDict {
 			if ($widespacing) $fname = str_pad($fname,24);
 
 			 // check for field names appearing twice
-            if (array_key_exists($fid, $lines)) {
-            	 ADOConnection::outp("Field '$fname' defined twice");
-            }
+			if (array_key_exists($fid, $lines)) {
+				 ADOConnection::outp("Field '$fname' defined twice");
+			}
 
-			$lines[$fid] = $fname.' '.$ftype.$suffix;
+			// XXX NOT NULL??
+			foreach ($this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname) as $ln) {
+				if(strpos($ln, 'CONSTRAINT') !== false) {
+					$constraints[] = $ln;
+				} else {
+					$lines[$fid] = $ln;
+				}
+			}
 
 			if ($fautoinc) $this->autoIncrement = true;
 		} // foreach $flds
 
-		return array($lines,$pkey,$idxs);
+		return array($lines, $pkey, $idxs, $constraints);
 	}
 
 	/**
@@ -951,7 +977,7 @@ class ADODB_DataDict {
 
 		$s = "CREATE TABLE $tabname (\n";
 		$s .= implode(",\n", $lines);
-		if (sizeof($pkey)>0) {
+		if (count($pkey)>0) {
 			$s .= ",\n                 PRIMARY KEY (";
 			$s .= implode(", ",$pkey).")";
 		}

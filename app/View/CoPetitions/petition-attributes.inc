@@ -322,8 +322,8 @@
 
               if($ea['field'] == 'valid_from') {
                 $args['class'] .= ' datepicker-f';
-              } elseif($ea['field'] == 'valid_until') {
-                $args['class'] .= ' datepicker-c';
+              } elseif($ea['field'] == 'valid_through') {
+                $args['class'] .= ' datepicker-u';
               } else {
                 $args['class'] .= ' datepicker';
               }
@@ -607,7 +607,25 @@
                 break;
               case 'date':
               case 'validateTimestamp':
-                print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], $vv_tz);
+                // Not all fields should render with timezone adjustment.
+                // In particular, date_of_birth is referenced independent of timezones.
+                // There may be others over time, but for now we just hardcode it.
+
+                if($ea['field'] == 'date_of_birth') {
+                  print $this->Time->format($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ], '%F');
+                } else {
+                  // CO-2573 We *should* adjust for timezone here but we don't.
+                  // CoPetition was never updated to adjust valid_from/valid_through dates
+                  // for timezones on save (even though CoPersonRoles was). As such, the
+                  // attribute saved was in the browser local timezone and not UTC.
+                  // Fixing the save at this point will result in inconsistent attributes
+                  // depending on when the petition was created, so we simply drop the
+                  // timezone adjustment here and render the original value, which in most
+                  // cases will be good enough. (And the operational value in CoPersonRoles
+                  // is correct, so the actual impact of this is minimal.)
+                  // This shoud be fixed in PE, however.
+                  print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]); //$vv_tz);
+                }
                 break;
               default:
                 if($ea['field'] == 'sponsor_co_person_id'

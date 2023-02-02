@@ -230,9 +230,21 @@ class CoIdentifierAssignment extends AppModel {
     
     $args = array();
     $args['conditions'][$objType.'.id'] = $objId;
-    $args['contain'][] = 'Identifier';
+    $args['contain'] = array();
+    $args['contain']['Identifier'] = array(
+      'conditions' => array(
+        'Identifier.deleted IS NOT TRUE',
+        'Identifier.identifier_id IS NULL'
+      )
+    );
     if($objType == 'CoPerson') {
-      $args['contain'][] = 'Name';
+      $args['contain']['PrimaryName'] = array(
+          'conditions' => array(
+            'PrimaryName.deleted IS NOT TRUE',
+            'PrimaryName.primary_name IS TRUE',
+            'PrimaryName.name_id IS NULL'
+        )
+      );
     }
     
     $obj = $this->Co->$objType->find('first', $args);
@@ -325,22 +337,9 @@ class CoIdentifierAssignment extends AppModel {
         $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
       }
 
-      // For CoPerson use the primary Name if there is one, else the last Name.
-      // For CoDepartment and CoGroup use the name.
-      if($objType == 'CoPerson') {
-        $primaryNameIndex = array_search(true, array_column($obj['Name'], 'primary_name'), true);
-        if(empty($primaryNameIndex)) {
-          $name = end($obj['Name']);
-        } else {
-          $name = $obj['Name'][$primaryNameIndex];
-        }
-      } else {
-        $name = $obj[$objType]['name'];
-      }
-
       try {
         $base = $this->substituteParameters($iaFormat,
-                                            $name,
+                                            $obj['PrimaryName'] ?? $obj[$objType]['name'],
                                             $obj['Identifier'],
                                             $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
       }

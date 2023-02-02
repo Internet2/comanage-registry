@@ -46,6 +46,11 @@ RUN apt-get update && apt-get install -y \
          libpq-dev \
       && apt-get clean
 
+# Configure TLS CA signing certificates for LDAP TLS libraries.
+ARG LDAPTLS_CACERT
+ENV LDAPTLS_CACERT ${LDAPTLS_CACERT:-/etc/ssl/certs/ca-certificates.crt}
+LABEL ldaptls_cacert=${LDAPTLS_CACERT}
+
 # Build the redis extension to use Redis for session storage.
 RUN docker-php-source extract \
     && pecl bundle -d /usr/src/php/ext redis \

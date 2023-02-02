@@ -438,7 +438,7 @@ class CoGroupMember extends AppModel {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoGroup.id=CoGroupMember.co_group_id';
     $args['fields'] = array(
-      'id', 'co_group_id', 'co_person_id', 'member', 'owner'
+      'id', 'co_group_id', 'co_person_id', 'member', 'owner', 'valid_from', 'valid_through'
     );
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
     foreach ($model as $modelId => $modelNAme) {
