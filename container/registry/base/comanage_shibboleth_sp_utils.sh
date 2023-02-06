@@ -226,11 +226,11 @@ function comanage_shibboleth_sp_utils::process_slash_root() {
 
     pushd "${slash_root}"
 
-    # Copy all files and preserve all details but exclude any files
+    # Copy all files and symlinks and preserve all details but exclude any files
     # for the Shibboleth SP if they exist to allow the Shib SP
     # entrypoint script to process that path and prevent a race
     # condition.
-    find etc/shibboleth -type f | xargs -I{} cp --preserve=all --parents {} / > ${OUTPUT} 2>&1
+    find etc/shibboleth -type f,l | xargs -I{} cp --preserve=all --parents --no-dereference {} / > ${OUTPUT} 2>&1
 
     popd
 
