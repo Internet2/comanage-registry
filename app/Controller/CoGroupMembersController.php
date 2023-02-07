@@ -941,7 +941,7 @@ class CoGroupMembersController extends StandardController {
     // example.com/registry/co_group_members/select/cogroup:xxx/search.givenName:albert/search.familyName:einstein
     foreach($this->data['search'] as $field=>$value){
       if(!empty($value)) {
-        $url['search.'.$field] = urlencode($value);
+        $url['search.'.$field] = $value;
       }
     }
 
