@@ -416,7 +416,7 @@ class CoEnrollmentFlowsController extends StandardController {
 
     $ret['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
     if(!empty($eof_name)) {
-      $eof_name = strtolower($eof_name);
+      $eof_name = strtolower(str_replace(urlencode("/"), "/", $eof_name));
       $ret['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%$eof_name%";
     }
     if(!empty($eof_status)) {

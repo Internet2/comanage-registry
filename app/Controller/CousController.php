@@ -289,9 +289,11 @@ class CousController extends StandardController {
 
     $ret['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
     if(!empty($cou_name)) {
-      $ret['conditions']['Cou.name LIKE'] = "%$cou_name%";
+      $cou_name = strtolower(str_replace(urlencode("/"), "/", $cou_name));
+      $ret['conditions']['LOWER(Cou.name) LIKE'] = "%$cou_name%";
     }
     if(!empty($cou_description)) {
+      $cou_description = strtolower(str_replace(urlencode("/"), "/", $cou_description));
       $ret['conditions']['LOWER(Cou.description) LIKE'] = "%{$cou_description}%";
     }
     if(!empty($parent_couid)) {

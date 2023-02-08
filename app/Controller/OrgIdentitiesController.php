@@ -745,19 +745,22 @@ class OrgIdentitiesController extends StandardController {
 
     // Filter by given name
     if(!empty($this->request->params['named']['search.givenName'])) {
-      $searchterm = strtolower($this->request->params['named']['search.givenName']);
+      $searchterm = $this->request->params['named']['search.givenName'];
+      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
       $pagcond['conditions']['LOWER(PrimaryName.given) LIKE'] = "%$searchterm%";
     }
 
     // Filter by Family name
     if(!empty($this->request->params['named']['search.familyName'])) {
-      $searchterm = strtolower($this->request->params['named']['search.familyName']);
+      $searchterm = $this->request->params['named']['search.familyName'];
+      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "%$searchterm%";
     }
 
     // Filter by start of Primary Family name (starts with searchterm)
     if(!empty($this->request->params['named']['search.familyNameStart'])) {
       $searchterm = strtolower($this->request->params['named']['search.familyNameStart']);
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
 
@@ -779,18 +782,21 @@ class OrgIdentitiesController extends StandardController {
     // Filter by Department
     if(!empty($this->request->params['named']['search.department'])) {
       $searchterm = strtolower($this->request->params['named']['search.department']);
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $pagcond['conditions']['LOWER(OrgIdentity.ou) LIKE'] = "%$searchterm%";
     }
 
     // Filter by title
     if(!empty($this->request->params['named']['search.title'])) {
       $searchterm = strtolower($this->request->params['named']['search.title']);
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $pagcond['conditions']['LOWER(OrgIdentity.title) LIKE'] = "%$searchterm%";
     }
 
     // Filter by affiliation
     if(!empty($this->request->params['named']['search.affiliation'])) {
       $searchterm = strtolower($this->request->params['named']['search.affiliation']);
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $pagcond['conditions']['OrgIdentity.affiliation LIKE'] = "%$searchterm%";
     }
 
@@ -798,6 +804,7 @@ class OrgIdentitiesController extends StandardController {
     // Filter by email address
     if(!empty($this->request->params['named']['search.mail'])) {
       $searchterm = strtolower($this->request->params['named']['search.mail']);
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'email_addresses';
       $pagcond['joins'][$jcnt]['alias'] = 'EmailAddress';
@@ -809,6 +816,7 @@ class OrgIdentitiesController extends StandardController {
     // Filter by identifier
     if(!empty($this->request->params['named']['search.identifier'])) {
       $searchterm = strtolower($this->request->params['named']['search.identifier']);
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'identifiers';
       $pagcond['joins'][$jcnt]['alias'] = 'Identifier';
@@ -873,7 +881,7 @@ class OrgIdentitiesController extends StandardController {
     // example.com/registry/co_people/index/search.givenName:albert/search.familyName:einstein
     foreach($this->data['search'] as $field=>$value){
       if(!empty($value)) {
-        $url['search.'.$field] = urlencode($value);
+        $url['search.'.$field] = $value;
       }
     }
 
