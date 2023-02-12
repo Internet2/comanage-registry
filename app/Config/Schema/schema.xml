@@ -874,6 +874,7 @@
     <field name="job_params" type="XL" />
     <field name="requeue_interval" type="I" />
     <field name="retry_interval" type="I" />
+    <field name="max_retry" type="I" />
     <field name="requeued_from_co_job_id" type="I">
       <constraint>REFERENCES cm_co_jobs(id)</constraint>
     </field>
@@ -1253,6 +1254,36 @@
     </index>
   </table>
   
+  <table name="co_provisioning_counts">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_provisioning_target_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
+    </field>
+    <field name="co_job_id" type="I">
+      <constraint>REFERENCES cm_co_jobs(id)</constraint>
+    </field>
+    <field name="provisioning_count" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_provisioning_count_id" type="I">
+      <constraint>REFERENCES cm_co_provisioning_counts(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
+    <index name="co_provisioning_counts_i1">
+      <col>co_provisioning_target_id</col>
+    </index>
+    <index name="co_provisioning_counts_i2">
+      <col>co_provisioning_count_id</col>
+    </index>
+  </table>
+
   <table name="co_provisioning_targets">
     <field name="id" type="I">
       <key />
@@ -1272,6 +1303,7 @@
     </field>
     <field name="status" type="C" size="2" />
     <field name="retry_interval" type="I" />
+    <field name="max_retry" type="I" />
     <field name="ordr" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />

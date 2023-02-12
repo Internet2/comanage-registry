@@ -68,14 +68,37 @@ class CoJob extends AppModel {
       'allowEmpty' => true
     ),
     'requeue_interval' => array(
-      'rule' => array('numeric'),   // We really want range of 0+
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('comparison', '>', 0),
+        'message' => 'Must be greater than 0(zero)'
+      )
     ),
     'retry_interval' => array(
-      'rule' => array('numeric'),   // We really want range of 0+
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('comparison', '>', 0),
+        'message' => 'Must be greater than 0(zero)'
+      )
+    ),
+    'max_retry' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('comparison', '>', 0),
+        'message' => 'Must be greater than 0(zero)'
+      )
     ),
     'requeued_from_co_job_id' => array(
       'rule' => 'numeric',
@@ -375,6 +398,7 @@ class CoJob extends AppModel {
    * @param  Integer     $requeueInterval If non-zero, number of seconds after successful completion to requeue the same job
    * @param  Integer     $retryInterval   If non-zero, number of seconds after failed completion to requeue the same job
    * @param  Integer     $requeuedFrom    If requeued, the CO Job ID that created this Job
+   * @param  Integer     $maxRetry        If non-zero, number of times that will retry after failure
    * @return Integer                      Job ID
    * @throws RuntimeException
    */
@@ -390,7 +414,8 @@ class CoJob extends AppModel {
                            $delay=0,
                            $requeueInterval=0,
                            $retryInterval=0,
-                           $requeuedFrom=null) {
+                           $requeuedFrom=null,
+                           $maxRetry=0) {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
@@ -432,6 +457,7 @@ class CoJob extends AppModel {
     $coJob['CoJob']['queue_time'] = date('Y-m-d H:i:s', time());
     $coJob['CoJob']['requeue_interval'] = $requeueInterval;
     $coJob['CoJob']['retry_interval'] = $retryInterval;
+    $coJob['CoJob']['max_retry'] = $maxRetry;
     if($requeuedFrom) {
       $coJob['CoJob']['requeued_from_co_job_id'] = $requeuedFrom;
     }
