@@ -88,7 +88,34 @@
       ?>
     </div>
   </li>
-  
+  <li>
+    <span class="field-name">
+      <?php
+      if($e) {
+        print $this->Form->label('name_type', _txt('pl.namespaceassigner.type.name'));
+      } else {
+        print _txt('fd.type');
+      }
+      ?>
+      <span class="required">*</span>
+    </span>
+    <span class="field-info">
+      <?php
+      $attrs = array();
+      $attrs['value'] = (isset($namespace_assigner_settings) ? $namespace_assigner_settings[0]['NamespaceAssignerSetting']['name_type'] : "");
+      $attrs['empty'] = true;
+
+      print $this->Form->select('name_type',
+        $vv_available_name_types,
+        $attrs);
+
+      if($this->Form->isFieldError('name_type')) {
+        print $this->Form->error('name_type');
+      }
+      ?>
+    </span>
+  </li>
+    
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">
