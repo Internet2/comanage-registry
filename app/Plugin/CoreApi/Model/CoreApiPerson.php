@@ -27,9 +27,9 @@
 
 App::uses("CoreApi", "CoreApi.Model");
 
-class Person extends CoreApi {
+class CoreApiPerson extends CoreApi {
   // Define class name for cake
-  public $name = "Person";
+  public $name = "CoreApiPerson";
 
   public $mapper = "CoPerson";
 

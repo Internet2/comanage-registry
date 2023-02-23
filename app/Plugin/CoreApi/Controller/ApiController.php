@@ -407,10 +407,10 @@ class ApiController extends Controller {
    * @since  COmanage Registry v4.0.0
    * @return Array Permissions
    */
-  
+
   function isAuthorized() {
     // Currently we do all meaningful checks in beforeFilter().
-    
+
     return true;
   }
 

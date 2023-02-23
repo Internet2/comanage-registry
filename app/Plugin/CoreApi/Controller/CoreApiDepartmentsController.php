@@ -26,9 +26,9 @@
  */
 
 App::uses('ApiController', 'CoreApi.Controller');
-class DepartmentsController extends ApiController {
+class CoreApiDepartmentsController extends ApiController {
   // Class name, used by Cake
-  public $name = "Departments";
+  public $name = "CoreApiDepartments";
 
   public $mapper = "CoDepartments";
 
@@ -36,6 +36,6 @@ class DepartmentsController extends ApiController {
     "Co",
     "CoJob",
     "CoreApi.CoreApi",
-    "CoreApi.Department",
+    "CoreApi.CoreApiDepartment",
   );
 }
