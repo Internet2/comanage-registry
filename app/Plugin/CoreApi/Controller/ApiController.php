@@ -177,15 +177,21 @@ class ApiController extends Controller {
             case 'read':    // Read single record
             case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
-                CoreApiEnum::Read,
+                CoreApiEnum::PersonRead,
+                CoreApiEnum::OrganizationRead,
+                CoreApiEnum::DepartmentRead,
                 // ApiUsers with Write permission can also read
-                CoreApiEnum::Write
+                CoreApiEnum::PersonWrite,
+                CoreApiEnum::OrganizationWrite,
+                CoreApiEnum::DepartmentWrite
               );
               break;
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = CoreApiEnum::Write;
+              $args['conditions']['CoreApi.api'] = array(CoreApiEnum::PersonWrite,
+                                                         CoreApiEnum::OrganizationWrite,
+                                                         CoreApiEnum::DepartmentWrite);
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;

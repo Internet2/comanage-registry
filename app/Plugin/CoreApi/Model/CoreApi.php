@@ -125,8 +125,12 @@ class CoreApi extends AppModel {
     ),
     'api' => array(
       'content' => array(
-        'rule' => array('inList', array(CoreApiEnum::Read,
-                                        CoreApiEnum::Write,
+        'rule' => array('inList', array(CoreApiEnum::PersonRead,
+                                        CoreApiEnum::PersonWrite,
+                                        CoreApiEnum::OrganizationRead,
+                                        CoreApiEnum::OrganizationWrite,
+                                        CoreApiEnum::DepartmentRead,
+                                        CoreApiEnum::DepartmentWrite,
                                         CoreApiEnum::MatchCallback)),
         'required' => true,
         'allowEmpty' => false
@@ -159,7 +163,7 @@ class CoreApi extends AppModel {
       return false;
     }
 
-    $person_core_api_keys = array(CoreApiEnum::Read, CoreApiEnum::Write);
+    $person_core_api_keys = array(CoreApiEnum::PersonRead, CoreApiEnum::PersonWrite);
     if(!in_array($this->data['CoreApi']["api"], $person_core_api_keys)) {
       $this->validate["index_response_type"]["content"]["required"] = false;
       $this->validate["index_response_type"]["content"]["allowEmpty"] = true;

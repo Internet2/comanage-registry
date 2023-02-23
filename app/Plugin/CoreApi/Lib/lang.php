@@ -38,9 +38,13 @@ $cm_core_api_texts['en_US'] = array(
   
   // Enumeration language texts
   'pl.coreapi.en.api' => array(
-    CoreApiEnum::Read             => 'COmanage Read API',
-    CoreApiEnum::Write            => 'COmanage Write API',
-    CoreApiEnum::MatchCallback    => 'Match Callback API'
+    CoreApiEnum::PersonRead             => 'Person Read API',
+    CoreApiEnum::PersonWrite            => 'Person Write API',
+    CoreApiEnum::OrganizationRead       => 'Organization Read API',
+    CoreApiEnum::OrganizationWrite      => 'Organization Write API',
+    CoreApiEnum::DepartmentRead         => 'Department Read API',
+    CoreApiEnum::DepartmentWrite        => 'Department Write API',
+    CoreApiEnum::MatchCallback          => 'Match Callback API'
   ),
 
   'pl.coreapi.en.response.type' => array(
