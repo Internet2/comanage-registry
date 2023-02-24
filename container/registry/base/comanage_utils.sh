@@ -289,9 +289,12 @@ function comanage_utils::enable_plugins() {
         done
 
         popd > "$OUTPUT" 2>&1
-        pushd "$COMANAGE_REGISTRY_DIR/app" > "$OUTPUT" 2>&1
-        ./Console/cake database > "$OUTPUT" 2>&1
-        popd > "$OUTPUT" 2>&1
+
+        if [[ -z "COMANAGE_REGISTRY_SKIP_SETUP" ]]; then
+            pushd "$COMANAGE_REGISTRY_DIR/app" > "$OUTPUT" 2>&1
+            ./Console/cake database > "$OUTPUT" 2>&1
+            popd > "$OUTPUT" 2>&1
+        fi
 
         # Clear the caches again.
         comanage_utils::registry_clear_cache
