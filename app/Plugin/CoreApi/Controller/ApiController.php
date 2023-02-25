@@ -172,26 +172,21 @@ class ApiController extends Controller {
           $args['contain'] = false;
           
           // Which API was requested?
-          
+          $targetedController = str_replace('CoreApi', '', $this->request->params['controller']);
+          $targetedSingular = Inflector::singularize($targetedController);
           switch($this->request->params['action']) {
             case 'read':    // Read single record
             case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
-                CoreApiEnum::PersonRead,
-                CoreApiEnum::OrganizationRead,
-                CoreApiEnum::DepartmentRead,
+                constant("CoreApiEnum::{$targetedSingular}Read"),
                 // ApiUsers with Write permission can also read
-                CoreApiEnum::PersonWrite,
-                CoreApiEnum::OrganizationWrite,
-                CoreApiEnum::DepartmentWrite
+                constant("CoreApiEnum::{$targetedSingular}Write"),
               );
               break;
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = array(CoreApiEnum::PersonWrite,
-                                                         CoreApiEnum::OrganizationWrite,
-                                                         CoreApiEnum::DepartmentWrite);
+              $args['conditions']['CoreApi.api'] = array(constant("CoreApiEnum::{$targetedSingular}Read"));
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;

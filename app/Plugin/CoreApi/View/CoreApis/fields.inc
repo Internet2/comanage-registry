@@ -304,7 +304,7 @@
     class="core-api-expunge-on-del"
     style="<?php
     print (!empty($core_apis[0]['CoreApi']['api'])
-           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::Write)
+           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::PersonWrite)
       ? '' :  'display: none'; ?>"
   >
     <div class="field-name">
