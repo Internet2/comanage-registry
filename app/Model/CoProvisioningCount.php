@@ -53,6 +53,11 @@ class CoProvisioningCount extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'targeted_instance' => array(
+      'rule' => '/.*/',
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'provisioning_count' => array(
       'content' => array(
         'rule' => array('numeric'),
