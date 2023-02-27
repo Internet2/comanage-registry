@@ -1171,6 +1171,7 @@ The request may be viewed at
   'er.grm.already' => 'CO Person %1$s is already a member of group %2$s',
   'er.grm.history' =>  'Error creating history record when automatically adding CO Person ID %1$s to group %2$s',
   'er.grm.history.members' => 'Error creating history record when automatically adding CO Person ID %1$s to members group',
+  'er.grm.nested.member' => 'Failed to add nested membership',
   'er.grm.nf' =>      'Group Member %1$s Not Found',
   'er.grm.none' =>    'No group memberships to add',
   'er.grm.none-a' =>  'No group memberships',
