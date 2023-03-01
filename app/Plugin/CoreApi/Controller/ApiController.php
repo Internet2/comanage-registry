@@ -186,7 +186,7 @@ class ApiController extends Controller {
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = array(constant("CoreApiEnum::{$targetedSingular}Read"));
+              $args['conditions']['CoreApi.api'] = array(constant("CoreApiEnum::{$targetedSingular}Write"));
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;
