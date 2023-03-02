@@ -331,8 +331,19 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    */
   
   protected function deletePerson($provisioningData) {
-    // First let syncPerson delete related attributes
-    $this->syncPerson($provisioningData);
+    // Build a mostly empty array regardless of what was passed to us,
+    // in case we get related data or other noise. We want syncPerson to
+    // see no related models and so delete them all.
+
+    $deleteData = array(
+      'CoPerson' => array(
+        'id'      => $provisioningData['CoPerson']['id'],
+        'co_id'   => $provisioningData['CoPerson']['co_id'],
+        'status'  => StatusEnum::Deleted
+      )
+    );
+    
+    $this->syncPerson($deleteData);
     
     // Then delete the CO Person record itself.
     $SpCoPerson = new Model(array(
