@@ -515,8 +515,13 @@ class StandardController extends AppController {
       
       $args['conditions'][$req.'.id'] = $id;
       $args['contain'] = $this->edit_contains;
-      
-      $curdata = $model->find('first', $args);
+
+      try {
+        // We need a try-catch here since Changelog can throw exceptions
+        $curdata = $model->find('first', $args);
+      } catch (Exception $e) {
+        $curdata = array();
+      }
     } else {
       // Old style
       

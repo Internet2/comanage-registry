@@ -657,8 +657,14 @@ class CoGroupsController extends StandardController {
     if($this->request->is('restful')) {
       if($this->request->method() == "GET"
          && isset($this->request->query["copersonid"])) {
-        return $this->CoGroup->Co->CoPerson->field('co_id',
-                                                    array('id' => $this->request->query["copersonid"]));
+        $coId =  $this->CoGroup->Co->CoPerson->field('co_id',
+                                                     array('id' => $this->request->query["copersonid"]));
+
+        if(empty($coId)) {
+          throw new NotFoundException(_txt('er.notfound-b', array(_txt('ct.co_people.1'))));
+        }
+        
+        return $coId;
       }
     }
 
