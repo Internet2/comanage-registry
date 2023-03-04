@@ -253,24 +253,40 @@ class AppController extends Controller {
       try {
         $coid = $this->parseCOID($this->Api->getData());
         $roles = $this->Role->calculateCMRoles();
-        if($this->requires_co
-           && $coid === -1
-           && !$roles['cmadmin']) {
-          throw new InvalidArgumentException(_txt('er.co.specify'), HttpStatusCodesEnum::HTTP_UNAUTHORIZED);
-        }
         $this->loadModel('Co');
 
         $args = array();
         $args['conditions']['Co.id'] = $coid;
         $args['contain'] = false;
 
-        $this->cur_co = $this->Co->find('first', $args);
+        /*
+         * List of all empty values
+         *
+         * $emptyValues = array(
+         *   1 => '',
+         *   2 => "",
+         *   3 => null,
+         *   4 => array(),
+         *   5 => FALSE,
+         *   6 => NULL,
+         *   7=>'0',
+         *   8=>0,
+         * );
+         *
+         */
+        $this->cur_co = empty($coid) ? array() : $this->Co->find('first', $args);
+
+        if($this->requires_co && empty($this->cur_co)
+           && (!$roles['cmadmin'] || in_array($this->action, ["add", "edit"]))
+        ) {
+          throw new InvalidArgumentException(_txt('er.co.specify'), HttpStatusCodesEnum::HTTP_UNAUTHORIZED);
+        }
       } catch(RuntimeException $e) {
         // This is probably $id not found... strictly speaking we should somehow
         // check authorization before returning id not found, but we can't really
         // authorize a request for an invalid id.
         
-        $this->Api->restResultHeader(404, "Not Found");
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.co.unk'));
         $this->response->send();
         exit;
       }
