@@ -409,7 +409,8 @@ class CoJob extends AppModel {
    * @param  Integer     $requeueInterval If non-zero, number of seconds after successful completion to requeue the same job
    * @param  Integer     $retryInterval   If non-zero, number of seconds after failed completion to requeue the same job
    * @param  Integer     $requeuedFrom    If requeued, the CO Job ID that created this Job
-   * @param  Integer     $maxRetry        If non-zero, number of times that will retry after failure
+   * @param  Integer     $maxRetry        Number of times that will retry after failure
+   * @param  Integer     $maxRetryCount   Number of times retried so far
    * @return Integer                      Job ID
    * @throws RuntimeException
    */
@@ -426,7 +427,8 @@ class CoJob extends AppModel {
                            $requeueInterval=0,
                            $retryInterval=0,
                            $requeuedFrom=null,
-                           $maxRetry=0) {
+                           $maxRetry=0,
+                           $maxRetryCount=0) {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
@@ -469,6 +471,7 @@ class CoJob extends AppModel {
     $coJob['CoJob']['requeue_interval'] = $requeueInterval;
     $coJob['CoJob']['retry_interval'] = $retryInterval;
     $coJob['CoJob']['max_retry'] = $maxRetry;
+    $coJob['CoJob']['max_retry_count'] = $maxRetryCount;
     if($requeuedFrom) {
       $coJob['CoJob']['requeued_from_co_job_id'] = $requeuedFrom;
     }
