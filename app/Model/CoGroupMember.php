@@ -76,14 +76,24 @@ class CoGroupMember extends AppModel {
         'required' => true
       )
     ),
+    // https://book.cakephp.org/2/en/models/data-validation.html#allowempty
+    // If set to false, the field value must be nonempty,
+    // where “nonempty” is defined as !empty($value) || is_numeric($value).
+    //The numeric check is so that CakePHP does the right thing when $value is zero.
     'member' => array(
       'content' => array(
-        'rule' => array('boolean')
+        'rule' => array('boolean'),
+        'allowEmpty' => true
       )
     ),
+    // https://book.cakephp.org/2/en/models/data-validation.html#allowempty
+    // If set to false, the field value must be nonempty,
+    // where “nonempty” is defined as !empty($value) || is_numeric($value).
+    // The numeric check is so that CakePHP does the right thing when $value is zero.
     'owner' => array(
       'content' => array(
-        'rule' => array('boolean')
+        'rule' => array('boolean'),
+        'allowEmpty' => true
       )
     ),
     'valid_from' => array(
@@ -662,7 +672,7 @@ class CoGroupMember extends AppModel {
           $cnt++;
         }
         catch(Exception $e) {
-          $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($jobId,
+          $this->CoPerson->Co->CoJob->CoJobHistoryRecord->record($coJobId,
                                                                  $grm['CoGroupMember']['id'],
                                                                  $e->getMessage(),
                                                                  $grm['CoGroupMember']['co_person_id'],
@@ -1001,12 +1011,18 @@ class CoGroupMember extends AppModel {
       $data = array();
       $data['CoGroupMember']['co_group_id'] = $targetGroup['id'];
       $data['CoGroupMember']['co_person_id'] = $coPersonId;
-      $data['CoGroupMember']['member'] = true;
-      $data['CoGroupMember']['owner'] = false;
+      // We might end up here from an Enrollment Flow. Enrollment flows
+      // might change validation rules. As a result we are safer if we don't
+      // use "false" because the allowEmpty validation rule will fail.
+      $data['CoGroupMember']['member'] = 1;
+      $data['CoGroupMember']['owner'] = 0;
       $data['CoGroupMember']['co_group_nesting_id'] = $coGroupNestingId;
-      
-      $this->save($data);
-      
+
+      if(!$this->save($data)) {
+        $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->invalidFields(), true), LOG_ERROR);
+        throw new RuntimeException(_txt('er.db.save-a', array(_txt('er.grm.nested.member'))));
+      }
+
       $htxtkey = 'rs.grm.added-n';
       $hAction = ActionEnum::CoGroupMemberAdded;
     } elseif($isCurrent && !$shouldBe) {
