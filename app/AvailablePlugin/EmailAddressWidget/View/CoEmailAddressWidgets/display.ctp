@@ -32,12 +32,6 @@
   $divid = $vv_config['CoEmailAddressWidget']['co_dashboard_widget_id'];
 ?>
 
-<?php
-// Include widget-specific css and javascript.
-// Vue.js loaded this way must be loaded at the top.
-print $this->Html->script('vue/vue-3.2.31.global.prod.js');
-?>
-
 <script type="module">
   <?php if(Configure::read('debug') > 0): ?>
     import EmailPanel from '<?php print $this->webroot ?>email_address_widget/js/email-panel.js?time=<?php print time()?>';
