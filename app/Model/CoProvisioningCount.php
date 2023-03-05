@@ -53,7 +53,17 @@ class CoProvisioningCount extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
-    'targeted_instance' => array(
+    'record_type' => array(
+      'rule' => '/.*/',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'record_type_id' => array(
+      'rule' => 'numeric',
+      'required' => true,
+      'allowEmpty' => false
+    ),
+    'provisioning_action' => array(
       'rule' => '/.*/',
       'required' => true,
       'allowEmpty' => false
@@ -74,21 +84,25 @@ class CoProvisioningCount extends AppModel {
   /**
    * Obtain the current retry count for the specified provisioning target and job.
    *
-   * @since  COmanage Registry v2.0.0
-   * @param  Integer $coProvisioningTargetId CO Expiration Policy ID
-   * @param  Integer $coJobId       CO Person Role ID
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
+   * @param  String  $recordType             Model Provisioned
+   * @param  Integer $recordTypeId           Instance of Provisioned Model, Foreign Kye
+   * @param  String  $provisioningAction     Provisioning Action
    * @return Integer Current count
    */
   
-  public function count($coProvisioningTargetId, $coJobId) {
+  public function count($coProvisioningTargetId, $recordType, $recordTypeId, $provisioningAction) {
     $ret = 0;
     
     // We don't currently try to validate either foreign key.
     $args = array();
     $args['conditions']['CoProvisioningCount.co_provisioning_target_id'] = $coProvisioningTargetId;
-    $args['conditions']['CoProvisioningCount.co_job_id'] = $coJobId;
+    $args['conditions']['CoProvisioningCount.record_type'] = $recordType;
+    $args['conditions']['CoProvisioningCount.record_type_id'] = $recordTypeId;
+    $args['conditions']['CoProvisioningCount.provisioning_action'] = $provisioningAction;
     $args['contain'] = false;
-    
+
     $ret = $this->field('provisioning_count', $args['conditions']);
    
     return (integer)$ret;
@@ -98,12 +112,15 @@ class CoProvisioningCount extends AppModel {
    * Increment the current provisioning count for the specified provisioning target and job.
    *
    * @since  COmanage Registry v4.2.0
-   * @param  Integer $coProvisioningTargetId CO Expiration Policy ID
-   * @param  Integer $coJobId       CO Person Role ID
+   * @param  Integer $co_job_id              Job Id
+   * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
+   * @param  String  $recordType             Model Provisioned
+   * @param  Integer $recordTypeId           Instance of Provisioned Model, Foreign Key
+   * @param  String  $provisioningAction     Provisioning Action
    * @return Integer New count
    */
-  
-  public function increment($coProvisioningTargetId, $coJobId) {
+
+  public function increment($co_job_id, $coProvisioningTargetId, $recordType, $recordTypeId, $provisioningAction) {
     $ret = 0;
     
     // Is there already a count?
@@ -114,7 +131,9 @@ class CoProvisioningCount extends AppModel {
     // We don't currently try to validate either foreign key.
     $args = array();
     $args['conditions']['CoProvisioningCount.co_provisioning_target_id'] = $coProvisioningTargetId;
-    $args['conditions']['CoProvisioningCount.co_job_id'] = $coJobId;
+    $args['conditions']['CoProvisioningCount.record_type'] = $recordType;
+    $args['conditions']['CoProvisioningCount.record_type_id'] = $recordTypeId;
+    $args['conditions']['CoProvisioningCount.provisioning_action'] = $provisioningAction;
     $args['contain'] = false;
     
     $count = $this->findForUpdate($args['conditions'], array('id', 'provisioning_count'));
@@ -131,7 +150,10 @@ class CoProvisioningCount extends AppModel {
       
       $count = array(
         'co_provisioning_target_id' => $coProvisioningTargetId,
-        'co_job_id'                 => $coJobId,
+        'co_job_id'                 => $co_job_id,
+        'record_type'               => $recordType,
+        'record_type_id'            => $recordTypeId,
+        'provisioning_action'       => $provisioningAction,
         'provisioning_count'        => $ret
       );
       
@@ -147,18 +169,22 @@ class CoProvisioningCount extends AppModel {
    * Reset the current provisioning count for the specified provisioning target and job.
    *
    * @since  COmanage Registry v4.2.0
-   * @param  Integer $coProvisioningTargetId CO Expiration Policy ID
-   * @param  Integer $coJobId       CO Person Role ID
+   * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
+   * @param  String  $recordType             Model Provisioned
+   * @param  Integer $recordTypeId           Instance of Provisioned Model, Foreign Kye
+   * @param  String  $provisioningAction     Provisioning Action
    */
-  
-  public function reset($coProvisioningTargetId, $coJobId) {
+
+  public function reset($coProvisioningTargetId, $recordType, $recordTypeId, $provisioningAction) {
     $dbc = $this->getDataSource();
     $dbc->begin();
 
     // We don't currently try to validate either foreign key.
     $args = array();
     $args['conditions']['CoProvisioningCount.co_provisioning_target_id'] = $coProvisioningTargetId;
-    $args['conditions']['CoProvisioningCount.co_job_id'] = $coJobId;
+    $args['conditions']['CoProvisioningCount.record_type'] = $recordType;
+    $args['conditions']['CoProvisioningCount.record_type_id'] = $recordTypeId;
+    $args['conditions']['CoProvisioningCount.provisioning_action'] = $provisioningAction;
     $args['contain'] = false;
 
     $count = $this->findForUpdate($args['conditions'], array('id', 'provisioning_count'));
@@ -170,12 +196,15 @@ class CoProvisioningCount extends AppModel {
 
     $this->clear();
 
-     $count = array(
-       'co_provisioning_target_id' => $coProvisioningTargetId,
-       'co_job_id'                 => $coJobId,
-       'provisioning_count'        => 0
-     );
-     $this->save($count);
+    $count = array(
+      'co_provisioning_target_id' => $coProvisioningTargetId,
+      'record_type'               => $recordType,
+      'record_type_id'            => $recordTypeId,
+      'provisioning_action'       => $provisioningAction,
+      'provisioning_count'        => 0
+    );
+
+    $this->save($count);
 
     $dbc->commit();
   }

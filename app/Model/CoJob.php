@@ -100,6 +100,17 @@ class CoJob extends AppModel {
         'message' => 'Must be greater than 0(zero)'
       )
     ),
+    'max_retry_count' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('comparison', '>', 0),
+        'message' => 'Must be greater than 0(zero)'
+      )
+    ),
     'requeued_from_co_job_id' => array(
       'rule' => 'numeric',
       'required' => false,

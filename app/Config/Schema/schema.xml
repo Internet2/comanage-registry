@@ -875,6 +875,7 @@
     <field name="requeue_interval" type="I" />
     <field name="retry_interval" type="I" />
     <field name="max_retry" type="I" />
+    <field name="max_retry_count" type="I" />
     <field name="requeued_from_co_job_id" type="I">
       <constraint>REFERENCES cm_co_jobs(id)</constraint>
     </field>
@@ -1266,7 +1267,9 @@
     <field name="co_job_id" type="I">
       <constraint>REFERENCES cm_co_jobs(id)</constraint>
     </field>
-    <field name="targeted_instance" type="C" size="256"/>
+    <field name="record_type" type="C"></field>
+    <field name="record_type_id" type="I"></field>
+    <field name="provisioning_action" type="C"></field>
     <field name="provisioning_count" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
