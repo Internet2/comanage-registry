@@ -110,6 +110,14 @@ class CoPerson extends AppModel {
     // We allow dependent=true for co_person_id but not for actor_co_person_id (see CO-404).
     "HistoryRecord" => array('dependent' => true),
     "CoJobHistoryRecord" => array('dependent' => true),
+    "ManagerCoPerson" => array(
+      'className' => 'CoPersonRole',
+      'foreignKey' => 'manager_co_person_id'
+    ),
+    "SponsorCoPerson" => array(
+      'className' => 'CoPersonRole',
+      'foreignKey' => 'sponsor_co_person_id'
+    ),
     // XXX CoPerson Role HAS TO be deleted after the history records
     //     since it has many history_records but they are not dependent.
     //     As a result, if we try to delete the CO Person Role before the
