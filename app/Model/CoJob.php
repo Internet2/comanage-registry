@@ -74,8 +74,8 @@ class CoJob extends AppModel {
         'allowEmpty' => true,
       ),
       'filter' => array(
-        'rule' => array('comparison', '>', 0),
-        'message' => 'Must be greater than 0(zero)'
+        'rule' => array('comparison', '>=', 0),
+        'message' => 'Must be greater or equal to 0(zero)'
       )
     ),
     'retry_interval' => array(
@@ -85,8 +85,8 @@ class CoJob extends AppModel {
         'allowEmpty' => true,
       ),
       'filter' => array(
-        'rule' => array('comparison', '>', 0),
-        'message' => 'Must be greater than 0(zero)'
+        'rule' => array('comparison', '>=', 0),
+        'message' => 'Must be greater or equeal to 0(zero)'
       )
     ),
     'max_retry' => array(
@@ -96,8 +96,8 @@ class CoJob extends AppModel {
         'allowEmpty' => true,
       ),
       'filter' => array(
-        'rule' => array('comparison', '>', 0),
-        'message' => 'Must be greater than 0(zero)'
+        'rule' => array('comparison', '>=', 0),
+        'message' => 'Must be greater or equal to 0(zero)'
       )
     ),
     'max_retry_count' => array(
@@ -107,8 +107,8 @@ class CoJob extends AppModel {
         'allowEmpty' => true,
       ),
       'filter' => array(
-        'rule' => array('comparison', '>', 0),
-        'message' => 'Must be greater than 0(zero)'
+        'rule' => array('comparison', '>=', 0),
+        'message' => 'Must be greater or equal to 0(zero)'
       )
     ),
     'requeued_from_co_job_id' => array(
@@ -493,6 +493,7 @@ class CoJob extends AppModel {
     
     if(!$this->save($coJob)) {
       $dbc->rollback();
+      $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->invalidFields(), true), LOG_ERROR);
       throw new RuntimeException(_txt('er.db.save-a', array('CoJob::register')));
     }
     
