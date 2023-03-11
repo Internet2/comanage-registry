@@ -495,6 +495,20 @@ class CoGroup extends AppModel {
         }
       }
     }
+
+    // If the group type is missing add the default Standard type
+    if(!isset($this->data['CoGroup']['group_type'])) {
+      $this->data['CoGroup']['group_type'] = GroupEnum::Standard;
+    }
+
+    // Calculate and assign the group auto value if not set
+    if(!isset($this->data['CoGroup']['auto'])) {
+      $this->data['CoGroup']['auto'] = in_array(
+        $this->data['CoGroup']['group_type'],
+        array(GroupEnum::ActiveMembers, GroupEnum::AllMembers),
+        true
+      );
+    }
     
     return true;
   }
