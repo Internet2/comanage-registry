@@ -809,7 +809,7 @@ class ProvisionerBehavior extends ModelBehavior {
       $args['order'] = array('CoProvisioningTarget.ordr ASC');
     }
     $args['contain'] = false;
-
+    
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
     
     if(!empty($targets)) {
