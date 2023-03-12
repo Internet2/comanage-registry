@@ -318,7 +318,9 @@ class CoJob extends AppModel {
                       $job['CoJob']['requeue_interval'],
                       $job['CoJob']['requeue_interval'],
                       $job['CoJob']['retry_interval'],
-                      $job['CoJob']['id']);
+                      $job['CoJob']['id'],
+                      $job['CoJob']['max_retry'],
+                      $job['CoJob']['max_retry_count']);
     } elseif($result == JobStatusEnum::Failed
              && !empty($job['CoJob']['retry_interval'])
              && $job['CoJob']['retry_interval'] > 0) {
@@ -336,7 +338,9 @@ class CoJob extends AppModel {
                       $job['CoJob']['retry_interval'],
                       $job['CoJob']['requeue_interval'],
                       $job['CoJob']['retry_interval'],
-                      $job['CoJob']['id']);
+                      $job['CoJob']['id'],
+                      $job['CoJob']['max_retry'],
+                      $job['CoJob']['max_retry_count']);
     }
     
     return true;
@@ -455,7 +459,51 @@ class CoJob extends AppModel {
       // In order to present the error via the UI, we still want to insert a job record,
       // so we don't rollback.
     }
-    
+
+    // XXX Currently we support max retries only for CoreJob.Provision types
+    if($jobType == "CoreJob.Provision") {
+      // Register or throw max retry
+      // Get the provisioning Target
+      $job_params = json_decode($params, false);
+      $args = array();
+      $args['conditions']['CoProvisioningTarget.id'] = $job_params->co_provisioning_target_id;
+      $args['contain'] = true;
+      $target = $this->Co->CoProvisioningTarget->find('first', $args);
+
+      // Default retry times will be 3 (three)
+      $max_retry_config = !empty($target['CoProvisioningTarget']['max_retry'])
+        ? $target['CoProvisioningTarget']['max_retry']
+        : 3;
+
+      $job_params = array(
+        'co_provisioning_target_id' => $job_params->co_provisioning_target_id,
+        'record_type' => $job_params->record_type,
+        'record_id' => $job_params->record_id,
+        'provisioning_action' => $job_params->provisioning_action
+      );
+
+      // Get Current Retry Count.
+      $retryCount = array();
+      foreach($target['CoProvisioningCount'] as $countRecord) {
+        if($countRecord['record_type'] == $job_params->record_type
+          && $countRecord['record_type_id'] == $job_params->record_id
+          && $countRecord['provisioning_action'] == $job_params->provisioning_action
+          && $countRecord['co_provisioning_target_id'] == $job_params->co_provisioning_target_id
+          && empty($countRecord['deleted'])
+          && is_null($countRecord['co_provisioning_count_id'])
+        ) {
+          $retryCount[] = $countRecord;
+          break;
+        }
+      }
+
+      // Max Retry exceeded
+      if(isset($retryCount['provisioning_count'])
+        && ($retryCount['provisioning_count'] + 1) > $max_retry_config) {
+        throw new RuntimeException(_txt('er.jb.mx.retry'));
+      }
+    }
+
     // Make sure $summary fits in the available space
     $limit = $this->validate['register_summary']['rule'][1];
     
@@ -470,8 +518,10 @@ class CoJob extends AppModel {
     $coJob['CoJob']['queue_time'] = date('Y-m-d H:i:s', time());
     $coJob['CoJob']['requeue_interval'] = $requeueInterval;
     $coJob['CoJob']['retry_interval'] = $retryInterval;
-    $coJob['CoJob']['max_retry'] = $maxRetry;
-    $coJob['CoJob']['max_retry_count'] = $maxRetryCount;
+    if($jobType == "CoreJob.Provision") {
+      $coJob['CoJob']['max_retry']       = $maxRetry;
+      $coJob['CoJob']['max_retry_count'] = $retryCount['provisioning_count'] + 1;
+    }
     if($requeuedFrom) {
       $coJob['CoJob']['requeued_from_co_job_id'] = $requeuedFrom;
     }
@@ -496,7 +546,12 @@ class CoJob extends AppModel {
       $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->invalidFields(), true), LOG_ERROR);
       throw new RuntimeException(_txt('er.db.save-a', array('CoJob::register')));
     }
-    
+
+    // Increment the number of retries by one
+    if($jobType == "CoreJob.Provision") {
+      $this->Co->CoProvisioningTarget->CoProvisioningCount($this->id, ...array_values($job_params));
+    }
+
     $dbc->commit();
     
     if(!empty($jobs)) {

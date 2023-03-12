@@ -170,6 +170,11 @@ class CoProvisioningTarget extends AppModel {
       
       $this->data['CoProvisioningTarget']['ordr'] = $n;
     }
+
+    // Set default max_retry to 3 times
+    if(empty($this->data['CoProvisioningTarget']['max_retry'])) {
+      $this->data['CoProvisioningTarget']['max_retry'] = 3;
+    }
     
     return true;
   }

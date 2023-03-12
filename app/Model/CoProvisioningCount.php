@@ -157,7 +157,9 @@ class CoProvisioningCount extends AppModel {
         'provisioning_count'        => $ret
       );
       
-      $this->save($count);
+      if(!$this->save($count)) {
+        throw new RuntimeException(_txt('er.db.save-a', array(_txt('er.prov.job.count'))));
+      }
     }
     
     $dbc->commit();
@@ -204,7 +206,9 @@ class CoProvisioningCount extends AppModel {
       'provisioning_count'        => 0
     );
 
-    $this->save($count);
+    if(!$this->save($count)) {
+      throw new RuntimeException(_txt('er.db.save-a', array(_txt('er.prov.job.count'))));
+    }
 
     $dbc->commit();
   }

@@ -1258,6 +1258,7 @@ The request may be viewed at
   'er.pooling' =>     'Org Identity Pooling not supported in this context',
   // er.prov is a javascript string and so cannot take a parameter
   'er.prov' =>        'Provisioning failed: ',
+  'er.prov.job.count' => 'ProvisionigCount record failed to save',
   'er.prov.plugin' => 'Provisioning failed for %1$s: %2$s',
   'er.pt.conf.exp' => 'Viewed expired confirmation',
   'er.pt.dupe.cou' => 'The target CO Person already has a Role in the specified COU',
@@ -1682,8 +1683,9 @@ The request may be viewed at
   'fd.job.complete_time' => 'Finished',
   'fd.job.finish_summary' => 'Finish Summary',
   'fd.job.max_retry' => 'Maximum Retry',
+  'fd.job.max_retry.desc' => 'If the job fails, it will automatically be retried for <bold>"%1$s" number</bold> of times. (To stop retrying, simply cancel this job.)',
   'fd.job.max_retry_count' => 'Maximum Retry Count',
-  'fd.job.max_retry_count.desc' => 'Times the Job retried to run',
+  'fd.job.max_retry_count.desc' => 'How many times the job run up to now',
   'fd.job.mode' =>    'Job Mode',
   'fd.job.params' =>  'Job Parameters',
   'fd.job.queue_time' => 'Queued',

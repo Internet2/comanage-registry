@@ -808,6 +808,7 @@ class ProvisionerBehavior extends ModelBehavior {
     } else {
       $args['order'] = array('CoProvisioningTarget.ordr ASC');
     }
+    $args['contain'] = false;
 
     $targets = $model->Co->CoProvisioningTarget->find('all', $args);
     
@@ -854,63 +855,34 @@ class ProvisionerBehavior extends ModelBehavior {
                     ? $target['CoProvisioningTarget']['retry_interval']
                     : 900);
 
-          // Default retry times will be 3 (three)
-          $max_retry_config = (!empty($target['CoProvisioningTarget']['max_retry'])
-            ? $target['CoProvisioningTarget']['max_retry']
-            : 3);
-
-          $job_params = array(
-            'co_provisioning_target_id' => $target['CoProvisioningTarget']['id'],
-            'record_type' => $model->name,
-            'record_id' => $provisioningData[ $model->name ]['id'],
-            'provisioning_action' => $action
-          );
-
-          // Get Current Retry Count.
-          $retryCount = array();
-          foreach($target['CoProvisioningCount'] as $countRecord) {
-            if($countRecord['record_type'] == $model->name
-               && $countRecord['record_type_id'] == $provisioningData[ $model->name ]['id']
-               && $countRecord['provisioning_action'] == $action
-               && $countRecord['co_provisioning_target_id'] == $target['CoProvisioningTarget']['id']
-               && empty($countRecord['deleted'])
-               && is_null($countRecord['co_provisioning_count_id'])
-            ) {
-              $retryCount[] = $countRecord;
-            }
-          }
-
-          if(isset($retryCount['provisioning_count'])
-             && $retryCount['provisioning_count'] > $max_retry_config) {
-            throw new RuntimeException(_txt('er.jb.mx.retry'));
-          }
-
           // It's possible we'll try to register a job for a target when there is
           // already one in the queue, eg if two changes are made in quick succession.
           // To keep the noise down, we'll ignore these errors.
-          $jobId = $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'],
-                                               'CoreJob.Provision',
-                                               $provisioningData[ $model->name ]['id'],
-                                               $model->name,
-                                               _txt(($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
-                                                     ? 'rs.prov.queue'
-                                                     : 'rs.prov.queue.err'),
-                                                    array($model->name,
-                                                          $provisioningData[ $model->name ]['id'],
-                                                          $target['CoProvisioningTarget']['description'],
-                                                          $target['CoProvisioningTarget']['id'])),
-                                               true,
-                                               false,
-                                               $job_params,
-                                               // Start as soon as possible, unless on error, in which case we
-                                               // retry in 15 minutes XXX document, make con
-                                               ($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
-                                                ? 0 : $retry),
-                                               0,
-                                               $retry);
-
-          // Increment the number of retries by one
-          $model->Co->CoProvisioningTarget->CoProvisioningCount($jobId, ...array_values($job_params));
+          $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'],
+                                      'CoreJob.Provision',
+                                      $provisioningData[ $model->name ]['id'],
+                                      $model->name,
+                                      _txt(($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
+                                            ? 'rs.prov.queue'
+                                            : 'rs.prov.queue.err'),
+                                           array($model->name,
+                                                 $provisioningData[ $model->name ]['id'],
+                                                 $target['CoProvisioningTarget']['description'],
+                                                 $target['CoProvisioningTarget']['id'])),
+                                      true,
+                                      false,
+                                      array(
+                                        'co_provisioning_target_id' => $target['CoProvisioningTarget']['id'],
+                                        'record_type' => $model->name,
+                                        'record_id' => $provisioningData[ $model->name ]['id'],
+                                        'provisioning_action' => $action
+                                      ),
+                                      // Start as soon as possible, unless on error, in which case we
+                                      // retry in 15 minutes XXX document, make con
+                                      ($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
+                                       ? 0 : $retry),
+                                      0,
+                                      $retry);
         }
       }
     }
