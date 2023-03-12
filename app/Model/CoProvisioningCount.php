@@ -35,7 +35,7 @@ class CoProvisioningCount extends AppModel {
   
   // Association rules from this model to other models
   public $belongsTo = array(
-    "CoProvisioningTargets",
+    "CoProvisioningTarget",
   );
   
   // Default display field for cake generated views
@@ -171,13 +171,14 @@ class CoProvisioningCount extends AppModel {
    * Reset the current provisioning count for the specified provisioning target and job.
    *
    * @since  COmanage Registry v4.2.0
+   * @param  Integer $co_job_id              Job Id
    * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
    * @param  String  $recordType             Model Provisioned
-   * @param  Integer $recordTypeId           Instance of Provisioned Model, Foreign Kye
+   * @param  Integer $recordTypeId           Instance of Provisioned Model, Foreign Key
    * @param  String  $provisioningAction     Provisioning Action
    */
 
-  public function reset($coProvisioningTargetId, $recordType, $recordTypeId, $provisioningAction) {
+  public function reset($co_job_id, $coProvisioningTargetId, $recordType, $recordTypeId, $provisioningAction) {
     $dbc = $this->getDataSource();
     $dbc->begin();
 
@@ -200,6 +201,7 @@ class CoProvisioningCount extends AppModel {
 
     $count = array(
       'co_provisioning_target_id' => $coProvisioningTargetId,
+      'co_job_id'                 => $co_job_id,
       'record_type'               => $recordType,
       'record_type_id'            => $recordTypeId,
       'provisioning_action'       => $provisioningAction,
