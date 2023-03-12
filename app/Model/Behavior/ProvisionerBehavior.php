@@ -854,17 +854,17 @@ class ProvisionerBehavior extends ModelBehavior {
           $retry = (!empty($target['CoProvisioningTarget']['retry_interval'])
                     ? $target['CoProvisioningTarget']['retry_interval']
                     : 900);
-
+          
           // It's possible we'll try to register a job for a target when there is
           // already one in the queue, eg if two changes are made in quick succession.
           // To keep the noise down, we'll ignore these errors.
-          $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'],
+          $model->Co->CoJob->register($target['CoProvisioningTarget']['co_id'], 
                                       'CoreJob.Provision',
                                       $provisioningData[ $model->name ]['id'],
                                       $model->name,
                                       _txt(($target['CoProvisioningTarget']['status'] == ProvisionerModeEnum::QueueMode
                                             ? 'rs.prov.queue'
-                                            : 'rs.prov.queue.err'),
+                                            : 'rs.prov.queue.err'), 
                                            array($model->name,
                                                  $provisioningData[ $model->name ]['id'],
                                                  $target['CoProvisioningTarget']['description'],
