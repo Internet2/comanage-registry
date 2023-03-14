@@ -1267,9 +1267,6 @@
     <field name="co_job_id" type="I">
       <constraint>REFERENCES cm_co_jobs(id)</constraint>
     </field>
-    <field name="record_type" type="C"></field>
-    <field name="record_type_id" type="I"></field>
-    <field name="provisioning_action" type="C"></field>
     <field name="provisioning_count" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
@@ -1285,6 +1282,9 @@
     </index>
     <index name="co_provisioning_counts_i2">
       <col>co_provisioning_count_id</col>
+    </index>
+    <index name="co_provisioning_counts_i3">
+      <col>co_job_id</col>
     </index>
   </table>
 
