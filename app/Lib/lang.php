@@ -1683,7 +1683,7 @@ The request may be viewed at
   'fd.job.complete_time' => 'Finished',
   'fd.job.finish_summary' => 'Finish Summary',
   'fd.job.max_retry' => 'Maximum Retry',
-  'fd.job.max_retry.desc' => 'If the job fails, it will automatically be retried for <bold>"%1$s" number</bold> of times. (To stop retrying, simply cancel this job.)',
+  'fd.job.max_retry.desc' => 'If the job fails, it will automatically be retried for <bold>"%1$s" number</bold> of times. If set to 0 (zero) it will retry for infinite times. (To stop retrying, simply cancel this job.)',
   'fd.job.max_retry_count' => 'Maximum Retry Count',
   'fd.job.max_retry_count.desc' => 'How many times the job run up to now',
   'fd.job.mode' =>    'Job Mode',

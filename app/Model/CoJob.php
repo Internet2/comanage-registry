@@ -461,15 +461,15 @@ class CoJob extends AppModel {
       $args['conditions']['CoProvisioningTarget.id'] = $params["co_provisioning_target_id"];
       $target = $this->Co->CoProvisioningTarget->find('first', $args);
 
-      // Default retry times will be 3 (three)
-      $max_retry_config = !empty($target['CoProvisioningTarget']['max_retry'])
-        ? $target['CoProvisioningTarget']['max_retry']
-        : 3;
+      // Default retry configuration will be 3 (three)
+      $max_retry_config = $target['CoProvisioningTarget']['max_retry'] ?? 3;
       // The times you tried so far
       $max_retry_count = $this->Co->CoProvisioningTarget->CoProvisioningCount($params["co_provisioning_target_id"], $jobs[0]['CoJob']['id']);
 
       // Max Retry exceeded
-      if(($max_retry_count + 1) > $max_retry_config) {
+      // If the max retry configuration is 0 then we will retry forever
+      if((int)$max_retry_config !== 0
+         && ($max_retry_count + 1) > $max_retry_config) {
         throw new RuntimeException(_txt('er.jb.mx.retry'));
       }
     } // Provisioning Count
