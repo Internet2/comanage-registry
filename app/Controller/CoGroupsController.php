@@ -701,7 +701,7 @@ class CoGroupsController extends StandardController {
     // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
     foreach($this->data['search'] as $field=>$value){
       if(!empty($value)) {
-        $url['search.'.$field] = urlencode($value);
+        $url['search.'.$field] = $value;
       }
     }
 

@@ -1635,6 +1635,68 @@ class AppController extends Controller {
   }
   
   /**
+   * Redirects to given $url, after turning off $this->autoRender.
+   * Script execution is halted after the redirect.
+   *
+   * @param string|array $url A string or array-based URL pointing to another location within the app,
+   *     or an absolute URL
+   * @param int|array|null|string $status HTTP status code (eg: 301). Defaults to 302 when null is passed.
+   * @param bool $exit If true, exit() will be called after the redirect
+   * @return CakeResponse|null
+   * @triggers Controller.beforeRedirect $this, array($url, $status, $exit)
+   * @link https://book.cakephp.org/2.0/en/controllers.html#Controller::redirect
+   */
+  public function redirect($url, $status = null, $exit = true) {
+    $this->autoRender = false;
+
+    if (is_array($status)) {
+      extract($status, EXTR_OVERWRITE);
+    }
+    $event = new CakeEvent('Controller.beforeRedirect', $this, array($url, $status, $exit));
+
+    list($event->break, $event->breakOn, $event->collectReturn) = array(true, false, true);
+    $this->getEventManager()->dispatch($event);
+
+    if ($event->isStopped()) {
+      return null;
+    }
+    $response = $event->result;
+    extract($this->_parseBeforeRedirect($response, $url, $status, $exit), EXTR_OVERWRITE);
+
+    // XXX CO-2550, CO-2600
+    foreach ($url as $field => $value) {
+      if(strpos($field, "search.") !== false
+         && strpos($value, "/") !== false) {
+        $url[$field] = str_replace("/", urlencode("/"), $value);
+      }
+    }
+
+    if ($url !== null) {
+      $this->response->header('Location', Router::url($url, true));
+    }
+
+
+    if (is_string($status)) {
+      $codes = array_flip($this->response->httpCodes());
+      if (isset($codes[$status])) {
+        $status = $codes[$status];
+      }
+    }
+
+    if ($status === null) {
+      $status = 302;
+    }
+    $this->response->statusCode($status);
+
+    if ($exit) {
+      $this->response->send();
+      $this->_stop();
+    }
+
+    return $this->response;
+  }
+
+  /**
    * Perform a sanity check on on a standard item identifier to verify it is part
    * of the current CO.
    *

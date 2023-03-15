@@ -202,8 +202,12 @@
 
           // Is the MVPA required? We'll just check the first attribute since they
           // should all be the same.
-          if(($mvpa && $coe_attributes[0]['mvpa_required'] && $this->action != 'view')
-              || (!$mvpa && $coe_attributes[0]['CoEnrollmentAttribute']['required'])) {
+          if(($mvpa 
+              && isset($coe_attributes[0]['mvpa_required'])
+              && $coe_attributes[0]['mvpa_required'] 
+              && $this->action != 'view')
+             || 
+             (!$mvpa && $coe_attributes[0]['CoEnrollmentAttribute']['required'])) {
             print '<span class="required">*</span>' . PHP_EOL;
           }
           
@@ -224,7 +228,8 @@
           }
           
           if($mvpa
-             && !$coe_attributes[0]['mvpa_required']
+             && (!isset($coe_attributes[0]['mvpa_required'])
+                 || !$coe_attributes[0]['mvpa_required'])
              // For attributes that are popup/checklist only, this warning doesn't make sense.
              // There's not a good way to figure out which from the configuration, so we
              // just hardcode a list here.

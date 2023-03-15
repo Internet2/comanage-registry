@@ -1425,7 +1425,7 @@ class StandardController extends AppController {
     if(isset($this->data['search'])) {
       foreach ($this->data['search'] as $field => $value){
         if(!empty($value)) {
-          $url['search.'.$field] = urlencode($value);
+          $url['search.'.$field] = $value;
         }
       }
     }

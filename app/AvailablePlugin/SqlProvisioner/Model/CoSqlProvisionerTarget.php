@@ -331,35 +331,21 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    */
   
   protected function deletePerson($provisioningData) {
-    // We need to walk the model array backwards (ie: so we delete Addresses
-    // before we delete CoPersonRoles)
+    // Build a mostly empty array regardless of what was passed to us,
+    // in case we get related data or other noise. We want syncPerson to
+    // see no related models and so delete them all.
+
+    $deleteData = array(
+      'CoPerson' => array(
+        'id'      => $provisioningData['CoPerson']['id'],
+        'co_id'   => $provisioningData['CoPerson']['co_id'],
+        'status'  => StatusEnum::Deleted
+      )
+    );
     
-    foreach(array_reverse($this->models) as $m) {
-      $Model = new Model(array(
-        'table' => $m['table'],
-        'name'  => $m['name'],
-        'ds'    => 'targetdb'
-      ));
-      
-      if($m['parent'] == 'CoPersonRole') {
-        foreach($provisioningData['CoPersonRole'] as $pr) {
-          if(!empty($pr[ $m['source'] ])) {
-            foreach($pr[ $m['source'] ] as $r) {
-              $Model->delete($r['id'], false);
-            }
-          }
-        }
-      } else {
-        if(!empty($provisioningData[ $m['source'] ])) {
-          foreach($provisioningData[ $m['source'] ] as $r) {
-            $Model->delete($r['id'], false);
-          }
-        }
-      }
-    }
+    $this->syncPerson($deleteData);
     
-    // Finally delete the CO Person record itself.
-    
+    // Then delete the CO Person record itself.
     $SpCoPerson = new Model(array(
       'table'  => $this->parentModels['CoPerson']['table'],
       'name'   => $this->parentModels['CoPerson']['name'],
@@ -654,47 +640,49 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
         $parentids[] = $provisioningData['CoPerson']['id'];
       }
       
-      if(!empty($parentids) && !empty($records)) {
-        foreach($records as $d) {
-          $Model->clear();
-          
-          // Since we're copying the source table's id column, we don't have to
-          // check for an existing record. Cake will effectively upsert for us.
-        
-          $data = array(
-            $m['name'] => $d
-          );
-          
-          // Determine if this record came from an Org Identity Source.
-          // If so, we want to add a foreign key.
-          
-          $sourceKey = "source_" . Inflector::underscore($m['source']) . "_id";
-          $sourceOrgIdentityId = null;
-          
-          if(!empty($d[$sourceKey])) {
-            // This record came from a source, find the associated Org Identity
-            // record based on the $sourceKey
+      if(!empty($parentids)) {
+        if(!empty($records)) {
+          foreach($records as $d) {
+            $Model->clear();
             
-            $sourceRecord = Hash::extract($orgIdentities, '{n}.'.$m['source'].'.{n}[id='.$d[$sourceKey].']');
+            // Since we're copying the source table's id column, we don't have to
+            // check for an existing record. Cake will effectively upsert for us.
+          
+            $data = array(
+              $m['name'] => $d
+            );
             
-            if(!empty($sourceRecord[0]['org_identity_id'])) {
-              $sourceOrgIdentityId = $sourceRecord[0]['org_identity_id'];
+            // Determine if this record came from an Org Identity Source.
+            // If so, we want to add a foreign key.
+            
+            $sourceKey = "source_" . Inflector::underscore($m['source']) . "_id";
+            $sourceOrgIdentityId = null;
+            
+            if(!empty($d[$sourceKey])) {
+              // This record came from a source, find the associated Org Identity
+              // record based on the $sourceKey
+              
+              $sourceRecord = Hash::extract($orgIdentities, '{n}.'.$m['source'].'.{n}[id='.$d[$sourceKey].']');
+              
+              if(!empty($sourceRecord[0]['org_identity_id'])) {
+                $sourceOrgIdentityId = $sourceRecord[0]['org_identity_id'];
+              }
+            } elseif(!empty($d['source_org_identity_id'])) {
+              // CoPersonRole and CoGroupMember have direct fks to source_org_identity_id
+              
+              $sourceOrgIdentityId = $d['source_org_identity_id'];
             }
-          } elseif(!empty($d['source_org_identity_id'])) {
-            // CoPersonRole and CoGroupMember have direct fks to source_org_identity_id
             
-            $sourceOrgIdentityId = $d['source_org_identity_id'];
-          }
-          
-          if($sourceOrgIdentityId) {
-            $oisRecord = Hash::extract($orgIdentities, '{n}.OrgIdentitySourceRecord[org_identity_id='.$sourceOrgIdentityId.']');
+            if($sourceOrgIdentityId) {
+              $oisRecord = Hash::extract($orgIdentities, '{n}.OrgIdentitySourceRecord[org_identity_id='.$sourceOrgIdentityId.']');
+              
+              // We finally have the OIS ID, inject it into the data to save
+              $data[ $m['name'] ]['org_identity_source_id'] = $oisRecord[0]['org_identity_source_id'];
+            }
             
-            // We finally have the OIS ID, inject it into the data to save
-            $data[ $m['name'] ]['org_identity_source_id'] = $oisRecord[0]['org_identity_source_id'];
+            // No need to validate anything, though we also don't have any validation rules
+            $Model->save($data, false);
           }
-          
-          // No need to validate anything, though we also don't have any validation rules
-          $Model->save($data, false);
         }
         
         // Now delete any records belonging to the parent record that aren't in

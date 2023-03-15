@@ -2739,10 +2739,12 @@ class CoPetitionsController extends StandardController {
     // Filter by Name
     foreach($coperson_alias_mapping as $search_field => $class) {
       if(!empty($this->params['named'][$search_field]) ) {
+        $searchterm = $this->params['named'][$search_field];
+        $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
         $pagcond['conditions']['AND'][] = array(
           'OR' => array(
-            'LOWER('. $class . '.family) LIKE' => '%' . strtolower($this->params['named'][$search_field]) . '%',
-            'LOWER('. $class . '.given) LIKE' => '%' . strtolower($this->params['named'][$search_field]) . '%',
+            'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
+            'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
           )
         );
       }
