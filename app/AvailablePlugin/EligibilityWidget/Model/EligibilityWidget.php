@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Eligibility Dashboard Widget Plugin Language File
+ * COmanage Registry Eligibility Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,28 +25,35 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-global $cm_lang, $cm_texts;
+class EligibilityWidget extends AppModel {
+  // Define class name for cake
+  public $name = "EligibilityWidget";
 
-// When localizing, the number in format specifications (eg: %1$s) indicates the argument
-// position as passed to _txt.  This can be used to process the arguments in
-// a different order than they were passed.
+  // Required by COmanage Plugins
+  public $cmPluginType = "dashboardwidget";
 
-$cm_eligibility_widget_texts['en_US'] = array(
-  // XXX See EmailAddressWidget for examples.
-  // Titles, per-controller
-  
-  // Error
-  'pl.er.eligibilitywidget.remove'                    => 'Removal failed.',
-  
-  // Actions
-  
-  // Fields
-  
-  //  Modal
-  'pl.eligibilitywidget.modal.body.add.success'        => 'The item was added.',
-  'pl.eligibilitywidget.modal.body.remove'             => 'Are you sure you want to remove this item?',
-  'pl.eligibilitywidget.modal.body.remove.success'     => 'The email address was removed.',
-  'pl.eligibilitywidget.modal.title.add.success'       => 'Item added',
-  'pl.eligibilitywidget.modal.title.remove'            => 'Remove item?',
-  'pl.eligibilitywidget.modal.title.remove.success'    => 'Item removed',
-);
+  // Add behaviors
+  // public $actsAs = array('Containable');
+
+  // Document foreign keys
+  public $cmPluginHasMany = array();
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
+  );
+
+  // Validation rules for table elements
+  public $validate = array(
+  );
+
+  /**
+   * Expose menu items.
+   *
+   * @ since COmanage Registry v3.2.0
+   * @ return Array with menu location type as key and array of labels, controllers, actions as values.
+   */
+
+  public function cmPluginMenus() {
+    return array();
+  }
+}
