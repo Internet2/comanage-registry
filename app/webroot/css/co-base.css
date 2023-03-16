@@ -798,6 +798,9 @@ body.co_people.canvas .titleNavContainer {
 .dashboard-widget-container .titleNavContainer {
   display: none;
 }
+.dashboard-widget-container {
+  margin-bottom: 1em;
+}
 /* DASHBOARD WIDGETS */
 .widget-list {
   list-style: none;

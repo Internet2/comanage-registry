@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Eligibility Dashboard Widget Plugin Language File
+ * COmanage Registry CO Eligibility Widget Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,28 +25,26 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-global $cm_lang, $cm_texts;
+App::uses("CoDashboardWidgetBackend", "Model");
 
-// When localizing, the number in format specifications (eg: %1$s) indicates the argument
-// position as passed to _txt.  This can be used to process the arguments in
-// a different order than they were passed.
+class CoEligibilityWidget extends CoDashboardWidgetBackend {
+  // Define class name for cake
+  public $name = "CoEligibilityWidget";
 
-$cm_eligibility_widget_texts['en_US'] = array(
-  // XXX See EmailAddressWidget for examples.
-  // Titles, per-controller
+  // Add behaviors
+  public $actsAs = array('Containable');
+
+  // Association rules from this model to other models
+  public $belongsTo = array(
+    "CoDashboardWidget"
+  );
   
-  // Error
-  'pl.er.eligibilitywidget.remove'                    => 'Removal failed.',
-  
-  // Actions
-  
-  // Fields
-  
-  //  Modal
-  'pl.eligibilitywidget.modal.body.add.success'        => 'The item was added.',
-  'pl.eligibilitywidget.modal.body.remove'             => 'Are you sure you want to remove this item?',
-  'pl.eligibilitywidget.modal.body.remove.success'     => 'The email address was removed.',
-  'pl.eligibilitywidget.modal.title.add.success'       => 'Item added',
-  'pl.eligibilitywidget.modal.title.remove'            => 'Remove item?',
-  'pl.eligibilitywidget.modal.title.remove.success'    => 'Item removed',
-);
+  // Validation rules for table elements
+  public $validate = array(
+    'co_dashboard_widget_id' => array(
+      'rule' => 'numeric',
+      'required' => true,
+      'allowEmpty' => false
+    )
+  );
+}
