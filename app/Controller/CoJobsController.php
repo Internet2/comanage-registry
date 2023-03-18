@@ -130,11 +130,12 @@ class CoJobsController extends StandardController {
           $vv_job_type = array_merge($vv_job_type, $job_type);
         }
         $this->set('vv_job_type', $vv_job_type);
-      } elseif($this->action == 'view'
-               && in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
-        // Request the page auto-refresh
+      } elseif($this->action == 'view') {
 
-        $this->set('vv_refresh_interval', 15);
+        if(in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+          // Request the page auto-refresh
+          $this->set('vv_refresh_interval', 15);
+        }
 
         // Get the provisioing Target
         $job_params = json_decode($this->viewVars['co_jobs'][0]['CoJob']['job_params'], false);

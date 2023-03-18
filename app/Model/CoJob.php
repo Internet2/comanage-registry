@@ -318,10 +318,19 @@ class CoJob extends AppModel {
                       $job['CoJob']['requeue_interval'],
                       $job['CoJob']['requeue_interval'],
                       $job['CoJob']['retry_interval'],
-                      $job['CoJob']['id']);
+                      $job['CoJob']['id'],
+                      $result);
     } elseif($result == JobStatusEnum::Failed
              && !empty($job['CoJob']['retry_interval'])
              && $job['CoJob']['retry_interval'] > 0) {
+
+      // Max retry attempts exceeded
+      if(is_int($job['CoJob']['max_retry'])
+         && is_int($job['CoJob']['max_retry_count'])
+         && ($job['CoJob']['max_retry_count'] + 1) >= $job['CoJob']['max_retry']) {
+        return true;
+      }
+
       // The new job will be substantially the same as the last one...
       
       $this->register($job['CoJob']['co_id'], 
@@ -336,7 +345,8 @@ class CoJob extends AppModel {
                       $job['CoJob']['retry_interval'],
                       $job['CoJob']['requeue_interval'],
                       $job['CoJob']['retry_interval'],
-                      $job['CoJob']['id']);
+                      $job['CoJob']['id'],
+                      $result);
     }
     
     return true;
@@ -409,6 +419,7 @@ class CoJob extends AppModel {
    * @param  Integer     $requeueInterval If non-zero, number of seconds after successful completion to requeue the same job
    * @param  Integer     $retryInterval   If non-zero, number of seconds after failed completion to requeue the same job
    * @param  Integer     $requeuedFrom    If requeued, the CO Job ID that created this Job
+   * @param  String      $requeuedStatus  If requeued, the status of the job that created this one
    * @return Integer                      Job ID
    * @throws RuntimeException
    */
@@ -424,7 +435,8 @@ class CoJob extends AppModel {
                            $delay=0,
                            $requeueInterval=0,
                            $retryInterval=0,
-                           $requeuedFrom=null) {
+                           $requeuedFrom=null,
+                           $requeuedStatus=null) {
     $dbc = $this->getDataSource();
     $dbc->begin();
     
@@ -453,7 +465,7 @@ class CoJob extends AppModel {
     }
 
     // XXX Currently we support max retries only for CoreJob.Provision types
-    if(!empty($jobs)
+    if($requeuedStatus == JobStatusEnum::Failed
        && $jobType == "CoreJob.Provision") {
       // Register or throw max retry
       // Get the provisioning Target
@@ -467,12 +479,12 @@ class CoJob extends AppModel {
       $max_retry_count = $this->Co
                               ->CoProvisioningTarget
                               ->CoProvisioningCount
-                              ->count($params["co_provisioning_target_id"], $jobs[0]['CoJob']['id']);
+                              ->count($params["co_provisioning_target_id"], $requeuedFrom);
 
       // Max Retry exceeded
       // If the max retry configuration is 0 then we will retry forever
       if((int)$max_retry_config !== 0
-         && ($max_retry_count + 1) > $max_retry_config) {
+         && ($max_retry_count + 1) >= $max_retry_config) {
         throw new RuntimeException(_txt('er.jb.mx.retry'));
       }
     } // Provisioning Count
@@ -492,9 +504,9 @@ class CoJob extends AppModel {
     $coJob['CoJob']['requeue_interval'] = $requeueInterval;
     $coJob['CoJob']['retry_interval'] = $retryInterval;
     if($jobType == "CoreJob.Provision"
-       && !empty($jobs)) {
+       && $requeuedStatus == JobStatusEnum::Failed) {
       $coJob['CoJob']['max_retry']       = $max_retry_config;
-      $coJob['CoJob']['max_retry_count'] = ($retryCount['provisioning_count'] ?? 0) + 1;
+      $coJob['CoJob']['max_retry_count'] = $max_retry_count + 1;
     }
     if($requeuedFrom) {
       $coJob['CoJob']['requeued_from_co_job_id'] = $requeuedFrom;
@@ -523,12 +535,12 @@ class CoJob extends AppModel {
 
     // Increment the number of retries after a failure
     if($jobType == "CoreJob.Provision") {
-      if(!empty($jobs)) {
-        $this->Co->CoProvisioningTarget->CoProvisioningCount->increment($this->id, $jobs[0]['CoJob']['id'], $params["co_provisioning_target_id"]);
+      if($requeuedStatus == JobStatusEnum::Failed) {
+        $this->Co->CoProvisioningTarget->CoProvisioningCount->increment($this->id, $requeuedFrom, $params["co_provisioning_target_id"]);
       } else {
         // XXX We do not need to reset if the Job succeeds
         // since everytime we get here we have a new Job ID
-        // $this->Co->CoProvisioningTarget->CoProvisioningCount->reset($this->id, $jobs[0]['CoJob']['id'], $params["co_provisioning_target_id"]);
+        // $this->Co->CoProvisioningTarget->CoProvisioningCount->reset($this->id, $requeuedFrom, $params["co_provisioning_target_id"]);
       }
     }
 
