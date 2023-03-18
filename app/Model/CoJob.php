@@ -464,7 +464,10 @@ class CoJob extends AppModel {
       // Default retry configuration will be 3 (three)
       $max_retry_config = $target['CoProvisioningTarget']['max_retry'] ?? 3;
       // The times you tried so far
-      $max_retry_count = $this->Co->CoProvisioningTarget->CoProvisioningCount($params["co_provisioning_target_id"], $jobs[0]['CoJob']['id']);
+      $max_retry_count = $this->Co
+                              ->CoProvisioningTarget
+                              ->CoProvisioningCount
+                              ->count($params["co_provisioning_target_id"], $jobs[0]['CoJob']['id']);
 
       // Max Retry exceeded
       // If the max retry configuration is 0 then we will retry forever
@@ -518,12 +521,13 @@ class CoJob extends AppModel {
       throw new RuntimeException(_txt('er.db.save-a', array('CoJob::register')));
     }
 
-    // Increment the number of retries after a failure and reset in any other case
+    // Increment the number of retries after a failure
     if($jobType == "CoreJob.Provision") {
       if(!empty($jobs)) {
         $this->Co->CoProvisioningTarget->CoProvisioningCount->increment($this->id, $jobs[0]['CoJob']['id'], $params["co_provisioning_target_id"]);
       } else {
-        // XXX We do not need to reset if the Job is successfull since the Job Id will be renewed next time and we will have a reseted record
+        // XXX We do not need to reset if the Job succeeds
+        // since everytime we get here we have a new Job ID
         // $this->Co->CoProvisioningTarget->CoProvisioningCount->reset($this->id, $jobs[0]['CoJob']['id'], $params["co_provisioning_target_id"]);
       }
     }

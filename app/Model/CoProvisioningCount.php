@@ -76,8 +76,6 @@ class CoProvisioningCount extends AppModel {
    */
   
   public function count($coProvisioningTargetId, $co_job_id) {
-    $ret = 0;
-    
     // We don't currently try to validate either foreign key.
     $args = array();
     $args['conditions']['CoProvisioningCount.co_provisioning_target_id'] = $coProvisioningTargetId;
