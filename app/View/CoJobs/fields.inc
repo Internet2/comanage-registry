@@ -226,9 +226,13 @@
       <div class="field-desc"><?php print _txt('fd.job.max_retry_count.desc'); ?></div>
     </div>
     <div class="field-info">
-      <?php print filter_var($co_jobs[0]['CoJob']['max_retry_count'], FILTER_SANITIZE_STRING)
-                  . " out of "
-                  . ($vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"] ?? 0); ?>
+      <?php
+      if(isset($co_jobs[0]['CoJob']['max_retry_count'])) {
+        print filter_var($co_jobs[0]['CoJob']['max_retry_count'], FILTER_SANITIZE_STRING)
+          . " out of "
+          . ($vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"] ?? 0);
+      }
+      ?>
     </div>
   </li>
   <li>

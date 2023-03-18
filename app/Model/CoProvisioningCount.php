@@ -94,7 +94,6 @@ class CoProvisioningCount extends AppModel {
    * @param  Integer $co_job_id              Job Id
    * @param  Integer $coProvisioningTargetId CO Provisioning Target ID
    * @param  Integer $parent_co_job_id       Parent Job Id
-   * @param  String  $provisioningAction     Provisioning Action
    * @return Integer New count
    */
 
@@ -120,6 +119,7 @@ class CoProvisioningCount extends AppModel {
       
       $this->id = $count[0]['CoProvisioningCount']['id'];
       $this->saveField('provisioning_count', $ret);
+      $this->saveField('co_job_id', $co_job_id);
     } else {
       $ret = 1;
       
