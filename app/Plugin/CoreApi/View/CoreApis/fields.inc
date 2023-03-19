@@ -91,7 +91,6 @@
     }
   }
 
-  // Response config is only for CO Person API. For other APIs we will need to hide this configuration
   function response_config_field() {
     var core_apis = [
       "<?php print CoreApiEnum::PersonRead; ?>",

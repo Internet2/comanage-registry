@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Core API People Controller
+ * COmanage Registry Core API Organizations Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
