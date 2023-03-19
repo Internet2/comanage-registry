@@ -162,7 +162,8 @@ class CoGroup extends AppModel {
       'rule' => array('inList', array(GroupEnum::Standard,
                                       GroupEnum::ActiveMembers,
                                       GroupEnum::Admins,
-                                      GroupEnum::AllMembers)),
+                                      GroupEnum::AllMembers,
+                                      GroupEnum::Approvers)),
       'required' => false,
       'allowEmpty' => true
     ),
@@ -317,7 +318,58 @@ class CoGroup extends AppModel {
       $this->reconcileAutomaticGroup($this->id);
     }
   }
-  
+
+  /**
+   * Perform CoGroup model upgrade steps for version 4.2.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer $coId    CO ID
+   * @param  String  $coName  CO Name
+   * @param  Integer $couId   COU ID
+   * @param  String  $couName COU Name
+   */
+
+  public function _ug420($coId, $coName, $couId=null, $couName=null) {
+    // Unlike most _ug functions, this one is intended to be called by
+    // UpgradeVersionShell multiple times, to allow for progress reporting.
+    // There is a bit of duplication here and in addDefaults, but since this
+    // function is not needed in the long term (and so doesn't need updating) that's OK.
+    // v4.2.0 was previously v4.1.2.
+
+    // We'll check for the existence of each group before creating it, just in case
+
+    $ckArgs = array();
+    $ckArgs['conditions']['CoGroup.co_id'] = $coId;
+    $ckArgs['conditions']['CoGroup.cou_id'] = $couId;
+    $ckArgs['conditions']['CoGroup.group_type'] = GroupEnum::Approvers;
+    $ckArgs['contain'] = false;
+
+    // Create a new Approvers group.
+
+
+    if(!$this->find('count', $ckArgs)) {
+      $data = array(
+        'CoGroup' => array(
+          'name'        => "CO" . ($couName ? ":COU:".$couName : "") . ":approvers",
+          'group_type'  => GroupEnum::Approvers,
+          'auto'        => false,
+          'description' => _txt('fd.group.desc.apr', array($couName ?: $coName)),
+          'open'        => false,
+          'status'      => SuspendableStatusEnum::Active,
+          'co_id'       => $coId,
+          'cou_id'      => ($couId ?: null)
+        )
+      );
+
+      $this->clear();
+
+      if(!$this->save($data)) {
+        throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
+      }
+    }
+  }
+
   /**
    * Add all default groups for the specified CO.
    *
@@ -373,6 +425,14 @@ class CoGroup extends AppModel {
         'group_type'  => GroupEnum::AllMembers,
         'auto'        => true,
         'description' => _txt('fd.group.desc.mem', array($couName ?: $coName)),
+        'open'        => false,
+        'status'      => SuspendableStatusEnum::Active,
+        'cou_id'      => ($couId ?: null)
+      ),
+      ':approvers' => array(
+        'group_type'  => GroupEnum::Approvers,
+        'auto'        => false,
+        'description' => _txt('fd.group.desc.apr', array($couName ?: $coName)),
         'open'        => false,
         'status'      => SuspendableStatusEnum::Active,
         'cou_id'      => ($couId ?: null)
@@ -568,6 +628,19 @@ class CoGroup extends AppModel {
     }
     
     return $this->find('all', $args);
+  }
+
+  /**
+   * Determine if the group is an approver group for COU.
+   *
+   * @since COmanage Registry v4.2.0
+   * @param Array representing CoGroup
+   * @return Boolean true if approver group
+   */
+
+  public function isCouApproverGroup($group) {
+    return ($group['CoGroup']['group_type'] == GroupEnum::Approvers
+      && !empty($group['CoGroup']['cou_id']));
   }
   
   /**

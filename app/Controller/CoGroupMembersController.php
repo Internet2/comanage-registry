@@ -49,6 +49,11 @@ class CoGroupMembersController extends StandardController {
     'CoPerson' => 'PrimaryName'
   );
 
+  // We need the Group
+  public $delete_contains = array(
+    'CoGroup'
+  );
+
   public $view_contains = array(
     'CoGroup',
     'CoPerson' => 'PrimaryName'

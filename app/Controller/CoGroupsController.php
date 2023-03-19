@@ -386,7 +386,8 @@ class CoGroupsController extends StandardController {
   
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
-    
+
+    $approved = false;
     $managed = false;
     $managedp = false;
     $readonly = false;
@@ -397,6 +398,7 @@ class CoGroupsController extends StandardController {
       
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
+        $approved = $this->Role->isGroupApprover($roles['copersonid'], $this->request->params['pass'][0]);
       }
       
       if(!empty($this->request->params['named']['copersonid'])) {
@@ -445,7 +447,9 @@ class CoGroupsController extends StandardController {
 
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
+
+    $p['approve'] = $approved || $roles['cmadmin'] || $roles['coadmin'];
+
     // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
     // Note we allow couadmin here beceause IdentifiersController allows it,
     // which allows it for CoPerson identifier assignment. It's not clear if that's
@@ -770,6 +774,11 @@ class CoGroupsController extends StandardController {
     // Exclude admin groups
     if(!empty($this->params['named']['search.noadmin'])) {
       $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Admins;
+    }
+
+    // Exclude approvers groups
+    if(!empty($this->params['named']['search.noapprover'])) {
+      $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Approvers;
     }
 
     // Filter by membership and ownership

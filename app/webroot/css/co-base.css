@@ -1663,6 +1663,8 @@ a.ui-button:visited,
   padding: 0;
 }
 .top-search .top-search-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
   margin-top: 0.5em;
 }
 .top-search .filter-clear-all-button {

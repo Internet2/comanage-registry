@@ -306,6 +306,7 @@ class GroupEnum
   const ActiveMembers = "MA";
   const Admins        = "A";
   const AllMembers    = "M";
+  const Approvers     = "AP";
   // XXX CO-1100, not yet supported
   const NestedAdmins  = "AN";
   const NestedMembers = "MN";

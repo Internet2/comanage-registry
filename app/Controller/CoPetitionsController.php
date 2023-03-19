@@ -2786,9 +2786,13 @@ class CoPetitionsController extends StandardController {
        && !$this->Role->identifierIsCmpAdmin($username)) {
       // approverFor will return groups even for a CO/COU admin, so don't check it for admins
       $efs = $this->Role->approverFor($coPersonId);
-      
-      if(!empty($efs)) {
-        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $efs;
+      $efs_approver_group_cou = $this->Role->approverForEof($coPersonId, true);
+      $efs_approver_group_co = $this->Role->approverForEof($coPersonId);
+
+      $all_efs = array_unique(array_merge($efs, $efs_approver_group_co, $efs_approver_group_cou));
+
+      if(!empty($all_efs)) {
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $all_efs;
       } else {
         // We shouldn't normally get here, as isAuthorized should filter anyone without
         // an approval role, but just in case we'll insert an invalid ID that won't ever match
