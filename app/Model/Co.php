@@ -510,8 +510,10 @@ class Co extends AppModel {
               foreach($corem->duplicatableModels as $dupeModelName => $dupecfg) {
                 // Probably need to load the model
                 $dupem = ClassRegistry::init($pluginName . "." . $dupeModelName);
-                
-                $this->duplicateObjects($dupem, $dupecfg['fk'], array_keys($idmap[$dupecfg['parent']]), $idmap);
+                // Skip duplication if no records exist
+                if(!empty($idmap[$dupecfg['parent']])) {
+                  $this->duplicateObjects($dupem, $dupecfg['fk'], array_keys($idmap[$dupecfg['parent']]), $idmap);
+                }
               }
             } else {
               // Duplicate the main plugin object
