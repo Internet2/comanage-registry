@@ -45,10 +45,10 @@
         items: {},
         eligibleitems: [ // XXX replace/update with data coming from plugin
           {"item":"Association for Jewish Studies","id":"23"},
-          {"item":"ARLIS/NA (Art Libraries Society of North America)","id":"23"},
+          {"item":"ARLIS/NA (Art Libraries Society of North America)","id":"23","active":"true"},
           {"item":"Association for Slavic, Eastern European, and Eurasian Studies","id":"23"},
           {"item":"College Art Association","id":"23"},
-          {"item":"HASTAC (Humanities, Arts, Science, and Technology Alliance and Collaboratory)","id":"23"},
+          {"item":"HASTAC (Humanities, Arts, Science, and Technology Alliance and Collaboratory)","id":"23","active":"true"},
           {"item":"Modern Language Association","id":"23"},
           {"item":"Society of Architectural Historians","id":"23"},
           {"item":"Social Sciences domain hub","id":"23"},

@@ -99,7 +99,7 @@ export default {
                   required="required"
                   ref="newItem">
                   <option selected>{{ txt.select }}</option>
-                  <option v-for="option in eligibleitems" :value="option.id">{{ option.item }}</option>
+                  <option v-for="option in eligibleitems" :value="option.id" :disabled="option.active">{{ option.item }}</option>
                 </select>
                 <div v-if="this.newItemInvalid" class="invalid-feedback">
                   {{ this.newItemErrorMessage }}

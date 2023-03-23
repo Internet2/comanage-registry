@@ -82,11 +82,14 @@
 
 <div class="table-container">
   <?php if(!empty($vv_dashboard)): ?>
+    
     <?php if(!empty($vv_dashboard['CoDashboard']['header_text'])): ?>
       <div id="dashboard-header">
         <?php print $vv_dashboard['CoDashboard']['header_text']; ?>
       </div>
     <?php endif; ?>
+    
+    <div id="dashboard-widgets">
     <?php if(!empty($vv_dashboard['CoDashboardWidget'])): ?>
       <?php foreach($vv_dashboard['CoDashboardWidget'] as $w): ?>
         <?php if($w['status'] == StatusEnum::Active): ?>
@@ -100,13 +103,16 @@
         <?php endif; // Active ?>
       <?php endforeach; // dashboard widget ?>
     <?php else: ?>
-      <?php print _txt('in.widgets.none'); ?>
+      <p><?php print _txt('in.widgets.none'); ?></p>
     <?php endif; ?>
+    </div>
+    
     <?php if(!empty($vv_dashboard['CoDashboard']['footer_text'])): ?>
       <div id="dashboard-footer">
         <?php print $vv_dashboard['CoDashboard']['footer_text']; ?>
       </div>
     <?php endif; ?>
+    
   <?php else: // $vv_dashboard ?>
   <!-- XXX this doesn't really render correctly -->
   <h1 class="firstPrompt">
