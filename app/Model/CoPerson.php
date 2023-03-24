@@ -381,104 +381,118 @@ class CoPerson extends AppModel {
     
     // Start a transaction
     $dbc = $this->getDataSource();
-    $dbc->begin();
-    
-    // Set the person to Deleted to prevent notification errors as the expunge is processed.
-    
-    // As of v2.0.0, we disable provisioning after this save. Note that some models
-    // are not ProvisionerBehavior-enabled (eg: CoNotification, CoOrgIdentityLink,
-    // HistoryRecord, OrgIdentity), and so there is no need to explicitly disable
-    // provisioning for these.
-    
-    $this->id = $coPersonId;
-    
-    // We don't provision here since afterSave will recalculate members groups,
-    // retriggering provision (and potentially reprovisioning).
-    
-    // Don't update Person status to Deleted since deleting the roles (via deleteDependent)
-    // may recalculate it back to Active, in turn creating additional group memberships
-    // that then need to be re-deleted.
-//    $this->saveField('status', StatusEnum::Deleted, array('provision' => false));
-    
-    // Rewrite any Notification where this person is an actor, recipient, or resolver
-    
-    foreach($coperson['CoNotificationActor'] as $n) {
-      $this->CoNotificationActor->expungeParticipant($n['id'],
-                                                     'actor',
-                                                     $expungerCoPersonId,
-                                                     $expungerApiUserId);
-    }
-    
-    foreach($coperson['CoNotificationRecipient'] as $n) {
-      $this->CoNotificationActor->expungeParticipant($n['id'],
-                                                     'recipient',
-                                                     $expungerCoPersonId,
-                                                     $expungerApiUserId);
-    }
-    
-    foreach($coperson['CoNotificationResolver'] as $n) {
-      $this->CoNotificationActor->expungeParticipant($n['id'],
-                                                     'resolver',
-                                                     $expungerCoPersonId,
-                                                     $expungerApiUserId);
-    }
-    
-    // Rewrite any History Records where this person is an actor but not a recipient
-    // (since those will be purged shortly anyway)
-    
-    foreach($coperson['HistoryRecordActor'] as $h) {
-      if($h['co_person_id'] != $coPersonId) {
-        $this->HistoryRecord->expungeActor($h['id'],
-                                           $expungerCoPersonId,
-                                           $expungerApiUserId);
-      }
-    }
-    
-    // Manually delete org identities since they will not cascade via org identity link.
-    // Only do this where there are no other CO People linked to the org identity.
-    // Note we're walking two links here... the first is all Org Identities attached
-    // to the current CO Person, then the second is all CO People attached to each
-    // of those Org Identities.
-    
-    // We need to do this before deleting the CO Person due to some deep Cake error
-    // when selecting the dependency data related to the Org Identity to prepare for
-    // deletion generating an invalid SELECT statement and throwing an error.
-    
-    foreach($coperson['CoOrgIdentityLink'] as $lnk) {
-      if(count($lnk['OrgIdentity']['CoOrgIdentityLink']) <= 1) {
-        if(!empty($lnk['OrgIdentity']['CoOrgIdentityLink'][0]['id'])) {
-          // We need to manually remove this link since it hasn't been removed via
-          // the CO Person record yet.
-          $this->CoOrgIdentityLink->delete($lnk['OrgIdentity']['CoOrgIdentityLink'][0]['id']);
-        }
-        
-        $this->CoOrgIdentityLink->OrgIdentity->delete($lnk['OrgIdentity']['id']);
-      }
-    }
-    
-    // Delete the CO Person. Note that normally (CoPeopleController:checkDeleteDependencies)
-    // we verify that each COU the CO Person belongs to can be admin'd by the currently authenticated
-    // CO Person. However, at the moment CO People can only be deleted by CO and CMP admins, so there
-    // is no need for this check.
-    
-    // We first delete all dependencies and then delete the CO Person itself (again with cascading
-    // to dependencies). The reason for this is that, depending on what order Cake deletes the
-    // dependencies in, new history records might be created for the CO Person as a side effect of
-    // the delete (typically because provisioning fires off). After _deleteDependent, we should be
-    // left with only minimal new residue which the normal delete() will clean up.
-    
-    $this->deleteDependent($coPersonId);
+    try {
+      $dbc->begin();
 
-    // We want this delete to (de)provision
-    $this->delete($coPersonId);
-    
-    // Need to check if there was an error since we can't see if something failed
-    // with provisioners. Note this only catches SQL issues, not general provisioner errors.
-    if($dbc->lastError() != null) {
-      throw new RuntimeException($dbc->lastError());
+      // Set the person to Deleted to prevent notification errors as the expunge is processed.
+
+      // As of v2.0.0, we disable provisioning after this save. Note that some models
+      // are not ProvisionerBehavior-enabled (eg: CoNotification, CoOrgIdentityLink,
+      // HistoryRecord, OrgIdentity), and so there is no need to explicitly disable
+      // provisioning for these.
+
+      $this->id = $coPersonId;
+
+      // We don't provision here since afterSave will recalculate members groups,
+      // retriggering provision (and potentially reprovisioning).
+
+      // Don't update Person status to Deleted since deleting the roles (via deleteDependent)
+      // may recalculate it back to Active, in turn creating additional group memberships
+      // that then need to be re-deleted.
+//    $this->saveField('status', StatusEnum::Deleted, array('provision' => false));
+
+      // Rewrite any Notification where this person is an actor, recipient, or resolver
+
+      foreach ($coperson['CoNotificationActor'] as $n) {
+        $this->CoNotificationActor->expungeParticipant(
+          $n['id'],
+          'actor',
+          $expungerCoPersonId,
+          $expungerApiUserId
+        );
+      }
+
+      foreach ($coperson['CoNotificationRecipient'] as $n) {
+        $this->CoNotificationActor->expungeParticipant(
+          $n['id'],
+          'recipient',
+          $expungerCoPersonId,
+          $expungerApiUserId
+        );
+      }
+
+      foreach ($coperson['CoNotificationResolver'] as $n) {
+        $this->CoNotificationActor->expungeParticipant(
+          $n['id'],
+          'resolver',
+          $expungerCoPersonId,
+          $expungerApiUserId
+        );
+      }
+
+      // Rewrite any History Records where this person is an actor but not a recipient
+      // (since those will be purged shortly anyway)
+
+      foreach ($coperson['HistoryRecordActor'] as $h) {
+        if ($h['co_person_id'] != $coPersonId) {
+          $this->HistoryRecord->expungeActor(
+            $h['id'],
+            $expungerCoPersonId,
+            $expungerApiUserId
+          );
+        }
+      }
+
+      // Manually delete org identities since they will not cascade via org identity link.
+      // Only do this where there are no other CO People linked to the org identity.
+      // Note we're walking two links here... the first is all Org Identities attached
+      // to the current CO Person, then the second is all CO People attached to each
+      // of those Org Identities.
+
+      // We need to do this before deleting the CO Person due to some deep Cake error
+      // when selecting the dependency data related to the Org Identity to prepare for
+      // deletion generating an invalid SELECT statement and throwing an error.
+
+      foreach ($coperson['CoOrgIdentityLink'] as $lnk) {
+        if (count($lnk['OrgIdentity']['CoOrgIdentityLink']) <= 1) {
+          if (!empty($lnk['OrgIdentity']['CoOrgIdentityLink'][0]['id'])) {
+            // We need to manually remove this link since it hasn't been removed via
+            // the CO Person record yet.
+            $this->CoOrgIdentityLink->delete($lnk['OrgIdentity']['CoOrgIdentityLink'][0]['id']);
+          }
+
+          $this->CoOrgIdentityLink->OrgIdentity->delete($lnk['OrgIdentity']['id']);
+        }
+      }
+
+      // Delete the CO Person. Note that normally (CoPeopleController:checkDeleteDependencies)
+      // we verify that each COU the CO Person belongs to can be admin'd by the currently authenticated
+      // CO Person. However, at the moment CO People can only be deleted by CO and CMP admins, so there
+      // is no need for this check.
+
+      // We first delete all dependencies and then delete the CO Person itself (again with cascading
+      // to dependencies). The reason for this is that, depending on what order Cake deletes the
+      // dependencies in, new history records might be created for the CO Person as a side effect of
+      // the delete (typically because provisioning fires off). After _deleteDependent, we should be
+      // left with only minimal new residue which the normal delete() will clean up.
+
+      $this->deleteDependent($coPersonId);
+
+      // We want this delete to (de)provision
+      $this->delete($coPersonId);
+
+      // Need to check if there was an error since we can't see if something failed
+      // with provisioners. Note this only catches SQL issues, not general provisioner errors.
+      if ($dbc->lastError() != null) {
+        throw new RuntimeException($dbc->lastError());
+      }
+
+      $dbc->commit();
+    } catch(Exception $e) {
+      // Since we open a transaction we need to close it
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
     }
-    
-    $dbc->commit();
     
     return true;
   }
