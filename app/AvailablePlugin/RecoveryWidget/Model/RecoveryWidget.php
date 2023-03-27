@@ -264,11 +264,11 @@ class RecoveryWidget extends AppModel {
 
     // Add cc and bcc if specified
     if($mt['CoMessageTemplate']['cc']) {
-      $email->cc(explode(',', $mt['CoMessageTemplate']['cc']));
+      $email->cc(array_map('trim', explode(',', $mt['CoMessageTemplate']['cc'])));
     }
 
     if($mt['CoMessageTemplate']['bcc']) {
-      $email->bcc(explode(',', $mt['CoMessageTemplate']['bcc']));
+      $email->bcc(array_map('trim', explode(',', $mt['CoMessageTemplate']['bcc'])));
     }
     
     $msgBody = array();
