@@ -27,7 +27,7 @@
 
 class NormalizationBehavior extends ModelBehavior {
   /**
-   * Handle normalization following (before) save of Model.
+   * Handle normalization following (before) Validation of Model.
    *
    * @since  COmanage Registry v0.9.2
    * @param  Model $model Model instance
@@ -35,7 +35,7 @@ class NormalizationBehavior extends ModelBehavior {
    * @throws RuntimeException
    */
   
-  public function beforeSave(Model $model, $options = array()) {
+  public function beforeValidate(Model $model, $options = array()) {
     $model->data = $this->normalize($model, $model->data);
     
     return true;
