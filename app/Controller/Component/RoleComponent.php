@@ -75,7 +75,7 @@ class RoleComponent extends Component {
    * @return Array List CO Enrollment Flow IDs
    * @throws InvalidArgumentException
    */
-  public function approverForEof($coPersonId, $cou_level=false) {
+  public function approverForEnrollmentFlow($coPersonId, $cou_level=false) {
     if(!$coPersonId) {
       return array();
     }
@@ -1194,12 +1194,12 @@ class RoleComponent extends Component {
   }
 
   /**
-   * Determine if a CO Person is a CO or COU Administrator.
+   * Determine if a CO Person is a CO or COU Approver.
    *
    * @since  COmanage Registry v4.2.0
    * @param  Integer CO Person ID
-   * @param  Integer CO ID that CO Person is an Admin for, or null for any CO
-   * @return Boolean True if the CO Person is a CO or COU Administrator, false otherwise
+   * @param  Integer CO ID that CO Person is an Approver for, or null for any CO
+   * @return Boolean True if the CO Person is a CO or COU Approver, false otherwise
    */
 
   public function isCoOrCouApprover($coPersonId, $coId=null) {

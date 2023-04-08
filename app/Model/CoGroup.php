@@ -331,12 +331,6 @@ class CoGroup extends AppModel {
    */
 
   public function _ug420($coId, $coName, $couId=null, $couName=null) {
-    // Unlike most _ug functions, this one is intended to be called by
-    // UpgradeVersionShell multiple times, to allow for progress reporting.
-    // There is a bit of duplication here and in addDefaults, but since this
-    // function is not needed in the long term (and so doesn't need updating) that's OK.
-    // v4.2.0 was previously v4.1.2.
-
     // We'll check for the existence of each group before creating it, just in case
 
     $ckArgs = array();
@@ -413,6 +407,14 @@ class CoGroup extends AppModel {
         'status'      => SuspendableStatusEnum::Active,
         'cou_id'      => ($couId ?: null)
       ),
+      ':approvers' => array(
+        'group_type'  => GroupEnum::Approvers,
+        'auto'        => false,
+        'description' => _txt('fd.group.desc.apr', array($couName ?: $coName)),
+        'open'        => false,
+        'status'      => SuspendableStatusEnum::Active,
+        'cou_id'      => ($couId ?: null)
+      ),
       ':members:active' => array(
         'group_type'  => GroupEnum::ActiveMembers,
         'auto'        => true,
@@ -425,14 +427,6 @@ class CoGroup extends AppModel {
         'group_type'  => GroupEnum::AllMembers,
         'auto'        => true,
         'description' => _txt('fd.group.desc.mem', array($couName ?: $coName)),
-        'open'        => false,
-        'status'      => SuspendableStatusEnum::Active,
-        'cou_id'      => ($couId ?: null)
-      ),
-      ':approvers' => array(
-        'group_type'  => GroupEnum::Approvers,
-        'auto'        => false,
-        'description' => _txt('fd.group.desc.apr', array($couName ?: $coName)),
         'open'        => false,
         'status'      => SuspendableStatusEnum::Active,
         'cou_id'      => ($couId ?: null)

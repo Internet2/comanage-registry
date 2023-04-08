@@ -2786,8 +2786,8 @@ class CoPetitionsController extends StandardController {
        && !$this->Role->identifierIsCmpAdmin($username)) {
       // approverFor will return groups even for a CO/COU admin, so don't check it for admins
       $efs = $this->Role->approverFor($coPersonId);
-      $efs_approver_group_cou = $this->Role->approverForEof($coPersonId, true);
-      $efs_approver_group_co = $this->Role->approverForEof($coPersonId);
+      $efs_approver_group_cou = $this->Role->approverForEnrollmentFlow($coPersonId, true);
+      $efs_approver_group_co = $this->Role->approverForEnrollmentFlow($coPersonId);
 
       $all_efs = array_unique(array_merge($efs, $efs_approver_group_co, $efs_approver_group_cou));
 

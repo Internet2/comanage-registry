@@ -284,9 +284,8 @@ class UpgradeVersionShell extends AppShell {
     foreach($this->versions as $version => $params) {
       if($version == $currentVersion) {
         // Note we don't actually want to run the steps for $currentVersion
-        // XXX What if i want to force rerun of current upgrade configuration????
         $fromFound = true;
-//        continue;
+        continue;
       }
       
       if(!$fromFound) {
@@ -663,7 +662,7 @@ class UpgradeVersionShell extends AppShell {
     foreach($cos as $co) {
       $this->out('- ' . $co['Co']['name']);
 
-      // Upgrade the CO approvers group
+      // Create the CO approvers group
       $this->CoGroup->_ug420($co['Co']['id'], $co['Co']['name']);
 
       $args = array();
