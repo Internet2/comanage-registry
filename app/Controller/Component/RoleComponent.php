@@ -70,7 +70,7 @@ class RoleComponent extends Component {
    * Determine what CO Enrollment Flows a CO Person may approve by being a member of
    * the special approvers groups
    *
-   * @since  COmanage Registry v0.8.3
+   * @since  COmanage Registry v4.2.0
    * @param  Integer CO Person ID
    * @return Array List CO Enrollment Flow IDs
    * @throws InvalidArgumentException

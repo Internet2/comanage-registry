@@ -500,7 +500,36 @@ class CoGroup extends AppModel {
     
     throw new InvalidArgumentException(_txt('er.gr.nf', array('admins')));
   }
-  
+
+
+  /**
+   * Obtain the ID of the CO or COU approvers group.
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer $coId    CO ID
+   * @param  String  $couId   COU ID, within $coId
+   * @return Integer CO Group ID
+   * @throws InvalidArgumentException
+   */
+
+  public function approverCoGroupId($coId, $couId=null) {
+    $args = array();
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    // For the CO Admin group, $couId must be null
+    $args['conditions']['CoGroup.cou_id'] = $couId;
+    $args['conditions']['CoGroup.group_type'] = GroupEnum::Approvers;
+    $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+
+    $coApproverGroup = $this->Co->CoGroup->find('first', $args);
+
+    if(!empty($coApproverGroup['CoGroup']['id'])) {
+      return $coApproverGroup['CoGroup']['id'];
+    }
+
+    throw new InvalidArgumentException(_txt('er.gr.nf', array('admins')));
+  }
+
   /**
    * Actions to take after a save operation is executed.
    *
