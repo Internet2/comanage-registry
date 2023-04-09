@@ -961,7 +961,18 @@ class RoleComponent extends Component {
   
   /**
    * Determine if a CO Person has the ability to approve petitions for the specified enrollment flow.
-   * 
+   *
+   * (A) $coPersonId IS a member of Enrollment Flow configured approvers group
+   * (B) $coPersonId IS NOT a member of Enrollment Flow configured approvers group
+   *     (1) $coPersonId is a CO admin
+   *     (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+   *     (3) A COU is attached to the petition and $coPersonId is a COU admin
+   *         (OR) A COU is attached to the petition and $coPersonId is a member of the COU-specific approvers group
+   *             (OR) the CO:approvers group
+   *     (4) No authz_cou_id is specified and $coPersonId is a COU admin
+   *         (OR) If no COU is attached to the petition and $coPersonId is a member of the CO:approvers group
+   *
+   *
    * @since  COmanage Registry v0.8.3
    * @param  Integer CO Person ID
    * @param  Integer CO Enrollment Flow ID
@@ -1009,11 +1020,6 @@ class RoleComponent extends Component {
     }
     
     if($coEF['CoEnrollmentFlow']['approval_required']) {
-      // Does the user belong to the approvers group?
-      if($this->isCoOrCouApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
-        $ret = true;
-      }
-
       if(!empty($coEF['CoEnrollmentFlow']['approver_co_group_id'])) {
         // $coPersonId must be a member of this group
         
@@ -1028,7 +1034,7 @@ class RoleComponent extends Component {
           $ret = true;
         } else {
           if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
-            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU or a COU approver
             
             $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
           } else {
@@ -1043,12 +1049,16 @@ class RoleComponent extends Component {
             
             if($couId) {
               // (3) A COU is attached to the petition and $coPersonId is a COU admin
-              
-              $ret = $this->isCouAdmin($coPersonId, $couId);
+              // (OR) a CO:approvers (OR) COU:approvers group member
+
+              $ret = $this->isCouAdmin($coPersonId, $couId)
+                     || $this->isCoOrCouApprover($coPersonId, $couId);
             } else {
               // (4) No authz_cou_id is specified and $coPersonId is a COU admin
-              
-              $ret = $this->isCouAdmin($coPersonId);
+              // (OR) a CO:approvers group member
+
+              $ret = $this->isCouAdmin($coPersonId)
+                     || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id']);
             }
           }
         }
