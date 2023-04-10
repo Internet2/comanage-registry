@@ -82,6 +82,7 @@ RUN rm -f ${COMANAGE_REGISTRY_DIR}/app/tmp \
     && chown -R www-data:www-data ${COMANAGE_REGISTRY_DIR}/app/tmp \
     && cd /var/www/html \
     && ln -s ${COMANAGE_REGISTRY_DIR}/app/webroot registry \
+    && chown -h www-data:www-data registry \
     && mkdir ${COMANAGE_REGISTRY_DIR}/local
 
 # The environment variable CACHEDIR is used by the clearcache script.
