@@ -56,6 +56,7 @@ class ApiController extends Controller {
 
   public $paginate = array(
     'limit' => 100,
+    'maxLimit' => 1000,
     'order' => array(
       'CoPerson.id' => 'asc'
     )

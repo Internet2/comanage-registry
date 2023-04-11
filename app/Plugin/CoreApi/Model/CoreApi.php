@@ -47,7 +47,7 @@ class CoreApi extends AppModel {
   //    will be transformed to co_person_status.
   // XXX We are making the convention that the field will be placed last and will be a single word
   private $allowed_query_params = array(
-    'limit' => array('integer' => array('range' => array(1, 1000))),
+    'limit' => array('integer' => array('range' => array(1, 1001))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
     'co_person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
