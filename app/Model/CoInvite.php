@@ -362,11 +362,11 @@ class CoInvite extends AppModel {
           
           // If cc's or bcc's were set, convert to an array
           if($cc) {
-            $email->cc(explode(',', $cc));
+            $email->cc(array_map('trim', explode(',', $cc)));
           }
           
           if($bcc) {
-            $email->bcc(explode(',', $bcc));
+            $email->bcc(array_map('trim', explode(',', $bcc)));
           }
 
           if($format === MessageFormatEnum::PlaintextAndHTML
