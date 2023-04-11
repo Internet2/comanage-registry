@@ -101,6 +101,18 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print $this->Form->label('table_prefix', _txt('pl.sqlprovisioner.table_prefix')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.sqlprovisioner.table_prefix.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('table_prefix') : filter_var($co_sql_provisioner_targets[0]['CoSqlProvisionerTarget']['table_prefix'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  </li>
   <?php if($e): ?>
   <li class="fields-submit">
     <div class="field-name">

@@ -89,11 +89,12 @@ class SqlServer extends AppModel {
    * @since  COmanage Registry v3.2.0
    * @param  Integer $serverId Server ID (NOT SqlServerId)
    * @param  String  $name     Connection name, used for subsequent access via Models
+   * @param  string  $prefix   Table name prefix
    * @return Boolean true on success
    * @throws Exception
    */
   
-  public function connect($serverId, $name) {
+  public function connect($serverId, $name, $prefix="") {
     // Get our connection information
     
     $args = array();
@@ -119,7 +120,7 @@ class SqlServer extends AppModel {
       'login' => $sqlserver['SqlServer']['username'],
       'password' => $sqlserver['SqlServer']['password'],
       'database' => $sqlserver['SqlServer']['databas'],
-//    'prefix' => '',
+      'prefix' => ($prefix != '' ? $prefix : "sp_"),
 //    'encoding' => 'utf8',
     );
     

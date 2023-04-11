@@ -54,7 +54,9 @@ class CoSqlProvisionerTargetsController extends SPTController {
         throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_sql_provisioner_targets.1'), $id)));
       }
       
-      $this->CoSqlProvisionerTarget->applySchema($serverId);
+      $tablePrefix = $this->CoSqlProvisionerTarget->field('table_prefix', array('CoSqlProvisionerTarget.id' => $id));
+
+      $this->CoSqlProvisionerTarget->applySchema($serverId, $tablePrefix);
       
       $this->Flash->set(_txt('pl.sqlprovisioner.reapply.ok'), array('key' => 'success'));
     }
