@@ -475,6 +475,9 @@ DESCRIPTION
     -h, --help
             show this usage message
 
+    --build-arg
+            pass build argument to docker build
+
     --image_registry
             image registry, default is none
 
@@ -603,6 +606,7 @@ function main() {
     gnu_getopt_out=$(/usr/bin/getopt \
                      --options hl:os: \
                      --longoptions help \
+                     --longoptions build-arg: \
                      --longoptions image_registry: \
                      --longoptions label: \
                      --longoptions no-cache \
@@ -622,6 +626,7 @@ function main() {
     while true; do
         case "$1" in
             -h | --help ) usage $@; exit ;;
+            --build-arg ) docker_build_flags+=(--build-arg "$2") ; shift 2 ;;
             --image_registry ) image_registry="$2"; shift 2 ;;
             -l | --label ) label="$2"; shift 2 ;;
             --no-cache ) docker_build_flags+=(--no-cache) ; shift 1 ;;
