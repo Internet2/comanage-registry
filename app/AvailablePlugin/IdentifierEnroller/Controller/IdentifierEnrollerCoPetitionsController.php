@@ -59,11 +59,32 @@ class IdentifierEnrollerCoPetitionsController extends CoPetitionsController {
       $this->redirect($onFinish);
     }
 
+    // Get the CO Person ID
+    $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
+
+    // Get the CoPerson Identifiers.
+    // If we already have a type of identifier that matches the one controlled by the plugin instance
+    // skip
+    $args = array();
+    $args['conditions']['Identifier.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    $pidentifiers = $this->CoPetition->EnrolleeCoPerson->Identifier->find('all', $args);
+
+    foreach ($pidentifiers as $ident) {
+      foreach ($identifiers['IdentifierEnrollerIdentifier'] as $idx => $ie) {
+        if($ident['Identifier']['type'] == $ie['identifier_type']) {
+          unset($identifiers['IdentifierEnrollerIdentifier'][$idx]);
+        }
+      }
+    }
+
+    if(empty($identifiers['IdentifierEnrollerIdentifier'])) {
+      // There are no attributes to collect, redirect
+      $this->redirect($onFinish);
+    }
+
     if($this->request->is('post')) {
       // Post, process the request
-
-      // Get the CO Person ID
-      $coPersonId = $this->CoPetition->field('enrollee_co_person_id', array('CoPetition.id' => $id));
 
       // Walk through the list of configured identifiers and save any we find.
       // (While the form enforces "required", we don't bother here -- it's not even clear if we should.)
