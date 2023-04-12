@@ -633,6 +633,8 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
 
     // Loop through the models and sync the data
     
+    $affilmap = $this->CoProvisioningTarget->Co->CoExtendedType->affiliationMap($provisioningData['Co']['id']);
+
     foreach($this->models as $m) {
       $Model = new Model(array(
         'table' => $m['table'],
@@ -698,6 +700,17 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
               
               // We finally have the OIS ID, inject it into the data to save
               $data[ $m['name'] ]['org_identity_source_id'] = $oisRecord[0]['org_identity_source_id'];
+            }
+
+            if($m['name'] == 'SpCoPersonRole') {
+              // Map eduPersonAffiliation.
+              if(!empty($data[ $m['name'] ]['affiliation'])) {
+                $affil = $data[ $m['name'] ]['affiliation'];
+
+                if(!empty($affilmap[$affil])) {
+                  $data[ $m['name'] ]['eduperson_affiliation'] = $affilmap[$affil];
+                }
+              }
             }
             
             // No need to validate anything, though we also don't have any validation rules

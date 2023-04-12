@@ -200,6 +200,7 @@
     <field name="manager_co_person_id" type="I" />
     <field name="cou_id" type="I" />
     <field name="affiliation" type="C" size="32" />
+    <field name="eduperson_affiliation" type="C" size="32" />
     <field name="title" type="C" size="128" />
     <field name="o" type="C" size="128" />
     <field name="ou" type="C" size="128" />
