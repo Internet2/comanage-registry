@@ -229,13 +229,9 @@ class CoPerson extends AppModel {
     // Manage CO person membership in the CO members group.
     // This is similar to CoPersonRole::reconcileCouMembersGroupMemberships.
     
-    $eligible = false;
-    $isMember = false;
-    
     $provision = (isset($options['provision']) ? $options['provision'] : true);
     
     $coPersonId = $this->id;
-    $coId = $this->field('co_id');
     $status = $this->field('status');
     // This is similar logic to CoPersonRole and CoGroup::reconcileAutomaticGroup
     $activeEligible = ($status == StatusEnum::Active || $status == StatusEnum::GracePeriod);
@@ -243,45 +239,38 @@ class CoPerson extends AppModel {
     
     $this->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, null, $coPersonId, $activeEligible, $provision);
     $this->CoGroupMember->syncMembership(GroupEnum::AllMembers, null, $coPersonId, $allEligible, $provision);
-    
-    // We also need to update any COU members groups. Start by pulling the list of COUs,
-    // in id => name format.
-    
-    $cous = $this->Co->Cou->allCous($coId);
-    
-    if(!empty($cous)) {
-      // We need to pull the COUs this CO Person has a role for (even if not active).
-      // If the Person is not active, then we'll also remove the Role active group(s).
-      
-      $args = array();
-      $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
-      $args['conditions'][] = 'CoPersonRole.cou_id IS NOT NULL';
-      // If a person has more than one COU membership, we'll lose all but one of the
-      // role IDs, but currently we don't need them.
-      $args['fields'] = array('CoPersonRole.cou_id', 'CoPersonRole.id');
-      $args['contain'] = false;
-      
-      $roles = $this->CoPersonRole->find('list', $args);
-      
-      // Walk the COUs
-      
-      foreach($cous as $couId => $couName) {
-        // If the CO Person is not $allEligible, then no COU groups are eligible either.
-        if($allEligible && !empty($roles[$couId])) {
-          // The CO Person has at least one role in this COU, so let CoPersonRole sync things.
-          // Note we only need to do this once per COU, as reconcileCouMembersGroupMemberships
-          // will correctly handle multiple roles in the same COU.
-          
-          $this->CoPersonRole->reconcileCouMembersGroupMemberships($roles[$couId],
-                                                                   $this->CoPersonRole->alias,
-                                                                   $provision,
-                                                                   $activeEligible);
-        } else {
-          // Make sure there are no memberships for this COU
-          
-          $this->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, false, $provision);
-          $this->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, false, $provision);
-        }
+
+    // We need to pull the COUs this CO Person has a role for (even if not active).
+    // If the Person is not active, then we'll also remove the Role active group(s).
+
+    $args = array();
+    $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+    $args['conditions'][] = 'CoPersonRole.cou_id IS NOT NULL';
+    // If a person has more than one COU membership, we'll lose all but one of the
+    // role IDs, but currently we don't need them.
+    $args['fields'] = array('CoPersonRole.cou_id', 'CoPersonRole.id');
+    $args['contain'] = false;
+
+    $roles = $this->CoPersonRole->find('list', $args);
+
+    // Walk the COUs
+
+  foreach($roles as $couId => $roleId) {
+      // If the CO Person is not $allEligible, then no COU groups are eligible either.
+    if($allEligible) {
+        // The CO Person has at least one role in this COU, so let CoPersonRole sync things.
+        // Note we only need to do this once per COU, as reconcileCouMembersGroupMemberships
+        // will correctly handle multiple roles in the same COU.
+
+      $this->CoPersonRole->reconcileCouMembersGroupMemberships($roleId,
+                                                               $this->CoPersonRole->alias,
+                                                               $provision,
+                                                               $activeEligible);
+      } else {
+        // Make sure there are no memberships for this COU
+
+        $this->CoGroupMember->syncMembership(GroupEnum::ActiveMembers, $couId, $coPersonId, false, $provision);
+        $this->CoGroupMember->syncMembership(GroupEnum::AllMembers, $couId, $coPersonId, false, $provision);
       }
     }
   }
