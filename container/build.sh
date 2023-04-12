@@ -475,6 +475,9 @@ DESCRIPTION
     -h, --help
             show this usage message
 
+    --build-arg
+            pass build argument to docker build
+
     --image_registry
             image registry, default is none
 
@@ -585,11 +588,25 @@ function main() {
     local repository
     local suffix
 
+    # Require bash version 4 or higher.
+    if [[ ! "${BASH_VERSINFO:-0}" -ge 4 ]]; then
+        err "ERROR: Bash version must be 4 or greater"
+        exit 1
+    fi
+
+    # Require getopt version 2.32 or greater.
+    getopt_version=$(/usr/bin/getopt --version | cut -d' ' -f4 | cut -c1-4 | tr -d .)
+    if [[ ! "${getopt_version:-0}" -ge 232 ]]; then
+        err "ERROR: getopt version must be 2.32 or greater"
+        exit 1
+    fi
+
     declare -a docker_build_flags=()
 
     gnu_getopt_out=$(/usr/bin/getopt \
                      --options hl:os: \
                      --longoptions help \
+                     --longoptions build-arg: \
                      --longoptions image_registry: \
                      --longoptions label: \
                      --longoptions no-cache \
@@ -609,6 +626,7 @@ function main() {
     while true; do
         case "$1" in
             -h | --help ) usage $@; exit ;;
+            --build-arg ) docker_build_flags+=(--build-arg "$2") ; shift 2 ;;
             --image_registry ) image_registry="$2"; shift 2 ;;
             -l | --label ) label="$2"; shift 2 ;;
             --no-cache ) docker_build_flags+=(--no-cache) ; shift 1 ;;

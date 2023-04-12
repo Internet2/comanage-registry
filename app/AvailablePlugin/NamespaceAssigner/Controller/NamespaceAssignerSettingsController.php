@@ -43,6 +43,20 @@ class NamespaceAssignerSettingsController extends StandardController {
   public $requires_co = true;
   
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   * - precondition: Request Handler component has set $this->request
+   * - postcondition: Set $sponsors
+   *
+   * @since  COmanage Registry v4.2.0
+   */
+
+  public function beforeRender() {
+    parent::beforeRender();
+
+    $this->set('vv_available_name_types', $this->NamespaceAssignerSetting->Co->CoPerson->Name->types($this->cur_co['Co']['id'], 'type'));
+  }
+
+  /**
    * Render Namespace Assigner Settings for this CO.
    *
    * @since  COmanage Registry v4.1.0

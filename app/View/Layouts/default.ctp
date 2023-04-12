@@ -45,7 +45,11 @@
     <!-- <?php
       // Include version number, but only if logged in
       if($this->Session->check('Auth.User')) {
-        print _txt('coordinate.version', array(chop(file_get_contents(CONFIG . "VERSION"))));
+        $versionString = getenv('COMANAGE_REGISTRY_VERSION');
+        if($versionString === false) {
+          $versionString = chop(file_get_contents(CONFIG . "VERSION"));
+        }
+        print _txt('coordinate.version', array($versionString));
       }
     ?> -->
 
@@ -75,11 +79,12 @@
 
     <!-- Load JavaScript -->
     <?php
-      /* only JQuery and Bootstrap here - other scripts at bottom. Note that until
+      /* only JQuery, Bootstrap, and Vue here - other scripts at bottom. Note that until
          jQueryUI is deprecated, it must be loaded after Bootstrap.  */
       print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
       print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.13.2.custom/jquery-ui.min.js') . "\n    ";
+      print $this->Html->script('vue/vue-3.2.31.global.prod.js') . "\n    ";
     ?>
 
     <!-- Include external files and scripts -->

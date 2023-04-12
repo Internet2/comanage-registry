@@ -67,61 +67,61 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   // added to the contains clause in syncPerson.
   public $models = array(
     array(
-      'table'  => 'sp_names',
+      'table'  => 'names',
       'name'   => 'SpName',
       'source' => 'Name',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_identifiers',
+      'table'  => 'identifiers',
       'name'   => 'SpIdentifier',
       'source' => 'Identifier',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_email_addresses',
+      'table'  => 'email_addresses',
       'name'   => 'SpEmailAddress',
       'source' => 'EmailAddress',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_urls',
+      'table'  => 'urls',
       'name'   => 'SpUrl',
       'source' => 'Url',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_co_t_and_c_agreements',
+      'table'  => 'co_t_and_c_agreements',
       'name'   => 'SpCoTAndCAgreement',
       'source' => 'CoTAndCAgreement',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_co_group_members',
+      'table'  => 'co_group_members',
       'name'   => 'SpCoGroupMember',
       'source' => 'CoGroupMember',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_co_person_roles',
+      'table'  => 'co_person_roles',
       'name'   => 'SpCoPersonRole',
       'source' => 'CoPersonRole',
       'parent' => 'CoPerson'
     ),
     array(
-      'table'  => 'sp_addresses',
+      'table'  => 'addresses',
       'name'   => 'SpAddress',
       'source' => 'Address',
       'parent' => 'CoPersonRole'
     ),
     array(
-      'table'  => 'sp_telephone_numbers',
+      'table'  => 'telephone_numbers',
       'name'   => 'SpTelephoneNumber',
       'source' => 'TelephoneNumber',
       'parent' => 'CoPersonRole'
     ),
     array(
-      'table'  => 'sp_ad_hoc_attributes',
+      'table'  => 'ad_hoc_attributes',
       'name'   => 'SpAdHocAttribute',
       'source' => 'AdHocAttribute',
       'parent' => 'CoPersonRole'
@@ -131,14 +131,14 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   // The primary/parent models being provisioned
   public $parentModels = array(
     'CoGroup' => array(
-      'table'  => 'sp_co_groups',
+      'table'  => 'co_groups',
       'name'   => 'SpCoGroup',
       'source' => 'CoGroup',
       'source_table' => 'co_groups',
       'parent' => 'Co'
     ),
     'CoPerson' => array(
-      'table'  => 'sp_co_people',
+      'table'  => 'co_people',
       'name'   => 'SpCoPerson',
       'source' => 'CoPerson',
       'source_table' => 'co_people',
@@ -149,14 +149,14 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   // Models holding reference data (that ordinarily isn't provisioned)
   public $referenceModels = array(
     array(
-      'table'  => 'sp_cous',
+      'table'  => 'cous',
       'name'   => 'SpCou',
       'source' => 'Cou',
       'source_table' => 'cous',
       'parent' => 'Co'
     ),
     array(
-      'table'  => 'sp_co_terms_and_conditions',
+      'table'  => 'co_terms_and_conditions',
       // Ordinarily we'd call this SpCoTermsAndConditions, but it's not worth
       // fighting cake's inflector
       'name'   => 'SpCoTermsAndCondition',
@@ -165,7 +165,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       'parent' => 'Co'
     ),
     array(
-      'table'  => 'sp_org_identity_sources',
+      'table'  => 'org_identity_sources',
       'name'   => 'SpOrgIdentitySource',
       'source' => 'OrgIdentitySource',
       'source_table' => 'org_identity_sources',
@@ -185,12 +185,15 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
   public function afterSave($created, $options = Array()) {
     if(!empty($this->data['CoSqlProvisionerTarget']['server_id'])) {
       // Apply the database schema
-      $this->applySchema($this->data['CoSqlProvisionerTarget']['server_id']);
+      $this->applySchema($this->data['CoSqlProvisionerTarget']['server_id'],
+                         $this->data['CoSqlProvisionerTarget']['table_prefix']);
       
       // Now populate (or update) the referece data, for which we need the current CO
       
       // Just let any exceptions bubble up the stack
-      $this->CoProvisioningTarget->Co->Server->SqlServer->connect($this->data['CoSqlProvisionerTarget']['server_id'], "targetdb");
+      $this->CoProvisioningTarget->Co->Server->SqlServer->connect($this->data['CoSqlProvisionerTarget']['server_id'],
+                                                                  "targetdb",
+                                                                  $this->data['CoSqlProvisionerTarget']['table_prefix']);
       
       $coId = $this->CoProvisioningTarget->field('co_id', array('CoProvisioningTarget.id' => $this->data['CoSqlProvisionerTarget']['co_provisioning_target_id']));
       
@@ -209,12 +212,13 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    * Apply the Target Database Schema.
    *
    * @since  COmanage Registry v4.0.0
-   * @param  integer $serverId Server ID
+   * @param  integer $serverId    Server ID
+   * @param  string  $tablePrefix Table Name Prefix
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function applySchema($serverId) {
+  public function applySchema($serverId, $tablePrefix) {
     // Pull the Server configuration and apply the database schema
     
     $args = array();
@@ -255,8 +259,10 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       throw new RuntimeException(_txt('er.file.read', array($schemaFile)));
     }
     
+    $prefix = (!empty($tablePrefix) && $tablePrefix != "") ? $tablePrefix : "sp_";
+
     $schema = new adoSchema($dbc);
-//        $schema->setPrefix($db->config['prefix']);
+    $schema->setPrefix($prefix);
     // ParseSchema is generating bad SQL for Postgres. eg:
     //  ALTER TABLE cm_cos ALTER COLUMN id SERIAL
     // which (1) should be ALTER TABLE cm_cos ALTER COLUMN id TYPE SERIAL
@@ -286,6 +292,14 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       $sql = $schema->ParseSchemaString($proc->transformToXML($xml));
     }
 
+    // A long standing issue in ADOdb is that it doesn't handle table prefixes
+    // in REFERENCES clause. As a hack, we modify the generated SQL. This isn't
+    // a great approach and probably shouldn't be applied to the main schema
+    // (since that one's much more complicated) but it should be good enough here.
+    // The long term fix is to migrate to DBAL (in PE).
+
+    $sql = preg_replace("/REFERENCES /", "REFERENCES $prefix", $sql);
+
     if($schema->ExecuteSchema($sql) != 2) { // !!!
       // We should throw an error here, but AdoDB doesn't reliably detect
       // the application of the schema after the first run.
@@ -298,14 +312,14 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    * Remove a group from the target database, following a delete group operation.
    *
    * @since  COmanage Registry v3.3.0
-   * @param  Array $provisioningData Array of provisioning data
+   * @param  Array   $provisioningData Array of provisioning data
    */
   
   protected function deleteGroup($provisioningData) {
     // We shouldn't need to delete CoGroupMemberships, but just in case...
     
     $Model = new Model(array(
-      'table' => 'sp_co_group_members',
+      'table' => 'co_group_members',
       'name'  => 'SpCoGroupMember',
       'ds'    => 'targetdb'
     ));
@@ -327,7 +341,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    * Remove a person from the target database, following a delete person operation.
    *
    * @since  COmanage Registry v3.3.0
-   * @param  Array $provisioningData Array of provisioning data
+   * @param  Array   $provisioningData Array of provisioning data
    */
   
   protected function deletePerson($provisioningData) {
@@ -343,7 +357,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       )
     );
     
-    $this->syncPerson($deleteData);
+    $this->syncPerson($deleteData, $tablePrefix);
     
     // Then delete the CO Person record itself.
     $SpCoPerson = new Model(array(
@@ -403,7 +417,9 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     // Just let any exceptions bubble up the stack
-    $this->CoProvisioningTarget->Co->Server->SqlServer->connect($coProvisioningTargetData['CoSqlProvisionerTarget']['server_id'], "targetdb");
+    $this->CoProvisioningTarget->Co->Server->SqlServer->connect($coProvisioningTargetData['CoSqlProvisionerTarget']['server_id'],
+                                                                "targetdb",
+                                                                $coProvisioningTargetData['CoSqlProvisionerTarget']['table_prefix']);
     
     // Start a transaction
     $dbc = $this->getDataSource('targetdb');
@@ -446,7 +462,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     ));
     
     $GModel = new Model(array(
-      'table' => 'sp_co_group_members',
+      'table' => 'co_group_members',
       'name'  => 'SpCoGroupMember',
       'ds'    => $dataSource
     ));
@@ -518,9 +534,12 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
         $sourceLabel = 'targetdb' . $t['CoSqlProvisionerTarget']['server_id'];
         
         // Just let any exceptions bubble up the stack
-        $this->CoProvisioningTarget->Co->Server->SqlServer->connect($t['CoSqlProvisionerTarget']['server_id'], $sourceLabel);
+        $this->CoProvisioningTarget->Co->Server->SqlServer->connect($t['CoSqlProvisionerTarget']['server_id'], 
+                                                                    $sourceLabel,
+                                                                    $t['CoSqlProvisionerTarget']['table_prefix']);
         
-        $this->syncReferenceData($coId, $sourceLabel);
+        $this->syncReferenceData($coId,
+                                 $sourceLabel);
         
         if($syncGroups) {
           $this->syncAllGroups($coId, $sourceLabel);
@@ -534,6 +553,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    *
    * @since  COmanage Registry v3.3.0
    * @param  array  $provisioningData Array of provisioning data
+   * @param  string $tablePrefix Table Name Prefix    
    * @param  string $dataSource DataSource label
    */
   
@@ -561,7 +581,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    * Sync a person to the target database, following a save person operation.
    *
    * @since  COmanage Registry v3.3.0
-   * @param  Array $provisioningData Array of provisioning data
+   * @param  Array   $provisioningData Array of provisioning data
    */
   
   protected function syncPerson($provisioningData) {
@@ -731,16 +751,16 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    * Synchronize reference data to the target database.
    *
    * @since  COmanage Registry v3.3.0
-   * @param  Integer $coId       CO ID
-   * @param  string  $dataSource DataSource label
+   * @param  Integer $coId        CO ID
+   * @param  string  $dataSource  DataSource label
    */
   
   protected function syncReferenceData($coId, $dataSource='targetdb') {
     foreach($this->referenceModels as $m) {
       $Model = new Model(array(
-        'table' => $m['table'],
-        'name'  => $m['name'],
-        'ds'    => $dataSource
+        'table'       => $m['table'],
+        'name'        => $m['name'],
+        'ds'          => $dataSource
       ));
       
       // Instantiate the core (source) model and pull the records associated with this CO ID

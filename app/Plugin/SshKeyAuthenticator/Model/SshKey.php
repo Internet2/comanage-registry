@@ -109,20 +109,60 @@ class SshKey extends AppModel {
   
   public function addFromKeyFile($keyfile, $coPersonId, $sshKeyAuthenticatorId) {
     // First read the contents of the keyfile
-    $key = rtrim(file_get_contents($keyfile));
+    $keyfileString = rtrim(file_get_contents($keyfile));
     
-    if(!$key) {
+    if(!$keyfileString) {
       throw new InvalidArgumentException(_txt('er.file.read', array($keyfile)));
     }
+
+    if(preg_match("/-----BEGIN.*PRIVATE.*/", $keyfileString) == 1) {
+      // This is the private key, not the public key
+      throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.private'));
+    }
     
-    // We currently only support OpenSSH format, which is a triple of type/key/comment.
+    // We currently only support OpenSSH format, which is a triple of type/key/comment,
+    // and RFC 4716 Secure Shell (SSH) Public Key File format.
+
+    if(preg_match("/^---- BEGIN SSH2 PUBLIC KEY ----.*/", $keyfileString) == 1) {
+      list($keyType, $key, $comment) = $this->parseRfc4716($keyfileString);
+    } else {
+      $bits = explode(' ', $keyfileString, 3);
+
+      $keyType = $this->convertSshKeyTypeToEnum($bits[0]);
+      $key = $bits[1];
+      $comment = $bits[2];
+    }
+
+    if(!$key) {
+      throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.format'));
+    }
     
-    $bits = explode(' ', $key, 3);
+    $sk = array();
+    $sk['ssh_key_authenticator_id'] = $sshKeyAuthenticatorId;
+    $sk['co_person_id'] = $coPersonId;
+    $sk['comment'] = $comment;
+    $sk['type'] = $keyType;
+    $sk['skey'] = $key;
     
-    // Convert the key type into an enum
+    if(!$this->save($sk)) {
+      throw new RuntimeException(_txt('er.db.save'));
+    }
+    
+    return $sk;
+  }
+  /**
+   * Convert key type string into an enum.
+   *
+   * @param  string  SSH key type string parsed from file
+   * @return string  SshKeyTypeEnum
+   * @throws InvalidArgumentException
+   *
+   * @since  COmanage Registry v4.2.0
+   */
+  public function convertSshKeyTypeToEnum($keyTypeString) {
     $keyType = null;
-    
-    switch($bits[0]) {
+
+    switch($keyTypeString) {
       case 'ecdsa-sha2-nistp256':
         $keyType = SshKeyTypeEnum::ECDSA;
         break;
@@ -144,47 +184,105 @@ class SshKey extends AppModel {
       case 'ssh-rsa1':
         $keyType = SshKeyTypeEnum::RSA1;
         break;
-      case '-----BEGIN':
-        if(strncmp($bits[2], 'PRIVATE', 7)==0) {
-          // This is the private key, not the public key
-          throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.private'));
-        }
-        // else unknown format, fall through for error
-        break;
-      case '----':
-        if($bits[1] == 'BEGIN' && strncmp($bits[2], 'SSH2', 4)==0) {
-          // This is an RFC 4716 key format, which is not currently supported (CO-859)
-          throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.rfc4716'));
-        }
-        // else unknown format, fall through for error
-        break;
     }
-    
+
     if(!$keyType) {
-      throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.type', array(filter_var($bits[0],
+      throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.type', array(filter_var($keyType,
         FILTER_SANITIZE_STRING,FILTER_FLAG_STRIP_HIGH |
         FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK)))); /* was Cake's Sanitize::paranoid */
     }
-    
-    $key = $bits[1];
-    $comment = $bits[2];
-    
-    if(!$key) {
-      throw new InvalidArgumentException(_txt('pl.sshkeyauthenticator.format'));
+
+    return $keyType;
+  }
+
+  /**
+   * Parse RFC 4716 Secure Sehll (SSH) Public Key File Format.
+   * https://www.rfc-editor.org/rfc/rfc4716
+   *
+   * @param  string  SSH key string read from file
+   * @return Array   Key type enum value, array of base64 encoded key and comment
+   * @throws InvalidArgumentException
+   *
+   * @since  COmanage Registry v4.2.0
+   */
+  protected function parseRfc4716($keyfileString) {
+
+    // RFC 4716 format is line based.
+    $lines = explode("\n", $keyfileString);
+
+    $firstLineFound = false;
+    $keyFileHeaders = array();
+    $lineContinuationInProgress = false;
+    $base64EncodedBody = "";
+
+    foreach ($lines as $line) {
+      // A Conforming key file would begin immediately with the begin marker
+      // but try to be liberal in what we accept so skip any initial lines.
+      if(!$firstLineFound) {
+        if(preg_match("/^---- BEGIN SSH2 PUBLIC KEY ----.*/", $line) === 1) {
+          $firstLineFound = true;
+        }
+        continue;
+      }
+
+      // Parse key file headers with possible continuation lines
+      // until the base64-encoded body begins.
+      if(empty($base64EncodedBody)) {
+        if(!$lineContinuationInProgress) {
+          $headerLineParts = preg_split("/:/u", $line, 2);
+          if(count($headerLineParts) == 1) {
+            $base64EncodedBody .= $line;
+          } elseif(count($headerLineParts) == 2) {
+            $headerTag = $headerLineParts[0];
+            if(substr($headerLineParts[1], -1) == '\\') {
+              $lineContinuationInProgress = true;
+              $headerValue = substr($headerLineParts[1], 0, -1);
+            } else {
+              $headerValue = $headerLineParts[1];
+              $keyFileHeaders[$headerTag] = $headerValue;
+            }
+            continue;
+          }
+        } else {
+          if(substr($line, -1) == '\\') {
+            $headerValue = $headerValue . substr($line, 0, -1);
+          } else {
+            $headerValue = $headerValue . $line;
+            $lineContinuationInProgress = false;
+            $keyFileHeaders[$headerTag] = $headerValue;
+          }
+          continue;
+        }
+      } else {
+        // Stop parsing when we find the end marker and so ingore any
+        // non-conforming end material.
+        if(preg_match("/^---- END SSH2 PUBLIC KEY ----.*/", $line) === 1) {
+          break;
+        }
+        $base64EncodedBody .= $line;
+        continue;
+      }
     }
-    
-    $sk = array();
-    $sk['ssh_key_authenticator_id'] = $sshKeyAuthenticatorId;
-    $sk['co_person_id'] = $coPersonId;
-    $sk['comment'] = $comment;
-    $sk['type'] = $keyType;
-    $sk['skey'] = $key;
-    
-    if(!$this->save($sk)) {
-      throw new RuntimeException(_txt('er.db.save'));
+
+    // Base-64 decode the body. The resulting binary string has the format
+    // 3 null bytes, key type string, 3 null bytes, public key. The key type
+    // string needs to further be trimmed to remove non-ascii characters.
+    $bodyBinaryString = base64_decode($base64EncodedBody);
+    $keyTypeString = trim(explode("\x00\x00\x00", $bodyBinaryString)[1], "\x00..\x1F");
+
+    // Convert the key type string to an enum.
+    $keyTypeEnum = $this->convertSshKeyTypeToEnum($keyTypeString);
+
+    // An empty comment is allowed.
+    $comment = "";
+
+    if(array_key_exists("Comment", $keyFileHeaders)) {
+        $comment = trim($keyFileHeaders["Comment"]);
+    } elseif (array_key_exists("Subject", $keyFileHeaders)) {
+      $comment = trim($keyFileHeaders["Subject"]);
     }
-    
-    return $sk;
+
+    return array($keyTypeEnum, $base64EncodedBody, $comment);
   }
 
   /**

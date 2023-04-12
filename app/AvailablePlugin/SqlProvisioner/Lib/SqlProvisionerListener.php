@@ -70,11 +70,16 @@ class SqlProvisionerListener implements CakeEventListener {
         } else {
           // Look up the CO ID
           $Model = ClassRegistry::init($subject->name);
-          
-          if(!empty($subject->id)) {
-            $coId = $Model->findCoForRecord($subject->id);
-          } elseif(!empty($subject->data[ $subject->name ]['id'])) {
-            $coId = $Model->findCoForRecord($subject->data[ $subject->name ]['id']);
+          try {
+            if(!empty($subject->id)) {
+              $coId = $Model->findCoForRecord($subject->id);
+            } elseif(!empty($subject->data[ $subject->name ]['id'])) {
+              $coId = $Model->findCoForRecord($subject->data[ $subject->name ]['id']);
+            }
+          } catch (Exception $e) {
+            // XXX After the CO hard delete action the findCoForRecord will always
+            //     fail.
+            return;
           }
         }
         

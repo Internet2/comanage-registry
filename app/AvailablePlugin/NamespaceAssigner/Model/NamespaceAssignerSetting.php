@@ -57,6 +57,19 @@ class NamespaceAssignerSetting extends AppModel {
       // NamespaceAssignerSettingsController before we know what it is.
       'required' => false,
       'allowEmpty' => true
+    ),
+    'name_type' => array(
+      'content' => array(
+        'rule' => array('validateExtendedType',
+                        array('attribute' => 'Name.type',
+                              'default' => array(NameEnum::Alternate,
+                                                 NameEnum::Author,
+                                                 NameEnum::FKA,
+                                                 NameEnum::Official,
+                                                 NameEnum::Preferred))),
+        'required' => true,
+        'allowEmpty' => false
+      )
     )
   );
 }

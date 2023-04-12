@@ -71,9 +71,16 @@ class NamespaceAssigner extends AppModel {
       throw new InvalidArgumentException('NOT IMPLEMENTED');
     }
     
-    // Pull the CO Person and associated names. Note we specifically look for a
-    // name of type _official_, and if we don't find one we fail. (This could
-    // eventually become configurable.)
+    // Pull the settings to get our configuration
+    $NamespaceAssignerSetting = ClassRegistry::init('NamespaceAssigner.NamespaceAssignerSetting');
+    
+    $args = array();
+    $args['conditions']['NamespaceAssignerSetting.co_id'] = $coId;
+    $args['contain'] = array('Server' => array('HttpServer'));
+    
+    $cfg = $NamespaceAssignerSetting->find('first', $args);
+
+    // Pull the CO Person and associated names
     
     $CoPerson = ClassRegistry::init('CoPerson');
     
@@ -87,20 +94,12 @@ class NamespaceAssigner extends AppModel {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_people.1'), $recordId)));
     }
     
-    $name = Hash::extract($rec['Name'], '{n}[type=official]');
+    // Look for a name of the requested type
+    $name = Hash::extract($rec['Name'], '{n}[type='.$cfg['NamespaceAssignerSetting']['name_type'].']');
     
     if(empty($name)) {
       throw new InvalidArgumentException(_txt('er.namespaceassigner.name'));
     }
-    
-    // Pull the settings to see what the server connection information is
-    $NamespaceAssignerSetting = ClassRegistry::init('NamespaceAssigner.NamespaceAssignerSetting');
-    
-    $args = array();
-    $args['conditions']['NamespaceAssignerSetting.co_id'] = $coId;
-    $args['contain'] = array('Server' => array('HttpServer'));
-    
-    $cfg = $NamespaceAssignerSetting->find('first', $args);
     
     $request = array(
       // We use the CO Person ID as the subject request ID

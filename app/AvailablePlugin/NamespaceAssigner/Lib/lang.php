@@ -41,5 +41,5 @@ $cm_namespace_assigner_texts['en_US'] = array(
   'er.namespaceassigner.token'  => 'Token not found in response',
   
   // Plugin texts
-  //'pl.namespaceassigner.placeholder' => 'Placeholder'
+  'pl.namespaceassigner.type.name' => 'Name Type'
 );

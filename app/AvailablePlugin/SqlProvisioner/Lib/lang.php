@@ -45,5 +45,7 @@ $cm_sql_provisioner_texts['en_US'] = array(
   'pl.sqlprovisioner.reapply'      => 'Reapply Target Database Schema',
   'pl.sqlprovisioner.reapply.ok'   => 'Schema Reapplied',
   'pl.sqlprovisioner.resync'       => 'Resync Reference Data',
-  'pl.sqlprovisioner.resync.ok'    => 'Reference Data Synced'
+  'pl.sqlprovisioner.resync.ok'    => 'Reference Data Synced',
+  'pl.sqlprovisioner.table_prefix' => 'Table Name Prefix',
+  'pl.sqlprovisioner.table_prefix.desc' => 'If set, tables will be prefixed with this string (otherwise defaults to "sp_")'
 );

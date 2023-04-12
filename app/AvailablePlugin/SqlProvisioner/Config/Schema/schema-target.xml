@@ -26,7 +26,7 @@
 <schema version="0.3">
   <!-- Reference Data -->
   
-  <table name="sp_cous">
+  <table name="cous">
     <field name="id" type="I">
       <key />
     </field>
@@ -37,7 +37,7 @@
     <field name="modified" type="T" />
   </table>
   
-  <table name="sp_co_terms_and_conditions">
+  <table name="co_terms_and_conditions">
     <field name="id" type="I">
       <key />
     </field>
@@ -51,7 +51,7 @@
     <field name="modified" type="T" />
   </table>
   
-  <table name="sp_org_identity_sources">
+  <table name="org_identity_sources">
     <field name="id" type="I">
       <key />
     </field>
@@ -64,7 +64,7 @@
   
   <!-- Operational Records -->
   
-  <table name="sp_co_people">
+  <table name="co_people">
     <field name="id" type="I">
       <key />
     </field>
@@ -75,12 +75,12 @@
     <field name="modified" type="T" />
   </table>
   
-  <table name="sp_names">
+  <table name="names">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_person_id" type="I">
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="honorific" type="C" size="32" />
     <field name="given" type="C" size="128" />
@@ -91,87 +91,87 @@
     <field name="language" type="C" size="16" />
     <field name="primary_name" type="L" />
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_names_i1">
+    <index name="names_i1">
       <col>co_person_id</col>
     </index>
   </table>
   
-  <table name="sp_identifiers">
+  <table name="identifiers">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_person_id" type="I">
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="identifier" type="C" size="256" />
     <field name="type" type="C" size="32" />
     <field name="login" type="L" />
     <field name="status" type="C" size="2" />
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="sp_identifiers_i1">
+    <index name="identifiers_i1">
       <col>co_person_id</col>
     </index>
   </table>
   
-  <table name="sp_email_addresses">
+  <table name="email_addresses">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_person_id" type="I">
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="mail" type="C" size="256" />
     <field name="description" type="C" size="128" />
     <field name="type" type="C" size="32" />
     <field name="verified" type="L" />
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_email_addresses_i1">
+    <index name="email_addresses_i1">
       <col>co_person_id</col>
     </index>
   </table>
   
-  <table name="sp_urls">
+  <table name="urls">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_person_id" type="I">
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="url" type="C" size="256" />
     <field name="description" type="C" size="128" />
     <field name="type" type="C" size="32" />
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_urls_i1">
+    <index name="urls_i1">
       <col>co_person_id</col>
     </index>
   </table>
   
-  <table name="sp_co_t_and_c_agreements">
+  <table name="co_t_and_c_agreements">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_person_id" type="I">
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="co_terms_and_conditions_id" type="I" />
     <field name="agreement_time" type="T" />
@@ -179,22 +179,22 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_co_t_and_c_agreements_i1">
+    <index name="co_t_and_c_agreements_i1">
       <col>co_person_id</col>
     </index>
     
-    <index name="sp_co_t_and_c_agreements_i2">
+    <index name="co_t_and_c_agreements_i2">
       <col>co_terms_and_conditions_id</col>
     </index>
   </table>
   
-  <table name="sp_co_person_roles">
+  <table name="co_person_roles">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_person_id" type="I">
       <notnull />
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="sponsor_co_person_id" type="I" />
     <field name="manager_co_person_id" type="I" />
@@ -208,37 +208,37 @@
     <field name="ordr" type="I" />
     <field name="status" type="C" size="2" />
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_co_person_roles_i1">
+    <index name="co_person_roles_i1">
       <col>co_person_id</col>
     </index>
   </table>
   
-  <table name="sp_ad_hoc_attributes">
+  <table name="ad_hoc_attributes">
     <field name="id" type="I">
       <key />
     </field>
     <field name="tag" type="C" size="128" />
     <field name="value" type="C" size="256" />
     <field name="co_person_role_id" type="I">
-      <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+      <constraint>REFERENCES co_person_roles(id)</constraint>
     </field>
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
-    <index name="sp_ad_hoc_attributes_i1">
+    <index name="ad_hoc_attributes_i1">
       <col>co_person_role_id</col>
     </index>
   </table>
   
-  <table name="sp_addresses">
+  <table name="addresses">
     <field name="id" type="I">
       <key />
     </field>
@@ -252,20 +252,20 @@
     <field name="type" type="C" size="32" />
     <field name="language" type="C" size="16" />
     <field name="co_person_role_id" type="I">
-      <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+      <constraint>REFERENCES co_person_roles(id)</constraint>
     </field>
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_addresses_i1">
+    <index name="addresses_i1">
       <col>co_person_role_id</col>
     </index>
   </table>
 
-  <table name="sp_telephone_numbers">
+  <table name="telephone_numbers">
     <field name="id" type="I">
       <key />
     </field>
@@ -276,20 +276,20 @@
     <field name="description" type="C" size="128" />
     <field name="type" type="C" size="32" />
     <field name="co_person_role_id" type="I">
-      <constraint>REFERENCES sp_co_person_roles(id)</constraint>
+      <constraint>REFERENCES co_person_roles(id)</constraint>
     </field>
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_telephone_numbers_i1">
+    <index name="telephone_numbers_i1">
       <col>co_person_role_id</col>
     </index>
   </table>
 
-  <table name="sp_co_groups">
+  <table name="co_groups">
     <field name="id" type="I">
       <key />
     </field>
@@ -304,32 +304,32 @@
     <field name="modified" type="T" />
   </table>
   
-  <table name="sp_co_group_members">
+  <table name="co_group_members">
     <field name="id" type="I">
       <key />
     </field>
     <field name="co_group_id" type="I">
       <notnull />
-      <constraint>REFERENCES sp_co_groups(id)</constraint>
+      <constraint>REFERENCES co_groups(id)</constraint>
     </field>
     <field name="co_person_id" type="I">
       <notnull />
-      <constraint>REFERENCES sp_co_people(id)</constraint>
+      <constraint>REFERENCES co_people(id)</constraint>
     </field>
     <field name="member" type="L" />
     <field name="owner" type="L" />
     <field name="valid_from" type="T" />
     <field name="valid_through" type="T" />
     <field name="org_identity_source_id" type="I">
-      <constraint>REFERENCES sp_org_identity_sources(id)</constraint>
+      <constraint>REFERENCES org_identity_sources(id)</constraint>
     </field>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="sp_co_group_members_i1">
+    <index name="co_group_members_i1">
       <col>co_group_id</col>
     </index>
-    <index name="sp_co_group_members_i2">
+    <index name="co_group_members_i2">
       <col>co_person_id</col>
     </index>
   </table>

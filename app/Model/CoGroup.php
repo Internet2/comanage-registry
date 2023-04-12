@@ -108,7 +108,7 @@ class CoGroup extends AppModel {
       'className' => 'CoEmailList',
       'foreignKey' => 'moderators_co_group_id'
     ),
-    "HistoryRecord",
+    "HistoryRecord" => array('dependent' => true),
     "Identifier" => array('dependent' => true),
     "VetterCoGroup" => array(
       'className' => 'VettingStep',
@@ -494,6 +494,20 @@ class CoGroup extends AppModel {
           $this->data['CoGroup']['group_type'] = $curdata['CoGroup']['group_type'];
         }
       }
+    }
+
+    // If the group type is missing add the default Standard type
+    if(!isset($this->data['CoGroup']['group_type'])) {
+      $this->data['CoGroup']['group_type'] = GroupEnum::Standard;
+    }
+
+    // Calculate and assign the group auto value if not set
+    if(!isset($this->data['CoGroup']['auto'])) {
+      $this->data['CoGroup']['auto'] = in_array(
+        $this->data['CoGroup']['group_type'],
+        array(GroupEnum::ActiveMembers, GroupEnum::AllMembers),
+        true
+      );
     }
     
     return true;

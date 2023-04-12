@@ -963,11 +963,11 @@ class CoNotification extends AppModel {
       
       // Add cc and bcc if specified
       if($cc) {
-        $email->cc(explode(',', $cc));
+        $email->cc(array_map('trim', explode(',', $cc)));
       }
       
       if($bcc) {
-        $email->bcc(explode(',', $bcc));
+        $email->bcc(array_map('trim', explode(',', $bcc)));
       }
 
       if($format === MessageFormatEnum::PlaintextAndHTML
