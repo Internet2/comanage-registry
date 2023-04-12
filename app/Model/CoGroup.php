@@ -330,7 +330,7 @@ class CoGroup extends AppModel {
    * @param  String  $couName COU Name
    */
 
-  public function _ug420($coId, $coName, $couId=null, $couName=null) {
+  public function _ug430($coId, $coName, $couId=null, $couName=null) {
     // We'll check for the existence of each group before creating it, just in case
 
     $ckArgs = array();
