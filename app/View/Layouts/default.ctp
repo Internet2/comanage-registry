@@ -45,7 +45,11 @@
     <!-- <?php
       // Include version number, but only if logged in
       if($this->Session->check('Auth.User')) {
-        print _txt('coordinate.version', array(chop(file_get_contents(CONFIG . "VERSION"))));
+        $versionString = getenv('COMANAGE_REGISTRY_VERSION');
+        if($versionString === false) {
+          $versionString = chop(file_get_contents(CONFIG . "VERSION"));
+        }
+        print _txt('coordinate.version', array($versionString));
       }
     ?> -->
 

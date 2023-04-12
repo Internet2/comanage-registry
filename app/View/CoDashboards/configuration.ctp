@@ -220,7 +220,13 @@
   );
 ?>
 
-<?php print _txt('coordinate.version', array(chop(file_get_contents(CONFIG . "VERSION")))); ?>
+<?php
+ $versionString = getenv('COMANAGE_REGISTRY_VERSION');
+ if($versionString === false) {
+  $versionString = chop(file_get_contents(CONFIG . "VERSION"));
+ }
+ print _txt('coordinate.version', array($versionString));
+?>
 
 <section class="inner-content">
   <?php
