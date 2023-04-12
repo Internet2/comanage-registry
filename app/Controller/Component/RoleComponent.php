@@ -962,8 +962,9 @@ class RoleComponent extends Component {
   /**
    * Determine if a CO Person has the ability to approve petitions for the specified enrollment flow.
    *
-   * (A) $coPersonId IS a member of Enrollment Flow configured approvers group
-   * (B) $coPersonId IS NOT a member of Enrollment Flow configured approvers group
+   *  (A) An approvers group is configured for the Enrollment Flow
+   *     (1) $coPersonId is a member of the approvers group
+   *  (B) No explicit approvers group is configured for the Enrollment Flow
    *     (1) $coPersonId is a CO admin
    *     (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
    *     (3) A COU is attached to the petition and $coPersonId is a COU admin
@@ -1034,7 +1035,7 @@ class RoleComponent extends Component {
           $ret = true;
         } else {
           if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
-            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU or a COU approver
+            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
             
             $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
           } else {
@@ -1049,10 +1050,11 @@ class RoleComponent extends Component {
             
             if($couId) {
               // (3) A COU is attached to the petition and $coPersonId is a COU admin
-              // (OR) a CO:approvers (OR) COU:approvers group member
+              // (OR) a CO:approvers (OR) COU:foo:approvers group member
 
               $ret = $this->isCouAdmin($coPersonId, $couId)
-                     || $this->isCoOrCouApprover($coPersonId, $couId);
+                     || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])
+                     || $this->isCouApprover($coPersonId, $couId);
             } else {
               // (4) No authz_cou_id is specified and $coPersonId is a COU admin
               // (OR) a CO:approvers group member
@@ -1214,7 +1216,7 @@ class RoleComponent extends Component {
 
   public function isCoOrCouApprover($coPersonId, $coId=null) {
     // A person is a CO Approver if they are a member of the GroupEnum::Approvers group for the specified CO.
-    // A person is a COU Approver if they are a member of the GroupEnum::Approvers group within the specified COU.
+    // A person is a COU Approver if they are a member of the GroupEnum::Approvers group within any COU.
 
     global $group_sep;
 
@@ -1226,15 +1228,14 @@ class RoleComponent extends Component {
       }
     }
 
-    // For code readability, we do this as separate checks rather than passing an OR
-    // condition to cachedGroupCheck(). This may result in two DB calls, but it may not
-    // since chances are we've already cached the results to isCoApprover() (if we're being
-    // called from CoEnrollmentFlow::authorize(), at least).
 
+
+    // Is the CoPerson a CO::approver
     if($this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers)) {
       return true;
     }
 
+    // Is the CoPerson a COU::approver for any COU
     return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers, true);
   }
 
@@ -1512,10 +1513,10 @@ class RoleComponent extends Component {
   }
   
   /**
-   * Determine if a CO Person is can approve membership to a CO Group.
+   * Determine if a CO Person can approve membership to a CO Group.
    *
    * @since  COmanage Registry v4.2.0
-   * @param  Integer CO Person ID of potential admin
+   * @param  Integer CO Person ID of potential approver
    * @param  Integer CO Group ID
    * @return Boolean True if the CO Person can approve membership to the CO Group, false otherwise
    * @throws InvalidArgumentException
@@ -1539,7 +1540,7 @@ class RoleComponent extends Component {
       return true;
     }
 
-    // Pull the CO Group CO ID, then see if $coPersonId is an admin
+    // Pull the CO Group CO ID, then see if $coPersonId is an Approver
 
     $coId = $this->cachedCoIdLookupByCoGroup($coGroupId);
 
