@@ -663,7 +663,7 @@ class UpgradeVersionShell extends AppShell {
       $this->out('- ' . $co['Co']['name']);
 
       // Create the CO approvers group
-      $this->CoGroup->_ug420($co['Co']['id'], $co['Co']['name']);
+      $this->CoGroup->_ug430($co['Co']['id'], $co['Co']['name']);
 
       $args = array();
       $args['conditions']['Cou.co_id'] = $co['Co']['id'];
@@ -675,7 +675,7 @@ class UpgradeVersionShell extends AppShell {
         $this->out('-- ' . $cou['Cou']['name']);
 
         // Upgrade the COU approvers group
-        $this->CoGroup->_ug420($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
+        $this->CoGroup->_ug430($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
       }
     }
   }
