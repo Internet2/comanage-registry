@@ -65,14 +65,18 @@ class DuplicateAccountEnrollerCoPetitionsController extends CoPetitionsControlle
     $this->set('vv_duplicate_account', $duplicate_account);
     $this->set('vv_petition_id', $id);
 
-//    $this->Flash->set(_txt('er.pt.dupe.cou-a',
-//                           array( $cou_name )),
-//                      array('key' => 'error'));
-    $this->redirect(array('plugin' => null,
-                          'controller' => 'co_people',
-                          'action'     => 'canvas',
-                          $this->Session->read('Auth.User.co_person_id')));
+    $remote_user = getenv($duplicate_account['DuplicateAccountEnroller']['env_remote_user']);
+    $ident_type = $duplicate_account['DuplicateAccountEnroller']['type'];
 
+    if($this->DuplicateAccountEnroller->findDuplicate($id, $remote_user, $ident_type)) {
+      if(!empty($duplicate_account['DuplicateAccountEnroller']['redirect_url'])) {
+        $this->redirect($duplicate_account['DuplicateAccountEnroller']['redirect_url']);
+      }
+      $this->redirect(array('plugin' => null,
+                            'controller' => 'co_people',
+                            'action'     => 'canvas',
+                        $this->Session->read('Auth.User.co_person_id')));
+    }
 
     $this->redirect($onFinish);
   }

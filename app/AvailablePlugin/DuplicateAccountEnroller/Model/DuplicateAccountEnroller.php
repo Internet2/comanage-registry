@@ -101,40 +101,34 @@ class DuplicateAccountEnroller extends AppModel {
    * @return boolean                          An array of options on potential match, or true if enrollment should continue
    */
 
-//  public function performMatch($id) {
-//    // This is probably already set, but just in case.
-//    $this->id = $id;
-//
-//    // Pull the petition and Enrollment Flow configuration
-//
+  public function findDuplicate($id, $env_remote_user, $ident_type) {
+    // This is probably already set, but just in case.
+    $this->id = $id;
+
+    // Pull the petition and Enrollment Flow configuration
+
 //    $args = array();
 //    $args['conditions']['CoPetition.id'] = $id;
 //    $args['contain'] = array('CoEnrollmentFlow');
 //
 //    $pt = $this->find('first', $args);
-//
-//    // Pull the enrollment flow match server configuration
-//
-//    if($pt['CoEnrollmentFlow']['match_policy'] != EnrollmentMatchPolicyEnum::External
-//      || empty($pt['CoEnrollmentFlow']['match_server_id'])) {
-//      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.match_servers.1'))));
-//    }
-//
+
 //    if(empty($pt['CoPetition']['enrollee_co_person_id'])) {
 //      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
 //    }
-//
-//    $args = array();
-//    // We don't have an exact index on this combo, but at least looking at the
-//    // Postgres query plan it doesn't seem necessary.
-//    $args['conditions'][] = 'Identifier.co_person_id IS NOT NULL';
-//    $args['conditions']['Identifier.identifier'] = $referenceId;
-//    $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
-//    $args['conditions']['Identifier.type'] = IdentifierEnum::Reference;
-//    $args['contain'] = false;
-//
-//    return !empty($this->EnrolleeCoPerson->Identifier->find('first', $args));
-//  }
+
+    $args = array();
+    // We don't have an exact index on this combo, but at least looking at the
+    // Postgres query plan it doesn't seem necessary.
+    $args['conditions'][] = 'Identifier.co_person_id IS NOT NULL';
+    $args['conditions']['Identifier.identifier'] = $env_remote_user;
+    $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['Identifier.type'] = $ident_type;
+    $args['contain'] = false;
+
+    $Identifier = ClassRegistry::init('Identifier');
+    return !empty($Identifier->find('first', $args));
+  }
 
   /**
    * Expose menu items.
