@@ -41,6 +41,9 @@ $cm_duplicate_account_enroller_texts['en_US'] = array(
 
 
   // Fields
-  'fd.duplicate_account_enrollers.redirect_url'       => 'Redirect URL',
-  'fd.duplicate_account_enrollers.redirect_url.desc'  => 'Where to redirect after a duplicate account is confirmed. If left empty it will redirect to CO Person Canvas.',
+  'fd.duplicate_account_enrollers.env_remote_user'          => 'Enviromental Variable',
+  'fd.duplicate_account_enrollers.env_remote_user.desc'     => 'Enviromental Variable used to save the REMOTE USER',
+  'fd.duplicate_account_enrollers.type.desc'                => 'Identifier Type to query for (e.g. ePPN)',
+  'fd.duplicate_account_enrollers.redirect_url'             => 'Redirect URL',
+  'fd.duplicate_account_enrollers.redirect_url.desc'        => 'Where to redirect after a duplicate account is confirmed. If left empty it will redirect to CO Person Canvas.',
 );

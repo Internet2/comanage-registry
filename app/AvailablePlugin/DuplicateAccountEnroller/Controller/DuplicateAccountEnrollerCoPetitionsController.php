@@ -57,12 +57,21 @@ class DuplicateAccountEnrollerCoPetitionsController extends CoPetitionsControlle
    */
 
   protected function execute_plugin_start($id, $onFinish) {
-    $args                                                                      = array();
+    $args = array();
     $args['conditions']['DuplicateAccountEnroller.co_enrollment_flow_wedge_id'] = $this->viewVars['vv_efwid'];
+    $args['contain'] = false;
 
     $duplicate_account = $this->DuplicateAccountEnroller->find('first', $args);
     $this->set('vv_duplicate_account', $duplicate_account);
     $this->set('vv_petition_id', $id);
+
+//    $this->Flash->set(_txt('er.pt.dupe.cou-a',
+//                           array( $cou_name )),
+//                      array('key' => 'error'));
+    $this->redirect(array('plugin' => null,
+                          'controller' => 'co_people',
+                          'action'     => 'canvas',
+                          $this->Session->read('Auth.User.co_person_id')));
 
 
     $this->redirect($onFinish);

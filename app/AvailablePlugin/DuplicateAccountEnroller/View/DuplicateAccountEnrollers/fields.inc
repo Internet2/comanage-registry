@@ -84,6 +84,67 @@
     <div class="field-name">
       <div class="field-title">
         <?php
+        print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_account_enrollers.env_remote_user'))
+          : _txt('fd.duplicate_account_enrollers.env_remote_user'));
+        ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.duplicate_account_enrollers.env_remote_user.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      print ($e ? $this->Form->text('env_remote_user', array('class' => 'focusFirst'))
+        : filter_var($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['env_remote_user'],FILTER_SANITIZE_STRING));
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+      <?php
+      if($e) {
+        print $this->Form->label('type', _txt('fd.type'));
+      } else {
+        print _txt('fd.type');
+      }
+      ?>
+        <span class="required">*</span>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.duplicate_account_enrollers.type.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      $attrs = array();
+      $attrs['value'] = (!empty($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type']) ? $duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'] : "");
+      $attrs['empty'] = false;
+
+      if($e) {
+        if(!empty($identifiers[0]['CoProvisioningTarget']['id'])) {
+          // Don't allow the type to be changed, but send the type as hidden since
+          // it is required by the model
+
+          print filter_var($vv_available_types[ $duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+          print $this->Form->hidden('type',
+                                    array('default' =>
+                                            filter_var($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+        } else {
+          print $this->Form->select('type',
+                                    $vv_available_types,
+                                    $attrs);
+
+          if($this->Form->isFieldError('type')) {
+            print $this->Form->error('type');
+          }
+        }
+      } else {
+        print filter_var($vv_available_types[ $duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);;
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php
           print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_account_enrollers.redirect_url'))
                     : _txt('fd.duplicate_account_enrollers.redirect_url'));
         ?>
@@ -92,7 +153,7 @@
     </div>
     <div class="field-info">
       <?php
-      print ($e ? $this->Form->text('redirect_url', array('class' => 'focusFirst'))
+      print ($e ? $this->Form->text('redirect_url')
                 : filter_var($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['redirect_url'],FILTER_SANITIZE_URL));
       ?>
     </div>

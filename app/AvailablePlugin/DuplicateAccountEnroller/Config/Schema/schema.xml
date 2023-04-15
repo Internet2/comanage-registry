@@ -39,6 +39,8 @@
       <constraint>REFERENCES cm_co_enrollment_flow_wedges(id)</constraint>
     </field>
     <field name="redirect_url" type="C" />
+    <field name="type" type="C" size="32" />
+    <field name="env_remote_user" type="C" size="80" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="duplicate_account_enroller_id" type="I">

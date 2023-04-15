@@ -48,6 +48,26 @@ class DuplicateAccountEnrollersController extends SEWController {
   );
 
   /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function beforeRender() {
+    // We do not allow REST
+    if($this->request->is('restful')) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_IMPLEMENTED, _txt('er.notimpl'));
+    }
+
+    // Get identifier types
+    $Identifier = ClassRegistry::init('Identifier');
+    $availableTypes = $Identifier->types($this->cur_co['Co']['id'], 'type');
+    $this->set('vv_available_types', $availableTypes);
+
+    parent::beforeRender();
+  }
+
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions sets with calculated permissions
