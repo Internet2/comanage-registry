@@ -320,10 +320,10 @@ class CoGroup extends AppModel {
   }
 
   /**
-   * Perform CoGroup model upgrade steps for version 4.2.0.
+   * Perform CoGroup model upgrade steps for version 4.3.0.
    * This function should only be called by UpgradeVersionShell.
    *
-   * @since  COmanage Registry v4.2.0
+   * @since  COmanage Registry v4.3.0
    * @param  Integer $coId    CO ID
    * @param  String  $coName  CO Name
    * @param  Integer $couId   COU ID
@@ -505,7 +505,7 @@ class CoGroup extends AppModel {
   /**
    * Obtain the ID of the CO or COU approvers group.
    *
-   * @since  COmanage Registry v4.2.0
+   * @since  COmanage Registry v4.3.0
    * @param  Integer $coId    CO ID
    * @param  String  $couId   COU ID, within $coId
    * @return Integer CO Group ID
@@ -515,7 +515,7 @@ class CoGroup extends AppModel {
   public function approverCoGroupId($coId, $couId=null) {
     $args = array();
     $args['conditions']['CoGroup.co_id'] = $coId;
-    // For the CO Admin group, $couId must be null
+    // For the CO Approvers group, $couId must be null
     $args['conditions']['CoGroup.cou_id'] = $couId;
     $args['conditions']['CoGroup.group_type'] = GroupEnum::Approvers;
     $args['conditions']['CoGroup.status'] = SuspendableStatusEnum::Active;
@@ -527,7 +527,7 @@ class CoGroup extends AppModel {
       return $coApproverGroup['CoGroup']['id'];
     }
 
-    throw new InvalidArgumentException(_txt('er.gr.nf', array('admins')));
+    throw new InvalidArgumentException(_txt('er.gr.nf', array('approvers')));
   }
 
   /**
