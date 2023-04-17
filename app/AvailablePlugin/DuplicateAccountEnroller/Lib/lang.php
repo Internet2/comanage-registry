@@ -37,7 +37,9 @@ $cm_duplicate_account_enroller_texts['en_US'] = array(
   'ct.duplicate_account_enrollers.pl'              => 'Duplicate Account Enrollers',
 
   // Error texts
-  'er.ligo_mou_petition_attributes.wedgeid.specify'=> 'Named parameter wedgeid was not found',
+  'er.duplicate_account_enrollers.wedgeid.specify'      => 'Named parameter wedgeid was not found',
+  'er.duplicate_account_enrollers.remote_user.notfound' => 'Remote User could not be retrieved from env',
+  'er.duplicate_account_enrollers.cfg.notfound'         => 'Configuration could not be retrieved',
 
 
   // Fields

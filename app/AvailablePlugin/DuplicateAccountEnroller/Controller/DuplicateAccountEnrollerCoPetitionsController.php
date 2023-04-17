@@ -62,20 +62,47 @@ class DuplicateAccountEnrollerCoPetitionsController extends CoPetitionsControlle
     $args['contain'] = false;
 
     $duplicate_account = $this->DuplicateAccountEnroller->find('first', $args);
+    if(empty($duplicate_account)) {
+      throw new RuntimeException(_txt('er.duplicate_account_enrollers.cfg.notfound'));
+    }
+
+
     $this->set('vv_duplicate_account', $duplicate_account);
     $this->set('vv_petition_id', $id);
 
     $remote_user = getenv($duplicate_account['DuplicateAccountEnroller']['env_remote_user']);
+
+    if(empty($remote_user)) {
+      throw new RuntimeException(_txt('er.duplicate_account_enrollers.remote_user.notfound'));
+    }
+
     $ident_type = $duplicate_account['DuplicateAccountEnroller']['type'];
 
-    if($this->DuplicateAccountEnroller->findDuplicate($id, $remote_user, $ident_type)) {
+    // CO Person linked to identifier through CO Person
+    $co_person = $this->DuplicateAccountEnroller->findCoPersonDuplicate($this->cur_co["Co"]["id"], $remote_user, $ident_type);
+    // CO Person linked to identifier through CO Person
+    $co_person_via_org = $this->DuplicateAccountEnroller->findOrgIdentityDuplicate($this->cur_co["Co"]["id"], $remote_user, $ident_type);
+
+    if(!empty($co_person)
+       || !empty($co_person_via_org)) {
+      // Redirect according to the configuration
       if(!empty($duplicate_account['DuplicateAccountEnroller']['redirect_url'])) {
         $this->redirect($duplicate_account['DuplicateAccountEnroller']['redirect_url']);
       }
+
+      $this->Flash->set(_txt('er.ia.exists', array($remote_user)), array('key' => 'error'));
+
+      $co_person_id = $co_person["CoPerson"]["id"] ?? $co_person_via_org["CoPerson"]["id"] ?? null;
+      if(is_null($co_person_id) && !empty($co_person_via_org["OrgIdentity"]["id"])) {
+        // The identifier exists but is not linked to a CO Person
+        // We will redirect to the root
+        $this->redirect("/");
+      }
+
       $this->redirect(array('plugin' => null,
                             'controller' => 'co_people',
                             'action'     => 'canvas',
-                        $this->Session->read('Auth.User.co_person_id')));
+                             $co_person_id));
     }
 
     $this->redirect($onFinish);

@@ -94,40 +94,68 @@ class DuplicateAccountEnroller extends AppModel {
   );
 
   /**
-   * Perform a Match Request.
+   * Check for CO Person Identifier duplicates.
    *
    * @since  COmanage Registry v4.3.0
-   * @param  integer $id                    CO Petition ID
-   * @return boolean                          An array of options on potential match, or true if enrollment should continue
+   * @param  integer $coId                    CO ID
+   * @param  string  $env_remote_user         Identifier from Env
+   * @param  string  $ident_type              Identifier Type
+   * @return Array
    */
 
-  public function findDuplicate($id, $env_remote_user, $ident_type) {
-    // This is probably already set, but just in case.
-    $this->id = $id;
-
-    // Pull the petition and Enrollment Flow configuration
-
-//    $args = array();
-//    $args['conditions']['CoPetition.id'] = $id;
-//    $args['contain'] = array('CoEnrollmentFlow');
-//
-//    $pt = $this->find('first', $args);
-
-//    if(empty($pt['CoPetition']['enrollee_co_person_id'])) {
-//      throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('ct.co_people.1'))));
-//    }
-
+  public function findCoPersonDuplicate($coId, $env_remote_user, $ident_type) {
     $args = array();
-    // We don't have an exact index on this combo, but at least looking at the
-    // Postgres query plan it doesn't seem necessary.
-    $args['conditions'][] = 'Identifier.co_person_id IS NOT NULL';
+    $args['joins'][0]['table'] = 'co_people';
+    $args['joins'][0]['alias'] = 'CoPerson';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
     $args['conditions']['Identifier.identifier'] = $env_remote_user;
     $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
     $args['conditions']['Identifier.type'] = $ident_type;
+    $args['conditions']['CoPerson.co_id'] = $coId;
+    $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+    $args['fields'] = array('CoPerson.id');
     $args['contain'] = false;
 
     $Identifier = ClassRegistry::init('Identifier');
-    return !empty($Identifier->find('first', $args));
+    return $Identifier->find('first', $args);
+  }
+
+
+  /**
+   * Check for CO Person Identifier duplicates through OrgIdentity.
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param  integer $coId                    CO ID
+   * @param  string  $env_remote_user         Identifier from Env
+   * @param  string  $ident_type              Identifier Type
+   * @return Array
+   */
+
+  public function findOrgIdentityDuplicate($coId, $env_remote_user, $ident_type) {
+    $args = array();
+    $args['joins'][0]['table'] = 'org_identities';
+    $args['joins'][0]['alias'] = 'OrgIdentity';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
+    $args['joins'][1]['table'] = 'co_org_identity_links';
+    $args['joins'][1]['alias'] = 'CoOrgIdentityLink';
+    $args['joins'][1]['type'] = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'OrgIdentity.id=CoOrgIdentityLink.org_identity_id';
+    $args['joins'][2]['table'] = 'co_people';
+    $args['joins'][2]['alias'] = 'CoPerson';
+    $args['joins'][2]['type'] = 'INNER';
+    $args['joins'][2]['conditions'][0] = 'CoPerson.id=CoOrgIdentityLink.co_person_id';
+    $args['conditions']['Identifier.identifier'] = $env_remote_user;
+    $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['Identifier.type'] = $ident_type;
+    $args['conditions']['OrgIdentity.co_id'] = $coId;
+    $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
+    $args['fields'] = array('CoPerson.id', 'OrgIdentity.id', 'Identifier.id');
+    $args['contain'] = false;
+
+    $Identifier = ClassRegistry::init('Identifier');
+    return $Identifier->find('first', $args);
   }
 
   /**
