@@ -34,6 +34,7 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
   // Cached SqlServer connection and Cake Auto-Model
   protected $SqlServer = null;
   protected $SourceRecord = null;
+  protected $server_id = null;
   
   /**
    * Get the available set of AdHoc Attributes.
@@ -139,9 +140,13 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
   
   protected function getRecordModel(?string $relatedModel=null) {
     // We only cache the core model (if relational) since that might get
-    // used multiple times in a single action.
+    // used multiple times in a single action. We check the server_id
+    // since we might be called for different configurations eg during
+    // an OIS sync.
     
-    if(!$relatedModel && $this->SourceRecord) {
+    if(!$relatedModel 
+       && $this->SourceRecord 
+       && $this->server_id == $this->pluginCfg['server_id']) {
       return $this->SourceRecord;
     }
     
@@ -167,6 +172,7 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
     if(!$relatedModel) {
       // Cache the core model
       $this->SourceRecord = $SourceRecord;
+      $this->server_id = $this->pluginCfg['server_id'];
     }
     
     return $SourceRecord;
