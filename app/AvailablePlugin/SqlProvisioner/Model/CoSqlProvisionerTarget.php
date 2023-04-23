@@ -184,16 +184,20 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
 
   public function afterSave($created, $options = Array()) {
     if(!empty($this->data['CoSqlProvisionerTarget']['server_id'])) {
+      $prefix = (!empty($this->data['CoSqlProvisionerTarget']['table_prefix'])
+                 ? $this->data['CoSqlProvisionerTarget']['table_prefix']
+                 : "sp_");
+
       // Apply the database schema
       $this->applySchema($this->data['CoSqlProvisionerTarget']['server_id'],
-                         $this->data['CoSqlProvisionerTarget']['table_prefix']);
+                         $prefix);
       
       // Now populate (or update) the referece data, for which we need the current CO
       
       // Just let any exceptions bubble up the stack
       $this->CoProvisioningTarget->Co->Server->SqlServer->connect($this->data['CoSqlProvisionerTarget']['server_id'],
                                                                   "targetdb",
-                                                                  $this->data['CoSqlProvisionerTarget']['table_prefix']);
+                                                                  $prefix);
       
       $coId = $this->CoProvisioningTarget->field('co_id', array('CoProvisioningTarget.id' => $this->data['CoSqlProvisionerTarget']['co_provisioning_target_id']));
       
@@ -417,9 +421,13 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     // Just let any exceptions bubble up the stack
+    $prefix = (!empty($this->data['CoSqlProvisionerTarget']['table_prefix'])
+                ? $this->data['CoSqlProvisionerTarget']['table_prefix']
+                : "sp_");
+    
     $this->CoProvisioningTarget->Co->Server->SqlServer->connect($coProvisioningTargetData['CoSqlProvisionerTarget']['server_id'],
                                                                 "targetdb",
-                                                                $coProvisioningTargetData['CoSqlProvisionerTarget']['table_prefix']);
+                                                                $prefix);
     
     // Start a transaction
     $dbc = $this->getDataSource('targetdb');
@@ -527,6 +535,10 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Loop through each configuration, instantiating a DataSource, then
     // performing the sync
+
+    $prefix = (!empty($this->data['CoSqlProvisionerTarget']['table_prefix'])
+            ? $this->data['CoSqlProvisionerTarget']['table_prefix']
+            : "sp_");
     
     if(!empty($targets)) {
       foreach($targets as $t) {
@@ -536,7 +548,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
         // Just let any exceptions bubble up the stack
         $this->CoProvisioningTarget->Co->Server->SqlServer->connect($t['CoSqlProvisionerTarget']['server_id'], 
                                                                     $sourceLabel,
-                                                                    $t['CoSqlProvisionerTarget']['table_prefix']);
+                                                                    $prefix);
         
         $this->syncReferenceData($coId,
                                  $sourceLabel);
