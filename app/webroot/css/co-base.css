@@ -2405,6 +2405,11 @@ a.asc::before {
 a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
 }
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.6;
+}
 .ui-widget-header {
   /*background-color: #9FC6E2;*/
   background-color: var(--cmg-color-blue-primary);

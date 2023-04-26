@@ -64,4 +64,13 @@
             $invite['CoInvite']['invitation']),
       array('class' => 'mr-1 cancelbutton')
     );
-  }
+  } 
+?>
+
+<script>
+  // Disallow double-clicking the buttons
+  $(".checkbutton, .cancelbutton").click(function(e) {
+    // The .disabled class sets "pointer-events: none" on the links.
+    $(".checkbutton, .cancelbutton").addClass('disabled');
+  });
+</script>
