@@ -146,7 +146,36 @@ class ApiUser extends AppModel {
     return $this->find('list', $args);
   }
 
-    /**
+  /**
+   * Actions before deleting a model.
+   *
+   * @since  COmanage Registry v4.2.0
+   */
+  public function beforeDelete($cascade = true) {
+    // Unset foreign keys from HistoryRecords but keep them for reference
+    $HistoryRecords = ClassRegistry::init('HistoryRecord');
+    $HistoryRecords->updateAll(
+      array(
+        'HistoryRecord.actor_api_user_id' => null
+      ),
+      array('HistoryRecord.actor_api_user_id' => $this->id)
+    );
+
+    // Remove any CoreAPI users
+    if(in_array('CoreApi', App::objects('plugin'))){
+      // Delete all CoreApi Users
+      $CoreApi = ClassRegistry::init('CoreApi');
+      $CoreApi->deleteAll(
+        array('CoreApi.api_user_id' => $this->id),
+        true,
+        true
+      );
+    }
+
+    return parent::beforeDelete($cascade);
+  }
+
+  /**
    * Actions to take before a validate operation is executed.
    *
    * @since  COmanage Registry v3.3.0
