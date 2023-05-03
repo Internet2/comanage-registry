@@ -198,7 +198,35 @@
               </li>
               <li>
                 <div class="field-name"><?php print _txt('ct.co_enrollment_flows.1'); ?></div>
-                <div class="field-info"><?php print $co_petitions[0]['CoEnrollmentFlow']['name']; ?></div>
+                <div class="field-info">
+                  <?php
+                  print $this->Html->link($vv_co_enrollment_flow['CoEnrollmentFlow']['name'],
+                                          array('controller' => 'co_enrollment_flows',
+                                                'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')),
+                                            $vv_co_enrollment_flow['CoEnrollmentFlow']['id']));
+
+                  $badge_list = array();
+                  if($vv_co_enrollment_flow['CoEnrollmentFlow']['deleted']) {
+                    $badge_list[] = array(
+                      'order' => $this->Badge->getBadgeOrder('Other'),
+                      'text' => _txt('fd.deleted'),
+                      'color' => $this->Badge->getBadgeColor('Danger'),
+                    );
+                  }
+
+                  if(!is_null($vv_co_enrollment_flow['CoEnrollmentFlow']['co_enrollment_flow_id'])) {
+                    $badge_list[] = array(
+                      'order' => $this->Badge->getBadgeOrder('Other'),
+                      'text' => _txt('fd.ef.archived'),
+                      'color' => $this->Badge->getBadgeColor('Warning'),
+                    );
+                  }
+
+                  if(!empty($badge_list)) {
+                    print $this->element('badgeList', array('vv_badge_list' => $badge_list));
+                  }
+                  ?>
+                </div>
               </li>
               <?php if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingConfirmation
                        && !empty($co_petitions[0]['CoInvite']['expires'])): ?>
