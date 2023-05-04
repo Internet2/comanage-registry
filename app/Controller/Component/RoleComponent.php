@@ -463,7 +463,9 @@ class RoleComponent extends Component {
     $ret = array(
       'cmadmin' => false,
       'coadmin' => false,
+      'coapprover' => false,
       'couadmin' => false,
+      'couapprover' => false,
       'admincous' => null,
       'comember' => false,
       'admin' => false,
@@ -598,7 +600,13 @@ class RoleComponent extends Component {
     if($this->Session->check('Auth.User.name')) {
       $ret['user'] = true;
     }
-    
+
+    // Is the user a CO approver
+    $ret['coapprover'] = $this->isCoOrCouApprover($coPersonId);
+
+    // Is the user a COU approver
+    $ret['couapprover'] = $this->isCouApprover($coPersonId);
+
     return $ret;
   }
   
