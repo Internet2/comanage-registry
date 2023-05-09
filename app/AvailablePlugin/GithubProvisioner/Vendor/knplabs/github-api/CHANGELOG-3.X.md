@@ -1,5 +1,30 @@
 # Changelog
 
+## 3.11.0
+
+### Added
+- Added environment variables & secrets ([Froxz](https://github.com/Froxz)) [#1104](https://github.com/KnpLabs/php-github-api/issues/1104)
+- Added Org & Repository variables ([Froxz](https://github.com/Froxz)) [#1106](https://github.com/KnpLabs/php-github-api/issues/1106)
+- Deployment branch policies ([Froxz](https://github.com/Froxz)) [#1108](https://github.com/KnpLabs/php-github-api/issues/1108)
+
+### Changed
+- Test on PHP 8.2 ([GrahamCampbell](https://github.com/GrahamCampbell)) [#1105](https://github.com/KnpLabs/php-github-api/issues/1105)
+
+### Fixed
+- Bugfix creating env ([Froxz](https://github.com/Froxz)) [#1107](https://github.com/KnpLabs/php-github-api/issues/1107)
+
+## 3.10.0
+
+### Added
+- Add vulnerability alerts endpoints ([andreia](https://github.com/andreia)) [#1096](https://github.com/KnpLabs/php-github-api/issues/1096)
+- Added environments ([Froxz](https://github.com/Froxz)) [#1103](https://github.com/KnpLabs/php-github-api/issues/1103)
+
+### Changed
+- Create authorization removed from docs ([rafasashi](https://github.com/rafasashi)) [#1090](https://github.com/KnpLabs/php-github-api/issues/1090)
+- Setup dependabot for github action workflows ([acrobat](https://github.com/acrobat)) [#1098](https://github.com/KnpLabs/php-github-api/issues/1098)
+- Bump actions/checkout from 2 to 3 ([dependabot](https://github.com/dependabot)[[bot](https://github.com/bot)]) [#1099](https://github.com/KnpLabs/php-github-api/issues/1099)
+- Bump ramsey/composer-install from 1 to 2 ([dependabot](https://github.com/dependabot)[[bot](https://github.com/bot)]) [#1100](https://github.com/KnpLabs/php-github-api/issues/1100)
+
 ## 3.9.0
 
 ### Added
