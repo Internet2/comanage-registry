@@ -1,6 +1,9 @@
 {
   "config": {
-    "vendor-dir": "Vendor"
+    "vendor-dir": "Vendor",
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
   },
   "require": {
     "guzzlehttp/guzzle": "~7.5",
