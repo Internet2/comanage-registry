@@ -2215,6 +2215,11 @@ ul.form-list li.field-stack textarea {
   display: inline;
   margin: 0;
 }
+.checkbox-ui-dialog {
+  float:left;
+  display: inline-block;
+  margin-top: 1em;
+}
 .form-check.checkbox-replace-container {
   opacity: 0.6;
   position: relative;
