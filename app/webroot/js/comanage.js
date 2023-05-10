@@ -100,14 +100,7 @@ function replaceTokens(text,replacements) {
 // cancelbtxt         - cancel button text  (string, optional)
 // titletxt           - dialog title text   (string, optional)
 // tokenReplacements  - strings to replace tokens in dialog body text (array, optional)
-// checkboxtext       - string for the checkbox option
-function js_confirm_generic(txt,
-                            url,
-                            confirmbtxt,
-                            cancelbtxt,
-                            titletxt,
-                            tokenReplacements,
-                            checkboxtext) {
+function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenReplacements) {
 
   var bodyText = txt;
   var forwardUrl = url;
@@ -138,13 +131,6 @@ function js_confirm_generic(txt,
 
   // Set the body text of the dialog
   $("#dialog-text").text(bodyText);
-
-  if(checkboxtext != undefined && checkboxtext != "") {
-    $('#dialbog-checkbox').remove();
-    const pane = $(".ui-dialog-buttonpane")
-    const checkbox  = "<label id='dialbog-checkbox' class='checkbox-ui-dialog' ><input  type='checkbox'/>" + checkboxtext + "</label>"
-    $(checkbox).prependTo(pane)
-  }
 
   // Set the dialog buttons
   var dbuttons = []

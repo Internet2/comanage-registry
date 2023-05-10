@@ -161,17 +161,6 @@ class ApiUser extends AppModel {
       array('HistoryRecord.actor_api_user_id' => $this->id)
     );
 
-    // Remove any CoreAPI users
-    if(in_array('CoreApi', App::objects('plugin'))){
-      // Delete all CoreApi Users
-      $CoreApi = ClassRegistry::init('CoreApi');
-      $CoreApi->deleteAll(
-        array('CoreApi.api_user_id' => $this->id),
-        true,
-        true
-      );
-    }
-
     return parent::beforeDelete($cascade);
   }
 

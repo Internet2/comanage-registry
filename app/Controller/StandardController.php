@@ -440,8 +440,25 @@ class StandardController extends AppController {
     }
     
     // Remove the object.
+    $ret = false;
+    $dataSource = $model->getDataSource();
+    $dataSource->begin();
+    try {
+      $ret = $model->delete($id);
+    } catch (PDOException $e) {
+      $dataSource->rollback();
+      if(!empty($e->errorInfo[2])) {
+        $error_split = explode("\n", $e->errorInfo[2]);
+        foreach ($error_split as $details) {
+          $this->Flash->set($details, array('key' => 'information'));
+        }
+      } else {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
+    }
     
-    if($model->delete($id)) {
+    if($ret) {
+      $dataSource->commit();
       if($this->recordHistory('delete', null, $curdata)) {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(200, "Deleted");
@@ -450,6 +467,7 @@ class StandardController extends AppController {
         }
       }
     } else {
+      $dataSource->rollback();
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(500, "Other Error");
       } else {
