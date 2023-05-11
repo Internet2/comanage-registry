@@ -46,6 +46,7 @@ class CoEnrollmentFlowWedgesController extends StandardController {
   public $requires_co = true;
   
   public $view_contains = array();
+  public $edit_contains = array();
 
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -69,6 +70,7 @@ class CoEnrollmentFlowWedgesController extends StandardController {
       $this->CoEnrollmentFlowWedge->bindModel($relation, false);
       
       $this->view_contains[] = $plugin;
+      $this->edit_contains[] = $plugin;
     }
 
     $this->set('plugins', $plugins);

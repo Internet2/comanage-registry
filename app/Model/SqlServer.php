@@ -120,7 +120,7 @@ class SqlServer extends AppModel {
       'login' => $sqlserver['SqlServer']['username'],
       'password' => $sqlserver['SqlServer']['password'],
       'database' => $sqlserver['SqlServer']['databas'],
-      'prefix' => ($prefix != '' ? $prefix : "sp_"),
+      'prefix' => $prefix,
 //    'encoding' => 'utf8',
     );
     
