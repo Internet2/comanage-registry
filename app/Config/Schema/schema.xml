@@ -450,10 +450,19 @@
     <field name="remote_ip" type="C" size="80" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    
+    <field name="api_user_id" type="I">
+      <constraint>REFERENCES cm_api_users(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
     <index name="api_users_i1">
       <col>username</col>
-      <unique />
+    </index>
+
+    <index name="api_users_i2">
+      <col>api_user_id</col>
     </index>
   </table>
   

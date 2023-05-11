@@ -42,7 +42,8 @@ class ApiUser extends AppModel {
   // Default ordering for find operations
   public $order = array("username");
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
   
   // Validation rules for table elements
   public $validate = array(
@@ -63,12 +64,7 @@ class ApiUser extends AppModel {
         'rule' => array('validateInput'),
         'message' => array('Username contains invalid characters.'),
         'last' => 'true',
-      ),
-      'unique' => array(
-        'rule' => array('isUnique', true),
-        'message' => array('API username already in use.'),
-        'last' => 'true',
-      ),
+      )
     ),
     // This column will be renamed api_key in v5
     'password' => array(
@@ -147,24 +143,6 @@ class ApiUser extends AppModel {
   }
 
   /**
-   * Actions before deleting a model.
-   *
-   * @since  COmanage Registry v4.2.0
-   */
-  public function beforeDelete($cascade = true) {
-    // Unset foreign keys from HistoryRecords but keep them for reference
-    $HistoryRecords = ClassRegistry::init('HistoryRecord');
-    $HistoryRecords->updateAll(
-      array(
-        'HistoryRecord.actor_api_user_id' => null
-      ),
-      array('HistoryRecord.actor_api_user_id' => $this->id)
-    );
-
-    return parent::beforeDelete($cascade);
-  }
-
-  /**
    * Actions to take before a validate operation is executed.
    *
    * @since  COmanage Registry v3.3.0
@@ -177,6 +155,16 @@ class ApiUser extends AppModel {
       $prefix = "co_" . $this->data['ApiUser']['co_id'] . ".";
       // Prepend the prefix to the username i got from post
       $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
+
+      // Check if the username is unique. Since we enabled changelog we need to do it manually
+      $args = array();
+      $args['conditions']['ApiUser.username'] = $this->data['ApiUser']['username'];
+      $args['contain'] = false;
+
+      if($this->find('count', $args) > 0
+         && empty($this->data['ApiUser']["id"])) {
+        return false;
+      }
     }
 
     return parent::beforeValidate($options);

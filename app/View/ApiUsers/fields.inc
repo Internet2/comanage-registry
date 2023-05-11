@@ -265,3 +265,5 @@
     </li>
   <?php endif; ?>
 </ul>
+<?php
+  print $this->element("changelog");
