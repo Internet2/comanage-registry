@@ -605,7 +605,7 @@ class RoleComponent extends Component {
 
     if($ret['comember'] && $coPersonId) {
       // Is the user a CO approver
-      $ret['coapprover'] = $this->isCoOrCouApprover($coPersonId);
+      $ret['coapprover'] = $this->isCoApprover($coPersonId);
 
       // Is the user a COU approver
       $ret['couapprover'] = $this->isCouApprover($coPersonId);
