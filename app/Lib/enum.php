@@ -469,6 +469,7 @@ class MatchStrategyEnum
 class MessageTemplateEnum
 {
   const Authenticator          = 'AU';
+  const ApproverNotification   = 'AP';
   const EnrollmentApproval     = 'EA';
   const EnrollmentFinalization = 'EF';
   const EnrollmentVerification = 'EV';

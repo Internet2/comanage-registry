@@ -2437,11 +2437,6 @@ class CoPetition extends AppModel {
     
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
-/*    $args['contain']['CoEnrollmentFlow'] = array(
-      'CoEnrollmentFlowAppMessageTemplate',
-      'CoEnrollmentFlowDenMessageTemplate',
-      'CoEnrollmentFlowFinMessageTemplate'
-    );*/
     $args['contain']['EnrolleeCoPerson'] = array('PrimaryName', 'Identifier');
     $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
     $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
@@ -2461,6 +2456,7 @@ class CoPetition extends AppModel {
     $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
     $args['contain'] = array(
       'CoEnrollmentFlowAppMessageTemplate',
+      'CoEnrollmentFlowAppNotMessageTemplate',
       'CoEnrollmentFlowDenMessageTemplate',
       'CoEnrollmentFlowFinMessageTemplate'
     );
@@ -2567,6 +2563,12 @@ class CoPetition extends AppModel {
                                               _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
                                               _txt('en.status.pt', null, $pt['CoPetition']['status']),
                                               $ef['CoEnrollmentFlow']['name']));
+        if(!empty($ef['CoEnrollmentFlow']['appr_notification_template_id'])) {
+          $comment = $this->CoEnrollmentFlow
+                          ->CoEnrollmentFlowAppMessageTemplate
+                          ->getMessageTemplateFields($ef['CoEnrollmentFlowAppMessageTemplate']);
+        }
+
       } else {
         if(!empty($ef['CoEnrollmentFlowFinMessageTemplate']['id'])) {
           // Finalize

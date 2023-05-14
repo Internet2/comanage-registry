@@ -847,6 +847,35 @@
             ?>
           </div>
         </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.appr.ntf'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.appr.ntf.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+            global $cm_lang, $cm_texts;
+            $attrs = array();
+            $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id'])
+              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id']
+              : null);
+            $attrs['empty'] = true;
+
+            if($e) {
+              print $this->Form->select('appr_notification_template_id',
+                (!empty($vv_message_templates[MessageTemplateEnum::ApproverNotification])
+                  ? $vv_message_templates[MessageTemplateEnum::ApproverNotification]
+                  : array()), $attrs);
+
+              if($this->Form->isFieldError('appr_notification_template_id')) {
+                print $this->Form->error('appr_notification_template_id');
+              }
+            } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id'])) {
+              print filter_var($vv_message_templates[MessageTemplateEnum::ApproverNotification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+            ?>
+          </div>
+        </li>
       </ul>
     </li>
   </div>

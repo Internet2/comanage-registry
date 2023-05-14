@@ -61,6 +61,10 @@ class CoEnrollmentFlow extends AppModel {
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'approval_template_id'
     ),
+    "CoEnrollmentFlowAppNotMessageTemplate" => array(
+      'className' => 'CoMessageTemplate',
+      'foreignKey' => 'appr_notification_template_id'
+    ),
     "CoEnrollmentFlowDenMessageTemplate" => array(
       'className' => 'CoMessageTemplate',
       'foreignKey' => 'denial_template_id'

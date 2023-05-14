@@ -50,6 +50,10 @@ class CoMessageTemplate extends AppModel {
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'approval_template_id'
     ),
+    "CoEnrollmentFlowAppNotMessageTemplate" => array(
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'appr_notification_template_id'
+    ),
     "CoEnrollmentFlowDenMessageTemplate" => array(
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'denial_template_id'
@@ -86,6 +90,7 @@ class CoMessageTemplate extends AppModel {
     ),
     'context' => array(
       'rule' => array('inList', array(MessageTemplateEnum::Authenticator,
+                                      MessageTemplateEnum::ApproverNotification,
                                       MessageTemplateEnum::EnrollmentApproval,
                                       MessageTemplateEnum::EnrollmentFinalization,
                                       MessageTemplateEnum::EnrollmentVerification,
