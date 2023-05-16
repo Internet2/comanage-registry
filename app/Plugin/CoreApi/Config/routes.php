@@ -34,7 +34,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'index',
     '[method]'   => 'GET',
   )
@@ -46,7 +46,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'delete',
     '[method]'   => 'DELETE',
   )
@@ -58,7 +58,7 @@ Router::connect(
     '/api/co/:coid/core/v1/people',
     array(
       'plugin'     => 'core_api',
-      'controller' => 'Api',
+      'controller' => 'CoreApiPeople',
       'action'     => 'update',
       '[method]'   => 'PUT',
     )
@@ -69,7 +69,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'read',
     '[method]'   => 'GET'
   )
@@ -79,7 +79,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'update',
     '[method]'   => 'PUT'
   )
@@ -89,7 +89,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'delete',
     '[method]'   => 'DELETE'
   )
@@ -99,7 +99,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'create',
     '[method]'   => 'POST'
   )
@@ -115,6 +115,159 @@ Router::connect(
     '[method]'    => 'POST'
   )
 );
+
+
+// Organizations
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'create',
+    '[method]'   => 'POST'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'update',
+    '[method]'   => 'PUT'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE'
+  )
+);
+
+
+// Departments
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'create',
+    '[method]'   => 'POST'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'update',
+    '[method]'   => 'PUT'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE'
+  )
+);
+
+
+
+
+
 
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem

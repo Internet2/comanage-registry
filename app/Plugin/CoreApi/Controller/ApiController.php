@@ -33,7 +33,9 @@ App::uses("StandardController", "Controller");
 class ApiController extends Controller {
   // Class name, used by Cake
   public $name = "Api";
-  
+
+  public $modelName = null;
+
   // Since we don't extend AppController we need to enumerate the components
   // we want to use.
   public $components = array('Api',
@@ -78,7 +80,9 @@ class ApiController extends Controller {
     // We want json views in responses
     $this->RequestHandler->renderAs($this, 'json');
     $this->layout = 'CoreApi.json';
-    
+
+    $this->modelName = Inflector::singularize($this->name);
+
     // Since we're not calling parent::beforeFilter(), we have to validate the CO
     
     // This should be provided by routes.php
@@ -168,20 +172,21 @@ class ApiController extends Controller {
           $args['contain'] = false;
           
           // Which API was requested?
-          
+          $targetedController = str_replace('CoreApi', '', $this->request->params['controller']);
+          $targetedSingular = Inflector::singularize($targetedController);
           switch($this->request->params['action']) {
             case 'read':    // Read single record
             case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
-                CoreApiEnum::CoPersonRead,
+                constant("CoreApiEnum::{$targetedSingular}Read"),
                 // ApiUsers with Write permission can also read
-                CoreApiEnum::CoPersonWrite
+                constant("CoreApiEnum::{$targetedSingular}Write"),
               );
               break;
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = CoreApiEnum::CoPersonWrite;
+              $args['conditions']['CoreApi.api'] = array(constant("CoreApiEnum::{$targetedSingular}Write"));
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;
@@ -219,16 +224,17 @@ class ApiController extends Controller {
   }
 
   /**
-   * Handle a Core API CO Person record create
+   * Handle a Core API CO record create
    *
    * @since  COmanage Registry v4.1.0
    */
 
   public function create() {
+    $modelApiName = $this->modelName;
     try {
-      $ret = $this->CoreApi->createV1($this->cur_api['CoreApi']['co_id'],
-                                      $this->request->data,
-                                      $this->cur_api['CoreApi']['api_user_id']);
+      $ret = $this->$modelApiName->createV1($this->cur_api['CoreApi']['co_id'],
+                                            $this->request->data,
+                                            $this->cur_api['CoreApi']['api_user_id']);
 
       $this->set('results', array_values($ret));
       $this->Api->restResultHeader(201);
@@ -248,15 +254,18 @@ class ApiController extends Controller {
   }
 
   /**
-   * Handle a Core API CO People delete request
-   * /api/co/:coid/core/v1/people/:identifier
-   * The action has two possible outcomes. Either transition the user to status delete or expunge the user
-   * 1. Transition to status delete implies the transition of CoPerson Roles to status deleted
+   * Handle a Core API CO Record delete request
+   * /api/co/:coid/core/v1/<model>/:identifier e.g.
+   * /api/co/:coid/core/v1/organizations/:identifier
+   * /api/co/:coid/core/v1/departments/:identifier
    *
-   * @since  COmanage Registry v4.1.0
+   * @since  COmanage Registry v4.2.0
    */
 
   public function delete() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
+
     try {
       if(empty($this->request->params['identifier'])
          && empty($this->request->query["identifier"])) {
@@ -271,18 +280,10 @@ class ApiController extends Controller {
                            : null);
 
 
-      $expunge_on_delete = !isset($this->cur_api['CoreApi']['expunge_on_delete'])
-                           ? false : $this->cur_api['CoreApi']['expunge_on_delete'];
-      if($expunge_on_delete) {
-        $ret = $this->CoreApi->expungeV1($this->cur_api['CoreApi']['co_id'],
-                                         $req_identifier,
-                                         $this->cur_api['CoreApi']['identifier_type'],
-                                         $this->cur_api['CoreApi']['api_user_id']);
-      } else {
-        $ret = $this->CoreApi->deleteV1($this->cur_api['CoreApi']['co_id'],
-                                        $req_identifier,
-                                        $this->cur_api['CoreApi']['identifier_type']);
-      }
+
+      $ret = $this->$modelApiName->deleteV1($this->cur_api['CoreApi']['co_id'],
+                                            $req_identifier,
+                                            $this->cur_api['CoreApi']['identifier_type']);
 
       if(!empty($ret) && !is_bool($ret)) {
         $this->set('results', $ret);
@@ -311,6 +312,8 @@ class ApiController extends Controller {
    */
 
   public function index() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
     try {
       $query_filters = array();
       // Load the default ordering and pagination settings
@@ -322,50 +325,30 @@ class ApiController extends Controller {
         $this->Paginator->settings['conditions']['Identifier.identifier'] = $this->request->query['identifier'];
       }
       $this->Paginator->settings['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
-      $this->Paginator->settings['conditions']['CoPerson.co_id'] = $this->cur_api['CoreApi']['co_id'];
-      if(!empty($this->request->query['CoPerson.status'])) {
+      $this->Paginator->settings['conditions']["{$modelMapperName}.co_id"] = $this->cur_api['CoreApi']['co_id'];
+      if(!empty($this->request->query["{$modelMapperName}.status"])) {
         $query_filters[] = 'status';
-        $this->Paginator->settings['conditions']['CoPerson.status'] = $this->request->query['CoPerson.status'];
+        $this->Paginator->settings['conditions']["{$modelMapperName}.status"] = $this->request->query["{$modelMapperName}.status"];
       }
+      $modelMapper_underscore = Inflector::underscore($modelMapperName);
       $this->Paginator->settings['joins'][0]['table'] = 'identifiers';
       $this->Paginator->settings['joins'][0]['alias'] = 'Identifier';
       $this->Paginator->settings['joins'][0]['type'] = 'INNER';
-      $this->Paginator->settings['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
+      $this->Paginator->settings['joins'][0]['conditions'][0] = "Identifier.{$modelMapper_underscore}_id={$modelMapperName}.id";
 
       // We need all the relational data for the full mode
       if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
         // While we're here pull the data we need
-        $this->Paginator->settings['contain'] = array(
-          'CoPersonRole' => array(
-            'Address',
-            'AdHocAttribute',
-            'TelephoneNumber'
-          ),
-          'CoGroupMember',
-          'CoOrgIdentityLink' => array(
-            'OrgIdentity' => array(
-              'Address',
-              'AdHocAttribute',
-              'EmailAddress',
-              'Identifier',
-              'Name',
-              'TelephoneNumber',
-              'Url'
-            ),
-          ),
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'Url'
-        );
-      } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
+        $this->Paginator->settings['contain'] = $this->$modelApiName->index_contains;
+      } elseif($this->modelName == "Person"
+               && $this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
         $this->Paginator->settings['contain'] = array(
           'Identifier' => array(
             'conditions' => array(
               'type ' => $this->cur_api['CoreApi']['identifier_type'],
               'deleted' => false,
               'identifier_id' => null
-          )));
+            )));
       }
 
       // Query offset
@@ -374,33 +357,33 @@ class ApiController extends Controller {
       }
       // Order Direction
       if(!empty($this->request->query['direction'])) {
-        $this->Paginator->settings['order']['CoPerson.id'] = $this->request->query['direction'];
+        $this->Paginator->settings['order']["{$modelMapperName}.id"] = $this->request->query['direction'];
       }
       // Page
       if(!empty($this->request->query['page'])) {
         $this->Paginator->settings['page'] = $this->request->query['page'];
       }
 
-      $coPeople = $this->Paginator->paginate('CoPerson');
+      $modelObj = $this->Paginator->paginate($modelMapperName);
 
-      if(empty($coPeople)) {
-        $CoPerson = ClassRegistry::init('CoPerson');
+      if(empty($modelObj)) {
+        $modelObj = ClassRegistry::init($modelMapperName);
         // The model has a status enum type hint. I use the existing type hint and append the postfix
         $attr_human_readable = array();
         foreach ($query_filters as $filter) {
-          $attr_human_readable[] = _txt($CoPerson->cm_enum_txt[$filter], null, $this->request->query['CoPerson.' . $filter]);
+          $attr_human_readable[] = _txt($modelObj->cm_enum_txt[$filter], null, $this->request->query["{$modelMapperName}." . $filter]);
         }
         throw new InvalidArgumentException(
-          _txt('er.notfound', array('Person', implode(',', $attr_human_readable)))
+          _txt('er.notfound', array($modelApiName, implode(',', $attr_human_readable)))
         );
       }
 
       $ret = array();
       if($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::Full) {
-        $ret = $this->CoreApi->readV1Index($this->cur_api['CoreApi']['co_id'], $coPeople);
+        $ret = $this->$modelApiName->readV1Index($this->cur_api['CoreApi']['co_id'], $modelObj);
       } elseif($this->cur_api['CoreApi']['index_response_type'] == ResponseTypeEnum::IdentifierList) {
         // Would it make sense to return the person id as well?
-        $ret = Hash::extract($coPeople, '{n}.Identifier.{n}.identifier');
+        $ret = Hash::extract($modelObj, '{n}.Identifier.{n}.identifier');
       }
 
       // Set the results
@@ -418,10 +401,24 @@ class ApiController extends Controller {
   }
 
   /**
-   * Handle a Core API CO Person Read API request.
-   * /api/co/:coid/core/v1/people#show
+   * Authorization for this Controller, called by Auth component
+   * - precondition: Session.Auth holds data used for authz decisions
+   * - postcondition: $permissions set with calculated permissions
    *
    * @since  COmanage Registry v4.0.0
+   * @return Array Permissions
+   */
+
+  function isAuthorized() {
+    // Currently we do all meaningful checks in beforeFilter().
+
+    return true;
+  }
+
+  /**
+   * Handle a Core API CO Read API request.
+   *
+   * @since  COmanage Registry v4.1.0
    */
 
   public function read() {
@@ -434,10 +431,10 @@ class ApiController extends Controller {
         throw new InvalidArgumentException(_txt('er.notprov'));
       }
 
-
-      $ret = $this->CoreApi->readV1($this->cur_api['CoreApi']['co_id'],
-                                    $this->request->params['identifier'],
-                                    $this->cur_api['CoreApi']['identifier_type']);
+      $apiModelName = $this->modelName;
+      $ret = $this->$apiModelName->readV1($this->cur_api['CoreApi']['co_id'],
+                                            $this->request->params['identifier'],
+                                            $this->cur_api['CoreApi']['identifier_type']);
 
       $this->set('results', $ret);
       $this->Api->restResultHeader(200);
@@ -451,97 +448,34 @@ class ApiController extends Controller {
       $this->Api->restResultHeader(500);
     }
   }
-  
+
   /**
-   * Handle a Match Resolution Callback Notification
-   *
-   * @since  COmanage Registry v4.1.0
-   */
-  
-  public function resolveMatch() {
-    if(empty($this->request->data['sor'])
-       || empty($this->request->data['sorid'])
-       || empty($this->request->data['referenceId'])) {
-      $this->set('results', array('error' => _txt('er.coreapi.json.invalid')));
-      $this->Api->restResultHeader(400);
-      return;
-    }
-    
-    // Find the OIS associated with this sor label. There should be exactly one.
-    
-    $args = array();
-    $args['conditions']['OrgIdentitySource.co_id'] = $this->request->params['coid'];
-    $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
-    $args['conditions']['OrgIdentitySource.sor_label'] = $this->request->data['sor'];
-    $args['contain'] = false;
-    
-    $ois = $this->OrgIdentitySource->find('first', $args);
-    
-    if(empty($ois)) {
-      $this->set('results', array('error' => _txt('er.coreapi.sor.notfound', array($this->request->data['sor']))));
-      $this->Api->restResultHeader(400);
-      return;
-    }
-    
-    // If an OrgIdentitySource Create Org Identity operations fails because of
-    // multiple choices returned by the Match server, there is no record maintained
-    // (except that ApiSource will maintain its own record), so we basically
-    // need to queue a new job to start the process over. This implies we don't
-    // have a way to validate SORID, but the Job can do that. We also don't
-    // try to map the Reference ID here, since that could theoretically change
-    // before the Job actually runs (but probably it won't).
-    
-    try {
-      $params = array(
-        'ois_id'        => $ois['OrgIdentitySource']['id'],
-        'source_key'    => $this->request->data['sorid'],
-        'reference_id'  => $this->request->data['referenceId']
-      );
-      
-      $this->CoJob->register($this->request->params['coid'],
-                             'CoreJob.Sync',
-                             null,
-                             null,
-                             _txt('pl.coreapi.match.resolved'),
-                             true,
-                             true,
-                             $params);
-      $this->Api->restResultHeader(202);
-    }
-    catch(Exception $e) {
-      $this->set('results', array('error' => $e->getMessage()));
-      $this->Api->restResultHeader(500);
-    }
-    
-    // Note there's nothing to attach a history record to yet, so we don't
-  }
-  
-  /**
-   * Handle a Core API CO Person Write API Update request.
+   * Handle a Core API Write API Update request.
    *
    * @since  COmanage Registry v4.0.0
    */
-  
+
   public function update() {
     try {
       if(empty($this->request->params['identifier'])
-        && empty($this->request->query["identifier"])) {
+          && empty($this->request->query["identifier"])) {
         // We shouldn't really get here since routes.php shouldn't allow it
         throw new InvalidArgumentException(_txt('er.notprov'));
       }
 
       $req_identifier = !empty($this->request->params["identifier"])
-                        ? $this->request->params["identifier"]
-                        : (!empty($this->request->query["identifier"])
-                          ? $this->request->query["identifier"]
-                          : null);
+        ? $this->request->params["identifier"]
+        : (!empty($this->request->query["identifier"])
+          ? $this->request->query["identifier"]
+          : null);
 
-      $ret = $this->CoreApi->upsertV1($this->cur_api['CoreApi']['co_id'],
-                                      $req_identifier,
-                                      $this->cur_api['CoreApi']['identifier_type'],
-                                      $this->request->data,
-                                      $this->cur_api['CoreApi']['api_user_id']);
-      
+      $apiModelName = $this->modelName;
+      $ret = $this->$apiModelName->upsertV1($this->cur_api['CoreApi']['co_id'],
+                                            $req_identifier,
+                                            $this->cur_api['CoreApi']['identifier_type'],
+                                            $this->request->data,
+                                            $this->cur_api['CoreApi']['api_user_id']);
+
       $this->set('results', $ret);
       $this->Api->restResultHeader(200);
     }
@@ -557,20 +491,5 @@ class ApiController extends Controller {
         $this->Api->restResultHeader(500);
       }
     }
-  }
-  
-  /**
-   * Authorization for this Controller, called by Auth component
-   * - precondition: Session.Auth holds data used for authz decisions
-   * - postcondition: $permissions set with calculated permissions
-   *
-   * @since  COmanage Registry v4.0.0
-   * @return Array Permissions
-   */
-  
-  function isAuthorized() {
-    // Currently we do all meaningful checks in beforeFilter().
-    
-    return true;
   }
 }

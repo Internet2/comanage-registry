@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Core API Enumerations
+ * COmanage Registry Core API Organizations Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -18,27 +18,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
- * @package       registry
- * @since         COmanage Registry v4.0.0
+ * @package       registry-plugin
+ * @since         COmanage Registry v4.2.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class CoreApiEnum
-{
-  const PersonRead         = "CR";
-  const OrganizationRead   = "OR";
-  const DepartmentRead     = "DR";
-  // Write implies Read
-  const PersonWrite        = "CW";
-  const OrganizationWrite  = "OW";
-  const DepartmentWrite    = "DW";
-  const MatchCallback      = "MC";
-}
+App::uses('ApiController', 'CoreApi.Controller');
+class CoreApiOrganizationsController extends ApiController {
+  // Class name, used by Cake
+  public $name = "CoreApiOrganizations";
 
-class ResponseTypeEnum
-{
-  const Full               = 'FL';
-  const IdentifierList     = 'IL';
+  public $mapper = "Organizations";
+
+  public $uses = array(
+    "Co",
+    "CoJob",
+    "CoreApi.CoreApi",
+    "CoreApi.CoreApiOrganization",
+  );
 }
