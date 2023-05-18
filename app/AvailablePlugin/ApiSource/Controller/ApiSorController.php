@@ -27,7 +27,7 @@
 
 App::uses("StandardController", "Controller");
 
-class ApiController extends Controller {
+class ApiSorController extends Controller {
   // Class name, used by Cake
   public $name = "Api";
   

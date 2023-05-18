@@ -29,7 +29,7 @@ Router::connect(
   '/meem_enroller/v1/status/:meemenrollerid/:identifier',
   array(
     'plugin' => 'meem_enroller',
-    'controller' => 'Api',
+    'controller' => 'ApiMem',
     'action' => 'status',
     "[method]" => "GET"
   )
