@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Core API API Controller
+ * COmanage Registry Core API Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -30,9 +30,9 @@ App::uses("StandardController", "Controller");
 // This is based heavily on ApiSource::ApiController... maybe merge them,
 // possibly with the hypothetical API plugin type
 
-class ApiController extends Controller {
+class CoreApiController extends Controller {
   // Class name, used by Cake
-  public $name = "Api";
+  public $name = "CoreApi";
 
   public $modelName = null;
 

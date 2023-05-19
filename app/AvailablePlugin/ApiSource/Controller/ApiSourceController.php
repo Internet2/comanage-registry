@@ -27,9 +27,9 @@
 
 App::uses("StandardController", "Controller");
 
-class ApiController extends Controller {
+class ApiSourceController extends Controller {
   // Class name, used by Cake
-  public $name = "Api";
+  public $name = "ApiSource";
   
   // Since we don't extend AppController we need to enumerate the components
   // we want to use.

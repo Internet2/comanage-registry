@@ -52,17 +52,17 @@ Router::connect(
   )
 );
 
-  // COmanage CO Person API PUT
-  // /api/co/:coid/core/v1/people?identifier=1234567890@example.com
-  Router::connect(
-    '/api/co/:coid/core/v1/people',
-    array(
-      'plugin'     => 'core_api',
-      'controller' => 'CoreApiPeople',
-      'action'     => 'update',
-      '[method]'   => 'PUT',
-    )
-  );
+// COmanage CO Person API PUT
+// /api/co/:coid/core/v1/people?identifier=1234567890@example.com
+Router::connect(
+  '/api/co/:coid/core/v1/people',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPeople',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
 
 // COmanage CO Person Read API
 Router::connect(
@@ -110,12 +110,11 @@ Router::connect(
   '/api/co/:coid/core/v1/resolution',
   array(
     'plugin'      => 'core_api',
-    'controller'  => 'Api',
+    'controller'  => 'CoreApi',
     'action'      => 'resolveMatch',
     '[method]'    => 'POST'
   )
 );
-
 
 // Organizations
 
@@ -139,7 +138,6 @@ Router::connect(
   )
 );
 
-
 Router::connect(
   '/api/co/:coid/core/v1/organizations',
   array(
@@ -189,7 +187,6 @@ Router::connect(
     '[method]'   => 'DELETE'
   )
 );
-
 
 // Departments
 
@@ -213,7 +210,6 @@ Router::connect(
   )
 );
 
-
 Router::connect(
   '/api/co/:coid/core/v1/departments',
   array(
@@ -263,11 +259,6 @@ Router::connect(
     '[method]'   => 'DELETE'
   )
 );
-
-
-
-
-
 
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem

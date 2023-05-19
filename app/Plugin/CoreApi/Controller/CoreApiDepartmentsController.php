@@ -25,8 +25,8 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-App::uses('ApiController', 'CoreApi.Controller');
-class CoreApiDepartmentsController extends ApiController {
+App::uses('CoreApiController', 'CoreApi.Controller');
+class CoreApiDepartmentsController extends CoreApiController {
   // Class name, used by Cake
   public $name = "CoreApiDepartments";
 

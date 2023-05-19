@@ -29,7 +29,7 @@ Router::connect(
   '/api_source/:coid/v1/sorPeople/:sor/:sorid',
   array(
     'plugin' => 'api_source',
-    'controller' => 'Api',
+    'controller' => 'ApiSource',
     'action' => 'upsert',
     "[method]" => "PUT"
   )
@@ -39,7 +39,7 @@ Router::connect(
   '/api_source/:coid/v1/sorPeople/:sor/:sorid',
   array(
     'plugin' => 'api_source',
-    'controller' => 'Api',
+    'controller' => 'ApiSource',
     'action' => 'delete',
     "[method]" => "DELETE"
   )
@@ -49,7 +49,7 @@ Router::connect(
   '/api_source/:coid/v1/sorPeople/:sor/:sorid',
   array(
     'plugin' => 'api_source',
-    'controller' => 'Api',
+    'controller' => 'ApiSource',
     'action' => 'get',
     "[method]" => "GET"
   )
@@ -59,7 +59,7 @@ Router::connect(
   '/api_source/sorPeople/*',
   array(
     'plugin' => 'api_source',
-    'controller' => 'Api',
+    'controller' => 'ApiSource',
     'action' => 'abort'
   )
 );
