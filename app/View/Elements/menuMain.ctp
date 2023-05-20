@@ -70,16 +70,19 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         print '<em class="material-icons arrow" aria-hidden="true">chevron_left</em>';
         print '</a>';
         print '<ul aria-expanded="' . ($selectedMenu == $currentMenu ? "true" : "false") . '" class="collapse' . ($selectedMenu == $currentMenu ? " in" : "") . '">';
-        print '<li>';
-        $args = array();
-        $args['plugin'] = null;
-        $args['controller'] = 'co_people';
-        $args['action'] = 'index';
-        $args['co'] = $menuCoId;
 
-        print $this->Html->link(_txt('me.population'), $args, array('class' => 'spin'));
+        if($permissions['menu']['mypopulation']) {
+          print '<li>';
+          $args = array();
+          $args['plugin'] = null;
+          $args['controller'] = 'co_people';
+          $args['action'] = 'index';
+          $args['co'] = $menuCoId;
 
-        print "</li>";
+          print $this->Html->link(_txt('me.population'), $args, array('class' => 'spin'));
+
+          print "</li>";
+        }
 
         if(!empty($permissions['menu']['admincous'])) {
           foreach($permissions['menu']['admincous'] as $couid => $couname) {

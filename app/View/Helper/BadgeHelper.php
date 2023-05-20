@@ -68,6 +68,15 @@ class BadgeHelper extends AppHelper {
       return $fname_group;
     }
 
+    // XXX approvers Group case
+    if(in_array('approvers', $auto_group_parts)) {
+      $fname_group['name'] =
+        $fname_group['name']['name']
+        . $fname_group['name']['badge']
+        . $this->badgeIt(_txt('fd.el.gr.approvers'), $this->getBadgeColor('Light'));
+      return $fname_group;
+    }
+
     $fname_group['badge'] = array();
     // Extract Badges
     foreach($auto_group_parts as $part) {

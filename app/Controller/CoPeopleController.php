@@ -1030,8 +1030,11 @@ class CoPeopleController extends StandardController {
                                    || $roles['coadmin'] || ($managed && $roles['couadmin']));
     
     // View petitions?
-    $p['petitions'] = ($roles['cmadmin']
-                       || $roles['coadmin'] || ($managed && $roles['couadmin']));
+    $p['petitions'] = $roles['cmadmin']
+                      || $roles['coapprover']
+                      || $roles['couapprover']
+                      || $roles['coadmin']
+                      || ($managed && $roles['couadmin']);
     
     // (Re)provision an existing CO Person?
     $p['provision'] = ($roles['cmadmin']

@@ -2658,12 +2658,15 @@ class CoPetition extends AppModel {
         $fail = true;
       }
       
-      // To see if we should notify COU Admins, we need to see if this petition was
+      // To see if we should notify COU Admins and Approvers, we need to see if this petition was
       // attached to a COU
       
       if(!empty($pt['Cou']['id'])) {
         try {
+          // Notify COU admins
           $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['id']);
+          // Notify COU approvers
+          $cogroupids[] = $this->Co->CoGroup->approverCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['id']);
         }
         catch(Exception $e) {
           $fail = true;
