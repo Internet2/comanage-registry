@@ -2456,7 +2456,6 @@ class CoPetition extends AppModel {
     $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
     $args['contain'] = array(
       'CoEnrollmentFlowAppMessageTemplate',
-      'CoEnrollmentFlowAppNotMessageTemplate',
       'CoEnrollmentFlowDenMessageTemplate',
       'CoEnrollmentFlowFinMessageTemplate'
     );
@@ -2563,12 +2562,6 @@ class CoPetition extends AppModel {
                                               _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
                                               _txt('en.status.pt', null, $pt['CoPetition']['status']),
                                               $ef['CoEnrollmentFlow']['name']));
-        if(!empty($ef['CoEnrollmentFlow']['appr_notification_template_id'])) {
-          $comment = $this->CoEnrollmentFlow
-                          ->CoEnrollmentFlowAppMessageTemplate
-                          ->getMessageTemplateFields($ef['CoEnrollmentFlowAppMessageTemplate']);
-        }
-
       } else {
         if(!empty($ef['CoEnrollmentFlowFinMessageTemplate']['id'])) {
           // Finalize
@@ -2637,15 +2630,31 @@ class CoPetition extends AppModel {
     $args['conditions']['CoPetition.id'] = $id;
     $args['contain'][] = 'CoEnrollmentFlow';
     $args['contain'][] = 'Cou';
-    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
-    $args['contain']['EnrolleeOrgIdentity'][] = 'PrimaryName';
+    $args['contain']['EnrolleeCoPerson'] = array('PrimaryName', 'Identifier');
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
+    $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
     
     $pt = $this->find('first', $args);
     
     if(!$pt) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
     }
-    
+
+    // For some reason (cough, cake, cough) the commented out contain isn't pulling
+    // the related models since the addition of CoEnrollmentFlowDenMessageTemplate,
+    // so we manually pull the Enrollment Flow configuration and templates.
+
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
+    $args['contain'] = array('CoEnrollmentFlowAppNotMessageTemplate');
+
+    $ef = $this->CoEnrollmentFlow->find('first', $args);
+
+    if(!$ef) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'), $pt['CoPetition']['co_enrollment_flow_id'])));
+    }
+
     $cogroupids = array();
     
     if(!empty($pt['CoEnrollmentFlow']['approver_co_group_id'])) {
@@ -2686,7 +2695,47 @@ class CoPetition extends AppModel {
     } elseif(!empty($pt['EnrolleeOrgIdentity']['PrimaryName'])) {
       $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
     }
-    
+
+    $subject = null;
+    $body = null;
+    $cc = null;
+    $bcc = null;
+    $comment = null;
+    $format = MessageFormatEnum::Plaintext;
+
+    //  Substitutions
+    $subs = array('APPROVER_COMMENT' => (!empty($pt['CoPetition']['approver_comment'])
+                                         ? $pt['CoPetition']['approver_comment'] : null),
+                  'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
+                  'CO_PERSON_ID' => $pt['EnrolleeCoPerson']['id'],
+                  'ENROLLMENT_NAME' => $ef['CoEnrollmentFlow']['name'] ?? null,
+                  'ENROLLEE_NAME' => $enrolleeName ?? null,
+                  'NEW_COU'   => (!empty($enrolleeCoPersonRole['Cou']['name'])
+                                  ? $enrolleeCoPersonRole['Cou']['name'] : null),
+                  'NEW_PETITION_STATUS' => null,
+                  'SPONSOR'   => (!empty($enrolleeCoPersonRole['SponsorCoPerson']['PrimaryName'])
+                                  ? generateCn($enrolleeCoPersonRole['SponsorCoPerson']['PrimaryName']) : null),
+                  'SPONSOR_ID' => (!empty($enrolleeCoPersonRole['SponsorCoPerson']['id'])
+                                   ? $enrolleeCoPersonRole['SponsorCoPerson']['id'] : null),
+                  'ORIG_PETITION_STATUS' => _txt('en.status.pt', null, $pt['CoPetition']['status'] ?? "")
+                 );
+
+    $comment = _txt('rs.pt.status', array($enrolleeName,
+                                              _txt('en.status.pt', null, $pt['CoPetition']['status']),
+                                              _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
+                                              $pt['CoEnrollmentFlow']['name']));
+
+    if(!empty($ef['CoEnrollmentFlowAppNotMessageTemplate']["id"])) {
+      $comment = null;
+      $subs["NEW_PETITION_STATUS"] = _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval);
+      list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
+                                                       ->CoEnrollmentFlowAppMessageTemplate
+                                                       ->getMessageTemplateFields($ef['CoEnrollmentFlowAppNotMessageTemplate']);
+
+      $subject = processTemplate($subject, $subs, $pt['EnrolleeCoPerson']['Identifier']);
+      $body    = processTemplate($body, $subs, $pt['EnrolleeCoPerson']['Identifier']);
+    }
+
     foreach($cogroupids as $cgid) {
       $this->Co
            ->CoGroup
@@ -2697,16 +2746,19 @@ class CoPetition extends AppModel {
                       'cogroup',
                       $cgid,
                       ActionEnum::CoPetitionUpdated,
-                      _txt('rs.pt.status', array($enrolleeName,
-                                                 _txt('en.status.pt', null, $pt['CoPetition']['status']),
-                                                 _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
-                                                 $pt['CoEnrollmentFlow']['name'])),
+                      $comment,
                       array(
                         'controller' => 'co_petitions',
                         'action'     => 'view',
                         'id'         => $id
                       ),
-                      true);
+                      true,
+                      $ef['CoEnrollmentFlow']['notify_from'],
+                      $subject,
+                      $body,
+                      $cc,
+                      $bcc,
+                      $format);
     }
     
     return true;

@@ -766,6 +766,7 @@ The request may be viewed at
   // Message Template Contexts
   'en.mt.context' =>       array(
     MessageTemplateEnum::Authenticator          => 'Authenticator',
+    MessageTemplateEnum::ApproverNotification   => 'Approver Notification',
     MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
     MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
     MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',
@@ -1479,6 +1480,9 @@ The request may be viewed at
   'fd.ef.appr.desc' => 'If administrator approval is required, a Petition must be approved before the Enrollee becomes active.',
   'fd.ef.appr.pl' =>  'Approvers',
   'fd.ef.appr.gr' =>  'Members of this Group are authorized approvers (or else CO/COU admins by default)',
+  'fd.ef.appr.ntf' =>  'Approver Notification Email Message Template',
+  'fd.ef.appr.ntf.desc' => 'Message template used for notification sent as part of approvement step to Petition approvers (leave blank to use default message)',
+  'fd.ef.archived' => 'The configuration of this Enrollment Flow changed after the creation of this Petition.',
   'fd.ef.asub' =>     'Subject For Approval Email',
   'fd.ef.asub.desc' => 'Subject line for email message sent after Petition is approved.',
   'fd.ef.authenticators' => 'Establish Authenticators',

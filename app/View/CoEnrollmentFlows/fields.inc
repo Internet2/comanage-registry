@@ -856,22 +856,22 @@
             <?php
             global $cm_lang, $cm_texts;
             $attrs = array();
-            $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id'])
-              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id']
+            $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'])
+              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id']
               : null);
             $attrs['empty'] = true;
 
             if($e) {
-              print $this->Form->select('appr_notification_template_id',
+              print $this->Form->select('approver_template_id',
                 (!empty($vv_message_templates[MessageTemplateEnum::ApproverNotification])
                   ? $vv_message_templates[MessageTemplateEnum::ApproverNotification]
                   : array()), $attrs);
 
-              if($this->Form->isFieldError('appr_notification_template_id')) {
-                print $this->Form->error('appr_notification_template_id');
+              if($this->Form->isFieldError('approver_template_id')) {
+                print $this->Form->error('approver_template_id');
               }
-            } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id'])) {
-              print filter_var($vv_message_templates[MessageTemplateEnum::ApproverNotification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['appr_notification_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+            } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'])) {
+              print filter_var($vv_message_templates[MessageTemplateEnum::ApproverNotification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
             ?>
           </div>
