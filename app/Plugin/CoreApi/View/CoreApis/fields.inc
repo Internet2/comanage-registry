@@ -76,6 +76,7 @@
   function identifier_toggle() {
     var api = document.getElementById('CoreApiApi').value;
     var supportedApis = [
+      "<?php print CoreApiEnum::PetitionRead; ?>",
       "<?php print CoreApiEnum::PersonRead; ?>",
       "<?php print CoreApiEnum::PersonWrite; ?>",
       "<?php print CoreApiEnum::OrganizationRead; ?>",

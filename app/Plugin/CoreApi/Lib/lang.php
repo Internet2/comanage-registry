@@ -38,6 +38,7 @@ $cm_core_api_texts['en_US'] = array(
   
   // Enumeration language texts
   'pl.coreapi.en.api' => array(
+    CoreApiEnum::PetitionRead           => 'Petition Read API',
     CoreApiEnum::PersonRead             => 'Person Read API',
     CoreApiEnum::PersonWrite            => 'Person Write API',
     CoreApiEnum::OrganizationRead       => 'Organization Read API',

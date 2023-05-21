@@ -260,6 +260,28 @@ Router::connect(
   )
 );
 
+// Petitions
+
+Router::connect(
+  '/api/co/:coid/core/v1/petitions',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPetitions',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/petitions/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPetitions',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem
 Router::parseExtensions('json', 'xml');

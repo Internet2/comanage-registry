@@ -174,19 +174,25 @@ class CoreApiController extends Controller {
           // Which API was requested?
           $targetedController = str_replace('CoreApi', '', $this->request->params['controller']);
           $targetedSingular = Inflector::singularize($targetedController);
+
+          $read = defined("CoreApiEnum::{$targetedSingular}Read")
+                  ? constant("CoreApiEnum::{$targetedSingular}Read") : null;
+          // ApiUsers with Write permission can also read
+          $write = defined("CoreApiEnum::{$targetedSingular}Write")
+                   ? constant("CoreApiEnum::{$targetedSingular}Write") : null;
           switch($this->request->params['action']) {
             case 'read':    // Read single record
             case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
-                constant("CoreApiEnum::{$targetedSingular}Read"),
+                $read,
                 // ApiUsers with Write permission can also read
-                constant("CoreApiEnum::{$targetedSingular}Write"),
+                $write,
               );
               break;
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = array(constant("CoreApiEnum::{$targetedSingular}Write"));
+              $args['conditions']['CoreApi.api'] = array($write);
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;
