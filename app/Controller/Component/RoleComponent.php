@@ -977,13 +977,13 @@ class RoleComponent extends Component {
    *  (A) An approvers group is configured for the Enrollment Flow
    *     (1) $coPersonId is a member of the approvers group
    *  (B) No explicit approvers group is configured for the Enrollment Flow
-   *     (1) $coPersonId is a CO admin
-   *     (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
-   *     (3) A COU is attached to the petition and $coPersonId is a COU admin
+   *     (1) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+   *     (2) A COU is attached to the petition and $coPersonId is a COU admin
    *         (OR) A COU is attached to the petition and $coPersonId is a member of the COU-specific approvers group
    *             (OR) the CO:approvers group
-   *     (4) No authz_cou_id is specified and $coPersonId is a COU admin
+   *     (3) No authz_cou_id is specified and $coPersonId is a COU admin
    *         (OR) If no COU is attached to the petition and $coPersonId is a member of the CO:approvers group
+   *     (4) $coPersonId is a CO admin
    *
    *
    * @since  COmanage Registry v0.8.3
@@ -1040,41 +1040,42 @@ class RoleComponent extends Component {
           $ret = true;
         }
       } else {
+        if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
+          // (1) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+          //     or a COU approver
+
+          $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
+        } else {
+          // No authz_cou_id
+
+          $couId = null;
+
+          if($coPetitionId) {
+            $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
+                                                          array('CoPetition.id' => $coPetitionId));
+          }
+
+          if($couId) {
+            // (2) A COU is attached to the petition and $coPersonId is a COU admin
+            // (OR) a CO:approvers (OR) COU:foo:approvers group member
+
+            $ret = $this->isCouAdmin($coPersonId, $couId)
+              || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])
+              || $this->isCouApprover($coPersonId, $couId);
+          } else {
+            // (3) No authz_cou_id is specified and $coPersonId is a COU admin
+            // (OR) a CO:approvers group member
+
+            $ret = $this->isCouAdmin($coPersonId)
+              || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id']);
+          }
+        }
+
         // If no group is defined, then we use the following logic:
-        // (1) $coPersonId is a CO admin
-        
+        // (4) $coPersonId is a CO admin
+
         if($this->isCoAdmin($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])) {
           $ret = true;
-        } else {
-          if(!empty($coEF['CoEnrollmentFlow']['authz_cou_id'])) {
-            // (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
-            
-            $ret = $this->isCouAdmin($coPersonId, $coEF['CoEnrollmentFlow']['authz_cou_id']);
-          } else {
-            // No authz_cou_id
-            
-            $couId = null;
-            
-            if($coPetitionId) {
-              $couId = $CoEnrollmentFlow->CoPetition->field('cou_id',
-                                                            array('CoPetition.id' => $coPetitionId));
-            }
-            
-            if($couId) {
-              // (3) A COU is attached to the petition and $coPersonId is a COU admin
-              // (OR) a CO:approvers (OR) COU:foo:approvers group member
-
-              $ret = $this->isCouAdmin($coPersonId, $couId)
-                     || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])
-                     || $this->isCouApprover($coPersonId, $couId);
-            } else {
-              // (4) No authz_cou_id is specified and $coPersonId is a COU admin
-              // (OR) a CO:approvers group member
-
-              $ret = $this->isCouAdmin($coPersonId)
-                     || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id']);
-            }
-          }
         }
       }
     } else {
