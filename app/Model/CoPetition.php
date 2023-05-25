@@ -2660,15 +2660,6 @@ class CoPetition extends AppModel {
     if(!empty($pt['CoEnrollmentFlow']['approver_co_group_id'])) {
       $cogroupids[] = $pt['CoEnrollmentFlow']['approver_co_group_id'];
     } else {
-      // We need to look up the appropriate admin group(s). Start with the CO Admins.
-      
-      try {
-        $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id']);
-      }
-      catch(Exception $e) {
-        $fail = true;
-      }
-      
       // To see if we should notify COU Admins and Approvers, we need to see if this petition was
       // attached to a COU
       
@@ -2682,6 +2673,19 @@ class CoPetition extends AppModel {
         catch(Exception $e) {
           $fail = true;
         }
+      }
+
+      try {
+        // XXX Notify the CO approvers
+        $cogroupids[] = $this->Co->CoGroup->approverCoGroupId($pt['CoPetition']['co_id']);
+        if(empty($cogroupids)) {
+          // XXX We notify CO Admins if there is no one else in the list to notify
+          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id']);
+        }
+
+      }
+      catch(Exception $e) {
+        $fail = true;
       }
     }
     
