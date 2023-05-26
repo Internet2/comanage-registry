@@ -220,13 +220,6 @@ class CoreApiController extends Controller {
       $this->response->send();
       exit;
     }
-
-    if($this->request->params['action'] == 'index') {
-      // Filter/Validate Query parameters
-      $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
-      // Parse query parameters
-      $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
-    }
   }
 
   /**
@@ -320,6 +313,12 @@ class CoreApiController extends Controller {
   public function index() {
     $modelApiName = $this->modelName;
     $modelMapperName = $this->$modelApiName->mapper;
+
+    // Validate the query parameters
+    $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
+    // Parse query parameters
+    $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
+
     try {
       $query_filters = array();
       // Load the default ordering and pagination settings

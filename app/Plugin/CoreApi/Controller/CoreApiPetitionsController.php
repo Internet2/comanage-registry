@@ -39,8 +39,79 @@ class CoreApiPetitionsController extends CoreApiController {
     "CoreApi.CoreApiPetition",
   );
 
+  public function pullPetitionData() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
+
+    // Validate the query parameters
+    $this->params->query = $this->CoreApiPetition->validateQueryParams($this->params->query);
+
+    // Load the default ordering and pagination settings
+    $this->Paginator->settings = $this->paginate;
+    $this->Paginator->settings['conditions']["CoPetition.co_id"] = (int)$this->cur_api['CoreApi']['co_id'];
+
+    // Filter by status
+    if(!empty($this->request->query["status"])) {
+      $this->Paginator->settings['conditions']["CoPetition.status"] = $this->request->query["status"];
+    }
+
+    // Filter by Petition ID
+    if(!empty($this->request->query["id"])
+        || !empty($this->request->params["id"])) {
+      $this->Paginator->settings['conditions']["CoPetition.id"] = (int)($this->request->query["id"] ?? $this->request->params["id"]);
+    }
+
+    // Filter by Enrollment Flow
+    if(!empty($this->request->query["enrollmentflowid"])) {
+      $this->Paginator->settings['conditions']["CoPetition.co_enrollment_flow_id"] = (int)$this->request->query["enrollmentflowid"];
+    }
+
+    // Filter by COU
+    if(!empty($this->request->query["couid"])) {
+      $this->Paginator->settings['conditions']['CoPetition.cou_id'] = (int)$this->request->query["couid"];
+    }
+
+    // CO Person mappings
+    $coperson_alias_mapping = array(
+      "enrollee" => "EnrolleePrimaryName",
+      "petitioner" => "PetitionerPrimaryName",
+      "sponsor'"=> "SponsorPrimaryName",
+      "approver" => "ApproverPrimaryName",
+    );
+
+    // Filter by Name
+    foreach($coperson_alias_mapping as $search_field => $class) {
+      if(!empty($this->request->query[$search_field])) {
+        $searchterm = $this->request->query[$search_field];
+        $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+        $this->Paginator->settings['conditions']['AND'][] = array(
+          'OR' => array(
+            'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
+            'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
+          )
+        );
+      }
+    }
+
+    // We need all the relational data for the full mode
+    $this->Paginator->settings['link'] = $this->$modelApiName->index_contains;
+
+    // Query offset
+    if(!empty($this->request->query['limit'])) {
+      $this->Paginator->settings['limit'] = $this->request->query['limit'];
+    }
+    // Order Direction
+    if(!empty($this->request->query['direction'])) {
+      $this->Paginator->settings['order']["CoPetition.id"] = $this->request->query['direction'];
+    }
+    // Page
+    if(!empty($this->request->query['page'])) {
+      $this->Paginator->settings['page'] = $this->request->query['page'];
+    }
+  }
+
   /**
-   * Handle a Core API CO People Read API request.
+   * Handle a Core API CO People Index API request.
    * /api/co/:coid/core/v1/petitions
    *
    * @since  COmanage Registry v4.3.0
@@ -51,99 +122,42 @@ class CoreApiPetitionsController extends CoreApiController {
     $modelMapperName = $this->$modelApiName->mapper;
 
     try {
-      $query_filters = array();
-      // Load the default ordering and pagination settings
-      $this->Paginator->settings = $this->paginate;
-      $this->Paginator->settings['conditions']["{$modelMapperName}.co_id"] = $this->cur_api['CoreApi']['co_id'];
-
-      // Filter by status
-      if(!empty($this->request->query["{$modelMapperName}.status"])) {
-        $query_filters[] = 'status';
-        $this->Paginator->settings['conditions']["{$modelMapperName}.status"] = $this->request->query["{$modelMapperName}.status"];
-      }
-
-      // Filter by Enrollment Flow
-      if(!empty($this->request->query["{$modelMapperName}.enrollmentFlow"])) {
-        $query_filters[] = 'enrollmentFlow';
-
-        $this->Paginator->settings['conditions']["{$modelMapperName}.co_enrollmentFlow_id"] = $this->request->query["{$modelMapperName}.enrollmentFlow"];
-      }
-
-      // Filter by COU
-      if(!empty($this->request->query["{$modelMapperName}.cou"])) {
-        $query_filters[] = 'cou';
-        $cou_name =$this->request->query["{$modelMapperName}.cou"];
-        if($cou_name == _txt('op.select.opt.any')) {
-          $this->Paginator->settings['conditions'][] = 'CoPetition.cou_id IS NOT NULL';
-        } elseif($cou_name == _txt('op.select.opt.none')) {
-          $this->Paginator->settings['conditions'][] = 'CoPetition.cou_id IS NULL';
-        } else {
-          $this->Paginator->settings['conditions']['CoPetition.cou_id'] = $cou_name;
-        }
-      }
-
-      // Filter by CO Person ID
-      if(!empty($this->request->query["{$modelMapperName}.copersonid"])) {
-        $query_filters[] = 'copersonid';
-
-        $this->Paginator->settings['conditions']["{$modelMapperName}.enrollee_co_person_id"] = $this->request->query["{$modelMapperName}.copersonid"];
-      }
-
-      // CO Person mappings
-      $coperson_alias_mapping = array(
-        "{$modelMapperName}.enrollee" => "EnrolleePrimaryName",
-        "{$modelMapperName}.petitioner" => "PetitionerPrimaryName",
-        "{$modelMapperName}.sponsor'"=> "SponsorPrimaryName",
-        "{$modelMapperName}.approver" => "ApproverPrimaryName",
-      );
-
-      // Filter by Name
-      foreach($coperson_alias_mapping as $search_field => $class) {
-        if(!empty($this->request->query[$search_field])) {
-          $searchterm = $this->request->query[$search_field];
-          $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
-          $this->Paginator->settings['conditions']['AND'][] = array(
-            'OR' => array(
-              'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
-              'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
-            )
-          );
-        }
-      }
-
-      // We need all the relational data for the full mode
-      $this->Paginator->settings['link'] = $this->$modelApiName->index_contains;
-
-      // Query offset
-      if(!empty($this->request->query['limit'])) {
-        $this->Paginator->settings['limit'] = $this->request->query['limit'];
-      }
-      // Order Direction
-      if(!empty($this->request->query['direction'])) {
-        $this->Paginator->settings['order']["{$modelMapperName}.id"] = $this->request->query['direction'];
-      }
-      // Page
-      if(!empty($this->request->query['page'])) {
-        $this->Paginator->settings['page'] = $this->request->query['page'];
-      }
-
+      $this->pullPetitionData();
       $modelObj = $this->Paginator->paginate($modelMapperName);
-
-      if(empty($modelObj)) {
-        $modelObj = ClassRegistry::init($modelMapperName);
-        // The model has a status enum type hint. I use the existing type hint and append the postfix
-        $attr_human_readable = array();
-        foreach ($query_filters as $filter) {
-          $attr_human_readable[] = _txt($modelObj->cm_enum_txt[$filter], null, $this->request->query["{$modelMapperName}." . $filter]);
-        }
-        throw new InvalidArgumentException(
-          _txt('er.notfound', array($modelApiName, implode(',', $attr_human_readable)))
-        );
-      }
 
       $ret = $this->$modelApiName->readV1Index($this->cur_api['CoreApi']['co_id'], $modelObj);
 
       // Set the results
+      $this->set('results', $ret);
+      $this->Api->restResultHeader(200);
+    }
+    catch(InvalidArgumentException $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(404);
+    }
+    catch(Exception $e) {
+      $this->set('results', array('error' => $e->getMessage()));
+      $this->Api->restResultHeader(500);
+    }
+  }
+
+  /**
+   * Handle a Core API CO People Read API request.
+   * /api/co/:coid/core/v1/petitions/:id
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function read() {
+    $modelApiName = $this->modelName;
+    $modelMapperName = $this->$modelApiName->mapper;
+
+    try {
+      $this->pullPetitionData();
+      $modelObj = $this->Paginator->paginate($modelMapperName);
+
+      $ret = $this->$modelApiName->readV1Index($this->cur_api['CoreApi']['co_id'], $modelObj);
+
       $this->set('results', $ret);
       $this->Api->restResultHeader(200);
     }

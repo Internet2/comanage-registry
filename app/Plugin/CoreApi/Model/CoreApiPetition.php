@@ -35,6 +35,20 @@ class CoreApiPetition extends CoreApi {
 
   public $associated_models = array();
 
+  protected $allowed_query_params = array(
+    'limit' => array('integer' => array('range' => array(1, 1001))),
+    'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
+    'page'  => array('integer' => array('comparison' => array('>=', 1))),
+    'id' => array('string' => array('custom' => array('/^[0-9]{1,}$/'))),
+    'couid' => array('string' => array('custom' => array('/^[0-9]{1,}$/'))),
+    'enrollmentflowid' => array('string' => array('custom' => array('/^[0-9]{1,}$/'))),
+    'status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+    'enrollee' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+    'petitioner' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+    'sponsor' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+    'approver' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+  );
+
   public $index_contains = array(
     'ApproverCoPerson' => array(
       'class' => 'CoPerson',
@@ -124,6 +138,17 @@ class CoreApiPetition extends CoreApi {
     ),
     'CoPetitionHistoryRecord'
   );
+
+  /**
+   * Query Parameters need now transmogrification here. Return the dataset as is.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param array   $queryParams  List of query parameters
+   * @return array
+   */
+  public function parseQueryParams($queryParams) {
+    return $queryParams;
+  }
 
   /**
    * Pull a CoPetition record, including associated models.

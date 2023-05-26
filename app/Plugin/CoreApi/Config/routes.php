@@ -261,7 +261,9 @@ Router::connect(
 );
 
 // Petitions
-
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?limit=20&page=2&direction=desc
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?status=PA
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?couid=4
 Router::connect(
   '/api/co/:coid/core/v1/petitions',
   array(
@@ -273,7 +275,7 @@ Router::connect(
 );
 
 Router::connect(
-  '/api/co/:coid/core/v1/petitions/:identifier',
+  '/api/co/:coid/core/v1/petitions/:id',
   array(
     'plugin'     => 'core_api',
     'controller' => 'CoreApiPetitions',

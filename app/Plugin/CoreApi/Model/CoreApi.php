@@ -46,7 +46,7 @@ class CoreApi extends AppModel {
   //    Currently the dot character is not a valid character for a PHP variable name. So co_person.status
   //    will be transformed to co_person_status.
   // XXX We are making the convention that the field will be placed last and will be a single word
-  private $allowed_query_params = array(
+  protected $allowed_query_params = array(
     'limit' => array('integer' => array('range' => array(1, 1001))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
