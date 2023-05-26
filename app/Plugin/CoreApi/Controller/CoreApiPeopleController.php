@@ -37,6 +37,7 @@ class CoreApiPeopleController extends CoreApiController {
     "CoJob",
     "CoreApi.CoreApi",
     "CoreApi.CoreApiPerson",
+    "OrgIdentitySource"
   );
 
   /**

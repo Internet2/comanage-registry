@@ -110,7 +110,7 @@ Router::connect(
   '/api/co/:coid/core/v1/resolution',
   array(
     'plugin'      => 'core_api',
-    'controller'  => 'CoreApi',
+    'controller'  => 'CoreApiPeople',
     'action'      => 'resolveMatch',
     '[method]'    => 'POST'
   )
