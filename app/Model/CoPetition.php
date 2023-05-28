@@ -2730,7 +2730,6 @@ class CoPetition extends AppModel {
                                               $pt['CoEnrollmentFlow']['name']));
 
     if(!empty($ef['CoEnrollmentFlowAppNotMessageTemplate']["id"])) {
-      $comment = null;
       $subs["NEW_PETITION_STATUS"] = _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval);
       list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
                                                        ->CoEnrollmentFlowAppMessageTemplate
