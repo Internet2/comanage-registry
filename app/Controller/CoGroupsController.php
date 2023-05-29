@@ -359,14 +359,13 @@ class CoGroupsController extends StandardController {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
       $this->set('vv_model_version', $this->CoGroup->version);
-      
       try {
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
-        $this->set('co_groups', $this->Api->convertRestResponse(
-          empty($groups) ? [] : $groups
-        ));
-      }
-      catch(InvalidArgumentException $e) {
+        if(empty($groups)) {
+          throw new InvalidArgumentException(_txt('er.person.noex'));
+        }
+        $this->set('co_groups', $this->Api->convertRestResponse($groups));
+      } catch(InvalidArgumentException $e) {
         $this->Api->restResultHeader(404, "CO Person Unknown");
         return;
       }
