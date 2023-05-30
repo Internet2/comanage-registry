@@ -33,10 +33,10 @@
   
   // Determine the password type (as defined by the password authenticator)
   $pwType = "CR"; // This is the default - Crypt format, required for Self-Select passwords.
-  if($vv_pw_authenticator['format_sha1_ldap'] == 1) {
+  if(!empty($vv_pw_authenticator['format_sha1_ldap']) && $vv_pw_authenticator['format_sha1_ldap'] == 1) {
     $pwType = "SH"; // Salted SHA 1
   }
-  if($vv_pw_authenticator['format_plaintext'] == 1) {
+  if(!empty($vv_pw_authenticator['format_plaintext']) && $vv_pw_authenticator['format_plaintext'] == 1) {
     $pwType = "NO"; // plaintext
   }
 ?>

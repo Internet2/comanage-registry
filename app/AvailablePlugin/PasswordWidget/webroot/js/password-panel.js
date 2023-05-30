@@ -91,9 +91,9 @@ export default {
         // we're changing a PW
         url = `/registry/password_authenticator/passwords/${this.pwinfo.id}.json`;
         pwMethod = 'PUT';
-      } 
+      }
       
-      const pwData = JSON.stringify({
+      const pwData = {
         "RequestType":"Passwords",
         "Version":"1.0",
         "Passwords":
@@ -110,7 +110,7 @@ export default {
             "PasswordType":this.pwinfo.pwType
           }
         ]
-      });
+      };
       
       displaySpinner();
       callRegistryAPI(
