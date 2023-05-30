@@ -106,7 +106,7 @@ export default {
               "Type":"CO",
               "Id":this.core.coPersonId
             },
-            "Password":this.$refs.passwordNew.value,
+            "Password":pw,
             "PasswordType":this.pwinfo.pwType
           }
         ]
