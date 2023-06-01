@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!--
-  COmanage Registry Duplicat Account Enroller Plugin Database Schema
+  COmanage Registry Duplicate Check Enroller Plugin Database Schema
 
   Portions licensed to the University Corporation for Advanced Internet
   Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -30,7 +30,7 @@
 -->
 
 <schema version="0.3">
-  <table name="duplicate_account_enrollers">
+  <table name="duplicate_check_enrollers">
     <field name="id" type="I">
       <key />
       <autoincrement />
@@ -39,22 +39,22 @@
       <constraint>REFERENCES cm_co_enrollment_flow_wedges(id)</constraint>
     </field>
     <field name="redirect_url" type="C" />
-    <field name="type" type="C" size="32" />
+    <field name="identifier_type" type="C" size="32" />
     <field name="env_remote_user" type="C" size="80" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    <field name="duplicate_account_enroller_id" type="I">
-      <constraint>REFERENCES cm_duplicate_account_enrollers(id)</constraint>
+    <field name="duplicate_check_enroller_id" type="I">
+      <constraint>REFERENCES cm_duplicate_check_enrollers(id)</constraint>
     </field>
     <field name="revision" type="I" />
     <field name="deleted" type="L" />
     <field name="actor_identifier" type="C" size="256" />
 
-    <index name="duplicate_account_enrollers_i1">
+    <index name="duplicate_check_enrollers_i1">
       <col>co_enrollment_flow_wedge_id</col>
     </index>
-    <index name="duplicate_account_enrollers_i2">
-      <col>duplicate_account_enroller_id</col>
+    <index name="duplicate_check_enrollers_i2">
+      <col>duplicate_check_enroller_id</col>
     </index>
   </table>
 </schema>

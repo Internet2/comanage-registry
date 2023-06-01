@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Duplicate Account Enroller Model
+ * COmanage Registry Duplicate Check Enroller Plugin Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -25,13 +25,13 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-class DuplicateAccountEnroller extends AppModel {
+class DuplicateCheckEnroller extends AppModel {
   // Required by COmanage Plugins
   public $cmPluginType = "enroller";
 
   // Document foreign keys
   public $cmPluginHasMany = array(
-    "CoEnrollmentFlowWedge" => "DuplicateAccountEnroller"
+    "CoEnrollmentFlowWedge" => "DuplicateCheckEnroller"
   );
 
   // Add behaviors
@@ -57,7 +57,7 @@ class DuplicateAccountEnroller extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
-    'type' => array(
+    'identifier_type' => array(
       'content' => array(
         'rule' => array('validateExtendedType',
           array('attribute' => 'Identifier.type',
@@ -103,7 +103,7 @@ class DuplicateAccountEnroller extends AppModel {
    * @return Array
    */
 
-  public function findCoPersonDuplicate($coId, $env_remote_user, $ident_type) {
+  public function searchCoPersonDuplicate($coId, $env_remote_user, $ident_type) {
     $args = array();
     $args['joins'][0]['table'] = 'co_people';
     $args['joins'][0]['alias'] = 'CoPerson';

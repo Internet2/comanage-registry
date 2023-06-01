@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Duplicate Account Enroller CoPetitions Controller
+ * COmanage RegistryDuplicate Check Enroller Plugin CoPetitions Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,13 +27,13 @@
 
 App::uses('CoPetitionsController', 'Controller');
 
-class DuplicateAccountEnrollerCoPetitionsController extends CoPetitionsController {
+class DuplicateCheckEnrollerCoPetitionsController extends CoPetitionsController {
   // Class name, used by Cake
-  public $name = "DuplicateAccountEnrollerCoPetitionsController";
+  public $name = "DuplicateCheckEnrollerCoPetitionsController";
 
   public $uses = array(
     "CoPetition",
-    "DuplicateAccountEnroller.DuplicateAccountEnroller"
+    "DuplicateCheckEnroller.DuplicateCheckEnroller"
   );
 
 
@@ -58,36 +58,36 @@ class DuplicateAccountEnrollerCoPetitionsController extends CoPetitionsControlle
 
   protected function execute_plugin_start($id, $onFinish) {
     $args = array();
-    $args['conditions']['DuplicateAccountEnroller.co_enrollment_flow_wedge_id'] = $this->viewVars['vv_efwid'];
+    $args['conditions']['DuplicateCheckEnroller.co_enrollment_flow_wedge_id'] = $this->viewVars['vv_efwid'];
     $args['contain'] = false;
 
-    $duplicate_account = $this->DuplicateAccountEnroller->find('first', $args);
+    $duplicate_account = $this->DuplicateCheckEnroller->find('first', $args);
     if(empty($duplicate_account)) {
-      throw new RuntimeException(_txt('er.duplicate_account_enrollers.cfg.notfound'));
+      throw new RuntimeException(_txt('er.duplicate_check_enrollers.cfg.notfound'));
     }
 
 
     $this->set('vv_duplicate_account', $duplicate_account);
     $this->set('vv_petition_id', $id);
 
-    $remote_user = getenv($duplicate_account['DuplicateAccountEnroller']['env_remote_user']);
+    $remote_user = getenv($duplicate_account['DuplicateCheckEnroller']['env_remote_user']);
 
     if(empty($remote_user)) {
-      throw new RuntimeException(_txt('er.duplicate_account_enrollers.remote_user.notfound'));
+      throw new RuntimeException(_txt('er.duplicate_check_enrollers.remote_user.notfound'));
     }
 
-    $ident_type = $duplicate_account['DuplicateAccountEnroller']['type'];
+    $ident_type = $duplicate_account['DuplicateCheckEnroller']['identifier_type'];
 
     // CO Person linked to identifier through CO Person
-    $co_person = $this->DuplicateAccountEnroller->findCoPersonDuplicate($this->cur_co["Co"]["id"], $remote_user, $ident_type);
+    $co_person = $this->DuplicateCheckEnroller->searchCoPersonDuplicate($this->cur_co["Co"]["id"], $remote_user, $ident_type);
     // CO Person linked to identifier through CO Person
-    $co_person_via_org = $this->DuplicateAccountEnroller->findOrgIdentityDuplicate($this->cur_co["Co"]["id"], $remote_user, $ident_type);
+    $co_person_via_org = $this->DuplicateCheckEnroller->findOrgIdentityDuplicate($this->cur_co["Co"]["id"], $remote_user, $ident_type);
 
     if(!empty($co_person)
        || !empty($co_person_via_org)) {
       // Redirect according to the configuration
-      if(!empty($duplicate_account['DuplicateAccountEnroller']['redirect_url'])) {
-        $this->redirect($duplicate_account['DuplicateAccountEnroller']['redirect_url']);
+      if(!empty($duplicate_account['DuplicateCheckEnroller']['redirect_url'])) {
+        $this->redirect($duplicate_account['DuplicateCheckEnroller']['redirect_url']);
       }
 
       $this->Flash->set(_txt('er.ia.exists', array($remote_user)), array('key' => 'error'));

@@ -1,6 +1,6 @@
-<!--
+<?php
 /**
- * COmanage Registry LIGO MOU Transfer Enrollers Plugin Fields
+ * COmanage Registry Duplicate Check Enroller Plugin Plugin Fields
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -18,14 +18,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v4.1.0
+ * @since         COmanage Registry v4.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
--->
-<?php
+
   // Determine if fields are editable
   $e = false;
   
@@ -51,49 +50,49 @@
   $args['plugin'] = null;
   $args['controller'] = 'co_enrollment_flows';
   $args['action'] = 'edit';
-  $args[] = $duplicate_account_enrollers[0]['CoEnrollmentFlowWedge']['co_enrollment_flow_id'];
-  $this->Html->addCrumb($duplicate_account_enrollers[0]['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['name'], $args);
+  $args[] = $duplicate_check_enrollers[0]['CoEnrollmentFlowWedge']['co_enrollment_flow_id'];
+  $this->Html->addCrumb($duplicate_check_enrollers[0]['CoEnrollmentFlowWedge']['CoEnrollmentFlow']['name'], $args);
 
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_enrollment_flow_wedges';
   $args['action'] = 'index';
-  $args['coef'] = $duplicate_account_enrollers[0]['CoEnrollmentFlowWedge']['co_enrollment_flow_id'];
-  $args[] = $duplicate_account_enrollers[0]['CoEnrollmentFlowWedge']['id'];
+  $args['coef'] = $duplicate_check_enrollers[0]['CoEnrollmentFlowWedge']['co_enrollment_flow_id'];
+  $args[] = $duplicate_check_enrollers[0]['CoEnrollmentFlowWedge']['id'];
   $this->Html->addCrumb(_txt('ct.co_enrollment_flow_wedges.pl'), $args);
 
   $args = array();
   $args['plugin'] = null;
   $args['controller'] = 'co_enrollment_flow_wedges';
   $args['action'] = 'edit';
-  $args[] = $duplicate_account_enrollers[0]['CoEnrollmentFlowWedge']['id'];
-  $this->Html->addCrumb($duplicate_account_enrollers[0]['CoEnrollmentFlowWedge']['description'], $args);
+  $args[] = $duplicate_check_enrollers[0]['CoEnrollmentFlowWedge']['id'];
+  $this->Html->addCrumb($duplicate_check_enrollers[0]['CoEnrollmentFlowWedge']['description'], $args);
 
   $crumbTxt = _txt('op.config');
   $this->Html->addCrumb($crumbTxt);
 
   if($this->action != 'view') {
     // Populate cross references
-    print $this->Form->hidden('co_enrollment_flow_wedge_id', array('default' => $duplicate_account_enrollers[0]["DuplicateAccountEnroller"]["co_enrollment_flow_wedge_id"])) . PHP_EOL;
+    print $this->Form->hidden('co_enrollment_flow_wedge_id', array('default' => $duplicate_check_enrollers[0]["DuplicateCheckEnroller"]["co_enrollment_flow_wedge_id"])) . PHP_EOL;
   }
 ?>
 
 
-<ul id="<?php print $this->action; ?>_duplicate_account_enrollers" class="fields form-list">
+<ul id="<?php print $this->action; ?>_duplicate_check_enrollers" class="fields form-list">
   <li>
     <div class="field-name">
       <div class="field-title">
         <?php
-        print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_account_enrollers.env_remote_user'))
-          : _txt('fd.duplicate_account_enrollers.env_remote_user'));
+        print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_check_enrollers.env_remote_user'))
+          : _txt('fd.duplicate_check_enrollers.env_remote_user'));
         ?>
       </div>
-      <div class="field-desc"><?php print _txt('fd.duplicate_account_enrollers.env_remote_user.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.duplicate_check_enrollers.env_remote_user.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php
       print ($e ? $this->Form->text('env_remote_user', array('class' => 'focusFirst'))
-        : filter_var($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['env_remote_user'],FILTER_SANITIZE_STRING));
+        : filter_var($duplicate_check_enrollers[0]['DuplicateCheckEnroller']['env_remote_user'],FILTER_SANITIZE_STRING));
       ?>
     </div>
   </li>
@@ -102,19 +101,19 @@
       <div class="field-title">
       <?php
       if($e) {
-        print $this->Form->label('type', _txt('fd.type'));
+        print $this->Form->label('type', _txt('fd.duplicate_check_enrollers.identifier_type'));
       } else {
-        print _txt('fd.type');
+        print _txt('fd.duplicate_check_enrollers.identifier_type');
       }
       ?>
         <span class="required">*</span>
       </div>
-      <div class="field-desc"><?php print _txt('fd.duplicate_account_enrollers.type.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.duplicate_check_enrollers.identifier_type.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php
       $attrs = array();
-      $attrs['value'] = (!empty($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type']) ? $duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'] : "");
+      $attrs['value'] = (!empty($duplicate_check_enrollers[0]['DuplicateCheckEnroller']['identifier_type']) ? $duplicate_check_enrollers[0]['DuplicateCheckEnroller']['identifier_type'] : "");
       $attrs['empty'] = false;
 
       if($e) {
@@ -122,21 +121,21 @@
           // Don't allow the type to be changed, but send the type as hidden since
           // it is required by the model
 
-          print filter_var($vv_available_types[ $duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
-          print $this->Form->hidden('type',
+          print filter_var($vv_available_types[ $duplicate_check_enrollers[0]['DuplicateCheckEnroller']['identifier_type'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+          print $this->Form->hidden('identifier_type',
                                     array('default' =>
-                                            filter_var($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+                                            filter_var($duplicate_check_enrollers[0]['DuplicateCheckEnroller']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
         } else {
-          print $this->Form->select('type',
+          print $this->Form->select('identifier_type',
                                     $vv_available_types,
                                     $attrs);
 
-          if($this->Form->isFieldError('type')) {
-            print $this->Form->error('type');
+          if($this->Form->isFieldError('identifier_type')) {
+            print $this->Form->error('identifier_type');
           }
         }
       } else {
-        print filter_var($vv_available_types[ $duplicate_account_enrollers[0]['DuplicateAccountEnroller']['type'] ],FILTER_SANITIZE_SPECIAL_CHARS);;
+        print filter_var($vv_available_types[ $duplicate_check_enrollers[0]['DuplicateCheckEnroller']['identifier_type'] ],FILTER_SANITIZE_SPECIAL_CHARS);;
       }
       ?>
     </div>
@@ -145,16 +144,16 @@
     <div class="field-name">
       <div class="field-title">
         <?php
-          print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_account_enrollers.redirect_url'))
-                    : _txt('fd.duplicate_account_enrollers.redirect_url'));
+          print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_check_enrollers.redirect_url'))
+                    : _txt('fd.duplicate_check_enrollers.redirect_url'));
         ?>
       </div>
-      <div class="field-desc"><?php print _txt('fd.duplicate_account_enrollers.redirect_url.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.duplicate_check_enrollers.redirect_url.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php
       print ($e ? $this->Form->text('redirect_url')
-                : filter_var($duplicate_account_enrollers[0]['DuplicateAccountEnroller']['redirect_url'],FILTER_SANITIZE_URL));
+                : filter_var($duplicate_check_enrollers[0]['DuplicateCheckEnroller']['redirect_url'],FILTER_SANITIZE_URL));
       ?>
     </div>
   </li>

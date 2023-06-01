@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Duplicate Account Enrollers Controller
+ * COmanage Registry Duplicate Check Enroller Plugin Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,9 +27,9 @@
 
 App::uses("SEWController", "Controller");
 
-class DuplicateAccountEnrollersController extends SEWController {
+class DuplicateCheckEnrollersController extends SEWController {
   // Class name, used by Cake
-  public $name = "DuplicateAccountEnrollers";
+  public $name = "DuplicateCheckEnrollers";
 
   // Establish pagination parameters for HTML views
   public $paginate = array(
@@ -109,8 +109,8 @@ class DuplicateAccountEnrollersController extends SEWController {
 
   public function performRedirect() {
     $target = array();
-    $target['plugin'] = 'duplicate_account_enroller';
-    $target['controller'] = "duplicate_account_enrollers";
+    $target['plugin'] = 'duplicate_check_enroller';
+    $target['controller'] = "duplicate_check_enrollers";
     $target['action'] = 'edit';
     $target[] = $this->request->params["pass"][0];
 
