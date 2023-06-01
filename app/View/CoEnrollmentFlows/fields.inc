@@ -540,15 +540,15 @@
 
             if($e) {
               print $this->Form->select('approver_template_id',
-                (!empty($vv_message_templates[MessageTemplateEnum::ApproverNotification])
-                  ? $vv_message_templates[MessageTemplateEnum::ApproverNotification]
+                (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApprover])
+                  ? $vv_message_templates[MessageTemplateEnum::EnrollmentApprover]
                   : array()), $attrs);
 
               if($this->Form->isFieldError('approver_template_id')) {
                 print $this->Form->error('approver_template_id');
               }
             } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'])) {
-              print filter_var($vv_message_templates[MessageTemplateEnum::ApproverNotification][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+              print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentApprover][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
             }
             ?>
           </div>

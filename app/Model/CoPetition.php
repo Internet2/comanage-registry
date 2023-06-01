@@ -78,7 +78,7 @@ class CoPetition extends AppModel {
     ),
     "VettingRequest"
   );
-  
+
   public $hasMany = array(
     // A CO Petition has zero or more CO Petition Attributes
     "CoPetitionAttribute" => array('dependent' => true),

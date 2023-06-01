@@ -766,7 +766,7 @@ The request may be viewed at
   // Message Template Contexts
   'en.mt.context' =>       array(
     MessageTemplateEnum::Authenticator          => 'Authenticator',
-    MessageTemplateEnum::ApproverNotification   => 'Approver Notification',
+    MessageTemplateEnum::EnrollmentApprover     => 'Enrollment Flow Approver Notification',
     MessageTemplateEnum::EnrollmentApproval     => 'Enrollment Flow Approval',
     MessageTemplateEnum::EnrollmentFinalization => 'Enrollment Flow Finalization',
     MessageTemplateEnum::EnrollmentVerification => 'Enrollment Flow Verification',

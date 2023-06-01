@@ -159,7 +159,7 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['conditions']['status'] = SuspendableStatusEnum::Active;
       $args['conditions']['context'] = array(
         MessageTemplateEnum::EnrollmentApproval,
-        MessageTemplateEnum::ApproverNotification,
+        MessageTemplateEnum::EnrollmentApprover,
         MessageTemplateEnum::EnrollmentFinalization,
         MessageTemplateEnum::EnrollmentVerification
       );

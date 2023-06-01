@@ -90,7 +90,7 @@ class CoMessageTemplate extends AppModel {
     ),
     'context' => array(
       'rule' => array('inList', array(MessageTemplateEnum::Authenticator,
-                                      MessageTemplateEnum::ApproverNotification,
+                                      MessageTemplateEnum::EnrollmentApprover,
                                       MessageTemplateEnum::EnrollmentApproval,
                                       MessageTemplateEnum::EnrollmentFinalization,
                                       MessageTemplateEnum::EnrollmentVerification,
