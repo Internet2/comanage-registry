@@ -977,13 +977,13 @@ class RoleComponent extends Component {
    *  (A) An approvers group is configured for the Enrollment Flow
    *     (1) $coPersonId is a member of the approvers group
    *  (B) No explicit approvers group is configured for the Enrollment Flow
-   *     (1) $coPersonId is a CO admin
-   *     (2) authz_cou_id is specified and $coPersonId is a COU admin for that COU
-   *     (3) A COU is attached to the petition and $coPersonId is a COU admin
+   *     (1) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+   *     (2) A COU is attached to the petition and $coPersonId is a COU admin
    *         (OR) A COU is attached to the petition and $coPersonId is a member of the COU-specific approvers group
    *             (OR) the CO:approvers group
-   *     (4) No authz_cou_id is specified and $coPersonId is a COU admin
+   *     (3) No authz_cou_id is specified and $coPersonId is a COU admin
    *         (OR) If no COU is attached to the petition and $coPersonId is a member of the CO:approvers group
+   *     (4) $coPersonId is a CO admin
    *
    *
    * @since  COmanage Registry v0.8.3

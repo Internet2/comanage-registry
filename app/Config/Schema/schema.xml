@@ -1105,6 +1105,9 @@
     <field name="approval_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>
+        <field name="approver_template_id" type="I">
+      <constraint>REFERENCES cm_co_message_templates(id)</constraint>
+    </field>
     <field name="denial_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
     </field>

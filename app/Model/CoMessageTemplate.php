@@ -50,6 +50,10 @@ class CoMessageTemplate extends AppModel {
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'approval_template_id'
     ),
+    "CoEnrollmentFlowAppNotMessageTemplate" => array(
+      'className' => 'CoEnrollmentFlow',
+      'foreignKey' => 'approver_template_id'
+    ),
     "CoEnrollmentFlowDenMessageTemplate" => array(
       'className' => 'CoEnrollmentFlow',
       'foreignKey' => 'denial_template_id'
@@ -86,6 +90,7 @@ class CoMessageTemplate extends AppModel {
     ),
     'context' => array(
       'rule' => array('inList', array(MessageTemplateEnum::Authenticator,
+                                      MessageTemplateEnum::EnrollmentApprover,
                                       MessageTemplateEnum::EnrollmentApproval,
                                       MessageTemplateEnum::EnrollmentFinalization,
                                       MessageTemplateEnum::EnrollmentVerification,
@@ -295,25 +300,31 @@ class CoMessageTemplate extends AppModel {
     $email = new CakeEmail('default');
 
     $substitutions = array(
-      'CO_NAME'           => $co_name,
-      'ACTOR_NAME'       => $substituteWith['ACTOR_NAME'] ?? 'template_test',
-      'NOTIFICATION_URL' => $substituteWith['NOTIFICATION_URL'] ?? '#',
-      'SOURCE_URL'       => $substituteWith['SOURCE_URL'] ?? '#',
-      'INVITE_URL'       => $substituteWith['INVITE_URL'] ?? '#',
-      'ORIG_AFFIL'       => $substituteWith['ORIG_AFFIL'] ?? "member",
-      'NEW_AFFIL'        => $substituteWith['NEW_AFFIL'] ?? "faculty",
-      'CO_PERSON'        => $substituteWith['CO_PERSON'] ?? "John Doe",
-      'ORIG_COU'         => $substituteWith['ORIG_COU'] ?? "",
-      'NEW_COU'          => $substituteWith['NEW_COU'] ?? "",
-      'ORIG_STATUS'      => $substituteWith['ORIG_STATUS'] ?? "Active",
-      'NEW_STATUS'       => $substituteWith['NEW_STATUS'] ?? "Grace Period",
-      'DAYS_TO_EXPIRY'   => $substituteWith['DAYS_TO_EXPIRY'] ?? "5",
-      'POLICY_DESC'      => $substituteWith['POLICY_DESC'] ?? "Expiration Policy Description",
-      'SPONSOR'          => $substituteWith['SPONSOR'] ?? "Bob Builder",
-      'TITLE'            => $substituteWith['TITLE'] ?? "Mr",
-      'VALID_FROM'       => $substituteWith['VALID_FROM'] ?? "YYYY/MM/DD",
-      'VALID_THROUGH'    => $substituteWith['VALID_THROUGH'] ?? "YYYY/MM/DD",
-      'TOKEN'            => $substituteWith['TOKEN'] ?? "123456"
+      'CO_NAME'              => $co_name,
+      'ACTOR_NAME'           => $substituteWith['ACTOR_NAME'] ?? 'template_test',
+      'NOTIFICATION_URL'     => $substituteWith['NOTIFICATION_URL'] ?? '#',
+      'SOURCE_URL'           => $substituteWith['SOURCE_URL'] ?? '#',
+      'INVITE_URL'           => $substituteWith['INVITE_URL'] ?? '#',
+      'ORIG_AFFIL'           => $substituteWith['ORIG_AFFIL'] ?? "member",
+      'NEW_AFFIL'            => $substituteWith['NEW_AFFIL'] ?? "faculty",
+      'CO_PERSON'            => $substituteWith['CO_PERSON'] ?? "John Doe",
+      'ORIG_COU'             => $substituteWith['ORIG_COU'] ?? "",
+      'NEW_COU'              => $substituteWith['NEW_COU'] ?? "",
+      'ORIG_STATUS'          => $substituteWith['ORIG_STATUS'] ?? "Active",
+      'NEW_STATUS'           => $substituteWith['NEW_STATUS'] ?? "Grace Period",
+      'DAYS_TO_EXPIRY'       => $substituteWith['DAYS_TO_EXPIRY'] ?? "5",
+      'POLICY_DESC'          => $substituteWith['POLICY_DESC'] ?? "Expiration Policy Description",
+      'SPONSOR'              => $substituteWith['SPONSOR'] ?? "Bob Builder",
+      'TITLE'                => $substituteWith['TITLE'] ?? "Mr",
+      'VALID_FROM'           => $substituteWith['VALID_FROM'] ?? "YYYY/MM/DD",
+      'VALID_THROUGH'        => $substituteWith['VALID_THROUGH'] ?? "YYYY/MM/DD",
+      'TOKEN'                => $substituteWith['TOKEN'] ?? "123456",
+      'ENROLLMENT_NAME'      => $substituteWith['ENROLLMENT_NAME'] ?? "Join vo.example.org COU",
+      'ORIG_PETITION_STATUS' => $substituteWith['ORIG_PETITION_STATUS'] ?? "Created",
+      'NEW_PETITION_STATUS'  => $substituteWith['NEW_PETITION_STATUS'] ?? "Pending Approval",
+      'ENROLLEE_NAME'        => $substituteWith['ENROLLEE_NAME'] ?? "John Doe",
+      'SOURCE_URL'           => $substituteWith['SOURCE_URL'] ?? "http://example.org/registry/petition/view/1",
+      'NOTIFICATION_URL'     => $substituteWith['NOTIFICATION_URL'] ?? "http://example.org/registry/co_notifications/view/1",
     );
 
     try {
