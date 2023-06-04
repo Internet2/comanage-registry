@@ -2102,6 +2102,7 @@ class CoPetition extends AppModel {
       
       if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false,
                                                                     "atomic" => true,
+                                                                    "petition" => true,
                                                                     "provision" => false))) {
         $orgIdentityId = $this->EnrolleeOrgIdentity->id;
         $createLink = true;
@@ -2166,6 +2167,7 @@ class CoPetition extends AppModel {
 
       if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false,
                                                                 "atomic" => true,
+                                                                "petition" => true,
                                                                 "provision" => false))) {
         if(!$coPersonId) {
           $coPersonId = $this->EnrolleeCoPerson->id;
@@ -2247,6 +2249,7 @@ class CoPetition extends AppModel {
       if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false,
                                                                         "atomic" => true,
                                                                         "trustStatus" => true,
+                                                                        "petition" => true,
                                                                         "provision" => false))) {
         $coPersonRoleId = $this->EnrolleeCoPersonRole->id;
         
