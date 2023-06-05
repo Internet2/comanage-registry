@@ -292,7 +292,7 @@
               // Calculate what we should do for the COU field
               if(strpos($fieldName, 'cou_id') !== false){
                 // XXX $vv_allow_empty_cou takes precedence over the `allow empty` configuration
-                $ea['required'] = !$vv_allow_empty_cou && !$ea['allow_empty'];
+                $args['required'] = $ea['required'] = !$vv_allow_empty_cou && !$ea['allow_empty'];
                 // For the case of COU dropdown list we always want to present the empty option
                 $args['empty'] = true;
               }
