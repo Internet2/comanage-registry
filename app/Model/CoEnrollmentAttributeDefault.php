@@ -62,12 +62,52 @@ class CoEnrollmentAttributeDefault extends AppModel {
       'message'    => 'A value must be provided'
     ),
     'modifiable' => array(
-      'rule'       => array('boolean'),
-      'required'   => true,
-      'allowEmpty' => false
+      'validateRequired' => array(
+        'rule'       => array('boolean'),
+        'required'   => true,
+        'allowEmpty' => false,
+      ),
+      'validateModifiable' => array(
+        'rule' => array('validateModifiable'),
+        'required' => false
+      )
     )
   );
-  
+
+  /**
+   * If an enrollment attribute is going to be hidden and not modifiable,
+   * for example when Group Member is set so that enrollees are added to a particular group,
+   * then it should not be possible to save the attribute/form without a Default Value set.
+   * @param  array Array of fields to validate
+   *
+   * @return boolean True if allowed, false if not
+   */
+  public function validateModifiable($a) {
+    // Modifiable attribute is only applicable to
+    // CO Person Role attributes (type 'r')
+    // CO Person attributes (type 'g'),
+    // Organizational Identity attributes (type 'o'),
+    // or Extended Attributes (type 'x')
+    $request = Router::getRequest();
+    $attrCode = explode(':', $request->data['CoEnrollmentAttribute']['attribute']);
+    if(!in_array($attrCode[0], array('r', 'g', 'o', 'x'))) {
+      return true;
+    }
+
+    $modifiable = filter_var($this->data["CoEnrollmentAttributeDefault"]["modifiable"], FILTER_VALIDATE_BOOLEAN);
+    $hidden = isset($request->data['CoEnrollmentAttribute']['hidden'])
+              && $request->data['CoEnrollmentAttribute']['hidden'];
+    if(!$modifiable || $hidden) {
+      // A default value must be provided if field is not modifiable
+      if(empty($this->data['CoEnrollmentAttributeDefault']['value'])) {
+        return _txt('er.field.unmutable.req');
+      }
+    }
+
+
+    return true;
+  }
+
   /**
    * Perform CoEnrollmentAttributeDefault model upgrade steps for version 1.0.5.
    * This function should only be called by UpgradeVersionShell.
