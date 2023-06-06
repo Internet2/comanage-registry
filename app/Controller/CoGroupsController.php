@@ -52,7 +52,13 @@ class CoGroupsController extends StandardController {
     'EmailListAdmin',
     'EmailListMember',
     'EmailListModerator',
-    'Identifier'
+    'Identifier',
+    'CoGroupMember' => array(
+      'conditions' => array(
+        'CoGroupMember.deleted != true',
+        'CoGroupMember.co_group_member_id is NULL'
+      )
+    )
   );
   
   public $view_contains = array(
@@ -61,7 +67,13 @@ class CoGroupsController extends StandardController {
     'EmailListAdmin',
     'EmailListMember',
     'EmailListModerator',
-    'Identifier'
+    'Identifier',
+    'CoGroupMember' => array(
+      'conditions' => array(
+        'CoGroupMember.deleted != true',
+        'CoGroupMember.co_group_member_id is NULL'
+      )
+    )
   );
   
   /**
@@ -600,7 +612,14 @@ class CoGroupsController extends StandardController {
       
       $args = array();
       $args['conditions']['CoGroup.id'] = $id;
-      $args['contain'] = false;
+      $args['contain'] = array(
+        'CoGroupMember' => array(
+          'conditions' => array(
+            'CoGroupMember.deleted != true',
+            'CoGroupMember.co_group_member_id is NULL'
+          )
+        )
+      );
       
       $this->set('co_group', $this->CoGroup->find('first', $args));
       if($this->viewVars['permissions']['edit']) {

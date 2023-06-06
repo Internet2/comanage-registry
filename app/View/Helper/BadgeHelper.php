@@ -114,11 +114,14 @@ class BadgeHelper extends AppHelper {
    *                                  Defaults to light
    * @param boolean $badge_pill       Is this a badge-pill. Defaults to false
    * @param boolean $badge_outline    Is this an outlined badge. Defaults to false
+   * @param array   $badge_classes    List of css classes to apply
    *
    */
-  public function badgeIt($title, $type = 'secondary', $badge_pill = false, $badge_outline = false) {
-    $badge_classes = array();
-
+  public function badgeIt($title,
+                          $type = 'secondary',
+                          $badge_pill = false,
+                          $badge_outline = false,
+                          $badge_classes = array()) {
     if($badge_pill) {
       $badge_classes[] = "badge-pill";
     }
