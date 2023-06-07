@@ -1804,6 +1804,11 @@ class FormHelper extends AppHelper {
 			$this->_secure($secure, array_merge($field, array($suffix)));
 		}
 
+    // https://php.watch/versions/8.1/$_FILES-full-path
+    if (version_compare(PHP_VERSION, '8.1.0', '>=')) {
+      $this->_secure($secure, array_merge($field, array('full_path')));
+    }
+
 		$exclude = array('name' => null, 'value' => null);
 		return $this->Html->useTag('file', $options['name'], array_diff_key($options, $exclude));
 	}
