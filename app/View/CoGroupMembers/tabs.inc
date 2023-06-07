@@ -73,7 +73,7 @@
                   $this->Badge->getBadgeColor('Light'),
                   false,
                   false,
-                  array('ml-1'))
+                  array('ml-1', 'border-0'))
                 . '</span>';
         ?>
       </li>

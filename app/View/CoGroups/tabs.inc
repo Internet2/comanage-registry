@@ -79,12 +79,16 @@
       <?php if($permissions['edit_members'] || $permissions['members']): ?>
         <li class="nav-item">
           <?php
+            $group_members_all = $co_groups[0]["CoGroupMember"] ?? $co_group["CoGroupMember"];
+            $group_members_active = array_filter($group_members_all, function ($item) {
+              return $item['member'] == true;
+            });
             $num_of_members = $this->Badge->badgeIt(
-              count($co_groups[0]["CoGroupMember"] ?? $co_group["CoGroupMember"]),
+              count($group_members_active),
               $this->Badge->getBadgeColor('Light'),
               false,
               false,
-              array('ml-1')
+              array('ml-1', 'border-0')
             );
             // Group memberships
             if ($this->action == 'members') {
