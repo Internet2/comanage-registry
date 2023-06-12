@@ -1207,6 +1207,10 @@ class StandardController extends AppController {
       if(!empty($local['joins'])) {
         $this->paginate['joins'] = $local['joins'];
       }
+
+      if(!empty($local['order'])) {
+        $this->paginate['order'] = $local['order'];
+      }
       
       if(isset($local['contain'])) {
         $this->paginate['contain'] = $local['contain'];

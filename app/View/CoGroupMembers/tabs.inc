@@ -69,7 +69,7 @@
           print '<span class="nav-link active">'
                 . _txt('me.members')
                 . $this->Badge->badgeIt(
-                  $this->Paginator->counter('{:count}'),
+                  $vv_group_members_count ?? $this->Paginator->counter('{:count}'),
                   $this->Badge->getBadgeColor('Light'),
                   false,
                   false,
