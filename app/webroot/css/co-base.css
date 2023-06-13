@@ -2489,6 +2489,10 @@ code.source-record-formatted {
 .badge-secondary {
   background-color: var(--cmg-color-gray-secondary);
 }
+.badge-light {
+  color: var(--cmg-color-black-002);
+  background-color: var(--cmg-color-lightgray-004);
+}
 /* Bootstrap badge-outline */
 .badge-outline-primary {
   color: var(--cmg-color-blue-primary);

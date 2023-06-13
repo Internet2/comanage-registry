@@ -53,6 +53,7 @@
   $params['title'] = _txt('op.edit-a', array($co_group['CoGroup']['name']));
 
   print $this->element("pageTitleAndButtons", $params);
+
   include("tabs.inc");
 
 ?>
