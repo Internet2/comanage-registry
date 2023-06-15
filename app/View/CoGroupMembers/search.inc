@@ -28,6 +28,9 @@
 // Globals
 global $cm_lang, $cm_texts;
 
+// Initialize the flag
+$hasFilters = false;
+
 ?>
 
 <div id="coPeopleSearch" class="top-search top-search-hide-labels">
@@ -112,7 +115,7 @@ global $cm_lang, $cm_texts;
     </legend>
 
     <div id="top-search-fields">
-      <div id="top-search-fields-subgroups">
+      <div id="top-search-fields-subgroups" class="mb-2">
         <div class="search-field-subgroup">
           <?php
           $args = array();
@@ -138,7 +141,7 @@ global $cm_lang, $cm_texts;
           ?>
 
           <div class="top-search-checkboxes input">
-            <div class="top-search-checkbox-label"><?php print _txt('fd.membership'); ?></div>
+            <div class="top-search-checkbox-label mr-2"><?php print _txt('fd.membership'); ?></div>
             <div class="top-search-checkbox-fields">
               <div class="form-check form-check-inline">
                 <?php

@@ -379,13 +379,17 @@
                 print $this->Html->link($c['CoGroup']['name'],
                   array('controller' => 'co_groups',
                     'action' => 'edit',
-                    $c['CoGroup']['id']
+                    $c['CoGroup']['id'],
+                    'search.members:1',
+                    'search.owners:1'
                   ));
               } else if($v) {
                 print $this->Html->link($c['CoGroup']['name'],
                   array('controller' => 'co_groups',
                     'action'     => 'view',
-                    $c['CoGroup']['id']
+                    $c['CoGroup']['id'],
+                    'search.members:1',
+                    'search.owners:1'
                   ));
               } else {
                 print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
@@ -486,7 +490,9 @@
                   print $this->Html->link(_txt('me.members'),
                                           array('controller' => 'co_group_members',
                                             'action'     => 'index',
-                                            'cogroup:' . $c['CoGroup']['id']),
+                                            'cogroup:' . $c['CoGroup']['id'],
+                                            'search.members:1',
+                                            'search.owners:1'),
                                           array('class' => 'comparebutton'));
 
                   print $this->Html->link(_txt('op.view'),

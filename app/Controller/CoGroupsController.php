@@ -55,8 +55,10 @@ class CoGroupsController extends StandardController {
     'Identifier',
     'CoGroupMember' => array(
       'conditions' => array(
-        'CoGroupMember.deleted != true',
-        'CoGroupMember.co_group_member_id is NULL'
+        'OR' => array(
+          "CoGroupMember.member = true",
+          "CoGroupMember.owner = true"
+        )
       )
     )
   );
@@ -70,8 +72,10 @@ class CoGroupsController extends StandardController {
     'Identifier',
     'CoGroupMember' => array(
       'conditions' => array(
-        'CoGroupMember.deleted != true',
-        'CoGroupMember.co_group_member_id is NULL'
+        'OR' => array(
+          "CoGroupMember.member = true",
+          "CoGroupMember.owner = true"
+        )
       )
     )
   );
@@ -616,7 +620,11 @@ class CoGroupsController extends StandardController {
         'CoGroupMember' => array(
           'conditions' => array(
             'CoGroupMember.deleted != true',
-            'CoGroupMember.co_group_member_id is NULL'
+            'CoGroupMember.co_group_member_id is NULL',
+            'OR' => array(
+              "CoGroupMember.member = true",
+              "CoGroupMember.owner = true"
+            )
           )
         )
       );

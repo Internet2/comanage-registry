@@ -93,100 +93,13 @@
     </thead>
 
     <tbody>
-      <?php if(empty($co_people) && $hasFilters): ?>
-        <tr>
-          <td colspan="3">
-            <div class="co-info-topbox">
-              <em class="material-icons">info</em>
-              <?php print _txt('in.co_group.people.none_filters'); ?>
-            </div>
-          </td>
-        </tr>
-      <?php elseif(empty($co_people)):?>
-        <tr>
-          <td colspan="3">
-            <div class="co-info-topbox">
-              <em class="material-icons">info</em>
-              <?php print _txt('in.co_group.people.none'); ?>
-            </div>
-          </td>
-        </tr>
-      <?php else: ?>
-        <?php $i = 0; ?>
-        <?php foreach($co_people as $p): ?>
-        <tr class="line<?php print ($i % 2)+1; ?>">
-          <?php
-            $isMember = isset($co_group_roles['members'][ $p['CoPerson']['id'] ])
-              && $co_group_roles['members'][ $p['CoPerson']['id'] ];
-            $isOwner = isset($co_group_roles['owners'][ $p['CoPerson']['id'] ])
-              && $co_group_roles['owners'][ $p['CoPerson']['id'] ];
-          ?>
-          <td>
-            <?php
-              $memberName = (!empty($p['PrimaryName']) ? generateCn($p['PrimaryName']) : "(?)");
-              if($permissions['viewUserCanvas']) {
-                print $this->Html->link($memberName,
-                  array('controller' => 'co_people',
-                    'action' => 'canvas',
-                    $p['CoPerson']['id']));
-              } else {
-                print filter_var($memberName,FILTER_SANITIZE_SPECIAL_CHARS);
-              }
-            ?>
-          </td>
-          <td>
-            <?php
-              // Is this from a nested group?
-              if(!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_id'])) {
-                $nestedGroup = filter_var($co_group_roles['members'][ $p['CoPerson']['id'] ]['co_group_nesting_name'],
-                  FILTER_SANITIZE_SPECIAL_CHARS);
-                if($permissions['viewNestedGroup']) {
-                  $nestedGroup = $this->Html->link(
-                    $co_group_roles['members'][$p['CoPerson']['id']]['co_group_nesting_name'],
-                    array(
-                      'controller' => 'co_groups',
-                      'action' => 'nest',
-                      $co_group_roles['members'][$p['CoPerson']['id']]['co_group_nesting_group_id']
-                    )
-                  );
-                }
-                print '<div class="group-member-via-nested">';
-                print _txt('fd.co_group_member.member.via', array($nestedGroup));
-                print ' <span class="group-member-via-nested-label">' . _txt('ct.co_group_nestings.1') . '</span>';
-                print '</div>';
-              } else {
-                // Provide membership information
-                if($isOwner) {
-                  if($isMember) {
-                    print _txt('fd.group.grmemown');
-                  } else {
-                    print _txt('fd.group.own.only');
-                  }
-                } elseif($isMember) {
-                  print _txt('fd.group.mem');
-                }
-              }
-
-              // Warn if membership is invalid
-              if((!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_from'])
-                  && strtotime($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_from']) >= time())
-                ||
-                (!empty($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_through'])
-                  && strtotime($co_group_roles['members'][ $p['CoPerson']['id'] ]['valid_through']) < time())) {
-                print ' <span class="mr-1 badge badge-warning">' . _txt('fd.inactive') . '</span>';
-              }
-            ?>
-          </td>
-          <?php $statusClass = ' status-' . (str_replace(' ', '-', strtolower(_txt('en.status', null, $p['CoPerson']['status'])))); ?>
-          <td class="<?php print $statusClass ?>">
-            <?php
-              print _txt('en.status', null, $p['CoPerson']['status']);
-            ?>
-          </td>
-        </tr>
-        <?php $i++; ?>
-        <?php endforeach; ?>
-      <?php endif; ?>
+    <?php
+      if(!empty($co_group_members)) {
+        include("co_group_members_body.inc");
+      } elseif (!empty($co_people)) {
+        include("co_people_body.inc");
+      }
+    ?>
     </tbody>
   </table>
 </div>

@@ -79,12 +79,8 @@
       <?php if($permissions['edit_members'] || $permissions['members']): ?>
         <li class="nav-item">
           <?php
-            $group_members_all = $co_groups[0]["CoGroupMember"] ?? $co_group["CoGroupMember"];
-            $group_members_active = array_filter($group_members_all, function ($item) {
-              return $item['member'] == true;
-            });
             $num_of_members = $this->Badge->badgeIt(
-              count($group_members_active),
+              count($co_groups[0]["CoGroupMember"] ?? $co_group["CoGroupMember"]),
               $this->Badge->getBadgeColor('Light'),
               false,
               false,
@@ -114,7 +110,9 @@
                   array(
                     'controller' => 'co_group_members',
                     'action' => 'index',
-                    'cogroup:' . $groupId
+                    'cogroup:' . $groupId,
+                    'search.members:1',
+                    'search.owners:1'
                   ),
                   array(
                     'class' => 'nav-link spin',
