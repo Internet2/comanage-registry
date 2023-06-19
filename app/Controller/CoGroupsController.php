@@ -79,6 +79,68 @@ class CoGroupsController extends StandardController {
       )
     )
   );
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function searchConfig($action) {
+    if($action === 'index'                   // Index
+       || $action === 'select') {             // Select
+      return array(
+        'search.givenName' => array(             // 1st row, left column
+          'label' => _txt('fd.name.given'),
+          'type' => 'text',
+        ),
+        'search.open' => array(                 // 1st row, right column
+          'label' => _txt('fd.open'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.open'),
+        ),
+        'search.description' => array(            // 2nd row, left column
+          'label' => _txt('fd.description'),
+          'type' => 'text',
+        ),
+        'search.automatic' => array(              // 2nd row, right column
+          'label' => _txt('fd.automatic'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.bool'),
+        ),
+        'search.status' => array(                 // 3rd row, left column
+          'label' => _txt('fd.status'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.susp'),
+        ),
+        'search.group_type' => array(             // 3rd row, right column
+          'label'   => _txt('fd.type'),
+          'type'    => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.group.type'),
+        ),
+        'search.member' => array(                 // 4th row, right column
+          'label' => ($action === 'select' ? _txt('fd.co_group_member.member') : _txt('fd.co_group.my_memberships')),
+          'type' => 'checkbox',
+          'group' => _txt('fd.membership'),
+          'class' => 'form-check-input'
+        ),
+        'search.noadmin' => array(                // 4th row, left column
+          'label' => _txt('fd.co_group.no_admin'),
+          'group' => _txt('fd.membership'),
+          'type' => 'checkbox'
+        ),
+        'search.owner' => array(                 // 4th row, right column, inline
+          'label' => ($action === 'select' ? _txt('fd.co_group_member.owner') : _txt('fd.co_group.my_ownerships')),
+          'group' => _txt('fd.membership'),
+          'type' => 'checkbox'
+        ),
+      );
+    }
+  }
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -88,12 +150,6 @@ class CoGroupsController extends StandardController {
 
   public function beforeRender() {
     if(!$this->request->is('restful')) {
-      global $cm_lang, $cm_texts;
-      $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
-      $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
-      $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
-      $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
-      
       $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
 
       $this->set('vv_types', array('Identifier'   => $idTypes));

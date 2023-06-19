@@ -137,10 +137,26 @@ $hasActiveFilters = false;
       <?php
       $i = 0;
       $field_subgroup_columns = array();
+      $field_checkbox_columns = array();
       foreach($vv_search_fields as $key => $options) {
         if(strpos($key, 'search') === false) {
           continue;
         }
+        if($options['type'] == 'checkbox') {
+          $checkBoxformParams = array(
+            'checked' => !empty($this->request->params['named'][$key]),
+            'class' => 'form-check-input',
+          );
+
+          $idx = ($i % 2);
+          $field_checkbox_columns[$idx][ $options['group'] ][$key] = array(
+            $this->Form->label($key, $options['label']),
+            $this->Form->checkbox($key, $checkBoxformParams)
+          );
+          $i++;
+          continue;
+        }
+
         $formParams = array(
           'label' => $options['label'],
           'type' => !empty($options['type']) ? $options['type'] : 'text',
@@ -161,20 +177,64 @@ $hasActiveFilters = false;
       <?php if(sizeof($field_subgroup_columns) == 1): ?>
         <div><?php print current(current($field_subgroup_columns)); ?></div>
       <?php else: ?>
-        <div id="top-search-fields-subgroups">
+        <div id="top-search-fields-subgroups" class="mb-2">
           <div class="search-field-subgroup">
+            <!--     No checkboxes      -->
             <?php foreach($field_subgroup_columns[0] as $field_name => $finput): ?>
               <?php print $finput; ?>
             <?php endforeach; ?>
+
+            <!--     Checkboxes      -->
+            <?php if(!empty($field_checkbox_columns[0])): ?>
+            <div class="top-search-checkboxes input">
+              <?php foreach($field_checkbox_columns[0] as $group => $fcheckboxes): ?>
+              <div class="top-search-checkbox-label mr-2"><?php print _txt('fd.membership'); ?></div>
+                <div class="top-search-checkbox-fields">
+                <?php foreach($fcheckboxes as $fcheckbox): ?>
+                  <div class="form-check form-check-inline">
+                  <?php
+                  [$label, $checkbox] = $fcheckbox;
+                  print $checkbox;
+                  print $label;
+                  ?>
+                </div>
+                <?php endforeach; ?>
+              </div>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
           </div>
           <div class="search-field-subgroup">
+            <!--     No checkboxes      -->
             <?php foreach($field_subgroup_columns[1] as $field_name => $finput): ?>
               <?php print $finput; ?>
             <?php endforeach; ?>
+
+            <!--     Checkboxes      -->
+            <?php if(!empty($field_checkbox_columns[1])): ?>
+            <div class="top-search-checkboxes input">
+              <?php foreach($field_checkbox_columns[1] as $group => $fcheckboxes): ?>
+                <div class="top-search-checkbox-label mr-2"><?php print _txt('fd.membership'); ?></div>
+                <div class="top-search-checkbox-fields">
+                  <?php foreach($fcheckboxes as $fcheckbox): ?>
+                    <div class="form-check form-check-inline">
+                      <?php
+                      [$label, $checkbox] = $fcheckbox;
+                      print $checkbox;
+                      print $label;
+                      ?>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
           </div>
         </div>
       <?php endif; ?>
-      
+
       <?php $rebalanceColumns = ($i > 1) && ($i % 2 != 0) ? ' class="tss-rebalance"' : ''; ?>
       <div id="top-search-submit"<?php print $rebalanceColumns ?>>
         <?php
