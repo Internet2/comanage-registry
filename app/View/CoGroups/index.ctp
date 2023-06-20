@@ -285,12 +285,9 @@
 </script>
 
 <?php
-  // Load the top search form
-  if(isset($permissions['search']) && $permissions['search'] ) {
-    $fileLocation = APP . "View/CoGroups/search.inc";
-    if(file_exists($fileLocation)) {
-      include($fileLocation);
-    }
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
   }
 
   // Begin the select form (if in select mode)
@@ -321,7 +318,12 @@
     </thead>
 
     <tbody>
-      <?php if(empty($co_groups) && $hasFilters): ?>
+      <?php
+      $named_params = array_keys($this->request->params["named"]);
+      $hasFilters = array_filter($named_params, function ($item) {
+        return strpos($item, 'search.') !== false;
+      });
+      if(empty($co_groups) && !empty($hasFilters)): ?>
         <tr>
           <td colspan="5">
             <div class="co-info-topbox">
