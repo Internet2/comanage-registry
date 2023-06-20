@@ -1442,7 +1442,7 @@ class StandardController extends AppController {
       }
     }
 
-    if(isset($this->cur_co['Co']['id']) && empty($url['co'])) {
+    if(isset($this->cur_co['Co']['id'])) {
       // Insert CO into URL
       $url['co'] = $this->cur_co['Co']['id'];
     } else {
