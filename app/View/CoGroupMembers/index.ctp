@@ -67,19 +67,10 @@
 <?php endif; ?>
 
 <?php
-  // Load the top search bar
-  if(isset($permissions['search']) && $permissions['search'] ) {
-    // Should be true if we're in this view, but we'll check just in case
-    if(!empty($this->plugin)) {
-      $fileLocation = APP . "Plugin/" . $this->plugin . "/View/CoGroupMembers/search.inc";
-      if(file_exists($fileLocation))
-        include($fileLocation);
-    } else {
-      $fileLocation = APP . "View/CoGroupMembers/search.inc";
-      if(file_exists($fileLocation))
-        include($fileLocation);
-    }
-  }
+// Search Block
+if(!empty($vv_search_fields)) {
+  print $this->element('search', array('vv_search_fields' => $vv_search_fields));
+}
 ?>
   
 <div class="table-container">

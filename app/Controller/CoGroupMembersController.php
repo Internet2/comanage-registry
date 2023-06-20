@@ -155,21 +155,6 @@ class CoGroupMembersController extends StandardController {
       $this->CoGroupMember->setTimeZone($this->viewVars['vv_tz']);
     }
   }
-  
-  /**
-   * Callback after controller methods are invoked but before views are rendered.
-   *
-   * @since  COmanage Registry v4.0
-   */
-
-  public function beforeRender() {
-    if(!$this->request->is('restful')) {
-      global $cm_lang, $cm_texts;
-      $this->set('vv_nested_filters', $cm_texts[ $cm_lang ]['en.nested.filters']);
-    }
-
-    parent::beforeRender();
-  }
 
   /**
    * Determine the CO ID based on some attribute of the request.
@@ -636,6 +621,61 @@ class CoGroupMembersController extends StandardController {
   }
 
   /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function searchConfig($action) {
+    if($action === 'index'                   // Index
+      || $action === 'select') {             // Select
+      return array(
+        'search.givenName' => array(
+          'label' => _txt('fd.name.given'),
+          'type' => 'text',
+        ),
+        'search.familyName' => array(
+          'label' => _txt('fd.name.family'),
+          'type' => 'text',
+        ),
+        'search.mail' => array(
+          'label' => _txt('fd.email_address.mail'),
+          'type' => 'text',
+        ),
+        'search.identifier' => array(
+          'label' => _txt('fd.description'),
+          'type' => 'text',
+        ),
+        'search.status' => array(
+          'label' => _txt('fd.status'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.susp'),
+        ),
+        'search.nested' => array(
+          'label' => _txt('fd.nested'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.nested.filters'),
+        ),
+        'search.members' => array(
+          'label' => _txt('fd.members'),
+          'type' => 'checkbox',
+          'group' => _txt('fd.members'),
+          'column' => 0
+        ),
+        'search.owners' => array(
+          'label' => _txt('fd.owners'),
+          'group' => _txt('fd.members'),
+          'type' => 'checkbox',
+          'column' => 0
+        ),
+      );
+    }
+  }
+
+
+  /**
    * Select from a list of potential new group members.
    * - precondition: $this->request->params holds cogroup
    * - postcondition: $co_people set with potential new members
@@ -995,35 +1035,6 @@ class CoGroupMembersController extends StandardController {
         'search.members:1',
         'search.owners:1'));
     }
-  }
-
-  /**
-   * Insert search parameters into URL for members selection
-   * - precondition: $this->request->params holds cogroup
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v3.3.0
-   */
-
-  public function search() {
-    $action = filter_var($this->request->data['CoGroupMember']['RedirectAction'],FILTER_SANITIZE_SPECIAL_CHARS);
-    if($action == 'select') {
-      $url['action'] = 'select';  
-    } else {
-      $url['action'] = 'index';
-    }
-    $url['cogroup'] = $this->request->data['CoGroupMember']['cogroup'];
-
-    // Append the URL with all the search elements; the resulting URL will be similar to
-    // example.com/registry/co_group_members/select/cogroup:xxx/search.givenName:albert/search.familyName:einstein
-    foreach($this->data['search'] as $field=>$value){
-      if(!empty($value)) {
-        $url['search.'.$field] = $value;
-      }
-    }
-
-    // redirect the user to the url
-    $this->redirect($url, null, true);
   }
   
   /**

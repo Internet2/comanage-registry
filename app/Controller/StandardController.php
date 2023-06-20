@@ -1433,7 +1433,15 @@ class StandardController extends AppController {
         }
       }
     }
-    
+
+    if($this->request->params["named"]) {
+      foreach ($this->request->params["named"] as $field => $value){
+        if(!empty($value)) {
+          $url[$field] = urlencode($value);
+        }
+      }
+    }
+
     if(isset($this->cur_co['Co']['id'])) {
       // Insert CO into URL
       $url['co'] = $this->cur_co['Co']['id'];
