@@ -318,7 +318,12 @@
     </thead>
 
     <tbody>
-      <?php if(empty($co_groups) && $hasFilters): ?>
+      <?php
+      $named_params = array_keys($this->request->params["named"]);
+      $hasFilters = array_filter($named_params, function ($item) {
+        return strpos($item, 'search.') !== false;
+      });
+      if(empty($co_groups) && !empty($hasFilters)): ?>
         <tr>
           <td colspan="5">
             <div class="co-info-topbox">

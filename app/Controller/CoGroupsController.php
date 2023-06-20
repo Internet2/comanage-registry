@@ -90,8 +90,8 @@ class CoGroupsController extends StandardController {
     if($action === 'index'                   // Index
        || $action === 'select') {             // Select
       return array(
-        'search.givenName' => array(             // 1st row, left column
-          'label' => _txt('fd.name.given'),
+        'search.groupName' => array(             // 1st row, left column
+          'label' => _txt('fd.name'),
           'type' => 'text',
         ),
         'search.open' => array(                 // 1st row, right column
@@ -100,11 +100,11 @@ class CoGroupsController extends StandardController {
           'empty'   => _txt('op.select.all'),
           'options' => _txt('en.status.open'),
         ),
-        'search.description' => array(            // 2nd row, left column
+        'search.groupDesc' => array(            // 2nd row, left column
           'label' => _txt('fd.description'),
           'type' => 'text',
         ),
-        'search.automatic' => array(              // 2nd row, right column
+        'search.auto' => array(              // 2nd row, right column
           'label' => _txt('fd.automatic'),
           'type' => 'select',
           'empty'   => _txt('op.select.all'),
@@ -768,37 +768,6 @@ class CoGroupsController extends StandardController {
   }
 
   /**
-   * Insert search parameters into URL for index.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v3.3
-   */
-
-  public function search() {
-    // If a person ID is provided, we're in select mode
-    if(!empty($this->data['CoGroups']['select'])) {
-      $url['action'] = 'select';
-      $url['copersonid'] = filter_var($this->data['CoPerson']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
-    } else {
-      // Back to the index
-      $url['action'] = 'index';
-    }
-
-    // build a URL will all the search elements in it
-    // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
-    foreach($this->data['search'] as $field=>$value){
-      if(!empty($value)) {
-        $url['search.'.$field] = $value;
-      }
-    }
-
-    $url['co'] = $this->cur_co['Co']['id'];
-
-    // redirect the user to the url
-    $this->redirect($url, null, true);
-  }
-
-  /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v3.3
@@ -816,31 +785,31 @@ class CoGroupsController extends StandardController {
 
     // Filter by group name
     if(!empty($this->params['named']['search.groupName'])) {
-      $searchterm = strtolower($this->params['named']['search.groupName']);
+      $searchterm = strtolower(urldecode($this->params['named']['search.groupName']));
       $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
     }
 
     // Filter by group description
     if(!empty($this->params['named']['search.groupDesc'])) {
-      $searchterm = strtolower($this->params['named']['search.groupDesc']);
+      $searchterm = strtolower(urldecode($this->params['named']['search.groupDesc']));
       $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
     }
 
     // Filter by status
     if(!empty($this->params['named']['search.status'])) {
-      $searchterm = $this->params['named']['search.status'];
+      $searchterm = urldecode($this->params['named']['search.status']);
       $pagcond['conditions']['CoGroup.status'] = $searchterm;
     }
 
     // Filter by openness
     if(!empty($this->params['named']['search.open'])) {
-      $searchterm = $this->params['named']['search.open'];
+      $searchterm = urldecode($this->params['named']['search.open']);
       $pagcond['conditions']['CoGroup.open'] = $searchterm;
     }
 
     // Filter by management type (automatic / manual)
     if(!empty($this->params['named']['search.auto'])) {
-      $searchterm = $this->params['named']['search.auto'];
+      $searchterm = urldecode($this->params['named']['search.auto']);
       if($searchterm=='f') {
         $pagcond['conditions']['CoGroup.auto'] = false;
       } else {
@@ -850,7 +819,7 @@ class CoGroupsController extends StandardController {
 
     // Filter by group type
     if(!empty($this->params['named']['search.group_type'])) {
-      $searchterm = $this->params['named']['search.group_type'];
+      $searchterm = urldecode($this->params['named']['search.group_type']);
       $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
     }
 
