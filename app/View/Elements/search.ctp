@@ -105,10 +105,10 @@ $hasActiveFilters = false;
             <button class="top-search-active-filter deletebutton spin"
                     type="button" aria-controls="<?php print $aria_controls; ?>"
                     title="<?php print _txt('op.clear.filters.1');?>">
-               <span class="top-search-active-filter-title<?php print !is_null(filter_var(urldecode($value), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)) ? " no-value" : "" ?>">
+               <span class="top-search-active-filter-title<?php print !is_null(filter_var(urldecode($params), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)) ? " no-value" : "" ?>">
                  <?php print $vv_search_fields[$key]['label']; ?>
                </span>
-               <?php if(is_null(filter_var(urldecode($value), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE))):?>
+               <?php if(is_null(filter_var(urldecode($params), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE))):?>
                <span class="top-search-active-filter-value">
                  <?php
                  $value = $params;
