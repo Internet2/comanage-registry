@@ -148,8 +148,7 @@ $hasActiveFilters = false;
             'class' => 'form-check-input',
           );
 
-          $idx = ($i % 2);
-          $field_checkbox_columns[$idx][ $options['group'] ][$key] = array(
+          $field_checkbox_columns[$options['column']][ $options['group'] ][$key] = array(
             $this->Form->label($key, $options['label']),
             $this->Form->checkbox($key, $checkBoxformParams)
           );
@@ -159,6 +158,7 @@ $hasActiveFilters = false;
 
         $formParams = array(
           'label' => $options['label'],
+          'aria-label' => $options['label'],
           'type' => !empty($options['type']) ? $options['type'] : 'text',
           'value' => (!empty($this->request->params['named'][$key]) ? urldecode($this->request->params['named'][$key]) : ''),
           'required' => false,
@@ -188,7 +188,7 @@ $hasActiveFilters = false;
             <?php if(!empty($field_checkbox_columns[0])): ?>
             <div class="top-search-checkboxes input">
               <?php foreach($field_checkbox_columns[0] as $group => $fcheckboxes): ?>
-              <div class="top-search-checkbox-label mr-2"><?php print _txt('fd.membership'); ?></div>
+              <div class="top-search-checkbox-label mr-2"><?php print $group; ?></div>
                 <div class="top-search-checkbox-fields">
                 <?php foreach($fcheckboxes as $fcheckbox): ?>
                   <div class="form-check form-check-inline">
@@ -215,7 +215,7 @@ $hasActiveFilters = false;
             <?php if(!empty($field_checkbox_columns[1])): ?>
             <div class="top-search-checkboxes input">
               <?php foreach($field_checkbox_columns[1] as $group => $fcheckboxes): ?>
-                <div class="top-search-checkbox-label mr-2"><?php print _txt('fd.membership'); ?></div>
+                <div class="top-search-checkbox-label mr-2"><?php print $group; ?></div>
                 <div class="top-search-checkbox-fields">
                   <?php foreach($fcheckboxes as $fcheckbox): ?>
                     <div class="form-check form-check-inline">
@@ -283,6 +283,7 @@ $hasActiveFilters = false;
       $selected = in_array($code, $field_search, true) ? true : false;
       $args = array(
         'label' => $enum_val,
+        'aria-label' => $enum_val,
         'type' => $vv_search_fields['qaxsbar']['type'],
         'class' => 'mr-2',
         'value' => $code,

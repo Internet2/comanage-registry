@@ -126,17 +126,19 @@ class CoGroupsController extends StandardController {
           'label' => ($action === 'select' ? _txt('fd.co_group_member.member') : _txt('fd.co_group.my_memberships')),
           'type' => 'checkbox',
           'group' => _txt('fd.membership'),
-          'class' => 'form-check-input'
+          'column' => 0
         ),
         'search.noadmin' => array(                // 4th row, left column
           'label' => _txt('fd.co_group.no_admin'),
           'group' => _txt('fd.membership'),
-          'type' => 'checkbox'
+          'type' => 'checkbox',
+          'column' => 1
         ),
         'search.owner' => array(                 // 4th row, right column, inline
           'label' => ($action === 'select' ? _txt('fd.co_group_member.owner') : _txt('fd.co_group.my_ownerships')),
           'group' => _txt('fd.membership'),
-          'type' => 'checkbox'
+          'type' => 'checkbox',
+          'column' => 0
         ),
       );
     }
