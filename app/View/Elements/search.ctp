@@ -86,8 +86,13 @@ $hasActiveFilters = false;
               // We have named filters - not just a sort.
               $hasActiveFilters = true;
             ?>
-            <button class="top-search-active-filter deletebutton spin" type="button" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
-               <span class="top-search-active-filter-title"><?php print $vv_search_fields[$key]['label']; ?></span>
+            <button class="top-search-active-filter deletebutton spin"
+                    type="button" aria-controls="<?php print $aria_controls; ?>"
+                    title="<?php print _txt('op.clear.filters.1');?>">
+               <span class="top-search-active-filter-title<?php print !is_null(filter_var(urldecode($value), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)) ? " no-value" : "" ?>">
+                 <?php print $vv_search_fields[$key]['label']; ?>
+               </span>
+               <?php if(is_null(filter_var(urldecode($value), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE))):?>
                <span class="top-search-active-filter-value">
                  <?php
                  $value = $params;
@@ -102,7 +107,7 @@ $hasActiveFilters = false;
                  // Get user friendly name from the dropdown Select List
                  // XXX Currently we do not have a use case where the grouping name would create a namespace
                  if (isset($vv_search_fields[$key]['options'])) {
-                   // Outside of any groups
+                   // Outside any groups
                    if (isset($vv_search_fields[$key]['options'][$value])) {
                      print filter_var($vv_search_fields[$key]['options'][$value], FILTER_SANITIZE_SPECIAL_CHARS);
                    } else {
@@ -121,6 +126,7 @@ $hasActiveFilters = false;
                  }
                  ?>
                </span>
+               <?php endif; ?>
             </button>
           <?php endforeach; ?>
           <?php if($hasActiveFilters): ?>
