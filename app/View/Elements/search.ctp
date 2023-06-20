@@ -31,8 +31,24 @@ global $cm_lang, $cm_texts;
 $controller = $this->name;
 $req = Inflector::singularize($controller);
 $controller_route_name = Inflector::underscore($controller);
+$formArgs =  array(
+  'type' => 'post',
+  'url' => array(
+    'action'=>'search',
+    'co' => $cur_co['Co']['id'])
+);
 
-print $this->Form->create($req, array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
+// If i have named parameters not related to search fields
+// get them and add them into the form
+if(!empty($this->request->params['named'])) {
+  $attributes = array_diff_key($this->request->params['named'], $vv_search_fields);
+  foreach($attributes as $attr_name => $attr_value) {
+    $formArgs['url'][$attr_name] = $attr_value;
+  }
+}
+
+print $this->Form->create($req,$formArgs);
+
 // List of search fields
 $search_fields = array_keys($vv_search_fields);
 
