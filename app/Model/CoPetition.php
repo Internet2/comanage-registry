@@ -2102,7 +2102,6 @@ class CoPetition extends AppModel {
       
       if($this->EnrolleeOrgIdentity->saveAssociated($orgData, array("validate" => false,
                                                                     "atomic" => true,
-                                                                    "petition" => true,
                                                                     "provision" => false))) {
         $orgIdentityId = $this->EnrolleeOrgIdentity->id;
         $createLink = true;
@@ -2167,7 +2166,6 @@ class CoPetition extends AppModel {
 
       if($this->EnrolleeCoPerson->saveAssociated($coData, array("validate" => false,
                                                                 "atomic" => true,
-                                                                "petition" => true,
                                                                 "provision" => false))) {
         if(!$coPersonId) {
           $coPersonId = $this->EnrolleeCoPerson->id;
@@ -2249,7 +2247,6 @@ class CoPetition extends AppModel {
       if($this->EnrolleeCoPersonRole->saveAssociated($coRoleData, array("validate" => false,
                                                                         "atomic" => true,
                                                                         "trustStatus" => true,
-                                                                        "petition" => true,
                                                                         "provision" => false))) {
         $coPersonRoleId = $this->EnrolleeCoPersonRole->id;
         
@@ -3579,6 +3576,15 @@ class CoPetition extends AppModel {
       
       if(!empty($errFields)) {
         $fail = true;
+
+        // Check if we marked a field as required. If we did return immediately
+        // CO-2655
+        $requestDataFields = array_keys($requestData[$pmodel]);
+        foreach ($errFields as $field => $message) {
+          if(in_array($field . '-required', $requestDataFields)) {
+            throw new RuntimeException(_txt('er.validation'));
+          }
+        }
       }
       
       // Now validate related models

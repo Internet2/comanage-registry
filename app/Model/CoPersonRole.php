@@ -337,15 +337,6 @@ class CoPersonRole extends AppModel {
       return true;
     }
 
-    // CO-2655
-    if(isset($options['petition']) && $options['petition']) {
-      if(!$this->validate["cou_id"]["content"]["allowEmpty"]
-      && $this->validate["cou_id"]["content"]["required"]
-      && empty($this->data["EnrolleeCoPersonRole"]["cou_id"])) {
-        return false;
-      }
-    }
-
     // Cache the current record
     $this->cachedData = null;
     
