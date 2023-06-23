@@ -2740,7 +2740,9 @@ class CoPetitionsController extends StandardController {
     foreach($coperson_alias_mapping as $search_field => $class) {
       if(!empty($this->params['named'][$search_field]) ) {
         $searchterm = $this->params['named'][$search_field];
-        $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+        $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+        $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+        $searchterm = trim(strtolower($searchterm));
         $pagcond['conditions']['AND'][] = array(
           'OR' => array(
             'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',

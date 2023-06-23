@@ -726,7 +726,9 @@ class CoGroupMembersController extends StandardController {
     // Filter by Given name
     if(!empty($this->request->params['named']['search.givenName'])) {
       $searchterm = $this->request->params['named']['search.givenName'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       // We set up LOWER() indices on these columns (CO-1006)
       $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
     }
@@ -734,7 +736,9 @@ class CoGroupMembersController extends StandardController {
     // Filter by Family name
     if(!empty($this->request->params['named']['search.familyName'])) {
       $searchterm = $this->request->params['named']['search.familyName'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
     }
 
@@ -752,14 +756,18 @@ class CoGroupMembersController extends StandardController {
     // Filter by start of Primary Family name (starts with searchterm)
     if(!empty($this->request->params['named']['search.familyNameStart'])) {
       $searchterm = $this->request->params['named']['search.familyNameStart'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
 
     // Filter by email address
     if(!empty($this->request->params['named']['search.mail'])) {
       $searchterm = $this->request->params['named']['search.mail'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'email_addresses';
       $pagcond['joins'][$jcnt]['alias'] = 'EmailAddress';
@@ -773,7 +781,9 @@ class CoGroupMembersController extends StandardController {
     // Filter by identifier
     if(!empty($this->request->params['named']['search.identifier'])) {
       $searchterm = $this->request->params['named']['search.identifier'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'identifiers';
       $pagcond['joins'][$jcnt]['alias'] = 'Identifier';

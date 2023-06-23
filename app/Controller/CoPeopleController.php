@@ -1177,7 +1177,9 @@ class CoPeopleController extends StandardController {
     // Filter by Given name
     if(!empty($this->request->params['named']['search.givenName'])) {
       $searchterm = $this->request->params['named']['search.givenName'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       // We set up LOWER() indices on these columns (CO-1006)
       $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
     }
@@ -1185,7 +1187,9 @@ class CoPeopleController extends StandardController {
     // Filter by Family name
     if(!empty($this->request->params['named']['search.familyName'])) {
       $searchterm = $this->request->params['named']['search.familyName'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
     }
 
@@ -1203,14 +1207,18 @@ class CoPeopleController extends StandardController {
     // Filter by start of Primary Family name (starts with searchterm)
     if(!empty($this->request->params['named']['search.familyNameStart'])) {
       $searchterm = $this->request->params['named']['search.familyNameStart'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
     
     // Filter by email address
     if(!empty($this->request->params['named']['search.mail'])) {
       $searchterm = $this->request->params['named']['search.mail'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'email_addresses';
       $pagcond['joins'][$jcnt]['alias'] = 'EmailAddress';
@@ -1224,7 +1232,9 @@ class CoPeopleController extends StandardController {
     // Filter by identifier
     if(!empty($this->request->params['named']['search.identifier'])) {
       $searchterm = $this->request->params['named']['search.identifier'];
-      $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'identifiers';
       $pagcond['joins'][$jcnt]['alias'] = 'Identifier';
@@ -1427,44 +1437,6 @@ class CoPeopleController extends StandardController {
         }
       }
     }
-  }
-  
-  /**
-   * Insert search parameters into URL for index, select, or (re)link views.
-   * - postcondition: Redirect generated
-   *
-   * @todo Duplicate OrgIdentities/move to StandardController
-   * @since  COmanage Registry v0.8
-   */
-  
-  public function search() {
-    // Construct the URL based on the action mode we're in (select, relink, index, link)
-    $action = key($this->data['RedirectAction']);
-
-    $url['action'] = $action;
-    foreach($this->data[$action] as $key => $value) {
-      // pass parameters
-      if(is_int($key) && isset($value['pass'])) {
-        array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
-      } else {
-        foreach ($value as $knamed => $vnamed) {
-          $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
-        }
-      }
-    }
-    
-    // Append the URL with all the search elements; the resulting URL will be similar to
-    // example.com/registry/co_people/index/search.givenName:albert/search.familyName:einstein
-    foreach($this->data['search'] as $field=>$value){
-      if(!empty($value)) {
-        $url['search.'.$field] = $value;
-      }
-    }
-
-    // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
-    $url = array_merge($url, array('op' => 'search'));
-    // redirect the user to the url
-    $this->redirect($url, null, true);
   }
 
   /**
