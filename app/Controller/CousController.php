@@ -291,13 +291,13 @@ class CousController extends StandardController {
     if(!empty($cou_name)) {
       $searchterm = str_replace(urlencode("/"), "/", $cou_name);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $ret['conditions']['LOWER(Cou.name) LIKE'] = "%$searchterm%";
     }
     if(!empty($cou_description)) {
       $searchterm = str_replace(urlencode("/"), "/", $cou_description);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $ret['conditions']['LOWER(Cou.description) LIKE'] = "%{$searchterm}%";
     }
     if(!empty($parent_couid)) {

@@ -2742,7 +2742,7 @@ class CoPetitionsController extends StandardController {
         $searchterm = $this->params['named'][$search_field];
         $searchterm = str_replace(urlencode("/"), "/", $searchterm);
         $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-        $searchterm = strtolower($searchterm);
+        $searchterm = trim(strtolower($searchterm));
         $pagcond['conditions']['AND'][] = array(
           'OR' => array(
             'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',

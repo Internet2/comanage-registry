@@ -419,7 +419,7 @@ class CoEnrollmentFlowsController extends StandardController {
     if(!empty($eof_name)) {
       $searchterm = str_replace(urlencode("/"), "/", $eof_name);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $ret['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%$searchterm%";
     }
     if(!empty($eof_status)) {

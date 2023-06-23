@@ -789,7 +789,7 @@ class CoGroupsController extends StandardController {
       $searchterm = $this->params['named']['search.groupName'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
     }
 
@@ -798,7 +798,7 @@ class CoGroupsController extends StandardController {
       $searchterm = $this->params['named']['search.groupDesc'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
     }
 

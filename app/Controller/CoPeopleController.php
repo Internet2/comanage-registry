@@ -1179,7 +1179,7 @@ class CoPeopleController extends StandardController {
       $searchterm = $this->request->params['named']['search.givenName'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       // We set up LOWER() indices on these columns (CO-1006)
       $pagcond['conditions']['LOWER(Name.given) LIKE'] = "%$searchterm%";
     }
@@ -1189,7 +1189,7 @@ class CoPeopleController extends StandardController {
       $searchterm = $this->request->params['named']['search.familyName'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(Name.family) LIKE'] = "%$searchterm%";
     }
 
@@ -1209,7 +1209,7 @@ class CoPeopleController extends StandardController {
       $searchterm = $this->request->params['named']['search.familyNameStart'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(PrimaryName.family) LIKE'] = "$searchterm%";
     }
     
@@ -1218,7 +1218,7 @@ class CoPeopleController extends StandardController {
       $searchterm = $this->request->params['named']['search.mail'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(EmailAddress.mail) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'email_addresses';
       $pagcond['joins'][$jcnt]['alias'] = 'EmailAddress';
@@ -1234,7 +1234,7 @@ class CoPeopleController extends StandardController {
       $searchterm = $this->request->params['named']['search.identifier'];
       $searchterm = str_replace(urlencode("/"), "/", $searchterm);
       $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-      $searchterm = strtolower($searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(Identifier.identifier) LIKE'] = "%$searchterm%";
       $pagcond['joins'][$jcnt]['table'] = 'identifiers';
       $pagcond['joins'][$jcnt]['alias'] = 'Identifier';
