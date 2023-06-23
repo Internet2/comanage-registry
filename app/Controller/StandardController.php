@@ -1422,7 +1422,7 @@ class StandardController extends AppController {
         array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
       } else {
         foreach ($value as $knamed => $vnamed) {
-          $url[$knamed] = urlencode(filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS));
+          $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
         }
       }
     }
@@ -1433,7 +1433,7 @@ class StandardController extends AppController {
     if(isset($this->data['search'])) {
       foreach ($this->data['search'] as $field => $value){
         if(!empty($value)) {
-          $url['search.'.$field] = urlencode($value);
+          $url['search.'.$field] = $value;
         }
       }
     }
@@ -1441,7 +1441,7 @@ class StandardController extends AppController {
     if($this->request->params["named"]) {
       foreach ($this->request->params["named"] as $field => $value){
         if(!empty($value)) {
-          $url[$field] = urlencode($value);
+          $url[$field] = $value;
         }
       }
     }
