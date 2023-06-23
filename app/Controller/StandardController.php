@@ -1412,15 +1412,19 @@ class StandardController extends AppController {
    */
   
   function search() {
-    // the page we will redirect to
-    if(isset($this->data['RedirectAction']["select"])) {
-      $url['action'] = 'select';
-    } elseif(isset($this ->data['RedirectAction']["index"])) {
-      $url['action'] = 'index';
-    } else {
-      // XXX We need this for backward compatibility.
-      // XXX Remove as soon as we apply the new Search element across the framework
-      $url['action'] = 'index';
+    // Construct the URL based on the action mode we're in (select, relink, index, link)
+    $action = key($this->data['RedirectAction']);
+
+    $url['action'] = $action;
+    foreach($this->data[$action] as $key => $value) {
+      // pass parameters
+      if(is_int($key) && isset($value['pass'])) {
+        array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
+      } else {
+        foreach ($value as $knamed => $vnamed) {
+          $url[$knamed] = urlencode(filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS));
+        }
+      }
     }
     
     // build a URL will all the search elements in it
@@ -1445,10 +1449,10 @@ class StandardController extends AppController {
     if(isset($this->cur_co['Co']['id'])) {
       // Insert CO into URL
       $url['co'] = $this->cur_co['Co']['id'];
-    } else {
-      // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
-      $url['op'] = 'search';
     }
+
+    // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
+    $url = array_merge($url, array('op' => 'search'));
     
     // redirect the user to the url
     $this->redirect($url, null, true);

@@ -1673,9 +1673,10 @@ class AppController extends Controller {
     // XXX CO-2550, CO-2600
     if(is_array($url)) {
       foreach ($url as $field => $value) {
-        if(strpos($field, "search.") !== false
-          && strpos($value, "/") !== false) {
-          $url[$field] = str_replace("/", urlencode("/"), $value);
+        if(strpos($field, "search.") !== false) {
+          $searchterm = str_replace("/", urlencode("/"), $value);
+          $searchterm = str_replace(" ", urlencode(" "), $searchterm);
+          $url[$field] = $searchterm;
         }
       }
     }

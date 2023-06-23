@@ -281,20 +281,24 @@ class CousController extends StandardController {
     $ret = array();
 
     // COU Name
-    $cou_name = isset($this->request->params['named']['search.couName']) ? $this->request->params['named']['search.couName'] : "";
+    $cou_name = $this->request->params['named']['search.couName'] ?? "";
     // COU Description
-    $cou_description = isset($this->request->params['named']['search.couDesc']) ? strtolower($this->request->params['named']['search.couDesc']) : "";
+    $cou_description = $this->request->params['named']['search.couDesc'] ?? "";
     // Parent COU
-    $parent_couid = isset($this->request->params['named']['search.parentCou']) ? $this->request->params['named']['search.parentCou'] : "";
+    $parent_couid = $this->request->params['named']['search.parentCou'] ?? "";
 
     $ret['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
     if(!empty($cou_name)) {
-      $cou_name = strtolower(str_replace(urlencode("/"), "/", $cou_name));
-      $ret['conditions']['LOWER(Cou.name) LIKE'] = "%$cou_name%";
+      $searchterm = str_replace(urlencode("/"), "/", $cou_name);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = strtolower($searchterm);
+      $ret['conditions']['LOWER(Cou.name) LIKE'] = "%$searchterm%";
     }
     if(!empty($cou_description)) {
-      $cou_description = strtolower(str_replace(urlencode("/"), "/", $cou_description));
-      $ret['conditions']['LOWER(Cou.description) LIKE'] = "%{$cou_description}%";
+      $searchterm = str_replace(urlencode("/"), "/", $cou_description);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = strtolower($searchterm);
+      $ret['conditions']['LOWER(Cou.description) LIKE'] = "%{$searchterm}%";
     }
     if(!empty($parent_couid)) {
       if($parent_couid == _txt('op.select.opt.any')) {
