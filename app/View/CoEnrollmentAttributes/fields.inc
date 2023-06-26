@@ -730,9 +730,7 @@
               <select name="def_cou_val"
                       id="def_cou_val"
                       onchange="set_attr_def_value('def_cou_val')">
-                <?php if($vv_allow_empty_cou): ?>
                   <option value=""></option>
-                <?php endif;?>
                 <?php foreach($permissions['cous'] as $k => $value): ?>
                   <option value="<?php print filter_var($k,FILTER_SANITIZE_SPECIAL_CHARS); ?>">
                     <?php print filter_var($value,FILTER_SANITIZE_SPECIAL_CHARS); ?>

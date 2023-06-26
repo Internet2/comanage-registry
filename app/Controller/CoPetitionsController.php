@@ -2904,6 +2904,14 @@ class CoPetitionsController extends StandardController {
         'action'      => 'view',
         $this->request->params['pass'][0]
       ));
+    } elseif($this->action == "petitionerAttributes"
+      && $this->request->method() == "POST") {
+      $this->redirect(array(
+                        'plugin'     => $this->request->params["plugin"], // XXX We support plugins
+                        'controller' => $this->request->params["controller"],
+                        'action'     => $this->request->params["action"],
+                        $this->request->data['CoPetition']['id'])
+      );
     } elseif($this->viewVars['permissions']['index']) {
       // For admins, return to the list of petitions pending approval. For admins,
       // this is probably where they'll want to go. For others, they probably won't

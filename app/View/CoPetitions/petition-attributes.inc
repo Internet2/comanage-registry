@@ -254,18 +254,7 @@
         // Output the fields
         foreach ($coe_attributes as $ea):
 
-          // Output disabled fields
-          if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
-            // Since disabled values don't submit with the form, convert them to hidden
-            // fields and change the fieldName for the visible attribute
-
-            $hfieldName = $ea['model'] . '.' . $ea['field'];
-            $fieldName = $hfieldName . "-disabled";
-
-            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
-          } else {
-            $fieldName = $ea['model'] . '.' . $ea['field'];
-          }
+          $fieldName = $ea['model'] . '.' . $ea['field'];
 
           // Emit the field itself, according to the type of field
 
@@ -276,29 +265,56 @@
             $ruleType = $ea['validate']['content']['rule'][0];
           }
 
+          // Output disabled fields
+          if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
+            // Since disabled values don't submit with the form, convert them to hidden
+            // fields and change the fieldName for the visible attribute
+
+            $hfieldName = $ea['model'] . '.' . $ea['field'];
+            $fieldName = $hfieldName . "-disabled";
+
+            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
+          }
+
           // XXX need to retrieve current values for edit and view
 
           if($e) {
             switch($ruleType) {
             case 'inList':
               // This is a select
-              print '<div class="form-group">';
-              print "\n";
+              print '<div class="form-group">' . PHP_EOL;
 
               $args = array();
-              // Set a default value if provided
-              if(isset($ea['default'])) {
-                $args['value'] = $ea['default'];
-                $args['disabled'] = !$ea['modifiable'];
-              }
-
-              // Calculate what we should do for the COU field
-              if(strpos($fieldName, 'cou_id') !== false){
-                $ea['required'] = !($ea['allow_empty'] && $vv_allow_empty_cou);
-              }
               $args['empty'] = !$ea['required'];
               $args['class'] = 'co-selectfield form-control';
               $args['aria-label'] = $m;
+
+              // Calculate what we should do for the COU field
+              if(strpos($fieldName, 'cou_id') !== false){
+                // XXX $vv_allow_empty_cou takes precedence over the `allow empty` configuration
+                $args['required'] = $ea['required'] = !$vv_allow_empty_cou && !$ea['allow_empty'];
+                // For the case of COU dropdown list we always want to present the empty option
+                $args['empty'] = true;
+              }
+
+              if($ea['required']) {
+                // XXX We need a way to inform the backend that we need to make validation adjustments dynamically
+                print $this->Form->hidden($ea['model'] . '.' . $ea['field'] . '-required', array('default' => $ea['default'])) . PHP_EOL;
+              }
+              // Set a default value if provided
+              // XXX We use isset here because default value might be a boolean
+              if(isset($ea['default'])) {
+                $args['value'] = $ea['default'];
+                $args['disabled'] = !$ea['modifiable'];
+                if(!is_bool($args['value']) && empty($args['value'])) {
+                  $args['disabled'] = !$ea['modifiable'] && !$ea['required'];
+                }
+              }
+
+              // Remove the `-disabled` field if it is no longer required
+              if(!$args['disabled']) {
+                $fieldName = $ea['model'] . '.' . $ea['field'];
+              }
 
               // Add focusFirst class if the first field
               if ($coe_attribute_index == 0) {

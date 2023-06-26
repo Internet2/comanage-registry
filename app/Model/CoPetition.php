@@ -3576,6 +3576,15 @@ class CoPetition extends AppModel {
       
       if(!empty($errFields)) {
         $fail = true;
+
+        // Check if we marked a field as required. If we did return immediately
+        // CO-2655
+        $requestDataFields = array_keys($requestData[$pmodel]);
+        foreach ($errFields as $field => $message) {
+          if(in_array($field . '-required', $requestDataFields)) {
+            throw new RuntimeException(_txt('er.validation'));
+          }
+        }
       }
       
       // Now validate related models
