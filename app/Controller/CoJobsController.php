@@ -137,7 +137,7 @@ class CoJobsController extends StandardController {
           $this->set('vv_refresh_interval', 15);
         }
 
-        // Get the provisioing Target
+        // Get the provisioning Target
         $job_params = json_decode($this->viewVars['co_jobs'][0]['CoJob']['job_params'], false);
         $args = array();
         $args['conditions']['CoProvisioningTarget.id'] = $job_params->co_provisioning_target_id;
