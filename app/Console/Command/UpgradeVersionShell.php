@@ -678,6 +678,10 @@ class UpgradeVersionShell extends AppShell {
         $this->CoGroup->_ug430($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
       }
     }
+
+    // Set various new defaults
+    $this->out(_txt('sh.ug.430.co_settings'));
+    $this->CoSetting->_ug430();
   }
   
   // We should eventually do something like

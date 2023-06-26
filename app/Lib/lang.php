@@ -2642,7 +2642,8 @@ The request may be viewed at
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types',
   'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource',
   'sh.ug.410.datafilter' => 'Adding default context for DataFilters',
-  'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers'
+  'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers',
+  'sh.ug.430.co_settings' => 'Updating CO Settings',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
