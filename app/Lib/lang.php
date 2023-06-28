@@ -1148,6 +1148,7 @@ The request may be viewed at
   'er.field.recheck' => 'Please recheck "%1$s"',
   'er.field.req' =>   'This field is required',
   'er.field.hidden.req' => 'A hidden field must have a default value',
+  'er.field.unmutable.req' => 'A non-modifiable field must have a default value',
   'er.fields' =>      'Please recheck the highlighted fields',
   'er.fields.api' =>  'Invalid fields: %1$s',
   'er.fields.api.co' => '"%1$s" may not refer to another CO',
