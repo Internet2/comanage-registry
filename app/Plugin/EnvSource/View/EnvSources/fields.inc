@@ -127,6 +127,33 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.envsource.affiliation.def'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      $attrs = array();
+      $attrs['value'] = (!empty($env_sources[0]['EnvSource']['default_affiliation']) ? $env_sources[0]['EnvSource']['default_affiliation'] : "");
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select('default_affiliation',
+                                  $vv_affiliation_types,
+                                  $attrs);
+
+        if($this->Form->isFieldError('default_affiliation')) {
+          print $this->Form->error('default_affiliation');
+        }
+      } else {
+        print _txt('pl.envsource.en.mode.dupe', null, $env_sources[0]['EnvSource']['default_affiliation']);
+      }
+      ?>
+    </div>
+  </li>
 </ul>
 <div id="env_attributes" class="field-children table-container">
   <table id="<?php print $this->action; ?>_env_attributes">
