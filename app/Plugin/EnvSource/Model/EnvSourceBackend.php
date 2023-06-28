@@ -246,7 +246,7 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
       
       if($a == 'env_affiliation') {
         // Default value for affiliation
-        $d = AffiliationEnum::Member;
+        $d = $this->pluginCfg['default_affiliation'];
       }
       
       $values[$a] = $this->maybeGetEnv($a, $d);
