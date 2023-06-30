@@ -197,7 +197,7 @@ class CoPasswordWidgetsController extends SDWController {
             'password'                  => $this->request->data["Password"]["password"],
             'password2'                 => $this->request->data["Password"]["password2"],
             // We do not care about the password type since this is handled from the authenticator
-            // 'password_type'           => $this->request->data["Passwords"][0]["PasswordType"]
+            // 'password_type'           => $this->request->data["Password"]["PasswordType"]
           )
         );
 

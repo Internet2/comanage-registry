@@ -62,7 +62,8 @@
           pwMaxLength: "<?php print $vv_pw_authenticator['PasswordAuthenticator']['max_length']; ?>",
           pwRetrievedAuthId: '',
           pwRetrievedPersonId: '',
-          pwRetrievedType: ''
+          pwRetrievedType: '',
+          password: ''
         },
         core: {
           coPersonId: '<?php print $vv_co_person_id; ?>',
@@ -83,6 +84,7 @@
           error500:            "<?php print _txt('er.http.500');?>",
           ok:                  "<?php print _txt('op.ok'); ?>",
           passwordConfirm:     "<?php print _txt('pl.passwordwidget.fd.password.confirm'); ?>",
+          passwordCurrent:     "<?php print _txt('pl.passwordwidget.fd.password.current'); ?>",
           passwordNew:         "<?php print _txt('pl.passwordwidget.fd.password.new'); ?>",
           passwordIsSet:       "<?php print _txt('pl.passwordwidget.info.password.set'); ?>",
           passwordIsNotSet:    "<?php print _txt('pl.passwordwidget.info.password.not.set'); ?>",
@@ -102,18 +104,16 @@
       },
       setPasswordInfo: function(xhr){
         let passwords = [];
-        if(xhr.responseJSON !== undefined && xhr.responseJSON.Passwords !== undefined) {
+        if(xhr.responseJSON !== undefined
+           && xhr.responseJSON.Passwords !== undefined) {
           passwords = xhr.responseJSON.Passwords;
-        }
-        if(passwords.length == 1) {
-          this.pwinfo.id = passwords[0].Id;
-          this.pwinfo.pwRetrievedAuthId = passwords[0].PasswordAuthenticatorId;
-          this.pwinfo.pwRetrievedType = passwords[0].PasswordType;
-          this.pwinfo.pwRetrievedPersonId = passwords[0].Person.Id;
-          // do some sanity checking here for what we believe we should have (via the Authenticator) and what the API returned
-          // XXX do the above
-        } else {
-          // error - we have more than one password
+          // Even though we might have multiple password records, one for each type.
+          // We only care about the existence of the Id and not the Id itself
+          this.pwinfo.id = passwords[0].Id ?? '';
+          this.pwinfo.pwRetrievedAuthId = passwords[0].PasswordAuthenticatorId ?? '';
+          this.pwinfo.pwRetrievedType = passwords[0].PasswordType ?? '';
+          this.pwinfo.pwRetrievedPersonId = passwords[0].Person.Id ?? '';
+          this.pwinfo.password = passwords[0].Password ?? '';
         }
       },
       setError(txt) {

@@ -60,8 +60,12 @@ export default {
       this.passwordErrorMessage = '';
     },
     submitPassword() {
-      const pw = this.$refs.passwordNew.value; 
+      const pw = this.$refs.passwordNew.value;
       const pwConf = this.$refs.passwordConfirm.value;
+      let pwCurr;
+      if(this.pwinfo.id != '') {
+        pwCurr = this.$refs.passwordCurrent.value;
+      }
       let pwMethod = 'POST';
       let url = `${this.core.webRoot}password_widget/co_password_widgets/password.json`
       
@@ -87,13 +91,7 @@ export default {
       this.$parent.setError('');
       this.$parent.successTxt = '';
 
-      if(this.pwinfo.id != '') {
-        // we're changing a PW
-        url = `${this.core.webRoot}password_authenticator/passwords/${this.pwinfo.id}.json`;
-        pwMethod = 'PUT';
-      }
-
-      const pwDataSimple = {
+      let pwDataSimple = {
         "Password": {
           "password_authenticator_id":this.pwinfo.pwAuthId,
           "co_person_id": this.core.coPersonId,
@@ -102,6 +100,13 @@ export default {
           "co_password_widget_id": this.core.passWidgetId
         }
       };
+
+      if(this.pwinfo.id != '') {
+        pwDataSimple['Current'] = {
+          'password': this.pwinfo.password,
+          'password_id': this.pwinfo.id
+        }
+      }
 
       displaySpinner();
       callRegistryAPI(
@@ -153,6 +158,25 @@ export default {
         <form action="#">
           <div class="cm-ssw-form-row">
             <span class="cm-ssw-form-row-fields">
+              <span v-if="this.pwinfo.id != ''" 
+                    class="cm-ssw-form-field form-group">
+                <label :for="generateId('cm-ssw-password-current')">
+                  {{ txt.passwordCurrent }}
+                </label> 
+                <input 
+                  type="password" 
+                  :id="generateId('cm-ssw-password-current')"
+                  class="form-control cm-ssw-form-field-password" 
+                  :class="this.passwordInvalidClass"
+                  :minlength="this.pwinfo.pwMinLength"
+                  :maxlength="this.pwinfo.pwMaxLength"
+                  value="" 
+                  required="required"
+                  ref="passwordCurrent"/>
+                  <div v-if="this.passwordInvalid" class="invalid-feedback">
+                    {{ this.passwordErrorMessage }}
+                  </div>
+              </span>
               <span class="cm-ssw-form-field form-group">
                 <label :for="generateId('cm-ssw-password')">
                   {{ txt.passwordNew }}

@@ -52,6 +52,7 @@ $cm_password_widget_texts['en_US'] = array(
   'pl.passwordwidget.fd.authenticator'              => 'Password Authenticator',
   'pl.passwordwidget.fd.authenticator.desc'         => 'Select the Password Authenticator to be used with this widget. Only self-select passwords may be used with this widget.',
   'pl.passwordwidget.fd.password.confirm'           => 'Confirm password',
+  'pl.passwordwidget.fd.password.current'           => 'Current password',
   'pl.passwordwidget.fd.password.new'               => 'New password',
   
   //  Information
