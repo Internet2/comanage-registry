@@ -62,8 +62,7 @@
           pwMaxLength: "<?php print $vv_pw_authenticator['PasswordAuthenticator']['max_length']; ?>",
           pwRetrievedAuthId: '',
           pwRetrievedPersonId: '',
-          pwRetrievedType: '',
-          password: ''
+          pwRetrievedType: ''
         },
         core: {
           coPersonId: '<?php print $vv_co_person_id; ?>',
@@ -113,7 +112,6 @@
           this.pwinfo.pwRetrievedAuthId = passwords[0].PasswordAuthenticatorId ?? '';
           this.pwinfo.pwRetrievedType = passwords[0].PasswordType ?? '';
           this.pwinfo.pwRetrievedPersonId = passwords[0].Person.Id ?? '';
-          this.pwinfo.password = passwords[0].Password ?? '';
         }
       },
       setError(txt) {
@@ -122,7 +120,9 @@
       generalXhrFailCallback(xhr) {
         stopSpinner();
         this.successTxt = '';
-        if(xhr.statusText != undefined && xhr.statusText != '') {
+        if(xhr.responseJSON?.error) {
+          this.setError(xhr.responseJSON?.error)
+        } else if(xhr.statusText != undefined && xhr.statusText != '') {
           this.setError(xhr.statusText)
           console.log('Status Code:', xhr.status)
         } else {

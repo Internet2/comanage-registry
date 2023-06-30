@@ -46,7 +46,13 @@ export default {
     },
     showEdit() {
       this.editing = true;
-      this.$nextTick(() => this.$refs['passwordNew'].focus());
+      this.$nextTick(() => {
+        if(this.pwinfo.id == '') {
+          this.$refs?.passwordNew?.focus()
+        } else {
+          this.$refs?.passwordCurrent?.focus()
+        }
+      });
     },
     hideEdit() {
       this.editing = false;
@@ -103,8 +109,7 @@ export default {
 
       if(this.pwinfo.id != '') {
         pwDataSimple['Current'] = {
-          'password': this.pwinfo.password,
-          'password_id': this.pwinfo.id
+          'password': pwCurr
         }
       }
 
@@ -163,19 +168,15 @@ export default {
                 <label :for="generateId('cm-ssw-password-current')">
                   {{ txt.passwordCurrent }}
                 </label> 
+                <!-- For the current password it is unrealistic to assume that we know min and max length. -->
+                <!-- The configuration could be different now -->
                 <input 
                   type="password" 
                   :id="generateId('cm-ssw-password-current')"
-                  class="form-control cm-ssw-form-field-password" 
-                  :class="this.passwordInvalidClass"
-                  :minlength="this.pwinfo.pwMinLength"
-                  :maxlength="this.pwinfo.pwMaxLength"
+                  class="form-control cm-ssw-form-field-password"
                   value="" 
                   required="required"
                   ref="passwordCurrent"/>
-                  <div v-if="this.passwordInvalid" class="invalid-feedback">
-                    {{ this.passwordErrorMessage }}
-                  </div>
               </span>
               <span class="cm-ssw-form-field form-group">
                 <label :for="generateId('cm-ssw-password')">

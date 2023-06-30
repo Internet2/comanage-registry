@@ -172,52 +172,73 @@ class CoPasswordWidgetsController extends SDWController {
   }
 
 
+  /**
+   * Add or reset password
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
   public function password() {
     $this->request->allowMethod('ajax');
     $this->layout = 'ajax';
 
-    $model = $this->name;
-    $req = Inflector::singularize($model);
-
-    if($this->request->is('restful')) {
-      try {
-        $this->PasswordAuthenticator->id = $this->request->data["Password"]["password_authenticator_id"];
-
-        // Get and set password authenticator configuration
-        $args = array();
-        $args['conditions']["PasswordAuthenticator.id"] = $this->request->data["Password"]["password_authenticator_id"];
-        $args['contain'] = true;
-
-        $this->PasswordAuthenticator->setConfig($this->PasswordAuthenticator->find('first', $args));
-
-        $data = array(
-          'Password' => array(
-            'password_authenticator_id' => $this->request->data["Password"]["password_authenticator_id"],
-            'co_person_id'              => $this->request->data["Password"]["co_person_id"],
-            'password'                  => $this->request->data["Password"]["password"],
-            'password2'                 => $this->request->data["Password"]["password2"],
-            // We do not care about the password type since this is handled from the authenticator
-            // 'password_type'           => $this->request->data["Password"]["PasswordType"]
-          )
-        );
-
-        // Password Authenticators might save more than one records at one pass because they take into consideration
-        // all the different types of passwords.
-        $r = $this->PasswordAuthenticator->manage($data, $this->request->data["Password"]["co_person_id"]);
-        // Trigger provisioning
-        $this->PasswordAuthenticator->Authenticator->provision($this->request->data["Password"]["co_person_id"]);
-
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED);
-        $resp = array("ObjectType" => $req,
-                      "comment" => $r);
-      }
-      catch(Exception $e) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_INTERNAL_SERVER_ERROR);
-        $resp = array("ObjectType" => $req,
-                      "error" => $e->getMessage());
-      }
-      $this->set(compact('resp'));
-      $this->set('_serialize', 'resp');
+    if (!$this->request->is('restful')) {
+      throw new MethodNotAllowedException();
     }
+
+    $model = $this->name;
+    $req   = Inflector::singularize($model);
+
+    // Get the authenticator
+    $this->PasswordAuthenticator->id = $this->request->data["Password"]["password_authenticator_id"];
+
+    // Get and set password authenticator configuration
+    $args                                           = array();
+    $args['conditions']["PasswordAuthenticator.id"] = $this->request->data["Password"]["password_authenticator_id"];
+    $args['contain']                                = true;
+
+    $this->PasswordAuthenticator->setConfig($this->PasswordAuthenticator->find('first', $args));
+
+    try {
+      $data = array(
+        'Password' => array(
+          'password_authenticator_id' => $this->request->data["Password"]["password_authenticator_id"],
+          'co_person_id'              => $this->request->data["Password"]["co_person_id"],
+          'password'                  => $this->request->data["Password"]["password"],
+          'password2'                 => $this->request->data["Password"]["password2"],
+          // We do not care about the password type since this is handled from the authenticator
+          // 'password_type'           => $this->request->data["Password"]["PasswordType"]
+        )
+      );
+
+      // This is a reset
+      if(!empty($this->request->data["Current"])) {
+        $data['Password']['passwordc'] = $this->request->data["Current"]['password'];
+      }
+
+      // Password Authenticators might save more than one records at one pass because they take into consideration
+      // all the different types of passwords.
+      $r = $this->PasswordAuthenticator->manage($data, $this->request->data["Password"]["co_person_id"]);
+      // Trigger provisioning
+      $this->PasswordAuthenticator->Authenticator->provision($this->request->data["Password"]["co_person_id"]);
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED);
+      if(!empty($this->request->data["Current"])) {
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_OK);
+      }
+      $resp = array(
+        "ObjectType" => $req,
+        "comment"    => $r
+      );
+    } catch (InvalidArgumentException $e) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST);
+      $resp = array(
+        "ObjectType" => $req,
+        "error"      => $e->getMessage()
+      );
+    } catch (Exception $e) {
+      throw new InternalErrorException($e->getMessage());
+    }
+    $this->set(compact('resp'));
+    $this->set('_serialize', 'resp');
   }
 }
