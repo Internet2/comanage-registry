@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v4.2.1
+ * @since         COmanage Registry v4.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -34,14 +34,39 @@ class CoPasswordWidgetsController extends SDWController {
   public $uses = array(
     'PasswordWidget.CoPasswordWidget',
     'Authenticator',
-    'PasswordAuthenticator',
+    'PasswordAuthenticator.PasswordAuthenticator',
     'CO'
   );
 
   /**
+   * Callback before other controller methods are invoked or views are rendered.
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function beforeFilter() {
+    if(!empty($this->request->data["Password"]["co_password_widget_id"])
+       && $this->action == "password") {
+      $args = array();
+      $args['conditions']["CoPasswordWidget.id"] = $this->request->data["Password"]["co_password_widget_id"];
+      $args['contain'] = false;
+
+      $this->CoPasswordWidget->setConfig($this->CoPasswordWidget->find('first', $args));
+    }
+
+    // For ajax i accept only json format
+    if( $this->request->is('ajax') ) {
+      $this->RequestHandler->addInputType('json', array('json_decode', true));
+    }
+
+    parent::beforeFilter();
+  }
+
+
+  /**
    * Callback before views are rendered.
    *
-   * @since  COmanage Registry v4.2.1
+   * @since  COmanage Registry v4.3.0
    */
 
   public function beforeRender() {
@@ -61,7 +86,7 @@ class CoPasswordWidgetsController extends SDWController {
   /**
    * Render the widget according to the requested user and current configuration.
    *
-   * @since  COmanage Registry v4.2.1
+   * @since  COmanage Registry v4.3.0
    * @param  Integer $id CO Services Widget ID
    */
   
@@ -83,7 +108,7 @@ class CoPasswordWidgetsController extends SDWController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v4.2.1
+   * @since  COmanage Registry v4.3.0
    * @return Array Permissions
    */
   
@@ -106,7 +131,93 @@ class CoPasswordWidgetsController extends SDWController {
     // View an existing CO Password Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
+    $p['password'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     $this->set('permissions', $p);
     return($p[$this->action]);
+  }
+
+  /**
+   * Override the default sanity check performed in AppController
+   *
+   * @since  COmanage Registry v4.3.0
+   * @return Boolean True if sanity check is successful
+   */
+
+  public function verifyRequestedId() {
+    return true;
+  }
+
+
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v4.3.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    if($this->action == 'display') {
+      return parent::parseCOID($data);
+    }
+    $cfg = $this->CoPasswordWidget->getConfig();
+    $this->CoPasswordWidget->CoDashboardWidget->id = $cfg['CoPasswordWidget']["co_dashboard_widget_id"];
+    $this->CoPasswordWidget->CoDashboardWidget->CoDashboard->id = $this->CoPasswordWidget->CoDashboardWidget->field('co_dashboard_id');
+    $co_id = $this->CoPasswordWidget->CoDashboardWidget->CoDashboard->field('co_id');
+
+    if(!empty($co_id)) {
+      return $co_id;
+    }
+  }
+
+
+  public function password() {
+    $this->request->allowMethod('ajax');
+    $this->layout = 'ajax';
+
+    $model = $this->name;
+    $req = Inflector::singularize($model);
+
+    if($this->request->is('restful')) {
+      try {
+        $this->PasswordAuthenticator->id = $this->request->data["Password"]["password_authenticator_id"];
+
+        // Get and set password authenticator configuration
+        $args = array();
+        $args['conditions']["PasswordAuthenticator.id"] = $this->request->data["Password"]["password_authenticator_id"];
+        $args['contain'] = true;
+
+        $this->PasswordAuthenticator->setConfig($this->PasswordAuthenticator->find('first', $args));
+
+        $data = array(
+          'Password' => array(
+            'password_authenticator_id' => $this->request->data["Password"]["password_authenticator_id"],
+            'co_person_id'              => $this->request->data["Password"]["co_person_id"],
+            'password'                  => $this->request->data["Password"]["password"],
+            'password2'                 => $this->request->data["Password"]["password2"],
+            // We do not care about the password type since this is handled from the authenticator
+            // 'password_type'           => $this->request->data["Passwords"][0]["PasswordType"]
+          )
+        );
+
+        // Password Authenticators might save more than one records at one pass because they take into consideration
+        // all the different types of passwords.
+        $r = $this->PasswordAuthenticator->manage($data, $this->request->data["Password"]["co_person_id"]);
+        // Trigger provisioning
+        $this->PasswordAuthenticator->Authenticator->provision($this->request->data["Password"]["co_person_id"]);
+
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED);
+        $resp = array("ObjectType" => $req,
+                      "comment" => $r);
+      }
+      catch(Exception $e) {
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_INTERNAL_SERVER_ERROR);
+        $resp = array("ObjectType" => $req,
+                      "error" => $e->getMessage());
+      }
+      $this->set(compact('resp'));
+      $this->set('_serialize', 'resp');
+    }
   }
 }

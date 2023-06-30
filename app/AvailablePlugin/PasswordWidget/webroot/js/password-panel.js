@@ -20,7 +20,7 @@
  *
  * @link          https://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v4.2.1
+ * @since         COmanage Registry v4.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -63,7 +63,7 @@ export default {
       const pw = this.$refs.passwordNew.value; 
       const pwConf = this.$refs.passwordConfirm.value;
       let pwMethod = 'POST';
-      let url = `/registry/password_authenticator/passwords.json`
+      let url = `${this.core.webRoot}password_widget/co_password_widgets/password.json`
       
       // basic front-end validation: do the passwords match?
       if(pw != pwConf) {
@@ -89,29 +89,20 @@ export default {
 
       if(this.pwinfo.id != '') {
         // we're changing a PW
-        url = `/registry/password_authenticator/passwords/${this.pwinfo.id}.json`;
+        url = `${this.core.webRoot}password_authenticator/passwords/${this.pwinfo.id}.json`;
         pwMethod = 'PUT';
       }
-      
-      const pwData = {
-        "RequestType":"Passwords",
-        "Version":"1.0",
-        "Passwords":
-        [
-          {
-            "Version":"1.0",
-            "PasswordAuthenticatorId":this.pwinfo.pwAuthId,
-            "Person":
-            {
-              "Type":"CO",
-              "Id":this.core.coPersonId
-            },
-            "Password":pw,
-            "PasswordType":this.pwinfo.pwType
-          }
-        ]
+
+      const pwDataSimple = {
+        "Password": {
+          "password_authenticator_id":this.pwinfo.pwAuthId,
+          "co_person_id": this.core.coPersonId,
+          "password":pw,
+          "password2":pwConf,
+          "co_password_widget_id": this.core.passWidgetId
+        }
       };
-      
+
       displaySpinner();
       callRegistryAPI(
         url,
@@ -120,7 +111,7 @@ export default {
         this.updatePwSuccessCallback,
         '',
         this.updatePwFailCallback,
-        pwData
+        pwDataSimple
       );
     },
     updatePwSuccessCallback(xhr) {
@@ -203,7 +194,7 @@ export default {
             </span>
             <div class="cm-ssw-submit-buttons">
               <button @click.prevent="submitPassword" class="btn btm-small btn-primary cm-ssw-add-email-save-link">
-                {{ this.pwinfo.id == '' ? txt.add : txt.change }}
+                {{ this.pwinfo.id == '' ? txt.add : txt.reset }}
               </button>
             </div>
           </div>

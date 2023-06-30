@@ -24,7 +24,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v4.2.1
+ * @since         COmanage Registry v4.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -68,13 +68,14 @@
           coPersonId: '<?php print $vv_co_person_id; ?>',
           coId: '<?php print $vv_co_id; ?>',
           webRoot: '<?php print $this->webroot; ?>',
-          widget: 'widget<?php print $divid; ?>'
+          widget: 'widget<?php print $divid; ?>',
+          passWidgetId: '<?php print $vv_config['CoPasswordWidget']['id']; ?>'
         },
         txt: {
           add:                 "<?php print _txt('pl.passwordwidget.add'); ?>",
           addFail:             "<?php print _txt('er.passwordwidget.add'); ?>",
           cancel:              "<?php print _txt('op.cancel'); ?>",
-          change:              "<?php print _txt('pl.passwordwidget.change'); ?>",
+          reset:               "<?php print _txt('pl.passwordwidget.reset'); ?>",
           confirm:             "<?php print _txt('op.confirm'); ?>",
           done:                "<?php print _txt('op.done'); ?>",
           edit:                "<?php print _txt('op.edit'); ?>",

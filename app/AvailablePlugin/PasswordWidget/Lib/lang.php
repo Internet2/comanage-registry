@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v4.2.1
+ * @since         COmanage Registry v4.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -46,7 +46,7 @@ $cm_password_widget_texts['en_US'] = array(
 
   // Actions
   'pl.passwordwidget.add'                           => 'Add Password',
-  'pl.passwordwidget.change'                        => 'Change Password',
+  'pl.passwordwidget.reset'                         => 'Reset Password',
   
   // Fields
   'pl.passwordwidget.fd.authenticator'              => 'Password Authenticator',
