@@ -139,6 +139,12 @@
       'controller'    => 'co_navigation_links',
       'action'        => 'index'
     ),
+    _txt('ct.normalizers.pl') => array(
+      'icon'          => 'navigation',
+      'permissionKey' => 'normalizers',
+      'controller'    => 'normalizers',
+      'action'        => 'index'
+    ),
     _txt('ct.org_identity_sources.pl') => array(
       'icon'          => 'sync',
       'permissionKey' => 'orgidsources',

@@ -62,6 +62,7 @@ class Co extends AppModel {
     "CoLocalization" => array('dependent' => true),
     "CoMessageTemplate" => array('dependent' => true),
     "CoNavigationLink" => array('dependent' => true),
+    "CoNormalizer" => array('dependent' => true),
     // A CO can have zero or more CO people
     "CoPerson" => array('dependent' => true),
     // A CO can have zero or more petitions
