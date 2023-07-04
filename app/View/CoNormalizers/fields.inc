@@ -41,18 +41,18 @@
   print $this->element("coCrumb");
   $args = array();
   $args['plugin'] = null;
-  $args['controller'] = 'co_identifier_validators';
+  $args['controller'] = 'co_normalizers';
   $args['action'] = 'index';
   $args['co'] = $cur_co['Co']['id'];
-  $this->Html->addCrumb(_txt('ct.co_identifier_validators.pl'), $args);
-  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_identifier_validators.1')));
+  $this->Html->addCrumb(_txt('ct.co_normalizers.pl'), $args);
+  $crumbTxt = _txt('op.' . $this->action . '-a', array(_txt('ct.co_normalizers.1')));
   $this->Html->addCrumb($crumbTxt);
   
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
   
   $l = 1;
 ?>
-<ul id="<?php print $this->action; ?>_co_identifier_validators" class="fields form-list">
+<ul id="<?php print $this->action; ?>_co_normalizers" class="fields form-list">
   <li>
     <div class="field-name">
       <?php print _txt('fd.desc'); ?> 
@@ -60,7 +60,7 @@
     </div>
     <div class="field-info">
       <?php print ($e ? $this->Form->input('description', array('size' => '60', 'class' => 'focusFirst'))
-                      : filter_var($co_identifier_validators[0]['CoIdentifierValidator']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+                      : filter_var($co_normalizers[0]['CoNormalizer']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -68,7 +68,7 @@
       <div class="field-title">
         <?php print ($e && $this->action == 'add' ? $this->Form->label('plugin', _txt('fd.plugin')) : _txt('fd.plugin')); ?><span class="required">*</span><br />
       </div>
-      <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_identifier_validators.1'))); ?></div>
+      <div class="field-desc"><?php print _txt('fd.plugin.warn', array(_txt('ct.co_normalizers.1'))); ?></div>
     </div>
     <div class="field-info">
       <?php
@@ -76,8 +76,8 @@
           case 'add':
             $attrs = array();
             // Since this is add, value should always be null...
-            $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])
-                               ? $co_identifier_validators[0]['CoIdentifierValidator']['plugin']
+            $attrs['value'] = (isset($co_normalizers[0]['CoNormalizer']['plugin'])
+                               ? $co_normalizers[0]['CoNormalizer']['plugin']
                                : null);
             $attrs['empty'] = false;
             
@@ -90,12 +90,12 @@
             }
           break;
         case 'edit':
-          print filter_var($co_identifier_validators[0]['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
+          print filter_var($co_normalizers[0]['CoNormalizer']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
           // Send the value as hidden since it can't be changed (but is required by the model)
-          print $this->Form->hidden('plugin', array('default' => filter_var($co_identifier_validators[0]['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
+          print $this->Form->hidden('plugin', array('default' => filter_var($co_normalizers[0]['CoNormalizer']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
           
           // Create a direct link to configuration if this plugin is instantiated
-          $plugin = filter_var($co_identifier_validators[0]['CoIdentifierValidator']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
+          $plugin = filter_var($co_normalizers[0]['CoNormalizer']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
           $pl = Inflector::underscore($plugin);
           $plm = Inflector::tableize($plugin);
           
@@ -105,46 +105,17 @@
                 'plugin' => $pl,
                 'controller' => $plm,
                 'action' => 'edit',
-                $co_identifier_validators[0][$plugin]['id'],
-                'ivid' => $co_identifier_validators[0]['CoIdentifierValidator']['id']
+                $co_normalizers[0][$plugin]['id'],
+                'ivid' => $co_normalizers[0]['CoNormalizer']['id']
               ),
               array('class' => 'editbutton')) . "\n";
           }
           break;
         default:
-          if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['plugin'])) {
-            print $vv_plugins[ $co_identifier_validators[0]['CoIdentifierValidator']['plugin'] ];
+          if(!empty($co_normalizers[0]['CoNormalizer']['plugin'])) {
+            print $vv_plugins[ $co_normalizers[0]['CoNormalizer']['plugin'] ];
           }
           break;
-        }
-      ?>
-    </div>
-  </li>
-  <li>
-    <div class="field-name">
-      <?php print _txt('fd.type'); ?>
-      <span class="required">*</span>
-    </div>
-    <div class="field-info">
-      <?php
-        $attrs = array();
-        $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'])
-                           ? $co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id']
-                           : null);
-        $attrs['empty'] = false;
-        
-        if($e) {
-          print $this->Form->select('co_extended_type_id',
-                                    $vv_available_types,
-                                    $attrs);
-          
-          if($this->Form->isFieldError('co_extended_type_id')) {
-            print $this->Form->error('co_extended_type_id');
-          }
-        } else {
-          if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'])) {
-            print $vv_available_types[ $co_identifier_validators[0]['CoIdentifierValidator']['co_extended_type_id'] ];
-          }
         }
       ?>
     </div>
@@ -157,8 +128,8 @@
       <?php
         global $cm_lang, $cm_texts;
         $attrs = array();
-        $attrs['value'] = (isset($co_identifier_validators[0]['CoIdentifierValidator']['status'])
-                           ? $co_identifier_validators[0]['CoIdentifierValidator']['status']
+        $attrs['value'] = (isset($co_normalizers[0]['CoNormalizer']['status'])
+                           ? $co_normalizers[0]['CoNormalizer']['status']
                            : SuspendableStatusEnum::Active);
         $attrs['empty'] = false;
         
@@ -171,11 +142,24 @@
             print $this->Form->error('status');
           }
         } else {
-          if(!empty($co_identifier_validators[0]['CoIdentifierValidator']['status'])) {
-            print _txt('en.status', null, $co_identifier_validators[0]['CoIdentifierValidator']['status']);
+          if(!empty($co_normalizers[0]['CoNormalizer']['status'])) {
+            print _txt('en.status', null, $co_normalizers[0]['CoNormalizer']['status']);
           }
         }
       ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ordr', _txt('fd.order')) : _txt('fd.order')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.order.es.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('ordr')
+        : filter_var($co_normalizers[0]['CoNormalizer']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if($e): ?>

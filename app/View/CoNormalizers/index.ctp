@@ -40,7 +40,7 @@
     $params['topLinks'][] = $this->Html->link(
       _txt('op.add-a', array(_txt('ct.co_normalizers.1'))),
       array(
-        'controller' => 'normalizers',
+        'controller' => 'co_normalizers',
         'action' => 'add',
         'co' => $cur_co['Co']['id']
       ),

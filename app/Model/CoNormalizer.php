@@ -27,6 +27,7 @@
 
 class CoNormalizer extends AppModel {
   // Define class name for cake
+  // XXX We need to use the name CoNormarlizer instead of Normalizer due to namespaces
   public $name = "CoNormalizer";
 
   // Current schema version for API
