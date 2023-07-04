@@ -85,14 +85,12 @@ class CoNormalizer extends AppModel {
   public function beforeSave($options = array()) {
     // Start a transaction -- we'll commit in afterSave.
 
-    $this->_begin();
-
     if(empty($this->data['CoNormalizer']['ordr'])) {
       // Find the current high value and add one
       $n = 1;
 
       $args = array();
-      $args['fields'][] = "MAX(Normalizer.ordr) as m";
+      $args['fields'][] = "MAX(CoNormalizer.ordr) as m";
       $args['conditions']['CoNormalizer.co_normalizer_id'] = $this->data['CoNormalizer']['co_normalizer_id'];
       $args['order'][] = "m";
 

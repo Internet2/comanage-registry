@@ -89,8 +89,8 @@
           </td>
           <td>
             <?php
-            if(!empty($c['CoNormalizer']['order'])) {
-              print $c['CoNormalizer']['order'];
+            if(!empty($c['CoNormalizer']['ordr'])) {
+              print $c['CoNormalizer']['ordr'];
             }
             ?>
           </td>
