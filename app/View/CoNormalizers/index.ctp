@@ -106,11 +106,11 @@
               if($permissions['edit']) {
                 print $this->Html->link(_txt('op.edit'),
                     array(
-                      'controller' => 'normalizers',
+                      'controller' => 'co_normalizers',
                       'action' => 'edit',
                       $c['CoNormalizer']['id']
                     ),
-                    array('class' => 'editbutton')) . "\n";
+                    array('class' => 'editbutton')) . PHP_EOL;
 
                 // Create a direct link to configuration if this plugin is instantiated
                 $plugin = filter_var($c['CoNormalizer']['plugin'],FILTER_SANITIZE_SPECIAL_CHARS);
@@ -126,7 +126,7 @@
                       $c[$plugin]['id'],
                       'ivid' => $c['CoNormalizer']['id']
                     ),
-                    array('class' => 'editbutton')) . "\n";
+                    array('class' => 'editbutton')) . PHP_EOL;
                 }
               }
 
