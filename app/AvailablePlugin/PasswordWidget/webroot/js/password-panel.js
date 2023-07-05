@@ -127,7 +127,7 @@ export default {
     updatePwSuccessCallback(xhr) {
       stopSpinner();
       if(xhr.responseJSON !== undefined) {
-        this.clearInvalid();
+        this.hideEdit();
         this.refreshDisplay();
         this.$parent.successTxt = xhr.statusText;
         this.$parent.setError('');
