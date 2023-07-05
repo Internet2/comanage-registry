@@ -2299,6 +2299,7 @@ The request may be viewed at
   // XXX replace these?
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',
+  'op.order.normalizers' =>  'Reorder Normalizers',
   'op.orgid.add.ois' => 'Add New Org Identity From Source',
   'op.orgid.edit.ois' => 'This Organizational Identity was created from an Organizational Identity Source (%1$s) and therefore cannot be edited.',
   'op.orgid.petition.ois' => 'Add New Org Identity From Source and Link To Petition',

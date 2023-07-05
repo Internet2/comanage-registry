@@ -74,19 +74,7 @@ class CoNormalizersController extends StandardController {
     
     $this->set('vv_inst_plugins', $iPlugins);
   }
-  
-  /**
-   * Callback after controller methods are invoked but before views are rendered.
-   * - precondition: Request Handler component has set $this->request->params
-   *
-   * @since  COmanage Registry v4.3.0
-   */
 
-  function beforeRender() {
-
-    parent::beforeRender();
-  }
-  
   /**
    * Perform any dependency checks required prior to a delete operation.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
@@ -113,6 +101,10 @@ class CoNormalizersController extends StandardController {
         $model = $plugin;
         
         if(!empty($curdata[$model]['id'])) {
+          // (CO-1988)Remove the plugin object from the instance and enforce the creation of a new one
+          if(!empty(ClassRegistry::getObject($model))) {
+            ClassRegistry::removeObject($model);
+          }
           $this->loadModel($plugin . "." . $model);
           $this->$model->delete($curdata[$model]['id']);
         }
@@ -154,10 +146,33 @@ class CoNormalizersController extends StandardController {
     // View an existing Normalizer?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
+    // Reorder an existing Normalizer?
+    $p['reorder'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['order'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }
-  
+
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v4.3.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = NULL) {
+    if($this->action == 'order'
+       || $this->action == 'reorder') {
+      if(isset($this->request->params['named']['co'])) {
+        return $this->request->params['named']['co'];
+      }
+    }
+
+    return parent::parseCOID();
+  }
+
   /**
    * Perform a redirect back to the controller's default view.
    * - postcondition: Redirect generated

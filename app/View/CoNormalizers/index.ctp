@@ -48,6 +48,21 @@
     );
   }
 
+if($permissions['order']) {
+  // Reorder button
+  $params['topLinks'][] = $this->Html->link(
+    _txt('op.order.normalizers'),
+    array(
+      'controller' => 'co_normalizers',
+      'action'     => 'order',
+      'co' => $cur_co['Co']['id'],
+      'direction'  => 'asc',
+      'sort'       => 'ordr'
+    ),
+    array('class' => 'movebutton')
+  );
+}
+
   print $this->element("pageTitleAndButtons", $params);
 ?>
 <?php if(empty($vv_plugins)): ?>
@@ -136,7 +151,7 @@
                   . _txt('js.remove') . '\',\''    // dialog body text
                   . $this->Html->url(              // dialog confirm URL
                     array(
-                      'controller' => 'normalizers',
+                      'controller' => 'co_normalizers',
                       'action' => 'delete',
                       $c['CoNormalizer']['id']
                     )
