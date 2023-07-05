@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Standard CO Normalizers (SNE) Controller
+ * COmanage Registry Standard Normalizers (SNO) Controller
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,7 +27,7 @@
 
 App::uses("StandardController", "Controller");
 
-class SNEController extends StandardController {
+class SNOController extends StandardController {
   public $requires_co = true;
   
   /**
@@ -44,15 +44,15 @@ class SNEController extends StandardController {
     $modelpl = Inflector::tableize($req);
     
     // Find the ID of our parent
-    $norid = -1;
+    $noid = -1;
     
-    if(!empty($this->params->named['norid'])) {
-      $norid = filter_var($this->params->named['norid'],FILTER_SANITIZE_SPECIAL_CHARS);
+    if(!empty($this->params->named['noid'])) {
+      $noid = filter_var($this->params->named['noid'],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(!empty($this->viewVars[$modelpl][0][$req])) {
-      $norid = $this->viewVars[$modelpl][0][$req]['co_normalizer_id'];
+      $noid = $this->viewVars[$modelpl][0][$req]['co_normalizer_id'];
     }
     
-    $this->set('vv_norid', $norid);
+    $this->set('vv_noid', $noid);
   }
   
   /**
