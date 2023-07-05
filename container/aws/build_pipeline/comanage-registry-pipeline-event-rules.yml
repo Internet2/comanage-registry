@@ -1,0 +1,19 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Event rules for executing COmanage Registry pipelines'
+
+Resources:
+  COmanageRegistryDevelopNightly:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: comanage-registry-develop-nightly
+      Description: "COmanage Registry develop nightly build at 9:00 UTC"
+      RoleArn: !ImportValue comanage-registry-pipeline-iam::PipelineRunnerRoleArn
+      ScheduleExpression: "cron(0 9 * * ? *)"
+      State: ENABLED
+      Targets:
+        - Arn: !Sub
+          - "arn:aws:codepipeline:us-east-2:${AWS::AccountId}:${PipelineName}"
+          - PipelineName: !ImportValue comanage-registry-develop-pipeline::PipelineName
+          Id: comanage-registry-develop-nightly
+          RoleArn: !ImportValue comanage-registry-pipeline-iam::PipelineRunnerRoleArn

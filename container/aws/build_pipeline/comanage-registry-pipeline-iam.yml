@@ -1,0 +1,47 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'IAM used with CodePipeline for COmanage Registry container images'
+
+Resources:
+  CILogonCOmanagePipelineRunnerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: 'Allow running of COmanage Registry pipelines'
+      ManagedPolicyName: CILogonCOmanagePipelineRunnerPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'codepipeline:StartPipelineExecution'
+            Resource:
+              - !Sub
+                - "arn:aws:codepipeline:us-east-2:${AWS::AccountId}:${PipelineName}"
+                - PipelineName: !ImportValue comanage-registry-develop-pipeline::PipelineName
+
+  CILogonCOmanagePipelineRunnerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CILogonCOmanagePipelineRunnerRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+      Description: 'Role assumed to run COmanage Registry pipeline builds'
+      ManagedPolicyArns:
+        - !Ref CILogonCOmanagePipelineRunnerPolicy
+      MaxSessionDuration: 7200
+
+Outputs:
+  CILogonCOmanagePipelineRunnerRoleArn:
+    Value:
+      Fn::GetAtt:
+        - CILogonCOmanagePipelineRunnerRole
+        - Arn
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}::PipelineRunnerRoleArn"
