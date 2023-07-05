@@ -46,7 +46,7 @@ class CoPasswordWidgetsController extends SDWController {
 
   public function beforeFilter() {
     if(!empty($this->request->data["Password"]["co_password_widget_id"])
-       && $this->action == "password") {
+       && $this->action == "manage") {
       $args = array();
       $args['conditions']["CoPasswordWidget.id"] = $this->request->data["Password"]["co_password_widget_id"];
       $args['contain'] = false;
@@ -131,54 +131,24 @@ class CoPasswordWidgetsController extends SDWController {
     // View an existing CO Password Widget?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
 
-    $p['password'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // Get list of password
+    $p['passwords'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+
+    // Manage passwords
+    $p['manage'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
 
     $this->set('permissions', $p);
     return($p[$this->action]);
   }
 
-  /**
-   * Override the default sanity check performed in AppController
-   *
-   * @since  COmanage Registry v4.3.0
-   * @return Boolean True if sanity check is successful
-   */
-
-  public function verifyRequestedId() {
-    return true;
-  }
-
 
   /**
-   * For Models that accept a CO ID, find the provided CO ID.
-   * - precondition: A coid must be provided in $this->request (params or data)
-   *
-   * @since  COmanage Registry v4.3.0
-   * @return Integer The CO ID if found, or -1 if not
-   */
-
-  public function parseCOID($data = null) {
-    if($this->action == 'display') {
-      return parent::parseCOID($data);
-    }
-    $cfg = $this->CoPasswordWidget->getConfig();
-    $this->CoPasswordWidget->CoDashboardWidget->id = $cfg['CoPasswordWidget']["co_dashboard_widget_id"];
-    $this->CoPasswordWidget->CoDashboardWidget->CoDashboard->id = $this->CoPasswordWidget->CoDashboardWidget->field('co_dashboard_id');
-    $co_id = $this->CoPasswordWidget->CoDashboardWidget->CoDashboard->field('co_id');
-
-    if(!empty($co_id)) {
-      return $co_id;
-    }
-  }
-
-
-  /**
-   * Add or reset password
+   * Add or reset passwords (manage)
    *
    * @since  COmanage Registry v4.3.0
    */
 
-  public function password() {
+  public function manage() {
     $this->request->allowMethod('ajax');
     $this->layout = 'ajax';
 
@@ -189,15 +159,13 @@ class CoPasswordWidgetsController extends SDWController {
     $model = $this->name;
     $req   = Inflector::singularize($model);
 
+    $cfg = $this->CoPasswordWidget->getConfig();
     // Get the authenticator
-    $this->PasswordAuthenticator->id = $this->request->data["Password"]["password_authenticator_id"];
+    $args = array();
+    $args['conditions']['authenticator_id'] = $cfg['CoPasswordWidget']['authenticator_id'];
+    $pwAuthenticator = $this->PasswordAuthenticator->find('first', $args);
 
-    // Get and set password authenticator configuration
-    $args                                           = array();
-    $args['conditions']["PasswordAuthenticator.id"] = $this->request->data["Password"]["password_authenticator_id"];
-    $args['contain']                                = true;
-
-    $this->PasswordAuthenticator->setConfig($this->PasswordAuthenticator->find('first', $args));
+    $this->PasswordAuthenticator->setConfig($pwAuthenticator);
 
     try {
       $data = array(
@@ -240,5 +208,92 @@ class CoPasswordWidgetsController extends SDWController {
     }
     $this->set(compact('resp'));
     $this->set('_serialize', 'resp');
+  }
+
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v4.3.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    if($this->action == 'display') {
+      return parent::parseCOID($data);
+    }
+    $cfg = $this->CoPasswordWidget->getConfig();
+    $this->CoPasswordWidget->CoDashboardWidget->id = $cfg['CoPasswordWidget']["co_dashboard_widget_id"];
+    $this->CoPasswordWidget->CoDashboardWidget->CoDashboard->id = $this->CoPasswordWidget->CoDashboardWidget->field('co_dashboard_id');
+    $co_id = $this->CoPasswordWidget->CoDashboardWidget->CoDashboard->field('co_id');
+
+    if(!empty($co_id)) {
+      return $co_id;
+    }
+  }
+
+
+  /**
+   * Add or reset passwords (manage)
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function passwords($id) {
+    $this->request->allowMethod('ajax');
+    $this->layout = 'ajax';
+
+    if (!$this->request->is('restful')) {
+      throw new MethodNotAllowedException();
+    }
+
+    $coPersonId = $this->Session->read('Auth.User.co_person_id');
+    if (empty($coPersonId)) {
+      throw new BadRequestException();
+    }
+
+    $model = $this->name;
+    $req   = Inflector::singularize($model);
+
+    $cfg = $this->CoPasswordWidget->getConfig();
+    // Get the authenticator
+    $args = array();
+    $args['conditions']['authenticator_id'] = $cfg['CoPasswordWidget']['authenticator_id'];
+    $pwAuthenticator = $this->PasswordAuthenticator->find('first', $args);
+
+    $this->PasswordAuthenticator->setConfig($pwAuthenticator);
+
+    // Get the person passwords
+    $args = array();
+    $args['conditions']['Password.co_person_id'] = $coPersonId;
+    $args['conditions']['Password.password_authenticator_id'] = $pwAuthenticator['PasswordAuthenticator']["id"];
+    $args['contain'] = false;
+
+    try {
+      $resp = $this->PasswordAuthenticator->Password->find('all', $args);
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_OK);
+    } catch (InvalidArgumentException $e) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST);
+      $resp = array(
+        "ObjectType" => $req,
+        "error"      => $e->getMessage()
+      );
+    } catch (Exception $e) {
+      throw new InternalErrorException($e->getMessage());
+    }
+
+    $this->set(compact('resp'));
+    $this->set('_serialize', 'resp');
+  }
+
+  /**
+   * Override the default sanity check performed in AppController
+   *
+   * @since  COmanage Registry v4.3.0
+   * @return Boolean True if sanity check is successful
+   */
+
+  public function verifyRequestedId() {
+    return true;
   }
 }

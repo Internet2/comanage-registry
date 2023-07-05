@@ -98,20 +98,21 @@
     },
     methods: {
       getPasswords() {
-        let url = '<?php print $this->webroot ?>/password_authenticator/passwords.json?copersonid=<?php print $vv_co_person_id ?>';
+        let url = '<?php print $this->webroot ?>/password_widget/co_password_widgets/passwords/<?php print $vv_config['CoPasswordWidget']['id']?>.json';
         let xhr = callRegistryAPI(url, 'GET', 'json', this.setPasswordInfo, '', this.generalXhrFailCallback);
       },
       setPasswordInfo: function(xhr){
         let passwords = [];
         if(xhr.responseJSON !== undefined
-           && xhr.responseJSON.Passwords !== undefined) {
-          passwords = xhr.responseJSON.Passwords;
+           && xhr.responseJSON?.length > 0) {
+          passwords = xhr.responseJSON;
+          const password = passwords[0]?.Password
           // Even though we might have multiple password records, one for each type.
           // We only care about the existence of the Id and not the Id itself
-          this.pwinfo.id = passwords[0].Id ?? '';
-          this.pwinfo.pwRetrievedAuthId = passwords[0].PasswordAuthenticatorId ?? '';
-          this.pwinfo.pwRetrievedType = passwords[0].PasswordType ?? '';
-          this.pwinfo.pwRetrievedPersonId = passwords[0].Person.Id ?? '';
+          this.pwinfo.id = password.id ?? '';
+          this.pwinfo.pwRetrievedAuthId = password?.password_authenticator_id ?? '';
+          this.pwinfo.pwRetrievedType = password?.password_type ?? '';
+          this.pwinfo.pwRetrievedPersonId = password?.co_person_id ?? '';
         }
       },
       setError(txt) {

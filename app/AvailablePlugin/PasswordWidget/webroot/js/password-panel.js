@@ -73,7 +73,7 @@ export default {
         pwCurr = this.$refs.passwordCurrent.value;
       }
       let pwMethod = 'POST';
-      let url = `${this.core.webRoot}password_widget/co_password_widgets/password.json`
+      let url = `${this.core.webRoot}password_widget/co_password_widgets/manage.json`
       
       // basic front-end validation: do the passwords match?
       if(pw != pwConf) {
