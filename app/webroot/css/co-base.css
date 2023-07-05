@@ -2816,7 +2816,6 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
 }
 .cm-ssw-form-row-fields {
   display: flex;
-  align-items: end;
   padding: 1em;
   gap: 1em;
 }
