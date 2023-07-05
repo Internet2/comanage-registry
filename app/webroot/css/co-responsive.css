@@ -533,6 +533,7 @@
     align-items: center;
     border-bottom: 1em solid transparent;
     justify-content: space-between;
+    align-items: end;
   }
   /* GENERAL */
   .submit-buttons {
