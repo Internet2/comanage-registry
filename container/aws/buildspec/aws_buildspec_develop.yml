@@ -18,7 +18,7 @@ phases:
       - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=develop-$SHORT_COMMIT_HASH --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH crond
       #
       - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
-      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-$ARCH
       #
       - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
       - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-$ARCH
