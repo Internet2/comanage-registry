@@ -46,5 +46,5 @@ phases:
       - docker push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-$ARCH
       #
       - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
-      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
       - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-$ARCH
