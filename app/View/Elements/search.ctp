@@ -210,8 +210,7 @@ $hasActiveFilters = false;
             <?php if(!empty($field_checkbox_columns[0])): ?>
             <div class="top-search-checkboxes input">
               <?php foreach($field_checkbox_columns[0] as $group => $fcheckboxes): ?>
-              <div class="top-search-checkbox-label mr-2"><?php print $group; ?></div>
-                <div class="top-search-checkbox-fields">
+              <div class="top-search-checkbox-fields">
                 <?php foreach($fcheckboxes as $fcheckbox): ?>
                   <div class="form-check form-check-inline">
                   <?php
@@ -237,7 +236,6 @@ $hasActiveFilters = false;
             <?php if(!empty($field_checkbox_columns[1])): ?>
             <div class="top-search-checkboxes input">
               <?php foreach($field_checkbox_columns[1] as $group => $fcheckboxes): ?>
-                <div class="top-search-checkbox-label mr-2"><?php print $group; ?></div>
                 <div class="top-search-checkbox-fields">
                   <?php foreach($fcheckboxes as $fcheckbox): ?>
                     <div class="form-check form-check-inline">
