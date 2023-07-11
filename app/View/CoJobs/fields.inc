@@ -210,6 +210,38 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print _txt('fd.job.max_retry'); ?>
+      </div>
+      <div class="field-desc">
+        <?php print _txt('fd.job.max_retry.desc',
+                         array($co_jobs[0]['CoJob']['max_retry'] ?? $vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"] ?? "-"));
+        ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_jobs[0]['CoJob']['max_retry'] ?? $vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"] ?? "-", FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.max_retry_count'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.job.max_retry_count.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      if(isset($vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"])) {
+        print filter_var(($co_jobs[0]['CoJob']['max_retry_count'] + 1) ?? 1, FILTER_SANITIZE_STRING)
+          . " out of "
+          . ($co_jobs[0]['CoJob']['max_retry'] ?? $vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"]);
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print _txt('fd.job.requeued_from_co_job_id'); ?>
       </div>
     </div>
