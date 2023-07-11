@@ -1476,6 +1476,7 @@ The request may be viewed at
   'fd.ef.appr.desc' => 'If administrator approval is required, a Petition must be approved before the Enrollee becomes active.',
   'fd.ef.appr.pl' =>  'Approvers',
   'fd.ef.appr.gr' =>  'Members of this Group are authorized approvers (or else CO/COU admins by default)',
+  'fd.ef.archived' => 'The configuration of this Enrollment Flow changed after the creation of this Petition.',
   'fd.ef.asub' =>     'Subject For Approval Email',
   'fd.ef.asub.desc' => 'Subject line for email message sent after Petition is approved.',
   'fd.ef.authenticators' => 'Establish Authenticators',
