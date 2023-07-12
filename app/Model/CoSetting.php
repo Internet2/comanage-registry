@@ -605,32 +605,4 @@ class CoSetting extends AppModel {
       array('CoSetting.global_search_limit'=> DEF_GLOBAL_SEARCH_LIMIT)
     );
   }
-
-
-  /**
-   * Perform CoSetting model upgrade steps for version 4.3.0.
-   * This function should only be called by UpgradeVersionShell.
-   *
-   * @since  COmanage Registry v4.3.0
-   */
-
-  public function _ug430() {
-    // Temporarily unbind all relations
-    $this->unbindModel(
-      array(
-        'belongsTo' => array(
-          "Co",
-          "SponsorCoGroup",
-          "CoPipeline",
-          "CoDashboard",
-          "CoTheme"
-        ),
-      )
-    );
-
-    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
-    $this->updateAll(
-      array('CoSetting.garbage_collection_interval'=> DEF_GARBAGE_COLLECT_INTERVAL)
-    );
-  }
 }
