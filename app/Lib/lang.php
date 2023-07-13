@@ -1614,7 +1614,7 @@ The request may be viewed at
   'fd.false' =>       'False',
   'fd.garbage.collect' => 'Garbage Collection',
   'fd.garbage.collect.interval' => 'Re-queue Interval',
-  'fd.garbage.collect.interval.desc' => 'After the job successfully schedules, it will automatically execute and re-queue after this interval (in seconds).',
+  'fd.garbage.collect.interval.desc' => 'After the job successfully schedules, it will automatically execute and re-queue after this interval (in minutes).',
   'fd.group.desc.adm' => '%1$s Administrators',
   'fd.group.desc.apr' => '%1$s Approvers',
   'fd.group.desc.mem' => '%1$s Members',

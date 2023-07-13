@@ -37,7 +37,7 @@ define("DEF_INV_VALIDITY", 1440);
 define("DEF_GROUP_SYNC_WINDOW", 1440);
 
 // Default window for Garbage Collection
-define("DEF_GARBAGE_COLLECT_INTERVAL", 86400);
+define("DEF_GARBAGE_COLLECT_INTERVAL", 1440);
 
 // Default global search limit
 define("DEF_GLOBAL_SEARCH_LIMIT", 500);
