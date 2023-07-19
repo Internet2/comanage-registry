@@ -41,23 +41,25 @@
   
   print $this->Form->create(false, $options);
 ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <span class="ui-icon ui-icon-info co-info"></span>
-  <strong><?php 
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <span class="co-info-topbox-text">
+  <?php 
     // For the password reset action, we pass in a link to direct password change
     if(!empty($vv_authenticator_change_url)) {
       print _txt("pl.recoverywidget.lookup.$vv_task.info", array($this->Html->url($vv_authenticator_change_url)));
     } else {
       print _txt("pl.recoverywidget.lookup.$vv_task.info");
     }
-  ?></strong>
+  ?>
+  </span>
 </div>
 
 <ul id="<?php print $this->action; ?>_recovery" class="fields form-list">
   <li>
     <div class="field-name vtop">
       <div class="field-title">
-        <?php print _txt('pl.recoverywidget.lookup.q'); ?>
+        <?php print $this->Form->label('q',_txt('pl.recoverywidget.lookup.q')); ?>
       </div>
     </div>
     <div class="field-info">
