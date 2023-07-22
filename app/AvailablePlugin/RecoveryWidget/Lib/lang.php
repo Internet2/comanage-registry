@@ -63,7 +63,7 @@ $cm_recovery_widget_texts['en_US'] = array(
   'pl.recoverywidget.task.confirmation_resend'        => 'Request Confirmation Resend',
   'pl.recoverywidget.task.identifier_lookup'          => 'Request Identifier',
   'pl.recoverywidget.task.reenter_flow'               => 'Restart Enrollment Flow',
-  'pl.recoverywidget.lookup.authenticator_reset.info' => 'Enter a verified email address or registered identifier to proceed.</p>If you still know your password, click <a href="%1$s">here</a> to directly select a new password.',
+  'pl.recoverywidget.lookup.authenticator_reset.info' => 'Enter a verified email address or registered identifier to proceed. If you still know your password, <a href="%1$s">you may directly select a new password instead</a>.',
   'pl.recoverywidget.lookup.confirmation_resend.info' => 'Enter the email address or authenticated identifier associated with the enrollment.',
   'pl.recoverywidget.lookup.identifier_lookup.info'   => 'Enter a verified email address or a different registered identifier to proceed.',
   'pl.recoverywidget.lookup.reenter_flow.info'        => 'Enter the email address or authenticated identifier associated with the enrollment.',
