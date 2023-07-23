@@ -97,7 +97,7 @@ class CoIdentifierAssignment extends AppModel {
                                                  IdentifierEnum::OpenID,
                                                  IdentifierEnum::UID))),
         'required' => false,
-        'allowEmpty' => false
+        'allowEmpty' => true
       )
     ),
     'email_type' => array(

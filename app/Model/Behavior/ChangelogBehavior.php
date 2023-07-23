@@ -564,7 +564,6 @@ class ChangelogBehavior extends ModelBehavior {
       $belongs = $model->belongsTo;
       $contain = array_merge(array_keys($has), array_keys($belongs));
     }
-    
     $ret = $contain;
     
     foreach($contain as $k => $v) {
