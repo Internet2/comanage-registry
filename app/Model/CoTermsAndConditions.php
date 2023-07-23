@@ -98,12 +98,15 @@ class CoTermsAndConditions extends AppModel {
 
     // if we created a new T&C and added a URL pointing to our T&C body,
     // we need to re-save the model with the newly created model id
-    if($created && !empty($this->data['CoTermsAndConditions']['body'])) {
-      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
-                             "controller" => "CoTermsAndConditions",
-                             "action" => "display",
-                             $this->data['CoTermsAndConditions']['id']
-                           ), true);
+    $url = $this->data['CoTermsAndConditions']['url'];
+    $new_route = Router::url(array(
+                               "controller" => "CoTermsAndConditions",
+                               "action" => "display",
+                               $created ? $this->data['CoTermsAndConditions']['id'] : $this->id
+                             ), true);
+    if(!empty($this->data['CoTermsAndConditions']['body'])
+       && $url != $new_route) {
+      $this->data['CoTermsAndConditions']['url'] = $new_route;
       $this->save();
     }
 
@@ -136,16 +139,6 @@ class CoTermsAndConditions extends AppModel {
       }
 
       $this->data['CoTermsAndConditions']['ordr'] = $n;
-    }
-
-    // if we have a body for our T&C, override any URL with a local
-    // URL to display said body
-    if (!empty($this->data['CoTermsAndConditions']['body'])) {
-      $this->data['CoTermsAndConditions']['url'] = Router::url(array(
-                             "controller" => "CoTermsAndConditions",
-                             "action" => "display",
-                             $this->data['CoTermsAndConditions']['id']
-                           ), true);
     }
 
     return true;

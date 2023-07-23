@@ -127,7 +127,7 @@ class Identifier extends AppModel {
                                                  IdentifierEnum::StudentSOR,
                                                  IdentifierEnum::UID))),
         'required' => true,
-        'allowEmpty' => false
+        'allowEmpty' => true
       )
     ),
     'login' => array(
