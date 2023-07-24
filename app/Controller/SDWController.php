@@ -46,9 +46,7 @@ class SDWController extends StandardController {
     // (Otherwise StandardController will think we're Authenticator, since
     // that's first in $uses.)
     $this->modelClass = Inflector::singularize($this->name);
-    
-    parent::beforeFilter();
-    
+
     if(!empty($this->request->params['pass'][0])) {
       // Pull the backend config for the plugin
       $args = array();
@@ -57,7 +55,9 @@ class SDWController extends StandardController {
       
       $this->{$this->modelClass}->setConfig($this->{$this->modelClass}->find('first', $args));
     }
-    
+
+    parent::beforeFilter();
+
     // It's plausible at some point we might support rendering for users other
     // than the logged in user.
     $this->reqCoPersonId = $this->Session->read('Auth.User.co_person_id');
