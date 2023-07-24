@@ -340,11 +340,11 @@ class CoPersonRole extends AppModel {
     // Cache the current record
     $this->cachedData = null;
     
-    if(!empty($this->data[$this->alias]['id'])) {
+    if(!empty($this->data[$this->alias]['id']) || !empty($this->id)) {
       // We have an existing record
       
       $args = array();
-      $args['conditions'][$this->alias.'.id'] = $this->data[$this->alias]['id'];
+      $args['conditions'][$this->alias.'.id'] = $this->data[$this->alias]['id'] ?? $this->id;
       $args['contain'] = false;
 
       $this->cachedData = $this->find('first', $args);

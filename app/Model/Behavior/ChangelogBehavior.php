@@ -119,6 +119,7 @@ class ChangelogBehavior extends ModelBehavior {
     if($this->isDeleted($model, $model->id, true)) {
       // We can't really pass back an error to be nicely rendered, but we can
       // at least force a stack trace.
+      $dataSource->rollback();
       throw new RuntimeException(_txt('er.delete.already'));
     }
     

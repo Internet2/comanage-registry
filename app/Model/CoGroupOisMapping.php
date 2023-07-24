@@ -180,10 +180,11 @@ class CoGroupOisMapping extends AppModel {
               // could store multiple rows in co_group_members, but nothing
               // really supports that right now.)
               
-              // If there is more than one entry, we'll pick the latest one based
-              // on valid_through date, unless that entry is in the future and we
-              // have a current record. This won't cover every use case, but is
-              // probably a good enough first pass.
+              // Our order of preference is
+              // (1) The "active" membership with the latest valid_through date.
+              // (2) The "future" membership with the earlest valid_from date.
+              // (3) The "expired" membership with the latest valid_through date.
+              // This calculation is a little verbose in order to improve readability.
               
               $f0 = $ret[ $m['CoGroupOisMapping']['co_group_id'] ]['valid_from']
                     ? CakeTime::toUnix($ret[ $m['CoGroupOisMapping']['co_group_id'] ]['valid_from']) : null;
@@ -193,27 +194,37 @@ class CoGroupOisMapping extends AppModel {
               $t1 = $r['valid_through'] ? CakeTime::toUnix($r['valid_through']) : null;
               $now = time();
               
-              if((!$f0 || ($f0 < $now))
-                 || (!$t0 || ($t0 > $now))) {
-                // The record we already have is "current", so ignore the new one,
-                // unless the next record has a later validity date.
-                
-                if(!$t0 
-                   || ($t1 && ($t0 > $t1))) {
-                  continue;
+              $status0 = ((!$f0 || ($f0 < $now)) && (!$t0 || ($t0 >= $now))) ? "active" :
+                          ((($f0 && ($f0 > $now)) && (!$t0 || ($t0 >= $now))) ? "future" : "expired");
+              $status1 = ((!$f1 || ($f1 < $now)) && (!$t1 || ($t1 >= $now))) ? "active" :
+                          ((($f1 && ($f1 > $now)) && (!$t1 || ($t1 >= $now))) ? "future" : "expired");
+              
+              if($status1 == "active") {
+                // Pick the new record if the current one is not active
+                // OR the new one has a later valid_through time
+                if($status0 != "active"
+                   || $t1 > $t0) {
+                  // Use the new record
+                  $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
                 }
-              }
-              
-              // The record we already have is not "current", if the new one is
-              // use that instead.
-              
-              if(((!$f1 || ($f1 < $now))
-                  || ($t1 || ($t1 > $now)))
-                 ||
-                 // If neither is "current", pick the latest valid through
-                 ($t1 && ($t1 > $t0))) {
-                // Use this record instead
-                $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
+              } elseif($status0 == "active") {
+                // The current record is active and the new one is not, keep the current one
+              } elseif($status1 == "future") {
+                // Pick the new record is the current one is expired
+                // OR the new one has an earlier valid_from date
+                if($status0 == "expired"
+                   || $f1 < $f0) {
+                  // Use the new record
+                  $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
+                }
+              } else {
+                // The new record is expired, pick it if the current record
+                // is also expired AND the new one has a later valid_through date
+                if($status0 == "expired"
+                   && $t1 > $t0) {
+                  // Use the new record
+                  $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
+                }
               }
             } else {
               $ret[ $m['CoGroupOisMapping']['co_group_id'] ] = $r;
