@@ -135,8 +135,10 @@
   }
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.ldapprovisioner.info'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.ldapprovisioner.info'); ?>
+  </div>
 </div>
 
 <ul id="<?php print $this->action; ?>_co_ldap_provisioner_target" class="fields form-list form-list-admin">
