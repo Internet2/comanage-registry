@@ -406,6 +406,9 @@ class CoExpirationPolicy extends AppModel {
             // Save changes, if any
             
             if(!empty($fieldList)) {
+              // XXX CO-2644
+              // https://book.cakephp.org/2/en/models/saving-your-data.html#model-save-array-data-null-boolean-validate-true-array-fieldlist-array
+              // When using a fieldList the primary key will be included in the fieldList automatically.
               $this->Co->CoPerson->CoPersonRole->save($newRoleData, true, $fieldList);
             }
             

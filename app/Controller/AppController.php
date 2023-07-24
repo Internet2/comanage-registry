@@ -1664,10 +1664,12 @@ class AppController extends Controller {
     extract($this->_parseBeforeRedirect($response, $url, $status, $exit), EXTR_OVERWRITE);
 
     // XXX CO-2550, CO-2600
-    foreach ($url as $field => $value) {
-      if(strpos($field, "search.") !== false
-         && strpos($value, "/") !== false) {
-        $url[$field] = str_replace("/", urlencode("/"), $value);
+    if(is_array($url)) {
+      foreach ($url as $field => $value) {
+        if(strpos($field, "search.") !== false
+           && strpos($value, "/") !== false) {
+          $url[$field] = str_replace("/", urlencode("/"), $value);
+        }
       }
     }
 

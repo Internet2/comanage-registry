@@ -295,7 +295,7 @@ class JobShell extends AppShell {
           // XXX CO-1729 pass in actor_co_person_id of registerer
           $this->dispatch($job['CoJob']['job_type'], json_decode($job['CoJob']['job_params'], true), $job['CoJob']['id']);
         } else {
-          $done = true;
+          break;
         }
       }
       

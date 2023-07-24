@@ -411,6 +411,12 @@ class CoPetitionsController extends StandardController {
       
       // Set the enrollment flow ID to make it easier to carry forward through failed submissions
       $this->set('co_enrollment_flow_id', $enrollmentFlowID);
+      // Find the Enrollment flow even if deleted.
+      // CO-2641
+      $efArgs = array();
+      $efArgs['conditions']['CoEnrollmentFlow.id'] = $enrollmentFlowID;
+      $co_enrollment_flow = $this->CoPetition->CoEnrollmentFlow->find('first', $efArgs);
+      $this->set('vv_co_enrollment_flow', $co_enrollment_flow);
       $this->set('vv_co_petition_id', $this->parseCoPetitionId());
 
       // XXX This block should execute before its parent. The parent needs the $vv_cou_list
