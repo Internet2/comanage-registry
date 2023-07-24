@@ -54,7 +54,9 @@
 
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('fd.ssp.default'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('fd.ssp.default'); ?>
+  </div>
 </div>
 
 <div class="table-container">

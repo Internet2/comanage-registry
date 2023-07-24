@@ -91,13 +91,17 @@
 <?php if(empty($vv_co_terms_and_conditions)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('fd.tc.none'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('fd.tc.none'); ?>
+  </div>
 </div>
 <?php else: // vv_co_terms_and_conditions ?>
 <?php if(isset($this->params['named']['mode']) && $this->params['named']['mode'] == 'login' && $pending): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('fd.tc.agree.login'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('fd.tc.agree.login'); ?>
+    </div>
   </div>
 <?php endif; // mode=login ?>
 <div class="table-container">

@@ -53,7 +53,9 @@
 <?php if($cur_co['Co']['name'] == DEF_COMANAGE_CO_NAME): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('in.api.cmp'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.api.cmp'); ?>
+  </div>
 </div>
 <?php endif; // co name == DEF_COMANAGE_CO_NAME ?>
 

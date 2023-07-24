@@ -52,7 +52,9 @@
 <?php if(empty($plugins)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('er.plugin.none', array(_txt('ct.vetting_steps.pl'))); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.plugin.none', array(_txt('ct.vetting_steps.pl'))); ?>
+  </div>
 </div>
 <?php else: /* plugins */ ?>
 <ul id="<?php print $this->action; ?>_vetting_step" class="fields form-list">

@@ -48,8 +48,10 @@
 ?>
 <?php if(!empty($identifiers[0]['CoProvisioningTarget']['id'])): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('in.id.prov', array($identifiers[0]['CoProvisioningTarget']['description'])); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.id.prov', array($identifiers[0]['CoProvisioningTarget']['description'])); ?>
+  </div>
 </div>
 <?php endif; // provisioning target ?>
 

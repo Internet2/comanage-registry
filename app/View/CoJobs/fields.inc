@@ -56,9 +56,11 @@
 <?php if(!empty($vv_lock_info)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('in.job.running', array($vv_lock_info['Lock']['pid'], 
-                                           $vv_lock_info['Lock']['id'],
-                                           $this->Time->niceShort($vv_lock_info['Lock']['created'], $vv_tz))); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.job.running', array($vv_lock_info['Lock']['pid'], 
+                                             $vv_lock_info['Lock']['id'],
+                                             $this->Time->niceShort($vv_lock_info['Lock']['created'], $vv_tz))); ?>
+  </div>
 </div>
 <?php endif; // vv_lock_info ?>
 <script type="text/javascript">

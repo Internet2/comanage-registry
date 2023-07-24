@@ -28,7 +28,9 @@
 <?php if(isset($vv_confirmation_expired) && $vv_confirmation_expired): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('in.inv.exp.resent'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.inv.exp.resent'); ?>
+  </div>
 </div>
 <?php else: /* $vv_confirmation_expired */ ?>
 <?php if(!empty($invite)): ?>

@@ -141,21 +141,25 @@
          && !empty($this->request->params['named']['copetitionid'])): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('er.ois.pt.linked'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('er.ois.pt.linked'); ?>
+    </div>
   </div>
 <?php endif; ?>
 <?php if(!empty($vv_ois_record['OrgIdentitySourceRecord']['org_identity_id'])): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('in.orgid.ois'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.orgid.ois'); ?>
+    </div>
   </div>
 <?php endif; // view ?>
 <?php if(isset($vv_not_found) && $vv_not_found): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('in.orgid.ois.notfound'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.orgid.ois.notfound'); ?>
+  </div>
 </div>
 <br />
 <?php else: // vv_not_found ?>
