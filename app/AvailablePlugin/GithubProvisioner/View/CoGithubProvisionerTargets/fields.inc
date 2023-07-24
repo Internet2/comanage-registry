@@ -58,20 +58,26 @@
 </script>
 <?php if(empty($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['client_id'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
-    <?php print _txt('pl.githubprovisioner.register',
-      array($this->Html->url($vv_github_callback_url, true))); ?>
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
+      <?php print _txt('pl.githubprovisioner.register',
+        array($this->Html->url($vv_github_callback_url, true))); ?>
+    </div>
   </div>
 <?php elseif(empty($co_github_provisioner_targets[0]['CoGithubProvisionerTarget']['access_token'])): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
-    <?php print _txt('pl.githubprovisioner.token.none'); ?>
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
+      <?php print _txt('pl.githubprovisioner.token.none'); ?>
+    </div>
   </div>
 <?php endif; // client_id/access_token ?>
 <?php if(!$vv_github_type): ?>
   <div class="co-info-topbox">
-    <i class="material-icons">info</i>
-    <?php print _txt('pl.githubprovisioner.type', array($this->Html->url($vv_extended_type_url))); ?>
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
+      <?php print _txt('pl.githubprovisioner.type', array($this->Html->url($vv_extended_type_url))); ?>
+    </div>
   </div>
 <?php endif; // github_type ?>
 

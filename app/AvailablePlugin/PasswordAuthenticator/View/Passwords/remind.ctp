@@ -50,9 +50,11 @@
   }
 ?>
 <?php if(!empty($this->request->params['named']['authenticatorid']) && empty($vv_token)): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <span class="ui-icon ui-icon-info co-info"></span>
-  <strong><?php print _txt('pl.passwordauthenticator.usernamereminder.info'); ?></strong>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.passwordauthenticator.usernamereminder.info'); ?>
+  </div>
 </div>
 
 <ul id="<?php print $this->action; ?>_usernamereminder" class="fields form-list">

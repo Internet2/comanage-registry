@@ -34,8 +34,9 @@ $title = _txt('pl.sponsormanager.sponsor', array(generateCn($vv_sponsor['Primary
 print $this->element("pageTitle", array('title' => $title));
 ?>
 <?php if(!empty($vv_settings['SponsorManagerSetting']['renewal_window'])): ?>
-<div class="co-info-topbox">
+  <div class="co-info-topbox">
   <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
   <?php
     // Calculate the start of the renewal window, as now+window. In other
     // words, if today is March 1 and the renewal window is 30 days, we'll
@@ -44,6 +45,7 @@ print $this->element("pageTitle", array('title' => $title));
     
     print _txt('pl.sponsormanager.renewal_window.info', array($renewalWindowStart->format("j M Y")));
   ?>
+  </div>
 </div>
 <?php endif; ?>
 

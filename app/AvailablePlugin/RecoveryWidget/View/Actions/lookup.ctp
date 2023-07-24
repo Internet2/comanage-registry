@@ -43,7 +43,7 @@
 ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <span class="co-info-topbox-text">
+  <div class="co-info-topbox-text">
   <?php 
     // For the password reset action, we pass in a link to direct password change
     if(!empty($vv_authenticator_change_url)) {
@@ -52,7 +52,7 @@
       print _txt("pl.recoverywidget.lookup.$vv_task.info");
     }
   ?>
-  </span>
+  </div>
 </div>
 
 <ul id="<?php print $this->action; ?>_recovery" class="fields form-list">

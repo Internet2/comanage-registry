@@ -63,8 +63,10 @@
 ?>
 <?php if(empty($vv_servers)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('er.server.none', array(_txt('ct.http_servers.1'))); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.server.none', array(_txt('ct.http_servers.1'))); ?>
+  </div>
 </div>
 <?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_novi_sources" class="fields form-list">

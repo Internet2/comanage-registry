@@ -61,8 +61,10 @@
 
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.ldapsource.info'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.ldapsource.info'); ?>
+  </div>
 </div>
 <ul id="<?php print $this->action; ?>_ldap_source_target" class="fields form-list form-list-admin">
     <li>

@@ -69,13 +69,17 @@
 
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('pl.passwordwidget.info.dependency'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.passwordwidget.info.dependency'); ?>
+  </div>
 </div>
 
 <?php if(count($vv_available_authenticators) < 1): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('er.passwordwidget.no.passwordauthenticators'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('er.passwordwidget.no.passwordauthenticators'); ?>
+    </div>
   </div>
 <?php endif; ?>
 
