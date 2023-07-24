@@ -27,7 +27,9 @@
 
 App::uses("CoJobBackend", "Model");
 
-class ConfigurationExport extends CoJobBackend {
+class ConfigurationExportJob extends CoJobBackend {
+  // Required by COmanage Plugins
+  public $cmPluginType = "job";
 
   /**
    * All supported models
@@ -98,50 +100,39 @@ class ConfigurationExport extends CoJobBackend {
     try {
       // Validate the parameters
       $this->validateParams($coId, $params);
-      $model_for_exp = array();
+      $models_for_export = array();
       if($params['model_list'] == "All") {
-        $model_for_exp = self::MODELS_SUPPORTED;
+        $models_for_export = self::MODELS_SUPPORTED;
       } else if(strpos($params['model_list'], ",") !== false) {
-        $model_for_exp = explode(",", $params['model_list']);
+        $models_for_export = explode(",", $params['model_list']);
       } else {
-        $model_for_exp[] = $params['model_list'];
+        $models_for_export[] = $params['model_list'];
       }
 
-      foreach ($model_for_exp as $model_list) {
+      // Create the file
+      // configuration_co2_1690210974.json
+      $timestamp = time();
+      $config_filename = LOCAL . DS . "Config" . DS . "configuration_co{$coId}_{$timestamp}.json";
+
+      foreach ($models_for_export as $exmodel) {
         // Construct the table name
-        $modelpl = Inflector::tableize($model_list);
-        // Get all instances of the Object Type marked as trash
-        $mdl_instances = $this->mdlInstances($model_list);
-        // We have nothing to collect
-        if(empty($mdl_instances)) {
-          $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.none'));
-          return;
+        $records = $this->getModelRecords($coId, $exmodel);
+        $mdata = array();
+        foreach ($records as $record) {
+          // Prepare the data
+          $mdata[] = $this->filterMetadataInbound($record, $exmodel);
         }
+        file_put_contents($config_filename,
+                          $this->jsonEncode($mdata),
+                          FILE_APPEND | LOCK_EX);
+      }
 
-        foreach($mdl_instances as $instance) {
-          $this->trash($CoJob, $model_list, $instance);
-
-          // XXX Jobs running from command line are registered under the deleted CO. As a result
-          //     after the delete there is no Job to track and use
-          $comment = ($CoJob->id && $CoJob->failed($CoJob->id))
-            ? $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $model_list ]['name']))
-            : $comment = _txt('rs.deleted-a2', array( _txt('ct.' . $modelpl . '.1'), $instance[ $model_list ]['name']));
-        }
-
-        if($CoJob->id) {
-          $done_job_id = $CoJob->id;
-          $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
-          // Send notification
-          $this->notify($coId, $CoJob, $params, $done_job_id, $comment);
-        }
+      if($CoJob->id) {
+        $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
       }
     }
     catch(Exception $e) {
       $CoJob->finish($CoJob->id, $e->getMessage(), JobStatusEnum::Failed);
-
-      // Send notification
-      $comment = _txt('er.delete-a', array( _txt('ct.' . $modelpl . '.1'), $instance[ $model_list ]['name']));
-      $this->notify($coId, $CoJob, $params, $CoJob->id, $comment);
     }
   }
 
@@ -247,6 +238,47 @@ class ConfigurationExport extends CoJobBackend {
 
     return $ret;
   }
+
+  /**
+   * Retrieve Model records from the database
+   *
+   * @param int     $coid    CO Id
+   * @param string  $pmodel  Model name in Class format
+   *
+   * @return array  model database records
+   */
+  public function getModelRecords($coid, $pmodel) {
+    $pModel = ClassRegistry::init($pmodel->name);
+
+    $args = array();
+    $args['conditions'][$pmodel . '.co_id'] = $coid;
+    $args['contain'] = true;
+
+    $records = $pModel->find('all', $args);
+
+    return $records;
+  }
+
+  /**
+   * Wrapper for JSON encoding that throws when an error occurs.
+   *
+   * @param mixed $value   The value being encoded
+   * @param int   $options JSON encode option bitmask
+   * @param int   $depth   Set the maximum depth. Must be greater than zero.
+   *
+   * @throws InvalidArgumentException if the JSON cannot be encoded.
+   *
+   * @link https://www.php.net/manual/en/function.json-encode.php
+   */
+  public function jsonEncode($value, $options = 0, $depth = 512) {
+    $json = json_encode($value, $options, $depth);
+    if (JSON_ERROR_NONE !== json_last_error()) {
+      throw new InvalidArgumentException('json_encode error: ' . json_last_error_msg());
+    }
+
+    return $json;
+  }
+
 
   /**
    * Obtain the list of parameters supported by this Job.
