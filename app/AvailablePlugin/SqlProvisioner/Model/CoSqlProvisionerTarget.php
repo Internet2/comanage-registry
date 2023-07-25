@@ -361,7 +361,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       )
     );
     
-    $this->syncPerson($deleteData, $tablePrefix);
+    $this->syncPerson($deleteData);
     
     // Then delete the CO Person record itself.
     $SpCoPerson = new Model(array(
@@ -565,7 +565,6 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    *
    * @since  COmanage Registry v3.3.0
    * @param  array  $provisioningData Array of provisioning data
-   * @param  string $tablePrefix Table Name Prefix    
    * @param  string $dataSource DataSource label
    */
   
@@ -645,7 +644,13 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
 
     // Loop through the models and sync the data
     
-    $affilmap = $this->CoProvisioningTarget->Co->CoExtendedType->affiliationMap($provisioningData['Co']['id']);
+    $affilmap = array();
+
+    if(!empty($provisioningData['Co']['id'])) {
+      // This might not be set on a delete operation, but then we don't need the
+      // affiliation map on delete
+      $affilmap = $this->CoProvisioningTarget->Co->CoExtendedType->affiliationMap($provisioningData['Co']['id']);
+    }
 
     foreach($this->models as $m) {
       $Model = new Model(array(
