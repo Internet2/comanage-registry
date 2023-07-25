@@ -36,45 +36,54 @@ class ExportJob extends CoJobBackend {
   const  MODELS_SUPPORTED = array(
     "ApiUser",
     "AttributeEnumeration",
-    "CoDashboard",
-    "CoDashboardWidget",
-    "CoEnrollmentAttribute",
-    "CoEnrollmentAttributeDefault",
-    "CoEnrollmentFlow",
-    "CoEnrollmentFlowWedge",
-    "CoEnrollmentSource",
+    "CoDashboard" => array("CoDashboardWidget"),
+    "CoEnrollmentFlow" => array(
+      "CoEnrollmentFlowWedge",
+      "CoEnrollmentSource",
+      "CoEnrollmentAttribute" => array("CoEnrollmentAttributeDefault")),
     "CoExpirationPolicy",
     "CoExtendedAttribute",
     "CoExtendedType",
-    "CoGroup",
-    "CoGroupNesting",
-    "CoGroupOisMapping",
+    "CoGroup" => array(
+      "CoGroupNesting",
+      "CoGroupOisMapping",
+    ), // For the groups i need to ignore the ones relates with the COUs
     "CoIdentifierAssignment",
     "CoIdentifierValidator",
     "CoLocalization",
     "CoMessageTemplate",
     "CoNavigationLink",
     "CoPipeline",
-    "CoProvisioningTarget",
-    "CoProvisioningTargetFilter",
+    "CoProvisioningTarget" => array(
+      "DataFilter" => array(
+        "OrgIdentitySourceFilter",
+        "CoProvisioningTargetFilter",
+      ),
+      "CoProvisioningTargetFilter",
+    ),
     "CoSelfServicePermission",
     "CoSetting",
-    "CoTermsAndCondititions",
+    "CoTermsAndConditions",
     "CoTheme",
-    "Cou",
-    "DataFilter",
-    "Dictionary",
-    "DictionaryEntry",
-    "HttpServer",
-    "KafkaServer",
-    "MatchServer",
-    "MatchServerAttribute",
-    "NavigationLink",
-    "Oauth2Server",
-    "OrgIdentitySource",
-    "OrgIdentitySourceFilter",
-    "Server",
-    "SqlServer",
+    "Cou" => array(
+      "CoTermsAndConditions"
+    ),
+    "Dictionary" => array(
+      "DictionaryEntry",
+    ),
+    "OrgIdentitySource" => array(
+      "CoGroupOisMapping",
+      "OrgIdentitySourceFilter",
+    ),
+    "Server" => array(
+      "SqlServer",
+      "Oauth2Server",
+      "HttpServer",
+      "KafkaServer",
+      "MatchServer" => array(
+        "MatchServerAttribute",
+      ),
+    ),
     "VettingStep"
   );
 
@@ -109,15 +118,18 @@ class ExportJob extends CoJobBackend {
       // Create the file
       // configuration_co2_1690210974.json
       $timestamp = time();
-      $config_filename = LOCAL . DS . "Config" . DS . "configuration_co{$coId}_{$timestamp}.json";
+      $config_filename = LOCAL . "Config" . DS . "configuration_co{$coId}_{$timestamp}.json";
 
-      foreach ($models_for_export as $exmodel) {
+      foreach ($models_for_export as $exmodel => $dependents) {
+        // Since list of models is a mix of an associative array and a simple list
+        // we need to check if the first parameter is an int or a string
+        $mmodel = is_int($exmodel) ? $dependents : $exmodel;
         // Construct the table name
-        $records = $this->getModelRecords($coId, $exmodel);
+        $records = $this->getModelRecords($coId, $mmodel);
         $mdata = array();
         foreach ($records as $record) {
           // Prepare the data
-          $mdata[] = $this->filterMetadataInbound($record, $exmodel);
+          $mdata[] = $this->filterMetadataInbound($record, $mmodel);
         }
         file_put_contents($config_filename,
                           $this->jsonEncode($mdata),
@@ -154,41 +166,28 @@ class ExportJob extends CoJobBackend {
     // hasMany
     foreach($Model->hasMany as $rmodel => $roptions) {
       foreach($record[$rmodel] as $idx => $has_many_record) {
-        $place_holder_string = '@' . $modelName->name . $rmodel . "_hasMany.{$idx}@";
-        $place_holder_hashed_value = md5($modelName->name . $record[$modelName->name]['id'] . $rmodel . $has_many_record['id']);
         // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
         //     "CoEnrollmentFlowNotificationCoGroup" => array(
         //      'className' => 'CoGroup',
         //      'foreignKey' => 'notification_co_group_id'
         //    ),
-        if(isset($roptions['className'])) {
-          $place_holder_string = '@' . $modelName->name . $roptions['className'] . "_hasMany.{$idx}@";
-          $place_holder_hashed_value = md5($modelName->name . $record[$modelName->name]['id'] . $roptions['className'] . $has_many_record['id']);
-        }
+        $place_holder_string = '@' . $Model->name . $roptions['className'] . "_hasMany.{$idx}@";
+        $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id']);
         $ret[$place_holder_string] = $place_holder_hashed_value;
       }
     }
 
     // hasOne
     foreach($Model->hasOne as $rmodel => $roptions) {
-      $place_holder_string = '@' . $modelName->name . $rmodel . '_hasOne@';
-      // because we only have one level contain, which means that we will have an associative array of Model=>data
-      $place_holder_hashed_value = md5($modelName->name . $record[$modelName->name]['id'] . $rmodel . $record[$rmodel]['id']);
-      if(isset($roptions['className'])) {
-        $place_holder_string = '@' . $modelName->name . $roptions['className'] . '_hasOne@';
-        $place_holder_hashed_value = md5($modelName->name . $record[$modelName->name]['id'] . $roptions['className'] . $record[$roptions['className']]['id']);
-      }
+      $place_holder_string = '@' . $Model->name . $roptions['className'] . '_hasOne@';
+      $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[ $roptions['className'] ]['id']);
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
     // belongsTo
     foreach($Model->belongsTo as $rmodel => $roptions) {
-      $place_holder_string = '@' . $rmodel . $modelName->name . '_belongsTo@';
-      $place_holder_hashed_value = md5($rmodel . $record[$rmodel]['id'] . $modelName->name . $record[$modelName->name]['id']);
-      if(isset($roptions['className'])) {
-        $place_holder_string = '@' . $roptions['className'] . $modelName->name . '_belongsTo@';
-        $place_holder_hashed_value = md5($roptions['className'] . $record[$roptions['className']]['id'] . $modelName->name . $record[$modelName->name]['id']);
-      }
+      $place_holder_string = '@' . $roptions['className'] . $Model->name . '_belongsTo@';
+      $place_holder_hashed_value = md5($roptions['className'] . $record[ $roptions['className'] ]['id'] . $Model->name . $record[$Model->name]['id']);
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
@@ -226,10 +225,10 @@ class ExportJob extends CoJobBackend {
       $mfk
     ];
 
-    foreach ($mdl_columns as $clmn => $type) {
-      if(!in_array($clmn, $meta_fields,true)) {
+    foreach ($mdl_columns as $clmn) {
+      if(!in_array($clmn, $meta_fields, true)) {
         // Just copy the value
-        $ret[$clmn] = $record[$clmn];
+        $ret[$clmn] = $record[$modelName][$clmn];
       }
     }
 
@@ -245,7 +244,7 @@ class ExportJob extends CoJobBackend {
    * @return array  model database records
    */
   public function getModelRecords($coid, $pmodel) {
-    $pModel = ClassRegistry::init($pmodel->name);
+    $pModel = ClassRegistry::init($pmodel);
 
     $args = array();
     $args['conditions'][$pmodel . '.co_id'] = $coid;
@@ -289,6 +288,7 @@ class ExportJob extends CoJobBackend {
       'model_list' => array(
         'help'     => _txt('pl.provisionerjob.arg.models_list'),
         'type'     => 'select',
+        'short'    => 'l',
         'choices'  => array('All', ...self::MODELS_SUPPORTED),
         'required' => true
       ),
