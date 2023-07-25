@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry ConfigurationExport Model
+ * COmanage Registry Export Job Model
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -27,10 +27,7 @@
 
 App::uses("CoJobBackend", "Model");
 
-class ConfigurationExportJob extends CoJobBackend {
-  // Required by COmanage Plugins
-  public $cmPluginType = "job";
-
+class ExportJob extends CoJobBackend {
   /**
    * All supported models
    * All the models below need to be direct CO descendants

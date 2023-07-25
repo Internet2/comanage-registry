@@ -43,4 +43,6 @@ $cm_configuration_handler_texts['en_US'] = array(
   // Plugin texts
   'pl.configuration_handler.arg.models_list'      => 'Supported Models for export',
   'pl.configuration_handler.export.start'         => 'Construct and Export Configuration in JSON format',
+  'pl.exportjob.job'                              => 'Run Export Configuration Task',
+  'pl.import.job'                                 => 'Run Import Configuration Task',
 );
