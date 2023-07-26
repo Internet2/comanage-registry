@@ -120,6 +120,11 @@ class ExportJob extends CoJobBackend {
       $timestamp = time();
       $config_filename = LOCAL . "Config" . DS . "configuration_co{$coId}_{$timestamp}.json";
 
+      // Since we are building an array of json array objects we need to append the opening square bracket
+      $idx = 0;
+      file_put_contents($config_filename,
+                        '[',
+                        FILE_APPEND | LOCK_EX);
       foreach ($models_for_export as $exmodel => $dependents) {
         // Since list of models is a mix of an associative array and a simple list
         // we need to check if the first parameter is an int or a string
@@ -129,12 +134,20 @@ class ExportJob extends CoJobBackend {
         $mdata = array();
         foreach ($records as $record) {
           // Prepare the data
-          $mdata[] = $this->filterMetadataInbound($record, $mmodel);
+          $mdata[$mmodel][] = $this->filterMetadataInbound($record, $mmodel);
         }
-        file_put_contents($config_filename,
-                          $this->jsonEncode($mdata),
-                          FILE_APPEND | LOCK_EX);
+        if(!empty($mdata)) {
+          // since we are appending we need to add a comma before adding the new blob of data
+          file_put_contents($config_filename,
+                            $idx > 0 ? "," . $this->jsonEncode($mdata) : $this->jsonEncode($mdata),
+                            FILE_APPEND | LOCK_EX);
+          $idx++;
+        }
       }
+
+      file_put_contents($config_filename,
+                        ']',
+                        FILE_APPEND | LOCK_EX);
 
       if($CoJob->id) {
         $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
@@ -205,8 +218,6 @@ class ExportJob extends CoJobBackend {
     //    'rght',
     //    'parent_id
 
-    // Get the available Columns from the Schema
-    $mdl_columns = array_keys($Model->schema());
     // Get the list of belongs_to associations and construct an exclude array
     $assc_keys = [];
     foreach ($Model->belongsTo as $rmodel => $roptions) {
@@ -230,10 +241,24 @@ class ExportJob extends CoJobBackend {
       $mfk
     ];
 
-    foreach ($mdl_columns as $clmn) {
+    // Get the available Columns from the Schema
+    $mdl_schema = $Model->schema();
+    foreach ($mdl_schema as $clmn => $properties) {
       if(!in_array($clmn, $meta_fields, true)) {
-        // Just copy the value
-        $ret[$clmn] = $record[$modelName][$clmn];
+        if($clmn == "css") {
+          $test = "hi";
+        }
+        if($properties['type'] === "text") {
+          // Textarea fields might contain html or javascript code. Encode to base64
+          // in order to avoid any problems. Also add a prefix that will dictate that this
+          // is an encoded value
+          $ret[$clmn] = !empty($record[$modelName][$clmn]) ?
+                        "base64::" . base64_encode($record[$modelName][$clmn])
+                        : $record[$modelName][$clmn];
+        } else {
+          // Just copy the value
+          $ret[$clmn] = $record[$modelName][$clmn];
+        }
       }
     }
 
@@ -251,8 +276,12 @@ class ExportJob extends CoJobBackend {
   public function getModelRecords($coid, $pmodel) {
     $pModel = ClassRegistry::init($pmodel);
 
+    // For groups we need to leave out the auto ones
     $args = array();
     $args['conditions'][$pmodel . '.co_id'] = $coid;
+    if($pModel->name == 'CoGroup') {
+      $args['conditions'][] = "{$pmodel}.auto IS NOT TRUE";
+    }
     $args['contain'] = true;
 
     $records = $pModel->find('all', $args);
