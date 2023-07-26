@@ -165,29 +165,34 @@ class ExportJob extends CoJobBackend {
 
     // hasMany
     foreach($Model->hasMany as $rmodel => $roptions) {
-      foreach($record[$rmodel] as $idx => $has_many_record) {
-        // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
-        //     "CoEnrollmentFlowNotificationCoGroup" => array(
-        //      'className' => 'CoGroup',
-        //      'foreignKey' => 'notification_co_group_id'
-        //    ),
-        $place_holder_string = '@' . $Model->name . $roptions['className'] . "_hasMany.{$idx}@";
-        $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id']);
-        $ret[$place_holder_string] = $place_holder_hashed_value;
+      if(!empty($record[$rmodel]) && is_array($record[$rmodel])) {
+        foreach($record[$rmodel] as $idx => $has_many_record) {
+          // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
+          //     "CoEnrollmentFlowNotificationCoGroup" => array(
+          //      'className' => 'CoGroup',
+          //      'foreignKey' => 'notification_co_group_id'
+          //    ),
+          $place_holder_string = '@' . $Model->name . $roptions['className'] . "_hasMany.{$idx}@";
+          $place_holder_hashed_value = $Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id'];
+//        $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id']);
+          $ret[$place_holder_string] = $place_holder_hashed_value;
+        }
       }
     }
 
     // hasOne
     foreach($Model->hasOne as $rmodel => $roptions) {
       $place_holder_string = '@' . $Model->name . $roptions['className'] . '_hasOne@';
-      $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[ $roptions['className'] ]['id']);
+      $place_holder_hashed_value = $Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[$rmodel]['id'];
+//      $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[$rmodel]['id']);
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
     // belongsTo
     foreach($Model->belongsTo as $rmodel => $roptions) {
       $place_holder_string = '@' . $roptions['className'] . $Model->name . '_belongsTo@';
-      $place_holder_hashed_value = md5($roptions['className'] . $record[ $roptions['className'] ]['id'] . $Model->name . $record[$Model->name]['id']);
+      $place_holder_hashed_value = $roptions['className'] . $record[$rmodel]['id'] . $Model->name . $record[$Model->name]['id'];
+//      $place_holder_hashed_value = md5($roptions['className'] . $record[$rmodel]['id'] . $Model->name . $record[$Model->name]['id']);
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
@@ -196,7 +201,7 @@ class ExportJob extends CoJobBackend {
 
     // TODO the above does not take into consideration the special case of COUs that use
     // the tree behavior
-    //     'lft',
+    //    'lft',
     //    'rght',
     //    'parent_id
 
