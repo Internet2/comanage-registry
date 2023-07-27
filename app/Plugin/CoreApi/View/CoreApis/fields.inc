@@ -124,8 +124,10 @@
 </script>
 <?php if(!empty($vv_api_endpoint)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.coreapi.info', array($vv_api_endpoint)); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.coreapi.info', array($vv_api_endpoint)); ?>
+  </div>
 </div>
 <?php endif; // $vv_api_endpoint ?>
 <ul id="<?php print $this->action; ?>_core_apis" class="fields form-list">

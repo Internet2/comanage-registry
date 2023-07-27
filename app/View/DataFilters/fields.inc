@@ -56,7 +56,9 @@
 <?php if(empty($plugins)): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('er.plugin.none', array(_txt('ct.data_filters.pl'))); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('er.plugin.none', array(_txt('ct.data_filters.pl'))); ?>
+    </div>
   </div>
 <?php else: /* plugins */ ?>
   <ul id="<?php print $this->action; ?>_data_filter" class="fields form-list form-list-admin">

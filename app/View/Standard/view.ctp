@@ -83,21 +83,21 @@
   }
 ?>
 <?php if(!empty($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['description'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php
       print _txt('op.orgid.edit.ois', array($d[0]['OrgIdentity']['OrgIdentitySourceRecord']['description']));
-    ?></strong>
-  </p>
+    ?>
+  </div>
 </div>
 <br />
 <?php elseif(!empty($d[0][$req]['source_'.$modelu.'_id'])): ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <p>
-    <span class="ui-icon ui-icon-info co-info"></span>
-    <strong><?php print _txt('op.pipeline.edit.ois'); ?></strong>
-  </p>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('op.pipeline.edit.ois'); ?>
+  </div>
 </div>
 <br />
 <?php endif; // readonly ?>

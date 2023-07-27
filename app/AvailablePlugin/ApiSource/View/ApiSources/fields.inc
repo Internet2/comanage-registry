@@ -85,8 +85,10 @@
     </div>
 <?php if(!empty($vv_api_endpoint)): ?>
     <div class="co-info-topbox">
-      <i class="material-icons">info</i>
-      <?php print _txt('pl.apisource.info', array($vv_api_endpoint)); ?>
+      <em class="material-icons">info</em>
+      <div class="co-info-topbox-text">
+        <?php print _txt('pl.apisource.info', array($vv_api_endpoint)); ?>
+      </div>
     </div>
 <?php endif; // $vv_api_endpoint ?>
     <ul class="field-children">
@@ -166,8 +168,10 @@
         <div class="field-info">
           <?php if(empty($vv_servers)): ?>
           <div class="co-info-topbox">
-            <i class="material-icons">info</i>
-            <?php print _txt('pl.apisource.servers.none'); ?>
+            <em class="material-icons">info</em>
+            <div class="co-info-topbox-text">
+              <?php print _txt('pl.apisource.servers.none'); ?>
+            </div>
           </div>
           <?php else: // vv_servers ?>
           <?php

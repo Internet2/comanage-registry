@@ -73,10 +73,12 @@
 
 <ul id="<?php print $this->action; ?>_ois_query" class="fields form-list">
 <?php if(empty($vv_search_attrs)): ?>
-    <div class="co-info-topbox">
-      <em class="material-icons">info</em>
+  <div class="co-info-topbox">
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
       <?php print _txt('in.ois.nosearch'); ?>
     </div>
+  </div>
 <?php else: // vv_search_attrs ?>
 <?php
     foreach($vv_search_attrs as $field => $label) {

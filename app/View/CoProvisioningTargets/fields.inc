@@ -71,7 +71,9 @@
 <?php if(empty($plugins)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
+  </div>
 </div>
 <?php else: /* plugins */ ?>
 <ul id="<?php print $this->action; ?>_co_provisioning_target" class="fields form-list">

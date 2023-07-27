@@ -51,8 +51,10 @@
 ?>
 <?php if(empty($plugins)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('er.plugin.none', array(_txt('ct.authenticators.pl'))); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.plugin.none', array(_txt('ct.authenticators.pl'))); ?>
+  </div>
 </div>
 <?php else: /* plugins */ ?>
 <ul id="<?php print $this->action; ?>_authenticator" class="fields form-list">

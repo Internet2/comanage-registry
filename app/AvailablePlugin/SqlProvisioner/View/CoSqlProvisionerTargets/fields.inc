@@ -62,13 +62,17 @@
 ?>
 <?php if(empty($vv_servers)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::SqlServer))); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::SqlServer))); ?>
+  </div>
 </div>
 <?php else: // vv_servers ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.sqlprovisioner.info'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.sqlprovisioner.info'); ?>
+  </div>
 </div>
 <ul id="<?php print $this->action; ?>_co_sql_provisioner_target" class="fields form-list form-list-admin">
   <li>

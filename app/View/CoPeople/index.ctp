@@ -74,25 +74,33 @@
 <?php if($this->action == 'link'): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('op.link.select', array(filter_var(generateCn($vv_org_identity['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
-      filter_var($vv_org_identity['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('op.link.select', array(filter_var(generateCn($vv_org_identity['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
+        filter_var($vv_org_identity['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+    </div>
   </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_org_identity_link['OrgIdentity'])): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('op.relink.select', array(filter_var(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
-      filter_var($vv_co_org_identity_link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('op.relink.select', array(filter_var(generateCn($vv_co_org_identity_link['OrgIdentity']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS),
+        filter_var($vv_co_org_identity_link['OrgIdentity']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+    </div>
   </div>
 <?php elseif($this->action == 'relink' && !empty($vv_co_person_role['CoPersonRole'])): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('op.relink.role.select', array(filter_var($vv_co_person_role['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS),
-      filter_var($vv_co_person_role['CoPersonRole']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('op.relink.role.select', array(filter_var($vv_co_person_role['CoPersonRole']['title'],FILTER_SANITIZE_SPECIAL_CHARS),
+        filter_var($vv_co_person_role['CoPersonRole']['id'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+    </div>
   </div>
 <?php elseif($this->action == 'select'): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('op.select.select'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('op.select.select'); ?>
+    </div>
   </div>
 <?php endif; // link ?>
 

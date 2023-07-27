@@ -67,8 +67,10 @@
   }
 </script>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.grouperprovisioner.info'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.grouperprovisioner.info'); ?>
+  </div>
 </div>
 <ul id="<?php print $this->action; ?>_co_grouper_provisioner_target" class="fields form-list form-list-admin">
   <li>

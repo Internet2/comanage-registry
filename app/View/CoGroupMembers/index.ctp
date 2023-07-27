@@ -62,7 +62,9 @@
 <?php if($co_group['CoGroup']['auto']): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('in.co_group.auto', array($cur_co['Co']['id'])); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.co_group.auto', array($cur_co['Co']['id'])); ?>
+    </div>
   </div>
 <?php endif; ?>
 

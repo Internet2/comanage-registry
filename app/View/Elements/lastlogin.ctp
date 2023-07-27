@@ -38,16 +38,18 @@
 ?>
 <div id="lastLogin">
   <div class="co-info-topbox">
-    <?php foreach($lastlogin as $u => $l): ?>
-    <?php if(!empty($l)): ?>
-    <p>
-      <span class="ui-icon ui-icon-info co-info"></span>
-      <strong><?php print _txt('in.login.last', array($u,
-                                                      $l['AuthenticationEvent']['created'],
-                                                      ($l['AuthenticationEvent']['remote_ip'] ?: "?"))); ?></strong>
-    </p>
-    <?php endif; // !empty ?>
-    <?php endforeach; ?>
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
+      <?php foreach($lastlogin as $u => $l): ?>
+        <?php if(!empty($l)): ?>
+        <p>
+          <?php print _txt('in.login.last', array($u,
+                                                       $l['AuthenticationEvent']['created'],
+                                                       ($l['AuthenticationEvent']['remote_ip'] ?: "?"))); ?>
+        </p>
+        <?php endif; // !empty ?>
+      <?php endforeach; ?>
+    </div>
   </div>
 </div>
 <?php

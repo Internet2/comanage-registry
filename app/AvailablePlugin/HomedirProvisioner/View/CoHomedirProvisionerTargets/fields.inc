@@ -41,6 +41,8 @@
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('in.pl.noconfig'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.pl.noconfig'); ?>
+  </div>
 </div>

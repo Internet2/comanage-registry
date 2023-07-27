@@ -69,7 +69,9 @@ print $this->element("pageTitleAndButtons", $params);
 
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('in.orgidentities'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.orgidentities'); ?>
+  </div>
 </div>
 
 <?php // Load the top search bar

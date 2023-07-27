@@ -31,7 +31,9 @@
     <td colspan="5">
       <div class="co-info-topbox">
         <em class="material-icons">info</em>
-        <?php print _txt('in.co_group.people.none_filters'); ?>
+        <div class="co-info-topbox-text">
+          <?php print _txt('in.co_group.people.none_filters'); ?>
+        </div>
       </div>
     </td>
   </tr>
@@ -40,7 +42,9 @@
     <td colspan="5">
       <div class="co-info-topbox">
         <em class="material-icons">info</em>
-        <?php print _txt('in.co_group.people.none'); ?>
+        <div class="co-info-topbox-text">
+          <?php print _txt('in.co_group.people.none'); ?>
+        </div>
       </div>
     </td>
   </tr>

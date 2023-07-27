@@ -41,6 +41,8 @@
 
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('in.pl.noconfig'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.pl.noconfig'); ?>
+  </div>
 </div>

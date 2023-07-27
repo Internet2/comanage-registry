@@ -53,7 +53,9 @@
 <?php if(empty($vv_plugins)): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('in.idval.plugins'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.idval.plugins'); ?>
+    </div>
   </div>
 <?php else: // vv_plugins ?>
   <div class="table-container">

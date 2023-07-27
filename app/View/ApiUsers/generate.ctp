@@ -36,9 +36,11 @@
   $crumbTxt = _txt('op.api.key.generate');
   $this->Html->addCrumb($crumbTxt);
 ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <span class="ui-icon ui-icon-info co-info"></span>
-  <strong><?php print _txt('in.api.key'); ?></strong>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.api.key'); ?>
+  </div>
 </div>
 
 <ul id="<?php print $this->action; ?>_api_users" class="fields form-list">

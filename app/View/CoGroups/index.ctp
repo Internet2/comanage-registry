@@ -328,7 +328,9 @@
           <td colspan="5">
             <div class="co-info-topbox">
               <em class="material-icons">info</em>
-              <?php print _txt('in.co_group.none_filters'); ?>
+              <div class="co-info-topbox-text">
+                <?php print _txt('in.co_group.none_filters'); ?>
+              </div>
             </div>
           </td>
         </tr>
@@ -337,7 +339,9 @@
           <td colspan="5">
             <div class="co-info-topbox">
               <em class="material-icons">info</em>
-              <?php print _txt('in.co_group.none'); ?>
+              <div class="co-info-topbox-text">
+                <?php print _txt('in.co_group.none'); ?>
+              </div>
             </div>
           </td>
         </tr>

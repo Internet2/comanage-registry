@@ -44,13 +44,17 @@
 <?php if($op == 'invite'): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('in.orgid.email'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.orgid.email'); ?>
+    </div>
   </div>
 <?php endif; // invite ?>
 
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('in.orgid.co'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.orgid.co'); ?>
+  </div>
 </div>
 
 <?php // Load the top search bar

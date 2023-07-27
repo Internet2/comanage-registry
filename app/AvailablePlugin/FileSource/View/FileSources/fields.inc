@@ -60,8 +60,10 @@
   print $this->Form->hidden('org_identity_source_id', array('default' => $vv_oisid)) . "\n";
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.filesource.info'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.filesource.info'); ?>
+  </div>
 </div>
 <ul id="<?php print $this->action; ?>_file_source_target" class="fields form-list form-list-admin">
   <li>

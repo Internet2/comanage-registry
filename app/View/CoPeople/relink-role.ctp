@@ -51,7 +51,9 @@
 </script>
 <div class="co-info-topbox lightbox-info">
   <em class="material-icons">info</em>
-  <?php print _txt('op.relink.role.confirm'); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('op.relink.role.confirm'); ?>
+  </div>
 </div>
 <div class="innerContent">
   <ul>
