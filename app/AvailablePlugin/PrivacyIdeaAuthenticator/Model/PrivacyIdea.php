@@ -28,6 +28,7 @@
 App::uses("Identifier", "Model");
 App::uses("Server", "Model");
 App::uses("TotpToken", "PrivacyIdeaAuthenticator.Model");
+App::uses("PaperToken", "PrivacyIdeaAuthenticator.Model");
 
 class PrivacyIdea extends AppModel {
 	// Define class name for cake
@@ -164,18 +165,27 @@ class PrivacyIdea extends AppModel {
     $identifier = $this->lookupIdentifier($privacyIdeaAuthenticator['identifier_type'], $coPersonId);
     
     $Http = $this->connect($privacyIdeaAuthenticator['server_id']);
-    
-    // XXX For now we only set params for TOTP tokens. We'll need to refactor
-    // this section when we add support for additional token types.
-    
+
+    $token_type = $privacyIdeaAuthenticator['token_type'];
+
     $params = array(
-      'type' => 'totp',
       'user' => $identifier,
       'realm' => $privacyIdeaAuthenticator['realm'],
       'genkey' => '1',
-      'optlen' => '6'
     );
-    
+
+    switch ($token_type) {
+      case PrivacyIDEATokenTypeEnum::TOTP:
+        $params['type'] = 'totp';
+        $params['otplen'] = '6';
+        break;
+
+      case PrivacyIDEATokenTypeEnum::Paper:
+        $params['type'] = 'paper';
+        $params['otplen'] = '8';
+        break;
+    }
+
     $response = $Http->post("/token/init", $params, $this->requestCfg);
     
     $jresponse = json_decode($response);
@@ -188,15 +198,31 @@ class PrivacyIdea extends AppModel {
       'privacy_idea_authenticator_id' => $privacyIdeaAuthenticator['id'],
       'co_person_id'                  => $coPersonId,
       'serial'                        => $jresponse->detail->serial,
-      'confirmed'                     => false
     );
-    
-    $TotpToken = new TotpToken();
-    $TotpToken->save($token);
-    
-    // We don't persist the QR Data, but we do need to return it for rendering
-    $token['qr_data'] = $jresponse->detail->googleurl->img;
-    
+
+    switch ($token_type) {
+      case PrivacyIDEATokenTypeEnum::TOTP:
+        $token['confirmed'] = false;
+        $TotpToken = new TotpToken();
+        $TotpToken->save($token);
+
+        // We don't persist the QR Data, but we do need to return it for rendering
+        $token['qr_data'] = $jresponse->detail->googleurl->img;
+        break;
+
+      case PrivacyIDEATokenTypeEnum::Paper:
+        $PaperToken = new PaperToken();
+        $PaperToken->save($token);
+
+        // We don't persist the codes themselves but need to present them to the user for copying/printing
+        $token['otps'] = (array)$jresponse->detail->otps;
+        break;
+    }
+
+    if(!$jresponse->result->status) {
+      throw new RuntimeException($jresponse->result->error->message);
+    }
+
     return $token;
   }
   

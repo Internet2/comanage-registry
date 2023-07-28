@@ -35,27 +35,28 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
   // Required by COmanage Plugins
   public $cmPluginType = "authenticator";
 	
-	// Add behaviors
+  // Add behaviors
   public $actsAs = array('Containable');
 	
   // Document foreign keys
   public $cmPluginHasMany = array(
-    "CoPerson" => array("TotpToken")
-	);
+    "CoPerson" => array("TotpToken", "PaperToken"),
+  );
 	
-	// Association rules from this model to other models
-	public $belongsTo = array(
-		"Authenticator",
+  // Association rules from this model to other models
+  public $belongsTo = array(
+    "Authenticator",
     "Server",
     "ValidationServer" => array(
       'className' => 'Server',
       'foreignKey' => 'validation_server_id'
     )
-	);
+  );
 	
-	public $hasMany = array(
-		"PrivacyIdeaAuthenticator.TotpToken"
-	);
+  public $hasMany = array(
+    "PrivacyIdeaAuthenticator.TotpToken",
+    "PrivacyIdeaAuthenticator.PaperToken"
+  );
 	
   // Default display field for cake generated views
   public $displayField = "realm";
@@ -92,7 +93,7 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
 			'allowEmpty' => false
     ),
     'token_type' => array(
-      'rule' => array('inList', array(PrivacyIDEATokenTypeEnum::TOTP)),
+      'rule' => array('inList', array(PrivacyIDEATokenTypeEnum::TOTP, PrivacyIDEATokenTypeEnum::Paper)),
       'required' => true,
       'allowEmpty' => false
     ),
@@ -125,7 +126,7 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
   	return array();
   }
 	
-	/**
+  /**
    * Obtain current data suitable for passing to manage() and provisioners.
    *
    * @since  COmanage Registry v4.0.0
@@ -134,16 +135,27 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
    * @param  integer $coPersonId CO Person ID
    * @return Array As returned by find
    * @throws RuntimeException
-	 */
+   */
 
-	public function current($id, $backendId, $coPersonId) {
+  public function current($id, $backendId, $coPersonId) {
+
     $args = array();
-    $args['conditions']['TotpToken.privacy_idea_authenticator_id'] = $backendId;
+
     $args['conditions']['TotpToken.co_person_id'] = $coPersonId;
+    $args['conditions']['TotpToken.privacy_idea_authenticator_id'] = $backendId;
     $args['contain'] = false;
-    
-    return $this->TotpToken->find('all', $args);
-	}
+    $results = $this->TotpToken->find('all', $args);
+
+    if(empty($results)) {
+       unset($args);
+       $args['conditions']['PaperToken.co_person_id'] = $coPersonId;
+       $args['conditions']['PaperToken.privacy_idea_authenticator_id'] = $backendId;
+       $args['contain'] = false;
+       $results = $this->PaperToken->find('all', $args);
+    }
+
+    return $results;
+  }
   
   /**
    * Perform backend specific actions on a lock operation.
@@ -172,57 +184,79 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
     return true;
   }
 	
-	/**
-	 * Reset Authenticator data for a CO Person.
-	 *
-	 * @since  COmanage Registry v3.1.0
-	 * @param  integer $coPersonId			CO Person ID
-	 * @param  integer $actorCoPersonId Actor CO Person ID
-	 * @return boolean true on success
-	 */
+  /**
+   * Reset Authenticator data for a CO Person.
+   *
+   * @since  COmanage Registry v3.1.0
+   * @param  integer $coPersonId			CO Person ID
+   * @param  integer $actorCoPersonId Actor CO Person ID
+   * @return boolean true on success
+   */
   
   public function reset($coPersonId, $actorCoPersonId) {
-		// It's not immediately obvious what we should do on a reset... so for now
+    // It's not immediately obvious what we should do on a reset... so for now
     // we return false until we have better requirements.
-		return false;
-	}
+    return false;
+  }
 	
-	/**
-	 * Obtain the current Authenticator status for a CO Person.
-	 *
-	 * @since  COmanage Registry v4.0.0
-	 * @param  integer $coPersonId			CO Person ID
-	 * @return Array Array with values
-	 * 							 status: AuthenticatorStatusEnum
-	 * 							 comment: Human readable string, visible to the CO Person
-	 */
+  /**
+   * Obtain the current Authenticator status for a CO Person.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coPersonId			CO Person ID
+   * @return Array Array with values
+   * 							 status: AuthenticatorStatusEnum
+   * 							 comment: Human readable string, visible to the CO Person
+   */
 	
-	public function status($coPersonId) {
-    // We can have more than one Authenticator, but only of the type token_type.
-    // For now, we only work with TotpTokens.
-    
+  public function status($coPersonId) {
+
     $status = AuthenticatorStatusEnum::NotSet;
     $comment = _txt('fd.set.not');
-    
+
+    $pcfg = $this->getConfig();
+
+    $token_type = $pcfg['PrivacyIdeaAuthenticator']['token_type'];
+    $piauth_id = $pcfg['PrivacyIdeaAuthenticator']['id'];
+
     $args = array();
-    $args['conditions']['TotpToken.co_person_id'] = $coPersonId;
-    $args['contain'] = false;
-    
-    $tokens = $this->TotpToken->find('all', $args);
-    
-    if(count($tokens) > 0) {
-      $confirmed = Hash::extract($tokens, '{n}.TotpToken[confirmed=true]');
-      
-      $status = AuthenticatorStatusEnum::Active;
-      $comment = _txt('pl.privacyideaauthenticator.status', array(count($tokens), count($confirmed)));
+
+    switch ($token_type) {
+      case PrivacyIDEATokenTypeEnum::TOTP:
+        $args['conditions']['TotpToken.co_person_id'] = $coPersonId;
+        $args['conditions']['TotpToken.privacy_idea_authenticator_id'] = $piauth_id;
+        $args['contain'] = false;
+
+        $tokens = $this->TotpToken->find('all', $args);
+
+        if(count($tokens) > 0) {
+          $confirmed = Hash::extract($tokens, '{n}.TotpToken[confirmed=true]');
+
+          $status = AuthenticatorStatusEnum::Active;
+          $comment = _txt('pl.privacyideaauthenticator.totpstatus', array(count($tokens), count($confirmed)));
+        }
+        break;
+
+      case PrivacyIDEATokenTypeEnum::Paper:
+        $args['conditions']['PaperToken.co_person_id'] = $coPersonId;
+        $args['conditions']['PaperToken.privacy_idea_authenticator_id'] = $piauth_id;
+        $args['contain'] = false;
+
+        $tokens = $this->PaperToken->find('all', $args);
+
+        if(count($tokens) > 0) {
+          $status = AuthenticatorStatusEnum::Active;
+          $comment = _txt('pl.privacyideaauthenticator.paperstatus', array(count($tokens)));
+        }
+        break;
     }
-		
-		return array(
-			'status' => $status,
-			'comment' => $comment
-		);
-	}
-  
+
+    return array(
+        'status' => $status,
+        'comment' => $comment
+    );
+  }
+
   /**
    * Perform backend specific actions on an unlock operation.
    *

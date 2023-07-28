@@ -474,6 +474,12 @@ form#notificationStatus {
   font-size: 1.6rem;
   margin: 0 0.25em 0 0;
 }
+#content .co-info-topbox.warn-level-a {
+  background-color: #fcc;
+}
+#content .co-info-topbox.warn-level-a .material-icons {
+  color: #c00;
+}
 .material-icons.error {
   color: #d00;
 }

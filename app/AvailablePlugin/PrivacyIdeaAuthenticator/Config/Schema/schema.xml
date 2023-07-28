@@ -86,4 +86,36 @@
       <col>totp_token_id</col>
     </index>
   </table>
+
+  <table name="paper_tokens">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="privacy_idea_authenticator_id" type="I">
+      <constraint>REFERENCES cm_privacy_idea_authenticators(id)</constraint>
+    </field>
+    <field name="co_person_id" type="I">
+      <constraint>REFERENCES cm_co_people(id)</constraint>
+    </field>
+    <field name="serial" type="C" size="80" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="paper_token_id" type="I">
+      <constraint>REFERENCES cm_paper_tokens(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
+    <index name="paper_tokens_i1">
+      <col>co_person_id</col>
+    </index>
+    <index name="paper_tokens_i2">
+      <col>serial</col>
+    </index>
+    <index name="paper_tokens_i3">
+      <col>paper_token_id</col>
+    </index>
+  </table>
 </schema>
