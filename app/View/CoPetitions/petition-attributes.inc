@@ -131,13 +131,46 @@
     }
   ?>
 
-  <?php 
+  <?php
+  if($this->Session->check('Auth.User')) {
+    $userInfo = $this->Session->read('Auth.User');
+  } else {
+    $userInfo = null;
+  }
+
+  if(!empty($userInfo['cos'])) {
+    // Make sure there is at least one active or grace period role
+    $active = false;
+
+    $person_status = null;
+    $co_person_id  = null;
+    foreach ($userInfo['cos'] as $co_name => $co) {
+      if ($co['co_id'] == $cur_co['Co']['id']
+        && !empty($co['co_person'])) {
+        $person_status = $co['co_person']['status'];
+        $co_person_id  = $co['co_person']['id'];
+      }
+    }
+  }
+
   // Sort attributes by model for printing
   $coea_model = array();
   $misc_attr = array();
   $hidden_attr = array();
 
+  $has_org = false;
+  $has_person = false;
+  $has_person_role = false;
   foreach($co_enrollment_attributes as $ea) {
+    if(strpos($ea["model"], "EnrolleeOrgIdentity") == false) {
+      $has_org = true;
+    }
+    if(strpos($ea["model"], "EnrolleeCoPerson") !== false) {
+      $has_person = true;
+    }
+    if(strpos($ea["model"], "EnrolleeCoPersonRole") !== false) {
+      $has_person_role = true;
+    }
     // Sort hidden ones out, but if this is view only don't separate out
     // attributes with default values
     if($ea['hidden']
@@ -170,6 +203,22 @@
       print $this->Form->hidden($fieldName, array('default' => $ea['default'])) . PHP_EOL;
     }
   }
+
+  if($this->action != 'view') {
+    if($has_org) {
+      print $this->Form->hidden("EnrolleeOrgIdentity.co_id", array('default' => $cur_co['Co']['id'])) . PHP_EOL;
+    }
+    if($has_person) {
+      print $this->Form->hidden("EnrolleeCoPerson.co_id", array('default' => $cur_co['Co']['id'])) . PHP_EOL;
+      // Let's give a default value. We will get the correct value after the Role assignment since the status will be
+      // recalculated.
+      print $this->Form->hidden("EnrolleeCoPerson.status", array('default' => ($person_status ?? StatusEnum::Pending) )) . PHP_EOL;
+    }
+    if($has_person_role && !empty($co_person_id)) {
+      print $this->Form->hidden("EnrolleeCoPersonRole.co_person_id", array('default' => $co_person_id)) . PHP_EOL;
+    }
+  }
+
 
   // Print the ones not hidden
   $coe_attribute_index = 0;
