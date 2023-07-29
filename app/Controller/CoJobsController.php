@@ -139,12 +139,15 @@ class CoJobsController extends StandardController {
 
         // Get the provisioning Target
         $job_params = json_decode($this->viewVars['co_jobs'][0]['CoJob']['job_params'], false);
-        $args = array();
-        $args['conditions']['CoProvisioningTarget.id'] = $job_params->co_provisioning_target_id;
-        $args['contain'] = false;
-        $target = $this->Co->CoProvisioningTarget->find('first', $args);
 
-        $this->set('vv_co_provisioning_target', $target);
+        if(!empty($job_params->co_provisioning_target_id)) {
+          $args = array();
+          $args['conditions']['CoProvisioningTarget.id'] = $job_params->co_provisioning_target_id;
+          $args['contain'] = false;
+          $target = $this->Co->CoProvisioningTarget->find('first', $args);
+
+          $this->set('vv_co_provisioning_target', $target);
+        }
       }
       
       // Determine if the Job Queue is locked, and if so render a message
