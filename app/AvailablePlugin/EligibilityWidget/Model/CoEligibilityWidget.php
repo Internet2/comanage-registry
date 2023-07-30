@@ -159,6 +159,11 @@ class CoEligibilityWidget extends CoDashboardWidgetBackend {
     $EmailAddress = ClassRegistry::init('EmailAddress');
     $emailAddresses = $EmailAddress->find('all', $args);
 
+    $ret = array();
+    if(empty($emailAddresses)) {
+      return $ret;
+    }
+
     // Get the OrgIdentitySource
     $args = array();
     $args['conditions']['OrgIdentitySource.id'] = $oidId;

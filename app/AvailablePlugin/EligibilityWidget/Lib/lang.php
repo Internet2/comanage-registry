@@ -51,8 +51,9 @@ $cm_eligibility_widget_texts['en_US'] = array(
   'pl.er.ois_registration.cewid.specify'              => 'Named parameter cewid was not found',
 
   // Actions
-  'pl.op.eligibilitywidget.verify'                    => 'Verify Eligibility',
-  'pl.op.eligibilitywidget.verify-a'                  => 'Verify Eligibility %1$s',
+  'pl.op.eligibilitywidget.membership.add'            => 'Add Membership',
+  'pl.op.eligibilitywidget.membership.edit'           => 'Edit Membership',
+  'pl.op.eligibilitywidget.membership.add-a'          => 'Add Membership %1$s',
   'pl.op.eligibilitywidget.sync'                      => 'Sync',
 
   // Fields
