@@ -140,6 +140,7 @@ class OisRegistrationsController extends StandardController {
     $args['conditions']['OrgIdentitySource.sync_mode'] = SyncModeEnum::Query;
     $args['conditions']['OrgIdentitySource.co_id']=  $this->cur_co['Co']['id'];
     $args['conditions'][] = 'OrgIdentitySource.co_pipeline_id IS NOT NULL';
+    $args['conditions'][] = 'CoPipeline.sync_cou_id IS NOT NULL';
     $args['contain'] = array(
       'CoPipeline' => array(
           'conditions' => array(
