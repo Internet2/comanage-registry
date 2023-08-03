@@ -40,6 +40,24 @@ class EnvSource extends AppModel {
   
   // Validation rules for table elements
   public $validate = array(
+    'duplicate_mode' => array(
+      'content' => array(
+        'rule' => array('inList', array(EnvSourceDuplicateModeEnum::SORIdentifier,
+                                        EnvSourceDuplicateModeEnum::LoginIdentifier,
+                                        EnvSourceDuplicateModeEnum::AnyIdentifier)),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
+    'sp_type' => array(
+      'content' => array(
+        'rule' => array('inList', array(AuthProviderEnum::Shibboleth,
+                                        AuthProviderEnum::Simplesamlphp,
+                                        AuthProviderEnum::Other)),
+        'required' => true,
+        'allowEmpty' => true
+      )
+    ),
     'org_identity_source_id' => array(
       'rule' => 'numeric',
       'required' => true,

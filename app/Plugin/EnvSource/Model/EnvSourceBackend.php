@@ -126,9 +126,33 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
     $orgdata['EmailAddress'] = array();
     
     if($result['env_mail']) {
-      $orgdata['EmailAddress'][0]['mail'] = $result['env_mail'];
-      $orgdata['EmailAddress'][0]['type'] = EmailAddressEnum::Official;
-      $orgdata['EmailAddress'][0]['verified'] = true;
+      if(!empty($this->pluginCfg['sp_type'])
+         && $this->pluginCfg['sp_type'] != AuthProviderEnum::Other) {
+        $delimiter = "";
+        if($this->pluginCfg['sp_type'] == AuthProviderEnum::Shibboleth) {
+          $delimiter = ";";
+        } elseif($this->pluginCfg['sp_type'] == AuthProviderEnum::Simplesamlphp) {
+          $delimiter =",";
+        }
+
+        $env_email_list = explode($delimiter, $result['env_email']);
+        if(count($env_email_list) > 1) {
+          foreach($env_email_list as $idx => $mail) {
+            $orgdata['EmailAddress'][$idx] = array();
+            $orgdata['EmailAddress'][$idx]['mail'] = $mail;
+            $orgdata['EmailAddress'][$idx]['type'] = EmailAddressEnum::Official;
+            $orgdata['EmailAddress'][$idx]['verified'] = true;
+          }
+        } else {
+          $orgdata['EmailAddress'][0]['mail'] = $result['env_mail'];
+          $orgdata['EmailAddress'][0]['type'] = EmailAddressEnum::Official;
+          $orgdata['EmailAddress'][0]['verified'] = true;
+        }
+      } else {
+        $orgdata['EmailAddress'][0]['mail'] = $result['env_mail'];
+        $orgdata['EmailAddress'][0]['type'] = EmailAddressEnum::Official;
+        $orgdata['EmailAddress'][0]['verified'] = true;
+      }
     }
     
     $orgdata['Address'] = array();
