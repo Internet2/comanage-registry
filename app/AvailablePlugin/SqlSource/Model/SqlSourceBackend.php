@@ -226,7 +226,7 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
     }
 
     // We perform an array_unique here once rather than after each merge
-    return !empty($changedSorids) ? array_unique($changedSorids) : false;
+    return !empty($changedSorids) ? array_unique($changedSorids) : array();
   }
   
   /**
