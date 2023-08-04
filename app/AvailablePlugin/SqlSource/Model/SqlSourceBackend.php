@@ -204,6 +204,14 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
       // and in Full Mode OrgIdentitySource::syncOrgIdentitySource will separately
       // calculate the list of new IDs. Note order is important, if $archiveTableName
       // and $sourceTableName are swapped, the query will generate INSERTs but not DELETEs.
+
+      // Note that because we can't return new rows here bootstrapping an existing
+      // instannce gets a bit complicated. Basically we won't be able to detect any 
+      // changes until the archive tables are populated, and we need an external event
+      // to make that happen. In FULL mode, a new record will trigger a call to updateCache(),
+      // but that might happen after several updates get ignored. In UPDATE mode
+      // new records won't get processed so we never have the cache updated. The
+      // solution (for now) is for the deployer to prepopulate the tables.
       $diffQuery = "SELECT * FROM " . $archiveTableName . " EXCEPT
                     SELECT * FROM " . $sourceTableName;
 

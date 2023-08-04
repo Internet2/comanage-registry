@@ -1673,6 +1673,11 @@ class OrgIdentitySource extends AppModel {
         }        
       }
       
+      if($changelist !== false) {
+        // Technically these are changes for purposes of updating the backend cache
+        $changelist = array_merge($changelist, $newKeys);
+      }
+
       $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
                                                    null,
                                                    _txt('jb.ois.sync.full.finish'),
