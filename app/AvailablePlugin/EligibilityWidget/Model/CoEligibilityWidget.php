@@ -130,6 +130,7 @@ class CoEligibilityWidget extends CoDashboardWidgetBackend {
     $args['conditions']['CoOrgIdentityLink.co_person_id'] = $coPersonId;
     $args['conditions'][] = 'PipelineCoPersonRole.source_org_identity_id IS NOT NULL';
     $args['conditions']['OrgIdentity.co_id'] = $coId;
+    $args['contain'] = false;
 
     $OrgIdentity = ClassRegistry::init('OrgIdentity');
     $org_identities = $OrgIdentity->find('all', $args);
@@ -180,7 +181,6 @@ class CoEligibilityWidget extends CoDashboardWidgetBackend {
       throw new InvalidArgumentException(_txt('pl.er.eligibilitywidget.ois.inappropriate'));
     }
 
-    $ret = array();
     foreach($emailAddresses as $ea) {
       if (!empty($ea['EmailAddress']['mail'])) {
         try {
@@ -307,7 +307,9 @@ class CoEligibilityWidget extends CoDashboardWidgetBackend {
     $args['joins'][0]['table'] = 'cous';
     $args['joins'][0]['alias'] = 'Cou';
     $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'CoPersonRole.cou_id=Cou.id';
+    $args['joins'][0]['conditions'][] = 'CoPersonRole.cou_id=Cou.id';
+    $args['joins'][0]['conditions'][] = 'Cou.deleted IS NOT TRUE';
+    $args['joins'][0]['conditions'][] = 'Cou.cou_id IS NULL';
     $args['conditions']['CoPersonRole.co_person_id'] = $copersonid;
     $args['conditions'][] = 'CoPersonRole.deleted IS NOT true';
     $args['conditions'][] = 'CoPersonRole.co_person_role_id IS NULL';
