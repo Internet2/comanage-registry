@@ -186,6 +186,11 @@ class ExportJob extends CoJobBackend {
 
     // hasMany
     foreach($Model->hasMany as $rmodel => $roptions) {
+      // If the relationship is not defined in the supported models then we skip
+      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
+        continue;
+      }
+
       if(!empty($record[$rmodel]) && is_array($record[$rmodel])) {
         foreach($record[$rmodel] as $idx => $has_many_record) {
           // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
@@ -194,8 +199,7 @@ class ExportJob extends CoJobBackend {
           //      'foreignKey' => 'notification_co_group_id'
           //    ),
           $place_holder_string = '@' . $Model->name . "::" . $roptions['className'] . "_hasMany.{$idx}@";
-          $place_holder_hashed_value = $Model->name . ($record[$Model->name]['id'] ?? 0) . $roptions['className'] . ($has_many_record['id'] ?? 0);
-//        $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id']);
+          $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($has_many_record['id'] ?? 0));
           $ret[$place_holder_string] = $place_holder_hashed_value;
         }
       }
@@ -203,21 +207,29 @@ class ExportJob extends CoJobBackend {
 
     // hasOne
     foreach($Model->hasOne as $rmodel => $roptions) {
+      // If the relationship is not defined in the supported models then we skip
+      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
+        continue;
+      }
+
       $place_holder_string = '@' . $Model->name . "::" .  $roptions['className'] . '_hasOne@';
-      $place_holder_hashed_value = $Model->name . ($record[$Model->name]['id'] ?? 0) . $roptions['className'] . ($record[$rmodel]['id'] ?? 0);
-//      $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[$rmodel]['id']);
+      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($record[$rmodel]['id'] ?? 0));
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
     // belongsTo
     foreach($Model->belongsTo as $rmodel => $roptions) {
+      // If we do not have any associated record continue to the next model
+      if(empty($record[$rmodel]['id'])) {
+        continue;
+      }
       // For the case of COUs we will have a relationship of the type:
       // "@Cou::Cou_belongsTo@": "Cou0Cou13"
       // This is not the Changelog wich slipped into the configuration. It is the tree relationship
       // The ParentCou is a link to the COU itself and the foreign key is the parent_id column
       $place_holder_string = '@' . $roptions['className'] . "::" . $Model->name . '_belongsTo@';
-      $place_holder_hashed_value = $roptions['className'] . ($record[$rmodel]['id'] ?? 0) . $Model->name . ($record[$Model->name]['id'] ?? 0);
-//      $place_holder_hashed_value = md5($roptions['className'] . $record[$rmodel]['id'] . $Model->name . $record[$Model->name]['id']);
+//      $place_holder_hashed_value = $roptions['className'] . ($record[$rmodel]['id'] ?? 0) . $Model->name . ($record[$Model->name]['id'] ?? 0);
+      $place_holder_hashed_value = $roptions['className'] . $record[$rmodel]['id'];
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
@@ -241,7 +253,7 @@ class ExportJob extends CoJobBackend {
       'actor_identifier',
       'created',
       'deleted',
-      'id',
+      // 'id', i will use the combination of model id and record value as my key value
       // We do not need lft and rght keys. We will recover the relationships, if needed
       // on import:
       // https://book.cakephp.org/2/en/core-libraries/behaviors/tree.html#data-integrity
@@ -264,8 +276,12 @@ class ExportJob extends CoJobBackend {
                         "base64::" . base64_encode($record[$modelName][$clmn])
                         : $record[$modelName][$clmn];
         } else {
-          // Just copy the value
-          $ret[$clmn] = $record[$modelName][$clmn];
+          if($clmn == "id") {
+            $ret['key'] = strtolower($modelName . $clmn . $record[$modelName][$clmn]);
+          } else {
+            // Just copy the value
+            $ret[$clmn] = $record[$modelName][$clmn];
+          }
         }
       }
     }
