@@ -176,6 +176,14 @@ class ExportJob extends CoJobBackend {
     // Get a pointer to our model
     $Model = ClassRegistry::init($modelName);
 
+    // XXX The relationship structure is always one to many either we have a belongs to or a has many
+    //     "@Cou::CoTermsAndConditions_hasMany.0@": "Cou13CoTermsAndConditions10",
+    //     The COU with id 13 has many CoTerms and conditions
+    //
+    //     "@Cou::Cou_belongsTo@": "Cou0Cou13",
+    //     The parent COU has many COUs. Currently the parent is null, this is why the id value is 0
+
+
     // hasMany
     foreach($Model->hasMany as $rmodel => $roptions) {
       if(!empty($record[$rmodel]) && is_array($record[$rmodel])) {
@@ -185,8 +193,8 @@ class ExportJob extends CoJobBackend {
           //      'className' => 'CoGroup',
           //      'foreignKey' => 'notification_co_group_id'
           //    ),
-          $place_holder_string = '@' . $Model->name . $roptions['className'] . "_hasMany.{$idx}@";
-          $place_holder_hashed_value = $Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id'];
+          $place_holder_string = '@' . $Model->name . "::" . $roptions['className'] . "_hasMany.{$idx}@";
+          $place_holder_hashed_value = $Model->name . ($record[$Model->name]['id'] ?? 0) . $roptions['className'] . ($has_many_record['id'] ?? 0);
 //        $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $has_many_record['id']);
           $ret[$place_holder_string] = $place_holder_hashed_value;
         }
@@ -195,28 +203,26 @@ class ExportJob extends CoJobBackend {
 
     // hasOne
     foreach($Model->hasOne as $rmodel => $roptions) {
-      $place_holder_string = '@' . $Model->name . $roptions['className'] . '_hasOne@';
-      $place_holder_hashed_value = $Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[$rmodel]['id'];
+      $place_holder_string = '@' . $Model->name . "::" .  $roptions['className'] . '_hasOne@';
+      $place_holder_hashed_value = $Model->name . ($record[$Model->name]['id'] ?? 0) . $roptions['className'] . ($record[$rmodel]['id'] ?? 0);
 //      $place_holder_hashed_value = md5($Model->name . $record[$Model->name]['id'] . $roptions['className'] . $record[$rmodel]['id']);
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
     // belongsTo
     foreach($Model->belongsTo as $rmodel => $roptions) {
-      $place_holder_string = '@' . $roptions['className'] . $Model->name . '_belongsTo@';
-      $place_holder_hashed_value = $roptions['className'] . $record[$rmodel]['id'] . $Model->name . $record[$Model->name]['id'];
+      // For the case of COUs we will have a relationship of the type:
+      // "@Cou::Cou_belongsTo@": "Cou0Cou13"
+      // This is not the Changelog wich slipped into the configuration. It is the tree relationship
+      // The ParentCou is a link to the COU itself and the foreign key is the parent_id column
+      $place_holder_string = '@' . $roptions['className'] . "::" . $Model->name . '_belongsTo@';
+      $place_holder_hashed_value = $roptions['className'] . ($record[$rmodel]['id'] ?? 0) . $Model->name . ($record[$Model->name]['id'] ?? 0);
 //      $place_holder_hashed_value = md5($roptions['className'] . $record[$rmodel]['id'] . $Model->name . $record[$Model->name]['id']);
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
     // manyToMany
     // XXX Currently we have no model using this relationship type
-
-    // TODO the above does not take into consideration the special case of COUs that use
-    // the tree behavior
-    //    'lft',
-    //    'rght',
-    //    'parent_id
 
     // Get the list of belongs_to associations and construct an exclude array
     $assc_keys = [];
@@ -236,6 +242,11 @@ class ExportJob extends CoJobBackend {
       'created',
       'deleted',
       'id',
+      // We do not need lft and rght keys. We will recover the relationships, if needed
+      // on import:
+      // https://book.cakephp.org/2/en/core-libraries/behaviors/tree.html#data-integrity
+      'lft',
+      'rght',
       'modified',
       'revision',
       $mfk
@@ -245,9 +256,6 @@ class ExportJob extends CoJobBackend {
     $mdl_schema = $Model->schema();
     foreach ($mdl_schema as $clmn => $properties) {
       if(!in_array($clmn, $meta_fields, true)) {
-        if($clmn == "css") {
-          $test = "hi";
-        }
         if($properties['type'] === "text") {
           // Textarea fields might contain html or javascript code. Encode to base64
           // in order to avoid any problems. Also add a prefix that will dictate that this
