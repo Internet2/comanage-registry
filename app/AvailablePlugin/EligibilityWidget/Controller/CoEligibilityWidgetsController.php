@@ -188,18 +188,22 @@ class CoEligibilityWidgetsController extends SDWController {
     $this->layout = 'ajax';
 
     if (empty($this->request->params['pass'][0])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array(_txt('ct.eligibility_widget.1') . ' Id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array(_txt('ct.eligibility_widget.1') . ' Id')));
     }
     if (empty($this->request->data['cou_id'])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array('cou_id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array('cou_id')));
     }
     if(empty($this->request->data['co_person_id'])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array('co_person_id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array('co_person_id')));
     }
 
     // I need to verify that the CO Person is part of the CO
     $copersonid = $this->request->data['co_person_id'];
     if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
+      $this->log(__METHOD__ . "::message " . _txt('er.cop.nf', array($copersonid)), LOG_ERROR);
       throw new NotFoundException(_txt('er.cop.nf', array($copersonid)));
     }
 
@@ -217,6 +221,7 @@ class CoEligibilityWidgetsController extends SDWController {
     $this->CoPersonRole->save($copr);
 
     if(!$this->CoPersonRole->save($copr)) {
+      $this->log(__METHOD__ . "::message " . _txt('er.db.save'), LOG_ERROR);
       throw new InternalErrorException(_txt('er.db.save'));
     }
 
@@ -292,19 +297,23 @@ class CoEligibilityWidgetsController extends SDWController {
     $this->layout = 'ajax';
 
     if (empty($this->request->params['pass'][0])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array(_txt('ct.eligibility_widget.1') . ' Id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array(_txt('ct.eligibility_widget.1') . ' Id')));
     }
 
     if (empty($this->request->data['ois_id'])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array('ois_id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array('ois_id')));
     }
     if(empty($this->request->data['co_person_id'])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array('co_person_id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array('co_person_id')));
     }
 
     // I need to verify that the CO Person is part of the CO
     $copersonid = $this->request->data['co_person_id'];
     if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
+      $this->log(__METHOD__ . "::message " . _txt('er.cop.nf', array($copersonid)), LOG_ERROR);
       throw new NotFoundException(_txt('er.cop.nf', array($copersonid)));
     }
 
@@ -313,6 +322,7 @@ class CoEligibilityWidgetsController extends SDWController {
                                                               $this->cur_co["Co"]["id"],
                                                               $this->request->data['co_person_id']);
     } catch(Exception $e) {
+      $this->log(__METHOD__ . "::message " .$e->getMessage(), LOG_ERROR);
       // Double quotes are not JSON accepted
       throw new BadRequestException(str_replace('"', "", $e->getMessage()));
     }
@@ -343,9 +353,11 @@ class CoEligibilityWidgetsController extends SDWController {
     $this->layout = 'ajax';
 
     if (empty($this->request->params['pass'][0])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array(_txt('ct.eligibility_widget.1') . ' Id')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array(_txt('ct.eligibility_widget.1') . ' Id')));
     }
     if(empty($this->request->query["copersonid"])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.notfound', array('copersonid')), LOG_ERROR);
       throw new BadRequestException(_txt('pl.er.eligibilitywidget.param.notfound', array('copersonid')));
     }
 
@@ -369,6 +381,7 @@ class CoEligibilityWidgetsController extends SDWController {
 
       $roles = $this->CoPersonRole->find('all', $args);
     } catch(Exception $e) {
+      $this->log(__METHOD__ . "::message " .$e->getMessage(), LOG_ERROR);
       // Double quotes are not JSON accepted
       throw new BadRequestException(str_replace('"', "", $e->getMessage()));
     }
@@ -393,12 +406,14 @@ class CoEligibilityWidgetsController extends SDWController {
     $this->layout = 'ajax';
 
     if(empty($this->request->query["copersonrole"])) {
+      $this->log(__METHOD__ . "::message " . _txt('pl.er.eligibilitywidget.param.specify'), LOG_ERROR);
       throw new InvalidArgumentException(_txt('pl.er.eligibilitywidget.param.specify'));
     }
 
     try{
       $data = $this->CoEligibilityWidget->syncEligibility($this->request->query["copersonrole"]);
     } catch(Exception $e) {
+      $this->log(__METHOD__ . "::message " .$e->getMessage(), LOG_ERROR);
       throw new BadRequestException(str_replace('"', "", $e->getMessage()));
     }
 
