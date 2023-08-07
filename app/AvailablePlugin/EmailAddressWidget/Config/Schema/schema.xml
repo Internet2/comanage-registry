@@ -31,6 +31,7 @@
       <autoincrement />
     </field>
     <field name="type" type="C" size="32" />
+    <field name="type_primary" type="C" size="32" />
     <field name="verification_validity" type="I" />
     <field name="co_message_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>

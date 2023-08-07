@@ -100,6 +100,34 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('type_primary', _txt('pl.emailaddresswidget.fd.type.primary')) : _txt('pl.emailaddresswidget.fd.type.primary')); ?>
+      </div>
+      <div class="field-desc">
+        <?php print _txt('pl.emailaddresswidget.fd.type.primary.desc'); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        $attrs['value'] = (isset($vv_config['CoEmailAddressWidget']['type_primary']) ? $vv_config['CoEmailAddressWidget']['type_primary'] : "");
+        $attrs['empty'] = false;
+        
+        if($e) {
+          print $this->Form->select('type_primary',
+            $vv_available_types,
+            $attrs);
+          
+          if($this->Form->isFieldError('type_primary')) {
+            print $this->Form->error('type_primary');
+          }
+        } else {
+          print _txt('pl.emailaddresswidget.fd.type.primary', null, filter_var($vv_config['type_primary'],FILTER_SANITIZE_SPECIAL_CHARS));
+        }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('co_message_template_id', _txt('pl.emailaddresswidget.fd.message.template')) : _txt('pl.emailaddresswidget.fd.message.template')); ?>
       </div>
       <div class="field-desc">
