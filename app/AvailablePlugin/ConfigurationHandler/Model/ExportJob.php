@@ -38,16 +38,19 @@ class ExportJob extends CoJobBackend {
     "AttributeEnumeration",
     "CoDashboard" => array("CoDashboardWidget"),
     "CoEnrollmentFlow" => array(
+      "CoPipeline",
       "CoEnrollmentFlowWedge",
       "CoEnrollmentSource",
-      "CoEnrollmentAttribute" => array("CoEnrollmentAttributeDefault")),
+      "CoEnrollmentAttribute" =>
+        array("CoEnrollmentAttributeDefault")
+    ),
     "CoExpirationPolicy",
     "CoExtendedAttribute",
     "CoExtendedType",
-    "CoGroup" => array(
-      "CoGroupNesting",
-      "CoGroupOisMapping",
-    ), // For the groups i need to ignore the ones relates with the COUs
+//    "CoGroup" => array(
+//      "CoGroupNesting",
+//      "CoGroupOisMapping",
+//    ), // For the groups i need to ignore the ones relates with the COUs
     "CoIdentifierAssignment",
     "CoIdentifierValidator",
     "CoLocalization",
@@ -55,10 +58,10 @@ class ExportJob extends CoJobBackend {
     "CoNavigationLink",
     "CoPipeline",
     "CoProvisioningTarget" => array(
-      "DataFilter" => array(
-        "OrgIdentitySourceFilter",
-        "CoProvisioningTargetFilter",
-      ),
+      "CoProvisioningTargetFilter"
+    ),
+    "DataFilter" => array(
+      "OrgIdentitySourceFilter",
       "CoProvisioningTargetFilter",
     ),
     "CoSelfServicePermission",
@@ -70,6 +73,7 @@ class ExportJob extends CoJobBackend {
     ),
     "Dictionary" => array(
       "DictionaryEntry",
+      "AttributeEnumeration"
     ),
     "OrgIdentitySource" => array(
       "CoGroupOisMapping",
@@ -139,7 +143,7 @@ class ExportJob extends CoJobBackend {
                                                            $mmodel,
                                                            self::MODELS_SUPPORTED[$mmodel] ?? array(),
                                                            $record,
-                                                           '');
+                                                           $mmodel);
         }
         if(!empty($mdata)) {
           // since we are appending we need to add a comma before adding the new blob of data
@@ -170,36 +174,52 @@ class ExportJob extends CoJobBackend {
    * @since  COmanage Registry v4.3.0
    * @param  array  $dataset       Record to examine
    * @param  string $modelName     Name of model being examined
-   * @param  string $hasManyList   List of models that are currently supported from the configuration self::MODELS_SUPPORTED
+   * @param  string $hasManyOneList   List of models that are currently supported from the configuration self::MODELS_SUPPORTED
    * @return array             Record, with metadata filtered
    */
 
-  public function filterMetadataInbound($dataset, $modelName, $hasManyList, $record, $path = '') {
+  public function filterMetadataInbound($dataset, $modelName, $hasManyOneList, $record, $path = '') {
     // Get the data we need from the record and move them into $ret
     // In the process create the associations placeholders
     $ret = array();
 
-    if(!empty($hasManyList)) {
-      foreach($hasManyList as $dmodel => $ddmodel) {
-        $mmodel = is_int($dmodel) ? $ddmodel : $dmodel;
+    // Get a pointer to our model
+    $Model = ClassRegistry::init($modelName);
+    $path_partial = '';
+
+    if(!empty($hasManyOneList)) {
+      foreach($hasManyOneList as $key_model => $value_model) {
+        $mmodel = is_int($key_model) ? $value_model : $key_model;
+        $model_hasMany_keys = array_keys($Model->hasMany);
+        $model_hasOne_keys = array_keys($Model->hasOne);
+        // For has many relationships the path should also contain the index parser
+        // We need to check if the model association is hasOne or hasMany
+        if(in_array($mmodel, $model_hasMany_keys)) {
+          // XXX The way we implement it here we get all the nested records. We do not
+          //     get the ones corresponding to n=2 and then fetch all the level three.
+          $path_partial = "{$mmodel}.{n}";
+        } else if(in_array($mmodel, $model_hasOne_keys)) {
+          $path_partial = $mmodel;
+        }
+
         // This linked model has no record. We continue to the next one.
         // CAKEPHP will return a record with all the values set to null when using the contain
         // feature. In order to find out if the record has any value you use the array_filter
-        if(empty($record[$mmodel])
-           || empty(array_filter($record[$mmodel]))) {
+
+        $next_values = $record[$mmodel] ?? Hash::extract($record, $path_partial);
+        $check_null_values = array_filter($next_values);
+
+        if(empty($check_null_values)) {
           continue;
         }
 
         $ret[$mmodel][] = $this->filterMetadataInbound($dataset,
                                                        $mmodel,
-                                                       $hasManyList[$mmodel] ?? array(),
-                                                       $record[$mmodel] ?? $dataset,
-                                                       empty($path) ? "{$modelName}" : "{$path}.{$modelName}");
+                                                       $hasManyOneList[$mmodel] ?? array(),
+                                                       $next_values ?? $dataset,
+                                                       empty($path) ? $path_partial : "{$path}.{$path_partial}");
       }
     }
-
-    // Get a pointer to our model
-    $Model = ClassRegistry::init($modelName);
 
     // XXX The relationship structure is always one to many either we have a belongs to or a has many
     //     "@Cou::CoTermsAndConditions_hasMany.0@": "Cou13CoTermsAndConditions10",
@@ -253,7 +273,7 @@ class ExportJob extends CoJobBackend {
       // This is not the Changelog wich slipped into the configuration. It is the tree relationship
       // The ParentCou is a link to the COU itself and the foreign key is the parent_id column
       $place_holder_string = '@' . $roptions['className'] . "::" . $Model->name . '_belongsTo@';
-      $place_holder_hashed_value = strtolower($roptions['className'] . $dataset[$rmodel]['id']);
+      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0) ) ;
       $ret[$place_holder_string] = $place_holder_hashed_value;
     }
 
@@ -288,63 +308,50 @@ class ExportJob extends CoJobBackend {
       $mfk
     ];
 
-    // My final path is the nested path plus my model
-    $fpath = empty($path) ? $modelName : "{$path}.{$modelName}";
 
 
     $dataset_to_parse = array();
-    if(!empty($dataset[$fpath])) {
-      $dataset_to_parse = $dataset[$fpath];
-    } else {
-      // CAKEPHP contain will fetch the first level of containing Models at the same level as the Model itself.
-      // This means that for the case of Servers the MatchServers will be at the same level as Servers.
-      // Then as we go deeper we need to look into each server type record table.
-      // As a result, even though the path: Server.MatchServer.MatchServerAttribute is accurate the data will
-      // not be constructed like that. We need to remove the first level of the path
-      $path_levels = explode(".", $fpath);
-      array_shift($path_levels);
-      $fpath = implode(".", $path_levels);
 
-      if(Hash::check($dataset, $fpath)) {
-        // Nested
-        $dataset_to_parse = Hash::extract($dataset, $fpath);
-      }
+    // CAKEPHP contain will fetch the first level of containing Models at the same level as the Model itself.
+    // This means that for the case of Servers the MatchServers will be at the same level as Servers.
+    // Then as we go deeper we need to look into each server type record table.
+    // As a result, even though the path: Server.MatchServer.MatchServerAttribute is accurate the data will
+    // not be constructed like that. We need to remove the first level of the path
+    // We do remove the first level of the path only if a nested path is present. Which means only if
+    // the dot delimiter is present
+    if(strpos($path, ".") !== false) {
+      $path_levels = explode(".", $path);
+      array_shift($path_levels);
+      $path = implode(".", $path_levels);
     }
 
-    if(isset($dataset_to_parse[0])) {
+    if(Hash::check($dataset, $path)) {
+      // Nested
+      $dataset_to_parse = Hash::extract($dataset, $path);
+    }
+
+    if(empty($dataset_to_parse)) {
+      // we do nothing
+      return;
+    } else if(isset($dataset_to_parse[0])) {
       // hasMany
       foreach ($dataset_to_parse as $idx => $data) {
+        if(empty(array_filter($data))) {
+          // Record with null values
+          return;
+        }
         $tmp = array();
         $this->constructRecord($data, $Model, $meta_fields, $modelName, $tmp);
         $ret[] = $tmp;
       }
     } else {
+      if(empty(array_filter($dataset_to_parse))) {
+        // Record with null values
+        return;
+      }
       // hasOne
       $this->constructRecord($dataset_to_parse,  $Model, $meta_fields, $modelName, $ret);
     }
-
-//
-//    // hasMany
-//    if(!empty($path) // If the path is empty we want to let the default else block handle the construction
-//      && Hash::check($dataset, $fpath)) {
-//      // Nested
-//      $rdata = Hash::extract($dataset, $fpath);
-//      foreach ($rdata as $idx => $data) {
-//        $tmp = array();
-//        $this->constructRecord($data,  $Model, $meta_fields, $modelName, $tmp);
-//        $ret[] = $tmp;
-//      }
-//    } else if(isset($dataset[$modelName][0])) {
-//      // First level nested
-//      foreach ($dataset[$modelName] as $idx => $data) {
-//        $tmp = array();
-//        $this->constructRecord($data,  $Model, $meta_fields, $modelName, $tmp);
-//        $ret[] = $tmp;
-//      }
-//    } else {
-//      // hasOne
-//      $this->constructRecord($record[$modelName] ?? $record,  $Model, $meta_fields, $modelName, $ret);
-//    }
 
     return $ret;
   }
@@ -404,11 +411,15 @@ class ExportJob extends CoJobBackend {
     if($pModel->name == 'CoGroup') {
       $args['conditions'][] = "{$pmodel}.auto IS NOT TRUE";
     }
-    // $args['contain'] = true;
+
     // We want to contain all the belongsTo associations, as well as the hasMany or hasOne we allow. This will make things easier
     // for the COU model. The COU model hasMany Roles which we do not need. Excluding the CoPersonRoles from the contain list will
     // speed up the process
     $args['contain'] = array_merge(self::MODELS_SUPPORTED[$pmodel] ?? array(), array_keys($pModel->belongsTo));
+
+    if (($key = array_search("Co", $args['contain'])) !== false) {
+      unset($args['contain'][$key]);
+    }
 
     $records = $pModel->find('all', $args);
 
