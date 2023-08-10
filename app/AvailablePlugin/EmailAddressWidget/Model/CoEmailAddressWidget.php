@@ -87,13 +87,14 @@ class CoEmailAddressWidget extends CoDashboardWidgetBackend {
    * @param integer $copersonid   The CO Person to be added the email
    * @return integer id of the new row
    */
-  public function generateToken($emailAddress, $emailType, $copersonid) {
+  public function generateToken($emailAddress, $emailType, $copersonid, $isPrimary) {
     $token = generateRandomToken(8);
 
     $fields = array(
       'email' => $emailAddress,
       'type' => $emailType,
       'token' => $token,
+      'is_primary' => $isPrimary,
       'co_email_address_widget_id' => $this->id,
       'co_person_id' => $copersonid
     );
@@ -147,5 +148,26 @@ class CoEmailAddressWidget extends CoDashboardWidgetBackend {
       $email->send();
     }
 
+  }
+  
+  /**
+   * Set an email address to the configured "primary" type.
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param  string  $emailId  ID of the email address to be changed.
+   * @param  string  $defaultType Default email address type
+   * @param  string  $primaryType Primary email address type
+   */
+  public function setPrimary($emailId, $defaultType, $primaryType) {
+    // Find all the email addresses of the plugin's primary type
+    // XXX do that
+    
+    // Set all of these to the plugin's default type
+    // XXX do that too
+    
+    // Now update the type for the email address sent to this function
+    // XXX save the address with the correct type.
+    
+    return true;
   }
 }

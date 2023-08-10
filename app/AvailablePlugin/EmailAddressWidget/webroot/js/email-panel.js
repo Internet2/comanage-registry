@@ -63,11 +63,19 @@ export default {
         this.newEmailErrorMessage = this.txt.errorInvalid;
         return;
       }
+      
+      // set the new email address type
+      let addrType = this.core.defaultEmailType;
+      let isPrimary = false;
+      if(this.$refs.newAddressPrimary.checked == true) {
+        addrType = this.core.primaryEmailType;
+        isPrimary = true;
+      }
 
       this.$parent.setError('');
       this.$parent.successTxt = '';
 
-      const url = `/registry/email_address_widget/co_email_address_widgets/gentoken/${this.core.emailAddressWidgetId}?email=${encodeURIComponent(this.$refs.newAddress.value)}&copersonid=${this.core.coPersonId}`;
+      const url = `/registry/email_address_widget/co_email_address_widgets/gentoken/${this.core.emailAddressWidgetId}?email=${encodeURIComponent(this.$refs.newAddress.value)}&type=${encodeURIComponent(addrType)}&copersonid=${this.core.coPersonId}&isprimary=${isPrimary}`;
       displaySpinner();
       callRegistryAPI(
         url,
@@ -160,7 +168,8 @@ export default {
           :core="core"
           v-for="email in this.emails"
           :mail="email.Mail"
-          :id="email.Id">
+          :id="email.Id"
+          :type="email.Type">
         </email-item>    
       </ul>
       <div v-if="!editing" class="cm-self-service-submit-buttons">
@@ -219,10 +228,21 @@ export default {
                     {{ this.newEmailErrorMessage }}
                   </div>
               </span>
+              <span class="cm-ssw-form-field form-check">
+                <input 
+                  type="checkbox"
+                  :id="generateId('cm-ssw-email-address-primary')"
+                  value=""
+                  class="form-check-input cm-ssw-form-field-primary"
+                  ref="newAddressPrimary"/> 
+                <label :for="generateId('cm-ssw-email-address-primary')">
+                  {{ this.txt.makePrimary }}
+                </label>  
+              </span>
               <input 
                 type="hidden"
                 :id="generateId('cm-ssw-email-type-new')"
-                :value="core.defaultEmailType"
+                :value="this.newEmailType"
                 ref="newAddressType"/>
             </span>
             <div class="cm-ssw-submit-buttons">

@@ -52,7 +52,9 @@
           emailAddressWidgetId: '<?php print $vv_config['CoEmailAddressWidget']['id']; ?>',
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
-          defaultEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : 'official'; ?>',
+          defaultEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : EmailAddressEnum::Official; ?>',
+          // Fallback to 'preferred' email type if no primary type is set in configuration
+          primaryEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type_primary']) ? $vv_config['CoEmailAddressWidget']['type_primary'] : EmailAddressEnum::Preferred; ?>',
           messageTemplateId: '<?php print !empty($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : ''; ?>',
           deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
         },
@@ -62,6 +64,7 @@
           cancel:              "<?php print _txt('op.cancel'); ?>",
           confirm:             "<?php print _txt('op.confirm'); ?>",
           delete:              "<?php print _txt('op.delete'); ?>",
+          deleted:             "<?php print _txt('pl.emailaddresswidget.deleted'); ?>",
           deleteModalTitle:    "<?php print _txt('pl.emailaddresswidget.modal.title.delete'); ?>",
           deleteModalMessage:  "<?php print _txt('pl.emailaddresswidget.modal.body.delete'); ?>",
           deleteFail:          "<?php print _txt('er.delete'); ?>",
@@ -71,10 +74,14 @@
           error401:            "<?php print _txt('er.http.401.unauth');?>",
           error500:            "<?php print _txt('er.http.500');?>",
           errorInvalid:        "<?php print _txt('er.mt.invalid', array("Email Format"));?>",
+          makePrimary:         "<?php print _txt('pl.emailaddresswidget.make.primary');?>",
+          makePrimaryFail:     "<?php print _txt('er.emailaddresswidget.make.primary');?>",
           ok:                  "<?php print _txt('op.ok'); ?>",
+          primary:             "<?php print _txt('pl.emailaddresswidget.fd.primary');?>",
           token:               "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
           tokenMsg:            "<?php print _txt('pl.emailaddresswidget.fd.token.msg'); ?>",
           tokenError:          "<?php print _txt('er.emailaddresswidget.fd.token'); ?>",
+          updated:             "<?php print _txt('pl.emailaddresswidget.updated'); ?>",
           verify:              "<?php print _txt('op.verify'); ?>"
         }
       }
@@ -97,8 +104,8 @@
         stopSpinner();
         this.successTxt = '';
         if(xhr.statusText != undefined && xhr.statusText != '') {
-          this.setError(xhr.statusText)
-          console.log('Status Code:', xhr.status)
+          this.setError(xhr.statusText);
+          console.log('Status Code:', xhr.status);
         } else {
           console.error(xhr);
           this.setError(this.txt.error500);

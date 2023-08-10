@@ -38,13 +38,19 @@ $cm_email_address_widget_texts['en_US'] = array(
 
   // Error
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
+  'er.emailaddresswidget.make.primary'                  => 'There was an error. The email address could not be marked as primary.',
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
   'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
+  
+  // Info
+  'pl.emailaddresswidget.deleted'                       => 'Deleted',
+  'pl.emailaddresswidget.updated'                       => 'Updated',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
   'pl.emailaddresswidget.email.subject'                 => 'Your email verification code',
   'pl.emailaddresswidget.email.body'                    => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
+  'pl.emailaddresswidget.make.primary'                  => 'Make primary',
   'pl.emailaddresswidget.noconfig'                      => 'This widget requires no configuration.',
   'pl.emailaddresswidget.none'                          => 'No email addresses',
   'pl.emailaddresswidget.return'                        => 'Return',
@@ -56,6 +62,7 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.fd.email'                      => 'Add Email Address',
   'pl.emailaddresswidget.fd.message.template'           => 'Message Template',
   'pl.emailaddresswidget.fd.message.template.desc'      => 'The email message template to be used. If empty, the following default message will be sent:',
+  'pl.emailaddresswidget.fd.primary'                    => 'Primary',
   'pl.emailaddresswidget.fd.type'                       => 'Type',
   'pl.emailaddresswidget.fd.type.default'               => 'Default Email Address Type',
   'pl.emailaddresswidget.fd.type.default.desc'          => 'Email Addresses added via this widget will be assigned this type.',

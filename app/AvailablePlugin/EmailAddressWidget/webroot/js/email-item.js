@@ -28,6 +28,7 @@ export default {
   props: {
     mail: String,
     id: String,
+    type: String,
     editing: Boolean,
     core: Object,
     txt: Object
@@ -49,13 +50,45 @@ export default {
     },
     deleteSuccessEmailCallback(xhr) {
       this.$parent.$parent.setError('');
-      this.$parent.$parent.successTxt = 'Deleted';
+      this.$parent.$parent.successTxt = this.txt.deleted;
       this.$parent.refreshDisplay();
     },
     deleteFailEmailCallback(xhr) {
       if(xhr.status == 400 || xhr.status == 404) {
         this.$parent.$parent.successTxt = '';
         this.$parent.$parent.setError(this.txt.deleteFail);
+      } else {
+        this.$parent.$parent.generalXhrFailCallback(xhr);
+      }
+    },
+    makePrimary(e,id) {
+      e.prevent;
+      e.stop;
+
+      this.$parent.$parent.setError('');
+      this.$parent.$parent.successTxt = '';
+
+      const url = `/registry/email_address_widget/co_email_address_widgets/makeprimary/${this.core.emailAddressWidgetId}?emailid=${encodeURIComponent(id)}&dtype=${encodeURIComponent(this.core.defaultEmailType)}&ptype=${encodeURIComponent(this.core.primaryEmailType)}`;
+      displaySpinner();
+      callRegistryAPI(
+        url,
+        'GET',
+        'json',
+        this.makePrimarySuccessCallback,
+        '',
+        this.makePrimaryFailCallback);
+    },
+    makePrimarySuccessCallback(xhr) {
+      stopSpinner();
+      this.$parent.$parent.setError('');
+      this.$parent.$parent.successTxt = this.txt.updated;
+      this.$parent.refreshDisplay();
+    },
+    makePrimaryFailCallback(xhr) {
+      stopSpinner();
+      if(xhr.status == 400 || xhr.status == 404) {
+        this.$parent.$parent.successTxt = '';
+        this.$parent.$parent.setError(this.txt.makePrimaryFail);
       } else {
         this.$parent.$parent.generalXhrFailCallback(xhr);
       }
@@ -68,8 +101,17 @@ export default {
           <button class="cm-ssw-dropdown-toggle btn btn-primary" data-toggle="dropdown" aria-haspopup="1" aria-expanded="false">
             <em className="material-icons" aria-hidden="true">settings</em>
             {{ this.mail }}
+            <span v-if="this.type == this.core.primaryEmailType" class="mr-1 badge badge-light">{{ this.txt.primary }}</span>
           </button>  
           <ul class="dropdown-menu">
+            <li v-if="this.type != this.core.primaryEmailType">
+              <button 
+                @click="makePrimary($event, this.id)" 
+                class="cm-ssw-make-primary-button btn btn-small dropdown-item">
+                <em className="material-icons" aria-hidden="true">task_alt</em>
+                {{ txt.makePrimary }}
+              </button>
+            </li>
             <li>
               <button 
                 @click="deleteConfirm($event, this.core.widget, this.id)" 
@@ -91,7 +133,8 @@ export default {
         </div>
       </div> 
       <div v-else class="cm-ssw-view-container">     
-        <span v-else class="email-address">{{ this.mail }}</span> 
+        <span v-else class="email-address">{{ this.mail }}</span>
+        <span v-if="this.type == this.core.primaryEmailType" class="mr-1 badge badge-outline-primary">{{ this.txt.primary }}</span>
       </div>
     </li>
   `

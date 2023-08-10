@@ -95,7 +95,9 @@ class CoEmailAddressWidgetsController extends SDWController {
     $this->layout = 'ajax';
 
     if (empty($this->request->query['email'])
-       || empty($this->request->query['copersonid'])) {
+       || empty($this->request->query['type'])
+       || empty($this->request->query['copersonid'])
+       || empty($this->request->query['isprimary'])) {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.req.params'));
       return;
     }
@@ -109,8 +111,9 @@ class CoEmailAddressWidgetsController extends SDWController {
 
     $results = $this->CoEmailAddressWidget->generateToken(
       $this->request->query['email'],
-      $this->CoEmailAddressWidget->field('type'),
-      $this->request->query['copersonid']
+      $this->request->query['type'],
+      $this->request->query['copersonid'],
+      $this->request->query['isprimary']
     );
 
     // Return if we fail to create and save the token
@@ -126,6 +129,52 @@ class CoEmailAddressWidgetsController extends SDWController {
     $this->CoEmailAddressWidget->send($this->request->query['email'],
                                       $results['token'],
                                       $this->CoEmailAddressWidget->field('co_message_template_id'));
+  }
+  
+  /**
+   * Set an email address type to the configured "primary" type.
+   * Change any existing addresses of the same type to the default type.
+   *
+   * @param  Integer $id                 CO Services Widget ID
+   * @param  Integer $_GET['emailid']    ID of email address to be changed (from query string)
+   * @param  String  $_GET['dtype']      Default email address type (from query string)
+   * @param  String  $_GET['ptype']      Primary email address type (from query string)
+   * @since  COmanage Registry v4.3.0
+   */
+  public function makePrimary($id) {
+    $this->CoEmailAddressWidget->id = $id;
+    $this->layout = 'ajax';
+    
+    // Ensure we have all the query string params that we require
+    // Passing in the default and primary email address types (rather than looking them up
+    // in the plugin configuration) ensures that they are set to defaults if not yet configured.
+    // These fall back to "official" and "preferred" in View/display.ctp if not set in configuration.
+    if (empty($this->request->query['emailid']) ||
+        empty($this->request->query['dtype']) ||
+        empty($this->request->query['ptype'])) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.req.params'));
+      return;
+    }
+    
+    // Verify that the CO Person is part of the CO
+    $copersonid = $this->reqCoPersonId;
+    if(!$this->Role->isCoPerson($copersonid, $this->cur_co["Co"]["id"])) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.cop.nf', array($copersonid)));
+      return;
+    }
+    
+    // Give the email address the primary email address type
+    $results = $this->CoEmailAddressWidget->setPrimary(
+      $this->request->query['emailid'],
+      $this->request->query['dtype'],
+      $this->request->query['ptype']
+    );
+  
+    // Return if we fail
+    if(empty($results)) {
+      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.make.primary'));
+      return;
+    }
   }
   
   /**
@@ -158,6 +207,9 @@ class CoEmailAddressWidgetsController extends SDWController {
 
     // Generate an email verification token
     $p['gentoken'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    
+    // Make an email address's type the "primary" email address type as configured in the plugin
+    $p['makeprimary'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
 
     $this->set('permissions', $p);
     return($p[$this->action]);

@@ -2823,6 +2823,7 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   display: flex;
   padding: 1em;
   gap: 1em;
+  align-items: flex-end;
 }
 .cm-ssw-form-field-type {
   margin-left: 0.5em;
@@ -2831,7 +2832,7 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   margin-bottom: unset;
 }
 .cm-ssw-form-field.form-check {
-  margin: 1.5em 3em 0 1em;
+  margin: 1.5em 3em -0.5em 0.25em;
   font-size: 1.3em;
 }
 .cm-ssw-update-form .material-icons {

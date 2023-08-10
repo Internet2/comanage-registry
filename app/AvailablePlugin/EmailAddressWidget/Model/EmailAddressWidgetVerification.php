@@ -86,6 +86,11 @@ class EmailAddressWidgetVerification extends AppModel {
         'allowEmpty' => false
       )
     ),
+    'is_primary' => array(
+      'rule' => 'boolean',
+      'required' => true,
+      'allowEmpty' => false
+    ),
   );
 
   /**
@@ -100,6 +105,9 @@ class EmailAddressWidgetVerification extends AppModel {
   public function addEmailToPerson($token, $actorCoPersonId) {
     // Retrieve the Verification record and the configuration
     $rec = $this->getRecordToVerify($token);
+    
+    // TODO: If the new email address is primary, any other addresses of
+    // that type need to be converted to the default type.
 
     // Create the new CO Person Email record
     $emailAttrs = array(
