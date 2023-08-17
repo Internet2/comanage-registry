@@ -44,7 +44,7 @@ $cm_email_address_widget_texts['en_US'] = array(
 
   // Info
   'pl.emailaddresswidget.deleted'                       => 'Deleted',
-  'pl.emailaddresswidget.limit'                         => 'This widget is limited to a fixed number of email addresses, and you have reached that limit. You must first delete an address before you may add another.',
+  'pl.emailaddresswidget.limit'                         => 'Email address limit reached. You must first delete an address before you may add another.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
