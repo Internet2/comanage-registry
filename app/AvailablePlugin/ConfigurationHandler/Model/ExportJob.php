@@ -47,10 +47,10 @@ class ExportJob extends CoJobBackend {
     "CoExpirationPolicy",
     "CoExtendedAttribute",
     "CoExtendedType",
-//    "CoGroup" => array(
-//      "CoGroupNesting",
-//      "CoGroupOisMapping",
-//    ), // For the groups i need to ignore the ones relates with the COUs
+    "CoGroup" => array(
+      "CoGroupNesting",
+      "CoGroupOisMapping",
+    ), // For the groups i need to ignore the auto ones
     "CoIdentifierAssignment",
     "CoIdentifierValidator",
     "CoLocalization",
@@ -410,6 +410,7 @@ class ExportJob extends CoJobBackend {
     $args['conditions'][$pmodel . '.co_id'] = $coid;
     if($pModel->name == 'CoGroup') {
       $args['conditions'][] = "{$pmodel}.auto IS NOT TRUE";
+      $args['conditions']["{$pmodel}.group_type"] = GroupEnum::Standard;
     }
 
     // We want to contain all the belongsTo associations, as well as the hasMany or hasOne we allow. This will make things easier
