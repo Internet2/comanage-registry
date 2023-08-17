@@ -100,6 +100,19 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('max_allowed', _txt('pl.emailaddresswidget.fd.limit')) :_txt('pl.emailaddresswidget.fd.limit')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.emailaddresswidget.fd.limit.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('max_allowed')
+        : filter_var($vv_config['CoEmailAddressWidget']['max_allowed'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('co_message_template_id', _txt('pl.emailaddresswidget.fd.message.template')) : _txt('pl.emailaddresswidget.fd.message.template')); ?>
       </div>
       <div class="field-desc">

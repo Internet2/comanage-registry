@@ -52,18 +52,30 @@ export default {
     },
     genToken() {
       const newEmailAddress = this.$refs.newAddress.value.trim();
+      
       // basic front-end validation: is it empty?
       if(newEmailAddress == '') {
         return;
       }
+      
       // basic front-end validation: does it contain '@' and '.'?
       if(newEmailAddress.indexOf('@') == -1 || newEmailAddress.indexOf('.') == -1) {
-        this.newEmailInvalid = true;
-        this.newEmailInvalidClass = 'is-invalid';
-        this.newEmailErrorMessage = this.txt.errorInvalid;
+        this.setInvalid(this.txt.errorInvalid);
         return;
       }
-
+      
+      // test to see if we've reached our limit of email addresses
+      if(Number(this.core.emailLimit) > 0 && Number(this.$parent.emailAddresses.length) >= Number(this.core.emailLimit)) {
+        this.setInvalid(this.txt.errorLimit);
+        return;
+      }
+      
+      // basic front-end validation: does it already exist? We don't allow duplicate email addresses to be added.
+      if(this.emails.some((email) => email.Mail === newEmailAddress)) {
+        this.setInvalid(this.txt.errorDuplicate);
+        return;
+      }
+      
       this.$parent.setError('');
       this.$parent.successTxt = '';
 
@@ -84,9 +96,7 @@ export default {
         this.verifying = true;
         this.$nextTick(() => this.$refs['token'].focus());
       } else {
-        this.newEmailInvalid = true;
-        this.newEmailInvalidClass = 'is-invalid';
-        this.newEmailErrorMessage = this.txt.error500;
+        this.setInvalid(this.txt.error500);
       }
     },
     genTokenFailCallback(xhr) {
@@ -142,6 +152,11 @@ export default {
       this.$parent.successTxt = '';
       this.clearInvalid();
     },
+    setInvalid(message) {
+      this.newEmailInvalid = true;
+      this.newEmailInvalidClass = 'is-invalid';
+      this.newEmailErrorMessage = message;
+    },
     clearInvalid() {
       this.newEmailInvalid = false;
       this.newEmailInvalidClass = '';
@@ -158,10 +173,14 @@ export default {
           :txt="this.txt"
           :editing="editing"
           :core="core"
+          v-if="this.emails.length"
           v-for="email in this.emails"
           :mail="email.Mail"
           :id="email.Id">
         </email-item>    
+        <li v-else class="no-items-notice">
+          {{ this.txt.none }}
+        </li>
       </ul>
       <div v-if="!editing" class="cm-self-service-submit-buttons">
         <button @click="showEdit" class="btn btn-small btn-primary">{{ this.txt.edit }}</button>
@@ -222,7 +241,7 @@ export default {
               <input 
                 type="hidden"
                 :id="generateId('cm-ssw-email-type-new')"
-                :value="core.defaultEmailType"
+                :value="core.emailType"
                 ref="newAddressType"/>
             </span>
             <div class="cm-ssw-submit-buttons">

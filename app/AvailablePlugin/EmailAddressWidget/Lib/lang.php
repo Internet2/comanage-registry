@@ -37,7 +37,9 @@ $cm_email_address_widget_texts['en_US'] = array(
   'ct.co_email_address_widgets.pl'                      => 'Email Address Widgets',
 
   // Error
+  'er.emailaddresswidget.duplicate'                     => 'The email address is already registered.',
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
+  'er.emailaddresswidget.limit'                         => 'This widget is limited to a fixed number of email addresses, and you have reached that limit. You must first delete an address before you may add another.',
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
   'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
 
@@ -54,13 +56,13 @@ $cm_email_address_widget_texts['en_US'] = array(
   // Fields
   'pl.emailaddresswidget.fd.body'                       => 'Body',
   'pl.emailaddresswidget.fd.email'                      => 'Add Email Address',
+  'pl.emailaddresswidget.fd.limit'                      => 'Email Address Limit',
+  'pl.emailaddresswidget.fd.limit.desc'                 => 'The number of email addresses allowed by this widget. Leave empty to allow an unlimited number of entries.',
   'pl.emailaddresswidget.fd.message.template'           => 'Message Template',
   'pl.emailaddresswidget.fd.message.template.desc'      => 'The email message template to be used. If empty, the following default message will be sent:',
   'pl.emailaddresswidget.fd.type'                       => 'Type',
   'pl.emailaddresswidget.fd.type.default'               => 'Email Address Type',
-  'pl.emailaddresswidget.fd.type.default.desc'          => 'Email Addresses added via this widget will be assigned this type',
-  'pl.emailaddresswidget.fd.type.hide'                  => 'Hide Email Type',
-  'pl.emailaddresswidget.fd.type.hide.desc'             => 'Don\'t display the email type field in the Add Email form.',
+  'pl.emailaddresswidget.fd.type.default.desc'          => 'Email Addresses added and shown in this widget will be of this type',
   'pl.emailaddresswidget.fd.token'                      => 'Verification Token',
   'pl.emailaddresswidget.fd.token.msg'                  => 'Please check your email at the address you just submitted. Enter the email verification token in the field below and click \"Verify\" to finish adding your new email address.',
   'pl.emailaddresswidget.fd.verification.validity'      => 'Verification Validity (Minutes)',
