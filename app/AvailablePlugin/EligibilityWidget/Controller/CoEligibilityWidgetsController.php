@@ -218,8 +218,6 @@ class CoEligibilityWidgetsController extends SDWController {
       )
     );
 
-    $this->CoPersonRole->save($copr);
-
     if(!$this->CoPersonRole->save($copr)) {
       $this->log(__METHOD__ . "::message " . _txt('er.db.save'), LOG_ERROR);
       throw new InternalErrorException(_txt('er.db.save'));
