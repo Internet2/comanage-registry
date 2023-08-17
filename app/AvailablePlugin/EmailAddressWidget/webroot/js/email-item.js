@@ -50,7 +50,7 @@ export default {
     deleteSuccessEmailCallback(xhr) {
       this.$parent.clearInvalid();
       this.$parent.$parent.setError('');
-      this.$parent.$parent.successTxt = 'Deleted';
+      this.$parent.$parent.successTxt = this.txt.deleted;
       this.$parent.refreshDisplay();
     },
     deleteFailEmailCallback(xhr) {
