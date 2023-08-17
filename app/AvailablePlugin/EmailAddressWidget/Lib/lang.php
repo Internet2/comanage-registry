@@ -39,12 +39,12 @@ $cm_email_address_widget_texts['en_US'] = array(
   // Error
   'er.emailaddresswidget.duplicate'                     => 'The email address is already registered.',
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
-  'er.emailaddresswidget.limit'                         => 'This widget is limited to a fixed number of email addresses, and you have reached that limit. You must first delete an address before you may add another.',
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
   'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
 
   // Info
   'pl.emailaddresswidget.deleted'                       => 'Deleted',
+  'pl.emailaddresswidget.limit'                         => 'This widget is limited to a fixed number of email addresses, and you have reached that limit. You must first delete an address before you may add another.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
