@@ -63,6 +63,7 @@
           cancel:              "<?php print _txt('op.cancel'); ?>",
           confirm:             "<?php print _txt('op.confirm'); ?>",
           delete:              "<?php print _txt('op.delete'); ?>",
+          deleted:             "<?php print _txt('pl.emailaddresswidget.deleted'); ?>",
           deleteModalTitle:    "<?php print _txt('pl.emailaddresswidget.modal.title.delete'); ?>",
           deleteModalMessage:  "<?php print _txt('pl.emailaddresswidget.modal.body.delete'); ?>",
           deleteFail:          "<?php print _txt('er.delete'); ?>",

@@ -43,6 +43,9 @@ $cm_email_address_widget_texts['en_US'] = array(
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
   'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
 
+  // Info
+  'pl.emailaddresswidget.deleted'                       => 'Deleted',
+
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
   'pl.emailaddresswidget.email.subject'                 => 'Your email verification code',
