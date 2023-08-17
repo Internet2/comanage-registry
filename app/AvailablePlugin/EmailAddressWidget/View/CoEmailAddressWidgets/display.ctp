@@ -54,6 +54,7 @@
           // Fallback to 'official' email type if no default is set in configuration
           emailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : 'official'; ?>',
           emailLimit: '<?php print !empty($vv_config['CoEmailAddressWidget']['max_allowed']) ? $vv_config['CoEmailAddressWidget']['max_allowed'] : -1; ?>',
+          emailLimitReached: false, // we'll learn if this is true when we fetch the addresses
           messageTemplateId: '<?php print !empty($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : ''; ?>',
           deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
         },
@@ -74,7 +75,7 @@
           error500:            "<?php print _txt('er.http.500');?>",
           errorDuplicate:      "<?php print _txt('er.emailaddresswidget.duplicate');?>",
           errorInvalid:        "<?php print _txt('er.mt.invalid', array("Email Format"));?>",
-          errorLimit:          "<?php print _txt('er.emailaddresswidget.limit');?>",
+          limit:               "<?php print _txt('pl.emailaddresswidget.limit');?>",
           none:                "<?php print _txt('pl.emailaddresswidget.none');?>",
           ok:                  "<?php print _txt('op.ok'); ?>",
           token:               "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
@@ -101,6 +102,12 @@
             emailAddressesOfType.push(address);
           }
         });
+        // Test to see if we've reached the max count of email addresses for this widget
+        if(Number(this.core.emailLimit) > 0 && emailAddressesOfType.length >= Number(this.core.emailLimit)) {
+          this.core.emailLimitReached = true;
+        } else {
+          this.core.emailLimitReached = false;
+        }
         this.emailAddresses = emailAddressesOfType;
       },
       setError(txt) {

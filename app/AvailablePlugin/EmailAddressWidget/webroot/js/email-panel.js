@@ -64,9 +64,10 @@ export default {
         return;
       }
       
-      // test to see if we've reached our limit of email addresses
-      if(Number(this.core.emailLimit) > 0 && Number(this.$parent.emailAddresses.length) >= Number(this.core.emailLimit)) {
-        this.setInvalid(this.txt.errorLimit);
+      // test to see if we've reached our limit of email addresses. This should never catch because
+      // we now hide the Add form when the limit is reached, but keep this for completeness.
+      if(this.core.emailLimitReached) {
+        this.setInvalid(this.txt.limit);
         return;
       }
       
@@ -219,7 +220,7 @@ export default {
         </form>      
       </div>
       <div v-else class="cm-ssw-add-form">
-        <form action="#">
+        <form action="#" v-if="this.core.emailLimitReached == false">
           <div class="cm-ssw-form-row">
             <span class="cm-ssw-form-row-fields">
               <span class="cm-ssw-form-field form-group">
@@ -249,6 +250,9 @@ export default {
             </div>
           </div>
         </form>
+        <div v-else>
+          {{ this.txt.limit }}
+        </div>
       </div>
     </div>  
   `
