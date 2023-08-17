@@ -52,7 +52,8 @@
           emailAddressWidgetId: '<?php print $vv_config['CoEmailAddressWidget']['id']; ?>',
           webRoot: '<?php print $this->webroot; ?>',
           // Fallback to 'official' email type if no default is set in configuration
-          defaultEmailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : 'official'; ?>',
+          emailType: '<?php print !empty($vv_config['CoEmailAddressWidget']['type']) ? $vv_config['CoEmailAddressWidget']['type'] : 'official'; ?>',
+          emailLimit: '<?php print !empty($vv_config['CoEmailAddressWidget']['max_allowed']) ? $vv_config['CoEmailAddressWidget']['max_allowed'] : -1; ?>',
           messageTemplateId: '<?php print !empty($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : ''; ?>',
           deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
         },
@@ -70,7 +71,10 @@
           email:               "<?php print _txt('pl.emailaddresswidget.fd.email'); ?>",
           error401:            "<?php print _txt('er.http.401.unauth');?>",
           error500:            "<?php print _txt('er.http.500');?>",
+          errorDuplicate:      "<?php print _txt('er.emailaddresswidget.duplicate');?>",
           errorInvalid:        "<?php print _txt('er.mt.invalid', array("Email Format"));?>",
+          errorLimit:          "<?php print _txt('er.emailaddresswidget.limit');?>",
+          none:                "<?php print _txt('pl.emailaddresswidget.none');?>",
           ok:                  "<?php print _txt('op.ok'); ?>",
           token:               "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
           tokenMsg:            "<?php print _txt('pl.emailaddresswidget.fd.token.msg'); ?>",
@@ -88,7 +92,15 @@
         let xhr = callRegistryAPI(url, 'GET', 'json', this.setEmailAddresses, '', this.generalXhrFailCallback);
       },
       setEmailAddresses: function(xhr){
-        this.emailAddresses = xhr.responseJSON.EmailAddresses;
+        let allEmailAddresses = xhr.responseJSON.EmailAddresses;
+        // limit the email addresses to the emailType:
+        let emailAddressesOfType = [];
+        allEmailAddresses.forEach((address) => {
+          if(address.Type == this.core.emailType) {
+            emailAddressesOfType.push(address);
+          }
+        });
+        this.emailAddresses = emailAddressesOfType;
       },
       setError(txt) {
         this.error = txt;

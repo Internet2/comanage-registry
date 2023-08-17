@@ -48,6 +48,7 @@ export default {
       callRegistryAPI(url, 'DELETE', 'html', this.deleteSuccessEmailCallback, '', this.deleteFailEmailCallback);
     },
     deleteSuccessEmailCallback(xhr) {
+      this.$parent.clearInvalid();
       this.$parent.$parent.setError('');
       this.$parent.$parent.successTxt = 'Deleted';
       this.$parent.refreshDisplay();
