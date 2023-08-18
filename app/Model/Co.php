@@ -425,6 +425,7 @@ class Co extends AppModel {
         'MatchServer' => 'Server',
         'Oauth2Server' => 'Server',
         'SqlServer' => 'Server',
+        'KafkaServer' => 'Server',
         'DictionaryEntry' => 'Dictionary'
       ) as $m => $parentm) {
         $fk = Inflector::underscore($parentm) . "_id";
