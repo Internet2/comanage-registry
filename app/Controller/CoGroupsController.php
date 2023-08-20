@@ -362,9 +362,11 @@ class CoGroupsController extends StandardController {
       
       try {
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
-        $this->set('co_groups', $this->Api->convertRestResponse(
-          empty($groups) ? [] : $groups
-        ));
+        if(empty($groups)) {
+          $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NO_CONTENT, _txt('er.mt.unknown', array('CoPerson')));
+          return;
+        }
+        $this->set('co_groups', $this->Api->convertRestResponse($groups));
       }
       catch(InvalidArgumentException $e) {
         $this->Api->restResultHeader(404, "CO Person Unknown");
