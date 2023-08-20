@@ -174,19 +174,25 @@ class CoreApiController extends Controller {
           // Which API was requested?
           $targetedController = str_replace('CoreApi', '', $this->request->params['controller']);
           $targetedSingular = Inflector::singularize($targetedController);
+
+          $read = defined("CoreApiEnum::{$targetedSingular}Read")
+                  ? constant("CoreApiEnum::{$targetedSingular}Read") : null;
+          // ApiUsers with Write permission can also read
+          $write = defined("CoreApiEnum::{$targetedSingular}Write")
+                   ? constant("CoreApiEnum::{$targetedSingular}Write") : null;
           switch($this->request->params['action']) {
             case 'read':    // Read single record
             case 'index':   // Read all records
               $args['conditions']['CoreApi.api'] = array(
-                constant("CoreApiEnum::{$targetedSingular}Read"),
+                $read,
                 // ApiUsers with Write permission can also read
-                constant("CoreApiEnum::{$targetedSingular}Write"),
+                $write,
               );
               break;
             case 'create':
             case 'update':
             case 'delete':
-              $args['conditions']['CoreApi.api'] = array(constant("CoreApiEnum::{$targetedSingular}Write"));
+              $args['conditions']['CoreApi.api'] = array($write);
               break;
             case 'resolveMatch':
               $args['conditions']['CoreApi.api'] = CoreApiEnum::MatchCallback;
@@ -213,13 +219,6 @@ class CoreApiController extends Controller {
       $this->Api->restResultHeader(401);
       $this->response->send();
       exit;
-    }
-
-    if($this->request->params['action'] == 'index') {
-      // Filter/Validate Query parameters
-      $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
-      // Parse query parameters
-      $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
     }
   }
 
@@ -314,6 +313,12 @@ class CoreApiController extends Controller {
   public function index() {
     $modelApiName = $this->modelName;
     $modelMapperName = $this->$modelApiName->mapper;
+
+    // Validate the query parameters
+    $this->params->query = $this->CoreApi->validateQueryParams($this->params->query);
+    // Parse query parameters
+    $this->params->query = $this->CoreApi->parseQueryParams($this->params->query);
+
     try {
       $query_filters = array();
       // Load the default ordering and pagination settings

@@ -46,7 +46,7 @@ class CoreApi extends AppModel {
   //    Currently the dot character is not a valid character for a PHP variable name. So co_person.status
   //    will be transformed to co_person_status.
   // XXX We are making the convention that the field will be placed last and will be a single word
-  private $allowed_query_params = array(
+  protected $allowed_query_params = array(
     'limit' => array('integer' => array('range' => array(1, 1001))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
@@ -125,7 +125,8 @@ class CoreApi extends AppModel {
     ),
     'api' => array(
       'content' => array(
-        'rule' => array('inList', array(CoreApiEnum::PersonRead,
+        'rule' => array('inList', array(CoreApiEnum::PetitionRead,
+                                        CoreApiEnum::PersonRead,
                                         CoreApiEnum::PersonWrite,
                                         CoreApiEnum::OrganizationRead,
                                         CoreApiEnum::OrganizationWrite,
@@ -413,6 +414,14 @@ class CoreApi extends AppModel {
                                       'source_name_id',
                                       'source_org_identity_id',
                                       'source_telephone_number_id',
+                                      'enrollee_org_identity_id',
+                                      'archived_org_identity_id',
+                                      'enrollee_co_person_id',
+                                      'enrollee_co_person_role_id',
+                                      'petitioner_co_person_id',
+                                      'sponsor_co_person_id',
+                                      'approver_co_person_id',
+                                      'co_invite_id',
                                       $mfk))
                    || ($modelName != 'CoGroupMember' && $k == 'co_group_id')) {
             // Move the value to metadata

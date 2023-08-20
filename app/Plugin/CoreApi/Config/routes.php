@@ -260,6 +260,30 @@ Router::connect(
   )
 );
 
+// Petitions
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?limit=20&page=2&direction=desc
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?status=PA
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?couid=4
+Router::connect(
+  '/api/co/:coid/core/v1/petitions',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPetitions',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/petitions/:id',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPetitions',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
 // Scoped identifiers are not parsed properly because they are perceived as file extensions
 // Enable extensions parse to resolve this problem
 Router::parseExtensions('json', 'xml');
