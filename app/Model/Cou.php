@@ -153,15 +153,38 @@ class Cou extends AppModel {
   /**
    * Obtain all COUs within a specified CO.
    *
-   * @since  COmanage Registry v0.4
-   * @param  integer CO ID
-   * @param  string Format, one of "names", "ids", or "hash" of id => name
+   * @param  Integer       $coId          CO ID
+   * @param  String        $format        Format, one of "names", "ids", or "hash" of id => name
+   * @param  Null|Boolean  $isParent      If null retrieve all COUs.
+   *                                      If true retrieve all COUs that have children.
+   *                                      If false retrieve all COUs that have no Children
+   *
    * @return Array List or hash of member COUs, as specified by $format
+   * @since  COmanage Registry v0.4
    */
   
-  public function allCous($coId, $format="hash") {
+  public function allCous($coId, $format="hash", $isParent=null) {
+    $parent_ids = array();
+    if(!is_null($isParent)) {
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $coId;
+      $args['conditions'][] = 'Cou.parent_id IS NOT NULL';
+      $args['fields'] = array('Cou.parent_id');
+      $args['contain'] = false;
+      $cous = $this->find("all", $args);
+
+      $parent_ids = Hash::extract($cous, '{n}.Cou.parent_id');
+    }
+
     $args = array();
     $args['conditions']['Cou.co_id'] = $coId;
+    if(!is_null($isParent) && !empty($parent_ids)) {
+      if($isParent) {
+        $args['conditions']['Cou.id'] = $parent_ids;
+      } else {
+        $args['conditions']['NOT']['Cou.id'] = $parent_ids;
+      }
+    }
     $args['order'] = 'Cou.name ASC';
     $args['contain'] = false;
     

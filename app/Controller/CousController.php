@@ -90,8 +90,8 @@ class CousController extends StandardController {
     // XXX This block should execute before its parent. The parent needs the $vv_cou_list
     if(!$this->request->is('restful')
        && $this->action == 'index') {
-      // Get the full list of COUs
-      $cous_all = $this->Cou->allCous($this->cur_co["Co"]["id"]);
+      // Get all COUs with children
+      $cous_all = $this->Cou->allCous($this->cur_co["Co"]["id"], "hash", true);
       asort($cous_all, SORT_STRING);
       // `Any` option will return all COUs with a parent
       // `None` option will return all COUs with parent equal to null
