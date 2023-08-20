@@ -173,9 +173,9 @@
   <li class="field-stack">
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('header', _txt('ct.co_dashboard_widgets.header')) : _txt('ct.co_dashboard_widgets.header')); ?>
+        <?php print ($e ? $this->Form->label('header', _txt('fd.co_dashboard_widgets.header')) : _txt('ct.co_dashboard_widgets.header')); ?>
       </div>
-      <div class="field-desc"><?php print _txt('ct.co_dashboard_widgets.header.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.co_dashboard_widgets.header.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e
@@ -186,9 +186,9 @@
   <li class="field-stack">
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('footer', _txt('ct.co_dashboard_widgets.footer')) : _txt('ct.co_dashboard_widgets.footer')); ?>
+        <?php print ($e ? $this->Form->label('footer', _txt('fd.co_dashboard_widgets.footer')) : _txt('ct.co_dashboard_widgets.footer')); ?>
       </div>
-      <div class="field-desc"><?php print _txt('ct.co_dashboard_widgets.footer.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('fd.co_dashboard_widgets.footer.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php print ($e
