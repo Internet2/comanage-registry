@@ -670,7 +670,7 @@ class Co extends AppModel {
           'object_type' => 'Co',
         ),
         0,                                                           // $delay (in seconds)
-        DEF_GARBAGE_COLLECT_INTERVAL                                 // $requeueInterval (in seconds)
+        DEF_GARBAGE_COLLECT_INTERVAL*60                              // $requeueInterval (in seconds)
       );
     }
     
