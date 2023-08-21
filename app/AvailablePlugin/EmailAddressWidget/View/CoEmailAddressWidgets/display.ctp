@@ -97,17 +97,9 @@
         let allEmailAddresses = xhr.responseJSON.EmailAddresses;
         // limit the email addresses to the emailType:
         let emailAddressesOfType = [];
-        allEmailAddresses.forEach((address) => {
-          if(address.Type == this.core.emailType) {
-            emailAddressesOfType.push(address);
-          }
-        });
+        emailAddressesOfType = allEmailAddresses.filter((address) => address.Type == this.core.emailType);
         // Test to see if we've reached the max count of email addresses for this widget
-        if(Number(this.core.emailLimit) > 0 && emailAddressesOfType.length >= Number(this.core.emailLimit)) {
-          this.core.emailLimitReached = true;
-        } else {
-          this.core.emailLimitReached = false;
-        }
+        this.core.emailLimitReached = Number(this.core.emailLimit) > 0 && emailAddressesOfType.length >= Number(this.core.emailLimit);
         this.emailAddresses = emailAddressesOfType;
       },
       setError(txt) {
