@@ -144,7 +144,9 @@ export default {
     },
     showEdit() {
       this.editing = true;
-      this.$nextTick(() => this.$refs['newAddress'].focus());
+      if(this.$refs['newAddress'] !== undefined) {
+        this.$nextTick(() => this.$refs['newAddress'].focus());
+      }
     },
     hideEdit() {
       this.editing = false;
