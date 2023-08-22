@@ -1694,6 +1694,7 @@ The request may be viewed at
   'fd.job.requeue_interval' => 'Requeue Interval',
   'fd.job.requeue_interval.desc' => 'After the job successfully completes, it will automatically be requeued to execute after this interval (in seconds). (To stop requeuing, simply cancel this job.)',
   'fd.job.requeued_from_co_job_id' => 'Requeued From Job',
+  'fd.job.retry.info' => '%1$s out of %2$s',
   'fd.job.retry_interval' => 'Retry Interval',
   'fd.job.retry_interval.desc' => 'If the job fails, it will automatically be retried after this interval (in seconds). (To stop retrying, simply cancel this job.)',
   'fd.job.start_after_time' => 'Start After',
