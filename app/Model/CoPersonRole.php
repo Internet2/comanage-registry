@@ -155,9 +155,11 @@ class CoPersonRole extends AppModel {
       ),
     ),
     'ordr' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => 'numeric',
+        'required' => false,
+        'allowEmpty' => true
+      )
     ),
     'status' => array(
       'content' => array(
@@ -334,7 +336,7 @@ class CoPersonRole extends AppModel {
     if(isset($options['safeties']) && $options['safeties'] == 'off') {
       return true;
     }
-    
+
     // Cache the current record
     $this->cachedData = null;
     
@@ -434,7 +436,32 @@ class CoPersonRole extends AppModel {
       // is expire(), below.
     }
   }
-  
+
+  /**
+   * Actions to take before a validation operation is executed.
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function beforeValidate($options = array()) {
+
+    if(!empty($_REQUEST['data'][$this->alias])) {
+      foreach ($_REQUEST['data'][$this->alias] as $field => $value) {
+        if(strpos($field, '-required') !== false) {
+          // Just found a required field. We will update the rule accordingly
+          // required means that the field should be non-empty and present
+          // $ea['required'] = !($ea['allow_empty'] && $vv_allow_empty_cou);
+          $field = explode('-', $field)[0];
+          $this->validate[$field]['content']['required'] = true;
+          $this->validate[$field]['content']['allowEmpty'] = false;
+          $this->validate[$field]['content']['message'] = "COU is required";
+        }
+      }
+    }
+
+    return parent::beforeValidate($options);
+  }
+
   /**
    * Expire any roles for the specified CO Person ID. Specifically, set the status
    * to Expired and set the valid through date to yesterday, if one was set.

@@ -78,7 +78,7 @@ class CoPetition extends AppModel {
     ),
     "VettingRequest"
   );
-  
+
   public $hasMany = array(
     // A CO Petition has zero or more CO Petition Attributes
     "CoPetitionAttribute" => array('dependent' => true),
@@ -2437,11 +2437,6 @@ class CoPetition extends AppModel {
     
     $args = array();
     $args['conditions']['CoPetition.id'] = $id;
-/*    $args['contain']['CoEnrollmentFlow'] = array(
-      'CoEnrollmentFlowAppMessageTemplate',
-      'CoEnrollmentFlowDenMessageTemplate',
-      'CoEnrollmentFlowFinMessageTemplate'
-    );*/
     $args['contain']['EnrolleeCoPerson'] = array('PrimaryName', 'Identifier');
     $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
     $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
@@ -2635,39 +2630,62 @@ class CoPetition extends AppModel {
     $args['conditions']['CoPetition.id'] = $id;
     $args['contain'][] = 'CoEnrollmentFlow';
     $args['contain'][] = 'Cou';
-    $args['contain']['EnrolleeCoPerson'][] = 'PrimaryName';
-    $args['contain']['EnrolleeOrgIdentity'][] = 'PrimaryName';
+    $args['contain']['EnrolleeCoPerson'] = array('PrimaryName', 'Identifier');
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole'][] = 'Cou';
+    $args['contain']['EnrolleeCoPerson']['CoPersonRole']['SponsorCoPerson'][] = 'PrimaryName';
+    $args['contain']['EnrolleeOrgIdentity'] = array('EmailAddress', 'PrimaryName');
     
     $pt = $this->find('first', $args);
     
     if(!$pt) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_petitions.1'), $id)));
     }
-    
+
+    // For some reason (cough, cake, cough) the commented out contain isn't pulling
+    // the related models since the addition of CoEnrollmentFlowDenMessageTemplate,
+    // so we manually pull the Enrollment Flow configuration and templates.
+
+    $args = array();
+    $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
+    $args['contain'] = array('CoEnrollmentFlowAppNotMessageTemplate');
+
+    $ef = $this->CoEnrollmentFlow->find('first', $args);
+
+    if(!$ef) {
+      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'), $pt['CoPetition']['co_enrollment_flow_id'])));
+    }
+
     $cogroupids = array();
     
     if(!empty($pt['CoEnrollmentFlow']['approver_co_group_id'])) {
       $cogroupids[] = $pt['CoEnrollmentFlow']['approver_co_group_id'];
     } else {
-      // We need to look up the appropriate admin group(s). Start with the CO Admins.
-      
-      try {
-        $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id']);
-      }
-      catch(Exception $e) {
-        $fail = true;
-      }
-      
-      // To see if we should notify COU Admins, we need to see if this petition was
+      // To see if we should notify COU Admins and Approvers, we need to see if this petition was
       // attached to a COU
       
       if(!empty($pt['Cou']['id'])) {
         try {
+          // Notify COU admins
           $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['id']);
+          // Notify COU approvers
+          $cogroupids[] = $this->Co->CoGroup->approverCoGroupId($pt['CoPetition']['co_id'], $pt['Cou']['id']);
         }
         catch(Exception $e) {
           $fail = true;
         }
+      }
+
+      try {
+        // XXX Notify the CO approvers
+        $cogroupids[] = $this->Co->CoGroup->approverCoGroupId($pt['CoPetition']['co_id']);
+        if(empty($cogroupids)) {
+          // XXX We notify CO Admins if there is no one else in the list to notify
+          $cogroupids[] = $this->Co->CoGroup->adminCoGroupId($pt['CoPetition']['co_id']);
+        }
+
+      }
+      catch(Exception $e) {
+        $fail = true;
       }
     }
     
@@ -2681,7 +2699,46 @@ class CoPetition extends AppModel {
     } elseif(!empty($pt['EnrolleeOrgIdentity']['PrimaryName'])) {
       $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
     }
-    
+
+    $subject = null;
+    $body = null;
+    $cc = null;
+    $bcc = null;
+    $comment = null;
+    $format = MessageFormatEnum::Plaintext;
+
+    //  Substitutions
+    $subs = array('APPROVER_COMMENT' => (!empty($pt['CoPetition']['approver_comment'])
+                                         ? $pt['CoPetition']['approver_comment'] : null),
+                  'CO_PERSON' => generateCn($pt['EnrolleeCoPerson']['PrimaryName']),
+                  'CO_PERSON_ID' => $pt['EnrolleeCoPerson']['id'],
+                  'ENROLLMENT_NAME' => $ef['CoEnrollmentFlow']['name'] ?? null,
+                  'ENROLLEE_NAME' => $enrolleeName ?? null,
+                  'NEW_COU'   => (!empty($enrolleeCoPersonRole['Cou']['name'])
+                                  ? $enrolleeCoPersonRole['Cou']['name'] : null),
+                  'NEW_PETITION_STATUS' => null,
+                  'SPONSOR'   => (!empty($enrolleeCoPersonRole['SponsorCoPerson']['PrimaryName'])
+                                  ? generateCn($enrolleeCoPersonRole['SponsorCoPerson']['PrimaryName']) : null),
+                  'SPONSOR_ID' => (!empty($enrolleeCoPersonRole['SponsorCoPerson']['id'])
+                                   ? $enrolleeCoPersonRole['SponsorCoPerson']['id'] : null),
+                  'ORIG_PETITION_STATUS' => _txt('en.status.pt', null, $pt['CoPetition']['status'] ?? "")
+                 );
+
+    $comment = _txt('rs.pt.status', array($enrolleeName,
+                                              _txt('en.status.pt', null, $pt['CoPetition']['status']),
+                                              _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
+                                              $pt['CoEnrollmentFlow']['name']));
+
+    if(!empty($ef['CoEnrollmentFlowAppNotMessageTemplate']["id"])) {
+      $subs["NEW_PETITION_STATUS"] = _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval);
+      list($body, $subject, $format, $cc, $bcc) = $this->CoEnrollmentFlow
+                                                       ->CoEnrollmentFlowAppMessageTemplate
+                                                       ->getMessageTemplateFields($ef['CoEnrollmentFlowAppNotMessageTemplate']);
+
+      $subject = processTemplate($subject, $subs, $pt['EnrolleeCoPerson']['Identifier']);
+      $body    = processTemplate($body, $subs, $pt['EnrolleeCoPerson']['Identifier']);
+    }
+
     foreach($cogroupids as $cgid) {
       $this->Co
            ->CoGroup
@@ -2692,16 +2749,19 @@ class CoPetition extends AppModel {
                       'cogroup',
                       $cgid,
                       ActionEnum::CoPetitionUpdated,
-                      _txt('rs.pt.status', array($enrolleeName,
-                                                 _txt('en.status.pt', null, $pt['CoPetition']['status']),
-                                                 _txt('en.status.pt', null, PetitionStatusEnum::PendingApproval),
-                                                 $pt['CoEnrollmentFlow']['name'])),
+                      $comment,
                       array(
                         'controller' => 'co_petitions',
                         'action'     => 'view',
                         'id'         => $id
                       ),
-                      true);
+                      true,
+                      $ef['CoEnrollmentFlow']['notify_from'],
+                      $subject,
+                      $body,
+                      $cc,
+                      $bcc,
+                      $format);
     }
     
     return true;
@@ -3516,6 +3576,15 @@ class CoPetition extends AppModel {
       
       if(!empty($errFields)) {
         $fail = true;
+
+        // Check if we marked a field as required. If we did return immediately
+        // CO-2655
+        $requestDataFields = array_keys($requestData[$pmodel]);
+        foreach ($errFields as $field => $message) {
+          if(in_array($field . '-required', $requestDataFields)) {
+            throw new RuntimeException(_txt('er.validation'));
+          }
+        }
       }
       
       // Now validate related models

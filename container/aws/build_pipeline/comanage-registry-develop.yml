@@ -1,0 +1,104 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CodePipeline pipeline for COmanage Registry develop container images'
+
+Resources:
+  COmanageRegistryDevelopPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: comanage-registry-develop
+      RestartExecutionOnUpdate: False
+      RoleArn: arn:aws:iam::495649616520:role/CILogonCOmanagePipelineRole
+      ArtifactStore:
+        Type: S3
+        Location: cilogon-comanage-registry-develop-pipeline
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: RegistrySource
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: 1
+              RunOrder: 1
+              Configuration:
+                Owner: Internet2
+                Repo: comanage-registry
+                Branch: develop
+                OAuthToken: "{{resolve:secretsmanager:COmanageImagePipelineGitHubOAuthToken:SecretString:token}}"
+                PollForSourceChanges: "false"
+              OutputArtifacts:
+                - Name: RegistrySourceArtifact
+              Region: us-east-2
+              Namespace: SourceVariables
+        - Name: BuildNumber
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              RunOrder: 1
+              Configuration:
+                ProjectName: comanage-registry-develop-buildnumber
+              InputArtifacts:
+                - Name: RegistrySourceArtifact
+              Region: us-east-2
+              Namespace: BuildNumberVariables
+        - Name: BuildAmd64
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              RunOrder: 1
+              Configuration:
+                ProjectName: comanage-registry-develop-amd64
+                EnvironmentVariables: "[{\"name\":\"COMANAGE_REGISTRY_BUILD_NUMBER\",\"value\":\"#{BuildNumberVariables.CODEBUILD_BUILD_NUMBER}\",\"type\":\"PLAINTEXT\"}]"
+              InputArtifacts:
+                - Name: RegistrySourceArtifact
+              Region: us-east-2
+              Namespace: BuildAmd64Variables
+        - Name: BuildArm64
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              RunOrder: 1
+              Configuration:
+                ProjectName: comanage-registry-develop-arm64
+                EnvironmentVariables: "[{\"name\":\"COMANAGE_REGISTRY_BUILD_NUMBER\",\"value\":\"#{BuildNumberVariables.CODEBUILD_BUILD_NUMBER}\",\"type\":\"PLAINTEXT\"}]"
+              InputArtifacts:
+                - Name: RegistrySourceArtifact
+              Region: us-east-2
+              Namespace: BuildArm64Variables
+        - Name: BuildManifest
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              RunOrder: 1
+              Configuration:
+                ProjectName: comanage-registry-develop-manifest
+                EnvironmentVariables: "[{\"name\":\"COMANAGE_REGISTRY_BUILD_NUMBER\",\"value\":\"#{BuildNumberVariables.CODEBUILD_BUILD_NUMBER}\",\"type\":\"PLAINTEXT\"}]"
+              InputArtifacts:
+                - Name: RegistrySourceArtifact
+              Region: us-east-2
+              Namespace: BuildManifestVariables
+
+Outputs:
+  COmanageRegistryDevelopPipelineName:
+    Value: !Ref COmanageRegistryDevelopPipeline
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}::PipelineName"

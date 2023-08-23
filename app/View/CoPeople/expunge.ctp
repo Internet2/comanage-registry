@@ -79,8 +79,10 @@
 <?php else: ?>
  <div class="co-info-topbox">
 <?php endif; ?>
-  <em class="material-icons mr-1">info</em>
-  <?php print _txt('op.expunge.confirm', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('op.expunge.confirm', array(filter_var(generateCn($vv_co_person['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS))); ?>
+  </div>
 </div>
 <div class="innerContent">
   <p>

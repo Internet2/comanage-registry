@@ -93,7 +93,9 @@
 <?php if(empty($plugins)): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('er.plugin.none', array(_txt('ct.org_identity_sources.pl'))); ?>
+    </div>
   </div>
 <?php else: /* plugins */ ?>
   <ul id="<?php print $this->action; ?>_org_identity_source" class="fields form-list form-list-admin">

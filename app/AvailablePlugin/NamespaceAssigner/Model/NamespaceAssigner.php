@@ -124,7 +124,7 @@ class NamespaceAssigner extends AppModel {
     
     $response = $Http->post($url, json_encode($request));
     
-    if($response->code != 200) {
+    if($response->code != 201) {
       throw new RuntimeException($response->reasonPhrase);
     }
     

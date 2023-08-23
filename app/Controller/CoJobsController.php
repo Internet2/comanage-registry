@@ -130,11 +130,24 @@ class CoJobsController extends StandardController {
           $vv_job_type = array_merge($vv_job_type, $job_type);
         }
         $this->set('vv_job_type', $vv_job_type);
-      } elseif($this->action == 'view'
-               && in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
-        // Request the page auto-refresh
+      } elseif($this->action == 'view') {
 
-        $this->set('vv_refresh_interval', 15);
+        if(in_array($this->viewVars['co_jobs'][0]['CoJob']['status'], array(JobStatusEnum::InProgress, JobStatusEnum::Queued))) {
+          // Request the page auto-refresh
+          $this->set('vv_refresh_interval', 15);
+        }
+
+        // Get the provisioning Target
+        $job_params = json_decode($this->viewVars['co_jobs'][0]['CoJob']['job_params'], false);
+
+        if(!empty($job_params->co_provisioning_target_id)) {
+          $args = array();
+          $args['conditions']['CoProvisioningTarget.id'] = $job_params->co_provisioning_target_id;
+          $args['contain'] = false;
+          $target = $this->Co->CoProvisioningTarget->find('first', $args);
+
+          $this->set('vv_co_provisioning_target', $target);
+        }
       }
       
       // Determine if the Job Queue is locked, and if so render a message

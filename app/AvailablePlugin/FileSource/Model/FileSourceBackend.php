@@ -34,6 +34,10 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
   // Backend model, once loaded
   protected $FSBackend = null;
   
+  // Archive files, for caching
+  protected $archive1 = null;
+  protected $archive2 = null;
+
   /**
    * Obtain a list of records changed since $lastStart, through $curStart.
    *
@@ -53,24 +57,21 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
       
       $infile = $this->pluginCfg['filepath'];
       $basename = basename($infile);
-      $archive1 = $this->pluginCfg['archivedir'] . DS . $basename . ".1";
-      $archive2 = $this->pluginCfg['archivedir'] . DS . $basename . ".2";
-      
-      // ok to archive?
-      $ok = true;
+      $this->archive1 = $this->pluginCfg['archivedir'] . DS . $basename . ".1";
+      $this->archive2 = $this->pluginCfg['archivedir'] . DS . $basename . ".2";
       
       // We could either read the files simultaneously in order (lower memory requirement),
       // or read one and hash it (can read records out of sequence). For now we'll take
       // the second approach.
       
-      if(is_readable($archive1)) {
+      if(is_readable($this->archive1)) {
         // Start by creating a set of previously known records.
         $knownRecords = array();
         
-        $handle = fopen($archive1, "r");
+        $handle = fopen($this->archive1, "r");
         
         if(!$handle) {
-          throw new RuntimeException('er.filesource.read', array($archive1));
+          throw new RuntimeException('er.filesource.read', array($this->archive1));
         }
         
         // We don't use fgetcsv here because we don't want to parse the full line,
@@ -153,27 +154,6 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
       } else {
         // If there is no archive file, return nothing, since there are no changes.
         // We do however want to create an archive file for our next run.
-      }
-      
-      // We copy the current file to the archive here, even though we haven't processed it yet
-      // since we don't have a good way to otherwise know when we're done processing. Since
-      // this could cause problems (ie: if the job is canceled or killed), we'll keep *two*
-      // backup copies.
-      
-      if($ok && is_readable($archive1)) {
-        $ok = copy($archive1, $archive2);
-        
-        if(!$ok) {
-          throw new RuntimeException(_txt('er.filesource.copy', array($archive1, $archive2)));
-        }
-      }
-      
-      if($ok && is_readable($infile)) {
-        $ok = copy($infile, $archive1);
-        
-        if(!$ok) {
-          throw new RuntimeException(_txt('er.filesource.copy', array($infile, $archive1)));
-        }
       }
       
       return $ret;
@@ -379,5 +359,35 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
     $Backend = $this->getFSBackend();
     
     $Backend->setConfig($cfg);
+  }
+
+  /**
+   * Update any plugin specific cache following the processing of records returned
+   * by getChangeList().
+   * 
+   * @since  COmanage Registry v4.3.0
+   * @return boolean  true on success, false otherwise
+   */
+
+  public function updateCache() {
+    // Update the archive file. updateCache() is called after processing is complete,
+    // and only if at least one record changed. It's possible an irregular exist will
+    // prevent the cache from being updated, in that case we'll just end up reprocessing
+    // some records, which should effectively be a no-op. Historically, we kept two backup
+    // copies in case something went wrong, we still do so here, though it's less critical now.
+    
+    if(is_readable($this->archive1)) {
+      if(!copy($this->archive1, $this->archive2)) {
+        throw new RuntimeException(_txt('er.filesource.copy', array($this->archive1, $this->archive2)));
+      }
+    }
+    
+    if(is_readable($this->pluginCfg['filepath'])) {
+      if(!copy($this->pluginCfg['filepath'], $this->archive1)) {
+        throw new RuntimeException(_txt('er.filesource.copy', array($this->pluginCfg['filepath'], $this->archive1)));
+      }
+    }
+
+    return true;
   }
 }

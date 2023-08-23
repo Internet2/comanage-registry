@@ -56,9 +56,11 @@
 <?php if(!empty($vv_lock_info)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('in.job.running', array($vv_lock_info['Lock']['pid'], 
-                                           $vv_lock_info['Lock']['id'],
-                                           $this->Time->niceShort($vv_lock_info['Lock']['created'], $vv_tz))); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.job.running', array($vv_lock_info['Lock']['pid'], 
+                                             $vv_lock_info['Lock']['id'],
+                                             $this->Time->niceShort($vv_lock_info['Lock']['created'], $vv_tz))); ?>
+  </div>
 </div>
 <?php endif; // vv_lock_info ?>
 <script type="text/javascript">
@@ -205,6 +207,39 @@
     </div>
     <div class="field-info">
       <?php print filter_var($co_jobs[0]['CoJob']['retry_interval'], FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.max_retry'); ?>
+      </div>
+      <div class="field-desc">
+        <?php print _txt('fd.job.max_retry.desc',
+                         array($co_jobs[0]['CoJob']['max_retry'] ?? $vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"] ?? "-"));
+        ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print filter_var($co_jobs[0]['CoJob']['max_retry'] ?? $vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"] ?? "-", FILTER_SANITIZE_STRING); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.job.max_retry_count'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.job.max_retry_count.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      if(isset($vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"])) {
+        print _txt('fd.job.retry.info', array(
+          filter_var(($co_jobs[0]['CoJob']['max_retry_count'] + 1) ?? 1, FILTER_SANITIZE_STRING),
+          $co_jobs[0]['CoJob']['max_retry'] ?? $vv_co_provisioning_target["CoProvisioningTarget"]["max_retry"]
+        ));
+      }
+      ?>
     </div>
   </li>
   <li>

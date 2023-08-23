@@ -425,6 +425,7 @@ class Co extends AppModel {
         'MatchServer' => 'Server',
         'Oauth2Server' => 'Server',
         'SqlServer' => 'Server',
+        'KafkaServer' => 'Server',
         'DictionaryEntry' => 'Dictionary'
       ) as $m => $parentm) {
         $fk = Inflector::underscore($parentm) . "_id";
@@ -669,7 +670,7 @@ class Co extends AppModel {
           'object_type' => 'Co',
         ),
         0,                                                           // $delay (in seconds)
-        DEF_GARBAGE_COLLECT_INTERVAL                                 // $requeueInterval (in seconds)
+        DEF_GARBAGE_COLLECT_INTERVAL*60                              // $requeueInterval (in seconds)
       );
     }
     

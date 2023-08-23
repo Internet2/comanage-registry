@@ -31,8 +31,24 @@ global $cm_lang, $cm_texts;
 $controller = $this->name;
 $req = Inflector::singularize($controller);
 $controller_route_name = Inflector::underscore($controller);
+$formArgs =  array(
+  'type' => 'post',
+  'url' => array(
+    'action'=>'search',
+    'co' => $cur_co['Co']['id'])
+);
 
-print $this->Form->create($req, array('type' => 'post','url' => array('action'=>'search','co' => $cur_co['Co']['id'])));
+// If i have named parameters not related to search fields
+// get them and add them into the form
+if(!empty($this->request->params['named'])) {
+  $attributes = array_diff_key($this->request->params['named'], $vv_search_fields);
+  foreach($attributes as $attr_name => $attr_value) {
+    $formArgs['url'][$attr_name] = $attr_value;
+  }
+}
+
+print $this->Form->create($req,$formArgs);
+
 // List of search fields
 $search_fields = array_keys($vv_search_fields);
 
@@ -86,8 +102,13 @@ $hasActiveFilters = false;
               // We have named filters - not just a sort.
               $hasActiveFilters = true;
             ?>
-            <button class="top-search-active-filter deletebutton spin" type="button" aria-controls="<?php print $aria_controls; ?>" title="<?php print _txt('op.clear.filters.1');?>">
-               <span class="top-search-active-filter-title"><?php print $vv_search_fields[$key]['label']; ?></span>
+            <button class="top-search-active-filter deletebutton spin"
+                    type="button" aria-controls="<?php print $aria_controls; ?>"
+                    title="<?php print _txt('op.clear.filters.1');?>">
+               <span class="top-search-active-filter-title<?php print !is_null(filter_var(urldecode($params), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)) ? " no-value" : "" ?>">
+                 <?php print $vv_search_fields[$key]['label']; ?>
+               </span>
+               <?php if(is_null(filter_var(urldecode($params), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE))):?>
                <span class="top-search-active-filter-value">
                  <?php
                  $value = $params;
@@ -102,7 +123,7 @@ $hasActiveFilters = false;
                  // Get user friendly name from the dropdown Select List
                  // XXX Currently we do not have a use case where the grouping name would create a namespace
                  if (isset($vv_search_fields[$key]['options'])) {
-                   // Outside of any groups
+                   // Outside any groups
                    if (isset($vv_search_fields[$key]['options'][$value])) {
                      print filter_var($vv_search_fields[$key]['options'][$value], FILTER_SANITIZE_SPECIAL_CHARS);
                    } else {
@@ -121,6 +142,7 @@ $hasActiveFilters = false;
                  }
                  ?>
                </span>
+               <?php endif; ?>
             </button>
           <?php endforeach; ?>
           <?php if($hasActiveFilters): ?>
@@ -137,12 +159,28 @@ $hasActiveFilters = false;
       <?php
       $i = 0;
       $field_subgroup_columns = array();
+      $field_checkbox_columns = array();
       foreach($vv_search_fields as $key => $options) {
         if(strpos($key, 'search') === false) {
           continue;
         }
+        if($options['type'] == 'checkbox') {
+          $checkBoxformParams = array(
+            'checked' => !empty($this->request->params['named'][$key]),
+            'class' => 'form-check-input',
+          );
+
+          $field_checkbox_columns[$options['column']][ $options['group'] ][$key] = array(
+            $this->Form->label($key, $options['label']),
+            $this->Form->checkbox($key, $checkBoxformParams)
+          );
+          $i++;
+          continue;
+        }
+
         $formParams = array(
           'label' => $options['label'],
+          'aria-label' => $options['label'],
           'type' => !empty($options['type']) ? $options['type'] : 'text',
           'value' => (!empty($this->request->params['named'][$key]) ? urldecode($this->request->params['named'][$key]) : ''),
           'required' => false,
@@ -161,20 +199,62 @@ $hasActiveFilters = false;
       <?php if(sizeof($field_subgroup_columns) == 1): ?>
         <div><?php print current(current($field_subgroup_columns)); ?></div>
       <?php else: ?>
-        <div id="top-search-fields-subgroups">
+        <div id="top-search-fields-subgroups" class="mb-2">
           <div class="search-field-subgroup">
+            <!--     No checkboxes      -->
             <?php foreach($field_subgroup_columns[0] as $field_name => $finput): ?>
               <?php print $finput; ?>
             <?php endforeach; ?>
+
+            <!--     Checkboxes      -->
+            <?php if(!empty($field_checkbox_columns[0])): ?>
+            <div class="top-search-checkboxes input">
+              <?php foreach($field_checkbox_columns[0] as $group => $fcheckboxes): ?>
+              <div class="top-search-checkbox-fields">
+                <?php foreach($fcheckboxes as $fcheckbox): ?>
+                  <div class="form-check form-check-inline">
+                  <?php
+                  [$label, $checkbox] = $fcheckbox;
+                  print $checkbox;
+                  print $label;
+                  ?>
+                </div>
+                <?php endforeach; ?>
+              </div>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
           </div>
           <div class="search-field-subgroup">
+            <!--     No checkboxes      -->
             <?php foreach($field_subgroup_columns[1] as $field_name => $finput): ?>
               <?php print $finput; ?>
             <?php endforeach; ?>
+
+            <!--     Checkboxes      -->
+            <?php if(!empty($field_checkbox_columns[1])): ?>
+            <div class="top-search-checkboxes input">
+              <?php foreach($field_checkbox_columns[1] as $group => $fcheckboxes): ?>
+                <div class="top-search-checkbox-fields">
+                  <?php foreach($fcheckboxes as $fcheckbox): ?>
+                    <div class="form-check form-check-inline">
+                      <?php
+                      [$label, $checkbox] = $fcheckbox;
+                      print $checkbox;
+                      print $label;
+                      ?>
+                    </div>
+                  <?php endforeach; ?>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
           </div>
         </div>
       <?php endif; ?>
-      
+
       <?php $rebalanceColumns = ($i > 1) && ($i % 2 != 0) ? ' class="tss-rebalance"' : ''; ?>
       <div id="top-search-submit"<?php print $rebalanceColumns ?>>
         <?php
@@ -223,6 +303,7 @@ $hasActiveFilters = false;
       $selected = in_array($code, $field_search, true) ? true : false;
       $args = array(
         'label' => $enum_val,
+        'aria-label' => $enum_val,
         'type' => $vv_search_fields['qaxsbar']['type'],
         'class' => 'mr-2',
         'value' => $code,

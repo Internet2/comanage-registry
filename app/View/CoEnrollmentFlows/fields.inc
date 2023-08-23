@@ -61,10 +61,12 @@
     
     if(approval) {
       document.getElementById('approvergroupdiv').style.display = "block";
+      document.getElementById('approvernotifydiv').style.display = "block";
       document.getElementById('approvalnotifydiv').style.display = "block";
       $("#CoEnrollmentFlowRequestVetting").closest("li").show('fade');
     } else {
       document.getElementById('approvergroupdiv').style.display = "none";
+      document.getElementById('approvernotifydiv').style.display = "none";
       document.getElementById('approvalnotifydiv').style.display = "none";
       document.getElementById('CoEnrollmentFlowApproverCoGroupId').value = "";
       $("#CoEnrollmentFlowRequestVetting").closest("li").hide('fade');
@@ -520,6 +522,40 @@
         ?>
       </div>
     </div>
+    <div id="approvernotifydiv" class="subfield" style="display:none">
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.appr.ntf'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.appr.ntf.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+            global $cm_lang, $cm_texts;
+            $attrs = array();
+            $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'])
+              ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id']
+              : null);
+            $attrs['empty'] = true;
+
+            if($e) {
+              print $this->Form->select('approver_template_id',
+                (!empty($vv_message_templates[MessageTemplateEnum::EnrollmentApprover])
+                  ? $vv_message_templates[MessageTemplateEnum::EnrollmentApprover]
+                  : array()), $attrs);
+
+              if($this->Form->isFieldError('approver_template_id')) {
+                print $this->Form->error('approver_template_id');
+              }
+            } elseif(!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'])) {
+              print filter_var($vv_message_templates[MessageTemplateEnum::EnrollmentApprover][ $co_enrollment_flows[0]['CoEnrollmentFlow']['approver_template_id'] ],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+            ?>
+          </div>
+        </li>
+      </ul>
+    </div>
+
   </li>
   <li>
     <div class="field-name">

@@ -1,0 +1,823 @@
+openapi: 3.0.3
+info:
+  title: COmanage Registry Core API
+  description: |
+    A collection of higher level APIs for COmanage Registry that provide transaction-oriented operations.
+    Note that the Core API must be configured/enabled and the available functionality depends on the
+    service configuration details.
+  contact:
+    name: COmanage Project
+    url: https://spaces.at.internet2.edu/display/COmanage/About+the+COmanage+Project
+    email: comanage-users@internet2.edu
+  license:
+    name: APACHE LICENSE, VERSION 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://localhost/registry
+    description: |
+      Most deployments serve Registry using the default path /registry. If your deployment changes the
+      default path you must adjust the relative URIs.
+paths:
+  /api/co/{coid}/core/v1/people:
+    delete:
+      summary: Delete a CO Person
+      description: |
+        Use an **Identifier** value to delete a CO Person and related models/objects.
+        Note that whether or not the delete is soft or hard (expunge) is configurable
+        using the COmanage Registry Configuration Core API menu.
+      operationId: deleteCoPerson
+      parameters:
+        - name: coid
+          in: path
+          description: CO ID
+          required: true
+          schema:
+            type: integer
+        - name: identifier
+          in: query
+          description: CO Person Identifier of the configured type
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+    
+    get:
+      summary: Retrieve one or more CO Person and related objects
+      description: |
+        Use the **identifier** query parameter to retrieve a single object.
+        No query parameters retrieves all CO Person objects. Use the
+        **direction**, **limit**, and **page** query parameters to
+        control the order and number of returned objects.
+      operationId: getCoPerson
+      parameters:
+        - name: coid
+          in: path
+          description: CO ID
+          required: true
+          schema:
+            type: integer
+        - name: identifier
+          in: query
+          description: CO Person Identifier of the configured type
+          schema:
+            type: string
+        - name: direction
+          in: query
+          description: asc (return older records first) or desc (return newer records first)
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: limit
+          in: query
+          description: The maximum number of records to return in the response
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Return this page of the result set
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/PagedCoPersonMessage'
+
+    post:
+      summary: Create a CO Person
+      description: Create a CO Person and related models/objects
+      operationId: addCoPerson
+      parameters:
+        - name: coid
+          in: path
+          description: CO ID
+          required: true
+          schema:
+             type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoPersonMessage'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Identifier'
+
+    put:
+      summary: Update a CO Person
+      description: Update a CO Person and related models/objects
+      operationId: updateCoPerson
+      parameters:
+        - name: coid
+          in: path
+          description: CO ID
+          required: true
+          schema:
+            type: integer
+        - name: identifier
+          in: query
+          description: CO Person Identifier of the configured type
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoPersonMessage'
+
+      responses:
+        '200':
+          description: Updated
+
+components:
+  schemas:
+    CoPersonMessage:
+      type: object
+      description: Collection of a CO Person and related objects
+      properties:
+        CoPerson:
+          $ref: '#/components/schemas/CoPerson'
+        CoGroupMember:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoGroupMember'
+        EmailAddress:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailAddress'
+        CoPersonRole:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoPersonRole'
+        Identifier:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identifier'
+        Name:
+          type: array
+          items:
+            $ref: '#/components/schemas/Name'
+        SshKey:
+          type: array
+          items:
+            $ref: '#/components/schemas/SshKey'
+        Url:
+          type: array
+          items:
+            $ref: '#/components/schemas/Url'
+        OrgIdentity:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrgIdentity'
+
+    CoPerson:
+      type: object
+      description: |
+        Simple object representing a person in a CO and their status. 
+        Other objects like Name, EmailAddress, and Identifier link against
+        this object. Multiple Organizational Identities representing external
+        identities may also be linked against this object.
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        co_id:
+          description: CO ID for this CO Person
+          type: string
+        date_of_birth:
+          description: CO Person date of birth
+          type: string
+          format: date
+        status:
+          type: string
+          description: |
+            CO Person status: 
+            **A** - Active,
+            **Y** - Approved,
+            **C** - Confirmed,
+            **D** - Deleted,
+            **N** - Denied,
+            **D2** - Duplicate,
+            **XP** - Expired,
+            **GP** - GracePeriod,
+            **I** - Invited,
+            **LK** - Locked,
+            **P** - Pending,
+            **PA** - PendingApproval,
+            **PC** - PendingConfirmation,
+            **PV** - PendingVetting,
+            **S** - Suspended,
+            **D** - Declined
+          enum:
+            - A
+            - Y
+            - C
+            - D
+            - N
+            - D2
+            - XP
+            - GP
+            - I
+            - LK
+            - P
+            - PA
+            - PC
+            - PV
+            - S
+            - X
+        timezone:
+          description: Preferred timezone of this CO Person, for UI purposes
+          type: string
+      required:
+        - co_id
+        - status
+
+    Name:
+      type: object
+      description: Name for a CO Person or an Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        given:
+          type: string
+          description: Given name
+        family:
+          type: string
+          description: Family name
+        formatted:
+          type: string
+          description: The fully formatted name
+        language:
+          type: string
+          description: The language encoding for this Name
+        middle:
+          type: string
+          description: Middle name
+        prefix:
+          type: string
+          description: The honorific or prefix for the Name
+        primary_name:
+          type: boolean
+          description: Whether this is the primary Name
+        honorific:
+          type: string
+          description: Honorific prefix
+        suffix:
+          type: string
+          description: Honorific suffix
+        type:
+          type: string
+          description: |
+            Type of name: 
+            **alternate**,
+            **author**,
+            **fka**,
+            **official**,
+            **preferred**
+          enum:
+            - alternate
+            - author
+            - fka
+            - official
+            - preferred
+      required:
+        - given
+
+    EmailAddress:
+      type: object
+      description: Email address for a CO Person or an Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        mail:
+          type: string
+          description: Email address
+          format: email
+        type:
+          type: string
+          description: Type of email address
+        verified:
+          type: boolean
+          description: Whether the email address has been verified
+      required:
+        - mail
+
+    Identifier:
+      type: object
+      description: Identifier for CO Person or an Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        identifier:
+          type: string
+          description: Identifier value
+        type:
+          type: string
+          description: |
+            Identifier type: 
+            **sor-affiliate**,
+            **badge**,
+            **enterprise**,
+            **eppn**,
+            **eptid**,
+            **epuid**,
+            **gid**,
+            **sor-guest**,
+            **sor-hr**,
+            **mail**,
+            **national**,
+            **network**,
+            **oidcsub**,
+            **openid**,
+            **orcid**,
+            **provisioningtarget**,
+            **reference**,
+            **pairwiseid**,
+            **subjectid**,
+            **sor-student**,
+            **sorid**,
+            **uid**
+        login:
+          type: boolean
+          description: Whether this Identifier can be used to login to Registry
+        status:
+          type: string
+          description: |
+            Identifier status: 
+            **A** - Active,
+            **S** - Suspended
+          enum:
+            - A
+            - S
+      required:
+        - identifier
+
+    CoGroupMember:
+      type: object
+      description: Membership of CO Person in a CO Group
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        co_group_id:
+          type: string
+          description: CO Group ID for this membership
+        member:
+          type: boolean
+          description: If this CO Person is a member of this group
+        owner:
+          type: boolean
+          description: If this CO Person is an owner of this group
+        co_group_nesting_id:
+          type: string
+          description: CO Group Nesting that created this membership, if set
+        valid_from:
+          type: string
+          format: date
+          description: Member validity date from
+        valid_through:
+          type: string
+          format: date
+          description: Member validity date through
+      required:
+        - co_group_id
+
+    CoPersonRole:
+      type: object
+      description: Role for a CO Person
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        cou_id:
+          type: string
+          description: COU for this Role
+        title:
+          type: string
+          description: Title for this Role
+        o:
+          type: string
+          description: Organization for this Role
+        ou:
+          type: string
+          description: Department for this Role
+        valid_from:
+          type: string
+          format: date-time
+          description: Valid from time for this Role
+        valid_through:
+          type: string
+          format: date-time
+          description: Valid through time for this Role
+        status:
+          type: string
+          description: |
+            CO Person Role status: 
+            **A** - Active,
+            **Y** - Approved,
+            **C** - Confirmed,
+            **D** - Deleted,
+            **N** - Denied,
+            **D2** - Duplicate,
+            **XP** - Expired,
+            **GP** - GracePeriod,
+            **I** - Invited,
+            **LK** - Locked,
+            **P** - Pending,
+            **PA** - PendingApproval,
+            **PC** - PendingConfirmation,
+            **PV** - PendingVetting,
+            **S** - Suspended,
+            **D** - Declined
+          enum:
+            - A
+            - Y
+            - C
+            - D
+            - N
+            - D2
+            - XP
+            - GP
+            - I
+            - LK
+            - P
+            - PA
+            - PC
+            - PV
+            - S
+            - X
+        sponsor_co_person_id:
+          type: string
+          description: CO Person ID of the sponsor for this Role
+        affiliation:
+          type: string
+          description: |
+            CO Person Role affiliation: 
+            **faculty**,
+            **student**,
+            **staff**,
+            **alum**,
+            **member**,
+            **affiliate**,
+            **employee**,
+            **librarywalkin
+          enum:
+            - faculty
+            - student
+            - staff
+            - alum
+            - member
+            - affiliate
+            - employee
+            - librarywalkin
+        ordr:
+          type: string
+          description: Order of this Role, relative to other roles for this person
+        Address:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        AdHocAttribute:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdHocAttribute'
+        TelephoneNumber:
+          type: array
+          items:
+            $ref: '#/components/schemas/TelephoneNumber'
+      required:
+        - affiliation
+        - status
+
+    OrgIdentity:
+      type: object
+      description: |
+        Organizational Identity linked to a CO Person, representing an external identity.
+        Note that multiple Organizational Identities may be linked to a single CO Person.
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        co_id:
+          type: string
+          description: CO for this Org Identity
+        title:
+          type: string
+          description: Title for this Org Identity
+        o:
+          type: string
+          description: Organization for this Org Identity
+        ou:
+          type: string
+          description: Department for this Org Identity
+        valid_from:
+          type: string
+          description: Valid from time for this Org Identity
+          format: date-time
+        valid_through:
+          type: string
+          description: Valid through time for this Org Identity
+          format: date-time
+        status: 
+          type: string 
+          description: |
+            Org Identity status: 
+            **RM** - Removed,
+            **SY** - Synced
+          enum:
+            - RM
+            - SY
+        affiliation:
+          type: string
+          description: |
+            Org Identity affiliation: 
+            **faculty**,
+            **student**,
+            **staff**,
+            **alum**,
+            **member**,
+            **affiliate**,
+            **employee**,
+            **librarywalkin
+          enum:
+            - faculty
+            - student
+            - staff
+            - alum
+            - member
+            - affiliate
+            - employee
+            - librarywalkin
+        date_of_birth: 
+          type: string
+          description: Org Identity date of birth
+          format: date
+        Address:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        AdHocAttribute:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdHocAttribute'
+        EmailAddress:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailAddress'
+        Identifier:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identifier'
+        Name:
+          type: array
+          items:
+            $ref: '#/components/schemas/Name'
+        TelephoneNumber:
+          type: array
+          items:
+            $ref: '#/components/schemas/TelephoneNumber'
+        Url:
+          type: array
+          items:
+            $ref: '#/components/schemas/Url'
+
+    Address:
+      type: object
+      description: Postal address for a CO Person Role or Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        country:
+          description: Country for this Address
+          type: string
+        description:
+          description: Description of this Address
+          type: string
+        language:
+          description: Language encoding of this Address
+          type: string
+        locality:
+          description: Locality eg city of this Address
+          type: string
+        postal_code:
+          description: Postal code of this Address
+          type: string
+        room:
+          description: Room associated with this Address
+          type: string
+        state:
+          description: State of this Address
+          type: string
+        street:
+          description: Street of this Address
+          type: string
+        type:
+          description: Type of this Address
+          type: string
+
+    AdHocAttribute:
+      type: object
+      description: An ad-hoc attribute for a CO Person Role or an Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        tag:
+          description: Tag for this Ad Hoc Attribute
+          type: string
+        value:
+          description: Value of this Ad Hoc Attribute
+          type: string
+      required:
+        - tag
+      additionalProperties: false
+
+    TelephoneNumber:
+      type: object
+      description: Telephone number for a CO Person Role or an Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        country_code:
+          description: Country code for this Telephone Number
+          type: string
+        area_code:
+          description: Area code for this Telephone Number
+          type: string
+        number:
+          description: Number for this Telephone Number
+          type: string
+        extension:
+          description: Extension for this Telephone Number
+          type: string
+        description:
+          description: Description of this Telephone Number
+          type: string
+        type:
+          description: Type of this Telephone Number
+          type: string
+      required:
+        - number
+      additionalProperties: false
+
+    SshKey:
+      type: object
+      description: Object representing an SSH key for a CO Person, including the comment and key type
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        comment:
+          description: Comment for this SSH Key
+          type: string
+        type:
+          type: string
+          description: |
+           SSH Key type: 
+            **ssh-dss**,
+            **ecdsa-sha2-nistp256**,
+            **ecdsa-sha2-nistp384**,
+            **ecdsa-sha2-nistp521**,
+            **ssh-ed25519**,
+            **ssh-rsa**,
+            **ssh-rsa1
+          enum:
+            - ssh-dss
+            - ecdsa-sha2-nistp256
+            - ecdsa-sha2-nistp384
+            - ecdsa-sha2-nistp521
+            - ssh-ed25519
+            - ssh-rsa
+            - ssh-rsa1
+        skey:
+          description: SSH Key
+          type: string
+        ssh_key_authenticator_id:
+          description: SSH Key Authenticator ID associated with this SSH Key
+          type: string
+          readOnly: true
+      required:
+        - type
+        - skey
+      additionalProperties: false
+
+    Url:
+      type: object
+      description: Url for a CO Person or an Organizational Identity
+      properties:
+        meta:
+          $ref: '#/components/schemas/meta'
+        description:
+          type: string
+          description: Description of this URL
+        url:
+          type: string
+          description: |
+            URL: 
+            **official**,
+            **personal**
+          enum:
+            - official
+            - personal
+        type:
+          type: string
+          description: Type of URL
+      required:
+        - url
+
+    meta:
+      type: object
+      description: |
+        Metadata about objects returned when reading (get). Note that most metadata returned by read
+        calls is not permitted (and will be ignored) when invoking write operations (post|put).
+        The exception is the sub-element id, which when present is used to indicate the update
+        of an existing object (such as an EmailAddress) rather than the creation of a new one.
+      properties:
+        id:
+          description: COmanage Registry identifier for this object
+          type: string
+        actor_identifier:
+          description: The identifier for the actor who last modified this object
+          type: string
+          readOnly: true
+        created:
+          description: When this object was originally created
+          type: string
+          format: date-time
+          readOnly: true
+        deleted:
+          description: Whether this object has been deleted
+          type: boolean
+          readOnly: true
+        modified:
+          description: When this object was last modified
+          type: string
+          format: date-time
+          readOnly: true
+        revision:
+          description: The revision number for this object
+          type: string
+          minimum: 0
+          readOnly: true
+      required:
+        - id
+      additionalProperties: false
+
+  responses:
+    PagedCoPersonMessage:
+      description: Paged collection of CoPersonMessage objects indexed by integer values
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              0:
+                $ref: '#/components/schemas/CoPersonMessage'
+                description: CO Person read response object
+              currentPage:
+                description: current page
+                type: string
+                readOnly: true
+                example: "1"
+              itemsPerPage:
+                description: items per page
+                type: string
+                readOnly: true
+                example: "1"
+              pageCount:
+                description: page count
+                type: string
+                readOnly: true
+                example: "1"
+              startIndex:
+                description: start index
+                type: string
+                readOnly: true
+                example: "1"
+              totalResults:
+                description: total count of results
+                type: string
+                readOnly: true
+                example: "1"
+            additionalProperties:
+              type: array
+              items:
+                $ref: '#/components/schemas/CoPersonMessage'
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+security:
+  - basicAuth: []
+
+externalDocs:
+  description: COmanage Registry Core API
+  url: https://spaces.at.internet2.edu/display/COmanage/Core+API

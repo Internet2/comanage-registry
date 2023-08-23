@@ -70,8 +70,10 @@
 
 <?php if($err != ""): ?>
   <div class="co-info-topbox">
-    <em class="material-icons error">info</em>
-    <?php print $err; ?>
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
+      <?php print $err; ?>
+    </div>
   </div>
 <?php else: // $err ?>
 <div id="fpDashboard">

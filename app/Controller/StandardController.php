@@ -440,8 +440,25 @@ class StandardController extends AppController {
     }
     
     // Remove the object.
+    $ret = false;
+    $dataSource = $model->getDataSource();
+    $dataSource->begin();
+    try {
+      $ret = $model->delete($id);
+    } catch (PDOException $e) {
+      $dataSource->rollback();
+      if(!empty($e->errorInfo[2])) {
+        $error_split = explode("\n", $e->errorInfo[2]);
+        foreach ($error_split as $details) {
+          $this->Flash->set($details, array('key' => 'information'));
+        }
+      } else {
+        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      }
+    }
     
-    if($model->delete($id)) {
+    if($ret) {
+      $dataSource->commit();
       if($this->recordHistory('delete', null, $curdata)) {
         if($this->request->is('restful')) {
           $this->Api->restResultHeader(200, "Deleted");
@@ -450,6 +467,7 @@ class StandardController extends AppController {
         }
       }
     } else {
+      $dataSource->rollback();
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(500, "Other Error");
       } else {
@@ -1207,6 +1225,10 @@ class StandardController extends AppController {
       if(!empty($local['joins'])) {
         $this->paginate['joins'] = $local['joins'];
       }
+
+      if(!empty($local['order'])) {
+        $this->paginate['order'] = $local['order'];
+      }
       
       if(isset($local['contain'])) {
         $this->paginate['contain'] = $local['contain'];
@@ -1408,15 +1430,19 @@ class StandardController extends AppController {
    */
   
   function search() {
-    // the page we will redirect to
-    if(isset($this->data['RedirectAction']["select"])) {
-      $url['action'] = 'select';
-    } elseif(isset($this ->data['RedirectAction']["index"])) {
-      $url['action'] = 'index';
-    } else {
-      // XXX We need this for backward compatibility.
-      // XXX Remove as soon as we apply the new Search element across the framework
-      $url['action'] = 'index';
+    // Construct the URL based on the action mode we're in (select, relink, index, link)
+    $action = key($this->data['RedirectAction']);
+
+    $url['action'] = $action;
+    foreach($this->data[$action] as $key => $value) {
+      // pass parameters
+      if(is_int($key) && isset($value['pass'])) {
+        array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
+      } else {
+        foreach ($value as $knamed => $vnamed) {
+          $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
+        }
+      }
     }
     
     // build a URL will all the search elements in it
@@ -1429,14 +1455,22 @@ class StandardController extends AppController {
         }
       }
     }
-    
+
+    if($this->request->params["named"]) {
+      foreach ($this->request->params["named"] as $field => $value){
+        if(!empty($value)) {
+          $url[$field] = $value;
+        }
+      }
+    }
+
     if(isset($this->cur_co['Co']['id'])) {
       // Insert CO into URL
       $url['co'] = $this->cur_co['Co']['id'];
-    } else {
-      // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
-      $url['op'] = 'search';
     }
+
+    // We need a final parameter so email addresses don't get truncated as file extensions (CO-1271)
+    $url = array_merge($url, array('op' => 'search'));
     
     // redirect the user to the url
     $this->redirect($url, null, true);

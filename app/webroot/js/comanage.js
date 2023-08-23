@@ -492,7 +492,9 @@ function callRegistryAPI(url, method, dataType, successCallback, entityId, failu
       return xhr;
     }
   })
-  .fail(function() {
+  .fail(function(xhr, status, errorThrown) {
+    console.log('status', status)
+    console.log('errorThrown', errorThrown)
     if(failureCallback != undefined) {
       failureCallback(xhr, entityId);
     } else {

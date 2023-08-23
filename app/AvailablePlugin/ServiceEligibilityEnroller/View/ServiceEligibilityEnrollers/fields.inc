@@ -75,6 +75,8 @@
   print $this->Form->hidden('co_enrollment_flow_wedge_id', array('default' => $service_eligibility_enrollers[0]['CoEnrollmentFlowWedge']['id'])) . "\n";
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('in.pl.noconfig'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('in.pl.noconfig'); ?>
+  </div>
 </div>

@@ -42,8 +42,11 @@
 ?>
 
 <?php if (empty($vv_servers)): ?>
-<div class="co-info-topbox"><i class="material-icons">info</i>
-  <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::HttpServer))); ?>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::HttpServer))); ?>
+  </div>
 </div>
 <?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_co_mid_point_provisioner_target" class="fields form-list form-list-admin">

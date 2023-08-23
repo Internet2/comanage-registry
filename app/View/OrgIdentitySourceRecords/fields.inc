@@ -70,7 +70,9 @@
 <?php if($this->action == 'view' && !empty($org_identity_source_records[0]['OrgIdentitySourceRecord']['id'])): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('in.orgid.oisr'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.orgid.oisr'); ?>
+    </div>
   </div>
 <?php endif; // view ?>
 

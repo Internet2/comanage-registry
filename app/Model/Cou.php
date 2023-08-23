@@ -153,15 +153,38 @@ class Cou extends AppModel {
   /**
    * Obtain all COUs within a specified CO.
    *
-   * @since  COmanage Registry v0.4
-   * @param  integer CO ID
-   * @param  string Format, one of "names", "ids", or "hash" of id => name
+   * @param  Integer       $coId          CO ID
+   * @param  String        $format        Format, one of "names", "ids", or "hash" of id => name
+   * @param  Null|Boolean  $isParent      If null retrieve all COUs.
+   *                                      If true retrieve all COUs that have children.
+   *                                      If false retrieve all COUs that have no Children
+   *
    * @return Array List or hash of member COUs, as specified by $format
+   * @since  COmanage Registry v0.4
    */
   
-  public function allCous($coId, $format="hash") {
+  public function allCous($coId, $format="hash", $isParent=null) {
+    $parent_ids = array();
+    if(!is_null($isParent)) {
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $coId;
+      $args['conditions'][] = 'Cou.parent_id IS NOT NULL';
+      $args['fields'] = array('Cou.parent_id');
+      $args['contain'] = false;
+      $cous = $this->find("all", $args);
+
+      $parent_ids = Hash::extract($cous, '{n}.Cou.parent_id');
+    }
+
     $args = array();
     $args['conditions']['Cou.co_id'] = $coId;
+    if(!is_null($isParent) && !empty($parent_ids)) {
+      if($isParent) {
+        $args['conditions']['Cou.id'] = $parent_ids;
+      } else {
+        $args['conditions']['NOT']['Cou.id'] = $parent_ids;
+      }
+    }
     $args['order'] = 'Cou.name ASC';
     $args['contain'] = false;
     
@@ -183,7 +206,48 @@ class Cou extends AppModel {
     
     return(array());
   }
-  
+
+  /**
+   * Obtain all COUs i am an approver for
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param  integer CO Person Id
+   *
+   * @return Array List of COUs i can approver petitions for
+   */
+
+  public function approverForCouList($coPersonId) {
+    if(!$coPersonId) {
+      return array();
+    }
+
+    // Use a join to pull enrollment flows where $coPersonId is in the Predefined COU approver group
+
+    $args = array();
+    $args['joins'][0]['table'] = 'co_groups';
+    $args['joins'][0]['alias'] = 'CoGroup';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'Cou.id=CoGroup.cou_id';
+    $args['joins'][1]['table'] = 'co_group_members';
+    $args['joins'][1]['alias'] = 'CoGroupMember';
+    $args['joins'][1]['type'] = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'CoGroupMember.co_group_id=CoGroup.id';
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['conditions']['CoGroup.group_type'] = GroupEnum::Approvers;
+    $args['conditions'][] = 'CoGroupMember.co_group_member_id IS NULL';
+    $args['conditions'][] = 'CoGroup.co_group_id IS NULL';
+    $args['conditions'][] = 'Cou.cou_id IS NULL';
+    $args['conditions'][] = 'CoGroupMember.deleted IS NOT true';
+    $args['conditions'][] = 'CoGroup.deleted IS NOT true';
+    $args['conditions'][] = 'Cou.deleted IS NOT true';
+    $args['fields'] = array('Cou.id', 'Cou.name');
+    $args['contain'] = false;
+
+    $cou_list = $this->find('list', $args);
+
+    return array_keys($cou_list);
+  }
+
   /**
    * Actions before deleting a model.
    *

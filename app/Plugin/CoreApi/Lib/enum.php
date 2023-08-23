@@ -27,14 +27,21 @@
 
 class CoreApiEnum
 {
-  const CoPersonRead      = "CR";
+  // Read
+  const DepartmentRead     = "DR";
+  const OrganizationRead   = "OR";
+  const PersonRead         = "CR";
+  const PetitionRead       = "PR";
+
   // Write implies Read
-  const CoPersonWrite     = "CW";
-  const MatchCallback     = "MC";
+  const DepartmentWrite    = "DW";
+  const MatchCallback      = "MC";
+  const OrganizationWrite  = "OW";
+  const PersonWrite        = "CW";
 }
 
 class ResponseTypeEnum
 {
-  const Full              = 'FL';
-  const IdentifierList    = 'IL';
+  const Full               = 'FL';
+  const IdentifierList     = 'IL';
 }

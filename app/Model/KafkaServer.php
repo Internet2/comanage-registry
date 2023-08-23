@@ -122,6 +122,9 @@ class KafkaServer extends AppModel {
   // Kafka Topic
   protected $topic = null;
 
+  // Poll Error Collection
+  protected $pollErrors = array();
+
   /**
    * Actions to take before a save operation is executed.
    *
@@ -159,13 +162,25 @@ class KafkaServer extends AppModel {
    */
 
   public function consumeBatch() {
-    if($this->topic) {
-      return $this->topic->consumeBatch($this->srvr['KafkaServer']['partition'],
-                                        $this->srvr['KafkaServer']['timeout'] * 1000,
-                                        $this->srvr['KafkaServer']['batch_size']);
+    if($this->topic == null) 
+      return array();
+    
+    $consumed = $this->topic->consumeBatch($this->srvr['KafkaServer']['partition'],
+                                      $this->srvr['KafkaServer']['timeout'] * 1000,
+                                      $this->srvr['KafkaServer']['batch_size']);
+    /*
+    * poll timeout fixed at 1 second
+    */
+    $this->consumer->poll(1000);
+    
+    /*
+    * separator fixed at semicolon
+    */
+    if(!empty($this->pollErrors)){
+      throw new Exception(implode("; ", $this->pollErrors));
     }
 
-    return array();
+    return $consumed;
   }
 
   /**
@@ -195,6 +210,10 @@ class KafkaServer extends AppModel {
     $conf->set('sasl.mechanism', $this->srvr['KafkaServer']['sasl_mechanism']);
     $conf->set('sasl.username', $this->srvr['KafkaServer']['username']);
     $conf->set('sasl.password', $this->srvr['KafkaServer']['password']);
+
+    $conf->setErrorCb(function (RdKafka\Consumer $kafka, int $err, string $reason){
+      $this->pollErrors[] = $reason;
+    });
 
     // Configure the group.id. All consumer with the same group.id will consume
     // different partitions.

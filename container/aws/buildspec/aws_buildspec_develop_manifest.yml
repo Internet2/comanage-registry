@@ -1,0 +1,93 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u0z2s2z8
+      - echo Logging in to Docker Hub
+      - docker login --username skoranda --password $HUB_DOCKER_COM_TOKEN
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building and pushing the Docker manifests...
+      - SHORT_COMMIT_HASH="${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      # 
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop
+
+  post_build:
+    commands:
+      - echo Build completed on `date`

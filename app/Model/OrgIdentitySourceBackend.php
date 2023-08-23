@@ -146,4 +146,16 @@ abstract class OrgIdentitySourceBackend extends AppModel {
   public function setConfig($cfg) {
     $this->pluginCfg = $cfg;
   }
+
+  /**
+   * Update any plugin specific cache following the processing of records returned
+   * by getChangeList().
+   * 
+   * @since  COmanage Registry v4.3.0
+   * @return boolean  true on success, false otherwise
+   */
+
+  public function updateCache() {
+    return false;
+  }
 }

@@ -456,21 +456,23 @@ form#notificationStatus {
 }
 .co-info-topbox {
   clear: both;
+  display: flex;
+  align-items: center;
   padding: 1em;
   background-color: var(--cmg-color-infobox-yellow);
   margin-bottom: 0.5em;
+}
+.co-info-topbox a {
+  text-decoration: underline;
 }
 #lastLogin p {
   margin-bottom: 0;
   clear: both;
 }
 #content .co-info-topbox .material-icons {
-  color: #53b1f4;
-  font-size: 26px;
-  vertical-align: bottom;
-  float: left;
-  margin-right: 0.25em;
-  margin-top: -0.1em;
+  color: var(--cmg-color-blue-primary);
+  font-size: 1.6rem;
+  margin: 0 0.25em 0 0;
 }
 .material-icons.error {
   color: #d00;
@@ -798,6 +800,9 @@ body.co_people.canvas .titleNavContainer {
 .dashboard-widget-container .titleNavContainer {
   display: none;
 }
+.dashboard-widget-container {
+  margin-bottom: 1em;
+}
 /* DASHBOARD WIDGETS */
 .widget-list {
   list-style: none;
@@ -874,7 +879,7 @@ body.co_people.canvas .titleNavContainer {
   min-width: 40px;
   margin-left: 2px;
 }
-.actions {
+td.actions {
   white-space: nowrap;
 }
 .first-cell {
@@ -1663,6 +1668,8 @@ a.ui-button:visited,
   padding: 0;
 }
 .top-search .top-search-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
   margin-top: 0.5em;
 }
 .top-search .filter-clear-all-button {
@@ -2487,6 +2494,10 @@ code.source-record-formatted {
 .badge-secondary {
   background-color: var(--cmg-color-gray-secondary);
 }
+.badge-light {
+  color: var(--cmg-color-black-002);
+  background-color: var(--cmg-color-lightgray-004);
+}
 /* Bootstrap badge-outline */
 .badge-outline-primary {
   color: var(--cmg-color-blue-primary);
@@ -2810,8 +2821,8 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
 }
 .cm-ssw-form-row-fields {
   display: flex;
-  align-items: end;
   padding: 1em;
+  gap: 1em;
 }
 .cm-ssw-form-field-type {
   margin-left: 0.5em;

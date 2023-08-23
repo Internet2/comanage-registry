@@ -54,6 +54,7 @@
 ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
   <?php
     if($due === null) {
       print _txt('pl.meemenroller.remind.message');
@@ -63,6 +64,7 @@
       print _txt('pl.meemenroller.remind.message.soon', array($due));
     }
   ?>
+  </div>
 </div>
 <?php
   if($due !== 0 && !empty($vv_return_url)) {

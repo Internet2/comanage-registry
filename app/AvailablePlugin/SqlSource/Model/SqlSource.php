@@ -63,6 +63,14 @@ class SqlSource extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'source_table' => array(
+      // We need to constrain the table name here not just for SQL conformance
+      // but because SqlSourceBackend will construct raw SQL queries using the
+      // source_table name.
+      'rule' => '/^[a-zA-Z0-9\-\.]+$/',
+      'required' => true,
+      'allowEmpty' => false
+    ),
     'server_id' => array(
       'content' => array(
         'rule' => 'notBlank',

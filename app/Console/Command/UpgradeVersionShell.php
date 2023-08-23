@@ -103,7 +103,8 @@ class UpgradeVersionShell extends AppShell {
     "4.1.1" => array('block' => false),
     "4.1.2" => array('block' => false),
     "4.2.0" => array('block' => false),
-    "4.2.1" => array('block' => false)
+    "4.2.1" => array('block' => false),
+    "4.3.0" => array('block' => false, 'post' => 'post430')
   );
   
   public function getOptionParser() {
@@ -647,6 +648,37 @@ class UpgradeVersionShell extends AppShell {
         'HttpServer.auth_type' => null
       )
     );
+  }
+
+  public function post430() {
+    // Start by pulling the list of COs and its COUs.
+
+    $args = array();
+    // Because CO is not Changelog but COU is, we have to pull COUs separately
+    $args['contain'] = false;
+
+    $cos = $this->Co->find('all', $args);
+
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+
+      // Create the CO approvers group
+      $this->CoGroup->_ug430($co['Co']['id'], $co['Co']['name']);
+
+      $args = array();
+      $args['conditions']['Cou.co_id'] = $co['Co']['id'];
+      $args['contain'] = false;
+
+      $cous = $this->Co->Cou->find('all', $args);
+
+      foreach($cous as $cou) {
+        $this->out('-- ' . $cou['Cou']['name']);
+
+        // Upgrade the COU approvers group
+        $this->CoGroup->_ug430($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
+      }
+    }
   }
   
   // We should eventually do something like

@@ -47,9 +47,11 @@
   // This should merge with fields.inc to render password constraints, but we
   // don't currently have access to vv_authenticator (since we only have a token)
 ?>
-<div class="ui-state-highlight ui-corner-all co-info-topbox">
-  <span class="ui-icon ui-icon-info co-info"></span>
-  <strong><?php print _txt('pl.passwordauthenticator.ssr.for', array($vv_name)); ?></strong>
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.passwordauthenticator.ssr.for', array($vv_name)); ?>
+  </div>
 </div>
 
 <ul id="<?php print $this->action; ?>_ssr" class="fields form-list">

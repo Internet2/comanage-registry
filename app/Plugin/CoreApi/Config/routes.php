@@ -34,7 +34,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'index',
     '[method]'   => 'GET',
   )
@@ -46,30 +46,30 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'delete',
     '[method]'   => 'DELETE',
   )
 );
 
-  // COmanage CO Person API PUT
-  // /api/co/:coid/core/v1/people?identifier=1234567890@example.com
-  Router::connect(
-    '/api/co/:coid/core/v1/people',
-    array(
-      'plugin'     => 'core_api',
-      'controller' => 'Api',
-      'action'     => 'update',
-      '[method]'   => 'PUT',
-    )
-  );
+// COmanage CO Person API PUT
+// /api/co/:coid/core/v1/people?identifier=1234567890@example.com
+Router::connect(
+  '/api/co/:coid/core/v1/people',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPeople',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
 
 // COmanage CO Person Read API
 Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'read',
     '[method]'   => 'GET'
   )
@@ -79,7 +79,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'update',
     '[method]'   => 'PUT'
   )
@@ -89,7 +89,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people/:identifier',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'delete',
     '[method]'   => 'DELETE'
   )
@@ -99,7 +99,7 @@ Router::connect(
   '/api/co/:coid/core/v1/people',
   array(
     'plugin'     => 'core_api',
-    'controller' => 'Api',
+    'controller' => 'CoreApiPeople',
     'action'     => 'create',
     '[method]'   => 'POST'
   )
@@ -110,9 +110,177 @@ Router::connect(
   '/api/co/:coid/core/v1/resolution',
   array(
     'plugin'      => 'core_api',
-    'controller'  => 'Api',
+    'controller'  => 'CoreApiPeople',
     'action'      => 'resolveMatch',
     '[method]'    => 'POST'
+  )
+);
+
+// Organizations
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'create',
+    '[method]'   => 'POST'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'update',
+    '[method]'   => 'PUT'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/organizations/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiOrganizations',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE'
+  )
+);
+
+// Departments
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'update',
+    '[method]'   => 'PUT',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'create',
+    '[method]'   => 'POST'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'read',
+    '[method]'   => 'GET'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'update',
+    '[method]'   => 'PUT'
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/departments/:identifier',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiDepartments',
+    'action'     => 'delete',
+    '[method]'   => 'DELETE'
+  )
+);
+
+// Petitions
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?limit=20&page=2&direction=desc
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?status=PA
+// GET https://{{hos}}/registry/api/co/2/core/v1/petitions?couid=4
+Router::connect(
+  '/api/co/:coid/core/v1/petitions',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPetitions',
+    'action'     => 'index',
+    '[method]'   => 'GET',
+  )
+);
+
+Router::connect(
+  '/api/co/:coid/core/v1/petitions/:id',
+  array(
+    'plugin'     => 'core_api',
+    'controller' => 'CoreApiPetitions',
+    'action'     => 'read',
+    '[method]'   => 'GET'
   )
 );
 

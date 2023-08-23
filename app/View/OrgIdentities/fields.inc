@@ -114,14 +114,18 @@
 <?php if($this->action == 'view' && !empty($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['id'])): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('op.orgid.edit.ois', array($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('op.orgid.edit.ois', array($org_identities[0]['OrgIdentitySourceRecord']['OrgIdentitySource']['description'])); ?>
+    </div>
   </div>
 <?php endif; // view ?>
 
 <?php if($this->action == 'edit'): ?>
   <div class="co-info-topbox">
     <em class="material-icons">info</em>
-    <?php print _txt('in.orgidentities'); ?>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.orgidentities'); ?>
+    </div>
   </div>
 <?php endif; // edit ?>
 

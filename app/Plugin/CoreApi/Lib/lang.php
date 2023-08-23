@@ -38,9 +38,14 @@ $cm_core_api_texts['en_US'] = array(
   
   // Enumeration language texts
   'pl.coreapi.en.api' => array(
-    CoreApiEnum::CoPersonRead     => 'COmanage CO Person Read API',
-    CoreApiEnum::CoPersonWrite    => 'COmanage CO Person Write API',
-    CoreApiEnum::MatchCallback    => 'Match Callback API'
+    CoreApiEnum::PetitionRead           => 'Petition Read API',
+    CoreApiEnum::PersonRead             => 'Person Read API',
+    CoreApiEnum::PersonWrite            => 'Person Write API',
+    CoreApiEnum::OrganizationRead       => 'Organization Read API',
+    CoreApiEnum::OrganizationWrite      => 'Organization Write API',
+    CoreApiEnum::DepartmentRead         => 'Department Read API',
+    CoreApiEnum::DepartmentWrite        => 'Department Write API',
+    CoreApiEnum::MatchCallback          => 'Match Callback API'
   ),
 
   'pl.coreapi.en.response.type' => array(
@@ -51,13 +56,15 @@ $cm_core_api_texts['en_US'] = array(
 
   // Error messages
   'er.coreapi.coperson'        => 'CoPerson object not found in inbound document',
+  'er.coreapi.record'          => '%1$s object not found in inbound document',
   'er.coreapi.coperson.exists' => 'CoPerson exists',
   'er.coreapi.id.invalid'      => 'Invalid record id %1$s',
   'er.coreapi.json'            => 'No JSON document found in request, or document did not successfully parse',
   'er.coreapi.json.invalid'    => 'JSON document missing required fields',
+  'er.coreapi.notfound'        => 'No record found for "%1$s"',
   'er.coreapi.sor.notfound'    => 'Organizational Identity Source for SOR Label "%1$s" not found',
   'er.coreapi.sorid.notfound'  => 'No record found for SORID "%1$s"',
-  
+
   // Plugin texts
   'pl.coreapi.api'                  => 'API',
   'pl.coreapi.api_user.desc'        => 'The API User authorized to make requests to this endpoint',
@@ -68,5 +75,5 @@ $cm_core_api_texts['en_US'] = array(
   'pl.coreapi.response.type.desc'   => 'Define the response content granularity',
   'pl.coreapi.rs.edited-a4'         => '%1$s Edited via Core API: %2$s',
   'pl.coreapi.rs.linked'            => 'New Org Identity Linked via Core API',
-  'pl.coreapi.expunge.on.del'       => 'Expunge on Delete',
+  'pl.coreapi.expunge.on.del'       => 'Person Expunge on Delete',
 );

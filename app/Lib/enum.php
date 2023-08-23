@@ -306,6 +306,7 @@ class GroupEnum
   const ActiveMembers = "MA";
   const Admins        = "A";
   const AllMembers    = "M";
+  const Approvers     = "AP";
   // XXX CO-1100, not yet supported
   const NestedAdmins  = "AN";
   const NestedMembers = "MN";
@@ -468,6 +469,7 @@ class MatchStrategyEnum
 class MessageTemplateEnum
 {
   const Authenticator          = 'AU';
+  const EnrollmentApprover     = 'AP';
   const EnrollmentApproval     = 'EA';
   const EnrollmentFinalization = 'EF';
   const EnrollmentVerification = 'EV';

@@ -53,10 +53,8 @@ class NamespaceAssignerSetting extends AppModel {
     ),
     'server_id' => array(
       'rule' => 'numeric',
-      // We can't require this because the CO row will be inserted by
-      // NamespaceAssignerSettingsController before we know what it is.
-      'required' => false,
-      'allowEmpty' => true
+      'required' => true,
+      'allowEmpty' => false
     ),
     'name_type' => array(
       'content' => array(

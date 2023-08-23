@@ -79,13 +79,20 @@
       <?php if($permissions['edit_members'] || $permissions['members']): ?>
         <li class="nav-item">
           <?php
+            $num_of_members = $this->Badge->badgeIt(
+              count($co_groups[0]["CoGroupMember"] ?? $co_group["CoGroupMember"]),
+              $this->Badge->getBadgeColor('Light'),
+              false,
+              false,
+              array('ml-1', 'border-0')
+            );
             // Group memberships
             if ($this->action == 'members') {
-              print '<span class="nav-link active">' . _txt('me.members') . '</span>';
+              print '<span class="nav-link active">' . _txt('me.members') . $num_of_members . '</span>';
             } else {
               if ($permissions['edit_members']) {
                 print $this->Html->link(
-                  _txt('me.members'),
+                  _txt('me.members') . $num_of_members,
                   array(
                     'controller' => 'co_group_members',
                     'action' => 'select',
@@ -93,17 +100,23 @@
                     'search.members:1',
                     'search.owners:1'
                   ),
-                  array('class' => 'nav-link spin')
+                  array(
+                    'class' => 'nav-link spin',
+                    'escape'=>false)
                 );
               } else {
                 print $this->Html->link(
-                  _txt('me.members'),
+                  _txt('me.members') . $num_of_members,
                   array(
                     'controller' => 'co_group_members',
                     'action' => 'index',
-                    'cogroup:' . $groupId
+                    'cogroup:' . $groupId,
+                    'search.members:1',
+                    'search.owners:1'
                   ),
-                  array('class' => 'nav-link spin')
+                  array(
+                    'class' => 'nav-link spin',
+                    'escape'=>false)
                 );
               }
             }

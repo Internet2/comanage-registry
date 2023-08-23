@@ -484,6 +484,116 @@
         "required": [],
         "additionalProperties": false
       }
+    },
+    "CoDepartment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_id": {
+            "description": "CO for this Department",
+            "type": "integer"
+          },
+          "cou_id": {
+            "description": "COU for this Department",
+            "type": "integer"
+          },
+          "leadership_co_group_id": {
+            "description": "Leadership Group for this Department",
+            "type": "integer"
+          },
+          "administrative_co_group_id": {
+            "description": "Administrative Group for this Department",
+            "type": "integer"
+          },
+          "support_co_group_id": {
+            "description": "Support Group for this Department",
+            "type": "integer"
+          },
+          "name": {
+            "description": "Name for this Department",
+            "type": "string"
+          },
+          "introduction": {
+            "description": "Introduction for this Department",
+            "type": "string"
+          },
+          "type": {
+            "description": "Type for this Department",
+            "type": "string"
+          },
+          "Address": {
+            "$ref": "#/properties/CoPersonRole/items/properties/Address"
+          },
+          "AdHocAttribute": {
+            "$ref": "#/properties/CoPersonRole/items/properties/AdHocAttribute"
+          },
+          "EmailAddress": {
+            "$ref": "#/properties/EmailAddress"
+          },
+          "Identifier": {
+            "$ref": "#/properties/Identifier"
+          },
+          "TelephoneNumber": {
+            "$ref": "#/properties/CoPersonRole/items/properties/TelephoneNumber"
+          },
+          "Url": {
+            "$ref": "#/properties/Url"
+          }
+        },
+        "required": ["name", "type"],
+        "additionalProperties": false
+      }
+    },
+    "Organization": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_id": {
+            "description": "CO for this Organization",
+            "type": "integer"
+          },
+          "name": {
+            "description": "Name for this Organization",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description for this Organization",
+            "type": "string"
+          },
+          "type": {
+            "description": "Type for this Organization",
+            "type": "string"
+          },
+          "Address": {
+            "$ref": "#/properties/CoPersonRole/items/properties/Address"
+          },
+          "AdHocAttribute": {
+            "$ref": "#/properties/CoPersonRole/items/properties/AdHocAttribute"
+          },
+          "EmailAddress": {
+            "$ref": "#/properties/EmailAddress"
+          },
+          "Identifier": {
+            "$ref": "#/properties/Identifier"
+          },
+          "TelephoneNumber": {
+            "$ref": "#/properties/CoPersonRole/items/properties/TelephoneNumber"
+          },
+          "Url": {
+            "$ref": "#/properties/Url"
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      }
     }
   },
   "Certificate": {

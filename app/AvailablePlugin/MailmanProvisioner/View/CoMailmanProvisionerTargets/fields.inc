@@ -41,12 +41,16 @@
   print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
 ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.mailmanprovisioner.info'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.mailmanprovisioner.info'); ?>
+  </div>
 </div>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.mailmanprovisioner.info2'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.mailmanprovisioner.info2'); ?>
+  </div>
 </div>
 
   <ul id="<?php print $this->action; ?>_co_mailman_provisioner_target" class="fields form-list form-list-admin">

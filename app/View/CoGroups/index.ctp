@@ -285,12 +285,9 @@
 </script>
 
 <?php
-  // Load the top search form
-  if(isset($permissions['search']) && $permissions['search'] ) {
-    $fileLocation = APP . "View/CoGroups/search.inc";
-    if(file_exists($fileLocation)) {
-      include($fileLocation);
-    }
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
   }
 
   // Begin the select form (if in select mode)
@@ -321,12 +318,19 @@
     </thead>
 
     <tbody>
-      <?php if(empty($co_groups) && $hasFilters): ?>
+      <?php
+      $named_params = array_keys($this->request->params["named"]);
+      $hasFilters = array_filter($named_params, function ($item) {
+        return strpos($item, 'search.') !== false;
+      });
+      if(empty($co_groups) && !empty($hasFilters)): ?>
         <tr>
           <td colspan="5">
             <div class="co-info-topbox">
               <em class="material-icons">info</em>
-              <?php print _txt('in.co_group.none_filters'); ?>
+              <div class="co-info-topbox-text">
+                <?php print _txt('in.co_group.none_filters'); ?>
+              </div>
             </div>
           </td>
         </tr>
@@ -335,7 +339,9 @@
           <td colspan="5">
             <div class="co-info-topbox">
               <em class="material-icons">info</em>
-              <?php print _txt('in.co_group.none'); ?>
+              <div class="co-info-topbox-text">
+                <?php print _txt('in.co_group.none'); ?>
+              </div>
             </div>
           </td>
         </tr>
@@ -379,13 +385,17 @@
                 print $this->Html->link($c['CoGroup']['name'],
                   array('controller' => 'co_groups',
                     'action' => 'edit',
-                    $c['CoGroup']['id']
+                    $c['CoGroup']['id'],
+                    'search.members:1',
+                    'search.owners:1'
                   ));
               } else if($v) {
                 print $this->Html->link($c['CoGroup']['name'],
                   array('controller' => 'co_groups',
                     'action'     => 'view',
-                    $c['CoGroup']['id']
+                    $c['CoGroup']['id'],
+                    'search.members:1',
+                    'search.owners:1'
                   ));
               } else {
                 print filter_var($c['CoGroup']['name'],FILTER_SANITIZE_SPECIAL_CHARS);
@@ -486,7 +496,9 @@
                   print $this->Html->link(_txt('me.members'),
                                           array('controller' => 'co_group_members',
                                             'action'     => 'index',
-                                            'cogroup:' . $c['CoGroup']['id']),
+                                            'cogroup:' . $c['CoGroup']['id'],
+                                            'search.members:1',
+                                            'search.owners:1'),
                                           array('class' => 'comparebutton'));
 
                   print $this->Html->link(_txt('op.view'),

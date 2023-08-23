@@ -52,7 +52,8 @@ class CoProvisioningTarget extends AppModel {
     "CoProvisioningExport" => array('dependent' => true),
     "CoProvisioningTargetFilter" => array('dependent' => true),
     // Identifiers created by the provisioner should disappear if the provisioner does
-    "Identifier" => array('dependent' => true)
+    "Identifier" => array('dependent' => true),
+    "CoProvisioningCount" => array('dependent' => true),
   );
   
   public $hasManyPlugins = array(
@@ -114,9 +115,26 @@ class CoProvisioningTarget extends AppModel {
       'allowEmpty' => false
     ),
     'retry_interval' => array(
-      'rule' => 'numeric',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('comparison', '>', 0),
+        'message' => 'Must be greater than 0(zero)'
+      )
+    ),
+    'max_retry' => array(
+      'content' => array(
+        'rule' => array('numeric'),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('comparison', '>', 0),
+        'message' => 'Must be greater than 0(zero)'
+      )
     ),
     'ordr' => array(
       'rule' => 'numeric',
@@ -151,6 +169,11 @@ class CoProvisioningTarget extends AppModel {
       }
       
       $this->data['CoProvisioningTarget']['ordr'] = $n;
+    }
+
+    // Set default max_retry to 3 times
+    if(empty($this->data['CoProvisioningTarget']['max_retry'])) {
+      $this->data['CoProvisioningTarget']['max_retry'] = 3;
     }
     
     return true;

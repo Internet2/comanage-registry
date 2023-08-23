@@ -61,37 +61,46 @@
 
   function expunge_on_del_toggle() {
     let core_api = $('#CoreApiApi > option:selected').val();
-    let person_write = '<?php print CoreApiEnum::CoPersonWrite;?>';
+    let person_write = '<?php print CoreApiEnum::PersonWrite;?>';
     if (core_api != undefined
         && core_api == person_write) {
       $('.core-api-expunge-on-del').show();
     } else {
       // hide
       $('.core-api-expunge-on-del').hide();
-
       // clear the value
       $('#CoreApiExpungeOnDelete').prop( "checked", false );
     }
   }
   
   function identifier_toggle() {
-    // Identifier type is required for Core Person APIs only
-    
     var api = document.getElementById('CoreApiApi').value;
+    var supportedApis = [
+      "<?php print CoreApiEnum::PetitionRead; ?>",
+      "<?php print CoreApiEnum::PersonRead; ?>",
+      "<?php print CoreApiEnum::PersonWrite; ?>",
+      "<?php print CoreApiEnum::OrganizationRead; ?>",
+      "<?php print CoreApiEnum::OrganizationWrite; ?>",
+      "<?php print CoreApiEnum::DepartmentRead; ?>",
+      "<?php print CoreApiEnum::DepartmentWrite; ?>"
+    ]
 
-    if(api == "<?php print CoreApiEnum::CoPersonRead; ?>"
-       || api == "<?php print CoreApiEnum::CoPersonWrite; ?>") {
+    if(supportedApis.includes(api)) {
       $("#CoreApiIdentifierType").closest("li").show('fade');
     } else {
       $("#CoreApiIdentifierType").closest("li").hide('fade');
     }
   }
 
-  // Response config is only for CO Person API. For other APIs we will need to hide this configuration
   function response_config_field() {
-    let core_apis = <?php
-      print json_encode(array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite));
-      ?>;
+    var core_apis = [
+      "<?php print CoreApiEnum::PersonRead; ?>",
+      "<?php print CoreApiEnum::PersonWrite; ?>",
+      "<?php print CoreApiEnum::OrganizationRead; ?>",
+      "<?php print CoreApiEnum::OrganizationWrite; ?>",
+      "<?php print CoreApiEnum::DepartmentRead; ?>",
+      "<?php print CoreApiEnum::DepartmentWrite; ?>"
+    ]
     let core_api = $('#CoreApiApi > option:selected').val();
     if (core_api != undefined
         && core_apis.includes(core_api)) {
@@ -116,8 +125,10 @@
 </script>
 <?php if(!empty($vv_api_endpoint)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('pl.coreapi.info', array($vv_api_endpoint)); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.coreapi.info', array($vv_api_endpoint)); ?>
+  </div>
 </div>
 <?php endif; // $vv_api_endpoint ?>
 <ul id="<?php print $this->action; ?>_core_apis" class="fields form-list">
@@ -247,7 +258,13 @@
   <li
     class="core-api-reponse-type"
     style="<?php
-    $person_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    $person_api_keys = array(CoreApiEnum::PersonRead,
+                             CoreApiEnum::PersonWrite,
+                             CoreApiEnum::OrganizationRead,
+                             CoreApiEnum::OrganizationWrite,
+                             CoreApiEnum::DepartmentRead,
+                             CoreApiEnum::DepartmentWrite);
+
     print (!empty($core_apis[0]['CoreApi']['api'])
            && in_array($core_apis[0]['CoreApi']['api'], $person_api_keys))
            ? '' :  'display: none'; ?>"
@@ -289,7 +306,7 @@
     class="core-api-expunge-on-del"
     style="<?php
     print (!empty($core_apis[0]['CoreApi']['api'])
-           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::CoPersonWrite)
+           && $core_apis[0]['CoreApi']['api'] === CoreApiEnum::PersonWrite)
       ? '' :  'display: none'; ?>"
   >
     <div class="field-name">

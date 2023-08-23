@@ -52,7 +52,15 @@ class CoGroupsController extends StandardController {
     'EmailListAdmin',
     'EmailListMember',
     'EmailListModerator',
-    'Identifier'
+    'Identifier',
+    'CoGroupMember' => array(
+      'conditions' => array(
+        'OR' => array(
+          "CoGroupMember.member = true",
+          "CoGroupMember.owner = true"
+        )
+      )
+    )
   );
   
   public $view_contains = array(
@@ -61,8 +69,80 @@ class CoGroupsController extends StandardController {
     'EmailListAdmin',
     'EmailListMember',
     'EmailListModerator',
-    'Identifier'
+    'Identifier',
+    'CoGroupMember' => array(
+      'conditions' => array(
+        'OR' => array(
+          "CoGroupMember.member = true",
+          "CoGroupMember.owner = true"
+        )
+      )
+    )
   );
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.3.0
+   */
+
+  public function searchConfig($action) {
+    if($action === 'index'                   // Index
+       || $action === 'select') {             // Select
+      return array(
+        'search.groupName' => array(             // 1st row, left column
+          'label' => _txt('fd.name'),
+          'type' => 'text',
+        ),
+        'search.open' => array(                 // 1st row, right column
+          'label' => _txt('fd.open'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.open'),
+        ),
+        'search.groupDesc' => array(            // 2nd row, left column
+          'label' => _txt('fd.description'),
+          'type' => 'text',
+        ),
+        'search.auto' => array(              // 2nd row, right column
+          'label' => _txt('fd.automatic'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.bool'),
+        ),
+        'search.status' => array(                 // 3rd row, left column
+          'label' => _txt('fd.status'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.susp'),
+        ),
+        'search.group_type' => array(             // 3rd row, right column
+          'label'   => _txt('fd.type'),
+          'type'    => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.group.type'),
+        ),
+        'search.member' => array(                 // 4th row, right column
+          'label' => ($action === 'select' ? _txt('fd.co_group_member.member') : _txt('fd.co_group.my_memberships')),
+          'type' => 'checkbox',
+          'group' => _txt('fd.membership'),
+          'column' => 0
+        ),
+        'search.noadmin' => array(                // 4th row, left column
+          'label' => _txt('fd.co_group.no_admin'),
+          'group' => _txt('fd.membership'),
+          'type' => 'checkbox',
+          'column' => 1
+        ),
+        'search.owner' => array(                 // 4th row, right column, inline
+          'label' => ($action === 'select' ? _txt('fd.co_group_member.owner') : _txt('fd.co_group.my_ownerships')),
+          'group' => _txt('fd.membership'),
+          'type' => 'checkbox',
+          'column' => 0
+        ),
+      );
+    }
+  }
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -72,12 +152,6 @@ class CoGroupsController extends StandardController {
 
   public function beforeRender() {
     if(!$this->request->is('restful')) {
-      global $cm_lang, $cm_texts;
-      $this->set('vv_statuses', $cm_texts[ $cm_lang ]['en.status.susp']);
-      $this->set('vv_status_open', $cm_texts[ $cm_lang ]['en.status.open']);
-      $this->set('vv_status_bool', $cm_texts[ $cm_lang ]['en.status.bool']);
-      $this->set('vv_group_type', $cm_texts[ $cm_lang ]['en.group.type']);
-      
       $idTypes = $this->CoGroup->Identifier->types($this->cur_co['Co']['id'], 'type');
 
       $this->set('vv_types', array('Identifier'   => $idTypes));
@@ -359,14 +433,13 @@ class CoGroupsController extends StandardController {
       // We need to retrieve via a join, which StandardController::index() doesn't
       // currently support.
       $this->set('vv_model_version', $this->CoGroup->version);
-      
       try {
         $groups = $this->CoGroup->findForCoPerson($this->params['url']['copersonid']);
-        $this->set('co_groups', $this->Api->convertRestResponse(
-          empty($groups) ? [] : $groups
-        ));
-      }
-      catch(InvalidArgumentException $e) {
+        if(empty($groups)) {
+          throw new InvalidArgumentException(_txt('er.person.noex'));
+        }
+        $this->set('co_groups', $this->Api->convertRestResponse($groups));
+      } catch(InvalidArgumentException $e) {
         $this->Api->restResultHeader(404, "CO Person Unknown");
         return;
       }
@@ -386,7 +459,8 @@ class CoGroupsController extends StandardController {
   
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
-    
+
+    $approved = false;
     $managed = false;
     $managedp = false;
     $readonly = false;
@@ -397,6 +471,7 @@ class CoGroupsController extends StandardController {
       
       if(!empty($this->request->params['pass'][0])) {
         $managed = $this->Role->isGroupManager($roles['copersonid'], $this->request->params['pass'][0]);
+        $approved = $this->Role->isGroupApprover($roles['copersonid'], $this->request->params['pass'][0]);
       }
       
       if(!empty($this->request->params['named']['copersonid'])) {
@@ -445,7 +520,9 @@ class CoGroupsController extends StandardController {
 
     // Create an admin Group?
     $p['admin'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
+
+    $p['approve'] = $approved || $roles['cmadmin'] || $roles['coadmin'];
+
     // Assign (autogenerate) Identifiers? (Same logic is in IdentifiersController)
     // Note we allow couadmin here beceause IdentifiersController allows it,
     // which allows it for CoPerson identifier assignment. It's not clear if that's
@@ -596,7 +673,18 @@ class CoGroupsController extends StandardController {
       
       $args = array();
       $args['conditions']['CoGroup.id'] = $id;
-      $args['contain'] = false;
+      $args['contain'] = array(
+        'CoGroupMember' => array(
+          'conditions' => array(
+            'CoGroupMember.deleted != true',
+            'CoGroupMember.co_group_member_id is NULL',
+            'OR' => array(
+              "CoGroupMember.member = true",
+              "CoGroupMember.owner = true"
+            )
+          )
+        )
+      );
       
       $this->set('co_group', $this->CoGroup->find('first', $args));
       if($this->viewVars['permissions']['edit']) {
@@ -681,37 +769,6 @@ class CoGroupsController extends StandardController {
   }
 
   /**
-   * Insert search parameters into URL for index.
-   * - postcondition: Redirect generated
-   *
-   * @since  COmanage Registry v3.3
-   */
-
-  public function search() {
-    // If a person ID is provided, we're in select mode
-    if(!empty($this->data['CoGroups']['select'])) {
-      $url['action'] = 'select';
-      $url['copersonid'] = filter_var($this->data['CoPerson']['id'], FILTER_SANITIZE_SPECIAL_CHARS);
-    } else {
-      // Back to the index
-      $url['action'] = 'index';
-    }
-
-    // build a URL will all the search elements in it
-    // the resulting URL will be similar to example.com/registry/co_groups/index/co:2/search.status:S
-    foreach($this->data['search'] as $field=>$value){
-      if(!empty($value)) {
-        $url['search.'.$field] = $value;
-      }
-    }
-
-    $url['co'] = $this->cur_co['Co']['id'];
-
-    // redirect the user to the url
-    $this->redirect($url, null, true);
-  }
-
-  /**
    * Determine the conditions for pagination of the index view, when rendered via the UI.
    *
    * @since  COmanage Registry v3.3
@@ -729,13 +786,19 @@ class CoGroupsController extends StandardController {
 
     // Filter by group name
     if(!empty($this->params['named']['search.groupName'])) {
-      $searchterm = strtolower($this->params['named']['search.groupName']);
+      $searchterm = $this->params['named']['search.groupName'];
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
     }
 
     // Filter by group description
     if(!empty($this->params['named']['search.groupDesc'])) {
-      $searchterm = strtolower($this->params['named']['search.groupDesc']);
+      $searchterm = $this->params['named']['search.groupDesc'];
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
       $pagcond['conditions']['LOWER(CoGroup.description) LIKE'] = "%$searchterm%";
     }
 
@@ -770,6 +833,11 @@ class CoGroupsController extends StandardController {
     // Exclude admin groups
     if(!empty($this->params['named']['search.noadmin'])) {
       $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Admins;
+    }
+
+    // Exclude approvers groups
+    if(!empty($this->params['named']['search.noapprover'])) {
+      $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Approvers;
     }
 
     // Filter by membership and ownership

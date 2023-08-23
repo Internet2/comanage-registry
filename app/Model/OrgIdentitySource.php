@@ -1465,6 +1465,9 @@ class OrgIdentitySource extends AppModel {
       'synced'    => 0,
       'unchanged' => 0
     );
+
+    // If a changelist was obtained from the backend
+    $changelist = false;
     
     if($orgIdentitySource['OrgIdentitySource']['sync_mode'] == SyncModeEnum::Full
        || $orgIdentitySource['OrgIdentitySource']['sync_mode'] == SyncModeEnum::Query
@@ -1487,7 +1490,6 @@ class OrgIdentitySource extends AppModel {
       $curStart = $this->Co->CoJob->startTime($jobId);
       
       // If $force is true, we can't use changelists since they only return updated records.
-      $changelist = false;
       
       if(!$force) {
         try {
@@ -1543,7 +1545,7 @@ class OrgIdentitySource extends AppModel {
           // Update the unchanged count
           $resCnt['unchanged'] = count($orgRecords) - $known;
         }
-        
+
         $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
                                                      null,
                                                      _txt('jb.ois.sync.update.changed',
@@ -1671,12 +1673,27 @@ class OrgIdentitySource extends AppModel {
         }        
       }
       
+      if($changelist !== false) {
+        // Technically these are changes for purposes of updating the backend cache
+        $changelist = array_merge($changelist, $newKeys);
+      }
+
       $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
                                                    null,
                                                    _txt('jb.ois.sync.full.finish'),
                                                    null,
                                                    null,
                                                    JobStatusEnum::Notice);
+    }
+
+    if($changelist !== false) {
+      // Tell the backend to update its cache (if supported). We do this _after_
+      // we process any adds (in Full Mode, if appropriate) so that the plugin
+      // can ensure its cache includes any newly inserted records _and_ that cache
+      // doesn't inadvertantly get updated before the inserts actually run.
+      if(!empty($changelist)) {
+        $this->updateBackendCache($orgIdentitySource['OrgIdentitySource']['id']);
+      }
     }
     
     if($orgIdentitySource['OrgIdentitySource']['sync_mode'] == SyncModeEnum::Query) {
@@ -1881,6 +1898,21 @@ class OrgIdentitySource extends AppModel {
     return true;
   }
   
+  /**
+   * Tell the backend to update its cache, if appropriate.
+   *
+   * @since  COmanage Registry v4.3.0
+   * @return int  $id                 Org Identity Source ID
+   * @return bool                     True on success, false otherwise, including if the backend does not support this action
+   * @throws InvalidArgumentException
+   */
+  
+  public function updateBackendCache($id) {
+    $Backend = $this->bindPluginBackendModel($id);
+    
+    return $Backend->updateCache();
+  }
+
   /**
    * Validate Org Identity Source Record
    *

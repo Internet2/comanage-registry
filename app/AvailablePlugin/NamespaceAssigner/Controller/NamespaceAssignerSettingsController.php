@@ -74,11 +74,13 @@ class NamespaceAssignerSettingsController extends StandardController {
       
       $settings = array(
         'co_id'               => $this->cur_co['Co']['id'],
+        // For the following to save, we need to disable validation
+        'name_type'           => null,
         'namespace_server_id' => null
       );
       
       $this->NamespaceAssignerSetting->clear();
-      $this->NamespaceAssignerSetting->save($settings);
+      $this->NamespaceAssignerSetting->save($settings, array('validate' => false));
       
       $settingId = $this->NamespaceAssignerSetting->id;
     }

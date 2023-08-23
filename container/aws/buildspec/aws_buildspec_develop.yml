@@ -1,0 +1,50 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u0z2s2z8
+      - echo Logging in to Docker Hub
+      - docker login --username skoranda --password $HUB_DOCKER_COM_TOKEN
+  build:
+    commands:
+      - echo Build started on `date`
+      - SHORT_COMMIT_HASH="${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}"
+      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=develop-$SHORT_COMMIT_HASH --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH registry all
+      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=develop-$SHORT_COMMIT_HASH --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH crond
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-$ARCH
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images to AWS public repository...
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth-develop:latest-$ARCH
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc-develop:latest-$ARCH
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:develop-$SHORT_COMMIT_HASH-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor-develop:latest-$ARCH
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:develop-$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:$SHORT_COMMIT_HASH-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron-develop:latest-$ARCH

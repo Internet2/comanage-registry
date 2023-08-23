@@ -47,7 +47,8 @@
 ?>
 
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
   <?php
     if($vv_authenticator['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::SelfSelect) {
       $maxlen = isset($vv_authenticator['PasswordAuthenticator']['max_length'])
@@ -64,6 +65,7 @@
       print _txt('pl.passwordauthenticator.noedit');
     }
   ?>
+  </div>
 </div>
 
 <?php if($vv_authenticator['PasswordAuthenticator']['password_source'] == PasswordAuthPasswordSourceEnum::AutoGenerate): ?>

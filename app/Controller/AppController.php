@@ -1079,7 +1079,14 @@ class AppController extends Controller {
     // Manage the CO (or COU) population?
     // XXX This permission is somewhat confusingly named (implies cmp admin managing COs)
     // as is 'admin' below (which really implies cmadmin)
-    $p['menu']['cos'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+    $p['menu']['cos'] = $roles['cmadmin']
+                        || $roles['coadmin']
+                        || $roles['couadmin']
+                        || $roles['coapprover']
+                        || $roles['couapprover'];
+
+    $p['menu']['mypopulation'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['couadmin'];
+
     // Which COUs?
     $p['menu']['admincous'] = $roles['admincous'];
     
@@ -1131,7 +1138,7 @@ class AppController extends Controller {
     
     // Review / approve petitions?
     // XXX this isn't exactly the right check, but then neither are most of the others (CO-731)
-    $p['menu']['petitions'] = $roles['cmadmin'] || $roles['coadmin']
+    $p['menu']['petitions'] = $roles['cmadmin'] || $roles['coadmin'] || $roles['coapprover'] || $roles['couapprover']
     // XXX A side effect of this current logic is that the link only appears when the person is viewing
     // another link with the CO specified in it (otherwise copersonid isn't set)
                               || ($roles['copersonid'] && $this->Role->isApprover($roles['copersonid']));
@@ -1666,9 +1673,10 @@ class AppController extends Controller {
     // XXX CO-2550, CO-2600
     if(is_array($url)) {
       foreach ($url as $field => $value) {
-        if(strpos($field, "search.") !== false
-           && strpos($value, "/") !== false) {
-          $url[$field] = str_replace("/", urlencode("/"), $value);
+        if(strpos($field, "search.") !== false) {
+          $searchterm = str_replace("/", urlencode("/"), $value);
+          $searchterm = str_replace(" ", urlencode(" "), $searchterm);
+          $url[$field] = $searchterm;
         }
       }
     }

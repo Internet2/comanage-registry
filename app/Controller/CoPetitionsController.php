@@ -2746,7 +2746,9 @@ class CoPetitionsController extends StandardController {
     foreach($coperson_alias_mapping as $search_field => $class) {
       if(!empty($this->params['named'][$search_field]) ) {
         $searchterm = $this->params['named'][$search_field];
-        $searchterm = strtolower(str_replace(urlencode("/"), "/", $searchterm));
+        $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+        $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+        $searchterm = trim(strtolower($searchterm));
         $pagcond['conditions']['AND'][] = array(
           'OR' => array(
             'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
@@ -2792,9 +2794,22 @@ class CoPetitionsController extends StandardController {
        && !$this->Role->identifierIsCmpAdmin($username)) {
       // approverFor will return groups even for a CO/COU admin, so don't check it for admins
       $efs = $this->Role->approverFor($coPersonId);
-      
-      if(!empty($efs)) {
-        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $efs;
+      $efs_approver_group_cou = $this->Role->approverForEnrollmentFlow($coPersonId, true);
+      $efs_approver_group_co = $this->Role->approverForEnrollmentFlow($coPersonId);
+
+      $all_efs = array_unique(array_merge($efs, $efs_approver_group_co, $efs_approver_group_cou));
+
+      $roles = $this->Role->calculateCMRoles();
+      if($roles['couapprover'] && !$roles['coapprover']) {
+        $pagcond['conditions']['CoPetition.cou_id'] = $this->CoPetition
+                                                           ->Co
+                                                           ->Cou
+                                                           ->approverForCouList($coPersonId);
+      }
+
+
+      if(!empty($all_efs)) {
+        $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $all_efs;
       } else {
         // We shouldn't normally get here, as isAuthorized should filter anyone without
         // an approval role, but just in case we'll insert an invalid ID that won't ever match
@@ -2895,6 +2910,14 @@ class CoPetitionsController extends StandardController {
         'action'      => 'view',
         $this->request->params['pass'][0]
       ));
+    } elseif($this->action == "petitionerAttributes"
+      && $this->request->method() == "POST") {
+      $this->redirect(array(
+                        'plugin'     => $this->request->params["plugin"], // XXX We support plugins
+                        'controller' => $this->request->params["controller"],
+                        'action'     => $this->request->params["action"],
+                        $this->request->data['CoPetition']['id'])
+      );
     } elseif($this->viewVars['permissions']['index']) {
       // For admins, return to the list of petitions pending approval. For admins,
       // this is probably where they'll want to go. For others, they probably won't

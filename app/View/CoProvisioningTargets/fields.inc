@@ -71,7 +71,9 @@
 <?php if(empty($plugins)): ?>
 <div class="co-info-topbox">
   <em class="material-icons">info</em>
-  <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.plugin.none', array(_txt('ct.co_provisioning_targets.pl'))); ?>
+  </div>
 </div>
 <?php else: /* plugins */ ?>
 <ul id="<?php print $this->action; ?>_co_provisioning_target" class="fields form-list">
@@ -168,7 +170,7 @@
         <li>
           <div class="field-name">
             <div class="field-title">
-              <?php print ($e ? $this->Form->label('requeue_interval', _txt('fd.job.retry_interval')) : _txt('fd.job.retry_interval')); ?>
+              <?php print ($e ? $this->Form->label('retry_interval', _txt('fd.job.retry_interval')) : _txt('fd.job.retry_interval')); ?>
             </div>
             <div class="field-desc"><?php print _txt('fd.prov.retry_interval.desc'); ?></div>
           </div>
@@ -176,6 +178,19 @@
             <?php print ($e
                          ? $this->Form->input('retry_interval')
                          : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['retry_interval'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+          </div>
+        </li>
+        <li>
+          <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('max_retry', _txt('fd.job.max_retry')) : _txt('fd.job.max_retry')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.prov.max_retry.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php print ($e
+                         ? $this->Form->input('max_retry')
+                         : filter_var($co_provisioning_targets[0]['CoProvisioningTarget']['max_retry'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
           </div>
         </li>
       </ul>

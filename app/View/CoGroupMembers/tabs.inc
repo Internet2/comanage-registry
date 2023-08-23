@@ -66,7 +66,15 @@
       <li class="nav-item">
         <?php
           // Group memberships
-          print '<span class="nav-link active">' . _txt('me.members') . '</span>';
+          print '<span class="nav-link active">'
+                . _txt('me.members')
+                . $this->Badge->badgeIt(
+                  $vv_group_members_count ?? $this->Paginator->counter('{:count}'),
+                  $this->Badge->getBadgeColor('Light'),
+                  false,
+                  false,
+                  array('ml-1', 'border-0'))
+                . '</span>';
         ?>
       </li>
 

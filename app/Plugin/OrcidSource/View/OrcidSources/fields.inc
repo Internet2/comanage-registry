@@ -63,8 +63,10 @@
 ?>
 <?php if(empty($vv_servers)): ?>
 <div class="co-info-topbox">
-  <i class="material-icons">info</i>
-  <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::Oauth2Server))); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('er.server.none', array(_txt('en.server', null, ServerEnum::Oauth2Server))); ?>
+  </div>
 </div>
 <?php else: // vv_servers ?>
 <ul id="<?php print $this->action; ?>_orcid_source" class="fields form-list">

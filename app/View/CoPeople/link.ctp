@@ -101,8 +101,10 @@
 <?php else: ?>
 <div class="co-info-topbox">
  <?php endif; ?>
-  <em class="material-icons mr-1">info</em>
-  <?php print _txt('op.link.confirm'); ?>
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('op.link.confirm'); ?>
+  </div>
 </div>
 <div class="innerContent">
   <ul>

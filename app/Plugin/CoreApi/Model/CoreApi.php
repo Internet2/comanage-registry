@@ -46,11 +46,12 @@ class CoreApi extends AppModel {
   //    Currently the dot character is not a valid character for a PHP variable name. So co_person.status
   //    will be transformed to co_person_status.
   // XXX We are making the convention that the field will be placed last and will be a single word
-  private $allowed_query_params = array(
+  protected $allowed_query_params = array(
     'limit' => array('integer' => array('range' => array(1, 1001))),
     'direction' => array('string' => array('inList' => array(array('asc' , 'desc')))),
     'page'  => array('integer' => array('comparison' => array('>=', 1))),
     'co_person_status' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
+    'organization_type' => array('string' => array('custom' => array('/^[A-Za-z]{1,10}$/'))),
     // XXX For consistency, even if we do not have a custom rule the string has to be followed by an empty array
     'identifier' => array('string' => array()),
   );
@@ -124,8 +125,13 @@ class CoreApi extends AppModel {
     ),
     'api' => array(
       'content' => array(
-        'rule' => array('inList', array(CoreApiEnum::CoPersonRead,
-                                        CoreApiEnum::CoPersonWrite,
+        'rule' => array('inList', array(CoreApiEnum::PetitionRead,
+                                        CoreApiEnum::PersonRead,
+                                        CoreApiEnum::PersonWrite,
+                                        CoreApiEnum::OrganizationRead,
+                                        CoreApiEnum::OrganizationWrite,
+                                        CoreApiEnum::DepartmentRead,
+                                        CoreApiEnum::DepartmentWrite,
                                         CoreApiEnum::MatchCallback)),
         'required' => true,
         'allowEmpty' => false
@@ -158,7 +164,7 @@ class CoreApi extends AppModel {
       return false;
     }
 
-    $person_core_api_keys = array(CoreApiEnum::CoPersonRead, CoreApiEnum::CoPersonWrite);
+    $person_core_api_keys = array(CoreApiEnum::PersonRead, CoreApiEnum::PersonWrite);
     if(!in_array($this->data['CoreApi']["api"], $person_core_api_keys)) {
       $this->validate["index_response_type"]["content"]["required"] = false;
       $this->validate["index_response_type"]["content"]["allowEmpty"] = true;
@@ -181,286 +187,6 @@ class CoreApi extends AppModel {
             'controller' => "core_apis",
             'action'     => "index"))
     );
-  }
-
-  /**
-   * Create a new CO Person record
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param integer  $coId     CO ID
-   * @param array    $reqData  Array of request data
-   * @param integer  $actorApiUserId  Core API User ID making the request
-   * @throws InvalidArgumentException
-   * @throws RuntimeException
-   */
-  public function createV1($coId, $reqData, $actorApiUserId) {
-    // Start a transaction
-    $dbc = $this->getDataSource();
-    $dbc->begin();
-
-    if(empty($reqData)) {
-      // This probably means JSON failed to parse, or that the Content-Type
-      // header is NOT application/json
-      throw new InvalidArgumentException(_txt('er.coreapi.json'));
-    }
-
-    try {
-      // This is somewhat similar to OrgIdentitySource and CoPipeline
-
-      $co_person_id = null;
-      foreach(array('CoPerson') as $model) {
-        $co_person_id = $this->upsertRecord($coId,
-                                            null,
-                                            $this->Co->$model,
-                                            $reqData[$model],
-                                            null,
-                                            'co_id',
-                                            $coId,
-                                            $actorApiUserId);
-      }
-
-      // Related models are multi-valued, start with OrgIdentity on its own,
-      // since it actually has a parent key of CO in the current data model.
-
-      foreach(array('OrgIdentity') as $model) {
-        $accessedRecords[$model] = array();
-
-        if(!empty($reqData[$model])) {
-          foreach($reqData[$model] as $m) {
-            $recordId = $this->upsertRecord($coId,
-                                            $co_person_id,
-                                            $this->Co->$model,
-                                            $m,
-                                            null,
-                                            'co_id',
-                                            $coId,
-                                            $actorApiUserId);
-
-            // Track that we've seen this record
-            $accessedRecords[$model][$recordId] = $m;
-
-            // We also need to insert a new CoOrgIdentityLink.
-            $this->linkOrgIdentity($co_person_id, $recordId, $actorApiUserId);
-          }
-        }
-      }
-
-      foreach(array('CoGroupMember',
-                // CoPersonRole here (and OrgIdentity above) will only process
-                // the top level record. We'll handle related models below.
-                'CoPersonRole',
-                'EmailAddress',
-                'Identifier',
-                'Name',
-                // In the current data model, OrgIdentity actually has CO
-                // as a parent (though this will change)
-                //'OrgIdentity',
-                'Url') as $model) {
-        $accessedRecords[$model] = array();
-
-        if(!empty($reqData[$model])) {
-          foreach($reqData[$model] as $m) {
-            $recordId = $this->upsertRecord($coId,
-                                            $co_person_id,
-                                            $this->Co->CoPerson->$model,
-                                            $m,
-                                            null,
-                                            'co_person_id',
-                                            $co_person_id,
-                                            $actorApiUserId);
-            // Track that we've seen this record, for checking what to delete
-            $accessedRecords[$model][$recordId] = $m;
-          }
-        }
-      }
-
-      // Next handle related models for CoPersonRole and OrgIdentity.
-
-      $related = array(
-        'CoPersonRole' => array(
-          'Address',
-          'AdHocAttribute',
-          'TelephoneNumber'
-        ),
-        'OrgIdentity' => array(
-          'Address',
-          'AdHocAttribute',
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'TelephoneNumber'
-        )
-      );
-
-      foreach($related as $parentModel => $relatedModels) {
-        // We use the $accessedRecords version rather than $reqData because it will
-        // have newly created parent keys (eg: for a CO Person Role that was
-        // added during this operation).
-
-        if(!empty($accessedRecords[$parentModel])) {
-          foreach($accessedRecords[$parentModel] as $id => $accessed) {
-            if($parentModel == 'OrgIdentity') {
-              // Skip read-only Org Identities
-              if($this->Co->OrgIdentity->readOnly($id)) {
-                continue;
-              }
-            }
-
-            foreach($relatedModels as $model) {
-              // While there can be multiple associated models across multiple roles,
-              // $current will have them attached to each role. Thus, we can track
-              // $accessedIds on a per-role basis, as opposed to across all roles.
-
-              $accessedIds = array();
-
-              if(!empty($accessed[$model])) {
-                foreach($accessed[$model] as $m) {
-                  $accessedIds[] = $this->upsertRecord($coId,
-                                                       $co_person_id,
-                                                       // We just need the associated model, it
-                                                       // doesn't matter how we got there so we
-                                                       // use OrgIdentity since it is the superset
-                                                        $this->Co->OrgIdentity->$model,
-                                                        $m,
-                                                        null,
-                                                        Inflector::underscore($parentModel).'_id',
-                                                        $id,
-                                                        $actorApiUserId);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Assign Identifiers
-      // Disable provisioning since we will bulk provision at the end
-      // This will return an array describing which, if any, identifiers were assigned,
-      // but we don't do anything with the result here
-      $this->Co->CoPerson->Identifier->assign('CoPerson', $co_person_id, null, false, $actorApiUserId);
-
-      // Handle plugin models
-      $plugins = $this->loadApiPlugins();
-
-      foreach(array_keys($plugins) as $pluginName) {
-        if(!empty($plugins[$pluginName]['permittedModels'])) {
-          foreach($plugins[$pluginName]['permittedModels'] as $model) {
-            // Note we're not checking here that the plugin is instantiated.
-            // As a proxy for that, we'll use $current[$model] since that is
-            // based on instantiations. (If we don't get back at least an empty
-            // $model, then the plugin is not instantiated.)
-            if(isset($reqData[$model])) {
-              $pModel = ClassRegistry::init($pluginName . "." . $model);
-              $authenticator_fk = Inflector::underscore($pluginName) . '_id';
-
-              if(!empty($reqData[$model])) {
-                foreach($reqData[$model] as $m) {
-                  // The CoreAPI client has to provide the authenticator foreign key in order
-                  // for the record to be saved.
-                  if(!empty($m[$authenticator_fk])) {
-                    $recordId = $this->upsertRecord($coId,
-                                                    $co_person_id,
-                                                    $pModel,
-                                                    $m,
-                                                    $reqData[$model],
-                                                    'co_person_id',
-                                                    $co_person_id,
-                                                    $actorApiUserId);
-                    $accessedRecords[$model][$recordId] = $m;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      $dbc->commit();
-
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
-      // Return the identifier
-      return $accessedRecords["Identifier"];
-    }
-    catch(Exception $e) {
-      $dbc->rollback();
-      $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
-      throw new RuntimeException($e->getMessage(), $ecode);
-    }
-  }
-
-  /**
-   * Transition CO Person to status delete. This implies that all CO Person Roles
-   * will be transitioned to status deleted as well
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param  integer $coId           CO ID
-   * @param  string  $identifier     Identifier to query
-   * @param  string  $identifierType Identifier type
-   * @return void
-   */
-  public function deleteV1($coId, $identifier, $identifierType) {
-    // Start a transaction
-    $dbc = $this->getDataSource();
-    $dbc->begin();
-
-    try {
-      // Start by trying to retrieve the current record. This will throw an error
-      // if not found
-
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
-
-      if(empty($current['CoPerson']['id'])) {
-        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
-      }
-
-      // If the CO Person has no Role
-      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
-         && empty($current["CoPersonRole"])) {
-        // Clear here and below in case we're run in a loop
-        $person_data = array(
-          'id'      => $current['CoPerson']['id'],
-          'co_id'   => $coId,   // Required field
-          'status'  => StatusEnum::Deleted
-        );
-        $this->Co->CoPerson->clear();
-        if(!$this->Co->CoPerson->save($person_data, array('provision' => false))) {
-          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
-        }
-      }
-
-      // If the CO Person has at least one Role
-      if($current["CoPerson"]["status"] !== StatusEnum::Deleted
-         && !empty($current["CoPersonRole"])) {
-        $values = array();
-        foreach($current["CoPersonRole"] as $role) {
-          // Unless we do not provide the required fields the model validation will fail
-          $values[] = array(
-            'id'           => $role['id'],
-            'co_person_id' => $role['co_person_id'],   // Required field
-            'affiliation'  => $role['affiliation'],    // Required field
-            'status'       => StatusEnum::Deleted
-          );
-        }
-
-        $this->Co->CoPerson->CoPersonRole->clear();
-        // Disable Model validation. We do not provide co_person_id and affiliation which are required
-        if(!$this->Co->CoPerson->CoPersonRole->saveMany($values, array('provision' => false))) {
-          throw new RuntimeException(_txt('er.db.save-a', array('CoPerson')));
-        }
-      }
-
-      // Commit all changes to the databases
-      $dbc->commit();
-
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
-    }
-    catch(Exception $e) {
-      $dbc->rollback();
-      $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
-      throw new RuntimeException($e->getMessage(), $ecode);
-    }
   }
 
   /**
@@ -541,33 +267,39 @@ class CoreApi extends AppModel {
   }
 
   /**
-   * This is a wrapper around CoPerson->expunge. Regardless of its status the CoPerson
-   * will be expunged
+   * Delete record
    *
    * @since  COmanage Registry v4.1.0
-   * @param  integer $coId               CO ID
-   * @param  string  $identifier         Identifier to query
-   * @param  string  $identifierType     Identifier type
-   * @param  integer $actorApiUserId Identifier of CO Person performing expunge
-   * @return boolean True on success
-   * @throws InvalidArgumentException
+   * @param  integer $coId           CO ID
+   * @param  string  $identifier     Identifier to query
+   * @param  string  $identifierType Identifier type
+   * @return void
    */
-  public function expungeV1($coId, $identifier, $identifierType, $actorApiUserId) {
+  public function deleteV1($coId, $identifier, $identifierType) {
+    $modelMapperName = $this->mapper;
+    // Start a transaction
+    $dbc = $this->Co->$modelMapperName->getDataSource();
+    $dbc->begin();
+
     try {
       // Start by trying to retrieve the current record. This will throw an error
       // if not found
+      $current = $this->pullRecord($coId, $identifier, $identifierType);
 
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
-
-      if(empty($current['CoPerson']['id'])) {
-        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      if(empty($current[$modelMapperName]['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.notfound', array($modelMapperName)));
       }
 
-      return $this->Co->CoPerson->expunge($current['CoPerson']['id'],
-                                          null,
-                                          $actorApiUserId);
+      // Delete the record
+      $ret = $this->Co->$modelMapperName->delete($current[$modelMapperName]['id'], true);
+
+      // Commit all changes to the databases
+      $dbc->commit();
+
+      return $ret;
     }
     catch(Exception $e) {
+      $dbc->rollback();
       $ecode = ($e->getCode() !== null) ? $e->getCode() : -1;
       throw new RuntimeException($e->getMessage(), $ecode);
     }
@@ -604,6 +336,7 @@ class CoreApi extends AppModel {
                                   // MVPA keys
                                   'co_department_id',
                                   'co_person_id',
+                                  'co_person_role_id',
                                   'org_identity_id',
                                   'organization_id',
                                   'source_ad_hoc_attribute_id',
@@ -613,6 +346,7 @@ class CoreApi extends AppModel {
                                   'source_name_id',
                                   'source_org_identity_id',
                                   'source_telephone_number_id',
+                                  'source_url_id',
                                   $mfk))) {
         // Skip metadata that might have been included in the record, along
         // with mvpa foreign keys which are frozen, and will be re-inserted by
@@ -655,7 +389,7 @@ class CoreApi extends AppModel {
         foreach($a as $k => $v) {
           if(is_array($v)) {
             // Related model
-            if(is_integer($k)) {
+            if(is_int($k)) {
               // HasMany
               $f = $this->filterMetadataOutbound(array($k => $v), $m);
               $newa[$k] = $f[$k];
@@ -671,13 +405,23 @@ class CoreApi extends AppModel {
                                       'id',
                                       'modified',
                                       'revision',
+                                      'co_person_role_id',
                                       'source_ad_hoc_attribute_id',
+                                      'source_url_id',
                                       'source_address_id',
                                       'source_email_address_id',
                                       'source_identifier_id',
                                       'source_name_id',
                                       'source_org_identity_id',
                                       'source_telephone_number_id',
+                                      'enrollee_org_identity_id',
+                                      'archived_org_identity_id',
+                                      'enrollee_co_person_id',
+                                      'enrollee_co_person_role_id',
+                                      'petitioner_co_person_id',
+                                      'sponsor_co_person_id',
+                                      'approver_co_person_id',
+                                      'co_invite_id',
                                       $mfk))
                    || ($modelName != 'CoGroupMember' && $k == 'co_group_id')) {
             // Move the value to metadata
@@ -848,6 +592,48 @@ class CoreApi extends AppModel {
   }
 
   /**
+   * Perform a Read API v1 request.
+   *
+   * @since  COmanage Registry v4.0.0
+   * @param  integer $coId           CO ID
+   * @param  string  $identifier     Identifier to search on
+   * @param  string  $identifierType Identifier type
+   * @return array                   Array of data
+   * @throws InvalidArgumentException
+   */
+
+  public function readV1($coId, $identifier, $identifierType) {
+    // First try to map the requested information to a CO Person record.
+    // This is similar to CoPerson::idsForIdentifier, but that has some old
+    // legacy code we want to avoid.
+
+    $rec = $this->filterMetadataOutbound($this->pullRecord($coId, $identifier, $identifierType), $this->mapper);
+
+    return $rec;
+  }
+
+  /**
+   * Perform a CO Read API v1 request.
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  integer $coId           CO ID
+   * @param  array   $records        Paginators Query Result Set
+   * @return array                   Array of data
+   * @throws InvalidArgumentException
+   */
+
+  public function readV1Index($coId, $records) {
+    $obj_index = array();
+    foreach ($records as $record) {
+
+      $obj = $this->filterMetadataOutbound($record, $this->mapper);
+      $obj_index[] = $obj;
+    }
+
+    return $obj_index;
+  }
+
+  /**
    * Parse query parameters
    *
    * @since  COmanage Registry v4.1.0
@@ -880,145 +666,7 @@ class CoreApi extends AppModel {
     return $queryParamsNew;
   }
 
-  /**
-   * Pull a CO Person record, including associated models.
-   *
-   * @since  COmanage Registry v4.0.0
-   * @param  integer $coId           CO ID
-   * @param  string  $identifier     Identifier to query
-   * @param  string  $identifierType Identifier type
-   * @return array                   Array of CO Person data
-   * @throws InvalidArgumentException
-   * @todo This probably belongs in CoPerson.php
-   */
-  
-  protected function pullCoPerson($coId, $identifier, $identifierType) {
-    $args = array();
-    $args['conditions']['Identifier.identifier'] = $identifier;
-    $args['conditions']['Identifier.type'] = $identifierType;
-    $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
-    $args['conditions']['CoPerson.co_id'] = $coId;
-// We allow people of any status to be pulled, though maybe we could offer a filter
-//    $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
-    $args['joins'][0]['table'] = 'identifiers';
-    $args['joins'][0]['alias'] = 'Identifier';
-    $args['joins'][0]['type'] = 'INNER';
-    $args['joins'][0]['conditions'][0] = 'Identifier.co_person_id=CoPerson.id';
-    // While we're here pull the data we need
-    $args['contain'] = array(
-      'CoPersonRole' => array(
-        'Address',
-        'AdHocAttribute',
-        'TelephoneNumber'
-      ),
-      'CoGroupMember',
-      'CoOrgIdentityLink' => array(
-        'OrgIdentity' => array(
-          'Address',
-          'AdHocAttribute',
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'TelephoneNumber',
-          'Url'
-        ),
-      ),
-      'EmailAddress',
-      'Identifier',
-      'Name',
-      'Url'
-    );
-    
-    // find('first') won't result in two records, though if identifier is not
-    // unique it's non-deterministic as to which record we'll retrieve.
-    
-    $cop = $this->Co->CoPerson->find('first', $args);
-    
-    if(empty($cop)) {
-      throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.identifiers.1'), filter_var($identifier,FILTER_SANITIZE_SPECIAL_CHARS))));
-    }
-    
-    // Promote OrgIdentity to top level. This interface doesn't permit relinking
-    // identities, and in v5 CoOrgIdentityLink goes away anyway.
-    
-    if(!empty($cop['CoOrgIdentityLink'])) {
-      foreach($cop['CoOrgIdentityLink'] as $link) {
-        if(!empty($link['OrgIdentity'])) {
-          $cop['OrgIdentity'][] = $link['OrgIdentity'];
-        }
-      }
-    }
-    
-    unset($cop['CoOrgIdentityLink']);
-    
-    // We need to manually pull Authenticator and Cluster data.
-    $cop = array_merge($cop, $this->Co->Authenticator->marshallProvisioningData($coId, $cop['CoPerson']['id']));
-    $cop = array_merge($cop, $this->Co->Cluster->marshallProvisioningData($coId, $cop['CoPerson']['id'], false));
-    
-    return $cop;
-  }
-  
-  /**
-   * Perform a CO Person Read API v1 request.
-   *
-   * @since  COmanage Registry v4.0.0
-   * @param  integer $coId           CO ID
-   * @param  string  $identifier     Identifier to search on
-   * @param  string  $identifierType Identifier type
-   * @return array                   Array of CO Person data
-   * @throws InvalidArgumentException
-   */
-  
-  public function readV1($coId, $identifier, $identifierType) {
-    // First try to map the requested information to a CO Person record.
-    // This is similar to CoPerson::idsForIdentifier, but that has some old
-    // legacy code we want to avoid.
-    
-    $cop = $this->filterMetadataOutbound($this->pullCoPerson($coId, $identifier, $identifierType), "CoPerson");
-    
-    return $cop;
-  }
 
-  /**
-   * Perform a CO People Read API v1 request.
-   *
-   * @since  COmanage Registry v4.1.0
-   * @param  integer $coId           CO ID
-   * @param  array   $co_people      Paginators Query Result Set
-   * @return array                   Array of CO People data
-   * @throws InvalidArgumentException
-   */
-
-  public function readV1Index($coId, $co_people) {
-    // First try to map the requested information to a CO Person record.
-    // This is similar to CoPerson::idsForIdentifier, but that has some old
-    // legacy code we want to avoid.
-
-    $cop_index = array();
-    foreach ($co_people as $person) {
-      // Promote OrgIdentity to top level. This interface doesn't permit relinking
-      // identities, and in v5 CoOrgIdentityLink goes away anyway.
-
-      if(!empty($person['CoOrgIdentityLink'])) {
-        foreach($person['CoOrgIdentityLink'] as $link) {
-          if(!empty($link['OrgIdentity'])) {
-            $person['OrgIdentity'][] = $link['OrgIdentity'];
-          }
-        }
-      }
-
-      unset($person['CoOrgIdentityLink']);
-
-      // We need to manually pull Authenticator and Cluster data.
-      $person = array_merge($person, $this->Co->Authenticator->marshallProvisioningData($coId, $person['CoPerson']['id']));
-      $person = array_merge($person, $this->Co->Cluster->marshallProvisioningData($coId, $person['CoPerson']['id'], false));
-
-      $cop = $this->filterMetadataOutbound($person, "CoPerson");
-      $cop_index[] = $cop;
-    }
-
-    return $cop_index;
-  }
 
   /**
    * Perform an "upsert" of a potentially multi-valued model.
@@ -1163,14 +811,16 @@ class CoreApi extends AppModel {
         $orgId = $parentValue;
       }
 
-      $this->Co->CoPerson->HistoryRecord->record($coPersonId,
-                                                 $roleId,
-                                                 $orgId,
-                                                 null,
-                                                 ActionEnum::CoPersonEditedApi,
-                                                 _txt('pl.coreapi.rs.edited-a4', array(_txt("ct.$table.1"), $cstr)),
-                                                 null, null, null,
-                                                 $actorApiUserId);
+      if(in_array($modelName, array('CoPersonRole', 'OrgIdentity', 'CoPerson'))) {
+        $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                   $roleId,
+                                                   $orgId,
+                                                   null,
+                                                   ActionEnum::CoPersonEditedApi,
+                                                   _txt('pl.coreapi.rs.edited-a4', array(_txt("ct.$table.1"), $cstr)),
+                                                   null, null, null,
+                                                   $actorApiUserId);
+      }
     }
     
     return $id;
@@ -1191,8 +841,9 @@ class CoreApi extends AppModel {
    */
   
   public function upsertV1($coId, $identifier, $identifierType, $reqData, $actorApiUserId) {
+    $modelMapperName = $this->mapper;
     // Start a transaction
-    $dbc = $this->getDataSource();
+    $dbc = $this->Co->$modelMapperName->getDataSource();
     $dbc->begin();
     
     if(empty($reqData)) {
@@ -1213,29 +864,28 @@ class CoreApi extends AppModel {
       // We'll also use the same storage for determining which records to delete.
       $seenRecords = array();
       
-      $current = $this->pullCoPerson($coId, $identifier, $identifierType);
+      $current = $this->pullRecord($coId, $identifier, $identifierType);
       
-      if(empty($current['CoPerson']['id'])) {
-        throw new InvalidArgumentException(_txt('er.coreapi.coperson'));
+      if(empty($current[$modelMapperName]['id'])) {
+        throw new InvalidArgumentException(_txt('er.coreapi.record', array($modelMapperName)));
       }
       
       // This is somewhat similar to OrgIdentitySource and CoPipeline
-      
-      foreach(array('CoPerson') as $model) {
-        $this->upsertRecord($coId,
-                            $current['CoPerson']['id'],
-                            $this->Co->$model, 
-                            $reqData[$model], 
-                            array($current[$model]),
-                            'co_id',
-                            $coId,
-                            $actorApiUserId);
-      }
+      $this->upsertRecord($coId,
+                          $current[$modelMapperName]['id'],
+                          $this->Co->$modelMapperName,
+                          $reqData[$modelMapperName],
+                          array($current[$modelMapperName]),
+                          'co_id',
+                          $coId,
+                          $actorApiUserId);
       
       // Related models are multi-valued, start with OrgIdentity on its own,
       // since it actually has a parent key of CO in the current data model.
-      
-      foreach(array('OrgIdentity') as $model) {
+
+      // XXX OrgIdentity only for CoPerson
+      if($modelMapperName == "CoPerson") {
+        $model = 'OrgIdentity';
         $seenRecords[$model] = array();
 
         if(!empty($reqData[$model])) {
@@ -1276,17 +926,7 @@ class CoreApi extends AppModel {
                              $actorApiUserId);
       }
 
-      foreach(array('CoGroupMember', 
-                    // CoPersonRole here (and OrgIdentity above) will only process
-                    // the top level record. We'll handle related models below.
-                    'CoPersonRole',
-                    'EmailAddress',
-                    'Identifier',
-                    'Name',
-                    // In the current data model, OrgIdentity actually has CO
-                    // as a parent (though this will change)
-                    //'OrgIdentity',
-                    'Url') as $model) {
+      foreach($this->associated_models as $model) {
         $seenRecords[$model] = array();
         
         if(!empty($reqData[$model])) {
@@ -1303,12 +943,12 @@ class CoreApi extends AppModel {
             }
             
             $recordId = $this->upsertRecord($coId,
-                                            $current['CoPerson']['id'], 
-                                            $this->Co->CoPerson->$model,
+                                            $current[$modelMapperName]['id'],
+                                            $this->Co->$modelMapperName->$model,
                                             $m,
                                             (!empty($current[$model]) ? $current[$model] : array()),
-                                            'co_person_id',
-                                            $current['CoPerson']['id'],
+                                            Inflector::underscore($modelMapperName).'_id',
+                                            $current[$modelMapperName]['id'],
                                             $actorApiUserId);
             
             // Track that we've seen this record, for checking what to delete
@@ -1317,8 +957,8 @@ class CoreApi extends AppModel {
         }
         
         // See if any of the current entries were omitted, if so delete them
-        $this->deleteOmitted($current['CoPerson']['id'], 
-                             $this->Co->CoPerson->$model,
+        $this->deleteOmitted($current[$modelMapperName]['id'],
+                             $this->Co->$modelMapperName->$model,
                              (!empty($current[$model]) ? $current[$model] : array()),
                              array_keys($seenRecords[$model]),
                              $actorApiUserId);
@@ -1326,23 +966,7 @@ class CoreApi extends AppModel {
       
       // Next handle related models for CoPersonRole and OrgIdentity.
       
-      $related = array(
-        'CoPersonRole' => array(
-          'Address',
-          'AdHocAttribute',
-          'TelephoneNumber'
-        ),
-        'OrgIdentity' => array(
-          'Address',
-          'AdHocAttribute',
-          'EmailAddress',
-          'Identifier',
-          'Name',
-          'TelephoneNumber'
-        )
-      );
-      
-      foreach($related as $parentModel => $relatedModels) {
+      foreach($this->related_models as $parentModel => $relatedModels) {
         // Note at this point we've validated CoPersonRole['meta']['id'] and
         // OrgIdentity['meta']['id'], since if the request included an invalid
         // foreign key upsertRecord would have thrown an error.
@@ -1373,10 +997,12 @@ class CoreApi extends AppModel {
               if(!empty($seen[$model])) {
                 foreach($seen[$model] as $m) {
                   $seenIds[] = $this->upsertRecord($coId,
-                                                   $current['CoPerson']['id'], 
+                                                   $current[$modelMapperName]['id'],
                                                    // We just need the associated model, it
                                                    // doesn't matter how we got there so we
                                                    // use OrgIdentity since it is the superset
+                                                   // XXX Currently only the Person Model supports this
+                                                   //     So this will not break
                                                    $this->Co->OrgIdentity->$model,
                                                    $m,
                                                    $currentSet,
@@ -1388,7 +1014,7 @@ class CoreApi extends AppModel {
               
               if(!empty($seen[$model])) {
                 // See if any of the current entries were omitted, if so delete them
-                $this->deleteOmitted($current['CoPerson']['id'], 
+                $this->deleteOmitted($current[$modelMapperName]['id'],
                                      $this->Co->OrgIdentity->$model,
                                      // Note we're potentially passing in new related
                                      // models here, if we processed an entirely new
@@ -1410,8 +1036,11 @@ class CoreApi extends AppModel {
       // Disable provisioning since we will bulk provision at the end
       // This will return an array describing which, if any, identifiers were assigned,
       // but we don't do anything with the result here
-      $this->Co->CoPerson->Identifier->assign('CoPerson', $current['CoPerson']['id'], null, false, $actorApiUserId);
-      
+      // XXX Assigne Identifier only for CoPerson
+      if($modelMapperName == "CoPerson") {
+        $this->Co->CoPerson->Identifier->assign('CoPerson', $current['CoPerson']['id'], null, false, $actorApiUserId);
+      }
+
       // Handle plugin models (Authenticator, Cluster)
       
       $plugins = $this->loadApiPlugins();
@@ -1431,12 +1060,12 @@ class CoreApi extends AppModel {
               if(!empty($reqData[$model])) {
                 foreach($reqData[$model] as $m) {
                   $recordId = $this->upsertRecord($coId,
-                                                  $current['CoPerson']['id'], 
+                                                  $current[$modelMapperName]['id'],
                                                   $pModel,
                                                   $m,
                                                   $current[$model],
-                                                  'co_person_id',
-                                                  $current['CoPerson']['id'],
+                                                  Inflector::underscore($modelMapperName). '_id',
+                                                  $current[$modelMapperName]['id'],
                                                   $actorApiUserId);
                   
                   // Track that we've seen this record, for checking what to delete
@@ -1445,7 +1074,7 @@ class CoreApi extends AppModel {
               }
 
               // See if any of the current entries were omitted, if so delete them
-              $this->deleteOmitted($current['CoPerson']['id'], 
+              $this->deleteOmitted($current[$modelMapperName]['id'],
                                    $pModel,
                                    $current[$model],
                                    array_keys($seenRecords[$model]),
@@ -1457,8 +1086,13 @@ class CoreApi extends AppModel {
       
       $dbc->commit();
       
-      // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $current['CoPerson']['id'], null, ProvisioningActionEnum::CoPersonUpdated);
+      // Trigger provisioning if the action is allowed
+      if(defined("ProvisioningActionEnum::{$modelMapperName}Updated")) {
+        $this->Co->$modelMapperName->manualProvision(null,
+                                                     $current[$modelMapperName]['id'],
+                                                     null,
+                                                     constant("ProvisioningActionEnum::{$modelMapperName}Updated"));
+      }
     }
     catch(Exception $e) {
       $dbc->rollback();

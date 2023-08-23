@@ -159,6 +159,7 @@ class CoEnrollmentFlowsController extends StandardController {
       $args['conditions']['status'] = SuspendableStatusEnum::Active;
       $args['conditions']['context'] = array(
         MessageTemplateEnum::EnrollmentApproval,
+        MessageTemplateEnum::EnrollmentApprover,
         MessageTemplateEnum::EnrollmentFinalization,
         MessageTemplateEnum::EnrollmentVerification
       );
@@ -408,16 +409,18 @@ class CoEnrollmentFlowsController extends StandardController {
     $ret = array();
 
     // Enrollment Flow Name Name
-    $eof_name = isset($this->request->params['named']['search.eofName']) ? $this->request->params['named']['search.eofName'] : "";
+    $eof_name = $this->request->params['named']['search.eofName'] ?? "";
     // Enrollment Flow Status
-    $eof_status = isset($this->request->params['named']['search.eofStatus']) ? $this->request->params['named']['search.eofStatus'] : "";
+    $eof_status = $this->request->params['named']['search.eofStatus'] ?? "";
     // Enrollment Flow Authorization
-    $eof_authz = isset($this->request->params['named']['search.eofAuthz']) ? $this->request->params['named']['search.eofAuthz'] : "";
+    $eof_authz = $this->request->params['named']['search.eofAuthz'] ?? "";
 
     $ret['conditions']['CoEnrollmentFlow.co_id'] = $this->cur_co['Co']['id'];
     if(!empty($eof_name)) {
-      $eof_name = strtolower(str_replace(urlencode("/"), "/", $eof_name));
-      $ret['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%$eof_name%";
+      $searchterm = str_replace(urlencode("/"), "/", $eof_name);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
+      $ret['conditions']['LOWER(CoEnrollmentFlow.name) LIKE'] = "%$searchterm%";
     }
     if(!empty($eof_status)) {
       $ret['conditions']['CoEnrollmentFlow.status'] = $eof_status;

@@ -83,6 +83,12 @@ class CoSettingsController extends StandardController {
     $this->redirect(array('action' => 'edit', $settingId));
   }
 
+
+  /**
+   * Register GarbageCollector job
+   *
+   * @since  COmanage Registry v4.1.0
+   */
   public function job($id) {
     $this->Co = ClassRegistry::init('Co');
     // Get the delay interval from Platform Settings
@@ -107,7 +113,7 @@ class CoSettingsController extends StandardController {
           'object_type' => 'Co',
         ),
         0,                                // $delay (in seconds)
-        $interval                         // $requeueInterval (in seconds)
+        $interval*60                      // $requeueInterval (in seconds)
       );
 
       $this->Flash->set(_txt('rs.jb.registered', array($jobid)), array('key' => 'success'));

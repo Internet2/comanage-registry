@@ -65,6 +65,60 @@ class RoleComponent extends Component {
     // find() will return id => id with only one field specified, so just pull the keys
     return array_keys($efs);
   }
+
+  /**
+   * Determine what CO Enrollment Flows a CO Person may approve by being a member of
+   * the special approvers groups
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer CO Person ID
+   * @return Array List CO Enrollment Flow IDs
+   * @throws InvalidArgumentException
+   */
+  public function approverForEnrollmentFlow($coPersonId, $cou_level=false) {
+    if(!$coPersonId) {
+      return array();
+    }
+
+    // Use a join to pull enrollment flows where $coPersonId is in the Predefined COU approver group
+
+    $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+
+    $args = array();
+    $args['fields'][] = 'CoEnrollmentFlow.id';
+    $args['joins'][0]['table'] = 'co_petitions';
+    $args['joins'][0]['alias'] = 'CoPetition';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoEnrollmentFlow.id=CoPetition.co_enrollment_flow_id';
+    $args['joins'][1]['table'] = 'co_groups';
+    $args['joins'][1]['alias'] = 'CoGroup';
+    $args['joins'][1]['type'] = 'INNER';
+    if($cou_level) {
+      $args['joins'][1]['conditions'][0] = 'CoPetition.cou_id=CoGroup.cou_id';
+    } else {
+      $args['joins'][1]['conditions'][0] = 'CoPetition.co_id=CoGroup.co_id';
+      $args['joins'][1]['conditions'][1] = 'CoGroup.cou_id IS NULL';
+    }
+    $args['joins'][2]['table'] = 'co_group_members';
+    $args['joins'][2]['alias'] = 'CoGroupMember';
+    $args['joins'][2]['type'] = 'INNER';
+    $args['joins'][2]['conditions'][0] = 'CoGroupMember.co_group_id=CoGroup.id';
+    $args['conditions']['CoGroupMember.co_person_id'] = $coPersonId;
+    $args['conditions']['CoGroup.group_type'] = GroupEnum::Approvers;
+    $args['conditions'][] = 'CoGroupMember.co_group_member_id IS NULL';
+    $args['conditions'][] = 'CoPetition.co_petition_id IS NULL';
+    $args['conditions'][] = 'CoGroup.co_group_id IS NULL';
+    $args['conditions'][] = 'CoEnrollmentFlow.co_enrollment_flow_id IS NULL';
+    $args['conditions'][] = 'CoEnrollmentFlow.deleted IS NOT true';
+    $args['conditions'][] = 'CoPetition.deleted IS NOT true';
+    $args['conditions'][] = 'CoGroupMember.deleted IS NOT true';
+    $args['conditions'][] = 'CoGroup.deleted IS NOT true';
+    $args['contain'] = false;
+
+    $efs = $CoEnrollmentFlow->find('list', $args);
+
+    return array_keys($efs);
+  }
   
   /**
    * Determine what CO Enrollment Flows an Org Identity may approve. Note unlike
@@ -409,7 +463,9 @@ class RoleComponent extends Component {
     $ret = array(
       'cmadmin' => false,
       'coadmin' => false,
+      'coapprover' => false,
       'couadmin' => false,
+      'couapprover' => false,
       'admincous' => null,
       'comember' => false,
       'admin' => false,
@@ -544,7 +600,17 @@ class RoleComponent extends Component {
     if($this->Session->check('Auth.User.name')) {
       $ret['user'] = true;
     }
-    
+
+    // Is this user a CO or COU approver of the current CO?
+
+    if($ret['comember'] && $coPersonId) {
+      // Is the user a CO approver
+      $ret['coapprover'] = $this->isCoApprover($coPersonId);
+
+      // Is the user a COU approver
+      $ret['couapprover'] = $this->isCouApprover($coPersonId);
+    }
+
     return $ret;
   }
   
@@ -872,6 +938,8 @@ class RoleComponent extends Component {
     
     if($this->isCoOrCouAdmin($coPersonId, $coId)) {
       $ret = true;
+    } elseif ($this->isCoOrCouApprover($coPersonId, $coId)) {
+      $ret = true;
     } else {
       // Pull groups associated with enrollment flows in $coID
       
@@ -905,7 +973,19 @@ class RoleComponent extends Component {
   
   /**
    * Determine if a CO Person has the ability to approve petitions for the specified enrollment flow.
-   * 
+   *
+   *  (A) An approvers group is configured for the Enrollment Flow
+   *     (1) $coPersonId is a member of the approvers group
+   *  (B) No explicit approvers group is configured for the Enrollment Flow
+   *     (1) authz_cou_id is specified and $coPersonId is a COU admin for that COU
+   *     (2) A COU is attached to the petition and $coPersonId is a COU admin
+   *         (OR) A COU is attached to the petition and $coPersonId is a member of the COU-specific approvers group
+   *             (OR) the CO:approvers group
+   *     (3) No authz_cou_id is specified and $coPersonId is a COU admin
+   *         (OR) If no COU is attached to the petition and $coPersonId is a member of the CO:approvers group
+   *     (4) $coPersonId is a CO admin
+   *
+   *
    * @since  COmanage Registry v0.8.3
    * @param  Integer CO Person ID
    * @param  Integer CO Enrollment Flow ID
@@ -982,12 +1062,17 @@ class RoleComponent extends Component {
             
             if($couId) {
               // (3) A COU is attached to the petition and $coPersonId is a COU admin
-              
-              $ret = $this->isCouAdmin($coPersonId, $couId);
+              // (OR) a CO:approvers (OR) COU:foo:approvers group member
+
+              $ret = $this->isCouAdmin($coPersonId, $couId)
+                     || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id'])
+                     || $this->isCouApprover($coPersonId, $couId);
             } else {
               // (4) No authz_cou_id is specified and $coPersonId is a COU admin
-              
-              $ret = $this->isCouAdmin($coPersonId);
+              // (OR) a CO:approvers group member
+
+              $ret = $this->isCouAdmin($coPersonId)
+                     || $this->isCoApprover($coPersonId, $coEF['CoEnrollmentFlow']['co_id']);
             }
           }
         }
@@ -1024,7 +1109,30 @@ class RoleComponent extends Component {
     
     return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins);
   }
-  
+
+  /**
+   * Determine if a CO Person is a CO Approver.
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer CO Person ID
+   * @param  Integer CO ID that CO Person is an Admin for, or null for any CO
+   * @return Boolean True if the CO Person is a CO Approver, false otherwise
+   */
+
+  public function isCoApprover($coPersonId, $coId=null) {
+    // A person is a CO Approver if they are a member of the "approvers" group for the specified CO.
+
+    if($coId) {
+      // First check that $coPersonId is in $coId
+
+      if(!$this->isCoPerson($coPersonId, $coId)) {
+        return false;
+      }
+    }
+
+    return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers);
+  }
+
   /**
    * Determine if a CO Person is a CO Administrator for another CO Person.
    *
@@ -1108,7 +1216,41 @@ class RoleComponent extends Component {
     
     return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, true);
   }
-  
+
+  /**
+   * Determine if a CO Person is a CO or COU Approver.
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer CO Person ID
+   * @param  Integer CO ID that CO Person is an Approver for, or null for any CO
+   * @return Boolean True if the CO Person is a CO or COU Approver, false otherwise
+   */
+
+  public function isCoOrCouApprover($coPersonId, $coId=null) {
+    // A person is a CO Approver if they are a member of the GroupEnum::Approvers group for the specified CO.
+    // A person is a COU Approver if they are a member of the GroupEnum::Approvers group within any COU.
+
+    global $group_sep;
+
+    if($coId) {
+      // First check that $coPersonId is in $coId
+
+      if(!$this->isCoPerson($coPersonId, $coId)) {
+        return false;
+      }
+    }
+
+
+
+    // Is the CoPerson a CO::approver
+    if($this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers)) {
+      return true;
+    }
+
+    // Is the CoPerson a COU::approver for any COU
+    return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers, true);
+  }
+
   /**
    * Determine if a CO Person is a CO or COU Administrator for another CO Person.
    *
@@ -1276,7 +1418,54 @@ class RoleComponent extends Component {
       return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Admins, true);
     }
   }
-  
+
+  /**
+   * Determine if a CO Person is a COU Approver for a specified COU. Note this function
+   * will return false if CO Person is a CO Approver, but not a COU Approver.
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer CO Person ID
+   * @param  Integer COU ID, or NULL to determine if a COU Admin for any COU
+   * @return Boolean True if the CO Person is a COU Approver for the specified COU, false otherwise
+   */
+  public function isCouApprover($coPersonId, $couId=null) {
+    // A person is a COU Approver if they are a member of the "approver:COU Name" group within the specified CO,
+    // or a member of the approver group for any parent COU.
+
+    global $group_sep;
+
+    if($couId) {
+      $Cou = ClassRegistry::init('Cou');
+
+      // Get a listing of this COU and its parents.
+
+      $cous = $Cou->getPath($couId);
+
+      if(!empty($cous)) {
+        // This will be in order from the top of the tree down to $couId, but
+        // for our purposes it doesn't matter where we find the admin membership
+
+        foreach($cous as $c) {
+          if(!empty($c['Cou']['id'])
+            && $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers, $c['Cou']['id'])) {
+            return true;
+          }
+        }
+
+        // If we get here we've run out of things to check
+        return false;
+      } else {
+        // Just check the COU that we have
+        return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers, $couId);
+      }
+    } else {
+      // We don't need to walk the tree since we only care if a person is a COU Admin
+      // for *any* group, not which groups (which would require getting the child COUs).
+
+      return $this->cachedGroupCheck($coPersonId, "", "", null, false, GroupEnum::Approvers, true);
+    }
+  }
+
   /**
    * Determine if a CO Person is a COU Administrator for another CO Person.
    *
@@ -1336,6 +1525,41 @@ class RoleComponent extends Component {
   }
   
   /**
+   * Determine if a CO Person can approve membership to a CO Group.
+   *
+   * @since  COmanage Registry v4.2.0
+   * @param  Integer CO Person ID of potential approver
+   * @param  Integer CO Group ID
+   * @return Boolean True if the CO Person can approve membership to the CO Group, false otherwise
+   * @throws InvalidArgumentException
+   */
+
+  public function isGroupApprover($coPersonId, $coGroupId) {
+    if(!$coPersonId || !$coGroupId) {
+      return false;
+    }
+
+    // Check if the CoGroup is related to a cou or not
+    $CoGroup = ClassRegistry::init('CoGroup');
+    $args = array();
+    $args['conditions']['CoGroup.id'] = $coGroupId;
+    $args['contain'] = false;
+    $group = $CoGroup->find('first', $args);
+
+    $isCou = $CoGroup->isCouApproverGroup($group);
+
+    if($this->cachedGroupCheck($coPersonId, "", "", $coGroupId, true, null, $isCou)) {
+      return true;
+    }
+
+    // Pull the CO Group CO ID, then see if $coPersonId is an Approver
+
+    $coId = $this->cachedCoIdLookupByCoGroup($coGroupId);
+
+    return $this->isCoApprover($coPersonId, $coId);
+  }
+  
+  /**
    * Determine if a CO Person is can administer a CO Group.
    *
    * @since  COmanage Registry v0.8
@@ -1344,7 +1568,7 @@ class RoleComponent extends Component {
    * @return Boolean True if the CO Person can administer the CO Group, false otherwise
    * @throws InvalidArgumentException
    */
-  
+
   public function isGroupManager($coPersonId, $coGroupId) {
     if(!$coPersonId || !$coGroupId) {
       return false;
