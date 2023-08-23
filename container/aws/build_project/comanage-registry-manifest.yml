@@ -1,0 +1,39 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CodeBuild project for COmanage Registry manifest'
+
+Resources:
+  COmanageRegistryBuildProjectManifest:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: comanage-registry-manifest
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: container/aws/buildspec/aws_buildspec_manifest.yml
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        Type: LINUX_CONTAINER
+        Image: aws/codebuild/standard:7.0
+        ComputeType: BUILD_GENERAL1_SMALL
+        PrivilegedMode: True
+        ImagePullCredentialsType: CODEBUILD
+        EnvironmentVariables:
+          - Name: HUB_DOCKER_COM_TOKEN
+            Value: "{{resolve:secretsmanager:COmanageImagePipelineHubDockerComToken:SecretString:token}}"
+            Type: PLAINTEXT
+          - Name: GITHUB_COM_TOKEN
+            Value: "{{resolve:secretsmanager:COmanageImagePipelineGitHubOAuthToken:SecretString:token}}"
+            Type: PLAINTEXT
+      ServiceRole: arn:aws:iam::495649616520:role/CilogonBuildComanagePublicContainerImage
+      TimeoutInMinutes: 55
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: arn:aws:kms:us-east-2:495649616520:alias/aws/s3
+      BadgeEnabled: False
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+          GroupName: /aws/codebuild/comanage
+          StreamName: registry-manifest
