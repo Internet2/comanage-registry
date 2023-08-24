@@ -67,9 +67,11 @@ class SqlSource extends AppModel {
       // We need to constrain the table name here not just for SQL conformance
       // but because SqlSourceBackend will construct raw SQL queries using the
       // source_table name.
-      'rule' => '/^[a-zA-Z0-9\-\.]+$/',
+// Commit with PMO 1156
+      'rule' => '/^[a-zA-Z0-9_\-\.]+$/',
       'required' => true,
-      'allowEmpty' => false
+      'allowEmpty' => false,
+      'message' => 'Source Table Name must consist only of alphanumeric characters, dots, dashes, and underscores'
     ),
     'server_id' => array(
       'content' => array(

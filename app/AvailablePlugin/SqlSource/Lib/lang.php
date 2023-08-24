@@ -42,11 +42,9 @@ $cm_sql_source_texts['en_US'] = array(
     SqlSourceTableModeEnum::Relational  => 'Relational Tables'
   ),
   
-  /*
   // Error messages
-  'er.sqlsource.placeholder'    => 'Placeholder',
-  */
- 
+  'er.sqlsource.source_table'     => 'Source Table Name must consist only of alphanumeric characters, dots, dashes, and underscores',
+
   // Plugin texts
   'pl.sqlsource.source_table'     => 'Source Table',
   'pl.sqlsource.table_mode'       => 'Table Mode',

@@ -85,21 +85,27 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
       );
       
       // Introspect the inbound attributes
-      $SourceRecord = $this->getRecordModel();
-      
-      $columnTypes = $SourceRecord->getColumnTypes();
+      try {
+        $SourceRecord = $this->getRecordModel();
+
+        $columnTypes = $SourceRecord->getColumnTypes();
+      }
+      catch(MissingTableException $e) {
+        // If there is no AdHocAttribute table just return an empty array
+        return array();
+      }
       
       return array_diff(array_keys($columnTypes), $standardAttrs);
     } else {
       // In Relational mode, we pull the unique tags
       
-      $AdHoc = $this->getRecordModel('AdHocAttribute');
-      
-      $args = array();
-      $args['fields'] = 'DISTINCT '.$AdHoc->alias.'.tag';
-      $args['contain'] = false;
-      
       try {
+        $AdHoc = $this->getRecordModel('AdHocAttribute');
+        
+        $args = array();
+        $args['fields'] = 'DISTINCT '.$AdHoc->alias.'.tag';
+        $args['contain'] = false;
+        
         // find('list') would make more sense but because of the nature of our
         // query doesn't work so well
         $tags = $AdHoc->find('all', $args);
