@@ -19,6 +19,9 @@ phases:
   build:
     commands:
       - echo Build started on `date`
+      # Clone the repository
+      - git clone https://skoranda:$GITHUB_COM_TOKEN@github.com/Internet2/comanage-registry.git
+      - cd comanage-registry
       # Build all registry and crond images for AWS repository
       - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH registry all
       - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH crond

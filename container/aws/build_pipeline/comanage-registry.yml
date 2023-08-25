@@ -55,7 +55,7 @@ Resources:
                 Owner: AWS
                 Provider: CodeBuild
                 Version: 1
-              RunOrder: 3
+              RunOrder: 1
               Configuration:
                 ProjectName: comanage-registry-amd64
                 EnvironmentVariables: "[{\"name\":\"COMANAGE_REGISTRY_BUILD_NUMBER\",\"value\":\"#{BuildNumberVariables.CODEBUILD_BUILD_NUMBER}\",\"type\":\"PLAINTEXT\"}]"
@@ -69,7 +69,7 @@ Resources:
                 Owner: AWS
                 Provider: CodeBuild
                 Version: 1
-              RunOrder: 3
+              RunOrder: 1
               Configuration:
                 ProjectName: comanage-registry-arm64
                 EnvironmentVariables: "[{\"name\":\"COMANAGE_REGISTRY_BUILD_NUMBER\",\"value\":\"#{BuildNumberVariables.CODEBUILD_BUILD_NUMBER}\",\"type\":\"PLAINTEXT\"}]"
@@ -85,7 +85,7 @@ Resources:
                 Owner: AWS
                 Provider: CodeBuild
                 Version: 1
-              RunOrder: 4
+              RunOrder: 1
               Configuration:
                 ProjectName: comanage-registry-manifest
                 EnvironmentVariables: "[{\"name\":\"COMANAGE_REGISTRY_BUILD_NUMBER\",\"value\":\"#{BuildNumberVariables.CODEBUILD_BUILD_NUMBER}\",\"type\":\"PLAINTEXT\"}]"
