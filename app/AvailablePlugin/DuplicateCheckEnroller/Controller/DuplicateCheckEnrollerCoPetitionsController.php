@@ -70,7 +70,7 @@ class DuplicateCheckEnrollerCoPetitionsController extends CoPetitionsController 
     $this->set('vv_duplicate_account', $duplicate_account);
     $this->set('vv_petition_id', $id);
 
-    $remote_user = getenv($duplicate_account['DuplicateCheckEnroller']['env_remote_user']);
+    $remote_user = getenv($duplicate_account['DuplicateCheckEnroller']['env_remote_user'] ?? IdentifierEnum::ePPN);
 
     if(empty($remote_user)) {
       throw new RuntimeException(_txt('er.duplicate_check_enrollers.remote_user.notfound'));

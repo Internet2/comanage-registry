@@ -44,7 +44,7 @@ $cm_duplicate_check_enroller_texts['en_US'] = array(
 
   // Fields
   'fd.duplicate_check_enrollers.env_remote_user'          => 'Enviromental Variable',
-  'fd.duplicate_check_enrollers.env_remote_user.desc'     => 'Enviromental Variable used to save the REMOTE USER',
+  'fd.duplicate_check_enrollers.env_remote_user.desc'     => 'Enviromental Variable used to save the REMOTE USER, defaults to ePPN type',
   'fd.duplicate_check_enrollers.identifier_type'          => 'Identifier Type',
   'fd.duplicate_check_enrollers.identifier_type.desc'     => 'Identifier Type to query for (e.g. ePPN)',
   'fd.duplicate_check_enrollers.redirect_url'             => 'Redirect URL',
