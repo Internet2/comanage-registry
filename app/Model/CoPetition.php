@@ -2820,6 +2820,8 @@ class CoPetition extends AppModel {
     // Org Identities).
     
     $toEmail = null;
+    $hasOrgEmail = false;
+    $hasPersonEmail = false;
     $coPersonEmail = false;
 
     if(!empty($pt['EnrolleeOrgIdentity']['EmailAddress'])
@@ -2827,6 +2829,7 @@ class CoPetition extends AppModel {
        // associated EmailAddress, so skip this OrgIdentity
        && empty($pt['EnrolleeOrgIdentity']['OrgIdentitySourceRecord'])) {
       foreach($pt['EnrolleeOrgIdentity']['EmailAddress'] as $ea) {
+        $hasOrgEmail = true;
         if(!$ea['verified']) {
           // Use this address
           $toEmail = $ea;
@@ -2840,6 +2843,7 @@ class CoPetition extends AppModel {
       
       if(!empty($pt['EnrolleeCoPerson']['EmailAddress'])) {
         foreach($pt['EnrolleeCoPerson']['EmailAddress'] as $ea) {
+          $hasPersonEmail = true;
           if(!$ea['verified']) {
             // Use this address
             $toEmail = $ea;
@@ -2884,8 +2888,17 @@ class CoPetition extends AppModel {
       }
     }
 
+    // The email has already been verified
+    $is_verified = false;
+    if($email_verification_mode === VerificationModeEnum::SkipIfVerified
+       && ($hasOrgEmail && $hasPersonEmail)
+       && empty($toEmail)) {
+      // We already have a verified email so skip the invitation.
+      $is_verified = true;
+    }
+
     // Should we proceed with Email Confirmation or not?
-    if(!$toEmail) {
+    if(!$toEmail && !$is_verified) {
       throw new RuntimeException(_txt('er.pt.mail',
         array(!empty($pt['EnrolleeCoPerson']['PrimaryName']) 
               ? generateCn($pt['EnrolleeCoPerson']['PrimaryName'])
@@ -2931,7 +2944,7 @@ class CoPetition extends AppModel {
     $coInviteId = $this->CoInvite->send($pt['CoPetition']['enrollee_co_person_id'],
                                         $pt['CoPetition']['enrollee_org_identity_id'],
                                         $actorCoPersonId,
-                                        $toEmail['mail'],
+                                        $is_verified ? "" : $toEmail['mail'],
                                         $ef['CoEnrollmentFlow']['notify_from'],
                                         $ef['Co']['name'],
                                         $subject,
@@ -2942,7 +2955,7 @@ class CoPetition extends AppModel {
                                         $bcc,
                                         $subs,
                                         $format,
-                                        $skip_invite);
+                                        ($skip_invite || $is_verified) );
     
     // Add the invite ID to the petition record
     
@@ -2955,14 +2968,14 @@ class CoPetition extends AppModel {
       $this->CoPetitionHistoryRecord->record($id,
                                              $actorCoPersonId,
                                              PetitionActionEnum::InviteSent,
-                                             _txt('rs.inv.sent', array($toEmail['mail'])));
+                                             _txt('rs.inv.sent', array($is_verified ? "" : $toEmail['mail'])));
     }
     catch(Exception $e) {
       $dbc->rollback();
       throw new RuntimeException(_txt('er.db.save-a', array('CoPetitionHistoryRecord')));
     }
     
-    return $toEmail['mail'];
+    return $is_verified ? "" : $toEmail['mail'];
   }
   
   /**
