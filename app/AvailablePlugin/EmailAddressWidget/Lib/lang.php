@@ -44,7 +44,8 @@ $cm_email_address_widget_texts['en_US'] = array(
 
   // Info
   'pl.emailaddresswidget.deleted'                       => 'Deleted',
-  'pl.emailaddresswidget.limit'                         => 'Email address limit reached. You must first delete an address before you may add another.',
+  'pl.emailaddresswidget.limit'                         => 'Email address limit reached. You must first delete an address before adding another.',
+  'pl.emailaddresswidget.limit.replace'                 => 'Email address limit reached. You must delete or replace an address to add another.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
@@ -52,17 +53,24 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.email.body'                    => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
   'pl.emailaddresswidget.noconfig'                      => 'This widget requires no configuration.',
   'pl.emailaddresswidget.none'                          => 'No email addresses',
+  'pl.emailaddresswidget.replace'                       => 'Replace',
   'pl.emailaddresswidget.return'                        => 'Return',
   'pl.emailaddresswidget.rs.mail.added.verified'        => 'Added Verified Email Address %1$s',
+  'pl.emailaddresswidget.rs.mail.updated.verified'      => 'Updated Verified Email Address %1$s for email address ID %2$s',
   'pl.emailaddresswidget.rs.added-a'                    => '"%1$s" Added via Email Address Widget',
 
   // Fields
+  'pl.emailaddresswidget.fd.allowreplace'               => 'Allow Replace',
+  'pl.emailaddresswidget.fd.allowreplace.desc'          => 'Allow any email address to be replaced. Attempting to replace an email address will prompt users for verification.',
   'pl.emailaddresswidget.fd.body'                       => 'Body',
-  'pl.emailaddresswidget.fd.email'                      => 'Add Email Address',
+  'pl.emailaddresswidget.fd.email.add'                  => 'Add Email Address',
+  'pl.emailaddresswidget.fd.email.replace'              => 'Replace Email Address',
   'pl.emailaddresswidget.fd.limit'                      => 'Email Address Limit',
   'pl.emailaddresswidget.fd.limit.desc'                 => 'The number of email addresses allowed by this widget. Leave empty to allow an unlimited number of entries.',
   'pl.emailaddresswidget.fd.message.template'           => 'Message Template',
   'pl.emailaddresswidget.fd.message.template.desc'      => 'The email message template to be used. If empty, the following default message will be sent:',
+  'pl.emailaddresswidget.fd.retainlast'                 => 'Retain Last Email Address',
+  'pl.emailaddresswidget.fd.retainlast.desc'            => 'If selected, the last email address in the widget cannot be deleted, and the "ADD" button will change to "REPLACE" when only one address remains. This will occur independent of the "Allow Replace" setting.',
   'pl.emailaddresswidget.fd.type'                       => 'Type',
   'pl.emailaddresswidget.fd.type.default'               => 'Email Address Type',
   'pl.emailaddresswidget.fd.type.default.desc'          => 'Email Addresses added and shown in this widget will be of this type',

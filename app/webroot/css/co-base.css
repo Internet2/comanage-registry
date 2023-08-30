@@ -2870,6 +2870,9 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   text-transform: none;
   padding: 0.5em;
 }
+.cm-ssw-dropdown-toggle.replacing {
+  border: 1px dashed var(--cmg-color-gray-border);
+}
 .cm-ssw-dropdown-toggle:hover {
   text-decoration: none;
 }

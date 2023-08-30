@@ -70,8 +70,11 @@ class EmailAddressWidgetVerificationsController extends StandardController {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.token'));
       return;
     }
+    
+    $rec = $this->EmailAddressWidgetVerification->getRecordToVerify($token);
+    
     // The token does not exist in the database
-    if(empty($this->EmailAddressWidgetVerification->getRecordToVerify($token))) {
+    if(empty($rec)) {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_NOT_FOUND, _txt('er.token'));
       return;
     }
@@ -85,8 +88,13 @@ class EmailAddressWidgetVerificationsController extends StandardController {
       $EmailAddress = ClassRegistry::init('EmailAddress');
       $EmailAddress->id = $email_address_id;
 
-      $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,
-                                   _txt('rs.added-a3', array($EmailAddress->field('mail'))));
+      if($rec['EmailAddressWidgetVerification']['email_id'] > 0) {
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_OK,
+          _txt('rs.updated-a3', array($EmailAddress->field('mail'))));
+      } else {
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,
+          _txt('rs.added-a3', array($EmailAddress->field('mail'))));
+      }
     } catch (Exception $e) {
       $this->Api->restResultHeader($e->getCode(), $e->getMessage());
       return;

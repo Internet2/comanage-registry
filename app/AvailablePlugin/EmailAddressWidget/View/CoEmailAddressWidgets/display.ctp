@@ -56,7 +56,9 @@
           emailLimit: '<?php print !empty($vv_config['CoEmailAddressWidget']['max_allowed']) ? $vv_config['CoEmailAddressWidget']['max_allowed'] : -1; ?>',
           emailLimitReached: false, // we'll learn if this is true when we fetch the addresses
           messageTemplateId: '<?php print !empty($vv_config['CoEmailAddressWidget']['co_message_template_id']) ? $vv_config['CoEmailAddressWidget']['co_message_template_id'] : ''; ?>',
-          deleteLast: false // TODO: determine this from configuration - can last remaining email be deleted?
+          allowReplace: '<?php print !empty($vv_config['CoEmailAddressWidget']['allow_replace']) ? $vv_config['CoEmailAddressWidget']['allow_replace'] : false; ?>',
+          retainLast: '<?php print !empty($vv_config['CoEmailAddressWidget']['retain_last']) ? $vv_config['CoEmailAddressWidget']['retain_last'] : false; ?>',
+          retain: false // we'll learn if this is true when we fetch the addresses
         },
         txt: {
           add:                 "<?php print _txt('op.add'); ?>",
@@ -70,14 +72,17 @@
           deleteFail:          "<?php print _txt('er.delete'); ?>",
           done:                "<?php print _txt('op.done'); ?>",
           edit :               "<?php print _txt('op.edit'); ?>",
-          email:               "<?php print _txt('pl.emailaddresswidget.fd.email'); ?>",
+          emailAdd:            "<?php print _txt('pl.emailaddresswidget.fd.email.add'); ?>",
+          emailReplace:        "<?php print _txt('pl.emailaddresswidget.fd.email.replace'); ?>",
           error401:            "<?php print _txt('er.http.401.unauth');?>",
           error500:            "<?php print _txt('er.http.500');?>",
           errorDuplicate:      "<?php print _txt('er.emailaddresswidget.duplicate');?>",
           errorInvalid:        "<?php print _txt('er.mt.invalid', array("Email Format"));?>",
           limit:               "<?php print _txt('pl.emailaddresswidget.limit');?>",
+          limitReplace:        "<?php print _txt('pl.emailaddresswidget.limit.replace');?>",
           none:                "<?php print _txt('pl.emailaddresswidget.none');?>",
           ok:                  "<?php print _txt('op.ok'); ?>",
+          replace:             "<?php print _txt('pl.emailaddresswidget.replace'); ?>",
           token:               "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
           tokenMsg:            "<?php print _txt('pl.emailaddresswidget.fd.token.msg'); ?>",
           tokenError:          "<?php print _txt('er.emailaddresswidget.fd.token'); ?>",
@@ -100,6 +105,8 @@
         emailAddressesOfType = allEmailAddresses.filter((address) => address.Type == this.core.emailType);
         // Test to see if we've reached the max count of email addresses for this widget
         this.core.emailLimitReached = Number(this.core.emailLimit) > 0 && emailAddressesOfType.length >= Number(this.core.emailLimit);
+        // Test to see if we've met the retain conditions
+        this.core.retain = this.core.retainLast && emailAddressesOfType.length == 1;
         this.emailAddresses = emailAddressesOfType;
       },
       setError(txt) {
