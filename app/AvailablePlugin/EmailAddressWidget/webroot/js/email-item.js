@@ -86,7 +86,7 @@ export default {
                 {{ txt.replace }}
               </button>
             </li>
-            <li>
+            <li v-if="!this.core.retain">
               <button 
                 @click="deleteConfirm($event, this.core.widget, this.id)" 
                 class="cm-ssw-delete-item-button btn btn-small dropdown-item">
