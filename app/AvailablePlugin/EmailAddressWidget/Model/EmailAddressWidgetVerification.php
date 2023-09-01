@@ -130,11 +130,13 @@ class EmailAddressWidgetVerification extends AppModel {
                                        ActionEnum::EmailAddressVerified,
                                        _txt('pl.emailaddresswidget.rs.mail.added.verified',
                                             array($rec['EmailAddressWidgetVerification']['email'])));
-
+      
+      // Delete the Verification Request table record and return
       $this->delete($rec['EmailAddressWidgetVerification']['id']);
       return $EmailAddress->id;
-      // Delete the Verification Request table record and return
     } catch(Exception $e) {
+      // Attempt to delete the Verification Request table record before throwing exception
+      $this->delete($rec['EmailAddressWidgetVerification']['id']);
       throw new RuntimeException($e->getMessage());
     }
   }
