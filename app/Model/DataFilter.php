@@ -42,7 +42,8 @@ class DataFilter extends AppModel {
   );
   
   public $hasMany = array(
-    'CoProvisioningTargetFilter'
+    'CoProvisioningTargetFilter',
+    'OrgIdentitySourceFilter'
   );
   
   public $hasManyPlugins = array(
