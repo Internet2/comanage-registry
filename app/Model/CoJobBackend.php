@@ -56,6 +56,14 @@ abstract class CoJobBackend extends AppModel {
         'required' => true
       )
     )->addOption(
+      'nolock',
+      array(
+        'short'   => 'L',
+        'help'    => _txt('sh.job.arg.nolock'),
+        'boolean' => true,
+        'default' => false
+      )
+    )->addOption(
       'synchronous',
       array(
         'short'   => 's',

@@ -2585,6 +2585,7 @@ The request may be viewed at
   'sh.job.arg.asynchronous' => 'Run asynchronously',
   'sh.job.arg.cancel' =>  'Cancel the specified job',
   'sh.job.arg.coid' =>    'Numeric CO ID to run queue for',
+  'sh.job.arg.nolock' =>  'Do not obtain a run lock, synchronous processing only (experimental)',
   'sh.job.arg.runqueue' => 'Process queued jobs',
   'sh.job.arg.synchronous' => 'Run synchronously',
   'sh.job.arg.unlock' =>  'Remove the specified lock',

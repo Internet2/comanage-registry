@@ -75,12 +75,18 @@ class JobShell extends AppShell {
         $this->validateParameters($pluginModel->parameterFormat(), $params);
         
         // Register a new CoJob. This will throw an exception if a job is already in progress.
+        // However, if we are running in synchronous mode _and_ nolock was specified,
+        // we will request concurrency.
+        $concurrent = isset($params['synchronous']) && $params['synchronous']
+                      && isset($params['nolock']) && $params['nolock'];
         
         $jobId = $this->CoJob->register($params['coid'],
                                         $command,
                                         null,
                                         null,
-                                        _txt('rs.jb.started', array($pwent['name'], $pwent['uid'])));
+                                        _txt('rs.jb.started', array($pwent['name'], $pwent['uid'])),
+                                        false,
+                                        $concurrent);
         
         $this->out(_txt('rs.jb.registered', array($jobId)), 1, Shell::NORMAL);
         
@@ -307,17 +313,21 @@ class JobShell extends AppShell {
       
       $command = array_shift($args);
       
-      try {
-        $lockid = $this->Lock->obtain($this->params['coid'], 'jobshell');
-      }
-      catch(Exception $e) {
-        $this->out(_txt('er.lock', array($e->getMessage())), 1, Shell::QUIET);
-        return;
+      if(!isset($this->params['nolock']) || !$this->params['nolock']) {
+        try {
+          $lockid = $this->Lock->obtain($this->params['coid'], 'jobshell');
+        }
+        catch(Exception $e) {
+          $this->out(_txt('er.lock', array($e->getMessage())), 1, Shell::QUIET);
+          return;
+        }
       }
       
       $this->dispatch($command, $this->params);
       
-      $this->Lock->release($lockid);
+      if(!isset($this->params['nolock']) || !$this->params['nolock']) {
+        $this->Lock->release($lockid);
+      }
     } elseif(isset($this->params['unlock']) && $this->params['unlock']) {
       $this->Lock->release($this->params['unlock']);
     }
