@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v4.3.0
+ * @since         COmanage Registry v4.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 -->
@@ -55,6 +55,9 @@
   <div class="co-info-topbox warn-level-a">
     <em class="material-icons error">warning</em>
     <?php print _txt('pl.privacyideaauthenticator.paper.warning'); ?>
+    <?php if(!empty($this->request->params['named']['onFinish'])): ?>
+      <?php print _txt('pl.privacyideaauthenticator.paper.continue'); ?>
+    <?php endif; ?>    
   </div>
   <style>
     #add_paper_token {
@@ -75,44 +78,67 @@
       }
     }
   </style>
-    <div class="table-container">
-      <table id="<?php print $this->action; ?>_paper_token" class="common-table">
-       <thead>
+  <div class="table-container">
+    <table id="<?php print $this->action; ?>_paper_token" class="common-table">
+      <thead>
        <tr>
-         <th>#</th>
-         <th>OTP</th>
-       </tr>
-       </thead>
-       <tbody>
-         <?php foreach($vv_token_info['otps'] as $i => $otp): ?>
-           <tr>
-             <td><?php print $i+1; ?></td>
-             <td><?php print $otp; ?></td>
-           </tr>
-         <?php endforeach; ?>
-
-        </tbody>
-       </table>
-    </div>
-  <button type="button" onclick="window.print();" id="cm-print-button" class="btn btn-primary btn-lg">print backup codes</button>
+          <th>#</th>
+          <th>OTP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach($vv_token_info['otps'] as $i => $otp): ?>
+          <tr>
+            <td><?php print $i+1; ?></td>
+            <td><?php print $otp; ?></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <?php if(!empty($this->request->params['named']['onFinish'])): ?>
+    <?php 
+      print $this->Html->link(_txt('op.cont'),
+                                            urldecode($this->request->params['named']['onFinish']),
+                                            array('class' => 'btn btn-primary btn-lg'));
+    ?>
+    <button type="button" onclick="window.print();" id="cm-print-button" class="btn btn-default btn-lg">print backup codes</button>
+  <?php else: ?>
+    <button type="button" onclick="window.print();" id="cm-print-button" class="btn btn-primary btn-lg">print backup codes</button>
+  <?php endif; ?>
+  <div id="bc-dialog" role="alertdialog" class="ui-dialog-content ui-widget-content">
+    <p>
+      <span class="ui-icon ui-icon-alert co-alert"></span>
+      <span id="dialog-text"><?php print _txt('pl.privacyideaauthenticator.paper.dialog'); ?></span>
+    </p>
+  </div>
 <?php elseif($this->action == 'view'): ?>
-<ul id="<?php print $this->action; ?>_paper_token" class="fields form-list">
-  <li>
-    <div class="field-name">
-      <?php print _txt('pl.privacyideaauthenticator.fd.serial'); ?>
-    </div>
-    <div class="field-info">
-      <?php
-        print filter_var($paper_tokens[0]['PaperToken']['serial'],FILTER_SANITIZE_SPECIAL_CHARS);
-      ?>
-    </div>
-  </li>
-</ul>
+  <ul id="<?php print $this->action; ?>_paper_token" class="fields form-list">
+    <li>
+      <div class="field-name">
+        <?php print _txt('pl.privacyideaauthenticator.fd.serial'); ?>
+      </div>
+      <div class="field-info">
+        <?php
+          print filter_var($paper_tokens[0]['PaperToken']['serial'],FILTER_SANITIZE_SPECIAL_CHARS);
+        ?>
+      </div>
+    </li>
+  </ul>
 <?php endif; // vv_otps, view ?>
+
 <script>
-  window.onbeforeunload = function(e) {
-    // A value must be returned in order to prompt the user, but for security reasons we cannot control the actual prompt
-    e.preventDefault();
-    e.returnValue = "Before you leave this page, please confirm that you've copied your backup codes. YOU WILL NOT SEE THEM AGAIN.";
-  }
+  $(function() {
+    $("#bc-dialog").dialog({
+      autoOpen: true,
+      resizable: false,
+      modal: true,
+      title: 'Notice',
+      buttons: {
+        '<?php print _txt('pl.privacyideaauthenticator.paper.dialog.btn'); ?>': function() {
+          $(this).dialog('close');
+        }
+      }
+    });
+  });
 </script>

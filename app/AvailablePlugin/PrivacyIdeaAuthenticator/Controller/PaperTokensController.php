@@ -21,7 +21,7 @@
  * 
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v4.3.0
+ * @since         COmanage Registry v4.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -38,16 +38,28 @@ class PaperTokensController extends SAMController {
   );
 
   /**
-   * Add a Standard Object.
+   * Add action to be used when adding a PaperToke as part of an Enrollment Flow
    *
-   * @since  COmanage Registry v4.3.0
+   * @since COmanage Registry v4.4.0
+   */
+
+  public function add() {
+    $this->setAction('generate');
+  }
+
+  /**
+   * Generate a Paper Token (backup codes)
+   *
+   * @since  COmanage Registry v4.4.0
    */
 
   public function generate() {
-    if($this->request->is('get')) {
+
+    if(!$this->request->is('get')) {
+      throw new MethodNotAllowedException();
+    } else {
       parent::add();
 
-      //$this->set('title_for_layout', 'Generated '.$this->viewVars['vv_authenticator']['Authenticator']['description']);
       $this->set('title_for_layout', 'Generated Backup Codes');
 
       if(!empty($this->request->params['named']['onFinish'])) {
@@ -71,7 +83,6 @@ class PaperTokensController extends SAMController {
 
         if(!empty($tokenInfo['otps'])) {
           $this->set('vv_otps', (array)$tokenInfo['otps']);
-          debug($vv_otps);
         }
       }
       catch(Exception $e) {
@@ -83,7 +94,7 @@ class PaperTokensController extends SAMController {
   /**
    * Callback before other controller methods are invoked or views are rendered.
    *
-   * @since  COmanage Registry v4.3.0
+   * @since  COmanage Registry v4.4.0
    */
 
   public function beforeFilter() {
@@ -100,7 +111,7 @@ class PaperTokensController extends SAMController {
    * This method is intended to be overridden by model-specific controllers.
    * - postcondition: Session flash message updated (HTML) or HTTP status returned (REST)
    *
-   * @since  COmanage Registry v4.3.0
+   * @since  COmanage Registry v4.4.0
    * @param  Array Current data
    * @return boolean true if dependency checks succeed, false otherwise.
    */
@@ -131,7 +142,7 @@ class PaperTokensController extends SAMController {
    * try{} block so that HistoryRecord->record() may be called without worrying
    * about catching exceptions.
    *
-   * @since  COmanage Registry v4.3.0
+   * @since  COmanage Registry v4.4.0
    * @param  String Controller action causing the change
    * @param  Array Data provided as part of the action (for add/edit)
    * @param  Array Previous data (for delete/edit)
@@ -172,7 +183,7 @@ class PaperTokensController extends SAMController {
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions
    *
-   * @since  COmanage Registry v4.3.0
+   * @since  COmanage Registry v4.4.0
    * @return Array Permissions
    */
 

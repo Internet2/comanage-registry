@@ -74,5 +74,8 @@ $cm_privacy_idea_authenticator_texts['en_US'] = array(
   'pl.privacyideaauthenticator.totp.step2'           => 'Then, enter the current code from the Google Authenticator app to confirm',
   'pl.privacyideaauthenticator.paper.intro'          => 'Use the backup codes in order, one after the other. Mark off used values.',
   'pl.privacyideaauthenticator.paper.caution'        => 'Backup codes are a weak second factor. Please assure no one has access to these values.  Store them in a safe location',
-  'pl.privacyideaauthenticator.paper.warning'        => 'Before you leave this page, please confirm that you have copied your backup codes. YOU WILL NOT SEE THEM AGAIN.'
+  'pl.privacyideaauthenticator.paper.warning'        => 'Before you leave this page, please confirm that you have copied your backup codes. YOU WILL NOT SEE THEM AGAIN.',
+  'pl.privacyideaauthenticator.paper.dialog'         => 'Before you leave this page you must save your backup codes by copying or printing.',
+  'pl.privacyideaauthenticator.paper.dialog.btn'     => 'I understand',
+  'pl.privacyideaauthenticator.paper.continue'       => 'Once you have copied your backup codes, you must continue to the next step', 
 );

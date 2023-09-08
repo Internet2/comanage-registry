@@ -147,7 +147,7 @@ class PrivacyIdeaAuthenticator extends AuthenticatorBackend {
     $results = $this->TotpToken->find('all', $args);
 
     if(empty($results)) {
-       unset($args);
+       $args = array();
        $args['conditions']['PaperToken.co_person_id'] = $coPersonId;
        $args['conditions']['PaperToken.privacy_idea_authenticator_id'] = $backendId;
        $args['contain'] = false;

@@ -204,23 +204,21 @@ class PrivacyIdea extends AppModel {
       case PrivacyIDEATokenTypeEnum::TOTP:
         $token['confirmed'] = false;
         $TotpToken = new TotpToken();
-        $TotpToken->save($token);
-
+        if (!$TotpToken->save($token)) {
+           throw new RuntimeException(_txt('er.db.save-a', array('TotpToken')));
+        }
         // We don't persist the QR Data, but we do need to return it for rendering
         $token['qr_data'] = $jresponse->detail->googleurl->img;
         break;
 
       case PrivacyIDEATokenTypeEnum::Paper:
         $PaperToken = new PaperToken();
-        $PaperToken->save($token);
-
+        if (!$PaperToken->save($token)) {
+           throw new RuntimeException(_txt('er.db.save-a', array('PaperToken')));
+        }
         // We don't persist the codes themselves but need to present them to the user for copying/printing
         $token['otps'] = (array)$jresponse->detail->otps;
         break;
-    }
-
-    if(!$jresponse->result->status) {
-      throw new RuntimeException($jresponse->result->error->message);
     }
 
     return $token;
