@@ -33,6 +33,7 @@ class ExportJob extends CoJobBackend {
    * All the models below need to be direct CO descendants
    *
    */
+
   const  MODELS_SUPPORTED = array(
     "ApiUser",
     "AttributeEnumeration",
@@ -91,6 +92,67 @@ class ExportJob extends CoJobBackend {
     "VettingStep"
   );
 
+
+  /**
+   * All supported models
+   * All the models below need to be direct CO descendants
+   *
+   */
+  const  MODELS_IMPORT = array(
+    // One reference, to the Co Id
+    // XXX We get the CO ID from the command line
+    "ApiUser", // blgTo Co
+    "CoExtendedAttribute", // blgTo Co
+    "CoExtendedType", // blgTo Co
+    "Server", // blgTo Co
+    "CoGroup", // blgTo Co
+    "Cou", // blgTo Co
+    "CoTheme", // blgTo Co
+    "CoLocalization", // blgTo Co
+    "CoNavigationLink", // blgTo Co
+    "CoMessageTemplate", // blgTo Co
+    "CoSelfServicePermission", // blgTo Co
+    "Dictionary", // blgTo Co
+    "DataFilter", // blgTo Co
+    "Server", // blgTo Co
+
+    "CoDashboard", // blgTo Co , CoGroup
+    "CoIdentifierAssignment", // blgTo Co , CoGroup
+    "VettingStep", // blgTo Co , CoGroup
+    "CoIdentifierValidator", // blgTo Co , CoExtendedType
+    "CoTermsAndConditions", // blgTo Co, Cou
+    "AttributeEnumeration", // blgTo Co, Dictionary
+
+    // One reference but not the CO ID
+    "DictionaryEntry", //blgTo Dictionary
+    "SqlServer", // blgTo Server
+    "Oauth2Server", // blgTo Server
+    "HttpServer", // blgTo Server
+    "KafkaServer", // blgTo Server
+    "MatchServer", // blgTo Server
+    "MatchServerAttribute", // blgTo MatchServer
+    "CoGroupNesting", // blgTo CoGroup
+
+    "CoDashboardWidget", //blgTo CoDashboard
+
+    "CoEnrollmentFlow", // blgTo Co, CoGroup, CoMessageTemplate, CoTheme, MatchServer
+    "CoEnrollmentFlowWedge", // blgTo CoEnrollmentFlow
+    "CoEnrollmentAttribute", // blgTo CoEnrollmentFlow
+    "CoEnrollmentAttributeDefault", // blgTo CoEnrollmentAttribute
+
+    "CoExpirationPolicy", // blgTo Co, Cou, CoGroup, CoMessageTemplate
+    "CoPipeline", // blgTo Co, Cou, CoEnrollmentFlow, MatchServer
+    "OrgIdentitySource", // blgTo Co, CoPipeline
+    "CoEnrollmentSource", // blgTo CoEnrollmentFlow, OrgIdentitySource
+    "CoProvisioningTarget", // blgTo Co, CoGroup, OrgIdentitySource
+    "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
+
+    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
+    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
+
+    "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
+  );
+
   /**
    * Execute the requested Job.
    *
@@ -143,6 +205,7 @@ class ExportJob extends CoJobBackend {
                                                            $mmodel,
                                                            self::MODELS_SUPPORTED[$mmodel] ?? array(),
                                                            $record,
+                                                           $mdata,
                                                            $mmodel);
         }
         if(!empty($mdata)) {
@@ -172,13 +235,15 @@ class ExportJob extends CoJobBackend {
    * Filter metadata from an inbound request. Associated models are not examined.
    *
    * @since  COmanage Registry v4.3.0
-   * @param  array  $dataset       Record to examine
-   * @param  string $modelName     Name of model being examined
+   * @param  array  $dataset          Record to examine
+   * @param  string $modelName        Name of model being examined
    * @param  string $hasManyOneList   List of models that are currently supported from the configuration self::MODELS_SUPPORTED
-   * @return array             Record, with metadata filtered
+   * @param  array  $record           Record retrieved from database
+   * @param  array  $mdata            Reference to the json configuration array
+   * @return array                    Formatted record
    */
 
-  public function filterMetadataInbound($dataset, $modelName, $hasManyOneList, $record, $path = '') {
+  public function filterMetadataInbound($dataset, $modelName, $hasManyOneList, $record, &$mdata, $path = '') {
     // Get the data we need from the record and move them into $ret
     // In the process create the associations placeholders
     $ret = array();
@@ -204,7 +269,8 @@ class ExportJob extends CoJobBackend {
 
         // This linked model has no record. We continue to the next one.
         // CAKEPHP will return a record with all the values set to null when using the contain
-        // feature. In order to find out if the record has any value you use the array_filter
+        // feature because you use the default configuration which queries using LEFT JOIN
+        // In order to find out if the record has any value you use the array_filter
 
         $next_values = $record[$mmodel] ?? Hash::extract($record, $path_partial);
         $check_null_values = array_filter($next_values);
@@ -213,11 +279,26 @@ class ExportJob extends CoJobBackend {
           continue;
         }
 
-        $ret[$mmodel][] = $this->filterMetadataInbound($dataset,
-                                                       $mmodel,
-                                                       $hasManyOneList[$mmodel] ?? array(),
-                                                       $next_values ?? $dataset,
-                                                       empty($path) ? $path_partial : "{$path}.{$path_partial}");
+        // XXX Keeping this for now. The following syntax creates a nested hierarchy,
+        // when fetching the records
+//        $ret[$mmodel][] = $this->filterMetadataInbound($dataset,
+//                                                       $mmodel,
+//                                                       $hasManyOneList[$mmodel] ?? array(),
+//                                                       $next_values ?? $dataset,
+//                                                       empty($path) ? $path_partial : "{$path}.{$path_partial}");
+
+        $tmp_data = $this->filterMetadataInbound($dataset,
+                                                 $mmodel,
+                                                 $hasManyOneList[$mmodel] ?? array(),
+                                                 $next_values ?? $dataset,
+                                                 $mdata,
+                                                 empty($path) ? $path_partial : "{$path}.{$path_partial}");
+
+        // Initialize the array
+        if(empty($mdata[$mmodel])) {
+          $mdata[$mmodel] = array();
+        }
+        $mdata[$mmodel] = [...$mdata[$mmodel], ...$tmp_data];
       }
     }
 
@@ -230,52 +311,52 @@ class ExportJob extends CoJobBackend {
 
 
     // hasMany
-    foreach($Model->hasMany as $rmodel => $roptions) {
-      // If the relationship is not defined in the supported models then we skip
-      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
-        continue;
-      }
-
-      if(!empty($dataset[$rmodel]) && is_array($dataset[$rmodel])) {
-        foreach($dataset[$rmodel] as $idx => $has_many_record) {
-          // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
-          //     "CoEnrollmentFlowNotificationCoGroup" => array(
-          //      'className' => 'CoGroup',
-          //      'foreignKey' => 'notification_co_group_id'
-          //    ),
-          $place_holder_string = '@' . $Model->name . "::" . $roptions['className'] . "_hasMany.{$idx}@";
-          $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($has_many_record['id'] ?? 0));
-          $ret[$place_holder_string] = $place_holder_hashed_value;
-        }
-      }
-    }
+//    foreach($Model->hasMany as $rmodel => $roptions) {
+//      // If the relationship is not defined in the supported models then we skip
+//      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
+//        continue;
+//      }
+//
+//      if(!empty($dataset[$rmodel]) && is_array($dataset[$rmodel])) {
+//        foreach($dataset[$rmodel] as $idx => $has_many_record) {
+//          // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
+//          //     "CoEnrollmentFlowNotificationCoGroup" => array(
+//          //      'className' => 'CoGroup',
+//          //      'foreignKey' => 'notification_co_group_id'
+//          //    ),
+//          $place_holder_string = '@' . $Model->name . "::" . $roptions['className'] . "_hasMany.{$idx}@";
+//          $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($has_many_record['id'] ?? 0));
+//          $ret[$place_holder_string] = $place_holder_hashed_value;
+//        }
+//      }
+//    }
 
     // hasOne
-    foreach($Model->hasOne as $rmodel => $roptions) {
-      // If the relationship is not defined in the supported models then we skip
-      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
-        continue;
-      }
-
-      $place_holder_string = '@' . $Model->name . "::" .  $roptions['className'] . '_hasOne@';
-      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0));
-      $ret[$place_holder_string] = $place_holder_hashed_value;
-    }
+//    foreach($Model->hasOne as $rmodel => $roptions) {
+//      // If the relationship is not defined in the supported models then we skip
+//      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
+//        continue;
+//      }
+//
+//      $place_holder_string = '@' . $Model->name . "::" .  $roptions['className'] . '_hasOne@';
+//      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0));
+//      $ret[$place_holder_string] = $place_holder_hashed_value;
+//    }
 
     // belongsTo
-    foreach($Model->belongsTo as $rmodel => $roptions) {
-      // If we do not have any associated record continue to the next model
-      if(empty($dataset[$rmodel]['id'])) {
-        continue;
-      }
-      // For the case of COUs we will have a relationship of the type:
-      // "@Cou::Cou_belongsTo@": "Cou0Cou13"
-      // This is not the Changelog wich slipped into the configuration. It is the tree relationship
-      // The ParentCou is a link to the COU itself and the foreign key is the parent_id column
-      $place_holder_string = '@' . $roptions['className'] . "::" . $Model->name . '_belongsTo@';
-      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0) ) ;
-      $ret[$place_holder_string] = $place_holder_hashed_value;
-    }
+//    foreach($Model->belongsTo as $rmodel => $roptions) {
+//      // If we do not have any associated record continue to the next model
+//      if(empty($dataset[$rmodel]['id'])) {
+//        continue;
+//      }
+//      // For the case of COUs we will have a relationship of the type:
+//      // "@Cou::Cou_belongsTo@": "Cou0Cou13"
+//      // This is not the Changelog wich slipped into the configuration. It is the tree relationship
+//      // The ParentCou is a link to the COU itself and the foreign key is the parent_id column
+//      $place_holder_string = '@' . $roptions['className'] . "::" . $Model->name . '_belongsTo@';
+//      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0) ) ;
+//      $ret[$place_holder_string] = $place_holder_hashed_value;
+//    }
 
     // manyToMany
     // XXX Currently we have no model using this relationship type
@@ -293,7 +374,7 @@ class ExportJob extends CoJobBackend {
     $mfk = Inflector::underscore($modelName) . "_id";
 
     $meta_fields = [
-      ...$assc_keys,
+//      ...$assc_keys,
       'actor_identifier',
       'created',
       'deleted',
@@ -341,7 +422,7 @@ class ExportJob extends CoJobBackend {
           return;
         }
         $tmp = array();
-        $this->constructRecord($data, $Model, $meta_fields, $modelName, $tmp);
+        $this->constructRecord($data, $Model, $meta_fields, $modelName, $assc_keys, $tmp);
         $ret[] = $tmp;
       }
     } else {
@@ -350,7 +431,7 @@ class ExportJob extends CoJobBackend {
         return;
       }
       // hasOne
-      $this->constructRecord($dataset_to_parse,  $Model, $meta_fields, $modelName, $ret);
+      $this->constructRecord($dataset_to_parse,  $Model, $meta_fields, $modelName, $assc_keys, $ret);
     }
 
     return $ret;
@@ -361,15 +442,16 @@ class ExportJob extends CoJobBackend {
    *
    *
    * @since  COmanage Registry v4.3.0
-   * @param $data
-   * @param $Model
-   * @param $meta_fields
-   * @param $modelName
-   * @param $ret
+   * @param array $data
+   * @param Model $Model
+   * @param array $meta_fields
+   * @param string $modelName
+   * @param array $assc_keys
+   * @param array $ret
    *
    * @return void
    */
-  public function constructRecord($data,  $Model, $meta_fields, $modelName, &$ret) {
+  public function constructRecord($data,  $Model, $meta_fields, $modelName, $assc_keys, &$ret) {
     $mdl_schema = $Model->schema();
     foreach ($mdl_schema as $clmn => $properties) {
       // We might have hasMany or hasOne relationships the first is an array of records( find->all)
@@ -386,8 +468,20 @@ class ExportJob extends CoJobBackend {
           if ($clmn == "id") {
             $ret['key'] = strtolower($modelName . $clmn . $data[$clmn]);
           } else {
-            // Just copy the value
-            $ret[$clmn] = $data[$clmn];
+            // This is a foreign key to a belongs to Model
+            if(in_array($clmn, $assc_keys, true)) {
+              foreach($Model->belongsTo as $rmodel => $roptions) {
+                // Iterate until we find the association match for the current foreign key
+                if($roptions['foreignKey'] != $clmn) {
+                  continue;
+                }
+                $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($data[$clmn] ?? 0) ) ;
+                $ret[$clmn] = isset($data[$clmn]) ? $place_holder_hashed_value : null;
+              }
+            } else {
+              // Just copy the value
+              $ret[$clmn] = $data[$clmn];
+            }
           }
         }
       }
