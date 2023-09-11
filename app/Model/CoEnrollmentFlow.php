@@ -81,7 +81,7 @@ class CoEnrollmentFlow extends AppModel {
     ),
     "CoTheme",
     "MatchServer" => array(
-      'className' => 'Server',
+      'className' => 'MatchServer',
       'foreignKey' => 'match_server_id'
     )
   );

@@ -37,7 +37,7 @@ class CoPipeline extends AppModel {
     "Co",
     "CoEnrollmentFlow",
     "MatchServer" => array(
-      'className'  => 'Server',
+      'className'  => 'MatchServer',
       'foreignKey' => 'match_server_id'
     ),
     "SyncCou" => array(
