@@ -159,13 +159,14 @@ class ApiSource extends AppModel {
    * Poll for new messages.
    *
    * @since  COmanage Registry v4.0.0
-   * @param  CoJob   $CoJob       CO Job object, with $id set
-   * @param  integer $apiSourceId API Source ID
-   * @param  integer $max         Maximum number of records to process
+   * @param  CoJob   $CoJob             CO Job object, with $id set
+   * @param  integer $apiSourceId       API Source ID
+   * @param  integer $max               Maximum number of records to process
+   * @param  integer $kafkaPartitionId  Kafka Partition ID to process (overriding KafkaServer)
    * @throws RuntimeException
    */
   
-  public function poll($CoJob, $apiSourceId, $max=10) {
+  public function poll($CoJob, $apiSourceId, $max=10, $kafkaPartitionId=null) {
     // Pull the API Source config
     $args = array();
     $args['conditions']['ApiSource.id'] = $apiSourceId;
@@ -173,6 +174,10 @@ class ApiSource extends AppModel {
     
     $cfg = $this->find('first', $args);
     
+    if(empty($cfg)) {
+      throw new RuntimeException(_txt('er.notfound', array(_txt('ct.api_sources.1'), $apiSourceId)));
+    }
+
     if($cfg['OrgIdentitySource']['status'] != SuspendableStatusEnum::Active) {
       throw new RuntimeException(_txt('er.status.not', array(SuspendableStatusEnum::Active)));
     }
@@ -191,7 +196,7 @@ class ApiSource extends AppModel {
     $failed = 0;
     
     // XXX This will need refactoring for technologies other than Kafka.
-    $KafkaConsumer = $this->ServerKafka->KafkaServer->establishConsumer($cfg['ApiSource']['kafka_server_id']);
+    $KafkaConsumer = $this->ServerKafka->KafkaServer->establishConsumer($cfg['ApiSource']['kafka_server_id'], $kafkaPartitionId);
     
     for($i = 0;$i < $max;$i++) {
       if($CoJob->canceled($CoJob->id)) {

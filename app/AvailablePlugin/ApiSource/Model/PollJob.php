@@ -45,11 +45,18 @@ class PollJob extends CoJobBackend {
 
   public function execute($coId, $CoJob, $params) {
     $ApiSource = ClassRegistry::init("ApiSource.ApiSource");
+
+    // For Kafka integrations, we'll usually just want to poll the Partition ID configured
+    // in the KafkaServer settings. However, for experimental parallel processing (CO-2696)
+    // the administrator needs to be able to specify the Partition ID in order to have the
+    // queue processed concurrently by multiple consumers.
+
+    $kafkaPartitionID = (!empty($params['kafka_partition_id']) ? $params['kafka_partition_id'] : null);
     
     // Note we don't verify that api_source_id is in $coId. (We basically
     // ignore $coId.) Whatever queued the job should enforce that.
 
-    $ApiSource->poll($CoJob, $params['api_source_id'], $params['max']);
+    $ApiSource->poll($CoJob, $params['api_source_id'], $params['max'], $kafkaPartitionID);
   }
 
   /**
@@ -65,6 +72,11 @@ class PollJob extends CoJobBackend {
         'help'     => _txt('pl.apisource.job.poll.id'),
         'type'     => 'int',
         'required' => true
+      ),
+      'kafka_partition_id' => array(
+        'help'     => _txt('pl.apisource.job.poll.kafka_partition_id'),
+        'type'     => 'int',
+        'required' => false
       ),
       'max' => array(
         'help'     => _txt('pl.apisource.job.poll.max'),

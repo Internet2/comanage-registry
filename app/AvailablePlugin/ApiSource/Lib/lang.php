@@ -54,6 +54,7 @@ $cm_api_source_texts['en_US'] = array(
   'pl.apisource.job'              => 'Run API Source Polling',
   'pl.apisource.job.poll.eof'     => 'No further messages available to be processed',
   'pl.apisource.job.poll.finish'  => 'API Source Poll Job completed, processed %1$s messages (%2$s success, %3$s error)',
+  'pl.apisource.job.poll.kafka_partition_id' => 'Kafka Partition ID to process (overrides KafkaServer configuration)',
   'pl.apisource.job.poll.id'      => 'API Source ID to poll',
   'pl.apisource.job.poll.max'     => 'Maximum number of loops to try (default is 10)',
   'pl.apisource.job.poll.msg'     => 'Processed message at offset %1$s',

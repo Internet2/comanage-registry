@@ -159,15 +159,16 @@ class KafkaServer extends AppModel {
    * Consume a batch of messages from the active consumer/topic.
    * 
    * @since  COmanage Registry v4.1.0
+   * @param  int  $partitionId  Partition ID to poll, or null to use KafkaServer configuration
    */
 
-  public function consumeBatch() {
+  public function consumeBatch($partitionId=null) {
     if($this->topic == null) 
       return array();
     
-    $consumed = $this->topic->consumeBatch($this->srvr['KafkaServer']['partition'],
-                                      $this->srvr['KafkaServer']['timeout'] * 1000,
-                                      $this->srvr['KafkaServer']['batch_size']);
+    $consumed = $this->topic->consumeBatch($partitionId ?: $this->srvr['KafkaServer']['partition'],
+                                           $this->srvr['KafkaServer']['timeout'] * 1000,
+                                           $this->srvr['KafkaServer']['batch_size']);
     /*
     * poll timeout fixed at 1 second
     */
@@ -187,11 +188,12 @@ class KafkaServer extends AppModel {
    * Establish a Kafka Consumer.
    *
    * @since  COmanage Registry v4.0.0
-   * @param  integer $serverId Server ID
-   * @return bool              true on success
+   * @param  integer $serverId      Server ID
+   * @param  integer $partitionId   Partition ID to poll, or null to use KafkaServer configuration
+   * @return bool                   true on success
    */
   
-  public function establishConsumer($serverId) {
+  public function establishConsumer($serverId, $partitionId=null) {
     $args = array();
     $args['conditions']['Server.id'] = $serverId;
     $args['contain'] = array('KafkaServer');
@@ -234,7 +236,7 @@ class KafkaServer extends AppModel {
 
     $this->topic = $this->consumer->newTopic($this->srvr['KafkaServer']['topic'], $topicConf);
 
-    $this->topic->consumeStart($this->srvr['KafkaServer']['partition'], RD_KAFKA_OFFSET_STORED);
+    $this->topic->consumeStart($partitionId ?: $this->srvr['KafkaServer']['partition'], RD_KAFKA_OFFSET_STORED);
 
     return true;
   }
