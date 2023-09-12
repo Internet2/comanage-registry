@@ -34,7 +34,7 @@ class ExportJob extends CoJobBackend {
    *
    */
 
-  const  MODELS_SUPPORTED = array(
+  const  MODELS_EXPORT = array(
     "ApiUser",
     "AttributeEnumeration",
     "CoDashboard" => array("CoDashboardWidget"),
@@ -46,7 +46,6 @@ class ExportJob extends CoJobBackend {
         array("CoEnrollmentAttributeDefault")
     ),
     "CoExpirationPolicy",
-    "CoExtendedAttribute",
     "CoExtendedType",
     "CoGroup" => array(
       "CoGroupNesting",
@@ -94,73 +93,13 @@ class ExportJob extends CoJobBackend {
 
 
   /**
-   * All supported models
-   * All the models below need to be direct CO descendants
-   *
-   */
-  const  MODELS_IMPORT = array(
-    // One reference, to the Co Id
-    // XXX We get the CO ID from the command line
-    "ApiUser", // blgTo Co
-    "CoExtendedAttribute", // blgTo Co
-    "CoExtendedType", // blgTo Co
-    "Server", // blgTo Co
-    "CoGroup", // blgTo Co
-    "Cou", // blgTo Co
-    "CoTheme", // blgTo Co
-    "CoLocalization", // blgTo Co
-    "CoNavigationLink", // blgTo Co
-    "CoMessageTemplate", // blgTo Co
-    "CoSelfServicePermission", // blgTo Co
-    "Dictionary", // blgTo Co
-    "DataFilter", // blgTo Co
-    "Server", // blgTo Co
-
-    "CoDashboard", // blgTo Co , CoGroup
-    "CoIdentifierAssignment", // blgTo Co , CoGroup
-    "VettingStep", // blgTo Co , CoGroup
-    "CoIdentifierValidator", // blgTo Co , CoExtendedType
-    "CoTermsAndConditions", // blgTo Co, Cou
-    "AttributeEnumeration", // blgTo Co, Dictionary
-
-    // One reference but not the CO ID
-    "DictionaryEntry", //blgTo Dictionary
-    "SqlServer", // blgTo Server
-    "Oauth2Server", // blgTo Server
-    "HttpServer", // blgTo Server
-    "KafkaServer", // blgTo Server
-    "MatchServer", // blgTo Server
-    "MatchServerAttribute", // blgTo MatchServer
-    "CoGroupNesting", // blgTo CoGroup
-
-    "CoDashboardWidget", //blgTo CoDashboard
-
-    "CoEnrollmentFlow", // blgTo Co, CoGroup, CoMessageTemplate, CoTheme, MatchServer
-    "CoEnrollmentFlowWedge", // blgTo CoEnrollmentFlow
-    "CoEnrollmentAttribute", // blgTo CoEnrollmentFlow
-    "CoEnrollmentAttributeDefault", // blgTo CoEnrollmentAttribute
-
-    "CoExpirationPolicy", // blgTo Co, Cou, CoGroup, CoMessageTemplate
-    "CoPipeline", // blgTo Co, Cou, CoEnrollmentFlow, MatchServer
-    "OrgIdentitySource", // blgTo Co, CoPipeline
-    "CoEnrollmentSource", // blgTo CoEnrollmentFlow, OrgIdentitySource
-    "CoProvisioningTarget", // blgTo Co, CoGroup, OrgIdentitySource
-    "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
-
-    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
-    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
-
-    "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
-  );
-
-  /**
    * Execute the requested Job.
    *
    * @param int $coId CO ID
    * @param CoJob $CoJob CO Job Object, id available at $CoJob->id
    * @param array $params Array of parameters, as requested via parameterFormat()
    * @throws InvalidArgumentException
-   * @since  COmanage Registry v4.0.0
+   * @since  COmanage Registry v4.3.0
    */
 
   public function execute($coId, $CoJob, $params) {
@@ -174,7 +113,7 @@ class ExportJob extends CoJobBackend {
       $this->validateParams($coId, $params);
       $models_for_export = array();
       if($params['model_list'] == "All") {
-        $models_for_export = self::MODELS_SUPPORTED;
+        $models_for_export = self::MODELS_EXPORT;
       } else if(strpos($params['model_list'], ",") !== false) {
         $models_for_export = explode(",", $params['model_list']);
       } else {
@@ -203,7 +142,7 @@ class ExportJob extends CoJobBackend {
           // Prepare the data
           $mdata[$mmodel][] = $this->filterMetadataInbound($record,
                                                            $mmodel,
-                                                           self::MODELS_SUPPORTED[$mmodel] ?? array(),
+                                                           self::MODELS_EXPORT[$mmodel] ?? array(),
                                                            $record,
                                                            $mdata,
                                                            $mmodel);
@@ -237,7 +176,7 @@ class ExportJob extends CoJobBackend {
    * @since  COmanage Registry v4.3.0
    * @param  array  $dataset          Record to examine
    * @param  string $modelName        Name of model being examined
-   * @param  string $hasManyOneList   List of models that are currently supported from the configuration self::MODELS_SUPPORTED
+   * @param  string $hasManyOneList   List of models that are currently supported from the configuration self::MODELS_EXPORT
    * @param  array  $record           Record retrieved from database
    * @param  array  $mdata            Reference to the json configuration array
    * @return array                    Formatted record
@@ -313,7 +252,7 @@ class ExportJob extends CoJobBackend {
     // hasMany
 //    foreach($Model->hasMany as $rmodel => $roptions) {
 //      // If the relationship is not defined in the supported models then we skip
-//      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
+//      if( !Hash::check(self::MODELS_EXPORT, $Model->name . $roptions['className']) ) {
 //        continue;
 //      }
 //
@@ -334,7 +273,7 @@ class ExportJob extends CoJobBackend {
     // hasOne
 //    foreach($Model->hasOne as $rmodel => $roptions) {
 //      // If the relationship is not defined in the supported models then we skip
-//      if( !Hash::check(self::MODELS_SUPPORTED, $Model->name . $roptions['className']) ) {
+//      if( !Hash::check(self::MODELS_EXPORT, $Model->name . $roptions['className']) ) {
 //        continue;
 //      }
 //
@@ -506,11 +445,30 @@ class ExportJob extends CoJobBackend {
       $args['conditions'][] = "{$pmodel}.auto IS NOT TRUE";
       $args['conditions']["{$pmodel}.group_type"] = GroupEnum::Standard;
     }
+    // Since the COU is a Tree structure we want the ones with no parent first. These are the parent nodes
+    // and will allow a successful re-construction of the Tree
+    if($pModel->Behaviors->enabled('Tree')) {
+      // We will order by parent_id using the NULLS FIRST option.
+      // PostgreSQL needs the NULLS FIRST in order to put the null at the top
+      // We will treat this as the default
+      $args['order'] = $pModel->name . '.parent_id ASC NULLS FIRST';
+
+      // What should we do in the case of MySQL
+      $db = $pModel->getDataSource();
+      $db_driver = explode("/", $db->config['datasource'], 2);
+
+      $db_driverName = $db_driver[1];
+      if(preg_match("/mysql/i", $db_driverName)) {
+        // MySQL treats NULLs as less than the rest of the values and sorts them at the top
+        $args['order'] = $pModel->name . '.parent_id ASC';
+      }
+
+    }
 
     // We want to contain all the belongsTo associations, as well as the hasMany or hasOne we allow. This will make things easier
     // for the COU model. The COU model hasMany Roles which we do not need. Excluding the CoPersonRoles from the contain list will
     // speed up the process
-    $args['contain'] = array_merge(self::MODELS_SUPPORTED[$pmodel] ?? array(), array_keys($pModel->belongsTo));
+    $args['contain'] = array_merge(self::MODELS_EXPORT[$pmodel] ?? array(), array_keys($pModel->belongsTo));
 
     if (($key = array_search("Co", $args['contain'])) !== false) {
       unset($args['contain'][$key]);
@@ -545,7 +503,7 @@ class ExportJob extends CoJobBackend {
   /**
    * Obtain the list of parameters supported by this Job.
    *
-   * @since  COmanage Registry v4.0.0
+   * @since  COmanage Registry v4.3.0
    * @return Array Array of supported parameters.
    */
 
@@ -555,7 +513,7 @@ class ExportJob extends CoJobBackend {
         'help'     => _txt('pl.provisionerjob.arg.models_list'),
         'type'     => 'select',
         'short'    => 'l',
-        'choices'  => array('All', ...self::MODELS_SUPPORTED),
+        'choices'  => array('All', ...self::MODELS_EXPORT),
         'required' => true
       ),
     );
@@ -583,7 +541,7 @@ class ExportJob extends CoJobBackend {
     if(strpos($params['model_list'], ',') !== false) {
       // This is a CSV list
       $list = explode(',', $params['model_list']);
-      $diff = array_diff($list, self::MODELS_SUPPORTED);
+      $diff = array_diff($list, self::MODELS_EXPORT);
       if(count($diff) > 0) {
         $diff_to_string = implode(",", $diff);
         $this->log(__METHOD__ . "::message " . _txt('er.configuration_handler.model_list.invalid-a', array($diff_to_string)), LOG_ERROR);
@@ -593,7 +551,7 @@ class ExportJob extends CoJobBackend {
     }
 
     // This is only one Model which we need to get the configuration for
-    if(!in_array($params['model_list'], self::MODELS_SUPPORTED)) {
+    if(!in_array($params['model_list'], self::MODELS_EXPORT)) {
       $this->log(__METHOD__ . "::message " . _txt('er.configuration_handler.model_list.invalid-a', array($params['model_list'])), LOG_ERROR);
       throw new InvalidArgumentException( _txt('er.configuration_handler.model_list.invalid-a', array($params['model_list'])));
     }

@@ -21,7 +21,7 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
- * @since         COmanage Registry v4.0.0
+ * @since         COmanage Registry v4.3.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
@@ -41,7 +41,7 @@ class ConfigurationHandler extends CoJobBackend {
    * Expose menu items.
    *
    * @return Array with menu location type as key and array of labels, controllers, actions as values.
-   * @since COmanage Registry v4.0.0
+   * @since COmanage Registry v4.3.0
    */
 
   public function cmPluginMenus() {
@@ -51,14 +51,14 @@ class ConfigurationHandler extends CoJobBackend {
   /**
    * Obtain the list of jobs implemented by this plugin.
    *
-   * @since COmanage Registry v4.0.0
+   * @since COmanage Registry v4.3.0
    * @return Array Array of job names and help texts
    */
 
   public function getAvailableJobs() {
     return array(
       'Export' => _txt('pl.exportjob.job'),
-//      'Import' => _txt('pl.import.job'),
+      'Import' => _txt('pl.import.job'),
     );
   }
 }

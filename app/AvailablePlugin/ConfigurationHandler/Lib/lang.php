@@ -37,12 +37,18 @@ $cm_configuration_handler_texts['en_US'] = array(
   'ct.configuration_handlers.pl' => 'Configuration Handlers',
   
   // Error messages
+  'er.configuration_handler.filename.empty'         => 'Filename must be provided',
+  'er.configuration_handler.filename.invalid-a'     => '"%1$s" file does not exist',
+  'er.configuration_handler.filename.unreadable-a'  => '"%1$s" file is not readable',
+  'er.configuration_handler.filename.noparse-a'     => '"%1$s" file parse failed',
   'er.configuration_handler.models_list.invalid'    => 'Supported Models for export',
   'er.configuration_handler.models_list.invalid-a'  => '"%1$s" Models are not supported.',
-  
+
   // Plugin texts
   'pl.configuration_handler.arg.models_list'      => 'Supported Models for export',
+  'pl.configuration_handler.arg.filename'         => 'Configuration filename',
   'pl.configuration_handler.export.start'         => 'Construct and Export Configuration in JSON format',
+  'pl.configuration_handler.import.start'         => 'Import Configuration from JSON format',
   'pl.exportjob.job'                              => 'Run Export Configuration Task',
   'pl.import.job'                                 => 'Run Import Configuration Task',
 );
