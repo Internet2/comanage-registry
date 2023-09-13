@@ -170,7 +170,9 @@ class CoIdentifierAssignment extends AppModel {
           IdentifierAssignmentExclusionEnum::Offensive,
           IdentifierAssignmentExclusionEnum::Superstitious
         )
-      )
+      ),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'ordr' => array(
       'rule' => 'numeric',
