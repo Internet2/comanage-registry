@@ -405,6 +405,8 @@ class CoreApi extends AppModel {
                                       'id',
                                       'modified',
                                       'revision',
+                                      'lft',
+                                      'rght',
                                       'co_person_role_id',
                                       'source_ad_hoc_attribute_id',
                                       'source_url_id',
@@ -422,6 +424,8 @@ class CoreApi extends AppModel {
                                       'sponsor_co_person_id',
                                       'approver_co_person_id',
                                       'co_invite_id',
+                                      'co_enrollment_flow_id',
+                                      'vetting_request_id',
                                       $mfk))
                    || ($modelName != 'CoGroupMember' && $k == 'co_group_id')) {
             // Move the value to metadata
@@ -727,7 +731,7 @@ class CoreApi extends AppModel {
       // Verify that id is in $currentSet. If it's not, throw an error since
       // the client can't specify a new ID.
       
-      $current = Hash::extract($currentSet, "{n}[id=$id]");
+      $current = Hash::extract($currentSet ?? [], "{n}[id=$id]");
       
       if(empty($current)) {
         throw new InvalidArgumentException(_txt('er.coreapi.id.invalid', array($id)));
