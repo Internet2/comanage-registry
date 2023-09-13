@@ -116,7 +116,8 @@ class DataFilter extends AppModel {
       $source[$modelName]['data_filter_id'] = $this->id;
       
       // Note that we have to disable validation because we want to create an empty row.
-      if(!$this->$modelName->save($source, false)) {
+      $modelNameInstance = ClassRegistry::init($pluginModelName);
+      if(!$modelNameInstance->save($source, false)) {
         return false;
       }
     }
