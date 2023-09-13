@@ -37,7 +37,6 @@ class ImportJob extends CoJobBackend {
     // One reference, to the Co Id
     // XXX We get the CO ID from the command line
     "ApiUser", // blgTo Co
-    "CoExtendedAttribute", // blgTo Co
     "CoExtendedType", // blgTo Co
     "Server", // blgTo Co
     "CoGroup", // blgTo Co
@@ -49,7 +48,6 @@ class ImportJob extends CoJobBackend {
     "CoSelfServicePermission", // blgTo Co
     "Dictionary", // blgTo Co
     "DataFilter", // blgTo Co
-    "Server", // blgTo Co
 
     "CoDashboard", // blgTo Co , CoGroup
     "CoIdentifierAssignment", // blgTo Co , CoGroup
@@ -134,6 +132,7 @@ class ImportJob extends CoJobBackend {
 
       $old_to_new_mapper = array();
       foreach (self::MODELS_IMPORT as $immodel) {
+        $this->log("Importing {$immodel} Configuration", LOG_INFO);
         $curModel = ClassRegistry::init($immodel);
         $records_to_import = Hash::extract($configuration_to_import, '{n}.' . $immodel . '.{n}');
         // There are no records for this model. So go to the next
@@ -149,10 +148,11 @@ class ImportJob extends CoJobBackend {
 
           // CO-1320
           // If the server_type is LDAP skip. It is not supported anymore
+          // XXX Comment out
           if($curModel->name == 'Server'
              && $data['server_type'] == 'LD') {
-            $this->log(__METHOD__ . "::Data skipped => " . print_r($data, true), LOG_INFO);
-            $this->log(__METHOD__ . "::LDAP server type is not supported any more", LOG_INFO);
+            $this->log(__METHOD__ . "::Data skipped => " . print_r($data, true), LOG_ALERT);
+            $this->log(__METHOD__ . "::LDAP server type is not supported any more", LOG_ALERT);
             continue;
           }
 
@@ -175,7 +175,7 @@ class ImportJob extends CoJobBackend {
           $old_to_new_mapper[$importKey] = $curModel->id;
 
           // Recover in the case of Tree structures
-          if($pModel->Behaviors->enabled('Tree')) {
+          if($curModel->Behaviors->enabled('Tree')) {
             $curModel->recover('parent');
           }
         }
