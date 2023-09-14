@@ -64,7 +64,7 @@
     <div class="field-name">
       <div class="field-title">
         <?php print _txt('pl.envsource.mode.dupe'); ?>
-        <span class="required">*</span><br />
+        <span class="required">*</span>
       </div>
     </div>
     <div class="field-info">
@@ -98,6 +98,33 @@
       <?php print ($e
                    ? $this->Form->input('redirect_on_duplicate', array('size' => 60))
                    : filter_var($env_sources[0]['EnvSource']['redirect_on_duplicate'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('sp_type', _txt('pl.envsource.sp.type')) : _txt('pl.envsource.sp.type')); ?>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      global $cm_lang, $cm_texts;
+      $attrs = array();
+      $attrs['value'] = (!empty($env_sources[0]['EnvSource']['sp_type']) ? $env_sources[0]['EnvSource']['sp_type'] : "");
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select('sp_type',
+                                  $cm_texts[ $cm_lang ]['pl.envsource.en.auth.provider'],
+                                  $attrs);
+
+        if($this->Form->isFieldError('sp_type')) {
+          print $this->Form->error('sp_type');
+        }
+      } else {
+        print _txt('pl.envsource.en.sp.type', null, $env_sources[0]['EnvSource']['sp_type']);
+      }
+      ?>
     </div>
   </li>
 </ul>

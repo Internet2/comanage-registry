@@ -42,7 +42,13 @@ $cm_env_source_texts['en_US'] = array(
     EnvSourceDuplicateModeEnum::AnyIdentifier    => 'Any Identifier Match',
     EnvSourceDuplicateModeEnum::LoginIdentifier  => 'Login Identifier Match',
   ),
-  
+
+  'pl.envsource.en.auth.provider' => array(
+    AuthProviderEnum::Shibboleth    => 'Shibboleth SP',
+    AuthProviderEnum::Simplesamlphp => 'SimpleSamlPHP SP',
+    AuthProviderEnum::Other         => 'Other',
+  ),
+
   // Error messages
   'er.envsource.dupe'           => 'Identifier "%1$s" is already registered',
   'er.envsource.sorid'          => 'Identifier (SORID) variable "%1$s" not set',
@@ -52,8 +58,9 @@ $cm_env_source_texts['en_US'] = array(
   'er.envsource.token'          => 'Token error',
   
   // Plugin texts
-  'pl.envsource.mode.dupe'      => 'Duplicate Handling Mode',
-  'pl.envsource.name.unknown'   => 'Unknownname',
-  'pl.envsource.redirect.dupe'  => 'Redirect on Duplicate',
-  'pl.envsource.sorid.desc'     => 'This must be set to an environment variable holding a unique identifier for any authenticated user.'
+  'pl.envsource.mode.dupe'               => 'Duplicate Handling Mode',
+  'pl.envsource.sp.type'                 => 'Web Server SP Provider',
+  'pl.envsource.name.unknown'            => 'Unknownname',
+  'pl.envsource.redirect.dupe'           => 'Redirect on Duplicate',
+  'pl.envsource.sorid.desc'              => 'This must be set to an environment variable holding a unique identifier for any authenticated user.'
 );
