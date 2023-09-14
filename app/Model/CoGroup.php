@@ -40,6 +40,10 @@ class CoGroup extends AppModel {
       'dependent' => true,
       'foreignKey' => 'target_co_group_id'
     ),
+    "CoGroupOisMapping" => array(
+      'dependent' => true,
+      'foreignKey' => 'co_group_id'
+    ),
     "SourceCoGroupNesting" => array(
       'dependent' => true,
       'className' => 'CoGroupNesting',

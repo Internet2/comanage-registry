@@ -285,6 +285,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           // a use case for this.
           continue;
         }
+
+        // No attributes may be configured for the objectclass handled by the plugin.
+        if(!array_key_exists($oc, $configuredAttributes)) {
+          continue;
+        }
         
         // Ask the plugin to assemble the attributes for this objectclass for us.
         // First, get a pointer to the plugin model.
