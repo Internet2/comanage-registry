@@ -102,7 +102,7 @@ class CoTermsAndConditions extends AppModel {
     $new_route = Router::url(array(
                                "controller" => "CoTermsAndConditions",
                                "action" => "display",
-                               $this->data['CoTermsAndConditions']['id']
+                               $created ? $this->data['CoTermsAndConditions']['id'] : $this->id
                              ), true);
     if(!empty($this->data['CoTermsAndConditions']['body'])
        && $url != $new_route) {

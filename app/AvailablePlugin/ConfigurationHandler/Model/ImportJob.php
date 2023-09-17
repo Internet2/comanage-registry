@@ -37,7 +37,7 @@ class ImportJob extends CoJobBackend {
     // One reference, to the Co Id
     // XXX We get the CO ID from the command line
     "ApiUser", // blgTo Co
-//    "CoExtendedType", // blgTo Co
+    "CoExtendedType", // blgTo Co
     "Server", // blgTo Co
     "CoGroup", // blgTo Co
     "Cou", // blgTo Co
@@ -52,10 +52,10 @@ class ImportJob extends CoJobBackend {
     "CoDashboard", // blgTo Co , CoGroup
 //    "CoIdentifierAssignment", // blgTo Co , CoGroup, ExtendedTypes (Required since they are used for validation)
     "VettingStep", // blgTo Co , CoGroup
-//    "CoIdentifierValidator", // blgTo Co , CoExtendedType
+    "CoIdentifierValidator", // blgTo Co , CoExtendedType
     "CoTermsAndConditions", // blgTo Co, Cou
     "AttributeEnumeration", // blgTo Co, Dictionary
-//
+
 //    // One reference but not the CO ID
 //    "DictionaryEntry", //blgTo Dictionary
 //    "SqlServer", // blgTo Server
@@ -83,7 +83,7 @@ class ImportJob extends CoJobBackend {
 //    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
 //    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
 //
-//    "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
+    "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
   );
 
   /**
@@ -142,6 +142,7 @@ class ImportJob extends CoJobBackend {
 
         $num_of_records = count($records_to_import);
         foreach ($records_to_import as $idx => $record) {
+          // Construct the final data
           $data = $this->constructData($record,
                                        $curModel,
                                        $old_to_new_mapper,
@@ -152,15 +153,19 @@ class ImportJob extends CoJobBackend {
           // XXX Comment out
           if($curModel->name == 'Server'
              && $data['server_type'] == 'LD') {
-            $this->log(__METHOD__ . "::Data skipped => " . print_r($data, true), LOG_ALERT);
-            $this->log(__METHOD__ . "::LDAP server type is not supported any more", LOG_ALERT);
-            continue;
+            // TODO: Write only to log file
+//            fwrite(STDOUT, "\n");
+//            $this->log(__METHOD__ . "::Data skipped => " . print_r($data, true), LOG_WARNING);
+//            $this->log(__METHOD__ . "::LDAP server type is not supported any more", LOG_WARNING);
+            continue 1;
           }
-
 
           $importKey = $data['ref'];
           unset($data['ref']);
           $curModel->clear();
+
+          // Are we performing a creation or an update??
+          $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
           if(!$curModel->save($data, array(
             'provision' => false,
             'callbacks' => true,
@@ -173,7 +178,7 @@ class ImportJob extends CoJobBackend {
           }
 
           // Add the new ID to the mapper.
-          $old_to_new_mapper[$importKey] = $curModel->id;
+          $old_to_new_mapper[$importKey] = (int)$curModel->id;
 
           // Recover in the case of Tree structures
           if($curModel->Behaviors->enabled('Tree')) {
@@ -188,16 +193,22 @@ class ImportJob extends CoJobBackend {
         fwrite(STDOUT, "\n");
       }
 
+      // This is a dry run
+//      if($params["filename"]) {
+        $dbc->rollback();
+//      } else {
 //      $dbc->commit();
-      $dbc->rollback();
+//      }
 
       if($CoJob->id) {
         $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
+        fwrite(STDOUT, "\n");
       }
     }
     catch(Exception $e) {
       $dbc->rollback();
       $CoJob->finish($CoJob->id, $e->getMessage(), JobStatusEnum::Failed);
+      fwrite(STDOUT, "\n");
     }
   }
 
@@ -215,6 +226,132 @@ class ImportJob extends CoJobBackend {
     $left = 100 - $perc;
     $out = sprintf("\033[0G\033[2K[%'={$perc}s>%-{$left}s] - $perc%% -- $done/$total", "", "");
     fwrite(STDOUT, $out);
+  }
+
+  /**
+   * Check for an existing configuration record in the new deployment
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param array   $importRecord         Array with the new record values
+   * @param object  $Model                Class Instance of the Model
+   *
+   * @return int|null                     The Record ID when updating, null when creating a new record
+   *
+   * @todo the combination $fk_exception and $exceptions arrays could become the `isUniqueChangelog` fields under
+   *        each model validation configuration. Then we could extract the columns to query directly from that
+   *        configuration
+   */
+  public function checkForRecordDuplicate($importRecord, $Model) {
+    // We omit the ones that are directly associated with the CO
+    $fk_exception = array(
+      // One reference but not the CO ID
+      "DictionaryEntry" => array("dictionary_id"), //blgTo Dictionary
+      "SqlServer" => array("server_id"), // blgTo Server
+      "Oauth2Server" => array("server_id"), // blgTo Server
+      "HttpServer" => array("server_id"), // blgTo Server
+      "KafkaServer" => array("server_id"), // blgTo Server
+      "MatchServer" => array("server_id"), // blgTo Server
+      "MatchServerAttribute" => array("match_server_id"), // blgTo MatchServer
+      "CoGroupNesting" => array("co_group_id"), // blgTo CoGroup
+      "CoDashboardWidget" => array("co_dashboard_id"), //blgTo CoDashboard
+      "CoEnrollmentAttribute" => array("co_enrollment_flow_id"), // blgTo CoEnrollmentFlow
+      "CoEnrollmentAttributeDefault" => array("co_enrollment_attribute_id"), // blgTo CoEnrollmentAttribute
+      "CoEnrollmentSource" => array("co_enrollment_flow_id"), // blgTo CoEnrollmentFlow, OrgIdentitySource
+      "CoGroupOisMapping" => array("co_group_id"), // blgTo CoGroup, OrgIdentitySource
+      "OrgIdentitySourceFilter" => array("org_identity_source_id"), // blgTo OrgIdentitySource, DataFilter
+      "CoProvisioningTargetFilter" => array("co_provisioning_target_id"), // blgTo CoProvisioningTarget, DataFilter
+    );
+
+
+    // XXX In order to check for duplicates we need a combination of value fields and foreign keys
+    //     For example for the ApiUser we want a unique username per CO. Since we introduced the
+    //     ChangelogBehavior the isUnique validator function does not work and we have a manual approach
+    //     to the problem through using beforeValidate and beforeSave callback. Here we will have to
+    //     add some configuration foreach model. We know the value fields but we need to configure what
+    //     the foreign keys will be as well.
+
+    $fields_to_query = $this->importKeyConstuct($Model);
+    $args = array();
+    if(empty($fk_exception[$Model->name])) {
+      $args['conditions'][$Model->name . '.co_id'] = $importRecord['co_id'];
+    } else {
+      $fks = $fk_exception[$Model->name];
+      foreach($fks as $fk) {
+        $args['conditions'][$Model->name . '.' . $fk] = $importRecord[$fk];
+      }
+    }
+    foreach ($fields_to_query as $field) {
+      [$modelName, $clmn] = explode('.', $field);
+      $args['conditions'][$field] = $importRecord[$clmn];
+    }
+    // For groups we need to leave out the auto ones
+    if($Model->name == 'CoGroup') {
+      $args['conditions'][] = "{$Model->name}.auto IS NOT TRUE";
+      $args['conditions']["{$Model->name}.group_type"] = GroupEnum::Standard;
+    }
+
+    $args['contain'] = false;
+
+    $record = $Model->find('first', $args);
+
+    // If there is no record return
+    if(empty($record)) {
+      return null;
+    }
+    // Return the record id for updating
+    return $record[$Model->name]['id'];
+  }
+
+  /**
+   * Construct the importKey using the following rules
+   * - If an exception is defined for the Model use that. (Very few fields should require exceptions.) Otherwise
+   * - If the name field is defined use that.
+   * - If the description field is defined use that.
+   *
+   * @param  object  $Model  Class Instance of the Model
+   * @since  COmanage Registry v4.3.0
+   *
+   * @return array   The list of fields to query the new with the old data
+   */
+  public function importKeyConstuct($Model) {
+    // CoSettings is a special Model which exists in all COUs and will always be updated
+    if($Model->name == "CoSetting") {
+      return array();
+    }
+
+    $exceptions = array(
+      // One reference, to the Co Id
+      // XXX We get the CO ID from the command line
+      "ApiUser" => array('username'),
+      "CoExtendedType" => array('attribute', 'name'),
+      "CoLocalization" => array('lkey', 'language'),
+      "CoNavigationLink" => array('url'),
+      "CoSelfServicePermission" => array('model', 'type'),
+      "CoIdentifierAssignment" => array('description', 'identifier_type'),
+      "AttributeEnumeration" => array('attribute', 'optvalue'),
+      "DictionaryEntry" => array('value', 'code'),
+      "SqlServer" => array('server_url'),
+      "Oauth2Server" => array('server_url'),
+      "HttpServer" => array('server_url'),
+      "KafkaServer" => array('server_url'),
+      "MatchServer" => array('server_url'),
+      "MatchServerAttribute" => array('attribute', 'type'),
+      "CoEnrollmentAttributeDefault" => array('value'),
+      "CoGroupOisMapping" => array('attribute', 'comparison', 'pattern'),
+    );
+
+    $mdl_schema = $Model->schema();
+    $clmns = array_keys($mdl_schema);
+
+    if(in_array('name', $clmns)) {
+      return array($Model->name . ".name");
+    } else if(in_array('description', $clmns)) {
+      return array($Model->name . ".description");
+    } else {
+      return array_map(function($field) use($Model) {
+        return "{$Model->name}.{$field}";
+      }, $exceptions[$Model->name]);
+    }
   }
 
 
@@ -306,10 +443,17 @@ class ImportJob extends CoJobBackend {
     $params = array(
       // XXX The filename should be provided without the path
       'filename' => array(
-        'help'     => _txt('pl.provisionerjob.arg.filename'),
+        'help'     => _txt('pl.configuration_handler.arg.filename'),
         'type'     => 'string',
         'required' => true
       ),
+      'dry' => array(
+        'short'   => 'd',
+        'help'    => _txt('pl.configuration_handler.arg.dry_run'),
+        'type' => "bool",
+        'default' => false,
+        'required' => false
+      )
     );
 
     return $params;
@@ -331,8 +475,6 @@ class ImportJob extends CoJobBackend {
       throw new InvalidArgumentException( _txt('er.configuration_handler.filename.empty'));
     }
 
-
     return true;
   }
-
 }

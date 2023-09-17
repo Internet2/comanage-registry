@@ -73,7 +73,6 @@ class ExportJob extends CoJobBackend {
     ),
     "Dictionary" => array(
       "DictionaryEntry",
-      "AttributeEnumeration"
     ),
     "OrgIdentitySource" => array(
       "CoGroupOisMapping",
