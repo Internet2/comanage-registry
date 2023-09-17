@@ -56,33 +56,33 @@ class ImportJob extends CoJobBackend {
     "CoTermsAndConditions", // blgTo Co, Cou
     "AttributeEnumeration", // blgTo Co, Dictionary
 
-//    // One reference but not the CO ID
-//    "DictionaryEntry", //blgTo Dictionary
-//    "SqlServer", // blgTo Server
-//    "Oauth2Server", // blgTo Server
-//    "HttpServer", // blgTo Server
-//    "KafkaServer", // blgTo Server
-//    "MatchServer", // blgTo Server
-//    "MatchServerAttribute", // blgTo MatchServer
+    // One reference but not the CO ID
+    "DictionaryEntry", //blgTo Dictionary
+    "SqlServer", // blgTo Server
+    "Oauth2Server", // blgTo Server
+    "HttpServer", // blgTo Server
+    "KafkaServer", // blgTo Server
+    "MatchServer", // blgTo Server
+    "MatchServerAttribute", // blgTo MatchServer
 //    "CoGroupNesting", // blgTo CoGroup
-//
-//    "CoDashboardWidget", //blgTo CoDashboard
-//
-//    "CoEnrollmentFlow", // blgTo Co, CoGroup, CoMessageTemplate, CoTheme, MatchServer
-//    "CoEnrollmentFlowWedge", // blgTo CoEnrollmentFlow
-//    "CoEnrollmentAttribute", // blgTo CoEnrollmentFlow
-//    "CoEnrollmentAttributeDefault", // blgTo CoEnrollmentAttribute
-//
-//    "CoExpirationPolicy", // blgTo Co, Cou, CoGroup, CoMessageTemplate
-//    "CoPipeline", // blgTo Co, Cou, CoEnrollmentFlow, MatchServer
-//    "OrgIdentitySource", // blgTo Co, CoPipeline
-//    "CoEnrollmentSource", // blgTo CoEnrollmentFlow, OrgIdentitySource
-//    "CoProvisioningTarget", // blgTo Co, CoGroup, OrgIdentitySource
-//    "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
-//
-//    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
+
+    "CoDashboardWidget", //blgTo CoDashboard
+
+    "CoEnrollmentFlow", // blgTo Co, CoGroup, CoMessageTemplate, CoTheme, MatchServer
+    "CoEnrollmentFlowWedge", // blgTo CoEnrollmentFlow
+    "CoEnrollmentAttribute", // blgTo CoEnrollmentFlow
+    "CoEnrollmentAttributeDefault", // blgTo CoEnrollmentAttribute
+
+    "CoExpirationPolicy", // blgTo Co, Cou, CoGroup, CoMessageTemplate
+    "CoPipeline", // blgTo Co, Cou, CoEnrollmentFlow, MatchServer
+    "OrgIdentitySource", // blgTo Co, CoPipeline
+    "CoEnrollmentSource", // blgTo CoEnrollmentFlow, OrgIdentitySource
+    "CoProvisioningTarget", // blgTo Co, CoGroup, OrgIdentitySource
+    "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
+
+    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
 //    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
-//
+
     "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
   );
 
@@ -134,7 +134,19 @@ class ImportJob extends CoJobBackend {
       foreach (self::MODELS_IMPORT as $immodel) {
         $this->log("Importing {$immodel} Configuration", LOG_INFO);
         $curModel = ClassRegistry::init($immodel);
-        $records_to_import = Hash::extract($configuration_to_import, '{n}.' . $immodel . '.{n}');
+        if(in_array($immodel, array(
+          "SqlServer", // blgTo Server
+          "Oauth2Server", // blgTo Server
+          "HttpServer", // blgTo Server
+          "KafkaServer", // blgTo Server
+          "MatchServer", // blgTo Server
+        ))) {
+          // hasOne
+          $records_to_import = Hash::extract($configuration_to_import, '{n}.' . $immodel);
+        } else {
+          // hasMany
+          $records_to_import = Hash::extract($configuration_to_import, '{n}.' . $immodel . '.{n}');
+        }
         // There are no records for this model. So go to the next
         if(empty($records_to_import)) {
           continue;
@@ -164,12 +176,20 @@ class ImportJob extends CoJobBackend {
           unset($data['ref']);
           $curModel->clear();
 
+          // XXX There Models where we want to disable callbacks.
+          $disable_callbacks = array(
+            'CoEnrollmentFlowWedge',
+            'CoDashboardWidget',
+            'OrgIdentitySource'
+          );
+
           // Are we performing a creation or an update??
           $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
           if(!$curModel->save($data, array(
             'provision' => false,
-            'callbacks' => true,
-            'validate' => true
+            'callbacks' => !in_array($curModel->name, $disable_callbacks),
+            // todo: Change me back to true
+            'validate' => false
           ))) {
             $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
             $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
@@ -256,7 +276,8 @@ class ImportJob extends CoJobBackend {
       "CoDashboardWidget" => array("co_dashboard_id"), //blgTo CoDashboard
       "CoEnrollmentAttribute" => array("co_enrollment_flow_id"), // blgTo CoEnrollmentFlow
       "CoEnrollmentAttributeDefault" => array("co_enrollment_attribute_id"), // blgTo CoEnrollmentAttribute
-      "CoEnrollmentSource" => array("co_enrollment_flow_id"), // blgTo CoEnrollmentFlow, OrgIdentitySource
+      "CoEnrollmentFlowWedge" => array("co_enrollment_flow_id"), // blgTo CoEnrollmentFlow
+      "CoEnrollmentSource" => array("co_enrollment_flow_id", "org_identity_source_id"), // blgTo CoEnrollmentFlow, OrgIdentitySource
       "CoGroupOisMapping" => array("co_group_id"), // blgTo CoGroup, OrgIdentitySource
       "OrgIdentitySourceFilter" => array("org_identity_source_id"), // blgTo OrgIdentitySource, DataFilter
       "CoProvisioningTargetFilter" => array("co_provisioning_target_id"), // blgTo CoProvisioningTarget, DataFilter
@@ -330,11 +351,11 @@ class ImportJob extends CoJobBackend {
       "CoIdentifierAssignment" => array('description', 'identifier_type'),
       "AttributeEnumeration" => array('attribute', 'optvalue'),
       "DictionaryEntry" => array('value', 'code'),
-      "SqlServer" => array('server_url'),
-      "Oauth2Server" => array('server_url'),
-      "HttpServer" => array('server_url'),
-      "KafkaServer" => array('server_url'),
-      "MatchServer" => array('server_url'),
+      "SqlServer" => array('type', 'hostname'),
+      "Oauth2Server" => array('serverurl'),
+      "HttpServer" => array('serverurl'),
+      "KafkaServer" => array('brokers'),
+      "MatchServer" => array('serverurl'),
       "MatchServerAttribute" => array('attribute', 'type'),
       "CoEnrollmentAttributeDefault" => array('value'),
       "CoGroupOisMapping" => array('attribute', 'comparison', 'pattern'),
@@ -347,10 +368,12 @@ class ImportJob extends CoJobBackend {
       return array($Model->name . ".name");
     } else if(in_array('description', $clmns)) {
       return array($Model->name . ".description");
-    } else {
+    } else if(in_array($Model->name, $exceptions)) {
       return array_map(function($field) use($Model) {
         return "{$Model->name}.{$field}";
       }, $exceptions[$Model->name]);
+    } else {
+      return array();
     }
   }
 

@@ -360,7 +360,7 @@ class ExportJob extends CoJobBackend {
           return;
         }
         $tmp = array();
-        $this->constructRecord($data, $Model, $meta_fields, $modelName, $assc_keys, $tmp);
+        $this->constructRecord($data, $Model, $meta_fields, $assc_keys, $tmp);
         $ret[] = $tmp;
       }
     } else {
@@ -369,7 +369,7 @@ class ExportJob extends CoJobBackend {
         return;
       }
       // hasOne
-      $this->constructRecord($dataset_to_parse,  $Model, $meta_fields, $modelName, $assc_keys, $ret);
+      $this->constructRecord($dataset_to_parse,  $Model, $meta_fields, $assc_keys, $ret);
     }
 
     return $ret;
@@ -383,13 +383,13 @@ class ExportJob extends CoJobBackend {
    * @param array $data
    * @param Model $Model
    * @param array $meta_fields
-   * @param string $modelName
+
    * @param array $assc_keys
    * @param array $ret
    *
    * @return void
    */
-  public function constructRecord($data,  $Model, $meta_fields, $modelName, $assc_keys, &$ret) {
+  public function constructRecord($data,  $Model, $meta_fields, $assc_keys, &$ret) {
     $mdl_schema = $Model->schema();
     foreach ($mdl_schema as $clmn => $properties) {
       // We might have hasMany or hasOne relationships the first is an array of records( find->all)
@@ -404,7 +404,7 @@ class ExportJob extends CoJobBackend {
             : $data[$clmn];
         } else {
           if ($clmn == "id") {
-            $ret['ref'] = strtolower($modelName . $clmn . $data[$clmn]);
+            $ret['ref'] = strtolower($Model->name . $clmn . $data[$clmn]);
           } else {
             // This is a foreign key to a belongs to Model
             if(in_array($clmn, $assc_keys, true)) {
