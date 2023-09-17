@@ -64,7 +64,7 @@ class ImportJob extends CoJobBackend {
     "KafkaServer", // blgTo Server
     "MatchServer", // blgTo Server
     "MatchServerAttribute", // blgTo MatchServer
-//    "CoGroupNesting", // blgTo CoGroup
+    "CoGroupNesting", // blgTo CoGroup
 
     "CoDashboardWidget", //blgTo CoDashboard
 
@@ -81,7 +81,7 @@ class ImportJob extends CoJobBackend {
     "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
 
     "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
-//    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
+    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
 
     "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
   );
@@ -229,6 +229,7 @@ class ImportJob extends CoJobBackend {
       $dbc->rollback();
       $CoJob->finish($CoJob->id, $e->getMessage(), JobStatusEnum::Failed);
       fwrite(STDOUT, "\n");
+      $this->log(__METHOD__ . "::Exception message::" . $e->getMessage(), LOG_ERROR);
     }
   }
 
@@ -280,7 +281,7 @@ class ImportJob extends CoJobBackend {
       "CoEnrollmentSource" => array("co_enrollment_flow_id", "org_identity_source_id"), // blgTo CoEnrollmentFlow, OrgIdentitySource
       "CoGroupOisMapping" => array("co_group_id"), // blgTo CoGroup, OrgIdentitySource
       "OrgIdentitySourceFilter" => array("org_identity_source_id"), // blgTo OrgIdentitySource, DataFilter
-      "CoProvisioningTargetFilter" => array("co_provisioning_target_id"), // blgTo CoProvisioningTarget, DataFilter
+      "CoProvisioningTargetFilter" => array("co_provisioning_target_id", "data_filter_id"), // blgTo CoProvisioningTarget, DataFilter
     );
 
 

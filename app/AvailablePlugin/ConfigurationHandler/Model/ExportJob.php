@@ -57,9 +57,7 @@ class ExportJob extends CoJobBackend {
     "CoMessageTemplate",
     "CoNavigationLink",
     "CoPipeline",
-    "CoProvisioningTarget" => array(
-      "CoProvisioningTargetFilter"
-    ),
+    "CoProvisioningTarget",
     "DataFilter" => array(
       "OrgIdentitySourceFilter",
       "CoProvisioningTargetFilter",
