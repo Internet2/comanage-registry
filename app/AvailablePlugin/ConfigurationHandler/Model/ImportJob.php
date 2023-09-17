@@ -37,7 +37,7 @@ class ImportJob extends CoJobBackend {
     // One reference, to the Co Id
     // XXX We get the CO ID from the command line
     "ApiUser", // blgTo Co
-    "CoExtendedType", // blgTo Co
+//    "CoExtendedType", // blgTo Co
     "Server", // blgTo Co
     "CoGroup", // blgTo Co
     "Cou", // blgTo Co
@@ -50,40 +50,40 @@ class ImportJob extends CoJobBackend {
     "DataFilter", // blgTo Co
 
     "CoDashboard", // blgTo Co , CoGroup
-    "CoIdentifierAssignment", // blgTo Co , CoGroup
+//    "CoIdentifierAssignment", // blgTo Co , CoGroup, ExtendedTypes (Required since they are used for validation)
     "VettingStep", // blgTo Co , CoGroup
-    "CoIdentifierValidator", // blgTo Co , CoExtendedType
+//    "CoIdentifierValidator", // blgTo Co , CoExtendedType
     "CoTermsAndConditions", // blgTo Co, Cou
     "AttributeEnumeration", // blgTo Co, Dictionary
-
-    // One reference but not the CO ID
-    "DictionaryEntry", //blgTo Dictionary
-    "SqlServer", // blgTo Server
-    "Oauth2Server", // blgTo Server
-    "HttpServer", // blgTo Server
-    "KafkaServer", // blgTo Server
-    "MatchServer", // blgTo Server
-    "MatchServerAttribute", // blgTo MatchServer
-    "CoGroupNesting", // blgTo CoGroup
-
-    "CoDashboardWidget", //blgTo CoDashboard
-
-    "CoEnrollmentFlow", // blgTo Co, CoGroup, CoMessageTemplate, CoTheme, MatchServer
-    "CoEnrollmentFlowWedge", // blgTo CoEnrollmentFlow
-    "CoEnrollmentAttribute", // blgTo CoEnrollmentFlow
-    "CoEnrollmentAttributeDefault", // blgTo CoEnrollmentAttribute
-
-    "CoExpirationPolicy", // blgTo Co, Cou, CoGroup, CoMessageTemplate
-    "CoPipeline", // blgTo Co, Cou, CoEnrollmentFlow, MatchServer
-    "OrgIdentitySource", // blgTo Co, CoPipeline
-    "CoEnrollmentSource", // blgTo CoEnrollmentFlow, OrgIdentitySource
-    "CoProvisioningTarget", // blgTo Co, CoGroup, OrgIdentitySource
-    "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
-
-    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
-    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
-
-    "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
+//
+//    // One reference but not the CO ID
+//    "DictionaryEntry", //blgTo Dictionary
+//    "SqlServer", // blgTo Server
+//    "Oauth2Server", // blgTo Server
+//    "HttpServer", // blgTo Server
+//    "KafkaServer", // blgTo Server
+//    "MatchServer", // blgTo Server
+//    "MatchServerAttribute", // blgTo MatchServer
+//    "CoGroupNesting", // blgTo CoGroup
+//
+//    "CoDashboardWidget", //blgTo CoDashboard
+//
+//    "CoEnrollmentFlow", // blgTo Co, CoGroup, CoMessageTemplate, CoTheme, MatchServer
+//    "CoEnrollmentFlowWedge", // blgTo CoEnrollmentFlow
+//    "CoEnrollmentAttribute", // blgTo CoEnrollmentFlow
+//    "CoEnrollmentAttributeDefault", // blgTo CoEnrollmentAttribute
+//
+//    "CoExpirationPolicy", // blgTo Co, Cou, CoGroup, CoMessageTemplate
+//    "CoPipeline", // blgTo Co, Cou, CoEnrollmentFlow, MatchServer
+//    "OrgIdentitySource", // blgTo Co, CoPipeline
+//    "CoEnrollmentSource", // blgTo CoEnrollmentFlow, OrgIdentitySource
+//    "CoProvisioningTarget", // blgTo Co, CoGroup, OrgIdentitySource
+//    "CoGroupOisMapping", // blgTo CoGroup, OrgIdentitySource
+//
+//    "OrgIdentitySourceFilter", // blgTo OrgIdentitySource, DataFilter
+//    "CoProvisioningTargetFilter", // blgTo CoProvisioningTarget, DataFilter
+//
+//    "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
   );
 
   /**
@@ -140,7 +140,8 @@ class ImportJob extends CoJobBackend {
           continue;
         }
 
-        foreach ($records_to_import as $record) {
+        $num_of_records = count($records_to_import);
+        foreach ($records_to_import as $idx => $record) {
           $data = $this->constructData($record,
                                        $curModel,
                                        $old_to_new_mapper,
@@ -157,8 +158,8 @@ class ImportJob extends CoJobBackend {
           }
 
 
-          $importKey = $data['key'];
-          unset($data['key']);
+          $importKey = $data['ref'];
+          unset($data['ref']);
           $curModel->clear();
           if(!$curModel->save($data, array(
             'provision' => false,
@@ -178,8 +179,13 @@ class ImportJob extends CoJobBackend {
           if($curModel->Behaviors->enabled('Tree')) {
             $curModel->recover('parent');
           }
+
+          // Print the progress percentage
+          $this->cliLogPercentage($idx+1, $num_of_records);
         }
 
+        // Just leave a new line to the output
+        fwrite(STDOUT, "\n");
       }
 
 //      $dbc->commit();
@@ -193,6 +199,22 @@ class ImportJob extends CoJobBackend {
       $dbc->rollback();
       $CoJob->finish($CoJob->id, $e->getMessage(), JobStatusEnum::Failed);
     }
+  }
+
+  /**
+   * Print formatted cli percentage
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param  int    $done      Number of iterations completed
+   * @param  int    $total     Total number of iterations
+   * @return string            Formated string with line return offset
+   */
+
+  public function cliLogPercentage($done, $total) {
+    $perc = floor(($done / $total) * 100);
+    $left = 100 - $perc;
+    $out = sprintf("\033[0G\033[2K[%'={$perc}s>%-{$left}s] - $perc%% -- $done/$total", "", "");
+    fwrite(STDOUT, $out);
   }
 
 

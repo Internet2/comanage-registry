@@ -405,7 +405,7 @@ class ExportJob extends CoJobBackend {
             : $data[$clmn];
         } else {
           if ($clmn == "id") {
-            $ret['key'] = strtolower($modelName . $clmn . $data[$clmn]);
+            $ret['ref'] = strtolower($modelName . $clmn . $data[$clmn]);
           } else {
             // This is a foreign key to a belongs to Model
             if(in_array($clmn, $assc_keys, true)) {
