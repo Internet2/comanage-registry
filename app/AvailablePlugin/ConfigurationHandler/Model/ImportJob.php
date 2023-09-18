@@ -183,17 +183,27 @@ class ImportJob extends CoJobBackend {
             'OrgIdentitySource'
           );
 
-          // Are we performing a creation or an update??
-          $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
-          if(!$curModel->save($data, array(
-            'provision' => false,
-            'callbacks' => !in_array($curModel->name, $disable_callbacks),
-            'validate' => true
-          ))) {
-            $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
-            $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
-            $dbc->rollback();
-            throw new RuntimeException(_txt('er.db.save'));
+          try {
+            // Are we performing a creation or an update??
+            $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
+            if(!$curModel->save($data, array(
+              'provision' => false,
+              'callbacks' => !in_array($curModel->name, $disable_callbacks),
+              'validate' => true
+            ))) {
+              $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
+              $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
+              $dbc->rollback();
+              throw new RuntimeException(_txt('er.db.save'));
+            }
+          } catch (Exception $e) {
+            // Here we throw only if the save returns false and we continue otherwise. Currently, for the Models
+            // this will happen is when there is a duplicate. As a result we can import over and over again
+            // without causing the import to break after the first time.
+            if ($e->getMessage() == _txt('er.db.save')) {
+              throw new RuntimeException(_txt('er.db.save'));
+            }
+            $this->log(__METHOD__ . "::Model Name: {$curModel->name}\n {$e->getMessage()}", LOG_WARNING);
           }
 
           // Add the new ID to the mapper.
