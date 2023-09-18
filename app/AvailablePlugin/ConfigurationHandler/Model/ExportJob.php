@@ -238,65 +238,6 @@ class ExportJob extends CoJobBackend {
       }
     }
 
-    // XXX The relationship structure is always one to many either we have a belongs to or a has many
-    //     "@Cou::CoTermsAndConditions_hasMany.0@": "Cou13CoTermsAndConditions10",
-    //     The COU with id 13 has many CoTerms and conditions
-    //
-    //     "@Cou::Cou_belongsTo@": "Cou0Cou13",
-    //     The parent COU has many COUs. Currently the parent is null, this is why the id value is 0
-
-
-    // hasMany
-//    foreach($Model->hasMany as $rmodel => $roptions) {
-//      // If the relationship is not defined in the supported models then we skip
-//      if( !Hash::check(self::MODELS_EXPORT, $Model->name . $roptions['className']) ) {
-//        continue;
-//      }
-//
-//      if(!empty($dataset[$rmodel]) && is_array($dataset[$rmodel])) {
-//        foreach($dataset[$rmodel] as $idx => $has_many_record) {
-//          // Handle the case were we created a virtual class name, e.g. the following example is from the EnrollmentFlows
-//          //     "CoEnrollmentFlowNotificationCoGroup" => array(
-//          //      'className' => 'CoGroup',
-//          //      'foreignKey' => 'notification_co_group_id'
-//          //    ),
-//          $place_holder_string = '@' . $Model->name . "::" . $roptions['className'] . "_hasMany.{$idx}@";
-//          $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($has_many_record['id'] ?? 0));
-//          $ret[$place_holder_string] = $place_holder_hashed_value;
-//        }
-//      }
-//    }
-
-    // hasOne
-//    foreach($Model->hasOne as $rmodel => $roptions) {
-//      // If the relationship is not defined in the supported models then we skip
-//      if( !Hash::check(self::MODELS_EXPORT, $Model->name . $roptions['className']) ) {
-//        continue;
-//      }
-//
-//      $place_holder_string = '@' . $Model->name . "::" .  $roptions['className'] . '_hasOne@';
-//      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0));
-//      $ret[$place_holder_string] = $place_holder_hashed_value;
-//    }
-
-    // belongsTo
-//    foreach($Model->belongsTo as $rmodel => $roptions) {
-//      // If we do not have any associated record continue to the next model
-//      if(empty($dataset[$rmodel]['id'])) {
-//        continue;
-//      }
-//      // For the case of COUs we will have a relationship of the type:
-//      // "@Cou::Cou_belongsTo@": "Cou0Cou13"
-//      // This is not the Changelog wich slipped into the configuration. It is the tree relationship
-//      // The ParentCou is a link to the COU itself and the foreign key is the parent_id column
-//      $place_holder_string = '@' . $roptions['className'] . "::" . $Model->name . '_belongsTo@';
-//      $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($dataset[$rmodel]['id'] ?? 0) ) ;
-//      $ret[$place_holder_string] = $place_holder_hashed_value;
-//    }
-
-    // manyToMany
-    // XXX Currently we have no model using this relationship type
-
     // Get the list of belongs_to associations and construct an exclude array
     $assc_keys = [];
     foreach ($Model->belongsTo as $rmodel => $roptions) {

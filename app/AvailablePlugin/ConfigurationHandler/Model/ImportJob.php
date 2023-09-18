@@ -176,7 +176,7 @@ class ImportJob extends CoJobBackend {
           unset($data['ref']);
           $curModel->clear();
 
-          // XXX There Models where we want to disable callbacks.
+          // XXX Disable callbacks for the following callback.
           $disable_callbacks = array(
             'CoEnrollmentFlowWedge',
             'CoDashboardWidget',
@@ -188,8 +188,7 @@ class ImportJob extends CoJobBackend {
           if(!$curModel->save($data, array(
             'provision' => false,
             'callbacks' => !in_array($curModel->name, $disable_callbacks),
-            // todo: Change me back to true
-            'validate' => false
+            'validate' => true
           ))) {
             $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
             $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
@@ -213,12 +212,12 @@ class ImportJob extends CoJobBackend {
         fwrite(STDOUT, "\n");
       }
 
-      // This is a dry run
-//      if($params["filename"]) {
+      // Is this a dry run?
+      if($params["dry"]) {
         $dbc->rollback();
-//      } else {
-//      $dbc->commit();
-//      }
+      } else {
+        $dbc->commit();
+      }
 
       if($CoJob->id) {
         $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
