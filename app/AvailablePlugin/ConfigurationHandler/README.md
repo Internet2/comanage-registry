@@ -21,17 +21,20 @@ We allow callbacks to run everytime we save or update a record. There are occass
   - OrgIdentitySource
 
 
-### Run import
+### Run Export
+```bash
+cd /path/to/comanage/app
+./Console/cake job ConfigurationHandler.Export --coid 2 -l All -s
+```
+- --coid, the number of CO to export the configuration from
+- -l, list of Models to export the configuration from
 
+### Run import
+```bash
+cd /path/to/comanage/app
 ./Console/cake job ConfigurationHandler.Import --coid 72 --filename configuration_co2_1694967754.json -s -d
+```
 
 - -d, dry run
 - --filename, provide only the filename. The path is fixed under the local/Config directory
 - --coid, the number of CO to import the configuration to
-
-### Run Export
-
-./Console/cake job ConfigurationHandler.Export --coid 2 -l All -s
-
-- --coid, the number of CO to export the configuration from
-- -l, list of Models to export the configuration from
