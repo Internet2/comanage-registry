@@ -1276,10 +1276,18 @@ class RoleComponent extends Component {
    * @param  Integer CO Person Role ID of subject
    * @return Boolean True if the CO Person is a CO(U) Administrator for the subject, false otherwise
    */
-   
+  
   public function isCoOrCouAdminForCoPersonRole($coPersonId, $subjectCoPersonRoleId) {
     if(!$coPersonId) {
       return false;
+    }
+    
+    // Find the person's CO
+    try {
+      $coId = $this->cachedCoIdLookup($coPersonId);
+    }
+    catch(InvalidArgumentException $e) {
+      throw new InvalidArgumentException($e->getMessage());
     }
     
     // Look up the CO Person ID for the subject and then hand off the request.
@@ -1292,11 +1300,28 @@ class RoleComponent extends Component {
     
     $copr = $CoPersonRole->find('first', $args);
     
-    if($copr && isset($copr['CoPersonRole']['co_person_id'])) {
-      return $this->isCoOrCouAdminForCoPerson($coPersonId, $copr['CoPersonRole']['co_person_id']);
-    } else {
+    if(empty($copr)
+      || !isset($copr['CoPersonRole']['co_person_id'])
+      || empty($copr["CoPersonRole"]["cou_id"])) {
       return false;
     }
+    
+    // I am the CO Admin
+    if($this->isCoAdminForCoPerson($coPersonId, $copr['CoPersonRole']['co_person_id'])) {
+      return true;
+    }
+    
+    // Next, pull the COUs for which $coPersonId is a COU admin
+    $adminCous = $this->couAdminFor($coPersonId);
+    
+    if(empty($adminCous)) {
+      return false;
+    }
+    
+    $adminCousIds = array_keys($adminCous);
+    
+    // I am the COU admin
+    return in_array($copr["CoPersonRole"]["cou_id"], $adminCousIds);
   }
   
   /**
