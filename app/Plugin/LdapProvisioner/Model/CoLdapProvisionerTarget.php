@@ -1820,10 +1820,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // Use LDAP v3 (this could perhaps become an option at some point), although note
     // that ldap_rename (used below) *requires* LDAP v3.
     ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    
-    if(!@ldap_bind($cxn,
-                   $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
-                   $coProvisioningTargetData['CoLdapProvisionerTarget']['password'])) {
+    try {
+      $lbind = @ldap_bind($cxn,
+                          $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
+                          $coProvisioningTargetData['CoLdapProvisionerTarget']['password']);
+    } catch(Throwable $e) {
       throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
     }
     
@@ -1882,11 +1883,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       $newrdn = rtrim(str_replace($basedn, "", $dns['newdn']), " ,");
-      
-      if(!@ldap_rename($cxn, $dns['olddn'], $newrdn, null, true)) {
+
+      try{
+        $lrename = @ldap_rename($cxn, $dns['olddn'], $newrdn, null, true);
         // XXX We should probably try to reset CoLdapProvisionerDn here since we're
         // now inconsistent with LDAP
-        
+      } catch(Throwable $e) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
     }
@@ -1899,19 +1901,21 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $dns['newdnerr'])));
       }
 
-      if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
+      try{
+        $lmreplace = @ldap_mod_replace($cxn, $dns['newdn'], $attributes);
+      } catch(Throwable $e) {
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because
           // we need to recalculate $attributes. Modify wants array() to indicate
           // an empty attribute, whereas Add throws an error if that is the case.
           // As a side effect, we'll rebind to the LDAP server, but this should
           // be a pretty rare event.
-          
+
           $this->provision($coProvisioningTargetData,
                            ($person
-                            ? ProvisioningActionEnum::CoPersonAdded
-                            : ProvisioningActionEnum::CoGroupAdded),
-                           $provisioningData);
+                             ? ProvisioningActionEnum::CoPersonAdded
+                             : ProvisioningActionEnum::CoGroupAdded),
+                                          $provisioningData);
         } else {
           throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
         }
@@ -1928,7 +1932,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $dns['newdnerr'])));
       }
 
-      if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
+      try {
+        $ladd = @ldap_add($cxn, $dns['newdn'], $attributes);
+      } catch(Throwable $e) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
     }
@@ -1966,16 +1972,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Use LDAP v3 (this could perhaps become an option at some point)
     ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    
-    if(!@ldap_bind($cxn, $bindDn, $password)) {
+    try {
+      $lbind = @ldap_bind($cxn, $bindDn, $password);
+    } catch(Throwable $e) {
       throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
     }
     
     // Try to search using base DN; look for any matching object under the base DN
-    
-    $s = @ldap_search($cxn, $baseDn, $filter, $attributes);
-    
-    if(!$s) {
+    try {
+      $s = @ldap_search($cxn, $baseDn, $filter, $attributes);
+    } catch(Throwable $e) {
       throw new RuntimeException(ldap_error($cxn) . " (" . $baseDn . ")", ldap_errno($cxn));
     }
     
