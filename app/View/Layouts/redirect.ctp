@@ -55,7 +55,7 @@
 
     <!-- Load JavaScript -->
     <?php /* only JQuery and Bootstrap here - other scripts at bottom */
-      print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-3.7.1.min.js') . "\n    ";
       print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.13.2.custom/jquery-ui.min.js') . "\n    ";
     ?>
