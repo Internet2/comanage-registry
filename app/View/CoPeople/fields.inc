@@ -1105,7 +1105,7 @@
                   // Action Column
                   if ($es // Editing self
                     || empty($r['Cou']) // No COU set for this person
-                    || (isset($r['Cou']['name']) && in_array($r['Cou']['name'], $permissions['cous']))
+                    || (isset($r['Cou']['name']) && in_array($r['Cou']['path'], $permissions['cous']))
                   ) // Admin for the COU
                   {
                     // COU Admins can only edit their own folks, so we need a bit of
