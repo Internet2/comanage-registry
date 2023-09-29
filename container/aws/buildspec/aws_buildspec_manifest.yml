@@ -3,7 +3,7 @@ version: 0.2
 env:
   shell: bash
   variables:
-    LABEL: "4.3.0-rc2"
+    LABEL: "4.3.0"
   exported-variables:
     - LABEL
 

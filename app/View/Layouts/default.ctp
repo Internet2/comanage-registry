@@ -81,7 +81,7 @@
     <?php
       /* only JQuery, Bootstrap, and Vue here - other scripts at bottom. Note that until
          jQueryUI is deprecated, it must be loaded after Bootstrap.  */
-      print $this->Html->script('jquery/jquery-3.5.1.min.js') . "\n    ";
+      print $this->Html->script('jquery/jquery-3.7.1.min.js') . "\n    ";
       print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js') . "\n    ";
       print $this->Html->script('jquery/jquery-ui-1.13.2.custom/jquery-ui.min.js') . "\n    ";
       print $this->Html->script('vue/vue-3.2.31.global.prod.js') . "\n    ";
