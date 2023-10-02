@@ -234,7 +234,7 @@ class ExportJob extends CoJobBackend {
         if(empty($mdata[$mmodel])) {
           $mdata[$mmodel] = array();
         }
-        $mdata[$mmodel] = [...$mdata[$mmodel], ...$tmp_data];
+        $mdata[$mmodel] = array_merge($mdata[$mmodel], $tmp_data);
       }
     }
 
@@ -451,7 +451,10 @@ class ExportJob extends CoJobBackend {
         'help'     => _txt('pl.provisionerjob.arg.models_list'),
         'type'     => 'select',
         'short'    => 'l',
-        'choices'  => array('All', ...self::MODELS_EXPORT),
+        'choices'  => array_merge(
+          array('All'),
+          array_keys(self::MODELS_EXPORT)
+        ),
         'required' => true
       ),
     );
