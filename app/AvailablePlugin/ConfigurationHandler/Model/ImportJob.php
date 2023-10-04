@@ -102,6 +102,8 @@ class ImportJob extends CoJobBackend {
                    null,
                    _txt('pl.configuration_handler.export.start'));
 
+    $Co = ClassRegistry::init('Co');
+    $dbc = $Co->getDataSource();
     try {
       // Validate the parameters
       $this->validateParams($coId, $params);
@@ -125,9 +127,6 @@ class ImportJob extends CoJobBackend {
 
       // parse json to an associative array
       $configuration_to_import = $this->jsonDecode($file_contents, true);
-
-      $Co = ClassRegistry::init('Co');
-      $dbc = $Co->getDataSource();
       $dbc->begin();
 
       $old_to_new_mapper = array();
