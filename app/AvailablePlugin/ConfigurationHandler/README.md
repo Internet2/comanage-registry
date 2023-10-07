@@ -14,7 +14,7 @@ List:
 
 ### Callbacks
 
-We allow callbacks to run everytime we save or update a record. There are occassions where we disable them.
+We allow callbacks to run everytime we save or update a record. There are occasions where we disable them.
 - Instantiate a child Model or plugin configuration.
   - CoDashboardWidget
   - CoEnrollmentFlowWedge
@@ -24,17 +24,19 @@ We allow callbacks to run everytime we save or update a record. There are occass
 ### Run Export
 ```bash
 cd /path/to/comanage/app
-./Console/cake job ConfigurationHandler.Export --coid 2 -l All -s
+./Console/cake job ConfigurationHandler.Export --coid 2 -l All -s -e 1235477978
 ```
 - --coid, the number of CO to export the configuration from
 - -l, list of Models to export the configuration from
+- -e, salt for encryption
 
 ### Run import
 ```bash
 cd /path/to/comanage/app
-./Console/cake job ConfigurationHandler.Import --coid 72 --filename configuration_co2_1694967754.json -s -d
+./Console/cake job ConfigurationHandler.Import --coid 72 --filename configuration_co2_1694967754.json -s -d  -e 1235477978
 ```
 
 - -d, dry run
 - --filename, provide only the filename. The path is fixed under the local/Config directory
 - --coid, the number of CO to import the configuration to
+- -e, salt for decryption. It has to much the one we provided on encryption

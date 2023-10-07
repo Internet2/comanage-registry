@@ -86,6 +86,9 @@ class ImportJob extends CoJobBackend {
     "CoSetting", // blgTo Co, CoGroup, CoTheme, CoPipeline, CoDashboard
   );
 
+  private $_salt = null;
+
+
   /**
    * Execute the requested Job.
    *
@@ -124,6 +127,8 @@ class ImportJob extends CoJobBackend {
       if($file_contents === false) {
         throw new InvalidArgumentException( _txt('er.configuration_handler.filename.noparse-a', array($config_filename)));
       }
+
+      $this->_salt = $params['salt'];
 
       // parse json to an associative array
       $configuration_to_import = $this->jsonDecode($file_contents, true);
@@ -332,6 +337,28 @@ class ImportJob extends CoJobBackend {
     return $record[$Model->name]['id'];
   }
 
+
+  /**
+   * Decrypt a string value using openssl decrypt and salt
+   *
+   * @param string $data  String to decrypt
+   * @since  COmanage Registry v4.3.0
+   */
+
+  function decrypt($data) {
+    $encryption_method = 'aes-256-cbc';
+
+    // To decrypt, split the encrypted data from our IV - our unique separator used was "::"
+    list($encrypted_data, $iv) = explode('::', base64_decode($data), 2);
+    $original_value = openssl_decrypt($encrypted_data, $encryption_method, $this->_salt, 0, $iv);
+
+    if($original_value === false) {
+      throw new RuntimeException(_txt('er.configuration_handler.decrypt.failed'));
+    }
+
+    return $original_value;
+  }
+
   /**
    * Construct the importKey using the following rules
    * - If an exception is defined for the Model use that. (Very few fields should require exceptions.) Otherwise
@@ -410,11 +437,17 @@ class ImportJob extends CoJobBackend {
         continue;
       }
 
+      if(in_array($clmn, array('password', 'client_secret'))) {
+        $data[$clmn] = $this->decrypt($data[$clmn]);
+        continue;
+      }
+
       // The ApiUser name has a prefix constructed by the CO ID remove the old one and prefix the new
       if($Model->name == 'ApiUser'
          && $clmn == 'username') {
         $username = explode('.', $data['username']);
         $data['username'] = $username[1];
+        continue;
       }
 
       // Restore the base64 encoding
@@ -437,7 +470,7 @@ class ImportJob extends CoJobBackend {
         }
       }
 
-    }
+    } // foreach
 
     return $data;
   }
@@ -485,7 +518,13 @@ class ImportJob extends CoJobBackend {
         'type' => "bool",
         'default' => false,
         'required' => false
-      )
+      ),
+      'salt' => array(
+        'help'     => _txt('pl.configuration_handler.arg.salt'),
+        'type'     => 'string',
+        'short'    => 'e', # encrypt
+        'required' => true
+      ),
     );
 
     return $params;

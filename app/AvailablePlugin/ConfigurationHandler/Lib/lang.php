@@ -37,6 +37,7 @@ $cm_configuration_handler_texts['en_US'] = array(
   'ct.configuration_handlers.pl' => 'Configuration Handlers',
   
   // Error messages
+  'er.configuration_handler.decrypt.failed'         => 'Importing sensitive data failed',
   'er.configuration_handler.filename.empty'         => 'Filename must be provided',
   'er.configuration_handler.filename.invalid-a'     => '"%1$s" file does not exist',
   'er.configuration_handler.filename.unreadable-a'  => '"%1$s" file is not readable',
@@ -48,6 +49,7 @@ $cm_configuration_handler_texts['en_US'] = array(
   'pl.configuration_handler.arg.models_list'      => 'Supported Models for export',
   'pl.configuration_handler.arg.dry_run'          => 'Run withouth commiting the changes',
   'pl.configuration_handler.arg.filename'         => 'Configuration filename',
+  'pl.configuration_handler.arg.salt'             => 'Encryption Salt string',
   'pl.configuration_handler.export.start'         => 'Construct and Export Configuration in JSON format',
   'pl.configuration_handler.import.start'         => 'Import Configuration from JSON format',
   'pl.exportjob.job'                              => 'Run Export Configuration Task',

@@ -88,6 +88,24 @@ class ExportJob extends CoJobBackend {
     "VettingStep"
   );
 
+  private $_salt = null;
+
+  /**
+   * Encrypt a string value using openssl encrypt and salt
+   *
+   * @param string $data  String to encrypt
+   * @since  COmanage Registry v4.3.0
+   */
+
+  function encrypt($data) {
+    $encryption_method = 'aes-256-cbc';
+    // Generate an initialization vector
+    $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryption_method));
+    // Encrypt the data using AES 256 encryption in CBC mode using our encryption key and initialization vector.
+    $encrypted = openssl_encrypt($data, $encryption_method, $this->_salt, 0, $iv);
+    // The $iv is just as important as the key for decrypting, so save it with our encrypted data using a unique separator (::)
+    return base64_encode($encrypted . '::' . $iv);
+  }
 
   /**
    * Execute the requested Job.
@@ -116,6 +134,8 @@ class ExportJob extends CoJobBackend {
       } else {
         $models_for_export[] = $params['model_list'];
       }
+
+      $this->_salt = $params['salt'];
 
       // Create the file
       // configuration_co2_1690210974.json
@@ -344,6 +364,8 @@ class ExportJob extends CoJobBackend {
         } else {
           if ($clmn == "id") {
             $ret['ref'] = strtolower($Model->name . $clmn . $data[$clmn]);
+          } else if(in_array($clmn, array('password', 'client_secret'))) {
+            $ret[$clmn] = $this->encrypt($data[$clmn]);
           } else {
             // This is a foreign key to a belongs to Model
             if(in_array($clmn, $assc_keys, true)) {
@@ -448,13 +470,19 @@ class ExportJob extends CoJobBackend {
   public function parameterFormat() {
     $params = array(
       'model_list' => array(
-        'help'     => _txt('pl.provisionerjob.arg.models_list'),
+        'help'     => _txt('pl.configuration_handler.arg.models_list'),
         'type'     => 'select',
-        'short'    => 'l',
+        'short'    => 'l', # list
         'choices'  => array_merge(
           array('All'),
           array_keys(self::MODELS_EXPORT)
         ),
+        'required' => true
+      ),
+      'salt' => array(
+        'help'     => _txt('pl.configuration_handler.arg.salt'),
+        'type'     => 'string',
+        'short'    => 'e', # encrypt
         'required' => true
       ),
     );
