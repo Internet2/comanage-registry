@@ -42,8 +42,7 @@ class ExportJob extends CoJobBackend {
       "CoPipeline",
       "CoEnrollmentFlowWedge",
       "CoEnrollmentSource",
-      "CoEnrollmentAttribute" =>
-        array("CoEnrollmentAttributeDefault")
+      "CoEnrollmentAttribute" => array("CoEnrollmentAttributeDefault")
     ),
     "CoExpirationPolicy",
     "CoExtendedType",
@@ -81,9 +80,7 @@ class ExportJob extends CoJobBackend {
       "Oauth2Server",
       "HttpServer",
       "KafkaServer",
-      "MatchServer" => array(
-        "MatchServerAttribute",
-      ),
+      "MatchServer" => array("MatchServerAttribute"),
     ),
     "VettingStep"
   );
@@ -210,25 +207,36 @@ class ExportJob extends CoJobBackend {
 
     if(!empty($hasManyOneList)) {
       foreach($hasManyOneList as $key_model => $value_model) {
-        $mmodel = is_int($key_model) ? $value_model : $key_model;
+        $nxt_model = is_int($key_model) ? $value_model : $key_model;
         $model_hasMany_keys = array_keys($Model->hasMany);
         $model_hasOne_keys = array_keys($Model->hasOne);
         // For has many relationships the path should also contain the index parser
         // We need to check if the model association is hasOne or hasMany
-        if(in_array($mmodel, $model_hasMany_keys)) {
+        $path_partial_with_prefix = null;
+        if(in_array($nxt_model, $model_hasMany_keys)) {
           // XXX The way we implement it here we get all the nested records. We do not
-          //     get the ones corresponding to n=2 and then fetch all the level three.
-          $path_partial = "{$mmodel}.{n}";
-        } else if(in_array($mmodel, $model_hasOne_keys)) {
-          $path_partial = $mmodel;
+          //     get the ones corresponding to each individual record
+          $path_partial = "{$nxt_model}.{n}";
+
+          // If the $path is of the form Model.{n} then we need to prepend the {n} extractor
+          $path_explode = explode('.', $path);
+          if(array_pop($path_explode) == '{n}') {
+            // We do not want to alter the $path_partial variable because we will need the correct
+            // path below. The reason why we are add the prefix is that CAKEPHP returns a list
+            // of records when extracting them from a dataset using a trailing {n} extractor.
+            // The same extractor has be prepended in our query template in order to match our new
+            // dataset
+            $path_partial_with_prefix = '{n}.' . $path_partial;
+          }
+        } else if(in_array($nxt_model, $model_hasOne_keys)) {
+          $path_partial = $nxt_model;
         }
 
         // This linked model has no record. We continue to the next one.
         // CAKEPHP will return a record with all the values set to null when using the contain
         // feature because you use the default configuration which queries using LEFT JOIN
         // In order to find out if the record has any value you use the array_filter
-
-        $next_values = $record[$mmodel] ?? Hash::extract($record, $path_partial);
+        $next_values = $record[$nxt_model] ?? Hash::extract($record, $path_partial_with_prefix ?? $path_partial);
         $check_null_values = array_filter($next_values);
 
         if(empty($check_null_values)) {
@@ -237,24 +245,24 @@ class ExportJob extends CoJobBackend {
 
         // XXX Keeping this for now. The following syntax creates a nested hierarchy,
         // when fetching the records
-//        $ret[$mmodel][] = $this->filterMetadataInbound($dataset,
-//                                                       $mmodel,
-//                                                       $hasManyOneList[$mmodel] ?? array(),
+//        $ret[$nxt_model][] = $this->filterMetadataInbound($dataset,
+//                                                       $nxt_model,
+//                                                       $hasManyOneList[$nxt_model] ?? array(),
 //                                                       $next_values ?? $dataset,
 //                                                       empty($path) ? $path_partial : "{$path}.{$path_partial}");
 
         $tmp_data = $this->filterMetadataInbound($dataset,
-                                                 $mmodel,
-                                                 $hasManyOneList[$mmodel] ?? array(),
+                                                 $nxt_model,
+                                                 $hasManyOneList[$nxt_model] ?? array(),
                                                  $next_values ?? $dataset,
                                                  $mdata,
                                                  empty($path) ? $path_partial : "{$path}.{$path_partial}");
 
         // Initialize the array
-        if(empty($mdata[$mmodel])) {
-          $mdata[$mmodel] = array();
+        if(empty($mdata[$nxt_model])) {
+          $mdata[$nxt_model] = array();
         }
-        $mdata[$mmodel] = array_merge($mdata[$mmodel], $tmp_data);
+        $mdata[$nxt_model] = array_merge($mdata[$nxt_model], $tmp_data);
       }
     }
 
