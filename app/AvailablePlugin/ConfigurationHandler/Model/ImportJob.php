@@ -190,10 +190,34 @@ class ImportJob extends CoJobBackend {
           try {
             // Are we performing a creation or an update??
             $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
+            $curModel->set($data);
+
+            $skip_validation = false;
+            if (!$curModel->validates()) {
+              $errors = $curModel->validationErrors;
+              if($curModel->name == "CoEnrollmentAttribute") {
+                // CoEnrollmentAttributes require CoEnrollmentAttributesDefault Data to save correctly
+                // The import process imports the records one by one and uses the newly created IDs to
+                // create the new Foreign keys.
+                // If the only error in the list of validationErrors refers to the `er.field.hidden.req`
+                // error i will skip the validation and allow the save. It will be fixed later when the
+                // CoEnrollmentAttributeDefault records will be imported
+                if(count($errors) == 1
+                   && isset($errors["hidden"])) {
+                  $errors['hidden'] = array_unique($errors["hidden"]);
+                  if(count($errors["hidden"]) == 1
+                     && $errors["hidden"][0] == _txt('er.field.hidden.req')) {
+                    // disable validation for this record
+                    $skip_validation = true;
+                  }
+                }
+              }
+            }
+
             if(!$curModel->save($data, array(
               'provision' => false,
               'callbacks' => !in_array($curModel->name, $disable_callbacks),
-              'validate' => true
+              'validate' => !$skip_validation
             ))) {
               $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
               $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
