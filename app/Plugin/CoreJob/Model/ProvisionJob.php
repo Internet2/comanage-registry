@@ -115,11 +115,21 @@ class ProvisionJob extends CoJobBackend {
 
         $recordIds[] = $params['record_id'];
       } else {
-        // Pull IDs of all objects of the requested type
+        // Pull IDs of all objects of the requested type, and within the requested range (if any)
+        $conditions = array(
+          $sModel.'.co_id' => $coId
+        );
+
+        if(!empty($params['range_start'])) {
+          $conditions[$sModel.'.id >='] = $params['range_start'];
+        }
+        if(!empty($params['range_end'])) {
+          $conditions[$sModel.'.id <='] = $params['range_end'];
+        }
         
         $iterator = new PaginatedSqlIterator(
           $Model,
-          array($sModel.'.co_id' => $coId),
+	  $conditions,
           array($sModel.'.id', $sModel.'.status'),
           false
         );
@@ -203,6 +213,16 @@ class ProvisionJob extends CoJobBackend {
         'help'     => _txt('pl.provisionerjob.arg.provisioning_action'),
         'type'     => 'select',
         'choices'  => array_values($actions),
+        'required' => false
+      ),
+      'range_start' => array(
+        'help'     => _txt('pl.provisionerjob.arg.range_start'),
+        'type'     => 'int',
+        'required' => false
+      ),
+      'range_end' => array(
+        'help'     => _txt('pl.provisionerjob.arg.range_end'),
+        'type'     => 'int',
         'required' => false
       )
     );
