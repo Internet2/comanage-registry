@@ -556,11 +556,20 @@ class Co extends AppModel {
     $args['conditions'][$model->name.'.'.$foreignKey] = $fkid;
     $args['contain'] = false;
     if($isTree) {
-      // If we order by left, then we shouldn't see a node with a parent_id
-      // that we haven't copied yet. (Presumably order by parent_id ASC would
-      // work as well, but only if NULLS FIRST.)
-      // https://book.cakephp.org/2.0/en/core-libraries/behaviors/tree.html
-      $args['order'] = $model->name.'.lft ASC';
+      // We will order by parent_id using the NULLS FIRST option.
+      // PostgreSQL needs the NULLS FIRST in order to put the null at the top
+      // We will treat this as the default
+      $args['order'] = $model->name . '.parent_id ASC NULLS FIRST';
+
+      // What should we do in the case of MySQL
+      $db = $model->getDataSource();
+      $db_driver = explode("/", $db->config['datasource'], 2);
+      $db_driverName = $db_driver[1];
+      if(preg_match("/mysql/i", $db_driverName)) {
+        // MySQL, MariaDB treats NULLs as NULLs are treated as less than 0 and
+        // places them at the top of an ASC dataset
+        $args['order'] = $model->name . '.parent_id ASC';
+      }
     }
     
     $objs = $model->find('all', $args);

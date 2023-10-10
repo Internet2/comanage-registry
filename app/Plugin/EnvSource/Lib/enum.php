@@ -31,3 +31,10 @@ class EnvSourceDuplicateModeEnum
   const LoginIdentifier = "LI";
   const SORIdentifier   = "SI";
 }
+
+class AuthProviderEnum
+{
+  const Shibboleth      = "SH";
+  const Simplesamlphp   = "SS";
+  const Other           = "O";
+}

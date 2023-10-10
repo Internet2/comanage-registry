@@ -1263,7 +1263,36 @@
       <col>source_label</col>
     </index>
   </table>
-  
+
+  <table name="co_provisioning_targets">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="plugin" type="C" size="32" />
+    <field name="provision_co_group_id" type="I">
+      <constraint>REFERENCES cm_co_groups(id)</constraint>
+    </field>
+    <field name="skip_org_identity_source_id" type="I">
+      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
+    </field>
+    <field name="status" type="C" size="2" />
+    <field name="retry_interval" type="I" />
+    <field name="max_retry" type="I" />
+    <field name="ordr" type="I" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="co_provisioning_targets_i1">
+      <col>co_id</col>
+    </index>
+  </table>
+
   <table name="co_provisioning_counts">
     <field name="id" type="I">
       <key />
@@ -1297,35 +1326,6 @@
     </index>
   </table>
 
-  <table name="co_provisioning_targets">
-    <field name="id" type="I">
-      <key />
-      <autoincrement />
-    </field>
-    <field name="co_id" type="I">
-      <notnull />
-      <constraint>REFERENCES cm_cos(id)</constraint>
-    </field>
-    <field name="description" type="C" size="256" />
-    <field name="plugin" type="C" size="32" />
-    <field name="provision_co_group_id" type="I">
-      <constraint>REFERENCES cm_co_groups(id)</constraint>
-    </field>
-    <field name="skip_org_identity_source_id" type="I">
-      <constraint>REFERENCES cm_org_identity_sources(id)</constraint>
-    </field>
-    <field name="status" type="C" size="2" />
-    <field name="retry_interval" type="I" />
-    <field name="max_retry" type="I" />
-    <field name="ordr" type="I" />
-    <field name="created" type="T" />
-    <field name="modified" type="T" />
-    
-    <index name="co_provisioning_targets_i1">
-      <col>co_id</col>
-    </index>
-  </table>
-  
   <table name="identifiers">
     <field name="id" type="I">
       <key />

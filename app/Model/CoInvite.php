@@ -289,7 +289,7 @@ class CoInvite extends AppModel {
                        $actorPersonId,
                        $toEmail,
                        $fromEmail=null,
-                       $coName,
+                       $coName=null,
                        $subject=null,
                        $template=null,
                        $emailAddressID=null,

@@ -3,7 +3,7 @@
   "$id": "https://github.com/Internet2/comanage-registry/tree/4.0.0/app/Plugin/CoreApi/Config/Schema/message.json",
   "title": "COmanage Core API Message Format",
   "description": "COmanage Core API Message Format",
-  
+
   "definitions": {
     "meta": {
       "type": "object",
@@ -58,7 +58,7 @@
       "additionalProperties": false
     }
   },
-  
+
   "type": "object",
   "properties": {
     "CoPerson": {
@@ -88,6 +88,69 @@
       },
       "required": [ "co_id", "status" ],
       "additionalProperties": false
+    },
+    "CoDepartment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_id": {
+            "description": "CO for this Department",
+            "type": "integer"
+          },
+          "cou_id": {
+            "description": "COU for this Department",
+            "type": "integer"
+          },
+          "leadership_co_group_id": {
+            "description": "Leadership Group for this Department",
+            "type": "integer"
+          },
+          "administrative_co_group_id": {
+            "description": "Administrative Group for this Department",
+            "type": "integer"
+          },
+          "support_co_group_id": {
+            "description": "Support Group for this Department",
+            "type": "integer"
+          },
+          "name": {
+            "description": "Name for this Department",
+            "type": "string"
+          },
+          "introduction": {
+            "description": "Introduction for this Department",
+            "type": "string"
+          },
+          "type": {
+            "description": "Type for this Department",
+            "type": "string"
+          },
+          "Address": {
+            "$ref": "#/properties/CoPersonRole/items/properties/Address"
+          },
+          "AdHocAttribute": {
+            "$ref": "#/properties/CoPersonRole/items/properties/AdHocAttribute"
+          },
+          "EmailAddress": {
+            "$ref": "#/properties/EmailAddress"
+          },
+          "Identifier": {
+            "$ref": "#/properties/Identifier"
+          },
+          "TelephoneNumber": {
+            "$ref": "#/properties/CoPersonRole/items/properties/TelephoneNumber"
+          },
+          "Url": {
+            "$ref": "#/properties/Url"
+          }
+        },
+        "required": ["name", "type"],
+        "additionalProperties": false
+      }
     },
     "CoGroupMember": {
       "type": "array",
@@ -279,6 +342,364 @@
           }
         },
         "required": [ "affiliation", "status" ],
+        "additionalProperties": false
+      }
+    },
+    "CoPetition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_id": {
+            "description": "CO for this Petition",
+            "type": "integer"
+          },
+          "cou_id": {
+            "description": "COU for this Petition",
+            "type": "integer"
+          },
+          "authenticated_identifier": {
+            "description": "Authenticated Identifier for this Petition",
+            "type": "string"
+          },
+          "petitioner_token": {
+            "description": "Petitioner Token for this Petition",
+            "type": "string"
+          },
+          "enrollee_token": {
+            "description": "Enrollee Token for this Petition",
+            "type": "string"
+          },
+          "return_url": {
+            "description": "Return URL for this Petition",
+            "type": "string"
+          },
+          "status": {
+            "description": "Petition status",
+            "type": "string"
+          },
+          "approver_comment": {
+            "description": "Approver Comment for this Petition",
+            "type": "string"
+          },
+          "reference_identifier": {
+            "description": "Petition Reference Identifier",
+            "type": "string"
+          },
+          "ApproverPrimaryName": {
+            "$ref": "#/properties/Name"
+          },
+          "CoEnrollmentFlow": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "meta": {
+                  "$ref": "#/definitions/meta"
+                },
+                "name": {
+                  "description": "Name for this Enrollment Flow",
+                  "type": "string"
+                },
+                "co_id": {
+                  "description": "CO ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "authz_level": {
+                  "description": "Authorization level for this Enrollment Flow",
+                  "type": "string"
+                },
+                "authz_cou_id": {
+                  "description": "Authorization COU ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "authz_cou_idauthz_co_group_id": {
+                  "description": "Authorization Group ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "match_policy": {
+                  "description": "Match Policy for this Enrollment Flow",
+                  "type": "string"
+                },
+                "match_policy": {
+                  "description": "Match Policy for this Enrollment Flow",
+                  "type": "string"
+                },
+                "approval_required": {
+                  "description": "Approval configuration for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "approver_co_group_id": {
+                  "description": "Approvers Group for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "verify_email": {
+                  "description": "Verify email configuration for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "invitation_validity": {
+                  "description": "Invitation validity in minutes for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "require_authn": {
+                  "description": "Require Authentication for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "notification_co_group_id": {
+                  "description": "Groups to Notify for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "status": {
+                  "description": "Enrollment Flow status",
+                  "type": "string"
+                },
+                "notify_from": {
+                  "description": "Notify from for this Enrollment Flow",
+                  "type": "string"
+                },
+                "verification_subject": {
+                  "description": "Email Verification subject for this Enrollment Flow",
+                  "type": "string"
+                },
+                "verification_body": {
+                  "description": "Email Verification body for this Enrollment Flow",
+                  "type": "string"
+                },
+                "notify_on_approval": {
+                  "description": "Notify on approval for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "approval_subject": {
+                  "description": "Email Approval Subject for this Enrollment Flow",
+                  "type": "string"
+                },
+                "approval_body": {
+                  "description": "Email Approval Body for this Enrollment Flow",
+                  "type": "string"
+                },
+                "introduction_text": {
+                  "description": "Introduction Text for this Enrollment Flow",
+                  "type": "string"
+                },
+                "conclusion_text": {
+                  "description": "Conclusion Text for this Enrollment Flow",
+                  "type": "string"
+                },
+                "t_and_c_mode": {
+                  "description": "Terms and Conditions mode for this Enrollment Flow",
+                  "type": "string"
+                },
+                "redirect_on_submit": {
+                  "description": "Redirect on Submit URL for this Enrollment Flow",
+                  "type": "string"
+                },
+                "redirect_on_confirm": {
+                  "description": "Redirect on Confirm URL for this Enrollment Flow",
+                  "type": "string"
+                },
+                "ignore_authoritative": {
+                  "description": "Ignore Authoritative for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "duplicate_mode": {
+                  "description": "Duplicate Mode for this Enrollment Flow",
+                  "type": "string"
+                },
+                "email_verification_mode": {
+                  "description": "Email Verification Mode for this Enrollment Flow",
+                  "type": "string"
+                },
+                "verification_template_id": {
+                  "description": "Verification Template ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "approval_template_id": {
+                  "description": "Approval Template ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "notify_on_finalize": {
+                  "description": "Notify on Finalize for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "finalization_template_id": {
+                  "description": "Finalization Template ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "co_theme_id": {
+                  "description": "CO Theme ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "redirect_on_finalize": {
+                  "description": "Redirect On Finalize URL for this Enrollment Flow",
+                  "type": "string"
+                },
+                "my_identity_shortcut": {
+                  "description": "Idetity Shortcut enable for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "denial_template_id": {
+                  "description": "Denial Template ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "establish_authenticators": {
+                  "description": "Establish Authenticators enable for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "theme_stacking": {
+                  "description": "Theme stacking enable for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "return_url_allowlist": {
+                  "description": "Return URL whitelist for this Enrollment Flow",
+                  "type": "text"
+                },
+                "establish_cluster_accounts": {
+                  "description": "Establish Cluster accounts enable for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "enable_person_find": {
+                  "description": "Person find enable for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "match_server_id": {
+                  "description": "Match Server ID for this Enrollment Flow",
+                  "type": "integer"
+                },
+                "regenerate_expired_verification": {
+                  "description": "Regenarate Expired Verification for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "request_vetting": {
+                  "description": "Request Vetting for this Enrollment Flow",
+                  "type": "boolean"
+                },
+                "sor_label": {
+                  "description": "SOR Label for this Enrollment Flow",
+                  "type": "string"
+                },
+                "introduction_text_pa": {
+                  "description": "Introduction Text (Petition Form) for this Enrollment Flow",
+                  "type": "string"
+                },
+                "approver_template_id": {
+                  "description": "Approver Template ID for this Enrollment Flow",
+                  "type": "integer"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "CoInvite": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "meta": {
+                  "$ref": "#/definitions/meta"
+                },
+                "mail": {
+                  "description": "Email for this Invite",
+                  "type": "string"
+                },
+                "email_address_id": {
+                  "description": "Email Address ID for this Invite",
+                  "type": "integer"
+                },
+                "invitation": {
+                  "description": "Invitation for this Invite",
+                  "type": "string"
+                },
+                "expires": {
+                  "description": "Expiration date for this Invite",
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "Cou": {
+            "$ref": "#/properties/Cou"
+          },
+          "EnrolleeCoPerson": {
+            "$ref": "#/properties/CoPerson"
+          },
+          "EnrolleePrimaryName": {
+            "$ref": "#/properties/Name"
+          },
+          "PetitionerCoPerson": {
+            "$ref": "#/properties/CoPerson"
+          },
+          "PetitionerPrimaryName": {
+            "$ref": "#/properties/Name"
+          },
+          "SponsorCoPerson": {
+            "$ref": "#/properties/CoPerson"
+          },
+          "SponsorPrimaryName": {
+            "$ref": "#/properties/Name"
+          },
+          "VettingRequest": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "meta": {
+                  "$ref": "#/definitions/meta"
+                },
+                "co_job_id": {
+                  "description": "CO Job ID for this Vetting Request",
+                  "type": "integer"
+                },
+                "vetting_step_id": {
+                  "description": "Vetting Step ID for this Vetting Request",
+                  "type": "integer"
+                },
+                "status": {
+                  "description": "Status for this Vetting Request",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "Cou": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/definitions/meta"
+          },
+          "co_id": {
+            "description": "CO for this Petition",
+            "type": "integer"
+          },
+          "name": {
+            "description": "COU Name",
+            "type": "string"
+          },
+          "description": {
+            "description": "COU description",
+            "type": "string"
+          },
+          "parent_id": {
+            "description": "COU parent node",
+            "type": "integer"
+          }
+        },
+        "required": [],
         "additionalProperties": false
       }
     },
@@ -482,69 +903,6 @@
           }
         },
         "required": [],
-        "additionalProperties": false
-      }
-    },
-    "CoDepartment": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "meta": {
-            "$ref": "#/definitions/meta"
-          },
-          "co_id": {
-            "description": "CO for this Department",
-            "type": "integer"
-          },
-          "cou_id": {
-            "description": "COU for this Department",
-            "type": "integer"
-          },
-          "leadership_co_group_id": {
-            "description": "Leadership Group for this Department",
-            "type": "integer"
-          },
-          "administrative_co_group_id": {
-            "description": "Administrative Group for this Department",
-            "type": "integer"
-          },
-          "support_co_group_id": {
-            "description": "Support Group for this Department",
-            "type": "integer"
-          },
-          "name": {
-            "description": "Name for this Department",
-            "type": "string"
-          },
-          "introduction": {
-            "description": "Introduction for this Department",
-            "type": "string"
-          },
-          "type": {
-            "description": "Type for this Department",
-            "type": "string"
-          },
-          "Address": {
-            "$ref": "#/properties/CoPersonRole/items/properties/Address"
-          },
-          "AdHocAttribute": {
-            "$ref": "#/properties/CoPersonRole/items/properties/AdHocAttribute"
-          },
-          "EmailAddress": {
-            "$ref": "#/properties/EmailAddress"
-          },
-          "Identifier": {
-            "$ref": "#/properties/Identifier"
-          },
-          "TelephoneNumber": {
-            "$ref": "#/properties/CoPersonRole/items/properties/TelephoneNumber"
-          },
-          "Url": {
-            "$ref": "#/properties/Url"
-          }
-        },
-        "required": ["name", "type"],
         "additionalProperties": false
       }
     },

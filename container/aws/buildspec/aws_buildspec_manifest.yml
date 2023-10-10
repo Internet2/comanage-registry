@@ -1,0 +1,246 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    LABEL: "4.3.0"
+  exported-variables:
+    - LABEL
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u0z2s2z8
+      - echo Logging in to Docker Hub
+      - echo $HUB_DOCKER_COM_TOKEN | docker login --username skoranda --password-stdin
+      - echo Logging in to GitHub
+      - echo $GITHUB_COM_TOKEN | docker login ghcr.io --username skoranda --password-stdin
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building and pushing the Docker manifests to AWS...
+      # 
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create public.ecr.aws/u0z2s2z8/comanage-registry-cron public.ecr.aws/u0z2s2z8/comanage-registry-cron:latest-amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron:latest-arm64
+      - docker manifest annotate --arch amd64 public.ecr.aws/u0z2s2z8/comanage-registry-cron public.ecr.aws/u0z2s2z8/comanage-registry-cron:latest-amd64
+      - docker manifest annotate --arch arm64 public.ecr.aws/u0z2s2z8/comanage-registry-cron public.ecr.aws/u0z2s2z8/comanage-registry-cron:latest-arm64
+      - docker manifest push public.ecr.aws/u0z2s2z8/comanage-registry-cron
+      - docker manifest rm public.ecr.aws/u0z2s2z8/comanage-registry-cron
+      #
+      - echo Building and pushing the Docker manifests to DockerHub...
+      # 
+      - docker manifest create docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-basic-auth docker.io/comanageproject/comanage-registry-basic-auth:latest-amd64 docker.io/comanageproject/comanage-registry-basic-auth:latest-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-basic-auth docker.io/comanageproject/comanage-registry-basic-auth:latest-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-basic-auth docker.io/comanageproject/comanage-registry-basic-auth:latest-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-basic-auth
+      - docker manifest rm docker.io/comanageproject/comanage-registry-basic-auth
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-mod_auth_openidc docker.io/comanageproject/comanage-registry-mod_auth_openidc:latest-amd64 docker.io/comanageproject/comanage-registry-mod_auth_openidc:latest-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-mod_auth_openidc docker.io/comanageproject/comanage-registry-mod_auth_openidc:latest-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-mod_auth_openidc docker.io/comanageproject/comanage-registry-mod_auth_openidc:latest-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-mod_auth_openidc
+      - docker manifest rm docker.io/comanageproject/comanage-registry-mod_auth_openidc
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:latest-amd64 docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:latest-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:latest-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:latest-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor
+      - docker manifest rm docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create docker.io/comanageproject/comanage-registry-cron docker.io/comanageproject/comanage-registry-cron:latest-amd64 docker.io/comanageproject/comanage-registry-cron:latest-arm64
+      - docker manifest annotate --arch amd64 docker.io/comanageproject/comanage-registry-cron docker.io/comanageproject/comanage-registry-cron:latest-amd64
+      - docker manifest annotate --arch arm64 docker.io/comanageproject/comanage-registry-cron docker.io/comanageproject/comanage-registry-cron:latest-arm64
+      - docker manifest push docker.io/comanageproject/comanage-registry-cron
+      - docker manifest rm docker.io/comanageproject/comanage-registry-cron
+      #
+      - echo Building and pushing the Docker manifests to GitHub...
+      # 
+      - docker manifest create ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-basic-auth ghcr.io/cilogon/comanage-registry-basic-auth:latest-amd64 ghcr.io/cilogon/comanage-registry-basic-auth:latest-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-basic-auth ghcr.io/cilogon/comanage-registry-basic-auth:latest-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-basic-auth ghcr.io/cilogon/comanage-registry-basic-auth:latest-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-basic-auth
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-basic-auth
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-mod_auth_openidc ghcr.io/cilogon/comanage-registry-mod_auth_openidc:latest-amd64 ghcr.io/cilogon/comanage-registry-mod_auth_openidc:latest-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-mod_auth_openidc ghcr.io/cilogon/comanage-registry-mod_auth_openidc:latest-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-mod_auth_openidc ghcr.io/cilogon/comanage-registry-mod_auth_openidc:latest-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-mod_auth_openidc
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-mod_auth_openidc
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:latest-amd64 ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:latest-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:latest-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:latest-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64 ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER
+      #
+      - docker manifest create ghcr.io/cilogon/comanage-registry-cron ghcr.io/cilogon/comanage-registry-cron:latest-amd64 ghcr.io/cilogon/comanage-registry-cron:latest-arm64
+      - docker manifest annotate --arch amd64 ghcr.io/cilogon/comanage-registry-cron ghcr.io/cilogon/comanage-registry-cron:latest-amd64
+      - docker manifest annotate --arch arm64 ghcr.io/cilogon/comanage-registry-cron ghcr.io/cilogon/comanage-registry-cron:latest-arm64
+      - docker manifest push ghcr.io/cilogon/comanage-registry-cron
+      - docker manifest rm ghcr.io/cilogon/comanage-registry-cron
+
+  post_build:
+    commands:
+      - echo Build completed on `date`

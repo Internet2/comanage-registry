@@ -237,6 +237,14 @@ class CoPeopleController extends StandardController {
       $args['contain'] = false;
       
       $this->set('vv_vetting_step_count', $this->Co->VettingStep->find('count', $args));
+
+      // Calculate COU node path from root in case the role COU has a parent id.
+      foreach($this->viewVars["co_people"][0]["CoPersonRole"] as $idx => $prole) {
+        if(isset($prole['Cou']['id'])) {
+          // Add the path to parent node under the COU record
+          $this->viewVars["co_people"][0]["CoPersonRole"][$idx]["Cou"]["path"] = $this->constructTreeParentPath($prole['Cou']['id']);
+        }
+      }
     }
     
     parent::beforeRender();
@@ -474,7 +482,29 @@ class CoPeopleController extends StandardController {
       $this->view($id);
     }
   }
-  
+
+  /**
+   * Create path from parent
+   *
+   * @param  int    $nodeId   The ID of the node
+   * @return string           The path
+   *
+   * @since  COmanage Registry        v4.3.0
+   */
+  public function constructTreeParentPath($nodeId) {
+    if(empty($nodeId)) return "";
+    if(!$this->CoPerson->CoPersonRole->Cou->Behaviors->enabled('Tree')) {
+      return "";
+    }
+
+    $parents = $this->CoPerson->CoPersonRole->Cou->getPath($nodeId);
+
+    if(empty($parents)) return "";
+
+    $parent_names = Hash::extract($parents, '{n}.Cou.name');
+    return implode(" / ", $parent_names);
+  }
+
   /**
    * Expunge (delete with intelligent clean up) a CO Person.
    * - precondition: <id> must exist
