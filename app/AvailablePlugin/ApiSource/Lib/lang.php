@@ -59,6 +59,7 @@ $cm_api_source_texts['en_US'] = array(
   'pl.apisource.job.poll.max'     => 'Maximum number of loops to try (default is 10)',
   'pl.apisource.job.poll.msg'     => 'Processed message at offset %1$s',
   'pl.apisource.job.poll.start'   => 'Polling for new records (mode %1$s)',
+  'pl.apisource.job.existing.kafka.partition' => 'Job %1$s is already processing api source id: %2$s, partition id: %3$s',
   'pl.apisource.mode.poll'        => 'Poll Mode',
   'pl.apisource.mode.poll.desc'   => 'The messaging technology to use for polling, leave blank to disable Poll Mode',
   'pl.apisource.mode.push'        => 'Push Mode',

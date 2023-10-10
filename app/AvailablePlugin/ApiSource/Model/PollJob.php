@@ -26,8 +26,11 @@
  */
 
 App::uses("CoJobBackend", "Model");
-
+App::uses("CoJob", "Model");
 class PollJob extends CoJobBackend {
+
+  protected $CoJob = null;
+
   // Validation rules for table elements
   public $validate = array();
   
@@ -44,15 +47,28 @@ class PollJob extends CoJobBackend {
 
 
   public function execute($coId, $CoJob, $params) {
-    $ApiSource = ClassRegistry::init("ApiSource.ApiSource");
+    
+    $this->CoJob = new CoJob();
 
     // For Kafka integrations, we'll usually just want to poll the Partition ID configured
     // in the KafkaServer settings. However, for experimental parallel processing (CO-2696)
     // the administrator needs to be able to specify the Partition ID in order to have the
     // queue processed concurrently by multiple consumers.
 
-    $kafkaPartitionID = (!empty($params['kafka_partition_id']) ? $params['kafka_partition_id'] : null);
+    $kafkaPartitionID = (isset($params['kafka_partition_id']) ? (int)$params['kafka_partition_id'] : null);
     
+    $existingKafkaPartitionJobId = $this->runningKafkaPartitionJobExists($params['coid'], $params['api_source_id'], $kafkaPartitionID);
+    if (isset($existingKafkaPartitionJobId)) {
+      if(isset($CoJob->id)) {
+        $this->CoJob->finish($CoJob->id, 
+          _txt('pl.apisource.job.existing.kafka.partition', array($existingKafkaPartitionJobId, $params['api_source_id'], $kafkaPartitionID)),
+          JobStatusEnum::Canceled);
+      }
+      return;
+    }
+    
+    $ApiSource = ClassRegistry::init("ApiSource.ApiSource");
+
     // Note we don't verify that api_source_id is in $coId. (We basically
     // ignore $coId.) Whatever queued the job should enforce that.
 
@@ -88,4 +104,39 @@ class PollJob extends CoJobBackend {
 
     return $params;
   }
+
+  /**
+   * Check for running kafka partition poll job
+   *     
+   * @return Boolean
+   */
+
+   protected function runningKafkaPartitionJobExists($coid, $apiSourceId, $kafkaPartitionId) {
+
+    $runningJobId = null;
+    
+    if(!isset($kafkaPartitionId) || !isset($apiSourceId))      
+        return $runningJobId;
+
+    $args = array();
+    $args['conditions']['CoJob.co_id'] = $coid;
+    $args['conditions']['CoJob.job_mode'] = ApiSourcePollModeEnum::Kafka;
+    $args['conditions']['CoJob.status'] = array(JobStatusEnum::Queued, JobStatusEnum::InProgress);
+    $args['conditions'][] = 'CoJob.job_params IS NOT NULL';
+   
+    $existingApiSourceKafkaPartitionJobs = $this->CoJob->find('all', $args);
+    
+    foreach($existingApiSourceKafkaPartitionJobs as $j) {
+
+        $jp  = json_decode($j['CoJob']['job_params'], true);
+
+        if($apiSourceId == (int)$jp['api_source_id'] && $kafkaPartitionId == (int)$jp['kafka_partition_id']) {
+          $runningJobId = (int)$j['CoJob']['id'];
+          break;
+        }
+    }
+
+    return $runningJobId;
+  }
+  
 }
