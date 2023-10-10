@@ -28,6 +28,8 @@
 App::uses("CoJobBackend", "Model");
 
 class ImportJob extends CoJobBackend {
+  public $name = "ImportJob";
+
   /**
    * All supported models
    * All the models below need to be direct CO descendants
@@ -258,7 +260,11 @@ class ImportJob extends CoJobBackend {
       }
 
       if($CoJob->id) {
-        $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
+        if($params["dry"]) {
+          $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.dryrun.done-a', array($this->name)));
+        } else {
+          $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done-a', array($this->name)));
+        }
         fwrite(STDOUT, "\n");
       }
     }

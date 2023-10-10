@@ -28,6 +28,8 @@
 App::uses("CoJobBackend", "Model");
 
 class ExportJob extends CoJobBackend {
+  public $name = "ExportJob";
+
   /**
    * All supported models
    * All the models below need to be direct CO descendants
@@ -175,7 +177,7 @@ class ExportJob extends CoJobBackend {
                         FILE_APPEND | LOCK_EX);
 
       if($CoJob->id) {
-        $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done'));
+        $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done-a', array($this->name)));
       }
     }
     catch(Exception $e) {
