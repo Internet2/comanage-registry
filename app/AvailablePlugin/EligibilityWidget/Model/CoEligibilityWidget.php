@@ -67,6 +67,7 @@ class CoEligibilityWidget extends CoDashboardWidgetBackend {
    * @since  COmanage Registry v4.3.0
    * @param  integer CO ID
    * @return Array List of COU Id, Name
+   * @todo This function is currently not used since it refers to a non supported mode
    */
 
   public function allCous($coId) {
@@ -97,16 +98,35 @@ class CoEligibilityWidget extends CoDashboardWidgetBackend {
     $args['conditions']['OisRegistration.co_eligibility_widget_id'] = $ewid;
     $args['contain'] = array(
       'OrgIdentitySource' => array(
-        'OrgIdentitySourceRecord' => array('OrgIdentity'),
-        'CoPipeline' => array('SyncCou')
+        'CoPipeline' => array(
+          'conditions' => array(
+            'CoPipeline.deleted IS NOT TRUE',
+            'CoPipeline.co_pipeline_id IS NULL',
+            // We required a COU to be linked to this COU
+            'CoPipeline.sync_cou_id IS NOT NULL',
+          )
+        )
       )
     );
 
     $ois_list = $this->OisRegistration->find('all', $args);
+//    $this->OisRegistration->getDataSource()->getLog(false, false);
+    $all_cou_ids = Hash::extract($ois_list, '{n}.OrgIdentitySource.CoPipeline.sync_cou_id');
+
+    // We should never get in here. Though if for any reason the cou id list is empty the query
+    // will retrieve everything
+    if(empty($all_cou_ids)) {
+      return [array(), Hash::extract($ois_list, '{n}.OisRegistration') ?? array()];
+    }
 
     // Get all COUs
-    $all_cous = Hash::extract($ois_list, '{n}.OrgIdentitySource.CoPipeline.SyncCou');
+    $args = array();
+    $args['conditions']['Cou.id'] = array_unique($all_cou_ids);
+    $args['contain'] = false;
+    $Cou = ClassRegistry::init('Cou');
+    $cous_resp = $Cou->find('all', $args);
 
+    $all_cous = Hash::extract($cous_resp, '{n}.Cou');
     // From the SyncCou i need to get all the user's active COUs
     return [$all_cous ?? array(), Hash::extract($ois_list, '{n}.OisRegistration') ?? array()];
   }
