@@ -239,10 +239,12 @@ class CoPeopleController extends StandardController {
       $this->set('vv_vetting_step_count', $this->Co->VettingStep->find('count', $args));
 
       // Calculate COU node path from root in case the role COU has a parent id.
-      foreach($this->viewVars["co_people"][0]["CoPersonRole"] as $idx => $prole) {
-        if(isset($prole['Cou']['id'])) {
-          // Add the path to parent node under the COU record
-          $this->viewVars["co_people"][0]["CoPersonRole"][$idx]["Cou"]["path"] = $this->constructTreeParentPath($prole['Cou']['id']);
+      if(!empty($this->viewVars["co_people"][0]["CoPersonRole"])) {
+        foreach($this->viewVars["co_people"][0]["CoPersonRole"] as $idx => $prole) {
+          if(isset($prole['Cou']['id'])) {
+            // Add the path to parent node under the COU record
+            $this->viewVars["co_people"][0]["CoPersonRole"][$idx]["Cou"]["path"] = $this->constructTreeParentPath($prole['Cou']['id']);
+          }
         }
       }
     }
