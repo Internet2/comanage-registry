@@ -205,7 +205,7 @@ class ApiSource extends AppModel {
       }
       
       try {
-        $messages = $this->ServerKafka->KafkaServer->consumeBatch();
+        $messages = $this->ServerKafka->KafkaServer->consumeBatch($kafkaPartitionId);
 
         if(empty($messages)) {
           // Nothing to do, so break the loop and stop the job

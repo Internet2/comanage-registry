@@ -86,7 +86,8 @@ class JobShell extends AppShell {
                                         null,
                                         _txt('rs.jb.started', array($pwent['name'], $pwent['uid'])),
                                         false,
-                                        $concurrent);
+                                        $concurrent,
+                                        $params);
         
         $this->out(_txt('rs.jb.registered', array($jobId)), 1, Shell::NORMAL);
         
