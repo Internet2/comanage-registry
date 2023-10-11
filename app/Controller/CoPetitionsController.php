@@ -1699,6 +1699,23 @@ class CoPetitionsController extends StandardController {
     if(!empty($introductoryText)) {
       $this->set('vv_introduction_text_pa', $introductoryText);
     }
+
+    // We need to find if there is an ENVSOURCE plugin attached to this Enrollment Flow in order to get the
+    // multi-value delimiter
+    $args = array();
+    $args['joins'][0]['table'] = 'co_enrollment_sources';
+    $args['joins'][0]['alias'] = 'CoEnrollmentSource';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'OrgIdentitySource.id=CoEnrollmentSource.org_identity_source_id';
+    $args['conditions']['CoEnrollmentSource.co_enrollment_flow_id'] = $this->enrollmentFlowID();
+    $args['conditions']['OrgIdentitySource.plugin'] = 'EnvSource';
+    $args['contain'] = false;
+
+    $EnvSource = ClassRegistry::init('EnvSource.EnvSource');
+    $dataset = $EnvSource->find('first', $args);
+    if(isset($dataset["EnvSource"]["sp_type"])) {
+      $this->set('vv_envsource_delimiter', $dataset["EnvSource"]["sp_type"]);
+    }
   }
   
   /**
