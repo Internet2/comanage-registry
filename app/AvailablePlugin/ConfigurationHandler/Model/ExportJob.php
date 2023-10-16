@@ -415,6 +415,18 @@ class ExportJob extends CoJobBackend {
       $args['conditions'][] = "{$pmodel}.auto IS NOT TRUE";
       $args['conditions']["{$pmodel}.group_type"] = GroupEnum::Standard;
     }
+    // For enrollment flows we will exclude the default templates
+    if($pModel->name == 'CoEnrollmentFlow') {
+      $templates = array(
+        // Enrollment Flow Template Names
+        _txt('fd.ef.tmpl.arl'),
+        _txt('fd.ef.tmpl.csp'),
+        _txt('fd.ef.tmpl.inv'),
+        _txt('fd.ef.tmpl.lnk'),
+        _txt('fd.ef.tmpl.ssu')
+      );
+      $args['conditions']['NOT']['CoEnrollmentFlow.name'] =  $templates;
+    }
     // Since the COU is a Tree structure we want the ones with no parent first. These are the parent nodes
     // and will allow a successful re-construction of the Tree
     if($pModel->Behaviors->enabled('Tree')) {
