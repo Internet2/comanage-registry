@@ -114,20 +114,20 @@ class ImportJob extends CoJobBackend {
       $this->validateParams($coId, $params);
 
       // Check if the configuration file exists
-      $config_filename = LOCAL . "Config" . DS . $params["filename"];
+      $config_filename = LOCAL . "Config" . DS . $params["config_file"];
       if(!file_exists($config_filename)) {
-        throw new InvalidArgumentException( _txt('er.configuration_handler.filename.invalid-a', array($config_filename)));
+        throw new InvalidArgumentException( _txt('er.configuration_handler.config_file.invalid-a', array($config_filename)));
       }
 
       // check if the configuration file is readable
       if (!is_readable($config_filename)) {
-        throw new InvalidArgumentException( _txt('er.configuration_handler.filename.unreadable-a', array($config_filename)));
+        throw new InvalidArgumentException( _txt('er.configuration_handler.config_file.unreadable-a', array($config_filename)));
       }
 
       // Parse the file
       $file_contents = file_get_contents($config_filename);
       if($file_contents === false) {
-        throw new InvalidArgumentException( _txt('er.configuration_handler.filename.noparse-a', array($config_filename)));
+        throw new InvalidArgumentException( _txt('er.configuration_handler.config_file.noparse-a', array($config_filename)));
       }
 
       $this->_salt = $params['salt'];
@@ -537,8 +537,9 @@ class ImportJob extends CoJobBackend {
   public function parameterFormat() {
     $params = array(
       // XXX The filename should be provided without the path
-      'filename' => array(
-        'help'     => _txt('pl.configuration_handler.arg.filename'),
+      'config_file' => array(
+        'help'     => _txt('pl.configuration_handler.arg.config_file'),
+        'short'   => 'g',
         'type'     => 'string',
         'required' => true
       ),
@@ -572,8 +573,8 @@ class ImportJob extends CoJobBackend {
 
   protected function validateParams($coId, $params) {
     // Since no model_list is provided we will run the GC for all the supportedones.
-    if(empty($params['filename'])) {
-      throw new InvalidArgumentException( _txt('er.configuration_handler.filename.empty'));
+    if(empty($params['config_file'])) {
+      throw new InvalidArgumentException( _txt('er.configuration_handler.config_file.empty'));
     }
 
     return true;

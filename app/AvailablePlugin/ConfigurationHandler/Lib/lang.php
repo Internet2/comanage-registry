@@ -38,17 +38,17 @@ $cm_configuration_handler_texts['en_US'] = array(
   
   // Error messages
   'er.configuration_handler.decrypt.failed'         => 'Importing sensitive data failed',
-  'er.configuration_handler.filename.empty'         => 'Filename must be provided',
-  'er.configuration_handler.filename.invalid-a'     => '"%1$s" file does not exist',
-  'er.configuration_handler.filename.unreadable-a'  => '"%1$s" file is not readable',
-  'er.configuration_handler.filename.noparse-a'     => '"%1$s" file parse failed',
+  'er.configuration_handler.config_file.empty'         => 'Configuration File Name must be provided',
+  'er.configuration_handler.config_file.invalid-a'     => '"%1$s" file does not exist',
+  'er.configuration_handler.config_file.unreadable-a'  => '"%1$s" file is not readable',
+  'er.configuration_handler.config_file.noparse-a'     => '"%1$s" file parse failed',
   'er.configuration_handler.models_list.invalid'    => 'Supported Models for export',
   'er.configuration_handler.models_list.invalid-a'  => '"%1$s" Models are not supported.',
 
   // Plugin texts
   'pl.configuration_handler.arg.models_list'      => 'Supported Models for export',
   'pl.configuration_handler.arg.dry_run'          => 'Run without committing the changes',
-  'pl.configuration_handler.arg.filename'         => 'Configuration filename',
+  'pl.configuration_handler.arg.config_file'      => 'Configuration File Name',
   'pl.configuration_handler.arg.salt'             => 'Encryption Salt string',
   'pl.configuration_handler.done-a'               => '%1$s Completed',
   'pl.configuration_handler.dryrun.done-a'        => '%1$s Dry Run Completed',
