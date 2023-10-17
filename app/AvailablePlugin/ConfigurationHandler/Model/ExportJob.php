@@ -176,6 +176,10 @@ class ExportJob extends CoJobBackend {
                         ']',
                         FILE_APPEND | LOCK_EX);
 
+      // This is not a shell script as a result we can not use $this->>out
+      $out = sprintf("\e[96m%s \e[0m\n", _txt('pl.configuration_handler.export.complete', array($config_filename)));
+      fwrite(STDOUT, $out);
+
       if($CoJob->id) {
         $CoJob->finish($CoJob->id, _txt('pl.configuration_handler.done-a', array($this->name)));
       }
@@ -417,6 +421,8 @@ class ExportJob extends CoJobBackend {
     }
     // For enrollment flows we will exclude the default templates
     if($pModel->name == 'CoEnrollmentFlow') {
+      // XXX In order to make it more dynamic we should refactor the core code and decouple the
+      //     $templates = array(); from the addDefaults function
       $templates = array(
         // Enrollment Flow Template Names
         _txt('fd.ef.tmpl.arl'),

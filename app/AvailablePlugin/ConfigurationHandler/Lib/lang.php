@@ -53,6 +53,7 @@ $cm_configuration_handler_texts['en_US'] = array(
   'pl.configuration_handler.done-a'               => '%1$s Completed',
   'pl.configuration_handler.dryrun.done-a'        => '%1$s Dry Run Completed',
   'pl.configuration_handler.export.start'         => 'Construct and Export Configuration in JSON format',
+  'pl.configuration_handler.export.complete'      => 'Configuration exported successfully: %1$s',
   'pl.configuration_handler.import.start'         => 'Import Configuration from JSON format',
   'pl.exportjob.job'                              => 'Run Export Configuration Task',
   'pl.import.job'                                 => 'Run Import Configuration Task',
