@@ -100,6 +100,19 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('max_allowed', _txt('pl.emailaddresswidget.fd.limit')) :_txt('pl.emailaddresswidget.fd.limit')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.emailaddresswidget.fd.limit.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('max_allowed')
+        : filter_var($vv_config['CoEmailAddressWidget']['max_allowed'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('co_message_template_id', _txt('pl.emailaddresswidget.fd.message.template')) : _txt('pl.emailaddresswidget.fd.message.template')); ?>
       </div>
       <div class="field-desc">
@@ -148,6 +161,38 @@
       <?php print ($e
         ? $this->Form->input('verification_validity', array('default' => 10))
         : filter_var($vv_config['CoEmailAddressWidget']['verification_validity'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.emailaddresswidget.fd.allowreplace'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.emailaddresswidget.fd.allowreplace.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->checkbox('allow_replace')
+        : filter_var($vv_config['CoEmailAddressWidget']['allow_replace'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e 
+        ? $this->Form->label('allow_replace', _txt('pl.emailaddresswidget.fd.allowreplace')) 
+        : ''); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.emailaddresswidget.fd.retainlast'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('pl.emailaddresswidget.fd.retainlast.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->checkbox('retain_last')
+        : filter_var($vv_config['CoEmailAddressWidget']['retain_last'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print ($e 
+        ? $this->Form->label('retain_last', _txt('pl.emailaddresswidget.fd.retainlast')) 
+        : ''); ?>
     </div>
   </li>
 

@@ -31,6 +31,7 @@
       <autoincrement />
     </field>
     <field name="type" type="C" size="32" />
+    <field name="max_allowed" type="I" />
     <field name="verification_validity" type="I" />
     <field name="co_message_template_id" type="I">
       <constraint>REFERENCES cm_co_message_templates(id)</constraint>
@@ -38,6 +39,8 @@
     <field name="co_dashboard_widget_id" type="I">
       <constraint>REFERENCES cm_co_dashboard_widgets(id)</constraint>
     </field>
+    <field name="allow_replace" type="L" />
+    <field name="retain_last" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
@@ -54,6 +57,7 @@
       <autoincrement />
     </field>
     <field name="email" type="C" size="128" />
+    <field name="email_id" type="I" />
     <field name="type" type="C" size="32" />
     <field name="token" type="C" size="16" />
     <field name="co_email_address_widget_id" type="I">

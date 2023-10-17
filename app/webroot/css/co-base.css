@@ -815,6 +815,9 @@ body.co_people.canvas .titleNavContainer {
 .widget-list li:nth-child(2n+1) {
   background-color: #f8f8f8;
 }
+.widget-header {
+  margin-bottom: 1em;
+}
 .widget-list .announcement-title {
   font-size: 1.4em;
   font-weight: bold;
@@ -2800,7 +2803,8 @@ ul.cm-ssw-field-list {
   padding: 0;
   row-gap: 0.5em;
 }
-ul.cm-ssw-field-list li {
+ul.cm-ssw-field-list li,
+.cm-ssw-display.editing ul.cm-ssw-field-list li.no-items-notice {
   padding: 0 1em;
 }
 .cm-ssw-display.editing ul.cm-ssw-field-list {
@@ -2865,6 +2869,9 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   column-gap: 0.5em;
   text-transform: none;
   padding: 0.5em;
+}
+.cm-ssw-dropdown-toggle.replacing {
+  border: 1px dashed var(--cmg-color-gray-border);
 }
 .cm-ssw-dropdown-toggle:hover {
   text-decoration: none;

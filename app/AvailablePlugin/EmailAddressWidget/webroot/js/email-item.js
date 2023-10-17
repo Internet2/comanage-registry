@@ -48,8 +48,9 @@ export default {
       callRegistryAPI(url, 'DELETE', 'html', this.deleteSuccessEmailCallback, '', this.deleteFailEmailCallback);
     },
     deleteSuccessEmailCallback(xhr) {
+      this.$parent.clearInvalid();
       this.$parent.$parent.setError('');
-      this.$parent.$parent.successTxt = 'Deleted';
+      this.$parent.$parent.successTxt = this.txt.deleted;
       this.$parent.refreshDisplay();
     },
     deleteFailEmailCallback(xhr) {
@@ -59,18 +60,33 @@ export default {
       } else {
         this.$parent.$parent.generalXhrFailCallback(xhr);
       }
+    },
+    replaceInit(e, widgetId, id, mail) {
+      this.$parent.replacing = true;
+      this.$parent.emailId = id;
+      this.$parent.mail = mail;
     }
   },
   template: `
     <li :key="id" :data-entity-id="id">
       <div v-if="editing" class="cm-ssw-edit-container">
         <div class="field-actions-menu dropdown">
-          <button class="cm-ssw-dropdown-toggle btn btn-primary" data-toggle="dropdown" aria-haspopup="1" aria-expanded="false">
+          <button class="cm-ssw-dropdown-toggle btn btn-primary" 
+            :class="this.id == this.$parent.emailId && !(this.core.retain) ? ' replacing' : ''"
+            data-toggle="dropdown" aria-haspopup="1" aria-expanded="false">
             <em className="material-icons" aria-hidden="true">settings</em>
             {{ this.mail }}
           </button>  
           <ul class="dropdown-menu">
-            <li>
+            <li v-if="this.core.allowReplace">
+              <button 
+                @click="replaceInit($event, this.core.widget, this.id, this.mail)" 
+                class="cm-ssw-delete-item-button btn btn-small dropdown-item">
+                <em className="material-icons" aria-hidden="true">swap_horiz</em>
+                {{ txt.replace }}
+              </button>
+            </li>
+            <li v-if="!this.core.retain">
               <button 
                 @click="deleteConfirm($event, this.core.widget, this.id)" 
                 class="cm-ssw-delete-item-button btn btn-small dropdown-item">

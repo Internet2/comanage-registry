@@ -3105,6 +3105,8 @@
     <field name="plugin" type="C" size="32" />
     <field name="status" type="C" size="2" />
     <field name="ordr" type="I" />
+    <field name="header" type="XL" />
+    <field name="footer" type="XL" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     <field name="co_dashboard_widget_id" type="I">

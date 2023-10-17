@@ -72,7 +72,7 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('description', _txt('fd.desc')) : _txt('fd.desc')); ?>
+        <?php print ($e ? $this->Form->label('description', _txt('fd.title')) : _txt('fd.title')); ?>
         <span class="required">*</span>
       </div>
     </div>
@@ -168,6 +168,32 @@
       <?php print ($e
                    ? $this->Form->input('ordr')
                    : filter_var($co_dashboard_widgets[0]['CoDashboardWidget']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('header', _txt('fd.co_dashboard_widgets.header')) : _txt('ct.co_dashboard_widgets.header')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.co_dashboard_widgets.header.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('header')
+        : filter_var($co_dashboard_widgets[0]['CoDashboardWidget']['header'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('footer', _txt('fd.co_dashboard_widgets.footer')) : _txt('ct.co_dashboard_widgets.footer')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.co_dashboard_widgets.footer.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('footer')
+        : filter_var($co_dashboard_widgets[0]['CoDashboardWidget']['footer'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <?php if($e): ?>

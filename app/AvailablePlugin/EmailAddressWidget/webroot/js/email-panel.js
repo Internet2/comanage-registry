@@ -37,6 +37,9 @@ export default {
     return {
       editing: false,
       verifying: false,
+      replacing: false,
+      emailId: -1,
+      mail: '',
       newEmailInvalid: false,
       newEmailInvalidClass: '',
       newEmailErrorMessage: this.txt.addFail,
@@ -52,22 +55,35 @@ export default {
     },
     genToken() {
       const newEmailAddress = this.$refs.newAddress.value.trim();
+      
       // basic front-end validation: is it empty?
       if(newEmailAddress == '') {
         return;
       }
+      
       // basic front-end validation: does it contain '@' and '.'?
       if(newEmailAddress.indexOf('@') == -1 || newEmailAddress.indexOf('.') == -1) {
-        this.newEmailInvalid = true;
-        this.newEmailInvalidClass = 'is-invalid';
-        this.newEmailErrorMessage = this.txt.errorInvalid;
+        this.setInvalid(this.txt.errorInvalid);
         return;
       }
-
+      
+      // test to see if we've reached our limit of email addresses. This should never catch because
+      // we now hide the Add form (or use replacement) when the limit is reached, but keep this for completeness.
+      if(this.core.emailLimitReached && !this.replacing) {
+        this.setInvalid(this.txt.limit);
+        return;
+      }
+      
+      // basic front-end validation: does it already exist? We don't allow duplicate email addresses to be added.
+      if(this.emails.some((email) => email.Mail === newEmailAddress)) {
+        this.setInvalid(this.txt.errorDuplicate);
+        return;
+      }
+      
       this.$parent.setError('');
       this.$parent.successTxt = '';
 
-      const url = `/registry/email_address_widget/co_email_address_widgets/gentoken/${this.core.emailAddressWidgetId}?email=${encodeURIComponent(this.$refs.newAddress.value)}&copersonid=${this.core.coPersonId}`;
+      const url = `/registry/email_address_widget/co_email_address_widgets/gentoken/${this.core.emailAddressWidgetId}?email=${encodeURIComponent(this.$refs.newAddress.value)}&emailid=${encodeURIComponent(this.$refs.emailId.value)}&copersonid=${this.core.coPersonId}`;
       displaySpinner();
       callRegistryAPI(
         url,
@@ -84,9 +100,7 @@ export default {
         this.verifying = true;
         this.$nextTick(() => this.$refs['token'].focus());
       } else {
-        this.newEmailInvalid = true;
-        this.newEmailInvalidClass = 'is-invalid';
-        this.newEmailErrorMessage = this.txt.error500;
+        this.setInvalid(this.txt.error500);
       }
     },
     genTokenFailCallback(xhr) {
@@ -118,7 +132,7 @@ export default {
       this.tokenInvalid = false;
       this.tokenInvalidClass = '';
       this.$refs.token.value = '';
-      this.verifying = false;
+      this.resetForm();
       this.clearInvalid();
       this.refreshDisplay();
       this.$parent.successTxt = xhr.statusText;
@@ -133,14 +147,21 @@ export default {
     },
     showEdit() {
       this.editing = true;
-      this.$nextTick(() => this.$refs['newAddress'].focus());
+      if(this.$refs['newAddress'] !== undefined) {
+        this.$nextTick(() => this.$refs['newAddress'].focus());
+      }
     },
     hideEdit() {
       this.editing = false;
-      this.verifying = false;
+      this.resetForm();
       this.$parent.setError('');
       this.$parent.successTxt = '';
       this.clearInvalid();
+    },
+    setInvalid(message) {
+      this.newEmailInvalid = true;
+      this.newEmailInvalidClass = 'is-invalid';
+      this.newEmailErrorMessage = message;
     },
     clearInvalid() {
       this.newEmailInvalid = false;
@@ -149,6 +170,19 @@ export default {
       this.tokenInvalid = false;
       this.tokenInvalidClass = '';
       this.tokenErrorMessage = this.txt.tokenError;
+    },
+    resetForm() {
+      this.verifying = false;
+      this.replacing = false;
+      this.emailId = -1;
+      this.mail = '';
+    }
+  },
+  updated() {
+    if(this.core.retain) {
+      // We're in "retain last email address" mode:
+      this.replacing = true;
+      this.emailId = this.emails[0]['Id'];
     }
   },
   template: `
@@ -158,10 +192,14 @@ export default {
           :txt="this.txt"
           :editing="editing"
           :core="core"
+          v-if="this.emails.length"
           v-for="email in this.emails"
           :mail="email.Mail"
           :id="email.Id">
         </email-item>    
+        <li v-else class="no-items-notice">
+          {{ this.txt.none }}
+        </li>
       </ul>
       <div v-if="!editing" class="cm-self-service-submit-buttons">
         <button @click="showEdit" class="btn btn-small btn-primary">{{ this.txt.edit }}</button>
@@ -200,19 +238,19 @@ export default {
         </form>      
       </div>
       <div v-else class="cm-ssw-add-form">
-        <form action="#">
+        <form action="#" v-if="!this.core.emailLimitReached || this.replacing">
           <div class="cm-ssw-form-row">
             <span class="cm-ssw-form-row-fields">
               <span class="cm-ssw-form-field form-group">
                 <label :for="generateId('cm-ssw-email-address-new')">
-                  {{ txt.email }}
+                  {{ this.replacing ? txt.emailReplace : txt.emailAdd }}
                 </label> 
                 <input 
                   type="text" 
                   :id="generateId('cm-ssw-email-address-new')"
                   class="form-control cm-ssw-form-field-email" 
                   :class="this.newEmailInvalidClass"
-                  value="" 
+                  :value="this.mail"
                   required="required"
                   ref="newAddress"/>
                   <div v-if="this.newEmailInvalid" class="invalid-feedback">
@@ -221,15 +259,23 @@ export default {
               </span>
               <input 
                 type="hidden"
+                :id="generateId('cm-ssw-email-id-new')"
+                :value="emailId"
+                ref="emailId"/>
+              <input 
+                type="hidden"
                 :id="generateId('cm-ssw-email-type-new')"
-                :value="core.defaultEmailType"
+                :value="core.emailType"
                 ref="newAddressType"/>
             </span>
             <div class="cm-ssw-submit-buttons">
-              <button @click.prevent="genToken" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ txt.add }}</button>
+              <button @click.prevent="genToken" class="btn btm-small btn-primary cm-ssw-add-email-save-link">{{ this.replacing ? txt.replace : txt.add }}</button>
             </div>
           </div>
         </form>
+        <div v-else>
+          {{ this.core.allowReplace ? this.txt.limitReplace : this.txt.limit }}
+        </div>
       </div>
     </div>  
   `

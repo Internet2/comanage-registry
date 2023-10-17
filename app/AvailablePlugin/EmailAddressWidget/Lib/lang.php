@@ -37,9 +37,15 @@ $cm_email_address_widget_texts['en_US'] = array(
   'ct.co_email_address_widgets.pl'                      => 'Email Address Widgets',
 
   // Error
+  'er.emailaddresswidget.duplicate'                     => 'The email address is already registered.',
   'er.emailaddresswidget.fd.token'                      => 'The token you have entered does not match. Please try again or start over.',
   'er.emailaddresswidget.timeout'                       => 'The token has expired. Please start over.',
   'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
+
+  // Info
+  'pl.emailaddresswidget.deleted'                       => 'Deleted',
+  'pl.emailaddresswidget.limit'                         => 'Email address limit reached. You must first delete an address before adding another.',
+  'pl.emailaddresswidget.limit.replace'                 => 'Email address limit reached. You must delete or replace an address to add another.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
@@ -47,20 +53,27 @@ $cm_email_address_widget_texts['en_US'] = array(
   'pl.emailaddresswidget.email.body'                    => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
   'pl.emailaddresswidget.noconfig'                      => 'This widget requires no configuration.',
   'pl.emailaddresswidget.none'                          => 'No email addresses',
+  'pl.emailaddresswidget.replace'                       => 'Replace',
   'pl.emailaddresswidget.return'                        => 'Return',
   'pl.emailaddresswidget.rs.mail.added.verified'        => 'Added Verified Email Address %1$s',
+  'pl.emailaddresswidget.rs.mail.updated.verified'      => 'Updated Verified Email Address %1$s for email address ID %2$s',
   'pl.emailaddresswidget.rs.added-a'                    => '"%1$s" Added via Email Address Widget',
 
   // Fields
+  'pl.emailaddresswidget.fd.allowreplace'               => 'Allow Replace',
+  'pl.emailaddresswidget.fd.allowreplace.desc'          => 'Allow any email address to be replaced. Attempting to replace an email address will prompt users for verification.',
   'pl.emailaddresswidget.fd.body'                       => 'Body',
-  'pl.emailaddresswidget.fd.email'                      => 'Add Email Address',
+  'pl.emailaddresswidget.fd.email.add'                  => 'Add Email Address',
+  'pl.emailaddresswidget.fd.email.replace'              => 'Replace Email Address',
+  'pl.emailaddresswidget.fd.limit'                      => 'Email Address Limit',
+  'pl.emailaddresswidget.fd.limit.desc'                 => 'The number of email addresses allowed by this widget. Leave empty to allow an unlimited number of entries.',
   'pl.emailaddresswidget.fd.message.template'           => 'Message Template',
   'pl.emailaddresswidget.fd.message.template.desc'      => 'The email message template to be used. If empty, the following default message will be sent:',
+  'pl.emailaddresswidget.fd.retainlast'                 => 'Retain Last Email Address',
+  'pl.emailaddresswidget.fd.retainlast.desc'            => 'If selected, the last email address in the widget cannot be deleted, and the "ADD" button will change to "REPLACE" when only one address remains. This will occur independent of the "Allow Replace" setting.',
   'pl.emailaddresswidget.fd.type'                       => 'Type',
   'pl.emailaddresswidget.fd.type.default'               => 'Email Address Type',
-  'pl.emailaddresswidget.fd.type.default.desc'          => 'Email Addresses added via this widget will be assigned this type',
-  'pl.emailaddresswidget.fd.type.hide'                  => 'Hide Email Type',
-  'pl.emailaddresswidget.fd.type.hide.desc'             => 'Don\'t display the email type field in the Add Email form.',
+  'pl.emailaddresswidget.fd.type.default.desc'          => 'Email Addresses added and shown in this widget will be of this type',
   'pl.emailaddresswidget.fd.token'                      => 'Verification Token',
   'pl.emailaddresswidget.fd.token.msg'                  => 'Please check your email at the address you just submitted. Enter the email verification token in the field below and click \"Verify\" to finish adding your new email address.',
   'pl.emailaddresswidget.fd.verification.validity'      => 'Verification Validity (Minutes)',

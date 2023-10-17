@@ -95,6 +95,7 @@ class CoEmailAddressWidgetsController extends SDWController {
     $this->layout = 'ajax';
 
     if (empty($this->request->query['email'])
+       || empty($this->request->query['emailid'])
        || empty($this->request->query['copersonid'])) {
       $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_BAD_REQUEST, _txt('er.emailaddresswidget.req.params'));
       return;
@@ -109,6 +110,7 @@ class CoEmailAddressWidgetsController extends SDWController {
 
     $results = $this->CoEmailAddressWidget->generateToken(
       $this->request->query['email'],
+      $this->request->query['emailid'],
       $this->CoEmailAddressWidget->field('type'),
       $this->request->query['copersonid']
     );

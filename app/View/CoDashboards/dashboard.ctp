@@ -95,7 +95,17 @@
               <?php print filter_var($w['description'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
               <span id="widgetSpinner<?php print $w['id']; ?>" class="co-loading-mini"><span></span><span></span><span></span></span>
             </h2>
+            <?php if(!empty(trim($w['header']))): ?>
+              <div class="widget-header">
+                <?php print filter_var($w['header'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+              </div>
+            <?php endif; ?>
             <div id="widget<?php print $w['id']; ?>"></div>
+            <?php if(!empty(trim($w['footer']))): ?>
+              <div class="widget-footer">
+                <?php print filter_var($w['footer'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
+              </div>
+            <?php endif; ?>
           </div>
         <?php endif; // Active ?>
       <?php endforeach; // dashboard widget ?>
