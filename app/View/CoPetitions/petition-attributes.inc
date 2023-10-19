@@ -564,6 +564,22 @@
                   $args['value'] = generateCn($vv_default_sponsor['PrimaryName']);
                 } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id-disabled') {
                   $args['value'] = generateCn($vv_default_manager['PrimaryName']);
+                } elseif(strpos($fieldName, 'EnrolleeCoPerson.EmailAddress') !== false) {
+                  $email_list = $args['default'];
+                  if(!empty($email_list) && !empty($vv_envsource_delimiter)) {
+                    $delimiter = "";
+                    if($vv_envsource_delimiter == AuthProviderEnum::Shibboleth) {
+                      $delimiter = ";";
+                    } elseif($vv_envsource_delimiter == AuthProviderEnum::Simplesamlphp) {
+                      $delimiter =",";
+                    }
+
+                    $emails = explode($delimiter, $email_list);
+                    if(is_array($emails) && count($emails) > 1) {
+                      // XXX We are only keeping the first email
+                      $args['value'] = $emails[0];
+                    }
+                  }
                 }
                 
                 // Render the form field, label, and error (if any)
