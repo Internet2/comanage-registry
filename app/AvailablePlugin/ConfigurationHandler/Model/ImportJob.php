@@ -467,6 +467,12 @@ class ImportJob extends CoJobBackend {
         continue;
       }
 
+      // Boolean values must be 0 or 1 in order to pass the allowEmpty=false validation rule
+      if($properties['type'] == 'boolean' && isset($data[$clmn])) {
+        $data[$clmn] = filter_var($data[$clmn], FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+      }
+
+      // Decrypt the password and client_secret
       if(in_array($clmn, array('password', 'client_secret'))) {
         $data[$clmn] = $this->decrypt($data[$clmn]);
         continue;
