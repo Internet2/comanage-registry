@@ -58,35 +58,51 @@ class PaperTokensController extends SAMController {
     if(!$this->request->is('get')) {
       throw new MethodNotAllowedException();
     } else {
-      parent::add();
 
-      $this->set('title_for_layout', 'Generated Backup Codes');
 
-      if(!empty($this->request->params['named']['onFinish'])) {
-        $this->set('vv_on_finish_url', $this->request->params['named']['onFinish']);
-      }
+      $args = array();
+      $args['conditions']['CoPerson.id'] = $this->viewVars['vv_co_person']['CoPerson']['id'];
 
-      try {
-        $tokenInfo = $this->PrivacyIdea->createToken($this->viewVars['vv_authenticator']['PrivacyIdeaAuthenticator'],
+      $ppt = $this->PaperToken->find('first', $args);
+
+
+      if($ppt) {
+        $this->set('title_for_layout', 'Token already Exists');
+        $this->Flash->set(_txt('er.privacyideaauthenticator.singular'), array('key' => 'error'));
+        if(!empty($this->request->params['named']['onFinish'])) {
+          $this->set('vv_on_finish_url', $this->request->params['named']['onFinish']);
+        }
+      } else {
+        parent::add();
+
+        $this->set('title_for_layout', 'Generated Backup Codes');
+
+        if(!empty($this->request->params['named']['onFinish'])) {
+          $this->set('vv_on_finish_url', $this->request->params['named']['onFinish']);
+        }
+
+        try {
+          $tokenInfo = $this->PrivacyIdea->createToken($this->viewVars['vv_authenticator']['PrivacyIdeaAuthenticator'],
                                                      $this->viewVars['vv_co_person']['CoPerson']['id']);
 
-        $this->set('vv_token_info', $tokenInfo);
+          $this->set('vv_token_info', $tokenInfo);
 
-        $newdata = array(
-          'PaperToken' => array(
-            'co_person_id' => $this->viewVars['vv_co_person']['CoPerson']['id'],
-            'serial' => $tokenInfo['serial']
-          )
-        );
+          $newdata = array(
+            'PaperToken' => array(
+              'co_person_id' => $this->viewVars['vv_co_person']['CoPerson']['id'],
+              'serial' => $tokenInfo['serial']
+            )
+          );
 
-        $this->generateHistory('generate', $newdata, array());
+          $this->generateHistory('generate', $newdata, array());
 
-        if(!empty($tokenInfo['otps'])) {
-          $this->set('vv_otps', (array)$tokenInfo['otps']);
+          if(!empty($tokenInfo['otps'])) {
+            $this->set('vv_otps', (array)$tokenInfo['otps']);
+          }
         }
-      }
-      catch(Exception $e) {
-        $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        catch(Exception $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        }
       }
     }
   }

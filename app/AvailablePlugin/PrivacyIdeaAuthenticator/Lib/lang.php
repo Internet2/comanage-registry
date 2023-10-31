@@ -58,6 +58,7 @@ $cm_privacy_idea_authenticator_texts['en_US'] = array(
   // Error messages
   'er.privacyideaauthenticator.code'       => 'Invalid code, please try again',
   'er.privacyideaauthenticator.identifier' => 'No Identifier of type "%1$s" found for CO Person',
+  'er.privacyideaauthenticator.singular'   => 'A token already exists; please delete that one before generating a new one',
   
   // Plugin texts
   'pl.privacyideaauthenticator.alt.google'           => 'QR Code for Google Authenticator',

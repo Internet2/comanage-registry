@@ -35,7 +35,7 @@
   // Add top links
   $params['topLinks'] = array();
 
-  if($permissions['add']) {
+  if($permissions['add'] && !$paper_tokens) {
     $params['topLinks'][] = $this->Html->link(
       _txt('op.generate', array($title_for_layout)),
       array(

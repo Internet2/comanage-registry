@@ -38,7 +38,6 @@
                                               urldecode($this->request->params['named']['onFinish']),
                                               array('class' => 'forwardbutton'));
   }
-  print $this->element("pageTitleAndButtons", $params);
 
   // Add breadcrumbs
   print $this->element("coCrumb", array('authenticator' => 'PrivacyIdea'));
@@ -112,6 +111,12 @@
       <span id="dialog-text"><?php print _txt('pl.privacyideaauthenticator.paper.dialog'); ?></span>
     </p>
   </div>
+<?php elseif(!empty($this->request->params['named']['onFinish'])): ?>
+  <?php
+    print $this->Html->link(_txt('op.cont'),
+                                          urldecode($this->request->params['named']['onFinish']),
+                                          array('class' => 'btn btn-primary btn-lg'));
+  ?>
 <?php elseif($this->action == 'view'): ?>
   <ul id="<?php print $this->action; ?>_paper_token" class="fields form-list">
     <li>
