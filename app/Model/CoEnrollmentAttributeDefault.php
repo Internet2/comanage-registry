@@ -89,6 +89,15 @@ class CoEnrollmentAttributeDefault extends AppModel {
     // Organizational Identity attributes (type 'o'),
     // or Extended Attributes (type 'x')
     $request = Router::getRequest();
+
+    // CMD Line Save action
+    // CO-2712
+    if(is_null($request)) {
+      // Just return true for now.
+      return true;
+    }
+
+    // UI POST request
     $attrCode = explode(':', $request->data['CoEnrollmentAttribute']['attribute']);
     if(!in_array($attrCode[0], array('r', 'g', 'o', 'x'))) {
       return true;
