@@ -132,12 +132,15 @@ class ImportJob extends CoJobBackend {
 
       $this->_salt = $params['salt'];
 
+      // Get the plugins and append them at the end of the MODELS_IMPORT list
+      $model_imports = $this->getPluginList();
+
       // parse json to an associative array
       $configuration_to_import = $this->jsonDecode($file_contents, true);
       $dbc->begin();
 
       $old_to_new_mapper = array();
-      foreach (self::MODELS_IMPORT as $immodel) {
+      foreach ($model_imports as $immodel) {
         $this->log("Importing {$immodel} Configuration", LOG_INFO);
         $curModel = ClassRegistry::init($immodel);
         if(in_array($immodel, array(
@@ -443,6 +446,76 @@ class ImportJob extends CoJobBackend {
     }
   }
 
+  /**
+   * Get the plugin names and append them at the end of the Model import list
+   *
+   * @since  COmanage Registry v4.3.0
+   *
+   * @return array   The list of models
+   */
+  public function getPluginList() {
+    $model_imports = self::MODELS_IMPORT;
+    // Make sure to update this list in duplicate() as well
+    foreach(array("CoProvisioningTarget",
+                  "DataFilter",
+                  "OrgIdentitySource") as $plg_parent_model) {
+      $m = ClassRegistry::init($plg_parent_model);
+
+      // Load all the Configured plugins and disable the Changelog Behavior config if any
+      // XXX For the case of CoDashboardWidget plugins we will call the beforeDelete callback in the Model itself
+      $modelPluginTypes = !empty($m->hasManyPlugins)
+                                 ? array_keys($m->hasManyPlugins)
+                                 : array();
+      foreach($modelPluginTypes as $pluginType) {
+        $plugins = $this->loadAvailablePlugins($pluginType);
+        foreach($plugins as $pluginName => $plugin) {
+          $pluginClassName = $pluginName;
+          if(!empty($m->hasManyPlugins)
+            && isset($m->hasManyPlugins[$pluginType]['coreModelFormat'])) {
+            $corem = sprintf($m->hasManyPlugins[$pluginType]['coreModelFormat'], $plugin->name);
+            $pluginClassName = "{$plugin->name}.{$corem}";
+          }
+
+
+          $model_imports[] = $pluginClassName;
+
+          $plugin_dependent_import_list = $this->getPluginNestedList($pluginClassName);
+          if(!empty($plugin_dependent_import_list)) {
+            $model_imports = array_merge($model_imports, $plugin_dependent_import_list);
+          }
+        }
+      }
+
+    }
+
+    return $model_imports;
+
+  }
+
+  /**
+   * Get the plugin's full nested list of hasMany dependencies
+   * @param  string[]   &$list_of_nested list of hasMany Models
+   *
+   * @return string[]   List of Model names
+   *@since  COmanage Registry v4.3.0
+   *
+   */
+
+  public function getPluginNestedList($plugin_class_name, &$list_of_nested = array()) {
+    $pluginClass = ClassRegistry::init($plugin_class_name);
+    $plugin = explode(".", $plugin_class_name)[0];
+    if(!empty($pluginClass->hasMany)) {
+      foreach ($pluginClass->hasMany as $model => $options) {
+        $mmodelClassName = $plugin . "." . $model;
+        // Dive deeper
+        $this->getPluginNestedList($mmodelClassName, $list_of_nested);
+        // Save the models
+        $list_of_nested[] = $mmodelClassName;
+      }
+    }
+
+    return $list_of_nested;
+  }
 
   /**
    * The constructData restores the base64 text fields and finds the newly created foreign_key IDs
