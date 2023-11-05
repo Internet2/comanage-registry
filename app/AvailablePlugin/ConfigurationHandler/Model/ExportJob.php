@@ -150,9 +150,12 @@ class ExportJob extends CoJobBackend {
         // Since list of models is a mix of an associative array and a simple list
         // we need to check if the first parameter is an int or a string
         $mmodel = is_int($exmodel) ? $dependents : $exmodel;
+
+        $mModelClass = ClassRegistry::init($mmodel);
+
         // Get all the records for this CoModel
         // Also fetch all the contain data foreach record
-        $records = $this->getModelRecords($coId, $mmodel);
+        $records = $this->getModelRecords('co_id', $coId, $mmodel);
         $mdata = array();
         foreach ($records as $record) {
           // Prepare the data
@@ -162,7 +165,45 @@ class ExportJob extends CoJobBackend {
                                                            $record,
                                                            $mdata,
                                                            $mmodel);
+
+          // This model is a plugin wrapper.
+          // I will fetch all the plugins and add them in the configuration file
+          if(in_array($mmodel, array("CoProvisioningTarget",
+                                     "DataFilter",
+                                     "OrgIdentitySource"))
+          ) {
+            $fk_column = Inflector::underscore($mmodel) . '_id';
+            // Get all the enabled plugins of that type
+            // Load all the Configured plugins
+            $modelPluginTypes = !empty($mModelClass->hasManyPlugins)
+              ? array_keys($mModelClass->hasManyPlugins)
+              : array();
+            foreach($modelPluginTypes as $pluginType) {
+              $plugins = $this->loadAvailablePlugins($pluginType);
+              foreach($plugins as $pluginName => $plugin) {
+                $pluginClassName = $pluginName;
+                if(!empty($mModelClass->hasManyPlugins)
+                  && isset($mModelClass->hasManyPlugins[$pluginType]['coreModelFormat'])) {
+                  $corem = sprintf($mModelClass->hasManyPlugins[$pluginType]['coreModelFormat'], $plugin->name);
+                  $pluginClassName = "{$plugin->name}.{$corem}";
+                }
+
+                $pluginClass = ClassRegistry::init($pluginClassName);
+                $plugin_records = $this->getModelRecords($fk_column, $record[$mmodel]["id"], $pluginClassName, true);
+                foreach ($plugin_records as $plugin_record) {
+                  $mdata[$pluginClass->name][] = $this->filterMetadataInbound($plugin_record,
+                                                                              $pluginClass->name,
+                                                                              array_keys($pluginClass->hasMany) ?? array(),
+                                                                              $plugin_record,
+                                                                              $mdata,
+                                                                              $pluginClass->name);
+                }
+              }
+            }
+          } // Plugin records
+
         }
+
         if(!empty($mdata)) {
           // since we are appending we need to add a comma before adding the new blob of data
           file_put_contents($config_filename,
@@ -209,6 +250,9 @@ class ExportJob extends CoJobBackend {
 
     // Get a pointer to our model
     $Model = ClassRegistry::init($modelName);
+    // We are doing this here since for the case of the plugins the $modelName we feed the function with will be
+    // Name.name. This is needed in order to intantiate the Class properly. Then we get the name from the object.
+    $modelName = $Model->name;
     $path_partial = '';
 
     if(!empty($hasManyOneList)) {
@@ -248,14 +292,6 @@ class ExportJob extends CoJobBackend {
         if(empty($check_null_values)) {
           continue;
         }
-
-        // XXX Keeping this for now. The following syntax creates a nested hierarchy,
-        // when fetching the records
-//        $ret[$nxt_model][] = $this->filterMetadataInbound($dataset,
-//                                                       $nxt_model,
-//                                                       $hasManyOneList[$nxt_model] ?? array(),
-//                                                       $next_values ?? $dataset,
-//                                                       empty($path) ? $path_partial : "{$path}.{$path_partial}");
 
         $tmp_data = $this->filterMetadataInbound($dataset,
                                                  $nxt_model,
@@ -388,7 +424,10 @@ class ExportJob extends CoJobBackend {
                 if($roptions['foreignKey'] != $clmn) {
                   continue;
                 }
-                $place_holder_hashed_value = strtolower($roptions['className'] . "id" . ($data[$clmn] ?? 0) ) ;
+                $multi_part_className = explode(".", $roptions['className']);
+                // $multi_part_className[1]: when we have a dependent model inside a plugin
+                // $multi_part_className[0]: otherwise
+                $place_holder_hashed_value = strtolower(($multi_part_className[1] ?? $multi_part_className[0]) . "id" . ($data[$clmn] ?? 0) );
                 $ret[$clmn] = isset($data[$clmn]) ? $place_holder_hashed_value : null;
               }
             } else {
@@ -404,20 +443,22 @@ class ExportJob extends CoJobBackend {
   /**
    * Retrieve Model records from the database
    *
-   * @param int     $coid    CO Id
-   * @param string  $pmodel  Model name in Class format
+   * @param string  $fk_column   Foreign key column name
+   * @param int     $fk_value    Foreign key value
+   * @param string  $pmodel      Model name in Class format
+   * @param bool    $isPlugin    Is this a plugin Model
    *
    * @return array  model database records
    */
-  public function getModelRecords($coid, $pmodel) {
+  public function getModelRecords($fk_column, $fk_value, $pmodel, $isPlugin = false) {
     $pModel = ClassRegistry::init($pmodel);
 
     // For groups we need to leave out the auto ones
     $args = array();
-    $args['conditions'][$pmodel . '.co_id'] = $coid;
+    $args['conditions'][$pModel->name . '.' . $fk_column] = $fk_value;
     if($pModel->name == 'CoGroup') {
-      $args['conditions'][] = "{$pmodel}.auto IS NOT TRUE";
-      $args['conditions']["{$pmodel}.group_type"] = GroupEnum::Standard;
+      $args['conditions'][] = "{$pModel->name}.auto IS NOT TRUE";
+      $args['conditions']["{$pModel->name}.group_type"] = GroupEnum::Standard;
     }
     // For enrollment flows we will exclude the default templates
     if($pModel->name == 'CoEnrollmentFlow') {
@@ -456,9 +497,12 @@ class ExportJob extends CoJobBackend {
     // We want to contain all the belongsTo associations, as well as the hasMany or hasOne we allow. This will make things easier
     // for the COU model. The COU model hasMany Roles which we do not need. Excluding the CoPersonRoles from the contain list will
     // speed up the process
-    $args['contain'] = array_merge(self::MODELS_EXPORT[$pmodel] ?? array(), array_keys($pModel->belongsTo));
+    // For the case of plugins we assume that the hasMany array will always be associative since there has to be the dependent
+    // property set to true.
+    $args['contain'] = $isPlugin ? array_keys($pModel->hasMany) : array_merge(self::MODELS_EXPORT[$pModel->name] ?? array(), array_keys($pModel->belongsTo));
 
-    if (($key = array_search("Co", $args['contain'])) !== false) {
+    if (is_array($args['contain'])
+        && ($key = array_search("Co", $args['contain'])) !== false) {
       unset($args['contain'][$key]);
     }
 
