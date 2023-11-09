@@ -171,13 +171,8 @@ class ImportJob extends CoJobBackend {
 
           // CO-1320
           // If the server_type is LDAP skip. It is not supported anymore
-          // XXX Comment out
           if($curModel->name == 'Server'
              && $data['server_type'] == 'LD') {
-            // TODO: Write only to log file
-//            fwrite(STDOUT, "\n");
-//            $this->log(__METHOD__ . "::Data skipped => " . print_r($data, true), LOG_WARNING);
-//            $this->log(__METHOD__ . "::LDAP server type is not supported any more", LOG_WARNING);
             continue 1;
           }
 
@@ -219,11 +214,19 @@ class ImportJob extends CoJobBackend {
               }
             }
 
-            if(!$curModel->save($data, array(
+            $saveOptions = array(
               'provision' => false,
               'callbacks' => !in_array($curModel->name, $disable_callbacks),
               'validate' => !$skip_validation
-            ))) {
+            );
+
+            if($curModel->name == 'Oauth2Server') {
+              // We will skip afterSave for Oauth2Server since we want to import the data as is
+              // and there is no record id from previous transactions.
+              $saveOptions['safeties'] = 'off';
+            }
+
+            if(!$curModel->save($data, $saveOptions)) {
               $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
               $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
               $dbc->rollback();
