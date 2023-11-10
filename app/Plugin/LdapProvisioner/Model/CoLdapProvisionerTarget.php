@@ -1625,8 +1625,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $rename   = false;
     $person   = false;
     $group    = false;
-    $errorlevel = error_reporting();
-    
+    $current_error_reporting = error_reporting();
+
     if(!empty($provisioningData['CoGroup']['id'])) {
       $group = true;
     }
@@ -1820,13 +1820,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // Use LDAP v3 (this could perhaps become an option at some point), although note
     // that ldap_rename (used below) *requires* LDAP v3.
     ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    
+
+    error_reporting(0);
     if(!@ldap_bind($cxn,
                    $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
                    $coProvisioningTargetData['CoLdapProvisionerTarget']['password'])) {
+      error_reporting($current_error_reporting);
       throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
     }
-    
+    error_reporting($current_error_reporting);
+
     if($delete) {
       // Delete any previous entry. For now, ignore any error, unless we don't
       // have an olddn and newdnerr is set.
@@ -1837,19 +1840,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
                                               $dns['newdnerr'])));
       }
-      
+
       if($dns['olddn'] && ($rename || !$dns['newdn'])) {
         // Use the old DN if we're renaming or if there is no new DN
         // (which should be the case for a delete operation).
         error_reporting(0);
         ldap_delete($cxn, $dns['olddn']);
-        error_reporting($errorlevel);
+        error_reporting($current_error_reporting);
       } elseif($dns['newdn']) {
         // It's actually not clear when we'd get here -- perhaps cleaning up
         // a record that exists in LDAP even though it's new to Registry?
         error_reporting(0);
         ldap_delete($cxn, $dns['newdn']);
-        error_reporting($errorlevel);
+        error_reporting($current_error_reporting);
       }
       
       if($deletedn) {
@@ -1882,13 +1885,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       }
       
       $newrdn = rtrim(str_replace($basedn, "", $dns['newdn']), " ,");
-      
+
+      error_reporting(0);
       if(!@ldap_rename($cxn, $dns['olddn'], $newrdn, null, true)) {
         // XXX We should probably try to reset CoLdapProvisionerDn here since we're
         // now inconsistent with LDAP
-        
+        error_reporting($current_error_reporting);
+
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
+      error_reporting($current_error_reporting);
     }
     
     if($modify) {
@@ -1899,14 +1905,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $dns['newdnerr'])));
       }
 
+      error_reporting(0);
       if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
+        error_reporting($current_error_reporting);
         if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
           // Change to an add operation. We call ourselves recursively because
           // we need to recalculate $attributes. Modify wants array() to indicate
           // an empty attribute, whereas Add throws an error if that is the case.
           // As a side effect, we'll rebind to the LDAP server, but this should
           // be a pretty rare event.
-          
+
           $this->provision($coProvisioningTargetData,
                            ($person
                             ? ProvisioningActionEnum::CoPersonAdded
@@ -1916,6 +1924,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
         }
       }
+      error_reporting($current_error_reporting);
     }
     
     if($add) {
@@ -1928,7 +1937,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $dns['newdnerr'])));
       }
 
-      if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
+      try {
+        error_reporting(0);
+        ldap_add($cxn, $dns['newdn'], $attributes);
+        error_reporting($current_error_reporting);
+      } catch(Exception $e) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
     }
@@ -1957,7 +1970,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   
   protected function queryLdap($serverUrl, $bindDn, $password, $baseDn, $filter, $attributes=array()) {
     $ret = array();
-    
+    $current_error_reporting = error_reporting();
+
     $cxn = ldap_connect($serverUrl);
     
     if(!$cxn) {
@@ -1966,15 +1980,19 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Use LDAP v3 (this could perhaps become an option at some point)
     ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
-    
+
+    error_reporting(0);
     if(!@ldap_bind($cxn, $bindDn, $password)) {
+      error_reporting($current_error_reporting);
       throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
     }
-    
+    error_reporting($current_error_reporting);
+
     // Try to search using base DN; look for any matching object under the base DN
-    
+
+    error_reporting(0);
     $s = @ldap_search($cxn, $baseDn, $filter, $attributes);
-    
+    error_reporting($current_error_reporting);
     if(!$s) {
       throw new RuntimeException(ldap_error($cxn) . " (" . $baseDn . ")", ldap_errno($cxn));
     }
