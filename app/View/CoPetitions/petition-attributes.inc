@@ -348,7 +348,7 @@
 
               if($ea['required']) {
                 // XXX We need a way to inform the backend that we need to make validation adjustments dynamically
-                print $this->Form->hidden($ea['model'] . '.' . $ea['field'] . '-required', array('default' => $ea['default'])) . PHP_EOL;
+                print $this->Form->hidden($ea['model'] . '.' . $ea['field'] . '-required', array('default' => ($ea['default'] ?? "")  )) . PHP_EOL;
               }
               // Set a default value if provided
               // XXX We use isset here because default value might be a boolean
@@ -361,7 +361,8 @@
               }
 
               // Remove the `-disabled` field if it is no longer required
-              if(!$args['disabled']) {
+              if(isset($args['disabled'])
+                 && !$args['disabled']) {
                 $fieldName = $ea['model'] . '.' . $ea['field'];
               }
 
