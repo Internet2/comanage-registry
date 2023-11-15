@@ -434,10 +434,10 @@ class AppModel extends Model {
               $mTypes = $fmodel->types($coId, $attr);
               
               if(!empty($mTypes)) {
-                if($oldval) {
+                if($oldval && isset($mTypes[$oldval])) {
                   $oldval = $mTypes[$oldval] . " (" . $oldval . ")";
                 }
-                if($newval) {
+                if($newval && isset($mTypes[$newval])) {
                   $newval = $mTypes[$newval] . " (" . $newval . ")";
                 }
               }

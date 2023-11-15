@@ -18,6 +18,9 @@ Resources:
               - !Sub
                 - "arn:aws:codepipeline:us-east-2:${AWS::AccountId}:${PipelineName}"
                 - PipelineName: !ImportValue comanage-registry-develop-pipeline::PipelineName
+              - !Sub
+                - "arn:aws:codepipeline:us-east-2:${AWS::AccountId}:${PipelineName}"
+                - PipelineName: !ImportValue comanage-registry-pipeline::PipelineName
 
   CILogonCOmanagePipelineRunnerRole:
     Type: AWS::IAM::Role

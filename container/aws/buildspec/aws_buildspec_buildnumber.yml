@@ -1,0 +1,10 @@
+version: 0.2
+
+env:
+  exported-variables:
+    - CODEBUILD_BUILD_NUMBER
+
+phases:
+  build:
+    commands:
+      - echo COmanage Registry build number is $CODEBUILD_BUILD_NUMBER

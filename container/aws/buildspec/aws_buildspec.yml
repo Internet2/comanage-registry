@@ -3,7 +3,7 @@ version: 0.2
 env:
   shell: bash
   variables:
-    LABEL: "4.3.0"
+    LABEL: "4.3.1"
   exported-variables:
     - LABEL
 
@@ -19,27 +19,103 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER registry all
-      - container/build.sh --image_registry=docker.io --repository=comanageproject --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER registry all
-      - container/build.sh --image_registry=ghcr.io --repository=cilogon --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER registry all
-      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER crond
-      - container/build.sh --image_registry=docker.io --repository=comanageproject --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER crond
-      - container/build.sh --image_registry=ghcr.io --repository=cilogon --label=$LABEL --suffix=$CODEBUILD_BUILD_NUMBER crond
+      # Clone the repository
+      - git clone https://skoranda:$GITHUB_COM_TOKEN@github.com/Internet2/comanage-registry.git
+      - cd comanage-registry
+      # Build all registry and crond images for AWS repository
+      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH registry all
+      - container/build.sh --image_registry=public.ecr.aws --repository=u0z2s2z8 --label=$LABEL --suffix=$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH crond
+      # Copy the basic-auth tag to a comanage-registry-basic-auth image with full tag and also latest tag
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-$ARCH
+      # Copy the mod_auth_openidc tag to a comanage-registry-mod_auth_openidc image with full tag and also latest tag
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-$ARCH
+      # Copy the shibboleth-sp-supervisor tag to a comanage-registry-shibboleth-sp-supervisor image with full tag and also latest tag
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH
+      # Copy the cron image to a latest tag
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH public.ecr.aws/u0z2s2z8/comanage-registry-cron:latest-$ARCH
+      # Copy the AWS images to DockerHub images
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-$ARCH docker.io/comanageproject/comanage-registry-basic-auth:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-$ARCH docker.io/comanageproject/comanage-registry-mod_auth_openidc:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH docker.io/comanageproject/comanage-registry-cron:latest-$ARCH
+      # Copy the AWS images to GitHub images
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-$ARCH ghcr.io/cilogon/comanage-registry-basic-auth:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-$ARCH ghcr.io/cilogon/comanage-registry-mod_auth_openidc:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH
+      #
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker tag public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH ghcr.io/cilogon/comanage-registry-cron:latest-$ARCH
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images to AWS public repository...
-      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$CODEBUILD_BUILD_NUMBER
-      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
-      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
-      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$CODEBUILD_BUILD_NUMBER
-      - echo Pushing the Docker images to Docker Hub public repository...
-      - docker push docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$CODEBUILD_BUILD_NUMBER
-      - docker push docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
-      - docker push docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
-      - docker push docker.io/comanageproject/comanage-registry-cron:$LABEL-$CODEBUILD_BUILD_NUMBER
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-basic-auth:latest-$ARCH
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-mod_auth_openidc:latest-$ARCH
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH
+      #
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push public.ecr.aws/u0z2s2z8/comanage-registry-cron:latest-$ARCH
+      #
+      - echo Pushing the Docker images to DockerHub public repository...
+      #
+      - docker push docker.io/comanageproject/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-basic-auth:latest-$ARCH
+      #
+      - docker push docker.io/comanageproject/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-mod_auth_openidc:latest-$ARCH
+      #
+      - docker push docker.io/comanageproject/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH
+      #
+      - docker push docker.io/comanageproject/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push docker.io/comanageproject/comanage-registry-cron:latest-$ARCH
+      #
       - echo Pushing the Docker images to GitHub public repository...
-      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$CODEBUILD_BUILD_NUMBER
-      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$CODEBUILD_BUILD_NUMBER
-      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$CODEBUILD_BUILD_NUMBER
-      - docker push ghcr.io/cilogon/comanage-registry-cron:$LABEL-$CODEBUILD_BUILD_NUMBER
+      #
+      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-basic-auth-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-basic-auth:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-basic-auth:latest-$ARCH
+      #
+      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-mod_auth_openidc-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-mod_auth_openidc:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-mod_auth_openidc:latest-$ARCH
+      #
+      - docker push ghcr.io/cilogon/comanage-registry:$LABEL-shibboleth-sp-supervisor-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-shibboleth-sp-supervisor:latest-$ARCH
+      #
+      - docker push ghcr.io/cilogon/comanage-registry-cron:$LABEL-$COMANAGE_REGISTRY_BUILD_NUMBER-$ARCH
+      - docker push ghcr.io/cilogon/comanage-registry-cron:latest-$ARCH
