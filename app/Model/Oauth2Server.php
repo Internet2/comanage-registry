@@ -98,6 +98,10 @@ class Oauth2Server extends AppModel {
    */
 
   public function beforeSave($options = array()) {
+    if(isset($options['safeties']) && $options['safeties'] == 'off') {
+      return true;
+    }
+
     // If there is as access or refresh token, see if any "critical"
     // element has changed, and if so clear the token.
     
