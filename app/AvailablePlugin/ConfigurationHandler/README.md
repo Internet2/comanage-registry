@@ -37,6 +37,6 @@ cd /path/to/comanage/app
 ```
 
 - -d, dry run
-- --config_file, provide only the configuration file name. The path is fixed under the local/Config directory
+- --config-file, provide only the configuration file name. The path is fixed under the local/Config directory
 - --coid, the number of CO to import the configuration to
 - -e, salt for decryption. It has to much the one we provided on encryption

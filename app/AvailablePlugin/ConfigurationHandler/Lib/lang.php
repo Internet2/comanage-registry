@@ -37,13 +37,13 @@ $cm_configuration_handler_texts['en_US'] = array(
   'ct.configuration_handlers.pl' => 'Configuration Handlers',
   
   // Error messages
-  'er.configuration_handler.decrypt.failed'         => 'Importing sensitive data failed',
+  'er.configuration_handler.decrypt.failed'            => 'Importing sensitive data failed',
   'er.configuration_handler.config_file.empty'         => 'Configuration File Name must be provided',
   'er.configuration_handler.config_file.invalid-a'     => '"%1$s" file does not exist',
   'er.configuration_handler.config_file.unreadable-a'  => '"%1$s" file is not readable',
   'er.configuration_handler.config_file.noparse-a'     => '"%1$s" file parse failed',
-  'er.configuration_handler.models_list.invalid'    => 'Supported Models for export',
-  'er.configuration_handler.models_list.invalid-a'  => '"%1$s" Models are not supported.',
+  'er.configuration_handler.models_list.invalid'       => 'Supported Models for export',
+  'er.configuration_handler.models_list.invalid-a'     => '"%1$s" Models are not supported.',
 
   // Plugin texts
   'pl.configuration_handler.arg.models_list'      => 'Supported Models for export',

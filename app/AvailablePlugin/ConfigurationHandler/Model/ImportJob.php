@@ -114,7 +114,7 @@ class ImportJob extends CoJobBackend {
       $this->validateParams($coId, $params);
 
       // Check if the configuration file exists
-      $config_filename = LOCAL . "Config" . DS . $params["config_file"];
+      $config_filename = LOCAL . "Config" . DS . $params["config-file"];
       if(!file_exists($config_filename)) {
         throw new InvalidArgumentException( _txt('er.configuration_handler.config_file.invalid-a', array($config_filename)));
       }
@@ -133,7 +133,8 @@ class ImportJob extends CoJobBackend {
       $this->_salt = $params['salt'];
 
       // Get the plugins and append them at the end of the MODELS_IMPORT list
-      $model_imports = $this->getPluginList();
+      $model_imports =  self::MODELS_IMPORT;
+      $model_imports = array_merge($model_imports, $this->getPluginList());
 
       // parse json to an associative array
       $configuration_to_import = $this->jsonDecode($file_contents, true);
@@ -143,6 +144,9 @@ class ImportJob extends CoJobBackend {
       foreach ($model_imports as $immodel) {
         $this->log("Importing {$immodel} Configuration", LOG_INFO);
         $curModel = ClassRegistry::init($immodel);
+        // The Plugin models have the format DirectoryName.ModelName. The configuration files uses the class name as the key
+        // of the stored record
+        $model_name_partials = explode(".", $immodel);
         if(in_array($immodel, array(
           "SqlServer", // blgTo Server
           "Oauth2Server", // blgTo Server
@@ -151,10 +155,10 @@ class ImportJob extends CoJobBackend {
           "MatchServer", // blgTo Server
         ))) {
           // hasOne
-          $records_to_import = Hash::extract($configuration_to_import, '{n}.' . $immodel);
+          $records_to_import = Hash::extract($configuration_to_import, '{n}.' . ($model_name_partials[1] ?? $model_name_partials[0])) ;
         } else {
           // hasMany
-          $records_to_import = Hash::extract($configuration_to_import, '{n}.' . $immodel . '.{n}');
+          $records_to_import = Hash::extract($configuration_to_import, '{n}.' . ($model_name_partials[1] ?? $model_name_partials[0]) . '.{n}');
         }
         // There are no records for this model. So go to the next
         if(empty($records_to_import)) {
@@ -184,7 +188,8 @@ class ImportJob extends CoJobBackend {
           $disable_callbacks = array(
             'CoEnrollmentFlowWedge',
             'CoDashboardWidget',
-            'OrgIdentitySource'
+            'OrgIdentitySource',
+            'CoSqlProvisionerTarget'
           );
 
           try {
@@ -220,7 +225,10 @@ class ImportJob extends CoJobBackend {
               'validate' => !$skip_validation
             );
 
-            if($curModel->name == 'Oauth2Server') {
+            if(in_array($curModel->name,
+                        array('Oauth2Server',
+                              'CoSqlProvisionerTarget'))
+            ) {
               // We will skip afterSave for Oauth2Server since we want to import the data as is
               // and there is no record id from previous transactions.
               $saveOptions['safeties'] = 'off';
@@ -313,6 +321,8 @@ class ImportJob extends CoJobBackend {
    */
   public function checkForRecordDuplicate($importRecord, $Model) {
     // We omit the ones that are directly associated with the CO
+    // The $validate Model array contains no information that could indicate uniqueness. As a result we have to do it
+    // manually here.
     $fk_exception = array(
       // One reference but not the CO ID
       "DictionaryEntry" => array("dictionary_id"), //blgTo Dictionary
@@ -331,6 +341,10 @@ class ImportJob extends CoJobBackend {
       "CoGroupOisMapping" => array("co_group_id"), // blgTo CoGroup, OrgIdentitySource
       "OrgIdentitySourceFilter" => array("org_identity_source_id"), // blgTo OrgIdentitySource, DataFilter
       "CoProvisioningTargetFilter" => array("co_provisioning_target_id", "data_filter_id"), // blgTo CoProvisioningTarget, DataFilter
+      "EnvSource" => array("org_identity_source_id"), // blgTo OrgIdentitySource
+      "SqlSource" => array("org_identity_source_id"), // blgTo OrgIdentitySource
+      "OrcidSource" => array("org_identity_source_id", "server_id"), // blgTo OrgIdentitySource, Server
+      "CoSqlProvisionerTarget" => array("co_provisioning_target_id", "server_id"), // blgTo CoProvisioningTarget, Server
     );
 
 
@@ -407,7 +421,7 @@ class ImportJob extends CoJobBackend {
    * @return array   The list of fields to query the new with the old data
    */
   public function importKeyConstuct($Model) {
-    // CoSettings is a special Model which exists in all COUs and will always be updated
+    // CoSettings is a special Model which exists in all COs and will always be updated
     if($Model->name == "CoSetting") {
       return array();
     }
@@ -457,7 +471,7 @@ class ImportJob extends CoJobBackend {
    * @return array   The list of models
    */
   public function getPluginList() {
-    $model_imports = self::MODELS_IMPORT;
+    $plugin_imports = array();
     // Make sure to update this list in duplicate() as well
     foreach(array("CoProvisioningTarget",
                   "DataFilter",
@@ -480,18 +494,18 @@ class ImportJob extends CoJobBackend {
           }
 
 
-          $model_imports[] = $pluginClassName;
+          $plugin_imports[] = $pluginClassName;
 
           $plugin_dependent_import_list = $this->getPluginNestedList($pluginClassName);
           if(!empty($plugin_dependent_import_list)) {
-            $model_imports = array_merge($model_imports, $plugin_dependent_import_list);
+            $plugin_imports = array_merge($plugin_imports, $plugin_dependent_import_list);
           }
         }
       }
 
     }
 
-    return $model_imports;
+    return $plugin_imports;
 
   }
 
@@ -619,7 +633,7 @@ class ImportJob extends CoJobBackend {
   public function parameterFormat() {
     $params = array(
       // XXX The filename should be provided without the path
-      'config_file' => array(
+      'config-file' => array(
         'help'     => _txt('pl.configuration_handler.arg.config_file'),
         'short'   => 'g',
         'type'     => 'string',
@@ -655,7 +669,7 @@ class ImportJob extends CoJobBackend {
 
   protected function validateParams($coId, $params) {
     // Since no model_list is provided we will run the GC for all the supportedones.
-    if(empty($params['config_file'])) {
+    if(empty($params['config-file'])) {
       throw new InvalidArgumentException( _txt('er.configuration_handler.config_file.empty'));
     }
 
