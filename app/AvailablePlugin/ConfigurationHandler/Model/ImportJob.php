@@ -235,8 +235,9 @@ class ImportJob extends CoJobBackend {
             }
 
             if(!$curModel->save($data, $saveOptions)) {
-              $this->log(__METHOD__ . "::invalid_fields::message" . print_r($curModel->invalidFields(), true), LOG_ERROR);
-              $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_ERROR);
+              $this->log(__METHOD__ . "::invalid_fields::message: " . print_r($curModel->invalidFields(), true), LOG_ERROR);
+              $this->log(__METHOD__ . "::data: " . print_r($data, true), LOG_DEBUG);
+              $this->log(__METHOD__ . "::Model Name: " . $curModel->name, LOG_DEBUG);
               $dbc->rollback();
               throw new RuntimeException(_txt('er.db.save'));
             }
@@ -342,7 +343,7 @@ class ImportJob extends CoJobBackend {
       "OrgIdentitySourceFilter" => array("org_identity_source_id"), // blgTo OrgIdentitySource, DataFilter
       "CoProvisioningTargetFilter" => array("co_provisioning_target_id", "data_filter_id"), // blgTo CoProvisioningTarget, DataFilter
       "EnvSource" => array("org_identity_source_id"), // blgTo OrgIdentitySource
-      "SqlSource" => array("org_identity_source_id"), // blgTo OrgIdentitySource
+      "SqlSource" => array("org_identity_source_id", "server_id"), // blgTo OrgIdentitySource, Server
       "OrcidSource" => array("org_identity_source_id", "server_id"), // blgTo OrgIdentitySource, Server
       "CoSqlProvisionerTarget" => array("co_provisioning_target_id", "server_id"), // blgTo CoProvisioningTarget, Server
     );
