@@ -1905,6 +1905,7 @@ The request may be viewed at
   'fd.server.oauth2.grant_type' => 'Access Token Grant Type',
   'fd.server.oauth2.redirect' => 'Redirect URI',
   'fd.server.oauth2.scope' => 'Scope',
+  'fd.server.port' => 'Port',
   'fd.server.sql.database' => 'Database',
   'fd.server.http.auth_type' => 'HTTP Authentication Type',
   'fd.server.http.password' => 'Password or Token',
