@@ -451,14 +451,13 @@ class ImportJob extends CoJobBackend {
     $mdl_schema = $Model->schema();
     $clmns = array_keys($mdl_schema);
 
-    if(in_array('name', $clmns)) {
+    if(isset($Model->name)
+       && !empty($exceptions[$Model->name])) {
+      return preg_filter('/^/', "{$Model->name}.", $exceptions[$Model->name]);
+    } else if(in_array('name', $clmns)) {
       return array($Model->name . ".name");
     } else if(in_array('description', $clmns)) {
       return array($Model->name . ".description");
-    } else if(in_array($Model->name, $exceptions)) {
-      return array_map(function($field) use($Model) {
-        return "{$Model->name}.{$field}";
-      }, $exceptions[$Model->name]);
     } else {
       return array();
     }
