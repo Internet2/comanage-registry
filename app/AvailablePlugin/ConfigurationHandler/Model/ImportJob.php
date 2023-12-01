@@ -196,7 +196,7 @@ class ImportJob extends CoJobBackend {
           try {
             // Are we performing a creation or an update??
             $curModel->clear();
-            $curModel->id = $this->checkForRecordDuplicate($data, $curModel, $coId);
+            $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
             $curModel->set($data);
 
             $skip_validation = false;
@@ -315,7 +315,6 @@ class ImportJob extends CoJobBackend {
    * @since  COmanage Registry v4.3.0
    * @param array   $importRecord         Array with the new record values
    * @param object  $Model                Class Instance of the Model
-   * @param int     $coId                 Target CO Id
    *
    * @return int|null                     The Record ID when updating, null when creating a new record
    *
@@ -323,7 +322,7 @@ class ImportJob extends CoJobBackend {
    *        each model validation configuration. Then we could extract the columns to query directly from that
    *        configuration
    */
-  public function checkForRecordDuplicate($importRecord, $Model, $coId) {
+  public function checkForRecordDuplicate($importRecord, $Model) {
     // We omit the ones that are directly associated with the CO
     // The $validate Model array contains no information that could indicate uniqueness. As a result we have to do it
     // manually here.
@@ -374,7 +373,7 @@ class ImportJob extends CoJobBackend {
       $args['conditions'][$field] = $importRecord[$clmn];
       // API username has the CO Id as a prefix. They need special handling when importing
       if($Model->name == "ApiUser" && $field == "ApiUser.username") {
-        $args['conditions'][$field] = "co_" . $coId . "." . $importRecord[$clmn];
+        $args['conditions'][$field] = "co_" . $importRecord['co_id'] . "." . $importRecord[$clmn];
       }
     }
     // For groups we need to leave out the auto ones
