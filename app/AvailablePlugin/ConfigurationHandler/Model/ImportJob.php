@@ -189,12 +189,14 @@ class ImportJob extends CoJobBackend {
             'CoEnrollmentFlowWedge',
             'CoDashboardWidget',
             'OrgIdentitySource',
-            'CoSqlProvisionerTarget'
+            'CoSqlProvisionerTarget',
+            'Server'                     // Do not allow the afterSave to run
           );
 
           try {
             // Are we performing a creation or an update??
-            $curModel->id = $this->checkForRecordDuplicate($data, $curModel);
+            $curModel->clear();
+            $curModel->id = $this->checkForRecordDuplicate($data, $curModel, $coId);
             $curModel->set($data);
 
             $skip_validation = false;
@@ -313,6 +315,7 @@ class ImportJob extends CoJobBackend {
    * @since  COmanage Registry v4.3.0
    * @param array   $importRecord         Array with the new record values
    * @param object  $Model                Class Instance of the Model
+   * @param int     $coId                 Target CO Id
    *
    * @return int|null                     The Record ID when updating, null when creating a new record
    *
@@ -320,7 +323,7 @@ class ImportJob extends CoJobBackend {
    *        each model validation configuration. Then we could extract the columns to query directly from that
    *        configuration
    */
-  public function checkForRecordDuplicate($importRecord, $Model) {
+  public function checkForRecordDuplicate($importRecord, $Model, $coId) {
     // We omit the ones that are directly associated with the CO
     // The $validate Model array contains no information that could indicate uniqueness. As a result we have to do it
     // manually here.
@@ -369,6 +372,10 @@ class ImportJob extends CoJobBackend {
     foreach ($fields_to_query as $field) {
       [$modelName, $clmn] = explode('.', $field);
       $args['conditions'][$field] = $importRecord[$clmn];
+      // API username has the CO Id as a prefix. They need special handling when importing
+      if($Model->name == "ApiUser" && $field == "ApiUser.username") {
+        $args['conditions'][$field] = "co_" . $coId . "." . $importRecord[$clmn];
+      }
     }
     // For groups we need to leave out the auto ones
     if($Model->name == 'CoGroup') {
