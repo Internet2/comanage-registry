@@ -88,13 +88,10 @@ class EmailAddressWidgetVerificationsController extends StandardController {
       $EmailAddress = ClassRegistry::init('EmailAddress');
       $EmailAddress->id = $email_address_id;
 
-      if($rec['EmailAddressWidgetVerification']['email_id'] > 0) {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_OK,
-          _txt('rs.updated-a3', array($EmailAddress->field('mail'))));
-      } else {
-        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_CREATED,
-          _txt('rs.added-a3', array($EmailAddress->field('mail'))));
-      }
+      $http_status = $rec['EmailAddressWidgetVerification']['email_id'] > 0 ? HttpStatusCodesEnum::HTTP_OK
+                                                                            : HttpStatusCodesEnum::HTTP_CREATED;
+      $this->Api->restResultHeader($http_status,
+                                   _txt('rs.updated-a3', array($EmailAddress->field('mail'))));
     } catch (Exception $e) {
       $this->Api->restResultHeader($e->getCode(), $e->getMessage());
       return;
