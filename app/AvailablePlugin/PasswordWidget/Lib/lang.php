@@ -46,6 +46,7 @@ $cm_password_widget_texts['en_US'] = array(
 
   // Actions
   'pl.passwordwidget.add'                           => 'Add Password',
+  'pl.passwordwidget.edit'                          => 'Edit', // this allows localization
   'pl.passwordwidget.reset'                         => 'Reset Password',
   
   // Fields

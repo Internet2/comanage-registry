@@ -49,6 +49,7 @@ $cm_email_address_widget_texts['en_US'] = array(
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
+  'pl.emailaddresswidget.edit'                          => 'Edit',
   'pl.emailaddresswidget.email.subject'                 => 'Your email verification code',
   'pl.emailaddresswidget.email.body'                    => 'Please copy the following code into the Email Address panel in COmanage Registry to verify your email address.',
   'pl.emailaddresswidget.noconfig'                      => 'This widget requires no configuration.',

@@ -78,7 +78,7 @@
           reset:               "<?php print _txt('pl.passwordwidget.reset'); ?>",
           confirm:             "<?php print _txt('op.confirm'); ?>",
           done:                "<?php print _txt('op.done'); ?>",
-          edit:                "<?php print _txt('op.edit'); ?>",
+          edit:                "<?php print _txt('pl.passwordwidget.edit'); ?>",
           error401:            "<?php print _txt('er.http.401.unauth');?>",
           error500:            "<?php print _txt('er.http.500');?>",
           ok:                  "<?php print _txt('op.ok'); ?>",
