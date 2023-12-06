@@ -71,7 +71,7 @@
           deleteModalMessage:  "<?php print _txt('pl.emailaddresswidget.modal.body.delete'); ?>",
           deleteFail:          "<?php print _txt('er.delete'); ?>",
           done:                "<?php print _txt('op.done'); ?>",
-          edit :               "<?php print _txt('op.edit'); ?>",
+          edit :               "<?php print _txt('pl.emailaddresswidget.edit'); ?>",
           emailAdd:            "<?php print _txt('pl.emailaddresswidget.fd.email.add'); ?>",
           emailReplace:        "<?php print _txt('pl.emailaddresswidget.fd.email.replace'); ?>",
           error401:            "<?php print _txt('er.http.401.unauth');?>",
