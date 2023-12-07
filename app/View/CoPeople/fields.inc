@@ -1103,9 +1103,12 @@
                   print '</div>';
 
                   // Action Column
+                  // If the use has the role of `admincous` then we will get a list the list of full path COUs under
+                  // $permissions['cous']. In the case of a CO or CMP admin we will get the list under the $permissions['cous']["path"]
+                  $permissionsCousPath = $permissions['cous']["path"] ?? $permissions['cous'];
                   if ($es // Editing self
                     || empty($r['Cou']) // No COU set for this person
-                    || (isset($r['Cou']['name']) && in_array($r['Cou']['path'], $permissions['cous']))
+                    || (isset($r['Cou']['name']) && in_array($r['Cou']['path'], $permissionsCousPath))
                   ) // Admin for the COU
                   {
                     // COU Admins can only edit their own folks, so we need a bit of

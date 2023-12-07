@@ -1092,12 +1092,16 @@ class CoPeopleController extends StandardController {
     // Determine which COUs a person can manage.
     
     if( ($roles['cmadmin'] || $roles['coadmin'])
-         && !$this->request->is('restful'))
+         && !$this->request->is('restful')) {
       $p['cous'] = $this->CoPerson->CoPersonRole->Cou->allCous($this->cur_co['Co']['id']);
-    elseif(!empty($roles['admincous']))
+      foreach($p['cous'] as $couId => $couName) {
+        $p['cous']['path'][] = $this->constructTreeParentPath($couId);
+      }
+    } elseif(!empty($roles['admincous'])) {
       $p['cous'] = $roles['admincous'];
-    else
+    } else {
       $p['cous'] = array();
+    }
     
     $this->set('permissions', $p);
     return $p[$this->action];
