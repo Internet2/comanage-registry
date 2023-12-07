@@ -220,6 +220,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                         $dns,
                                         $dnAttributes,
                                         $uam) {
+
     // First see if we're working with a Group record or a Person record
     $person = isset($provisioningData['CoPerson']['id']);
     $group = isset($provisioningData['CoGroup']['id']);
@@ -901,7 +902,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                     }
                   }
                 }
-
+                if(!empty($provisioningData['PaperToken'])) {
+                  foreach($provisioningData['PaperToken'] as $pt) {
+                    if($attropts) {
+                      $lrattr = $lattr . ";type-paper";
+                      $attributes[$lrattr][] = $pt['serial'];
+                    } else {
+                      $attributes[$attr][] = $pt['serial'];
+                    }
+                  }
+                }
                 if(!$attropts && empty($attributes[$attr]) && !$modify) {
                   // This is the same as the approach using $found, but without an extra variable
                   unset($attributes[$attr]);
