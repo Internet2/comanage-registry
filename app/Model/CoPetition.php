@@ -2693,6 +2693,24 @@ class CoPetition extends AppModel {
       $enrolleeName = generateCn($pt['EnrolleeOrgIdentity']['PrimaryName']);
     }
 
+    // Select from the petition the CoPersonRole associated with the
+    // enrollee and the enrollment flow.
+    $enrolleeCoPersonRole = null;
+    if(!empty($pt['EnrolleeCoPerson']['CoPersonRole']) && !empty($pt['CoPetition']['enrollee_co_person_role_id'])) {
+      if(is_array($pt['EnrolleeCoPerson']['CoPersonRole'])) {
+        $roles = $pt['EnrolleeCoPerson']['CoPersonRole'];
+      } else {
+        $roles = array();
+        $roles[] = $pt['EnrolleeCoPerson']['CoPersonRole'];
+      }
+      foreach($roles as $r) {
+        if($r['id'] == $pt['CoPetition']['enrollee_co_person_role_id']) {
+          $enrolleeCoPersonRole = $r;
+          break;
+        }
+      }
+    }
+
     $subject = null;
     $body = null;
     $cc = null;
