@@ -235,6 +235,53 @@ class Co extends AppModel {
     
     // Trigger the delete of models associated with plugins before we clean up
     // data structures they might point to
+    foreach(App::objects('plugin') as $p) {
+      $pluginModel = ClassRegistry::init($p . "." . $p);
+
+      // Check if the plugin has explicitly listed relationships
+      if (!empty($pluginModel->cmPluginHasMany)
+        && !empty($pluginModel->cmPluginHasMany[$this->name])) {
+        foreach ($pluginModel->cmPluginHasMany[$this->name] as $fkModel => $acfg) {
+          $updateModel = null;
+          if (is_array($acfg)) {
+            // Use the plugin's association settings
+
+            if ($this->id
+              && (!isset($acfg['dependent']) || !$acfg['dependent'])) {
+              // Clear foreign keys pointing to the current record. We use
+              // updateAll since it won't run callbacks.
+              $updateModel = ClassRegistry::init($p . "." . $acfg['className']);
+
+              $field = $acfg['className'] . "." . $acfg['foreignKey'];
+
+              $updateModel->updateAll(
+                array($field => null),
+                array($field => $this->id)
+              );
+            }
+          } else {
+            // The model is actually $acfg because of the way PHP handles
+            // singletons in an array (ie: 0 => CoAnnouncementChannel)
+
+            $updateModel = ClassRegistry::init($p . "." . $acfg);
+          }
+
+          // Reset the Changelog Behavior foreign keys
+          if($updateModel->Behaviors->enabled('Changelog')) {
+            $updateModel->reloadBehavior('Changelog', array('expunge' => true));
+          }
+
+          $updateModel->deleteAll(
+            array($updateModel->name . '.co_id' => $id),
+            true,
+            // We need AppModel::beforeDelete to run so that model dependencies get
+            // updated, at the expense of extra callbacks
+            true
+          );
+        }
+      }
+    }
+
     
     // Make sure to update this list in duplicate() as well
     foreach(array("CoDashboard", // triggers CoDashboardWidget
@@ -687,10 +734,11 @@ class Co extends AppModel {
   }
 
   /**
-   * Unload Changelog Behavior retrospectively
+   * Unload Changelog Behavior recursively
    *
    * @since  COmanage Registry v4.1.0
    * @param  Object         $plugin
+   * @param  String         $pluginClassName
    */
 
   public function unloadChangelogBehavior($plugin, $pluginClassName) {
