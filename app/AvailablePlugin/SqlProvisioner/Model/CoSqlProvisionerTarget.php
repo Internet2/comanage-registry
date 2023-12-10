@@ -256,8 +256,13 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
                      $srvr['SqlServer']['databas'])) {
       throw new RuntimeException(_txt('er.db.connect', array($dbc->ErrorMsg())));
     }
-    
-    $schemaFile = LOCAL . DS . 'Plugin' . DS . 'SqlProvisioner' . DS . 'Config' . DS . 'Schema' . DS . 'schema-target.xml';
+
+    // Where is the Plugin is enabled, under LOCAL or under APP
+    $sqlProvisionerPluginBasePath = is_dir(LOCAL . 'Plugin' . DS . 'SqlProvisioner') ?
+                                    LOCAL . 'Plugin' . DS . 'SqlProvisioner' :
+                                    APP . 'Plugin' . DS . 'SqlProvisioner';
+
+    $schemaFile = $sqlProvisionerPluginBasePath . DS . 'Config' . DS . 'Schema' . DS . 'schema-target.xml';
     
     if(!is_readable($schemaFile)) {
       throw new RuntimeException(_txt('er.file.read', array($schemaFile)));
