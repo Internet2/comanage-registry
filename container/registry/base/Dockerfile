@@ -16,7 +16,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM php:8.0.30-apache-bullseye
+ARG PHP_IMAGE_VERSION=8.1.26
+FROM php:${PHP_IMAGE_VERSION}-apache-bullseye
 
 # Official PHP image with Apache HTTPD includes
 # --with-openssl
