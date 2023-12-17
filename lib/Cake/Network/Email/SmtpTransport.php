@@ -366,7 +366,7 @@ class SmtpTransport extends AbstractTransport {
 
 			$this->_bufferResponseLines($responseLines);
 
-			if (preg_match('/^(' . $checkCode . ')(.)/', $response, $code)) {
+			if (preg_match('/^(' . $checkCode . ')(.)/', $response ?? '', $code)) {
 				if ($code[2] === '-') {
 					continue;
 				}
