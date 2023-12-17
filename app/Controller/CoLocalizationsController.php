@@ -66,7 +66,7 @@ class CoLocalizationsController extends StandardController {
       foreach(array_keys($cm_texts_orig[$cm_lang]) as $k) {
         if(!is_array($cm_texts_orig[$cm_lang][$k])
            // Also skip strings that can already be dynamically changed
-           && !preg_match('/^em\./', $k)) {
+           && !preg_match('/^em\./', $k ?? '')) {
           $texts[$k] = $cm_texts_orig[$cm_lang][$k];
         }
       }

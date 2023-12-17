@@ -86,7 +86,7 @@
         // For CO Person Roles, we need to check for extended attributes.
         
         foreach(array_keys($m) as $ak) {
-          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak)) {
+          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak ?? '')) {
             foreach(array_keys($m[$ak]) as $ea) {
               $a['ExtendedAttributes'][$ea] = $m[$ak][$ea];
             }

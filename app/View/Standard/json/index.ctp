@@ -99,7 +99,7 @@
         
         foreach(array_keys($m) as $ak)
         {
-          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak))
+          if(preg_match('/Co[0-9]+PersonExtendedAttribute/', $ak ?? ''))
           {
             foreach(array_keys($m[$ak]) as $ea)
               if(!in_array($ea, array('Id', 'CoPersonRoleId', 'Created', 'Modified'))

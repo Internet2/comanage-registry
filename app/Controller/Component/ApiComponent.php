@@ -88,7 +88,7 @@ class ApiComponent extends Component {
     }
  
     foreach(array_keys($this->reqModel->validate) as $field) {
-      if(preg_match('/_id$/', $field)) {
+      if(preg_match('/_id$/', $field ?? '')) {
         // Add additional validation rules for foreign keys. These checks are
         // handled differently in v5, as application rules.
         
@@ -231,7 +231,7 @@ class ApiComponent extends Component {
               $rr[$m][Inflector::camelize($k)] = $r[$m][$k];
             }
           }
-        } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)) {
+        } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m ?? '')) {
           // Extended Attributes need to be handled specially. Currently, extended
           // attributes are NOT inflected to keep them consistent with their
           // database definitions.

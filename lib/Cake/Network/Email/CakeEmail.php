@@ -621,7 +621,7 @@ class CakeEmail {
 			if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 				return;
 			}
-		} elseif (preg_match($this->_emailPattern, $email)) {
+		} elseif (preg_match($this->_emailPattern, $email ?? '')) {
 			return;
 		}
 		if ($email == '') {
@@ -835,7 +835,7 @@ class CakeEmail {
 			} else {
 				$encoded = $this->_encode($alias);
 				if (
-					$encoded === $alias && preg_match('/[^a-z0-9 ]/i', $encoded) ||
+					$encoded === $alias && preg_match('/[^a-z0-9 ]/i', $encoded ?? '') ||
 					strpos($encoded, ',') !== false
 				) {
 					$encoded = '"' . str_replace('"', '\"', $encoded) . '"';
@@ -992,7 +992,7 @@ class CakeEmail {
 		if (is_bool($message)) {
 			$this->_messageId = $message;
 		} else {
-			if (!preg_match('/^\<.+@.+\>$/', $message)) {
+			if (!preg_match('/^\<.+@.+\>$/', $message ?? '')) {
 				throw new SocketException(__d('cake_dev', 'Invalid format for Message-ID. The text should be something like "<uuid@server.com>"'));
 			}
 			$this->_messageId = $message;

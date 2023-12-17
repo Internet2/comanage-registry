@@ -323,16 +323,16 @@ class AppModel extends Model {
         continue;
       }
       
-      if(preg_match('/.*_id$/', $attr)) {
+      if(preg_match('/.*_id$/', $attr ?? '')) {
         // Foreign keys need to be handled specially. Start by figuring out the model.
         
-        if(preg_match('/.*_co_person_id$/', $attr)) {
+        if(preg_match('/.*_co_person_id$/', $attr ?? '')) {
           // This is a foreign key to a CO Person (eg: sponsor_co_person)
           
           // Chop off _co_person_id
           $afield = substr($attr, 0, strlen($attr)-13);
           $amodel = "CoPerson";
-        } elseif(preg_match('/.*_co_group_id$/', $attr)) {
+        } elseif(preg_match('/.*_co_group_id$/', $attr ?? '')) {
           // This is a foreign key to a CO Group (eg: admins_co_group)
 
           // Chop off _co_group_id
@@ -886,7 +886,7 @@ class AppModel extends Model {
         $ret['hasOne'][$k] = $data[$k];
       } elseif(isset($this->hasMany[$k])) {
         $ret['hasMany'][$k] = $data[$k];
-      } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $k)) {
+      } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $k ?? '')) {
         $ret['extended'][$k] = $data[$k];
       }
     }
@@ -1144,7 +1144,7 @@ class AppModel extends Model {
       if(!empty($srvr['Server']['co_id'])) {
         return $srvr['Server']['co_id'];
       }
-    } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias)) {
+    } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $this->alias ?? '')) {
       // Extended attributes need to be handled specially, as usual, since there
       // are no explicit validation rules. Find the CO via the CO Person Role ID.
       // (ie: We don't trust the Model name in order to follow the general pattern
@@ -1802,7 +1802,7 @@ class AppModel extends Model {
         }
 
         // We require at least one non-whitespace character (CO-1551)
-        if(!preg_match('/\S/', $v)) {
+        if(!preg_match('/\S/', $v ?? '')) {
           return _txt('er.input.blank');
         }
 
