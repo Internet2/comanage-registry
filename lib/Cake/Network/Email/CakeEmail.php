@@ -1375,7 +1375,7 @@ class CakeEmail {
  * @return array Wrapped message
  */
 	protected function _wrap($message, $wrapLength = CakeEmail::LINE_LENGTH_MUST) {
-		if (strlen($message) === 0) {
+		if (strlen($message ?? '') === 0) {
 			return array('');
 		}
 		$message = str_replace(array("\r\n", "\r"), "\n", $message);
@@ -1388,7 +1388,7 @@ class CakeEmail {
 				$formatted[] = '';
 				continue;
 			}
-			if (strlen($line) < $wrapLength) {
+			if (strlen($line ?? '') < $wrapLength) {
 				$formatted[] = $line;
 				continue;
 			}
@@ -1403,12 +1403,12 @@ class CakeEmail {
 			$tagOpen = false;
 			$tmpLine = $tag = '';
 			$tmpLineLength = 0;
-			for ($i = 0, $count = strlen($line); $i < $count; $i++) {
+			for ($i = 0, $count = strlen($line ?? ''); $i < $count; $i++) {
 				$char = $line[$i];
 				if ($tagOpen) {
 					$tag .= $char;
 					if ($char === '>') {
-						$tagLength = strlen($tag);
+						$tagLength = strlen($tag ?? '');
 						if ($tagLength + $tmpLineLength < $wrapLength) {
 							$tmpLine .= $tag;
 							$tmpLineLength += $tagLength;
@@ -1462,7 +1462,7 @@ class CakeEmail {
 						$formatted[] = trim(substr($tmpLine, 0, $lastSpace));
 						$tmpLine = substr($tmpLine, $lastSpace + 1);
 
-						$tmpLineLength = strlen($tmpLine);
+						$tmpLineLength = strlen($tmpLine ?? '');
 					}
 				}
 			}
