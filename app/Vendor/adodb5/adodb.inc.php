@@ -747,12 +747,12 @@ if (!defined('_ADODB_LAYER')) {
 			. '(?:(?:alpha|beta|rc)(?:\.\d+))'  // or a preprod suffix and version number
 			. '))?)(?:\s|$)';                   // Whitespace or end of string
 
-		if (!preg_match("/$regex/", $ADODB_vers, $matches)) {
+		if (!preg_match("/$regex/", $ADODB_vers ?? '', $matches)) {
 			// This should normally not happen... Return whatever is between the start
 			// of the string and the first whitespace (or the end of the string).
 			self::outp("Invalid version number: '$ADODB_vers'", 'Version');
 			$regex = '^[vV]?(.*?)(?:\s|$)';
-			preg_match("/$regex/", $ADODB_vers, $matches);
+			preg_match("/$regex/", $ADODB_vers ?? '', $matches);
 		}
 		return $matches[1];
 	}
@@ -827,7 +827,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return string
 	 */
 	function _findvers($str) {
-		if (preg_match('/([0-9]+\.([0-9\.])+)/',$str, $arr)) {
+		if (preg_match('/([0-9]+\.([0-9\.])+)/', $str ?? '', $arr)) {
 			return $arr[1];
 		} else {
 			return '';
@@ -3418,7 +3418,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (is_numeric($v) && strlen($v) !== 8) {
 			return $v;
 		}
-		if (!preg_match( "|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})|", $v, $rr)) {
+		if (!preg_match( "|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})|", $v ?? '', $rr)) {
 			return false;
 		}
 
@@ -3446,7 +3446,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		if (!preg_match(
 			"|^([0-9]{4})[-/\.]?([0-9]{1,2})[-/\.]?([0-9]{1,2})[ ,-]*(([0-9]{1,2}):?([0-9]{1,2}):?([0-9\.]{1,4}))?|",
-			($v), $rr)) return false;
+			($v ?? ''), $rr)) return false;
 
 		if ($rr[1] <= TIMESTAMP_FIRST_YEAR && $rr[2]<= 1) {
 			return 0;

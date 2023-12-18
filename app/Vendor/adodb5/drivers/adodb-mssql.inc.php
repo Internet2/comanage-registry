@@ -450,12 +450,13 @@ order by constraint_name, referenced_table_name, keyno";
 
 		$ADODB_FETCH_MODE = $save;
 
-		$arr = false;
+		$arr = [];
 		foreach($constraints as $constr) {
 			//print_r($constr);
+			$arr[$constr[0]][$constr[2]] = array();
 			$arr[$constr[0]][$constr[2]][] = $constr[1].'='.$constr[3];
 		}
-		if (!$arr) return false;
+		if (!empty($arr)) return false;
 
 		$arr2 = false;
 
