@@ -85,7 +85,7 @@
         "status": {
           "type": "string"
         },
-        "CoGroupMember": { "$ref": "#/definitions/CoGroup" },
+        "CoGroupMember": { "$ref": "#/definitions/CoGroupMember" },
         "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" },
         "Identifier": { "$ref": "#/definitions/Identifier" }
       },
