@@ -466,7 +466,7 @@ class Identifier extends AppModel {
   
   public function search($coId, $q, $limit) {
     $args = array();
-    $args['conditions']['Identifier.identifier'] = $q;
+    $args['conditions']['LOWER(Identifier.identifier) LIKE'] = '%' . strtolower($q) . '%';
     $args['conditions']['OR'] = array(
       'CoPerson.co_id' => $coId,
       'CoGroup.co_id' => $coId

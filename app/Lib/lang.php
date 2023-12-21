@@ -1916,7 +1916,7 @@ The request may be viewed at
   'fd.sort.by' =>     'Sort By',
   'fd.source' =>      'Source',
   'fd.sponsor' =>     'Sponsor',
-  'fd.sponsor.desc' => 'Use the search box to pick a new sponsor (use a name, email address, or identifier)',
+  'fd.sponsor.desc' => 'Use the search box to pick a new sponsor (use at least <b>3 characters</b> from a name, email address, or identifier)',
   'fd.sponsor.inel' => 'The current sponsor is no longer eligible to act as a sponsor',
   'fd.sponsor.mode' => 'Sponsor Eligibility Mode',
   'fd.sponsor.mode.desc' => 'Which CO People are eligible to sponsor CO Person Roles',

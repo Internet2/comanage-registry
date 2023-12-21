@@ -280,7 +280,7 @@ class EmailAddress extends AppModel {
   
   public function search($coId, $q, $limit) {
     $args = array();
-    $args['conditions']['LOWER(EmailAddress.mail)'] = strtolower($q);
+    $args['conditions']['LOWER(EmailAddress.mail) LIKE'] = '%' . strtolower($q) . '%';
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('EmailAddress.mail');
     $args['limit'] = $limit;
