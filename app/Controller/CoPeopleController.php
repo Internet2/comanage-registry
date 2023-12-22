@@ -664,7 +664,7 @@ class CoPeopleController extends StandardController {
     // We're really semi-RESTful here from the framework perspective, since
     // the query URL does not end in .json. We manually adjust some settings
     // to generate a JSON result, but some other results (errors, specifically)
-    // will generate redirects rathen than proper HTTP result codes.
+    // will generate redirects rather than proper HTTP result codes.
     
     $this->set('vv_co_people', $matches);
     $this->layout = 'ajax';
