@@ -103,7 +103,11 @@ class SanitizerBuilder implements SanitizerBuilderInterface
 
         // Always required visitors
         $nodeVisitors['script'] = new ScriptNodeVisitor();
-        $nodeVisitors['style'] = new StyleNodeVisitor();
+        
+        // XXX The following wrapper is added by the COmanage project to allow styles via config
+        if(empty($config['keepstyle'])) {
+          $nodeVisitors['style'] = new StyleNodeVisitor();  
+        }
 
         return new Sanitizer(new DomVisitor($nodeVisitors), $config['max_input_length'] ?? 20000, $this->parser, $this->logger);
     }
