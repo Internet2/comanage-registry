@@ -471,7 +471,7 @@
                     <tr class="line<?php print ($l % 2); $l++; ?>">
                       <td><?php print $hr['action']; ?></td>
                       <td><?php print (!empty($hr['ActorCoPerson']['PrimaryName']) ? filter_var(generateCn($hr['ActorCoPerson']['PrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS) : _txt('fd.actor.self')); ?></td>
-                      <td><?php print $hr['comment']; ?></td>
+                      <td><?php print filter_var($hr['comment'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
                       <td><?php print $this->Time->nice($hr['created'], $vv_tz); ?></td>
                     </tr>
                   <?php endforeach; // CoPetitionHistoryRecord ?>

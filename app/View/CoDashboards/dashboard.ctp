@@ -82,9 +82,18 @@
 
 <div class="table-container">
   <?php if(!empty($vv_dashboard)): ?>
+    <?php
+      // The Dashboard headers and footers can display user-generated HTML output. Use the html-sanitizer library.
+      if(!empty($vv_dashboard['CoDashboard']['header_text']) || !empty($vv_dashboard['CoDashboard']['footer_text'])) {
+        require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
+        $sanitizer = HtmlSanitizer\Sanitizer::create([
+          'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra']
+        ]);
+      }
+    ?>
     <?php if(!empty($vv_dashboard['CoDashboard']['header_text'])): ?>
       <div id="dashboard-header">
-        <?php print $vv_dashboard['CoDashboard']['header_text']; ?>
+        <?php print $sanitizer->sanitize($vv_dashboard['CoDashboard']['header_text']); ?>
       </div>
     <?php endif; ?>
     <?php if(!empty($vv_dashboard['CoDashboardWidget'])): ?>
@@ -104,7 +113,7 @@
     <?php endif; ?>
     <?php if(!empty($vv_dashboard['CoDashboard']['footer_text'])): ?>
       <div id="dashboard-footer">
-        <?php print $vv_dashboard['CoDashboard']['footer_text']; ?>
+        <?php print $sanitizer->sanitize($vv_dashboard['CoDashboard']['footer_text']); ?>
       </div>
     <?php endif; ?>
   <?php else: // $vv_dashboard ?>

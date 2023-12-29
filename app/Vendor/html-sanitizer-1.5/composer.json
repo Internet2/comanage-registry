@@ -1,0 +1,5 @@
+{
+    "require": {
+        "tgalopin/html-sanitizer": "^1.5"
+    }
+}
