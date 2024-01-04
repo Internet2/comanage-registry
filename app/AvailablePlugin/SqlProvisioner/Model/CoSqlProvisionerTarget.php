@@ -529,6 +529,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoSqlProvisionerTarget.co_provisioning_target_id=CoProvisioningTarget.id';
     $args['conditions']['CoProvisioningTarget.co_id'] = $coId;
+    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerModeEnum::Disabled;
     $args['contain'] = false;
     
     $targets = $this->find('all', $args);
