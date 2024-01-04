@@ -51,9 +51,21 @@
         
         print $this->Html->url($sponsorurl);
       ?>",
+      search: function( event, ui ) {
+        // Add spinner
+        $(this).closest('.co-loading-mini-input-container').find(".co-loading-mini").show();
+      },
+      response: function( event, ui ) {
+        // Remove spinner
+        $(this).closest('.co-loading-mini-input-container').find(".co-loading-mini").hide();
+      },
+      focus: function (event, ui) {
+        event.preventDefault();
+        $("#sponsors").val(ui.item.label + " (" + ui.item.value + ")");
+      },
       minLength: 3,
       select: function(event, ui) {
-        $("#sponsors").val(ui.item.label);
+        $("#sponsors").val(ui.item.label + " (" + ui.item.value + ")");
         $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(ui.item.value);
         return false;
       }
@@ -82,9 +94,21 @@
         
         print $this->Html->url($managerurl);
       ?>",
+      focus: function (event, ui) {
+        event.preventDefault();
+        $("#managers").val(ui.item.label + " (" + ui.item.value + ")");
+      },
+      search: function( event, ui ) {
+        // Add spinner
+        $(this).closest('.co-loading-mini-input-container').find(".co-loading-mini").show();
+      },
+      response: function( event, ui ) {
+        // Remove spinner
+        $(this).closest('.co-loading-mini-input-container').find(".co-loading-mini").hide();
+      },
       minLength: 3,
       select: function(event, ui) {
-        $("#managers").val(ui.item.label);
+        $("#managers").val(ui.item.label + " (" + ui.item.value + ")");
         $("#EnrolleeCoPersonRoleManagerCoPersonId").val(ui.item.value);
         return false;
       }
@@ -531,7 +555,13 @@
                         .   $requiredLabel
                         . '</label>
                            <div class="ui-widget">
-                             <input id="sponsors" type="text" class="form-control"' . $requiredHtml . '/>'
+                             <span class="co-loading-mini-input-container">
+                             <input id="sponsors"
+                                    type="text"
+                                    placeholder="' . _txt("op.people.picker.placeholder") . '"
+                                    class="form-control"' . $requiredHtml . '/>'
+                        . '  <span class="co-loading-mini"><span></span><span></span><span></span></span>
+                           </span>'
                         . $this->Form->hidden($fieldName,
                                               array(
                                                 // We don't support two sponsors, but if we did this id would break
@@ -589,7 +619,13 @@
                         .   $requiredLabel
                         . '</label>
                            <div class="ui-widget">
-                             <input id="sponsors" type="text" class="form-control"' . $requiredHtml . '/>'
+                             <span class="co-loading-mini-input-container">
+                               <input id="managers"
+                                      type="text"
+                                      placeholder="' . _txt("op.people.picker.placeholder") . '"
+                                      class="form-control"' . $requiredHtml . '/>'
+                        .  '   <span class="co-loading-mini"><span></span><span></span><span></span></span>
+                             </span>'
                         . $this->Form->hidden($fieldName,
                                               array(
                                                 // We don't support two managers, but if we did this id would break

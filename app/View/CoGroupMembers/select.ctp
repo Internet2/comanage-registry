@@ -105,10 +105,10 @@
         $("#group-add-member-search-container .co-loading-mini").hide();
         $("#group-add-member").val(ui.item.label + " (" + ui.item.value + ")");
       },
-      close: function (event, ui) {
+      response: function (event, ui) {
         $("#group-add-member-search-container .co-loading-mini").hide();
       }
-    }).autocomplete("instance")._renderItem = formatCoPersonAutoselectItem;
+    })
 
     $("#group-add-member-button").click(function(e) {
       displaySpinner();
@@ -155,7 +155,7 @@
   ?>
   <label for="group-add-member" class="col-form-label-sm"><?php print _txt('op.grm.add'); ?></label>
   <span class="co-loading-mini-input-container">
-    <input id="group-add-member" type="text" class="form-control-sm" placeholder="<?php print _txt('op.grm.add.placeholder'); ?>"/>
+    <input id="group-add-member" type="text" class="form-control-sm" placeholder="<?php print _txt('op.people.picker.placeholder'); ?>"/>
     <span class="co-loading-mini"><span></span><span></span><span></span></span>
   </span>
   <span id="group-add-member-name" style="display: none;"></span>
