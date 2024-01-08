@@ -35,6 +35,17 @@ class ApiUser extends AppModel {
   public $belongsTo = array(
     "Co"
   );
+
+  public $hasMany = array(
+    // An API User can have many history records
+    'HistoryRecord' => array(
+      'foreignKey' => 'actor_api_user_id',
+      'dependent' => true
+    ),
+  );
+
+  // Associated models that should be relinked to the archived attribute during Changelog archiving
+  public $relinkToArchive = array('HistoryRecord');
     
   // Default display field for cake generated views
   public $displayField = "username";
