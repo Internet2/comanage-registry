@@ -186,7 +186,7 @@
   $has_person = false;
   $has_person_role = false;
   foreach($co_enrollment_attributes as $ea) {
-    if(strpos($ea["model"], "EnrolleeOrgIdentity") == false) {
+    if(strpos($ea["model"], "EnrolleeOrgIdentity") !== false) {
       $has_org = true;
     }
     if(strpos($ea["model"], "EnrolleeCoPerson") !== false) {
