@@ -426,23 +426,38 @@ class CoGroupMembersController extends StandardController {
 
     $this->set('vv_model_version', $this->CoGroupMember->version);
 
+    $isOwner = isset($this->params['url']['owner']) ? filter_var($this->params['url']['owner'], FILTER_VALIDATE_BOOLEAN) : null;
+
     try {
       if(!empty($this->params['url']['cogroupid'])
          && empty($this->params['url']['copersonid'])) {
-        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['cogroupid'] => 'CoGroup'));
+        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['cogroupid'] => 'CoGroup'),
+                                                          null,
+                                                          null,
+                                                          null,
+                                                          false,
+                                                          $isOwner);
         $searching_for = 'CoGroup';
         $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
         return;
       } elseif(!empty($this->params['url']['copersonid'])
                && empty($this->params['url']['cogroupid'])) {
-        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson'));
+        $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson'),                                                         null,
+                                                          null,
+                                                          null,
+                                                          false,
+                                                          $isOwner);
         $searching_for = 'CoPerson';
         $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
         return;
       } elseif(!empty($this->params['url']['copersonid'])
                && !empty($this->params['url']['cogroupid'])) {
         $group_members = $this->CoGroupMember->findRecord(array($this->params['url']['copersonid'] => 'CoPerson',
-                                                                $this->params['url']['cogroupid'] => 'CoGroup'));
+                                                                $this->params['url']['cogroupid'] => 'CoGroup'),                                                          null,
+                                                          null,
+                                                          null,
+                                                          false,
+                                                          $isOwner);
         $searching_for = 'CoPerson/CoGroup';
         $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
         return;
@@ -455,7 +470,12 @@ class CoGroupMembersController extends StandardController {
       }
 
       if($this->isCmpAdmin) {
-        $group_members = $this->CoGroupMember->findRecord();
+        $group_members = $this->CoGroupMember->findRecord(array(),
+                                                          null,
+                                                          null,
+                                                          null,
+                                                          false,
+                                                          $isOwner);
         $searching_for = 'Platform';
         $this->set('co_group_members', $this->Api->convertRestResponse($group_members ?? []));
         return;
