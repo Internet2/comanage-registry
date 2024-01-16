@@ -156,6 +156,35 @@ class CoPeopleController extends StandardController {
     // not need the co id carried).
     
     $this->set('pool_org_identities', $this->CmpEnrollmentConfiguration->orgIdentitiesPooled());
+
+    if($this->action == "find"
+       && !empty($this->request->params['named']['mode'])
+       && $this->request->params['named']['mode'] == PeoplePickerModeEnum::Sponsor
+       && !empty($this->request->params['named']['petitionid'])) {
+      $args = array();
+      $args['conditions']['CoPetition.id'] = $this->request->params['named']['petitionid'];
+      $args['conditions']['CoPetition.status'] = PetitionStatusEnum::Created;
+      $args['contain'] = false;
+      $pt = $this->CoPerson->Co->CoPetition->find('first', $args);
+
+      if (!empty($pt)) {
+        // Get the enrollment flow Configuration
+        $args = array();
+        $args['conditions']['CoEnrollmentFlow.id'] = $pt['CoPetition']['co_enrollment_flow_id'];
+        $args['contain'] = false;
+
+        $ef = $this->CoPerson->Co->CoPetition->CoEnrollmentFlow->find('first', $args);
+
+        // Get Sponsor Eligibility details
+        $sponsorEligibilityMode = $this->CoPerson->Co->CoSetting->getSponsorEligibility($ef["CoEnrollmentFlow"]["co_id"]);
+
+        if($ef["CoEnrollmentFlow"]["authz_level"] == EnrollmentAuthzEnum::None
+           && $ef["CoEnrollmentFlow"]["enable_person_find"]
+           && !empty($sponsorEligibilityMode)) {
+          $this->Auth->allow($this->action);
+        }
+      }
+    }
     
     parent::beforeFilter();
   }
@@ -168,7 +197,8 @@ class CoPeopleController extends StandardController {
    */
 
   public function beforeRender() {
-    if(!$this->request->is('restful')){
+    if(!$this->request->is('restful')
+        && !$this->request->is('ajax')){
       // Determine if there are any Enrollment Flows for this CO and if so pass
       // them to the view. Currently, we don't check for COU-specific flows. 
       
