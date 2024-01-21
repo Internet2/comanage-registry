@@ -653,15 +653,15 @@
                 } elseif(strpos($fieldName, 'EnrolleeCoPerson.EmailAddress') !== false) {
                   $email_list = $args['default'];
                   if(!empty($email_list) && !empty($vv_envsource_delimiter)) {
-                    $delimiter = "";
                     if($vv_envsource_delimiter == AuthProviderEnum::Shibboleth) {
-                      $delimiter = ";";
+                      $emails = explode(";", $email_list);
                     } elseif($vv_envsource_delimiter == AuthProviderEnum::Simplesamlphp) {
-                      $delimiter =",";
+                      $emails = explode(",", $email_list);
                     }
 
-                    $emails = explode($delimiter, $email_list);
-                    if(is_array($emails) && count($emails) > 1) {
+                    if(isset($emails)
+                       && is_array($emails)
+                       && count($emails) > 1) {
                       // XXX We are only keeping the first email
                       $args['value'] = $emails[0];
                     }
