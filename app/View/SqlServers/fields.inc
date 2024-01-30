@@ -93,6 +93,14 @@
   </li>
   <li>
     <div class="field-name">
+      <?php print $this->Form->label('dbport',_txt('fd.server.port')); ?>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('dbport', array('maxlength' => 5)) : filter_var($sql_servers[0]['SqlServer']['dbport'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <?php print $this->Form->label('username',_txt('fd.server.username')); ?>
     </div>
     <div class="field-info">
