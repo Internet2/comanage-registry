@@ -154,11 +154,17 @@ class UsersController extends AppController {
           )
         );
         // data we need in one clever find
-        $oargs['contain'][] = 'PrimaryName';
-        $oargs['contain'][] = 'Identifier';
-        $oargs['contain']['CoOrgIdentityLink']['CoPerson'][0] = 'Co';
-        $oargs['contain']['CoOrgIdentityLink']['CoPerson'][1] = 'CoPersonRole';
-        $oargs['contain']['CoOrgIdentityLink']['CoPerson']['CoGroupMember'] = 'CoGroup';
+        $oargs['contain'] = array(
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+          'Identifier',
+          'CoOrgIdentityLink' => array(
+            'CoPerson' => array(
+              'Co',
+              'CoPersonRole',
+              'CoGroupMember' => array('CoGroup')
+            )
+          )
+        );
 
         $orgIdentities = $this->OrgIdentity->find('all', $oargs);
         // Grab the org IDs and CO information

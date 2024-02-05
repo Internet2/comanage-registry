@@ -61,7 +61,7 @@ class VettingRequestsController extends StandardController {
   public $edit_contains = array();
   
   public $view_contains = array(
-    'CoPerson' => array('PrimaryName'),
+    'CoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     'CoJob',
     'VettingResult' => array(
       // This is the Vetting Step for this Vetting Result, of which there can

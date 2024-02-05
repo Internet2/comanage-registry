@@ -45,25 +45,25 @@ class HistoryRecordsController extends StandardController {
       'HistoryRecord.id' => 'desc'
     ),
     'contain' => array(
-      'ActorCoPerson' => array('PrimaryName'),
+      'ActorCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
       'ActorApiUser',
       'CoEmailList',
-      'CoPerson' => array('PrimaryName'),
+      'CoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
       'CoPersonRole',
-      'OrgIdentity' => array('PrimaryName'),
+      'OrgIdentity' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     )
   );
   
   public $requires_person = true;
   
   public $view_contains = array(
-    'ActorCoPerson' => 'PrimaryName',
+    'ActorCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     'ActorApiUser',
     'CoEmailList',
     'CoGroup',
-    'CoPerson' => 'PrimaryName',
+    'CoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     'CoPersonRole',
-    'OrgIdentity' => 'PrimaryName'
+    'OrgIdentity' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)))
   );
 
   // Use the lightbox layout for view
@@ -96,13 +96,13 @@ class HistoryRecordsController extends StandardController {
       if(!empty($this->request->params['named']['copersonid'])) {
         $args = array();
         $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
-        $args['contain'][] = 'PrimaryName';
+        $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
         
         $n = $this->HistoryRecord->CoPerson->find('first', $args);
       } elseif(!empty($this->request->params['named']['orgidentityid'])) {
         $args = array();
         $args['conditions']['OrgIdentity.id'] = $this->request->params['named']['orgidentityid'];
-        $args['contain'][] = 'PrimaryName';
+        $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
         
         $n = $this->HistoryRecord->OrgIdentity->find('first', $args);
       }
