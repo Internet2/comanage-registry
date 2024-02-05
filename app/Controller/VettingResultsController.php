@@ -37,9 +37,9 @@ class VettingResultsController extends StandardController {
   public $edit_contains = array();
   
   public $view_contains = array(
-    'VetterCoPerson' => array('PrimaryName'),
+    'VetterCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     'VettingStep',
-    'VettingRequest' => array('CoPerson' => array('PrimaryName'))
+    'VettingRequest' => array('CoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))))
   );
   
   /**

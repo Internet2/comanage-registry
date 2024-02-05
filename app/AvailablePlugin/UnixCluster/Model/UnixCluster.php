@@ -245,7 +245,7 @@ class UnixCluster extends ClusterInterface {
       $args['conditions']['CoPerson.co_id'] = $cluster['Cluster']['co_id'];
       $args['contain'] = array(
         'Identifier' => array('conditions' => array('Identifier.status' => SuspendableStatusEnum::Active)),
-        'PrimaryName'
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))
       );
       
       $coPerson = $this->Cluster->Co->CoPerson->find('first', $args);

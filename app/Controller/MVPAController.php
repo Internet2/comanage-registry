@@ -128,7 +128,7 @@ class MVPAController extends StandardController {
         } elseif(!empty($pid['copersonid'])) {
           $args = array();
           $args['conditions']['CoPerson.id'] = $pid['copersonid'];
-          $args['contain'][] = 'PrimaryName';
+          $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
           
           $p = $model->CoPerson->find('first', $args);
           
@@ -136,7 +136,7 @@ class MVPAController extends StandardController {
         } elseif(!empty($pid['copersonroleid'])) {
           $args = array();
           $args['conditions']['CoPersonRole.id'] = $pid['copersonroleid'];
-          $args['contain']['CoPerson'] = 'PrimaryName';
+          $args['contain']['CoPerson'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
           
           $p = $model->CoPersonRole->find('first', $args);
           
@@ -155,7 +155,7 @@ class MVPAController extends StandardController {
         } elseif(!empty($pid['orgidentityid'])) {
           $args = array();
           $args['conditions']['OrgIdentity.id'] = $pid['orgidentityid'];
-          $args['contain'][] = 'PrimaryName';
+          $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
           
           $p = $model->OrgIdentity->find('first', $args);
           

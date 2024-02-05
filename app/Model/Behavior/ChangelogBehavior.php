@@ -594,11 +594,14 @@ class ChangelogBehavior extends ModelBehavior {
           if(empty($model->$vmodel->relinkToArchive)
              || !in_array($model->name, $model->$vmodel->relinkToArchive)) {
             $cparentfk = Inflector::underscore($model->$vmodel->name) . "_id";
-            
-            $ret[$vmodel]['conditions'] = array(
-              $vmodel.'.'.$cparentfk => null,
-              $vmodel.'.deleted IS NOT true'
-            );
+
+            if(!isset($ret[$vmodel]['conditions'])
+               || !is_array($ret[$vmodel]['conditions'])) {
+              $ret[$vmodel]['conditions'] = array();
+            }
+
+            $ret[$vmodel]['conditions'][$vmodel.'.'.$cparentfk] = null;
+            $ret[$vmodel]['conditions'][] = $vmodel.'.deleted IS NOT true';
             
             if(!empty($bits[1]) && strchr($bits[1], '=')) {
               // Insert the originally requested condition
@@ -631,8 +634,8 @@ class ChangelogBehavior extends ModelBehavior {
               $parentfk = Inflector::underscore($model->name) . "_id";
               
               $ret['conditions'] = array(
-                $model->name.'.'.$parentfk => null,
-                $model->name.'.deleted IS NOT true'
+                ($model->alias ?? $model->name) . '.' . $parentfk => null,
+                ($model->alias ?? $model->name) . '.deleted IS NOT true'
               );
               
               $ret['conditions'] = array_merge($ret['conditions'], $v);
@@ -644,11 +647,14 @@ class ChangelogBehavior extends ModelBehavior {
           } else {
             if($model->$k->Behaviors->enabled('Changelog')) {
               $cparentfk = Inflector::underscore($model->$k->name) . "_id";
-              
-              $ret[$k]['conditions'] = array(
-                $k.'.'.$cparentfk => null,
-                $k.'.deleted IS NOT true'
-              );
+
+              if(!isset($ret[$k]['conditions'])
+                || !is_array($ret[$k]['conditions'])) {
+                $ret[$k]['conditions'] = array();
+              }
+
+              $ret[$k]['conditions'][$k.'.'.$cparentfk] = null;
+              $ret[$k]['conditions'][] = $k.'.deleted IS NOT true';
             }
           }
           
@@ -667,13 +673,15 @@ class ChangelogBehavior extends ModelBehavior {
             } elseif(is_array($v2)) {
               $ret[$k][$k2] = $this->modifyContain($model->$k->$k2, $v2);
               
-              if(is_string($k2) && !is_integer($k2)) {
+              if(is_string($k2) && !is_int($k2)) {
                 $cparentfk = Inflector::underscore($model->$k->$k2->name) . "_id";
-                
-                $ret[$k][$k2]['conditions'] = array(
-                  $k2.'.'.$cparentfk => null,
-                  $k2.'.deleted IS NOT true'
-                );
+                if(!isset($ret[$k][$k2]['conditions'])
+                   || !is_array($ret[$k][$k2]['conditions'])) {
+                  $ret[$k][$k2]['conditions'] = array();
+                }
+
+                $ret[$k][$k2]['conditions'][$k2.'.'.$cparentfk] = null;
+                $ret[$k][$k2]['conditions'][] = $k2.'.deleted IS NOT true';
               }
             } elseif(isset($model->$k->$k2)) {
               // Fifth example
@@ -682,11 +690,13 @@ class ChangelogBehavior extends ModelBehavior {
             } else {
               if($model->$k->$v2->Behaviors->enabled('Changelog')) {
                 $cparentfk = Inflector::underscore($model->$k->$v2->name) . "_id";
-                
-                $ret[$k][$v2]['conditions'] = array(
-                  $v2.'.'.$cparentfk => null,
-                  $v2.'.deleted IS NOT true'
-                );
+                if(!isset($ret[$k][$v2]['conditions'])
+                   || !is_array($ret[$k][$v2]['conditions'])) {
+                  $ret[$k][$v2]['conditions'] = array();
+                }
+
+                $ret[$k][$v2]['conditions'][$v2.'.'.$cparentfk] = null;
+                $ret[$k][$v2]['conditions'][] = $v2.'.deleted IS NOT true';
               }
             }
           }
@@ -699,11 +709,14 @@ class ChangelogBehavior extends ModelBehavior {
           
           if($model->$k->$v->Behaviors->enabled('Changelog')) {
             $cparentfk = Inflector::underscore($model->$k->$v->name) . "_id";
-            
-            $ret[$k][$v]['conditions'] = array(
-              $v.'.'.$cparentfk => null,
-              $v.'.deleted IS NOT true'
-            );
+
+            if(!isset($ret[$k][$v]['conditions'])
+              || !is_array($ret[$k][$v]['conditions'])) {
+              $ret[$k][$v]['conditions'] = array();
+            }
+
+            $ret[$k][$v]['conditions'][$v.'.'.$cparentfk] = null;
+            $ret[$k][$v]['conditions'][] = $v.'.deleted IS NOT true';
           } else {
             $ret[$k][] = $v;
           }
