@@ -913,7 +913,7 @@ class ProvisionerBehavior extends ModelBehavior {
   
   public function manualProvision(Model $model,
                                   $coProvisioningTargetId=null,
-                                  $coPersonId,
+                                  $coPersonId = null,
                                   $coGroupId=null,
                                   $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
                                   $coEmailListId=null,

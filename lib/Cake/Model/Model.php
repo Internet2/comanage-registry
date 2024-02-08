@@ -3181,7 +3181,7 @@ class Model extends CakeObject implements CakeEventListener {
 			}
 
 			if (!empty($query['fields']) && is_array($query['fields'])) {
-				if (!preg_match('/^count/i', current($query['fields']))) {
+				if (!preg_match('/^count/i', current($query['fields']) ?? '')) {
 					unset($query['fields']);
 				}
 			}

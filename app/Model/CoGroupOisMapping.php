@@ -126,7 +126,7 @@ class CoGroupOisMapping extends AppModel {
         return (strcasecmp($value, $pattern) !== 0);
         break;
       case ComparisonEnum::Regex:
-        return (preg_match($pattern, $value));
+        return (preg_match($pattern, $value ?? ''));
         break;
       default:
         // Ignore anything unexpected
