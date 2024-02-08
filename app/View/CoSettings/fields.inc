@@ -134,19 +134,6 @@
   </li>
   <li>
     <div class="field-name">
-      <div class="field-title"><?php print _txt('fd.nr.enable'); ?></div>
-    </div>
-    <div class="field-info checkbox">
-      <?php print ($e
-                   ? $this->Form->input('enable_normalization')
-                   : (isset($co_settings[0]['CoSetting']['enable_normalization'])
-                      && $co_settings[0]['CoSetting']['enable_normalization']
-                      ? _txt('fd.yes') : _txt('fd.no')));
-            print ' ' . $this->Form->label('enable_normalization',_txt('fd.nr.enable'));
-      ?>
-  </li>
-  <li>
-    <div class="field-name">
       <div class="field-title"><?php print _txt('fd.de.enable'); ?></div>
     </div>
     <div class="field-info checkbox">

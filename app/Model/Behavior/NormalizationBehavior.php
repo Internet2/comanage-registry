@@ -80,37 +80,23 @@ class NormalizationBehavior extends ModelBehavior {
         return $data;
       }
     }
-    
-    if($coId) {
-      // Try to find the CoSetting model
-      
-      $CoSetting = null;
-      
-      if(isset($model->CoPerson->Co->CoSetting)) {
-        $CoSetting = $model->CoPerson->Co->CoSetting;
-      } elseif(isset($model->CoPersonRole->CoPerson->Co->CoSetting)) {
-        $CoSetting = $model->CoPersonRole->CoPerson->Co->CoSetting;
-      } elseif(isset($model->Co->CoSetting)) {
-        $CoSetting = $model->Co->CoSetting;
-      }
-      
-      // Check to see if normalizations are enabled
-      if(!$CoSetting
-         || !$CoSetting->normalizationsEnabled($coId)) {
-        // Not enabled, just return
-        return $data;
-      }
-    } else {
-      // We currently don't support normalizations on OrgIdentity data
-      
+
+    if(empty($coId) || $coId < 0) {
       return $data;
     }
-    
-    // Load any plugins and figure out which (if any) have foreign keys to belongTo this model
-    
-    foreach(App::objects('plugin') as $p) {
-      $pluginModel = ClassRegistry::init($p . "." . $p);
-      
+
+    // Load any configured plugins and figure out which (if any) have foreign keys to belongTo this model
+    $args = array();
+    $args['conditions']['CoNormalizer.co_id'] = $coId;
+    $args['conditions']['CoNormalizer.status'] = SuspendableStatusEnum::Active;
+    $args['order'][] = 'CoNormalizer.ordr';
+    $args['contain'] = false;
+    $CoNormalizer = ClassRegistry::init("CoNormalizer");
+    $normalizer_plugins = $CoNormalizer->find('all', $args);
+
+    foreach($normalizer_plugins as $p) {
+      $pluginModel = ClassRegistry::init($p["CoNormalizer"]["plugin"] . "." . $p["CoNormalizer"]["plugin"]);
+
       if($pluginModel->isPlugin('normalizer')) {
         try {
           $data = $pluginModel->normalize($data);

@@ -79,11 +79,6 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    'enable_normalization' => array(
-      'rule' => 'boolean',
-      'required' => false,
-      'allowEmpty' => true
-    ),
     'enable_nsf_demo' => array(
       'rule' => 'boolean',
       'required' => false,
@@ -200,7 +195,6 @@ class CoSetting extends AppModel {
     'disable_expiration'         => false,
     'disable_ois_sync'           => false,
     'group_create_admin_only'    => false,
-    'enable_normalization'       => true,
     'enable_nsf_demo'            => false,
     'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
     'invitation_validity'        => DEF_INV_VALIDITY,
@@ -520,19 +514,7 @@ class CoSetting extends AppModel {
       return $this->defaultSettings[$field];
     }
   }
-  
-  /**
-   * Determine if Normalizations are enabled for the specified CO.
-   *
-   * @since  COmanage Registry v0.9.2
-   * @param  integer $coId CO ID
-   * @return boolean True if enabled, false otherwise
-   */
-  
-  public function normalizationsEnabled($coId) {
-    return (boolean)$this->lookupValue($coId, 'enable_normalization');
-  }
-  
+
   /**
    * Determine if NSF Demographics are enabled for the specified CO.
    *
