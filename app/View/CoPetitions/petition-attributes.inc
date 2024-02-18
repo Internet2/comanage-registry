@@ -249,14 +249,27 @@
   foreach($coea_model as $m => $coe_attributes):
 
     // Skip any attributes that were deleted before the creation of this petition.
-    // For multi-component attributes we just look at the first.
-    if(isset($coe_attributes[0]['CoEnrollmentAttribute']['deleted'])
-       && $coe_attributes[0]['CoEnrollmentAttribute']['deleted']
-       && ($coe_attributes[0]['CoEnrollmentAttribute']['modified']
-           < $co_petitions[0]['CoPetition']['created'])) {
+    // Multi-value attributes might get formed either when we have an MVPA or when
+    // we have an attribute that its label share the same name with another archived attribute.
+    // As a result, the safest approach is to unset all the archived attributes and skip if the remaining
+    // set of attributes is empty. If we still have attributes, we reset the index counting and continue
+    foreach ($coe_attributes as $idx => $enrollment_attribute) {
+      if(isset($enrollment_attribute['CoEnrollmentAttribute']['deleted'])
+        && $enrollment_attribute['CoEnrollmentAttribute']['deleted']
+        && ($enrollment_attribute['CoEnrollmentAttribute']['modified']
+          < $co_petitions[0]['CoPetition']['created'])) {
+        unset($coe_attributes[$idx]);
+      }
+    }
+    if(empty($coe_attributes)) {
       continue;
     }
+    // We need to reset the indexes in order to move forward
+    $coe_attributes = array_values($coe_attributes);
 
+    // XXX We can not rely on the count to determine if this is an mvpa. Because we might have
+    //     multiple entries also in the case of the archived enrollment attributes that have the same
+    //     label value
     $mvpa = (count($coe_attributes) > 1);
   ?>
     <div class="modelbox">
@@ -630,7 +643,7 @@
                                               array(
                                                 // We don't support two managers, but if we did this id would break
                                                 'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
-                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                                'default' => ($ea['default'] ?? null)
                                               ))
                         . '</div>
                            <div class="field-desc">
@@ -651,7 +664,7 @@
                 } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id-disabled') {
                   $args['value'] = generateCn($vv_default_manager['PrimaryName']);
                 } elseif(strpos($fieldName, 'EnrolleeCoPerson.EmailAddress') !== false) {
-                  $email_list = $args['default'];
+                  $email_list = $args['default'] ?? '';
                   if(!empty($email_list) && !empty($vv_envsource_delimiter)) {
                     if($vv_envsource_delimiter == AuthProviderEnum::Shibboleth) {
                       $emails = explode(";", $email_list);
@@ -699,15 +712,6 @@
             print '<div class="modelbox-data-label">';
             print filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS);
 
-            /* XXX Don't show required status for view (read-only):
-            if($ea['required']) {
-              if($mvpa && !$ea['mvpa_required']) {
-                print "<span class=\"required\">&dagger;</span>\n";
-              } else {
-                print "<span class=\"required\">*</span>\n";
-              }
-            } */
-
             if(isset($ea['description'])
               && !$groupDesc
               && $ea['description'] != "") {
@@ -746,7 +750,7 @@
                   // timezone adjustment here and render the original value, which in most
                   // cases will be good enough. (And the operational value in CoPersonRoles
                   // is correct, so the actual impact of this is minimal.)
-                  // This shoud be fixed in PE, however.
+                  // This should be fixed in PE, however.
                   print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]); //$vv_tz);
                 }
                 break;
