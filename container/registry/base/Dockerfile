@@ -93,6 +93,7 @@ ENV CACHEDIR ${CACHEDIR:-/srv/comanage-registry/app/tmp/cache}
 RUN a2enmod headers \
       && a2enmod ssl \
       && a2enmod rewrite \
+      && a2dismod -f -q autoindex \
       && a2dissite 000-default.conf \
       && a2disconf other-vhosts-access-log \
       && cd /etc/apache2 \

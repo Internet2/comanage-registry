@@ -1215,7 +1215,7 @@ EOF
 </Location>
 
 <Directory /var/www/html/registry>
-Options Indexes FollowSymLinks
+Options -Indexes +FollowSymLinks
 DirectoryIndex index.php
 AllowOverride All
 AuthType openid-connect
@@ -1316,7 +1316,7 @@ ErrorLog ${APACHE_LOG_DIR}/error.log
 CustomLog ${APACHE_LOG_DIR}/access.log combined
 
 <Directory /var/www/html/registry>
-Options Indexes FollowSymLinks
+Options -Indexes +FollowSymLinks
 DirectoryIndex index.php
 AllowOverride All
 Require all granted
