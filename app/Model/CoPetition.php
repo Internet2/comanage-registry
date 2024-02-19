@@ -942,43 +942,43 @@ class CoPetition extends AppModel {
           );
         }
       }
-    }
-    
-    foreach(array_keys($coData) as $m) {
-      // Loop through the related models, which may or may not be hasMany.
-      
-      if($m == 'EnrolleeCoPerson')
-        continue;
-      
-      if(isset($coData[$m]['co_enrollment_attribute_id'])) {
-        // hasOne
-        
-        foreach(array_keys($coData[$m]) as $a) {
-          if($a != 'co_enrollment_attribute_id'
-             && isset($coData[$m][$a])
-             && $coData[$m][$a] != '') {
-            $petitionAttrs['CoPetitionAttribute'][] = array(
-              'co_petition_id' => $coPetitionID,
-              'co_enrollment_attribute_id' => $coData[$m]['co_enrollment_attribute_id'],
-              'attribute' => $a,
-              'value' => $coData[$m][$a]
-            );                  
-          }
-        }
-      } else {
-        // hasMany
-        
-        foreach(array_keys($coData[$m]) as $i) {
-          foreach(array_keys($coData[$m][$i]) as $a) {
+
+      foreach(array_keys($coData) as $m) {
+        // Loop through the related models, which may or may not be hasMany.
+
+        if($m == 'EnrolleeCoPerson')
+          continue;
+
+        if(isset($coData[$m]['co_enrollment_attribute_id'])) {
+          // hasOne
+
+          foreach(array_keys($coData[$m]) as $a) {
             if($a != 'co_enrollment_attribute_id'
-               && isset($coData[$m][$i][$a])
-               && $coData[$m][$i][$a] != '') {
+              && isset($coData[$m][$a])
+              && $coData[$m][$a] != '') {
               $petitionAttrs['CoPetitionAttribute'][] = array(
                 'co_petition_id' => $coPetitionID,
-                'co_enrollment_attribute_id' => $coData[$m][$i]['co_enrollment_attribute_id'],
+                'co_enrollment_attribute_id' => $coData[$m]['co_enrollment_attribute_id'],
                 'attribute' => $a,
-                'value' => $coData[$m][$i][$a]
-              );                  
+                'value' => $coData[$m][$a]
+              );
+            }
+          }
+        } else {
+          // hasMany
+
+          foreach(array_keys($coData[$m]) as $i) {
+            foreach(array_keys($coData[$m][$i]) as $a) {
+              if($a != 'co_enrollment_attribute_id'
+                && isset($coData[$m][$i][$a])
+                && $coData[$m][$i][$a] != '') {
+                $petitionAttrs['CoPetitionAttribute'][] = array(
+                  'co_petition_id' => $coPetitionID,
+                  'co_enrollment_attribute_id' => $coData[$m][$i]['co_enrollment_attribute_id'],
+                  'attribute' => $a,
+                  'value' => $coData[$m][$i][$a]
+                );
+              }
             }
           }
         }
@@ -1069,15 +1069,29 @@ class CoPetition extends AppModel {
       // they're not copied to the person record.
       
       foreach($requestData['CoPetitionAttribute'] as $key => $value) {
-        if($key == 'textfield' && isset($attrIDs['e:'.$key])) {
+        if($key == 'textfield'
+           && isset($attrIDs['e:' . $key])) {
           // Simply copy this value to an attribute value
           
           $petitionAttrs['CoPetitionAttribute'][] = array(
             'co_petition_id' => $coPetitionID,
-            'co_enrollment_attribute_id' => $attrIDs['e:'.$key],
+            'co_enrollment_attribute_id' => $attrIDs['e:' . $key],
             'attribute' => $key,
             'value' => $value
           );
+        }
+      }
+
+      foreach($requestData['CoPetitionAttribute'] as $enr_attr_id => $rec) {
+        if($key !== 'textfield') {
+          foreach ($rec as $attr => $value) {
+            $petitionAttrs['CoPetitionAttribute'][] = array(
+              'co_petition_id' => $coPetitionID,
+              'co_enrollment_attribute_id' => $enr_attr_id,
+              'attribute' => $attr,
+              'value' => $value
+            );
+          }
         }
       }
     }
