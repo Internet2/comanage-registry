@@ -320,14 +320,10 @@
       print $this->Html->script('comanage.js') . "\n    ";
     ?>
 
-    <!-- Get timezone detection -->
-    <?php print $this->Html->script('jstimezonedetect/jstz.min.js'); ?>
     <script type="text/javascript">
-      // Determines the time zone of the browser client
-      var tz = jstz.determine();
       // This won't be available for the first delivered page, but after that the
       // server side should see it and process it
-      document.cookie = "cm_registry_tz_auto=" + tz.name() + "; path=/; SameSite=Strict";
+      document.cookie = "cm_registry_tz_auto=" + Intl.DateTimeFormat().resolvedOptions().timeZone + "; path=/; SameSite=Strict";
     </script>
 
 
