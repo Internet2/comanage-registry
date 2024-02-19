@@ -297,6 +297,12 @@ class AppController extends Controller {
         // We have an auto-detected timezone from a previous page render from the browser.
         // Adjust the default timezone. Actually, don't we want to always record times in UTC.
         //        date_default_timezone_set($_COOKIE['cm_registry_tz_auto']);
+        $timezone_identifiers = DateTimeZone::listIdentifiers();
+        if(!in_array($_COOKIE['cm_registry_tz_auto'], $timezone_identifiers)) {
+          // This is not an acceptable value
+          throw new RuntimeException(_txt('er.invalid.cookie'), HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE);
+        }
+
         $this->set('vv_tz', $_COOKIE['cm_registry_tz_auto']);
       } else {
         $this->set('vv_tz', date_default_timezone_get());
