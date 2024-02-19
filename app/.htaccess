@@ -3,3 +3,7 @@
     RewriteRule    ^$    webroot/    [L]
     RewriteRule    (.*) webroot/$1    [L]
  </IfModule>
+
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
