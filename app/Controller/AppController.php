@@ -173,6 +173,18 @@ class AppController extends Controller {
         exit;
       }
 
+      // We do not allow REST calls for Auth users, only for REST API authenticated users
+      if((!$this->Session->check('Auth.User.api')
+          || ($this->Session->check('Auth.User.api') && !$this->Session->read('Auth.User.api')))
+         && $this->Session->check('Auth.User.username')
+         && !$this->request->is('ajax')) {
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_UNAUTHORIZED, _txt('er.http.401'));
+        // We force an exit here to prevent any views from rendering, but also
+        // to prevent Cake from dumping the default layout
+        $this->response->send();
+        exit;
+      }
+
       // Set up basic auth and attempt to login the API user, unless we're already
       // logged in (ie: via a cookie provided via an AJAX initiated REST call)
       
