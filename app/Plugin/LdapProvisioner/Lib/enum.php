@@ -31,3 +31,9 @@ class LdapProvUnconfAttrEnum
   const Ignore = 'I';
   const Remove = 'R';
 }
+
+class LdapCommonCodesEnum
+{
+  const LDAP_NO_SUCH_OBJECT =                     0x20;   /* 32 */
+  const LDAP_CONNECT_ERROR  =                     0x5b;
+}

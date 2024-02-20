@@ -1475,7 +1475,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                    "(objectclass=*)");
       }
       catch(Exception $e) {
-        if($e->getCode() == 32) { // LDAP_NO_SUCH_OBJECT
+        if($e->getCode() == LdapCommonCodesEnum::LDAP_NO_SUCH_OBJECT) {
           // No such object, maybe it was manually removed?
           // We'll continue processing as if !$modify
         } else {
@@ -1814,7 +1814,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $cxn = ldap_connect($coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl']);
     
     if(!$cxn) {
-      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), 0x5b /*LDAP_CONNECT_ERROR*/);
+      $this->logLdapError($cxn, 'ldap_connect', array(
+        'serverurl' => $coProvisioningTargetData['CoLdapProvisionerTarget']['serverurl'] ?? null
+      ));
+      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), LdapCommonCodesEnum::LDAP_CONNECT_ERROR);
     }
     
     // Use LDAP v3 (this could perhaps become an option at some point), although note
@@ -1826,6 +1829,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                    $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'],
                    $coProvisioningTargetData['CoLdapProvisionerTarget']['password'])) {
       error_reporting($current_error_reporting);
+      $this->logLdapError($cxn, 'ldap_bind', array(
+        'binddn' => $coProvisioningTargetData['CoLdapProvisionerTarget']['binddn'] ?? null
+      ));
       throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
     }
     error_reporting($current_error_reporting);
@@ -1869,6 +1875,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
        // Skip this if we're doing a delete and an add, which is basically a rename
        && !($delete && $add)) {
       if(!$dns['newdn']) {
+        $this->logLdapError($cxn, 'ldap_delete', array(
+          'newdn' => $dns['newdn']
+        ));
         throw new RuntimeException(_txt('er.ldapprovisioner.dn.none',
                                         array($person ? _txt('ct.co_people.1') : _txt('ct.co_groups.1'),
                                               $provisioningData[($person ? 'CoPerson' : 'CoGroup')]['id'],
@@ -1891,7 +1900,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         // XXX We should probably try to reset CoLdapProvisionerDn here since we're
         // now inconsistent with LDAP
         error_reporting($current_error_reporting);
-
+        $this->logLdapError($cxn, 'ldab_rename', array(
+          'olddn' => $dns['olddn'],
+          'newdn' => $newrdn
+        ));
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
       error_reporting($current_error_reporting);
@@ -1908,7 +1920,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
       error_reporting(0);
       if(!@ldap_mod_replace($cxn, $dns['newdn'], $attributes)) {
         error_reporting($current_error_reporting);
-        if(ldap_errno($cxn) == 0x20 /*LDAP_NO_SUCH_OBJECT*/) {
+        if(ldap_errno($cxn) == LdapCommonCodesEnum::LDAP_NO_SUCH_OBJECT) {
           // Change to an add operation. We call ourselves recursively because
           // we need to recalculate $attributes. Modify wants array() to indicate
           // an empty attribute, whereas Add throws an error if that is the case.
@@ -1921,6 +1933,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                             : ProvisioningActionEnum::CoGroupAdded),
                            $provisioningData);
         } else {
+          $this->logLdapError($cxn, 'ldap_mod_replace', array(
+            'newdn' => $dns['newdn'],
+            'attributes' => $attributes
+          ));
           throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
         }
       }
@@ -1942,6 +1958,10 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         ldap_add($cxn, $dns['newdn'], $attributes);
         error_reporting($current_error_reporting);
       } catch(Exception $e) {
+        $this->logLdapError($cxn, 'ldap_add', array(
+          'newdn' => $dns['newdn'],
+          'attributes' => $attributes
+        ));
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
     }
@@ -1975,7 +1995,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $cxn = ldap_connect($serverUrl);
     
     if(!$cxn) {
-      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), LDAP_CONNECT_ERROR);
+      throw new RuntimeException(_txt('er.ldapprovisioner.connect'), LdapCommonCodesEnum::LDAP_CONNECT_ERROR);
     }
     
     // Use LDAP v3 (this could perhaps become an option at some point)
@@ -1984,6 +2004,9 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     error_reporting(0);
     if(!@ldap_bind($cxn, $bindDn, $password)) {
       error_reporting($current_error_reporting);
+      $this->logLdapError($cxn, 'ldap_bind', array(
+        'bindDn' => $bindDn
+      ));
       throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
     }
     error_reporting($current_error_reporting);
@@ -1994,6 +2017,11 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $s = @ldap_search($cxn, $baseDn, $filter, $attributes);
     error_reporting($current_error_reporting);
     if(!$s) {
+      $this->logLdapError($cxn, 'ldap_search', array(
+        'baseDN' => $baseDn,
+        'filter' => $filter,
+        'attributes' => $attributes
+      ));
       throw new RuntimeException(ldap_error($cxn) . " (" . $baseDn . ")", ldap_errno($cxn));
     }
     
@@ -2071,7 +2099,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         }
       }
       catch(RuntimeException $e) {
-        if($e->getCode() == 32) { // LDAP_NO_SUCH_OBJECT
+        if($e->getCode() == LdapCommonCodesEnum::LDAP_NO_SUCH_OBJECT) {
           $ret['status'] = ProvisioningStatusEnum::NotProvisioned;
           $ret['comment'] = $dnRecord['CoLdapProvisionerDn']['dn'];
         } else {
@@ -2572,5 +2600,30 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     return true;
+  }
+
+  /**
+   * Log useful information after a crash
+   *
+   * @param LDAP   $cxn                   LDAP Server connection object
+   * @param string $functionName          LDAP Server method name
+   * @param array  $functionParameters    LDAP Server method list of parameters
+   *
+   * @return void
+   * @since  COmanage Registry v4.4.0
+   */
+  public function logLdapError($cxn, $functionName, $functionParameters = array()) {
+    $this->log(__METHOD__ . '::LDAP METHOD::' . $functionName, LOG_ERROR);
+
+    foreach ($functionParameters as $fn => $fv) {
+      $this->log(__METHOD__ . "::LDAP METHOD PARAMETER:: '{$fn}' => " . var_export($fv, true), LOG_ERROR);
+    }
+    $this->log(__METHOD__ . '::LDAP ERROR CODE::' . ldap_errno($cxn), LOG_ERROR);
+    $this->log(__METHOD__ . '::LDAP ERROR::' . ldap_err2str(ldap_errno($cxn)), LOG_ERROR);
+
+    ldap_get_option($cxn, LDAP_OPT_DIAGNOSTIC_MESSAGE, $err);
+    if(!empty($err)) {
+      $this->log(__METHOD__ . '::LDAP ERROR DETAILS::' . var_export($err, true), LOG_ERROR);
+    }
   }
 }
