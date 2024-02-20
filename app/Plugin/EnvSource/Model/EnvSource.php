@@ -58,6 +58,27 @@ class EnvSource extends AppModel {
         'allowEmpty' => true
       )
     ),
+    'default_affiliation' => array(
+      'content' => array(
+        'rule' => array('validateExtendedType',
+          array('attribute' => 'CoPersonRole.affiliation',
+                'default' => array(AffiliationEnum::Faculty,
+                  AffiliationEnum::Student,
+                  AffiliationEnum::Staff,
+                  AffiliationEnum::Alum,
+                  AffiliationEnum::Member,
+                  AffiliationEnum::Affiliate,
+                  AffiliationEnum::Employee,
+                  AffiliationEnum::LibraryWalkIn))),
+        'required' => true,
+        'allowEmpty' => false
+      )
+    ),
+    'redirect_on_duplicate' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'org_identity_source_id' => array(
       'rule' => 'numeric',
       'required' => true,

@@ -40,6 +40,7 @@
     <field name="duplicate_mode" type="C" size="2" />
     <field name="redirect_on_duplicate" type="C" size="1024" />
     <field name="sp_type" type="C" size="2" />
+    <field name="default_affiliation" type="C" size="32" />
     <field name="env_name_honorific" type="C" size="80" />
     <field name="env_name_given" type="C" size="80" />
     <field name="env_name_middle" type="C" size="80" />

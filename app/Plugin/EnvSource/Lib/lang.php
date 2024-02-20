@@ -58,9 +58,10 @@ $cm_env_source_texts['en_US'] = array(
   'er.envsource.token'          => 'Token error',
   
   // Plugin texts
+  'pl.envsource.affiliation.def'         => 'Default Affiliation Value',
   'pl.envsource.mode.dupe'               => 'Duplicate Handling Mode',
-  'pl.envsource.sp.type'                 => 'Web Server SP Provider',
   'pl.envsource.name.unknown'            => 'Unknownname',
   'pl.envsource.redirect.dupe'           => 'Redirect on Duplicate',
-  'pl.envsource.sorid.desc'              => 'This must be set to an environment variable holding a unique identifier for any authenticated user.'
+  'pl.envsource.sorid.desc'              => 'This must be set to an environment variable holding a unique identifier for any authenticated user.',
+  'pl.envsource.sp.type'                 => 'Web Server SP Provider'
 );

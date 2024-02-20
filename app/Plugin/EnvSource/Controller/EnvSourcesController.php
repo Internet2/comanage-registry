@@ -47,9 +47,14 @@ class EnvSourcesController extends SOISController {
    */
   
   public function beforeRender() {
-    $this->set('vv_available_attributes', $this->EnvSource->availableAttributes());
-    
     parent::beforeRender();
+
+    $this->set('vv_available_attributes', $this->EnvSource->availableAttributes());
+
+    $OrgIdentity = ClassRegistry::init('OrgIdentity');
+    $mTypesAffiliation = $OrgIdentity->types($this->viewVars["cur_co"]["Co"]["id"], 'affiliation');
+    $this->set('vv_affiliation_types', $mTypesAffiliation);
+
   }
   
   /**
