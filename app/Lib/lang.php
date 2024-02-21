@@ -1202,6 +1202,7 @@ The request may be viewed at
   'er.inv.exp.use' => 'Processing of invitation failed due to invitation expiration',
   'er.inv.nf' =>      'Invitation Not Found',
   'er.invalid.cookie' =>  'Invalid Cookie found. Please clear your cookies and try again',
+  'er.invalid.params' =>  'Invalid Parameters',
   'er.jb.concurrent' => 'A Job of this type is already registered (id=%1$s)',
   'er.jb.cxl.status' => 'Job is not in a cancelable status (%1$s)',
   'er.jb.mx.retry' => 'Max Retry exceeded',

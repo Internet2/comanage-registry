@@ -229,16 +229,19 @@ class DictionaryEntriesController extends StandardController {
   
   public function populate() {
     // Pull the set of available dictionaries
-    
+    $dicts = $this->DictionaryEntry->predefinedDictionaries();
+
     if($this->request->is('get')) {
-      // Construct a set of available dictionaries to load
-      
-      $dicts = $this->DictionaryEntry->predefinedDictionaries();
       asort($dicts, SORT_STRING);
       
       $this->set('vv_available_dictionaries', $dicts);
       $this->set('title_for_layout', _txt('op.populate'));
     } else {
+      // The file name does not exist in the predefined list then return
+      if(empty($dicts[$this->request->data['DictionaryEntry']['file']])) {
+        throw new BadRequestException(_txt('er.invalid.params'));
+      }
+
       try {
         // SecurityComponent should prevent the injection of arbitrary file paths,
         // but even then the specified file has to parse correctly as a Dictionary.
