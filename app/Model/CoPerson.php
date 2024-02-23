@@ -543,6 +543,110 @@ class CoPerson extends AppModel {
     
     return $ret;
   }
+
+  /**
+   * Find People based on mode and term
+   *
+   * @param   integer       $coId  CO ID
+   * @param   string        $mode  Search mode to apply filters for
+   * @param   string|null   $term  Search block
+   *
+   * @return array          Array of CO Person records
+   * @since  COmanage Registry v4.3.3
+   */
+  public function findForPicker($coId, $mode, $term) {
+    $coPersonIds = array();
+
+    // jquery Autocomplete sends the search as url?term=foo
+    if(!empty($term)) {
+      // Leverage model specific keyword search
+
+      // Note EmailAddress and Identifier don't support substring search
+      foreach(array('Name', 'EmailAddress', 'Identifier') as $m) {
+        $hits = $this->$m->search($coId, $term, 25);
+
+        $coPersonIds = array_merge($coPersonIds, Hash::extract($hits, '{n}.CoPerson.id'));
+      }
+    }
+
+    $coPersonIds = array_unique($coPersonIds);
+
+    // Look up additional information to provide hints as to which person is which.
+    // We only do this when there are relatively small numbers of results to
+    // avoid making a bunch of database queries early in the search.
+
+    $matches = array();
+
+    if(count($coPersonIds) > 100) {
+      // We don't return large sets to avoid slow performance
+
+      $matches[] = array(
+        'value' => -1,
+        'label' => _txt('er.picker.toomany')
+      );
+    } else {
+      $people = $this->filterPicker($coId, $coPersonIds, $mode);
+      $pickerEmailType = $this->Co->CoSetting->getPersonPickerEmailType($coId);
+      $pickerIdentifierType = $this->Co->CoSetting->getPersonPickerIdentifierType($coId);
+      $pickerDisplayTypes = $this->Co->CoSetting->getPersonPickerDisplayTypes($coId);
+
+      foreach($people as $p) {
+        $label = generateCn($p['Name'][0]);
+        $idArr = $p['Identifier'];
+        $emailArr = $p['EmailAddress'];
+        $email = '';
+        $emailLabel = '';
+        $id = '';
+        $idLabel = '';
+
+        // Iterate over the email array
+        if(!empty($emailArr) && !empty($pickerEmailType)) {
+          if(!empty($pickerDisplayTypes)) {
+            $emailLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.email_address.mail'), $pickerEmailType));
+          }
+          else {
+            $emailLabel = _txt('fd.email_address.mail') . ': ';
+          }
+          foreach($emailArr as $e) {
+            if($e['type'] == $pickerEmailType) {
+              $email = $e['mail'] . ' ' . $pickerDisplayTypes;
+              break;
+            }
+          }
+        }
+
+        // Set the identifier for display (and limit it to 30 characters max)
+        if(!empty($idArr[0]['identifier']) && !empty($pickerIdentifierType)) {
+          if(!empty($pickerDisplayTypes)) {
+            $idLabel = _txt('fd.extended_type.generic.label', array(_txt('fd.identifier.identifier'), $pickerIdentifierType));
+          }
+          else {
+            $idLabel = _txt('fd.identifier.identifier') . ': ';
+          }
+          foreach($idArr as $i) {
+            if($i['type'] == $pickerIdentifierType) {
+              $id = mb_strimwidth($i['identifier'], 0, 30, '...');
+              break;
+            }
+          }
+        }
+
+        // Make sure we don't already have an entry for this CO Person ID
+        if(!Hash::check($matches, '{n}[value='.$p['CoPerson']['id'].']')) {
+          $matches[] = array(
+            'value' => $p['CoPerson']['id'],
+            'label' => $label,
+            'email' => $email,
+            'emailLabel' => $emailLabel,
+            'identifier' => $id,
+            'identifierLabel' => $idLabel
+          );
+        }
+      }
+    }
+
+    return $matches;
+  }
   
   /**
    * Perform a find for a CO Person, but pull exactly the associated data needed

@@ -1230,6 +1230,7 @@ The request may be viewed at
   'er.notfound-b' =>  '%1$s Not Found',
   'er.notimpl' =>     'Not Implemented',
   'er.notprov' =>     'Not Provided',
+  'er.notprov-b' =>   '%1$s Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.ois.label.inuse'    => 'The SOR Label "%1$s" is already in use',
   'er.ois.linked' =>  'The specified Source Key is already linked to an existing Org Identity',
