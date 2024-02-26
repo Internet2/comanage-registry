@@ -216,10 +216,8 @@ class PrivacyIdea extends AppModel {
     // This should work regardless of token type
     
     $response = $Http->delete("/token/" . $serial, array(), $this->requestCfg);
-    error_log("response = " . print_r($response, TRUE) . "\n", 3, "/srv/comanage-registry/local/tmp/logs/default.log");
 
     $jresponse = json_decode($response);
-    error_log("jresponse = " . print_r($jresponse, TRUE) . "\n", 3, "/srv/comanage-registry/local/tmp/logs/default.log");
 
     // Success = HTTP 204, failure = HTTP 400, or look at result->status
     if(!$jresponse->result->status) {
