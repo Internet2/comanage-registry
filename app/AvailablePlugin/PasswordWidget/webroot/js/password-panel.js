@@ -34,7 +34,10 @@ export default {
     return {
       editing: false,
       passwordInvalid: false,
-      passwordErrorMessage: ''
+      passwordInvalidClass: '',
+      passwordErrorMessage: '',
+      passwordCurrentErrorMessage: '',
+      passwordCurrentInvalidClass: ''
     }
   },
   methods: {
@@ -64,6 +67,8 @@ export default {
       this.passwordInvalid = false;
       this.passwordInvalidClass = '';
       this.passwordErrorMessage = '';
+      this.passwordCurrentErrorMessage = '';
+      this.passwordCurrentInvalidClass = '';
     },
     submitPassword() {
       const pw = this.$refs.passwordNew.value;
@@ -77,12 +82,21 @@ export default {
       
       // basic front-end validation: do the passwords match?
       if(pw != pwConf) {
+        this.clearInvalid();
         this.passwordErrorMessage = this.txt.errorMatch;
         this.passwordInvalidClass = 'is-invalid';
         this.passwordInvalid = true;
         return;
       }
-      // basic front-end validation: is it empty?
+      // basic front-end validation: is the current password present?
+      if(pwCurr == '') {
+        this.clearInvalid();
+        this.passwordCurrentErrorMessage = this.txt.errorCurrent;
+        this.passwordCurrentInvalidClass = 'is-invalid';
+        this.passwordInvalid = true;
+        return;
+      }
+      // basic front-end validation: is the password empty?
       if(pw == '') {
         return;
       }
@@ -129,7 +143,11 @@ export default {
       if(xhr.responseJSON !== undefined) {
         this.hideEdit();
         this.refreshDisplay();
-        this.$parent.successTxt = xhr.statusText;
+        if(this.pwinfo.id == '') {
+          this.$parent.successTxt = this.txt.addSuccess;
+        } else {
+          this.$parent.successTxt = this.txt.changeSuccess;
+        }
         this.$parent.setError('');
       } else {
         this.passwordInvalid = true;
@@ -141,6 +159,8 @@ export default {
       stopSpinner();
       this.passwordInvalid = true;
       this.passwordInvalidClass = 'is-invalid';
+      this.passwordCurrentInvalid = true;
+      this.passwordCurrentInvalidClass = 'is-invalid';
       this.$parent.generalXhrFailCallback(xhr);
     }
   },
@@ -160,7 +180,7 @@ export default {
     </div>
     <div v-if="editing" class="cm-ssw-add-container">
       <div class="cm-ssw-add-form">
-        <form action="#">
+        <form action="#" ref="passwordForm">
           <div class="cm-ssw-form-row">
             <span class="cm-ssw-form-row-fields">
               <span v-if="this.pwinfo.id != ''" 
@@ -174,9 +194,13 @@ export default {
                   type="password" 
                   :id="generateId('cm-ssw-password-current')"
                   class="form-control cm-ssw-form-field-password"
+                  :class="this.passwordCurrentInvalidClass"
                   value="" 
                   required="required"
                   ref="passwordCurrent"/>
+                  <div v-if="this.passwordCurrentErrorMessage" class="invalid-feedback">
+                    {{ this.passwordCurrentErrorMessage }}
+                  </div>
               </span>
               <span class="cm-ssw-form-field form-group">
                 <label :for="generateId('cm-ssw-password')">
@@ -219,7 +243,7 @@ export default {
             </span>
             <div class="cm-ssw-submit-buttons">
               <button @click.prevent="submitPassword" class="btn btm-small btn-primary cm-ssw-add-email-save-link">
-                {{ this.pwinfo.id == '' ? txt.add : txt.reset }}
+                {{ this.pwinfo.id == '' ? txt.add : txt.change }}
               </button>
             </div>
           </div>

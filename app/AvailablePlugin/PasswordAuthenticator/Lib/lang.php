@@ -46,7 +46,7 @@ $cm_password_authenticator_texts['en_US'] = array(
   ),
   
   // Error messages
-  'er.passwordauthenticator.current'   => 'Current password is required',
+  'er.passwordauthenticator.current'   => 'Incorrect current password',
   'er.passwordauthenticator.match'     => 'New passwords do not match',
   'er.passwordauthenticator.len.max'   => 'Password cannot be more than %1$s characters',
   'er.passwordauthenticator.len.min'   => 'Password must be at least %1$s characters',
