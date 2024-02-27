@@ -2862,10 +2862,12 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   margin-left: 0;
   top: 0;
 }
+.cm-ssw-password-message {
+  padding: 0 1em;
+}
 .cm-ssw .alert {
   margin-bottom: 0;
   border-radius: 0;
-  padding: 0.75rem 1rem;
 }
 #content .cm-ssw-edit-container .material-icons {
   margin-right: -3px;
