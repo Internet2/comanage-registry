@@ -86,7 +86,7 @@
       // Pull all Org Identity Sources for later use
       $args = array();
       $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
-      $args['conditions']['OrgIdentitySource.co_id']=  $coId;
+      $args['conditions']['OrgIdentitySource.co_id'] = $coId;
       $args['contain'] = array('CoPipeline');
       
       $cfgs = $this->OrgIdentitySource->find('all', $args);
@@ -362,18 +362,30 @@
               // Create a CO Person Role, if configured
               $coPersonRoleId = null;
               
-              if(!empty($oisConfigs[ $oisRecord['org_identity_source_id'] ]['CoPipeline'])) {
+              if(!empty($oisConfigs[ $oisRecord['org_identity_source_id'] ]['CoPipeline'])
+                 && isset($oisConfigs[ $oisRecord['org_identity_source_id'] ]['CoPipeline']['create_role'])
+                 && $oisConfigs[$oisRecord['org_identity_source_id']]['CoPipeline']['create_role']
+              ) {
                 $pipeline = $oisConfigs[ $oisRecord['org_identity_source_id'] ]['CoPipeline'];
                 
                 $coPersonRoleId = ++$maxIds['co_person_roles'];
-                
+
+                // Calculate the Role status from the valid_from date of the OrgIdentity
+                $roleStatus = StatusEnum::Active;
+                if(isset($oisRecord['OrgIdentity']['OrgIdentity']['valid_through'])) {
+                  $dateNow = new DateTime(date('Y-m-d H:i:s '));
+                  $orgIdentityValidThrough = new DateTime($oisRecord['OrgIdentity']['OrgIdentity']['valid_through']);
+                  if($dateNow > $orgIdentityValidThrough) {
+                    $roleStatus = StatusEnum::Expired;
+                  }
+                }
                 // We sort of reimplement pipeline logic here
                 $role = array(
                   'id'                     => $coPersonRoleId,
                   'co_person_id'           => $coPersonId,
                   'cou_id'                 => (!empty($pipeline['sync_cou_id']) ? $pipeline['sync_cou_id'] : null),
                   'affiliation'            => (!empty($pipeline['sync_affiliation']) ? $pipeline['sync_affiliation'] : $oisRecord['OrgIdentity']['OrgIdentity']['affiliation']),
-                  'status'                 => StatusEnum::Active,
+                  'status'                 => $roleStatus,
                   'source_org_identity_id' => $orgIdentityId,
                 );
                 
