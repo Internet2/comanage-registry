@@ -29,6 +29,7 @@
   header("Expires: Thursday, 10-Jan-69 00:00:00 GMT");
   header("Cache-Control: no-store, no-cache, max-age=0, must-revalidate");
   header("Pragma: no-cache");
+  header("Content-Security-Policy: frame-ancestors 'self'");
 ?>
 <!DOCTYPE html>
 <html>
