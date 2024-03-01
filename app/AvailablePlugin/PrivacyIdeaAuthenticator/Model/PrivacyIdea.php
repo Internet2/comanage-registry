@@ -206,7 +206,7 @@ class PrivacyIdea extends AppModel {
    * @since  COmanage Registry v4.0.0
    * @param  PrivacyIdeaAuthenticator $privacyIdeaAuthenticator PrivacyIdeaAuthenticator
    * @param  string                   $serial                   privacyIDEA Serial
-   * @return boolean                                            true on success
+   * @return stdClass Object                   			JSON decoded response from HTTP call                       
    * @throws InvalidArgumentException
    */
     
@@ -218,13 +218,16 @@ class PrivacyIdea extends AppModel {
     $response = $Http->delete("/token/" . $serial, array(), $this->requestCfg);
 
     $jresponse = json_decode($response);
-    
+
     // Success = HTTP 204, failure = HTTP 400, or look at result->status
-    if(!$jresponse->result->status) {
-      throw new InvalidArgumentException($jresponse->result->error->message);
+    if(!isset($jresponse->result->status) || !$jresponse->result->status) {
+      // error code 601 indicates Token was not found in Privacy Idea database, so we want to continue deleting but return that information
+      if(isset($jresponse->result->error->code) && $jresponse->result->error->code != 601) {
+        throw new InvalidArgumentException($jresponse->result->error->message);
+      }
     }
-    
-    return true;
+
+    return $jresponse;
   }
   
   /**
