@@ -86,7 +86,8 @@
           token:               "<?php print _txt('pl.emailaddresswidget.fd.token'); ?>",
           tokenMsg:            "<?php print _txt('pl.emailaddresswidget.fd.token.msg'); ?>",
           tokenError:          "<?php print _txt('er.emailaddresswidget.fd.token'); ?>",
-          verify:              "<?php print _txt('op.verify'); ?>"
+          verify:              "<?php print _txt('op.verify'); ?>",
+          verified:             "<?php print _txt('pl.emailaddresswidget.verified'); ?>"
         }
       }
     },
@@ -99,7 +100,10 @@
         let xhr = callRegistryAPI(url, 'GET', 'json', this.setEmailAddresses, '', this.generalXhrFailCallback);
       },
       setEmailAddresses: function(xhr){
-        let allEmailAddresses = xhr.responseJSON.EmailAddresses;
+        let allEmailAddresses = [];
+        if(xhr.responseJSON !== undefined && xhr.responseJSON.EmailAddresses !== undefined) {
+          allEmailAddresses = xhr.responseJSON.EmailAddresses;
+        }
         // limit the email addresses to the emailType:
         let emailAddressesOfType = [];
         emailAddressesOfType = allEmailAddresses.filter((address) => address.Type == this.core.emailType);

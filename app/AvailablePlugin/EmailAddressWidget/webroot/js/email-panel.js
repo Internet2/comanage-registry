@@ -135,7 +135,7 @@ export default {
       this.resetForm();
       this.clearInvalid();
       this.refreshDisplay();
-      this.$parent.successTxt = xhr.statusText;
+      this.$parent.successTxt = this.txt.verified;
       this.$parent.setError('');
     },
     verifyFailCallback(xhr) {

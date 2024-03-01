@@ -39,6 +39,7 @@ $cm_password_widget_texts['en_US'] = array(
   // Error
   'er.passwordwidget.add'                           => 'The password could not be added.',
   'er.passwordwidget.req.params'                    => 'Incorrect request parameters.',
+  'er.passwordwidget.currentpassword'               => 'Current password is required.',
   'er.passwordwidget.no.passwordauthenticators'     => 'There are no password authenticators. You must first create a PasswordAuthenticator before this plugin can be configured.',
   'er.passwordwidget.match'                         => 'The passwords do not match.',
   'er.passwordwidget.maxlength'                     => 'The password may not exceed %1$s characters.',
@@ -46,8 +47,8 @@ $cm_password_widget_texts['en_US'] = array(
 
   // Actions
   'pl.passwordwidget.add'                           => 'Add Password',
+  'pl.passwordwidget.change'                        => 'Change Password',
   'pl.passwordwidget.edit'                          => 'Edit', // this allows localization
-  'pl.passwordwidget.reset'                         => 'Reset Password',
   
   // Fields
   'pl.passwordwidget.fd.authenticator'              => 'Password Authenticator',
@@ -58,9 +59,8 @@ $cm_password_widget_texts['en_US'] = array(
   
   //  Information
   'pl.passwordwidget.info.add.success'        => 'The password was added.',
+  'pl.passwordwidget.info.change.success'     => 'The password was changed.',
   'pl.passwordwidget.info.dependency'         => 'This widget is dependent on the PasswordAuthenticator plugin.',
   'pl.passwordwidget.info.password.set'       => 'Your password is set.',
-  'pl.passwordwidget.info.password.not.set'   => 'No password is set.',
-  'pl.passwordwidget.info.update.success'     => 'The password was changed.'
-  
+  'pl.passwordwidget.info.password.not.set'   => 'No password is set.'
 );

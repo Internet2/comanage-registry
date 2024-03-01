@@ -73,9 +73,11 @@
         },
         txt: {
           add:                 "<?php print _txt('pl.passwordwidget.add'); ?>",
+          addSuccess:          "<?php print _txt('pl.passwordwidget.info.add.success'); ?>",
           addFail:             "<?php print _txt('er.passwordwidget.add'); ?>",
           cancel:              "<?php print _txt('op.cancel'); ?>",
-          reset:               "<?php print _txt('pl.passwordwidget.reset'); ?>",
+          change:              "<?php print _txt('pl.passwordwidget.change'); ?>",
+          changeSuccess:       "<?php print _txt('pl.passwordwidget.info.change.success'); ?>",
           confirm:             "<?php print _txt('op.confirm'); ?>",
           done:                "<?php print _txt('op.done'); ?>",
           edit:                "<?php print _txt('pl.passwordwidget.edit'); ?>",
@@ -87,6 +89,7 @@
           passwordNew:         "<?php print _txt('pl.passwordwidget.fd.password.new'); ?>",
           passwordIsSet:       "<?php print _txt('pl.passwordwidget.info.password.set'); ?>",
           passwordIsNotSet:    "<?php print _txt('pl.passwordwidget.info.password.not.set'); ?>",
+          errorCurrent:        "<?php print _txt('er.passwordwidget.currentpassword'); ?>",
           errorMatch:          "<?php print _txt('er.passwordwidget.match'); ?>",
           errorMaxLength:      "<?php print _txt('er.passwordwidget.maxlength', array($vv_pw_authenticator['PasswordAuthenticator']['max_length'])); ?>",
           errorMinLength:      "<?php print _txt('er.passwordwidget.minlength', array($vv_pw_authenticator['PasswordAuthenticator']['min_length'])); ?>"

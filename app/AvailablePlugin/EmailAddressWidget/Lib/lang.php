@@ -43,9 +43,10 @@ $cm_email_address_widget_texts['en_US'] = array(
   'er.emailaddresswidget.req.params'                    => 'Incorrect request parameters.',
 
   // Info
-  'pl.emailaddresswidget.deleted'                       => 'Deleted',
+  'pl.emailaddresswidget.deleted'                       => 'Email address deleted.',
   'pl.emailaddresswidget.limit'                         => 'Email address limit reached. You must first delete an address before adding another.',
   'pl.emailaddresswidget.limit.replace'                 => 'Email address limit reached. You must delete or replace an address to add another.',
+  'pl.emailaddresswidget.verified'                      => 'Email address verified.',
 
   // Actions
   'pl.emailaddresswidget.add'                           => 'Add an email address',
