@@ -1018,7 +1018,9 @@ class CoPipeline extends AppModel {
         // We need to inject the CO so extended types can be saved
         $this->Co->CoPerson->CoPersonRole->validate['affiliation']['content']['rule'][1]['coid'] = $orgIdentity['OrgIdentity']['co_id'];
         
-        if(!$this->Co->CoPerson->CoPersonRole->save($newCoPersonRole, array("provision" => false, "safeties" => $safeties))) {
+        if(!$this->Co->CoPerson->CoPersonRole->save($newCoPersonRole, array("provision" => false,
+                                                                            "safeties" => $safeties,
+                                                                            NormalizerTypeEnum::MixCase => false))) {
           throw new RuntimeException(_txt('er.db.save-a', array('CoPersonRole')));
         }
         
@@ -1247,6 +1249,7 @@ class CoPipeline extends AppModel {
         if(!$model->save($nr, array("provision" => false,
                                     "safeties" => $safeties,
                                     "skipAvailability" => true,
+                                    NormalizerTypeEnum::MixCase => !in_array($model, array('CoPersonRole', 'EnrolleeCoPersonRole')),
                                     "trustVerified" => $trustVerified))) {
           
           throw new RuntimeException(_txt('er.db.save-a',

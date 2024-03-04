@@ -375,7 +375,8 @@ class CoPersonRole extends AppModel {
           // Normalize Enumeration
           $this->data[$this->alias][$a] = $this->normalizeEnumeration($coId,
                                                                       'CoPersonRole.'.$a,
-                                                                      $this->data[$this->alias][$a]);
+                                                                      $this->data[$this->alias][$a],
+                                                                      $options);
         }
       }
     }
