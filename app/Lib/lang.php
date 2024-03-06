@@ -1663,6 +1663,7 @@ The request may be viewed at
   'fd.id.seq' =>      'ID',
   'fd.id.val' =>      'ID: %1$s',
   // The next set must be named fd.model.validation-field
+  'fd.identifier.caseinsensitive.search.enable' => 'Enable Case Insensitive Identifier Searching',
   'fd.identifier.description' => 'Description',
   'fd.identifier.identifier' => 'Identifier',
   'fd.identifier.login' => 'Login',

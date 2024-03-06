@@ -839,7 +839,16 @@ class StandardController extends AppController {
       if(!empty($this->request->query['search_identifier'])) {
         // XXX temporary implementation -- need more general approach (CO-1053)
         $args = array();
-        $args['conditions']['Identifier.identifier'] = $this->request->query['search_identifier'];
+        // search.identifier is supported by CoDepartment, OrgIdentity, CoGroup, CoPerson API. All these requests
+        // require the coId as a query parameter
+        $CoSetting = ClassRegistry::init('CoSetting');
+        if(!empty($this->request->query['coid'])
+           && $CoSetting->identifierISearchEnabled($this->request->query['coid'])
+        ) {
+          $args['conditions']['LOWER(Identifier.identifier) LIKE'] = '%' . strtolower($this->request->query['search_identifier']) . '%';
+        } else {
+          $args['conditions']['Identifier.identifier'] = $this->request->query['search_identifier'];
+        }
 
         $orgPooled = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
         if(!empty($this->params['url']['coid']) && !$orgPooled) {
