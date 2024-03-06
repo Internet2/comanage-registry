@@ -84,6 +84,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'enable_ident_isearch' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'enable_nsf_demo' => array(
       'rule' => 'boolean',
       'required' => false,
@@ -202,6 +207,7 @@ class CoSetting extends AppModel {
     'group_create_admin_only'    => false,
     'enable_normalization'       => true,
     'enable_nsf_demo'            => false,
+    'enable_ident_isearch'       => false,
     'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
     'invitation_validity'        => DEF_INV_VALIDITY,
     'garbage_collection_interval'  => DEF_GARBAGE_COLLECT_INTERVAL,
@@ -493,6 +499,18 @@ class CoSetting extends AppModel {
   
   public function getTAndCLoginMode($coId) {
     return $this->lookupValue($coId, 't_and_c_login_mode');
+  }
+
+  /**
+   * Determine if Identifier Case Insensitise search is enabled for the specified CO.
+   *
+   * @since  COmanage Registry 4.3.3
+   * @param  integer $coId CO ID
+   * @return boolean True if enabled, false otherwise
+   */
+
+  public function identifierISearchEnabled($coId) {
+    return (boolean)$this->lookupValue($coId, 'enable_ident_isearch');
   }
 
   /**
