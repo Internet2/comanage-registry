@@ -194,7 +194,7 @@ class StandardPluginController extends StandardController {
             )
           ),
           'VettingStep',
-          'VetterCoPerson' => array('PrimaryName')
+          'VetterCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)))
         );
         
         $result = $model->VettingStep->VettingResult->find('first', $args);
