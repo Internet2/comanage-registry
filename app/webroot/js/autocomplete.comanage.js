@@ -8,11 +8,11 @@ $.widget( "ui.autocomplete", $.ui.autocomplete, {
   _renderItem: function( ul, item ) {
     let itemMarkup = '<div class="cm-ac-item-wrapper">';
     itemMarkup += '<div class="cm-ac-name">' + item.label + '</div>';
-    if(item?.email != '') {
-      itemMarkup += '<div class="cm-ac-subitem cm-ac-email"><span class="cm-ac-label">' + item.emailLabel + '</span>' + item.email.split(" ")[0] + '</div>';
+    if(item?.emailShort != '') {
+      itemMarkup += '<div class="cm-ac-subitem cm-ac-email"><span class="cm-ac-label">' + item.emailLabel + '</span>' + item.emailShort + '</div>';
     }
-    if(item?.identifier != '') {
-      itemMarkup += '<div class="cm-ac-subitem cm-ac-id"><span class="cm-ac-label">' + item.identifierLabel + '</span>' + item.identifier + '</div>';
+    if(item?.identifierShort != '') {
+      itemMarkup += '<div class="cm-ac-subitem cm-ac-id"><span class="cm-ac-label">' + item.identifierLabel + '</span>' + item.identifierShort + '</div>';
     }
     itemMarkup += '</div>';
 
