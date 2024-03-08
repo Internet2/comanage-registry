@@ -595,8 +595,10 @@ class CoPerson extends AppModel {
         $idArr = $p['Identifier'];
         $emailArr = $p['EmailAddress'];
         $email = '';
+        $email_short = '';
         $emailLabel = '';
         $id = '';
+        $id_short = '';
         $idLabel = '';
 
         // Iterate over the email array
@@ -609,7 +611,8 @@ class CoPerson extends AppModel {
           }
           foreach($emailArr as $e) {
             if($e['type'] == $pickerEmailType) {
-              $email = $e['mail'] . ' ' . $pickerDisplayTypes;
+              $email = $e['mail'];
+              $email_short = mb_strimwidth($e['mail'], 0, 30, '...');
               break;
             }
           }
@@ -625,7 +628,8 @@ class CoPerson extends AppModel {
           }
           foreach($idArr as $i) {
             if($i['type'] == $pickerIdentifierType) {
-              $id = mb_strimwidth($i['identifier'], 0, 30, '...');
+              $id_short = mb_strimwidth($i['identifier'], 0, 30, '...');
+              $id = $i['identifier'];
               break;
             }
           }
@@ -637,9 +641,13 @@ class CoPerson extends AppModel {
             'value' => $p['CoPerson']['id'],
             'label' => $label,
             'email' => $email,
+            'emailShort' => $email_short,
             'emailLabel' => $emailLabel,
+            'emailType' => $pickerEmailType,
             'identifier' => $id,
-            'identifierLabel' => $idLabel
+            'identifierShort' => $id_short,
+            'identifierLabel' => $idLabel,
+            'identifierType' => $pickerIdentifierType
           );
         }
       }
