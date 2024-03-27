@@ -74,12 +74,13 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
           throw new RuntimeException('er.filesource.read', array($this->archive1));
         }
         
-        // We don't use fgetcsv here because we don't want to parse the full line,
-        // we just need the SORID as a key.
-        while(($data = fgets($handle)) !== false) {
-          $d = explode(',', $data, 2);
-          
-          $knownRecords[ $d[0] ] = $d[1];
+        // ignore the header line
+        fgetcsv($handle);
+        while(($data = fgetcsv($handle)) !== false) {
+          // Implode the record back together for string comparison purposes.
+          // This may not be the same as the original line due to quotes, etc.
+          // $data[0] is the SORID
+          $knownRecords[ $data[0] ] = implode(',', $data);
         }
         
         $knownCount = count($knownRecords);
@@ -94,17 +95,21 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
           throw new RuntimeException('er.filesource.read', array($infile));
         }
         
-        while(($data = fgets($handle)) !== false) {
-          $d = explode(',', $data, 2);
+        // ignore the header line
+        fgetcsv($handle);
+        while(($data = fgetcsv($handle)) !== false) {
           
-          if(array_key_exists($d[0], $knownRecords)) {
-            if($d[1] != $knownRecords[ $d[0] ]) {
+          // $data[0] is the SORID
+          if(array_key_exists($data[0], $knownRecords)) {
+            $newData = implode(',', $data);
+
+            if($newData != $knownRecords[ $data[0] ]) {
               // This record changed, push the SORID onto the change list
-              $ret[] = $d[0];
+              $ret[] = $data[0];
             }
             
             // Unset the key so we can see which records were deleted.
-            unset($knownRecords[ $d[0] ]);
+            unset($knownRecords[ $data[0] ]);
           } else {
             // This is a new record (ie: in $infile, not in $archive1),
             // so we ignore it, except to count it.
