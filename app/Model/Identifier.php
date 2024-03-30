@@ -461,7 +461,7 @@ class Identifier extends AppModel {
    * @param  integer $coId  CO ID to constrain search to
    * @param  string  $q     String to search for
    * @param  integer $limit Search limit
-   * @return Array Array of search results, as from find('all)
+   * @return Array Array of search results, as from find('all')
    */
   
   public function search($coId, $q, $limit) {
