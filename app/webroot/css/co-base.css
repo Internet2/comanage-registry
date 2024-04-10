@@ -557,7 +557,7 @@ form#notificationStatus {
   color: #06c;
   background-color: #fafafa;
 }
-#main-menu li.active a.menuTop {
+#main-menu li.mm-active a.menuTop {
   background-color: #f2f2f2;
 }
 #main-menu .menuTitleAdjust {
@@ -572,7 +572,7 @@ form#notificationStatus {
   font-size: 1.4em;
   color: #555;
 }
-#main-menu .co-expandable-menu-item.active .material-icons.arrow {
+#main-menu .co-expandable-menu-item.mm-active .material-icons.arrow {
   transform: rotate(-90deg);
 }
 #main-menu #serviceMenu ul .material-icons {
