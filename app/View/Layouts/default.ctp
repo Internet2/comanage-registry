@@ -169,7 +169,7 @@
             <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
           </div>
         <?php endif; ?>
-        <nav id="user-menu">
+        <nav id="user-menu" aria-label="<?php print _txt('me.menu.user'); ?>">
           <?php print $this->element('menuUser'); ?>
         </nav>
       </div>
@@ -224,7 +224,7 @@
             }
           ?>
           <div id="navigation-drawer" class="<?php print $navigationDrawerClasses; ?>">
-            <nav id="navigation" aria-label="main menu">
+            <nav id="navigation" aria-label="<?php print _txt('me.menu.main'); ?>">
               <?php print $this->element('menuMain'); ?>
               <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
                 <div id="user-defined-links-left">

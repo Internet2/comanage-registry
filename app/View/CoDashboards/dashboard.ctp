@@ -35,7 +35,7 @@
 
   // Add dashboard navigation if we have more than one dashboard
   if(!empty($vv_available_dashboards) && count($vv_available_dashboards) > 1) {
-    print '<nav id="dashboard-tabs" class="cm-subnav-tabs">';
+    print '<nav id="dashboard-tabs" class="cm-subnav-tabs" aria-label="' . _txt('me.menu.dashboards') . '">';
     print '<ul class="nav nav-tabs">';
     foreach($vv_available_dashboards as $dashboardId => $dashboardName) {
       print '<li class="nav-item">';
