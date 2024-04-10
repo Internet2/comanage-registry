@@ -2095,6 +2095,7 @@ The request may be viewed at
   'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
   'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
+  'in.people.index'    => '%1$s people table listing all people in this CO by name, status, and roles',
   'in.pl.noconfig'     => 'This plugin has no configurable options',
   'in.tpl.msg.test'    => 'Provide a valid email to forward a preview of the template.',
   'in.vet.review'      => 'Please review the pending request and approve or deny it',
