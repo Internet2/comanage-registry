@@ -68,7 +68,7 @@ h3 {
   margin: 0;
 }
 a {
-  color: #06c; /* passes accessibility contrast checks against white down to #eee */
+  color: var(--cmg-color-blue-link); /* passes accessibility contrast checks against white down to #eee */
   text-decoration: none;
 }
 #main a:active,
@@ -90,7 +90,7 @@ a {
 }
 #skip-to-content {
   position: relative;
-  background-color: #06c;
+  background-color: var(--cmg-color-blue-link);
   color: var(--cmg-color-white);
   padding: 0 1em 0.25em ;
   border-bottom-left-radius: 10px;
@@ -540,7 +540,7 @@ form#notificationStatus {
   font-size: 0.9em;
   padding: 7px 8px 7px 16px;
   line-height: 1.4em;
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   border: 1px solid transparent;
 }
 #main-menu > li a:hover,
@@ -554,7 +554,7 @@ form#notificationStatus {
   background-color: #f5f5f5;
 }
 #main-menu li li a.selected {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   background-color: #fafafa;
 }
 #main-menu li.mm-active a.menuTop {
@@ -650,7 +650,7 @@ body.co_people.canvas .titleNavContainer {
 }
 #topLinks a {
   text-decoration: none;
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   /* override ui-icon settings: */
   border: none;
   background: none;
@@ -834,7 +834,7 @@ body.co_people.canvas .titleNavContainer {
   list-style: none;
 }
 .widget-actions .material-icons {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
 }
 .widget-actions .ui-button {
   background: none;
@@ -1579,7 +1579,7 @@ a.ui-button,
 a.ui-button:link,
 a.ui-button:visited,
 .ui-button {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   text-decoration: none;
 }
 /* For Top Search (co_people index and org_identity index)
@@ -1768,7 +1768,7 @@ a.ui-button:visited,
   border: 1px solid #eee;
 }
 .co-card.is-member {
-  border-bottom: 1px solid #06c;
+  border-bottom: 1px solid var(--cmg-color-blue-link);
 }
 .co-card img {
   min-width: 100%;
@@ -2755,7 +2755,7 @@ td.indented {
   padding: 0;
 }
 .dropdown-item > a {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   display: block;
   padding: 0.5em;
 }
