@@ -888,7 +888,7 @@ td.actions {
 .first-cell {
   padding-right: 1em;
 }
-#enrollmentFlowSteps h3 {
+#enrollmentFlowSteps h2 {
   margin: 0;
   font-size: 1.5em;
   padding: 0 0.5em;
@@ -934,6 +934,14 @@ td.actions {
   background-color: rgb(250, 250, 250);
   clear: both;
 }
+.modelbox fieldset {
+  display: contents;
+}
+.modelbox legend {
+  font-size: 1em;
+  display: inline;
+  padding-right: 0.25em;
+}
 .modelbox .boxtitle {
   padding: 0 0 5px 0;
 }
@@ -941,6 +949,7 @@ td.actions {
   font-weight: bold;
 }
 .modelbox .boxtitle .desc {
+  display: block;
   padding: 0.5em 1em 0;
 }
 .modelbox table tr>:first-child{
