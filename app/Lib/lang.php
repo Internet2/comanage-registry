@@ -2113,6 +2113,7 @@ The request may be viewed at
   'me.profile.for'     => 'My Profile (%1$s)',
   'me.label'           => 'Manage:',
   'me.members'         => 'Members',
+  'me.menu.customlinks'=> 'Custom Links',
   'me.menu.dashboards' => 'Dashboards',
   'me.menu.main'       => 'Main Menu',
   'me.menu.user'       => 'User Menu',
