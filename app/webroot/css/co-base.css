@@ -2233,12 +2233,12 @@ ul.form-list li.field-stack textarea {
   margin: 0;
 }
 .form-check.checkbox-replace-container {
-  opacity: 0.6;
+  opacity: 0.8;
   position: relative;
 }
 #content .checkbox-replace-container .material-icons {
   margin: 0 .3125rem 0 -.12rem;
-  color: #555;
+  color: #444;
   font-size: 16px;
 }
 .form-check-input.checkbox-replace {
@@ -2734,9 +2734,9 @@ td.indented {
 .btn-primary.disabled,
 .btn-primary:disabled {
   color: #fff;
-  background-color: #0c75c0;
-  border-color: #0c75c0;
-  opacity: 0.4;
+  background-color: #000;
+  border-color: #000;
+  opacity: 0.7; /* this is important to override default behavior for accessibility */
 }
 .btn-default,
 .btn-default:active {
