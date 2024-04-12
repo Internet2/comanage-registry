@@ -2374,6 +2374,7 @@ The request may be viewed at
   'op.select.opt.any'      => 'Any',
   'op.select.opt.none'     => 'None',
   'op.server.oauth2.token' => 'Obtain New Token',
+  'op.set' =>         'Set',
   'op.skip' =>        'Skip',
   'op.submit' =>      'Submit',
   'op.svc.join' =>    'Join',

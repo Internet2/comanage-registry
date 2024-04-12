@@ -90,11 +90,11 @@ a {
 }
 #skip-to-content {
   position: relative;
-  background-color: var(--cmg-color-blue-link);
+  background-color: var(--cmg-color-blue-link) !important;
   color: var(--cmg-color-white);
   padding: 0 1em 0.25em ;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
   top: -40px;
   text-decoration: underline;
 }
@@ -1332,8 +1332,8 @@ body.co_petitions .ui-dialog {
   margin-left: 2em;
 }
 #pagination .pagination-form input[type=text] {
-  height: 1em;
-  width: 1.5em;
+  height: 2em;
+  width: 2em;
   margin: 0;
   font-size: 0.9em;
 }
@@ -1418,7 +1418,7 @@ body.co_petitions .ui-dialog {
 }
 .searchAlphabet li.selected a,
 .searchAlphabet li.selected a:hover{
-  background-color: #888;
+  background-color: #666;
   color: #eee;
 }
 .searchAlphabet a:hover {
