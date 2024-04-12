@@ -31,10 +31,10 @@ global $cm_lang, $cm_texts;
 ?>
 
 <div id="coPeopleSimpleSearch" class="side-search">
-  <div class="accHeader">
+  <h2 class="accHeader">
     <em class="material-icons">search</em>
     <?php print _txt('fd.co_people.search');?>
-  </div>
+  </h2>
   <?php
     $formArgs =  array(
       'type' => 'post',
@@ -48,20 +48,14 @@ global $cm_lang, $cm_texts;
 
     $args = array();
     $args['label'] = _txt('fd.name.given');
-    $args['placeholder'] = _txt('fd.name.given');
-    $args['value'] = !empty($this->request->params['named']['search.givenName']) ? $this->request->params['named']['search.givenName'] : '';
     print $this->Form->input('search.givenName',$args);
 
     $args = array();
     $args['label'] = _txt('fd.name.family');
-    $args['placeholder'] = _txt('fd.name.family');
-    $args['value'] = !empty($this->request->params['named']['search.familyName']) ? $this->request->params['named']['search.familyName'] : '';
     print $this->Form->input('search.familyName',$args);
 
     $args = array();
     $args['label'] = _txt('fd.identifier.identifier');
-    $args['placeholder'] = _txt('fd.identifier.identifier');
-    $args['value'] = !empty($this->request->params['named']['search.identifier']) ? $this->request->params['named']['search.identifier'] : '';
     print $this->Form->input('search.identifier', $args);
 
     // This needs to pull StatusEnum values based on the model (CO-1007)
@@ -82,19 +76,18 @@ global $cm_lang, $cm_texts;
 
     $formParams = array('options' => $searchOptions,
                         'type'    => 'select',
-                        'empty'   => _txt('fd.status') . ' ' . _txt('op.select.empty'),
-                        'label'   => _txt('fd.status'),
-                        'value'   => (!empty($this->request->params['named']['search.status']) ? $this->request->params['named']['search.status'] : ''));
+                        'empty'   => _txt('op.select.empty'),
+                        'required' => false,
+                        'label'   => _txt('fd.status'));
 
     print $this->Form->input('search.status', $formParams);
     if(!empty($vv_cous)) {
       $formParams = array('options' => $vv_cous,
         'type' => 'select',
-        'empty' => _txt('fd.cou') . ' ' . _txt('op.select.empty'),
-        'label' => _txt('fd.cou'),
-        'value' => (!empty($this->request->params['named']['search.couid']) ? $this->request->params['named']['search.couid'] : ''));
+        'empty' => _txt('op.select.empty'),
+        'label' => _txt('fd.cou'));
 
-      print $this->Form->input('search.couid', $formParams);
+      print $this->Form->input('search.cou', $formParams);
     } // cous
     
     print '<div class="sideSearchSubmit">';

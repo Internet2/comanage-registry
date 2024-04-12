@@ -1591,6 +1591,11 @@ a.ui-button:visited,
 .side-search {
   margin-top: 2em;
 }
+.side-search h2 {
+  font-size: 1em;
+  border-bottom: 1px solid var(--cmg-color-lightgray-006);
+  margin-bottom: 0.5em;
+}
 .top-search legend .material-icons {
   vertical-align: middle;
 }
@@ -1646,7 +1651,8 @@ a.ui-button:visited,
   border: 1px solid #ddd;
   background-color: #fff;
 }
-.top-search label {
+.top-search label,
+.side-search label {
   margin-bottom: 0;
 }
 ::-webkit-input-placeholder,
@@ -1690,8 +1696,7 @@ a.ui-button:visited,
 .top-search .filter-clear-all-button:hover {
   background-color: unset;
 }
-.top-search.top-search-hide-fields label,
-.side-search label {
+.top-search.top-search-hide-fields label {
   display: none;
 }
 #top-search-active-filters {
