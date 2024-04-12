@@ -2370,6 +2370,7 @@ The request may be viewed at
   'op.search' =>      'Search',
   'op.search-a' =>    'Search %1$s',
   'op.search.global' => 'Global Search',
+  'op.search.people' => 'Search People',
   'op.search.restore' =>  'Restore default listing',
   'op.see.notifications' =>  'View all notifications',
   'op.see.notification.num' =>  'notification #%1$s',

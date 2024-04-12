@@ -100,7 +100,7 @@ global $cm_lang, $cm_texts;
     print '<div class="sideSearchSubmit">';
     $args = array();
     $args['class'] = 'submit-button spin btn btn-primary';
-    print $this->Form->submit(_txt('op.search'),$args);
+    print $this->Form->submit(_txt('op.search.people'),$args);
     print '</div>';
 
     print $this->Form->end();
