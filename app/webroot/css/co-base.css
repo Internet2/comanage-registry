@@ -1670,6 +1670,10 @@ a.ui-button:visited,
   margin: 1em 0.5em;
   padding: 0;
 }
+.side-search .submit-button {
+  width: unset;
+  padding: 0 1em;
+}
 .top-search .top-search-checkboxes {
   display: flex;
   flex-wrap: wrap;
