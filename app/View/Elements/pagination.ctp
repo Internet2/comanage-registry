@@ -120,7 +120,7 @@
       <option value="100">100</option>
     </select>
     <?php print _txt('fd.page.limit.records'); ?>
-    <input type="submit" value="<?php print _txt('op.go'); ?>"/>
+    <input type="submit" value="<?php print _txt('op.set'); ?>"/>
     <script type="text/javascript">
       $(function() {
         // Check if the currentLimit holds an appropriate value on first load, and set the select option
