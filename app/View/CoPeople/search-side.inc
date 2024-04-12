@@ -33,11 +33,18 @@ global $cm_lang, $cm_texts;
 <div id="coPeopleSimpleSearch" class="side-search">
   <div class="accHeader">
     <em class="material-icons">search</em>
-    <?php print _txt('fd.co_people.filter');?>
+    <?php print _txt('fd.co_people.search');?>
   </div>
   <?php
-    print $this->Form->create('CoPerson', array('url' => array('action'=>'search')));
+    $formArgs =  array(
+      'type' => 'post',
+      'url' => array(
+        'action'=>'search',
+        'co' => $cur_co['Co']['id'])
+    );
+    print $this->Form->create('CoPerson', $formArgs);
     print $this->Form->hidden('CoPerson.co_id', array('default' => $cur_co['Co']['id'],'id'=>'SearchCoPersonCoId')). "\n";
+    print $this->Form->hidden('RedirectAction.index', array('default' => 'true')). PHP_EOL;
 
     $args = array();
     $args['label'] = _txt('fd.name.given');
@@ -89,11 +96,9 @@ global $cm_lang, $cm_texts;
 
       print $this->Form->input('search.couid', $formParams);
     } // cous
-
-    //$this->Form->submit(_txt('op.search'));
+    
     print '<div class="sideSearchSubmit">';
     $args = array();
-    $args['aria-label'] = _txt('op.filter');
     $args['class'] = 'submit-button spin btn btn-primary';
     print $this->Form->submit(_txt('op.search'),$args);
     print '</div>';
