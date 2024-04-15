@@ -2118,6 +2118,7 @@ The request may be viewed at
   'me.menu.dashboards' => 'Dashboards',
   'me.menu.main'       => 'Main Menu',
   'me.menu.user'       => 'User Menu',
+  'me.menu.user'       => 'Subnavigation',
   'me.people'          => 'People',
   'me.platform'        => 'Platform',
   'me.plugins'         => 'Plugins',
