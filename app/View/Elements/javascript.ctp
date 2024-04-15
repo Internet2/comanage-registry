@@ -216,10 +216,12 @@
       if ($("#top-search-fields").is(":visible")) {
         $("#top-search-fields").hide();
         $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false");
+        $("#top-search-toggle button.cm-toggle").attr("aria-label","<?php print _txt('me.menu.filters.open'); ?>");
         $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_down");
       } else {
         $("#top-search-fields").show();
         $("#top-search-toggle button.cm-toggle").attr("aria-expanded","true");
+        $("#top-search-toggle button.cm-toggle").attr("aria-label","<?php print _txt('me.menu.filters.close'); ?>");
         $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_up");
       }
     });
