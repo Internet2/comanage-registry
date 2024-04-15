@@ -42,7 +42,7 @@
   }
   ?>
 
-  <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs">
+  <nav id="cm-group-subnav-tabs" class="cm-subnav-tabs" aria-label="<?php print _txt('me.menu.subnavigation'); ?>">
     <ul class="nav nav-tabs">
 
       <li class="nav-item">

@@ -1943,6 +1943,12 @@ ul.fields.data-list li {
 }
 .field-data-container {
   display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-template-areas:
+      "value value value value value value value value value action"
+      "label label label label label label label label label action"
+      "collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info";
 }
 .field-actions,
 .field-data {
@@ -2212,6 +2218,18 @@ ul.field-children li:nth-child(odd) {
 ul.field-children li:nth-child(even) {
   background-color: #ddd;
 }
+.card-data-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
+  grid-auto-rows: min-content;
+  grid-auto-flow: dense;
+  grid-gap: 2em;
+  padding-right: 0.5em !important;
+  padding-left: 0.5em !important;
+}
+.field-data-container .field-children {
+  grid-area: collapse-info;
+}
 ul.form-list li.field-stack .field-name,
 ul.form-list li.field-stack .field-info {
   display: block;
@@ -2232,28 +2250,11 @@ ul.form-list li.field-stack textarea {
   padding-bottom: 0;
 }
 .checkbox {
+  display: flex;
   margin-bottom: 0.5em;
 }
-.checkbox input {
-  float: left;
-  margin: 4px 4px 0 0;
-}
 .checkbox label {
-  margin-left: 1.5em;
-  display: block;
-}
-.checkbox label::first-line {
-  margin-left: 0;
-}
-.checkbox .subfield {
-  margin-left: 1.5em;
-}
-.checkbox .subfield input {
-  float: none;
-}
-.checkbox .subfield label {
-  display: inline;
-  margin: 0;
+  margin: 0 0 0 0.25em;
 }
 .form-check.checkbox-replace-container {
   opacity: 0.8;
