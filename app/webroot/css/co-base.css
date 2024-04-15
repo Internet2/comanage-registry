@@ -2420,7 +2420,6 @@ a.asc::before, a.desc::before {
 }
 a.asc::before {
   content: "▲"; /*\25b2 in escaped hex*/
-  top: -2px;
 }
 a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/

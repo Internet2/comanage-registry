@@ -57,7 +57,7 @@ $hasActiveFilters = false;
 
 ?>
 
-<div id="<?php print $req . ucfirst($this->request->action); ?>Search" class="top-search">
+<div id="<?php print $req . ucfirst($this->request->action); ?>Search" class="top-search" aria-label="<?php print _txt('me.menu.filters'); ?>">
   <?php
 
   // Action
@@ -83,9 +83,9 @@ $hasActiveFilters = false;
   }
 
   ?>
-  <fieldset onclick="event.stopPropagation();">
+  <fieldset onclick="event.stopPropagation();" aria-label="<?php print _txt('me.menu.filters.form'); ?>">
     <legend id="top-search-toggle">
-      <em class="material-icons">search</em>
+      <em class="material-icons" aria-hidden="true">search</em>
       <?php print _txt('op.filter');?>
 
       <?php if(!empty($search_params)):?>
@@ -152,7 +152,7 @@ $hasActiveFilters = false;
           <?php endif; ?>
         </span>
       <?php endif; ?>
-      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
+      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"  aria-label="<?php print _txt('me.menu.filters.open'); ?>"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
     </legend>
 
     <div id="top-search-fields">
