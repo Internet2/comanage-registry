@@ -2187,6 +2187,7 @@ The request may be viewed at
   'op.clear' =>       'Clear',
   'op.clear.all' =>   'Clear All',
   'op.clear.filters.1' =>  'clear filter',
+  'op.clear.filters.alpha' =>  'Clear alphabet filter',
   'op.clear.filters.pl' =>  'Clear Filters',
   'op.clear.search' =>   'Clear search',
   'op.cluster.acct.auto' => 'Autogenerate Cluster Accounts',
