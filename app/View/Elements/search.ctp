@@ -156,7 +156,9 @@ $hasActiveFilters = false;
           <?php endif; ?>
         </span>
       <?php endif; ?>
-      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"  aria-label="<?php print _txt('me.menu.filters.open'); ?>"><em class="material-icons drop-arrow">arrow_drop_down</em></button>
+      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"  aria-label="<?php print _txt('me.menu.filters.open'); ?>">
+        <em class="material-icons drop-arrow" aria-hidden="true">arrow_drop_down</em>
+      </button>
     </legend>
 
     <div id="top-search-fields">
