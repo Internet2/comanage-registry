@@ -44,8 +44,8 @@
   }
 ?>
 <div id="changeLog">
-  <a href="#tabs-changelog" class="fieldGroupNameCl">
-    <em class="material-icons">expand_more</em>
+  <a href="#tabs-changelog" class="fieldGroupNameCl" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-changelog">
+    <em class="material-icons" aria-hidden="true">expand_more</em>
     <h2><?php print _txt('fd.changelog'); ?></h2>
   </a>
   <ul id="tabs-changelog" class="fields data-list data-table" style="display: none;">

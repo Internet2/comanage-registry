@@ -1847,11 +1847,16 @@ li .dropdown-item {
 .personExplorer ul.fields {
   margin-bottom: 1em;
 }
+.fieldGroupNameContainer {
+  display: flex;
+  justify-content: space-between;
+  align-content: flex-end;
+  border-bottom: 1px solid var(--cmg-color-lightgray-005);
+}
 .fieldGroupName {
   display: flex;
   gap: 0.4em;
   align-items: center;
-  border-bottom: 1px solid #EEEEEE;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
@@ -1866,15 +1871,14 @@ li .dropdown-item {
   background-color: var(--cmg-color-blue-link);
   color: var(--cmg-color-white);
   border-radius: 3px;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 .fieldGroupName h2 {
   font-size: 1.2em;
   display: inline;
 }
 .coAddEditButtons {
-  float: right;
-  clear: left;
+  align-self: flex-end;
 }
 #content .field-actions-menu .material-icons {
   font-size: 15px;
@@ -1954,6 +1958,9 @@ ul.fields.data-list li {
 .field-data a cite {
   color: initial;
 }
+.action-list-toggle {
+  padding: 0.5em 0;
+}
 .td-field-actions a,
 .field-actions a {
   text-decoration: none !important;
@@ -1975,6 +1982,9 @@ ul.fields.data-list li {
 #names-container ul.data-list li:last-child {
   margin-bottom: 0;
   border-bottom: 1px solid #ccc;
+}
+.personExplorer .coAddEditButtons a {
+  padding: 0.5em;
 }
 .personExplorer .coAddEditButtons .addbutton {
   background: none;
@@ -2460,7 +2470,7 @@ a.disabled {
   background-color: var(--cmg-color-blue-primary);
 }
 .ui-button {
-  font-size: 0.9em !important;
+  font-size: 1em !important;
   padding: 0.3em 0.75em 0.3em 0.5em;
   height: min-content;
   /*margin: 0.25em 0.25em 0.25em 0; keep for now */

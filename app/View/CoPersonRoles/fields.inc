@@ -98,8 +98,12 @@
         // toggle the +/- icon:
         if ($(this).find(".material-icons").text() == "expand_less") {
           $(this).find(".material-icons").text("expand_more");
+          $(this).attr('title','<?php print _txt('op.expand'); ?>');
+          $(this).attr('aria-expanded','false');
         } else {
           $(this).find(".material-icons").text("expand_less");
+          $(this).attr('title','<?php print _txt('op.collapse'); ?>');
+          $(this).attr('aria-expanded','true');
         }
       });
 
@@ -183,8 +187,8 @@
 
         <li id="fields-role" class="fieldGroup">
 
-          <a href="#tabs-role" class="fieldGroupName">
-            <em class="material-icons">expand_less</em>
+          <a href="#tabs-role" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="<?php print $this->action; ?>_co_person_role">
+            <em class="material-icons" aria-hidden="true">expand_less</em>
             <h2><?php print _txt('fd.attrs.copr'); ?></h2>
           </a>
 

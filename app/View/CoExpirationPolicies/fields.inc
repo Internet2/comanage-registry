@@ -55,8 +55,12 @@
       // toggle the +/- icon:
       if ($(this).find(".material-icons").text() == "expand_less") {
         $(this).find(".material-icons").text("expand_more");
+        $(this).attr('title','<?php print _txt('op.expand'); ?>');
+        $(this).attr('aria-expanded','false');
       } else {
         $(this).find(".material-icons").text("expand_less");
+        $(this).attr('title','<?php print _txt('op.collapse'); ?>');
+        $(this).attr('aria-expanded','true');
       }
     });
   });
@@ -140,8 +144,8 @@
     <ul>
       <li id="fields-conditions" class="fieldGroup">
 
-        <a href="#tabs-conditions" class="fieldGroupName">
-          <em class="material-icons">expand_more</em>
+        <a href="#tabs-conditions" class="fieldGroupName" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-conditions">
+          <em class="material-icons" aria-hidden="true">expand_more</em>
           <h2><?php print _txt('fd.conditions'); ?></h2>
         </a>
 
@@ -319,13 +323,13 @@
 
       <li id="fields-actions" class="fieldGroup">
 
-        <a href="#tabs-actions" class="fieldGroupName">
-          <em class="material-icons">expand_more</em>
+        <a href="#tabs-actions" class="fieldGroupName" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-actions">
+          <em class="material-icons" aria-hidden="true">expand_more</em>
           <h2><?php print _txt('fd.actions'); ?></h2>
         </a>
 
         <!-- Actions -->
-        <ul id="tabs-conditions" class="fields form-list form-list-admin" style="display: none">
+        <ul id="tabs-actions" class="fields form-list form-list-admin" style="display: none">
           <li class="fields-header">
             <?php print _txt('fd.xp.actions'); ?>
           </li>
