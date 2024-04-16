@@ -133,6 +133,7 @@
       </td>
       <?php if($this->action == "select"): ?>
       <td>
+        <fieldset>
         <?php
         // Note: do not actually disable checkboxes using $args['disabled'] = 'disabled' or Cake
         // will also disable the hidden field - allowing the memberships/ownerships for nested groups to be
@@ -181,6 +182,7 @@
         print $this->Form->label('CoGroupMember.rows.'.$i.'.owner', _txt('fd.group.own'),$args) . PHP_EOL;
         ?>
         </div>
+        </fieldset>
       </td>
       <td class="actions">
         <?php
