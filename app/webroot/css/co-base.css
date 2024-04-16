@@ -1946,7 +1946,7 @@ ul.fields.data-list li {
   color: initial;
 }
 .action-list-toggle {
-  padding: 0.5em 0;
+  padding: 0.5em;
 }
 .td-field-actions a,
 .field-actions a {
@@ -2402,6 +2402,7 @@ ul, ol { /* MDL override XXX check if still needed */
 #tabs-orgid .field-data-container .field-data > a,
 #tabs-role .field-data-container .field-data > a {
   color: inherit;
+  padding: 4px 0;
 }
 #tabs-orgid .field-data-container .field-data > a.collapsed .material-icons,
 #tabs-role .field-data-container .field-data > a.collapsed .material-icons {
