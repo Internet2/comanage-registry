@@ -51,9 +51,6 @@ if(!empty($vv_app_prefs['uiDrawerState'])) {
 if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-closed') {
   $selectedMenu = filter_var($vv_app_prefs['uiMainMenuSelectedParentId'],FILTER_SANITIZE_STRING);
 }
-if(empty($selectedMenu)) {
-  $selectedMenu = 'peopleMenu';
-}
 ?>
 
 <ul id="main-menu" class="metismenu">
