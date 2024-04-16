@@ -70,8 +70,12 @@
       // toggle the +/- icon:
       if ($(this).find(".material-icons").text() == "expand_less") {
         $(this).find(".material-icons").text("expand_more");
+        $(this).attr('title','<?php print _txt('op.expand'); ?>');
+        $(this).attr('aria-expanded','false');
       } else {
         $(this).find(".material-icons").text("expand_less");
+        $(this).attr('title','<?php print _txt('op.collapse'); ?>');
+        $(this).attr('aria-expanded','true');
       }
     });
     // Autogenerate dialog
@@ -113,8 +117,8 @@
     <ul>
       <!-- Department Info -->
       <li id="fields-name" class="fieldGroup">
-        <a href="#tabs-name" class="fieldGroupName">
-          <em class="material-icons">expand_less</em>
+        <a href="#tabs-name" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="names-container">
+          <em class="material-icons" aria-hidden="true">expand_less</em>
           <h2><?php print _txt('ct.co_departments.1'); ?></h2>
         </a>
 

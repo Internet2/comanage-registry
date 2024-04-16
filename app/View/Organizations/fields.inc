@@ -57,8 +57,8 @@
     <ul>
       <!-- Organization Info -->
       <li id="fields-name" class="fieldGroup">
-        <a href="#tabs-name" class="fieldGroupName">
-          <em class="material-icons">expand_less</em>
+        <a href="#tabs-name" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="names-container">
+          <em class="material-icons" aria-hidden="true">expand_less</em>
           <h2><?php print _txt('ct.organizations.1'); ?></h2>
         </a>
 
