@@ -97,7 +97,9 @@
     });
 
     // Establish left-side navigation
-    $('#main-menu').metisMenu();
+    $('#main-menu').metisMenu({
+      toggle: false
+    });
 
     // Focus any designated form element
     $('.focusFirst').focus();
