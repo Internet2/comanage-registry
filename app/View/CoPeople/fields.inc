@@ -389,10 +389,10 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
       }
     });
 
@@ -460,8 +460,8 @@
           <?php endif; // invite+permission ?>
 
           <a href="#tabs-name" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.name'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.name'); ?></h2>
           </a>
 
           <ul id="tabs-name" class="fields data-list">
@@ -661,8 +661,8 @@
           }
           ?>
           <a href="#tabs-group" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.groups'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.groups'); ?></h2>
           </a>
           <ul id="tabs-group" class="fields data-list">
             <?php
@@ -860,8 +860,8 @@
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
           <a href="#tabs-coperson" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.attrs.cop'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.attrs.cop'); ?></h2>
           </a>
           <ul  id="tabs-coperson" class="fields form-list">
             <li>
@@ -1007,8 +1007,8 @@
           }
           ?>
           <a href="#tabs-role" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.attrs.copr'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.attrs.copr'); ?></h2>
           </a>
           <!--     Table     -->
           <ul id="tabs-role" class="fields data-list">
@@ -1266,8 +1266,8 @@
           }
           ?>
           <a href="#tabs-orgid" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('ct.org_identities.pl'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('ct.org_identities.pl'); ?></h2>
           </a>
           <ul id="tabs-orgid" class="fields data-list">
             <?php

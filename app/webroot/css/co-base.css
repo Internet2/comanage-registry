@@ -685,6 +685,7 @@ body.co_people.canvas .titleNavContainer {
   display: block;
   margin-left: 1.5em;
   line-height: 1.2em;
+  padding: 0.4em 0;
 }
 /* INNER CONTENT - for non-table-based layouts */
 #content {
@@ -1852,7 +1853,6 @@ a.ui-button:visited,
 }
 .personExplorer li:not(.dropdown-item) {
   list-style: none;
-  margin: 0 0 0.5em 0;
 }
 .personExplorer a {
   text-decoration: none;
@@ -1871,16 +1871,29 @@ li .dropdown-item {
   margin-bottom: 1em;
 }
 .fieldGroupName {
-  display: block;
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
   border-bottom: 1px solid #EEEEEE;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
 }
-#content .fieldGroupName .material-icons,
+#main a.fieldGroupName:hover {
+  text-decoration: none;
+}
+#content .fieldGroupName .material-icons, 
 #content #changeLog .material-icons {
   margin-top: 1px;
+  background-color: var(--cmg-color-blue-link);
+  color: var(--cmg-color-white);
+  border-radius: 3px;
+  font-size: 1.2em;
+}
+.fieldGroupName h2 {
+  font-size: 1.2em;
+  display: inline;
 }
 .coAddEditButtons {
   float: right;
@@ -1972,6 +1985,9 @@ ul.fields.data-list li {
 .field-data.force-wrap {
   overflow-wrap: anywhere;
 }
+.field-data.flex-column .force-wrap {
+  margin-left: 1.2em;
+}
 .field-data.data-label {
   align-items: center;
   grid-area: label;
@@ -2014,6 +2030,7 @@ ul.fields.data-list li {
 #changeLog li {
   list-style: none;
   margin: 0 0 0.5em 0;
+  padding: 0;
 }
 #changeLog a {
   text-decoration: none;
@@ -2026,7 +2043,7 @@ ul.fields.data-list li {
   color: var(--cmg-color-white);
 }
 .explorerContainer #changeLog ul {
-  margin-left: 1em;
+  margin-left: 1.5em;
 }
 .explorerContainer #changeLog .fieldGroupNameCl {
   border-bottom: 1px solid #eee;
@@ -2035,11 +2052,20 @@ ul.fields.data-list li {
   padding: 5px;
 }
 .fieldGroupNameCl {
-  display: block;
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
+}
+#main a.fieldGroupNameCl:hover {
+  text-decoration: none;
+}
+.fieldGroupNameCl h2 {
+  font-size: 1.2em;
+  display: inline;
 }
 #restoreLink {
   margin-bottom: 2em;

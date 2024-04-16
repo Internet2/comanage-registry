@@ -405,7 +405,7 @@
   }
   /* PERSON and ORGID CANVAS*/
   .personExplorer ul ul {
-    margin-left: 1em;
+    margin-left: 1.5em;
   }
   /* Filter Block*/
   #filter-block-qaxsbar li {
@@ -612,7 +612,7 @@
     margin-left: 1.5em;
   }
   #right-sidebar #menu {
-    padding-left: 1em;
+    padding: 1em;
   }
   /* Self-Service Widgets (.cm-ssw) */
   .cm-ssw-form-field-email {

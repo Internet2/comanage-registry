@@ -53,10 +53,10 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
       }
     });
   });
@@ -141,8 +141,8 @@
       <li id="fields-conditions" class="fieldGroup">
 
         <a href="#tabs-conditions" class="fieldGroupName">
-          <em class="material-icons">add_box</em>
-          <?php print _txt('fd.conditions'); ?>
+          <em class="material-icons">expand_more</em>
+          <h2><?php print _txt('fd.conditions'); ?></h2>
         </a>
 
         <!-- Conditions -->
@@ -320,8 +320,8 @@
       <li id="fields-actions" class="fieldGroup">
 
         <a href="#tabs-actions" class="fieldGroupName">
-          <em class="material-icons">add_box</em>
-          <?php print _txt('fd.actions'); ?>
+          <em class="material-icons">expand_more</em>
+          <h2><?php print _txt('fd.actions'); ?></h2>
         </a>
 
         <!-- Actions -->

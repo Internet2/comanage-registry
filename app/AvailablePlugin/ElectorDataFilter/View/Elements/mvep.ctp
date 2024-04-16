@@ -26,8 +26,8 @@ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuI
       ?>
     </div>
     <a href="#tabs-<?php print $lmvep; ?>" class="fieldGroupName">
-      <em class="material-icons">indeterminate_check_box</em>
-      <?php print _txt('ct.'.$lmveppl.'.pl'); ?>
+      <em class="material-icons">expand_less</em>
+      <h2><?php print _txt('ct.'.$lmveppl.'.pl'); ?></h2>
     </a>
     <ul id="tabs-<?php print $lmvep; ?>" class="fields data-list">
       <?php

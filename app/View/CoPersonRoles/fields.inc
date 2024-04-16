@@ -96,10 +96,10 @@
         event.preventDefault();
         $(this).next(".fields").slideToggle("fast");
         // toggle the +/- icon:
-        if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-          $(this).find(".material-icons").text("add_box");
+        if ($(this).find(".material-icons").text() == "expand_less") {
+          $(this).find(".material-icons").text("expand_more");
         } else {
-          $(this).find(".material-icons").text("indeterminate_check_box");
+          $(this).find(".material-icons").text("expand_less");
         }
       });
 
@@ -208,8 +208,8 @@
         <li id="fields-role" class="fieldGroup">
 
           <a href="#tabs-role" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.attrs.copr'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.attrs.copr'); ?></h2>
           </a>
 
           <ul id="<?php print $this->action; ?>_co_person_role" class="fields form-list">
