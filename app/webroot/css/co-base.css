@@ -1944,6 +1944,7 @@ ul.fields.data-list li {
 .field-actions,
 .field-data {
   display: flex;
+  flex-wrap: wrap;
   padding: 0.2em 1em 0.2em 1em;
   align-content: center;
 }
