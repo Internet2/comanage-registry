@@ -77,7 +77,7 @@ $search_param = array_keys($vv_alphabet_search_config)[0];
         '<em class="material-icons">block</em>',
         $args,
         array(
-          'title' => _txt('op.clear.search'),
+          'title' => _txt('op.clear.filters.alpha'),
           'escape' => false,
         )
       );
