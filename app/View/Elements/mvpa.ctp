@@ -77,8 +77,8 @@
       </div>
     <?php endif; // edit ?>
     <a href="#tabs-<?php print $lmvpa; ?>" class="fieldGroupName">
-      <em class="material-icons">indeterminate_check_box</em>
-      <?php print _txt('ct.'.$lmvpapl.'.pl'); ?>
+      <em class="material-icons">expand_less</em>
+      <h2><?php print _txt('ct.'.$lmvpapl.'.pl'); ?></h2>
     </a>
     <ul id="tabs-<?php print $lmvpa; ?>" class="fields data-list">
       <?php

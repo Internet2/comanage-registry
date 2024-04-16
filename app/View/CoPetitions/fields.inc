@@ -114,10 +114,10 @@
         event.preventDefault();
         $(this).next(".fields").slideToggle("fast");
         // toggle the +/- icon:
-        if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-          $(this).find(".material-icons").text("add_box");
+        if ($(this).find(".material-icons").text() == "expand_less") {
+          $(this).find(".material-icons").text("expand_more");
         } else {
-          $(this).find(".material-icons").text("indeterminate_check_box");
+          $(this).find(".material-icons").text("expand_less");
         }
       });
     });
@@ -131,8 +131,8 @@
           <li id="fields-petition" class="fieldGroup">
 
             <a href="#tabs-petition" class="fieldGroupName">
-              <em class="material-icons">indeterminate_check_box</em>
-              <?php print _txt('ct.co_petitions.1'); ?>
+              <em class="material-icons">expand_less</em>
+              <h2><?php print _txt('ct.co_petitions.1'); ?></h2>
             </a>
 
             <ul id="<?php print $this->action; ?>_co_petition" class="fields form-list">
@@ -327,8 +327,8 @@
           
           <li id="identities-petition" class="fieldGroup">
             <a href="#tabs-identities" class="fieldGroupName">
-              <em class="material-icons">indeterminate_check_box</em>
-              <?php print _txt('fd.pt.identities'); ?>
+              <em class="material-icons">expand_less</em>
+              <h2><?php print _txt('fd.pt.identities'); ?></h2>
             </a>
 
             <ul id="co_petition_identities" class="fields form-list">
@@ -416,8 +416,8 @@
         
         <li id="tabs-attributes" class="fieldGroup">
           <a href="#tabs-attributes" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.attrs.pet'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.attrs.pet'); ?></h2>
           </a>
 
           <div class="fields">
@@ -452,8 +452,8 @@
 
           <!--    Petition History    -->
           <a href="#tabs-history" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.history.pt'); ?>
+            <em class="material-icons">expand_less</em>
+            <h2><?php print _txt('fd.history.pt'); ?></h2>
           </a>
           <ul id="tabs-history" class="fields data-list data-table">
             <li>

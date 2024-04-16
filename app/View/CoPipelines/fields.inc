@@ -170,10 +170,10 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
       }
     });
   });
@@ -228,8 +228,8 @@
       <li id="fields-match-strategy" class="fieldGroup">
 
         <a href="#tabs-match" class="fieldGroupName">
-          <em class="material-icons">add_box</em>
-          <?php print _txt('fd.pi.match.str'); ?>
+          <em class="material-icons">expand_more</em>
+          <h2><?php print _txt('fd.pi.match.str'); ?></h2>
         </a>
   
         <!-- Match strategy -->
@@ -333,8 +333,8 @@
       <li id="fields-sync" class="fieldGroup">
 
         <a href="#tabs-sync" class="fieldGroupName">
-          <em class="material-icons">add_box</em>
-          <?php print _txt('fd.pi.sync.str'); ?>
+          <em class="material-icons">expand_more</em>
+          <h2><?php print _txt('fd.pi.sync.str'); ?></h2>
         </a>
 
         <!-- Sync strategy -->
@@ -599,8 +599,8 @@
         <li id="fields-cxn" class="fieldGroup">
 
           <a href="#tabs-cxn" class="fieldGroupName">
-            <em class="material-icons">add_box</em>
-            <?php print _txt('fd.pi.connections'); ?>
+            <em class="material-icons">expand_more</em>
+            <h2><?php print _txt('fd.pi.connections'); ?></h2>
           </a>
 
           <ul id="tabs-cxn" class="fields form-list" style="display: none;">

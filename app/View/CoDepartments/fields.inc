@@ -68,10 +68,10 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
       }
     });
     // Autogenerate dialog
@@ -114,8 +114,8 @@
       <!-- Department Info -->
       <li id="fields-name" class="fieldGroup">
         <a href="#tabs-name" class="fieldGroupName">
-          <em class="material-icons">indeterminate_check_box</em>
-          <?php print _txt('ct.co_departments.1'); ?>
+          <em class="material-icons">expand_less</em>
+          <h2><?php print _txt('ct.co_departments.1'); ?></h2>
         </a>
 
         <div id="names-container" class="fields">
