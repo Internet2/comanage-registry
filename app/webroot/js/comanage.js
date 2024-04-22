@@ -173,7 +173,6 @@ function loadButtonSpinner(elem, btnText) {
 // Load UI Dialog co-loading-mini spinner inline with UI Buttons
 // elem         - button element (object, required)
 function loadUiDialogSpinner(elem) {
-  // debugger;
   $pane = elem.closest('.ui-dialog-buttonpane');
   $pane.prepend('<span class="d-inline-flex align-bottom co-loading-mini"><span></span><span></span><span></span></span>');
   elem.button("disable");
@@ -429,24 +428,6 @@ function whereami(redirect_url) {
     // Show the content
     document.getElementById('lightboxContent').style.display = 'block';
   }
-}
-
-// CO-2263, Format CO Person autocomplete widget items for easier disambiguation
-// Depends on jQuery UI - this function is fed to the _renderItem extension point for the autocomplete widget
-// ul            - list for the jQuery UI autocomplete selection menu                  (DOM element)
-// item          - json item used to construct the autocomplete selection list element (JSON object)
-function formatCoPersonAutoselectItem(ul, item) {
-  var itemMarkup = '<div class="cm-ac-item-wrapper">';
-  itemMarkup += '<div class="cm-ac-name">' + item.label + '</div>';
-  if(item.email != '') {
-    itemMarkup += '<div class="cm-ac-subitem cm-ac-email"><span class="cm-ac-label">' + item.emailLabel + '</span>' + item.email + '</div>';
-  }
-  if(item.identifier != '') {
-    itemMarkup += '<div class="cm-ac-subitem cm-ac-id"><span class="cm-ac-label">' + item.identifierLabel + '</span>' + item.identifier + '</div>';
-  }
-  itemMarkup += '</div>';
-  
-  return $("<li>").append(itemMarkup).appendTo(ul);
 }
 
 /**

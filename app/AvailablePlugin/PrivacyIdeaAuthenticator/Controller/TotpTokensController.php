@@ -161,8 +161,13 @@ class TotpTokensController extends SAMController {
       throw new InvalidArgumentException(_txt('er.notprov.id', array(_txt('pl.privacyideaauthenticator.fd.serial'))));
     }
 
-    $this->PrivacyIdea->deleteToken($this->viewVars['vv_authenticator']['PrivacyIdeaAuthenticator'],
-                                    $curdata['TotpToken']['serial']);
+    $return_response = $this->PrivacyIdea->deleteToken($this->viewVars['vv_authenticator']['PrivacyIdeaAuthenticator'],
+	    $curdata['TotpToken']['serial']);
+
+    // error code 601 indicates the token was not found in the Privacy Idea database. We want to continue on and delete it in Registry, however.
+    if(isset($return_response->result->error->code) && $return_response->result->error->code == 601) {
+      $this->Flash->set(_txt('pl.privacyideaauthenticator.token.deletednoprivacyidea'), array('key' => 'information'));
+    }
     
     return true;
   }

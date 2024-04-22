@@ -16,8 +16,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG PHP_IMAGE_VERSION=8.0.30
-FROM php:${PHP_IMAGE_VERSION}-apache-bullseye
+ARG PHP_IMAGE_VERSION=8.1.27
+FROM php:${PHP_IMAGE_VERSION}-apache-bookworm
 
 # Official PHP image with Apache HTTPD includes
 # --with-openssl
@@ -25,7 +25,7 @@ FROM php:${PHP_IMAGE_VERSION}-apache-bullseye
 # but xls, pdo, pdo_mysql, pdo_pgsql, mysqli, pgsql, 
 # and ldap extensions must be built.
 RUN apt-get update && apt-get install -y \
-         libldap-2.4-2 \
+         libldap-2.5-0 \
          libldap2-dev \
          libmariadb-dev \
          libpq-dev \
@@ -93,6 +93,7 @@ ENV CACHEDIR ${CACHEDIR:-/srv/comanage-registry/app/tmp/cache}
 RUN a2enmod headers \
       && a2enmod ssl \
       && a2enmod rewrite \
+      && a2dismod -f -q autoindex \
       && a2dissite 000-default.conf \
       && a2disconf other-vhosts-access-log \
       && cd /etc/apache2 \

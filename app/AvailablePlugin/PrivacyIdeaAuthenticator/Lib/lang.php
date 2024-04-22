@@ -65,6 +65,7 @@ $cm_privacy_idea_authenticator_texts['en_US'] = array(
   'pl.privacyideaauthenticator.fd.validation_server' => 'Validation API Server',
   'pl.privacyideaauthenticator.status'               => '%1$s token(s) registered, %2$s confirmed',
   'pl.privacyideaauthenticator.token.confirmed'      => 'Token Confirmed',
+  'pl.privacyideaauthenticator.token.deletednoprivacyidea' => 'Token deleted in Registry, but was not found in the Privacy Idea database',
   'pl.privacyideaauthenticator.totp.step1'           => 'First, scan the QR Code to add this token to Google Authenticator',
   'pl.privacyideaauthenticator.totp.step2'           => 'Then, enter the current code from the Google Authenticator app to confirm'
 );

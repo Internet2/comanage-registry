@@ -133,15 +133,15 @@ class EnvSourceBackend extends OrgIdentitySourceBackend {
 
       if(!empty($this->pluginCfg['sp_type'])
          && $this->pluginCfg['sp_type'] != AuthProviderEnum::Other) {
-        $delimiter = "";
+        $env_email_list = null;
         if($this->pluginCfg['sp_type'] == AuthProviderEnum::Shibboleth) {
-          $delimiter = ";";
+          $env_email_list = explode(";", $result['env_mail']);
         } elseif($this->pluginCfg['sp_type'] == AuthProviderEnum::Simplesamlphp) {
-          $delimiter =",";
+          $env_email_list = explode(",", $result['env_mail']);
         }
 
-        $env_email_list = explode($delimiter, $result['env_mail']);
-        if(is_array($env_email_list)
+        if(isset($env_email_list)
+           && is_array($env_email_list)
            && count($env_email_list) > 1) {
           // Overwrite the default value
           foreach($env_email_list as $idx => $mail) {
