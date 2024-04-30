@@ -173,6 +173,18 @@ class AppController extends Controller {
         exit;
       }
 
+      // We do not allow REST calls for Auth users, only for REST API authenticated users
+      if((!$this->Session->check('Auth.User.api')
+          || ($this->Session->check('Auth.User.api') && !$this->Session->read('Auth.User.api')))
+         && $this->Session->check('Auth.User.username')
+         && !$this->request->is('ajax')) {
+        $this->Api->restResultHeader(HttpStatusCodesEnum::HTTP_UNAUTHORIZED, _txt('er.http.401'));
+        // We force an exit here to prevent any views from rendering, but also
+        // to prevent Cake from dumping the default layout
+        $this->response->send();
+        exit;
+      }
+
       // Set up basic auth and attempt to login the API user, unless we're already
       // logged in (ie: via a cookie provided via an AJAX initiated REST call)
       
@@ -297,6 +309,12 @@ class AppController extends Controller {
         // We have an auto-detected timezone from a previous page render from the browser.
         // Adjust the default timezone. Actually, don't we want to always record times in UTC.
         //        date_default_timezone_set($_COOKIE['cm_registry_tz_auto']);
+        $timezone_identifiers = DateTimeZone::listIdentifiers();
+        if(!in_array($_COOKIE['cm_registry_tz_auto'], $timezone_identifiers)) {
+          // This is not an acceptable value
+          throw new RuntimeException(_txt('er.invalid.cookie'), HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE);
+        }
+
         $this->set('vv_tz', $_COOKIE['cm_registry_tz_auto']);
       } else {
         $this->set('vv_tz', date_default_timezone_get());

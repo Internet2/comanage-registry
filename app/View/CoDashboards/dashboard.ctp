@@ -82,9 +82,33 @@
 
 <div class="table-container">
   <?php if(!empty($vv_dashboard)): ?>
+    <?php
+      // The Dashboard headers and footers can display user-generated HTML output AND CSS in a <style> tag. Use the html-sanitizer library.
+      if(!empty($vv_dashboard['CoDashboard']['header_text']) || !empty($vv_dashboard['CoDashboard']['footer_text'])) {
+        require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
+        
+        // We must build the Sanitizer to include our custom extension
+        $builder = new HtmlSanitizer\SanitizerBuilder();
+        $builder->registerExtension(new HtmlSanitizer\Extension\Basic\BasicExtension());
+        $builder->registerExtension(new HtmlSanitizer\Extension\Code\CodeExtension());
+        $builder->registerExtension(new HtmlSanitizer\Extension\Image\ImageExtension());
+        $builder->registerExtension(new HtmlSanitizer\Extension\Listing\ListExtension());
+        $builder->registerExtension(new HtmlSanitizer\Extension\Table\TableExtension());
+        $builder->registerExtension(new HtmlSanitizer\Extension\Details\DetailsExtension());
+        $builder->registerExtension(new HtmlSanitizer\Extension\Extra\ExtraExtension());
+        
+        // Our custom extension to allow <style> tags.
+        $builder->registerExtension(new HtmlSanitizer\Extension\Style\StyleExtension());
+  
+        $sanitizer = $builder->build([
+          'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra', 'style'],
+          'keepstyle' => true
+        ]);
+      }
+    ?>
     <?php if(!empty($vv_dashboard['CoDashboard']['header_text'])): ?>
       <div id="dashboard-header">
-        <?php print $vv_dashboard['CoDashboard']['header_text']; ?>
+        <?php print $sanitizer->sanitize($vv_dashboard['CoDashboard']['header_text']); ?>
       </div>
     <?php endif; ?>
     <?php if(!empty($vv_dashboard['CoDashboardWidget'])): ?>
@@ -114,7 +138,7 @@
     <?php endif; ?>
     <?php if(!empty($vv_dashboard['CoDashboard']['footer_text'])): ?>
       <div id="dashboard-footer">
-        <?php print $vv_dashboard['CoDashboard']['footer_text']; ?>
+        <?php print $sanitizer->sanitize($vv_dashboard['CoDashboard']['footer_text']); ?>
       </div>
     <?php endif; ?>
   <?php else: // $vv_dashboard ?>

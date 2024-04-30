@@ -36,6 +36,14 @@
   
   if(!$e && !$permissions['view'])
     return(false);
+  
+  if(!$e) {
+    // dashboard headers and footers can contain HTML. Use the HTML Sanitizer library on view.
+    require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
+    $sanitizer = HtmlSanitizer\Sanitizer::create([
+      'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra']
+    ]);
+  }
 
   // Add breadcrumbs
   print $this->element("coCrumb");
@@ -192,7 +200,7 @@
     <div class="field-info">
       <?php print ($e
         ? $this->Form->input('header_text')
-        : filter_var($co_dashboards[0]['CoDashboard']['header_text'],FILTER_UNSAFE_RAW)); /* UNFILTERED */ ?>
+        : $sanitizer->sanitize($co_dashboards[0]['CoDashboard']['header_text'])); ?>
     </div>
   </li>
   <li class="field-stack">
@@ -205,7 +213,7 @@
     <div class="field-info">
       <?php print ($e
         ? $this->Form->input('footer_text')
-        : filter_var($co_dashboards[0]['CoDashboard']['footer_text'],FILTER_UNSAFE_RAW)); /* UNFILTERED */ ?>
+        : $sanitizer->sanitize($co_dashboards[0]['CoDashboard']['footer_text'])); ?>
     </div>
   </li>
   <?php if($e): ?>

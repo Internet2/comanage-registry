@@ -529,6 +529,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     $args['joins'][0]['type'] = 'INNER';
     $args['joins'][0]['conditions'][0] = 'CoSqlProvisionerTarget.co_provisioning_target_id=CoProvisioningTarget.id';
     $args['conditions']['CoProvisioningTarget.co_id'] = $coId;
+    $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerModeEnum::Disabled;
     $args['contain'] = false;
     
     $targets = $this->find('all', $args);
@@ -669,7 +670,7 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
       if($m['parent'] == 'CoPersonRole') {
         if(!empty($provisioningData['CoPersonRole'])) {
           $records = Hash::extract($provisioningData['CoPersonRole'], '{n}.' . $m['source'] . '.{n}');
-          $parentids = array_unique(Hash::extract($provisioningData['CoPersonRole'], '{n}.co_person_role_id'));
+          $parentids = array_unique(Hash::extract($provisioningData['CoPersonRole'], '{n}.id'));
         }
         $parentfk = 'co_person_role_id';
       } else {

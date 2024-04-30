@@ -319,7 +319,8 @@ class CoPersonRolesController extends StandardController {
         $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
         $args['contain'] = false;
         
-        $cous = $this->CoPersonRole->Cou->find('threaded', $args);
+        // See issue CO-2724 for a discussion of why 'all' is used here.
+        $cous = $this->CoPersonRole->Cou->find('all', $args);
         
         $childCous = array();
         foreach($cous as $cou) {

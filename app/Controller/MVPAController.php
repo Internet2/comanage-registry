@@ -189,10 +189,8 @@ class MVPAController extends StandardController {
         $availableTypes = $model->types($this->cur_co['Co']['id'], 'type');
 
         if (!empty($this->viewVars['permissions']['selfsvc'])
-          && !$this->Role->isCoOrCouAdmin(
-            $this->Session->read('Auth.User.co_person_id'),
-            $this->cur_co['Co']['id']
-          )) {
+            && !$this->Role->isCoOrCouAdmin($this->Session->read('Auth.User.co_person_id'), $this->cur_co['Co']['id'])
+            && !$this->Role->identifierIsCmpAdmin($this->Session->read('Auth.User.username'))) {
           // For models supporting self service permissions, adjust the available types
           // in accordance with the configuration (but not if self is an admin)
 

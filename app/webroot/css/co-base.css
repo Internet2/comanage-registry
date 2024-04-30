@@ -2636,6 +2636,10 @@ td.indented {
   padding: 1em 1em 0;
   text-align: center;
 }
+.ui-widget .co-loading-mini-input-container {
+  display: flex;
+  align-items: center;
+}
 .co-loading-mini-input-container {
   position: relative;
 }

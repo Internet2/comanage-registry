@@ -489,7 +489,7 @@ class CoNotification extends AppModel {
       
       if(!empty($gr['CoGroupMember'])) {
         foreach($gr['CoGroupMember'] as $gm) {
-          if(!empty($gm['CoPerson']['EmailAddress'][0]['mail'])) {
+          if(($gm['CoPerson']['status'] == StatusEnum::Active) && !empty($gm['CoPerson']['EmailAddress'][0]['mail'])) {
             // For now we just pick the first email address, but eventually we should
             // use whatever login register() implements (first delivery address, etc)
             

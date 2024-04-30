@@ -484,8 +484,11 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['default'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
           }
           $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
-        } elseif($efAttr['CoEnrollmentAttribute']['attribute'] == 'r:sponsor_co_person_id') {
-          // Special case for sponsor, we want to make sure the modifiable field passes
+        } elseif(in_array($efAttr['CoEnrollmentAttribute']['attribute'],
+                          array('r:sponsor_co_person_id', 'r:manager_co_person_id'),
+                          true)
+        ) {
+          // Special case for sponsor and manager, we want to make sure the modifiable field passes
           // through even if there is no default value
           if(isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])) {
             $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];

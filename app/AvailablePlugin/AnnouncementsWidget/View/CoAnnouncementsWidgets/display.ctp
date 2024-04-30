@@ -81,7 +81,12 @@
       <?php
         // Render HTML or not according to channel configuration
         if(isset($a['CoAnnouncementChannel']['publish_html']) && $a['CoAnnouncementChannel']['publish_html']) {
-          print $a['CoAnnouncement']['body'];
+          // Use the html-sanitizer library to clean user-generated HTML output.
+          require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
+          $sanitizer = HtmlSanitizer\Sanitizer::create([
+            'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra']
+          ]);
+          print $sanitizer->sanitize($a['CoAnnouncement']['body']) ;
         } else {
           // Also insert <br/> tags before newlines within the sanitized string
           $announcementBody = filter_var($a['CoAnnouncement']['body'], FILTER_SANITIZE_SPECIAL_CHARS);

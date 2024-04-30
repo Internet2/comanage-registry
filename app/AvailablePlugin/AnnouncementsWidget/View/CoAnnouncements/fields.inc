@@ -127,12 +127,20 @@
         
         $filter = !(isset($co_announcements[0]['CoAnnouncementChannel']['publish_html'])
                    && $co_announcements[0]['CoAnnouncementChannel']['publish_html']);
+  
+        if(!$filter) {
+          // announcements that contain HTML should use the HTML Sanitizer library on view.
+          require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
+          $sanitizer = HtmlSanitizer\Sanitizer::create([
+            'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra']
+          ]);
+        }
         
         print ($e
                ? $this->Form->input('body')
                : ($filter
                  ? filter_var($co_announcements[0]['CoAnnouncement']['body'], FILTER_SANITIZE_SPECIAL_CHARS)
-                 : $co_announcements[0]['CoAnnouncement']['body'])); ?>
+                 : $sanitizer->sanitize($co_announcements[0]['CoAnnouncement']['body']))); ?>
     </div>
   </li>
   <li class="modelbox-data">

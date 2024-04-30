@@ -1397,6 +1397,9 @@
     <index name="identifiers_i10">
       <col>organization_id</col>
     </index>
+    <index name="identifiers_i11">
+      <col>co_group_id</col>
+    </index>
   </table>
 
   <table name="email_addresses">
