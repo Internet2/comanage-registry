@@ -85,7 +85,7 @@
         "status": {
           "type": "string"
         },
-        "CoGroupMember": { "$ref": "#/definitions/CoGroup" },
+        "CoGroupMember": { "$ref": "#/definitions/CoGroupMember" },
         "HistoryRecord": { "$ref": "#/definitions/HistoryRecord" },
         "Identifier": { "$ref": "#/definitions/Identifier" }
       },
@@ -228,8 +228,7 @@
             "type": "string"
           },
           "comment": {
-            "type": "string",
-            "format": "email"
+            "type": "string"
           },
           "co_group_id": {
             "type": "integer"
@@ -254,7 +253,7 @@
         "properties": {
           "identifier": {
             "type": "string",
-            "format": "email"
+            "minLength": 1
           },
           "login": {
             "type": "boolean"
@@ -382,7 +381,7 @@
         },
         "last_update": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "reference_identifier": {
           "type": "string"

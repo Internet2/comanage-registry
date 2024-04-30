@@ -16,13 +16,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM debian:11-slim
+FROM debian:bookworm-slim
 
 ARG LOG4SHIB_VERSION
 ENV LOG4SHIB_VERSION=${LOG4SHIB_VERSION:-2.0.1}
 
 ARG XERCESC_VERSION
-ENV XERCESC_VERSION=${XERCESC_VERSION:-3.2.4}
+ENV XERCESC_VERSION=${XERCESC_VERSION:-3.2.5}
 
 ARG XMLSECC_VERSION
 ENV XMLSECC_VERSION=${XMLSECC_VERSION:-2.0.4}
@@ -47,7 +47,7 @@ RUN apt-get update \
             libboost-dev \
             libcurl4-openssl-dev \
             libssl-dev \
-            libssl1.1 \
+            libssl3 \
             make \
             pkg-config \
             wget \

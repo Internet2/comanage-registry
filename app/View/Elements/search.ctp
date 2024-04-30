@@ -39,11 +39,14 @@ $formArgs =  array(
 );
 
 // If i have named parameters not related to search fields
-// get them and add them into the form
+// get them and add them into the form. But always skip "page":
+// a newly submitted search should always land on page one. 
 if(!empty($this->request->params['named'])) {
   $attributes = array_diff_key($this->request->params['named'], $vv_search_fields);
   foreach($attributes as $attr_name => $attr_value) {
-    $formArgs['url'][$attr_name] = $attr_value;
+    if($attr_name !== 'page') {
+      $formArgs['url'][$attr_name] = $attr_value;
+    }
   }
 }
 
@@ -64,12 +67,13 @@ $hasActiveFilters = false;
   print $this->Form->hidden('RedirectAction.' . $this->request->action, array('default' => 'true')). PHP_EOL;
 
   // Named parameters
-  // Discard op.search named param
+  // Discard op.search named param and 'page'
   $search_params = array();
   if(isset($this->request->params['named'])) {
     foreach ($this->request->params['named'] as $param => $value) {
       if(strpos($param, 'search') === false
-         && $param !== "op") {
+         && $param !== "op"
+         && $param !== "page") {
         print $this->Form->hidden($this->request->action . '.named.' . $param, array('default' => filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
       } else {
         $search_params[$param] = $value;
