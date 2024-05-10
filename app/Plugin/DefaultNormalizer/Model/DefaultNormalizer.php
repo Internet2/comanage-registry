@@ -97,6 +97,9 @@ class DefaultNormalizer extends AppModel {
         // a URL from being submitted without a prefix (and we wouldn't know the
         // protocol anyway).
         'trimWhitespace' => array('url')
+      ),
+      'Oauth2Server' => array(
+        'trimWhitespace' => array('serverurl', 'scope', 'clientid', 'client_secret', 'proxy')
       )
     );
     

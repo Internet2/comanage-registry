@@ -1913,6 +1913,8 @@ The request may be viewed at
   'fd.server.oauth2.client_secret' => 'Client Secret',
   'fd.server.oauth2.grant_type' => 'Access Token Grant Type',
   'fd.server.oauth2.redirect' => 'Redirect URI',
+  'fd.server.oauth2.proxy' => 'Proxy',
+  'fd.server.oauth2.proxy.desc' => 'Configuration string in the form <b>[host:port]</b>',
   'fd.server.oauth2.scope' => 'Scope',
   'fd.server.sql.database' => 'Database',
   'fd.server.http.auth_type' => 'HTTP Authentication Type',
