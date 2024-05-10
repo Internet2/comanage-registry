@@ -40,12 +40,38 @@
     <field name="server_id" type="I">
       <constraint>REFERENCES cm_servers(id)</constraint>
     </field>
+    <field name="scope_inherit" type="L" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
     <index name="orcid_sources_i1">
       <col>org_identity_source_id</col>
       <unique />
+    </index>
+  </table>
+
+  <table name="orcid_tokens">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="orcid_source_id" type="I">
+      <constraint>REFERENCES cm_orcid_sources(id)</constraint>
+    </field>
+    <field name="orcid_identifier" type="C" size="128"/>
+    <field name="access_token" type="C" size="512"/>
+    <field name="id_token" type="C" size="512"/>
+    <field name="refresh_token" type="C" size="512"/>
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="orcid_sources_i1">
+      <col>orcid_source_id</col>
+      <col>orcid_identifier</col>
+      <unique />
+    </index>
+    <index name="orcid_identifiers_i2">
+      <col>orcid_identifier</col>
     </index>
   </table>
 </schema>

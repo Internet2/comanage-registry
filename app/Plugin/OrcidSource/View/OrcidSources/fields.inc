@@ -107,6 +107,33 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.orcidsource.scope_inherit'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+        ? $this->Form->input('scope_inherit')
+        : (isset($orcid_sources[0]['OrcidSource']['scope_inherit'])
+        && $orcid_sources[0]['OrcidSource']['scope_inherit']
+          ? _txt('fd.yes') : _txt('fd.no')));
+      print ' ' . $this->Form->label('scope_inherit',_txt('pl.orcidsource.scope_inherit'));
+      ?>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.server.oauth2.scope'); ?></div>
+    </div>
+    <div class="field-info">
+      <input type="text" readonly="true" size="60" value="<?php
+      if($orcid_sources[0]['OrcidSource']['scope_inherit']) {
+        print filter_var($vv_oauth_server['Oauth2Server']['scope'], FILTER_SANITIZE_SPECIAL_CHARS);
+      } else {
+        print filter_var(OrcidSourceEnum::DEFAULT_SCOPE, FILTER_SANITIZE_SPECIAL_CHARS);
+      }
+      ?>" />
+    </div>
+  </li>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

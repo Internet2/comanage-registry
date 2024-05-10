@@ -27,10 +27,12 @@
 
 class OrcidSource extends AppModel {
   // Required by COmanage Plugins
-  public $cmPluginType = "orgidsource";
+  public $cmPluginType = 'orgidsource';
   
   // Document foreign keys
-  public $cmPluginHasMany = array();
+  public $cmPluginHasMany = array(
+    'OrcidSource' => 'OrcidToken'
+  );
   
   // Request OAuth2 servers
   public $cmServerType = ServerEnum::Oauth2Server;
@@ -53,7 +55,14 @@ class OrcidSource extends AppModel {
         'required' => true,
         'unfreeze' => 'CO'
       )
-    )
+    ),
+    'scope_inherit' => array(
+      'content' => array(
+        'rule' => 'boolean',
+        'required' => false,
+        'allowEmpty' => true
+      ),
+    ),
   );
   
   /**

@@ -35,6 +35,7 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                        "Oauth2Server",
                        "OrgIdentitySource",
                        "OrcidSource",
+                       "OrcidSource.OrcidToken",
                        "OrcidSource.OrcidSourceBackend");
   
   /**
@@ -70,7 +71,20 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                                               array(_txt('ct.orcid_sources.1'),
                                                     $oiscfg['OrgIdentitySource']['id'])));
     }
-    
+
+    $args = array();
+    $args['conditions']['OrcidSource.org_identity_source_id'] = $oiscfg['OrgIdentitySource']['id'];
+    $args['conditions']['OrcidSource.server_id'] = $cfg['Oauth2Server']['server_id'];
+    $args['contain'] = false;
+
+    $orcid_source = $this->OrcidSource->find('first', $args);
+
+    if(empty($orcid_source)) {
+      throw new InvalidArgumentException(_txt('er.notfound',
+                                              array(_txt('ct.orcid_sources.1'),
+                                                $oiscfg['OrgIdentitySource']['id'])));
+    }
+
     // We need a different callback URL than what the Oauth2Server config will
     // use, since we're basically creating a runtime Authorization Code flow
     // (while the main config uses a Client Credentials flow).
@@ -94,12 +108,18 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
     $redirectUri = Router::url($callback, array('full' => true));
     
     if(empty($this->request->query['code'])) {
-      // First time through, redirect to the authorize URL
+      $scope = OrcidSourceEnum::DEFAULT_SCOPE;
+      if($orcid_source['OrcidSource']['scope_inherit']) {
+        $scope = $cfg['Oauth2Server']['scope'];
+      }
+
+      // First time through, redirect to the "authorize" URL
       
-      $url = $cfg['Oauth2Server']['serverurl'] . "/authorize?";
-      $url .= "client_id=" . $cfg['Oauth2Server']['clientid'];
-      $url .= "&response_type=code&scope=/authenticate";
-      $url .= "&redirect_uri=" . urlencode($redirectUri);
+      $url = $cfg['Oauth2Server']['serverurl'] . '/authorize?';
+      $url .= 'client_id=' . $cfg['Oauth2Server']['clientid'];
+      $url .= '&response_type=code';
+      $url .= '&scope=' . str_replace(' ', '%20', $scope);
+      $url .= '&redirect_uri=' . urlencode($redirectUri);
       
       $this->redirect($url);
     }
@@ -120,6 +140,30 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
       // though atm we just do that with our Oauth2Server level access token.
       
       $orcid = $response->orcid;
+
+      // Save the fields we want to keep
+      $data = array(
+        'orcid_identifier' => $orcid,
+        'access_token' => $orcid->access_token,
+        'id_token' => $orcid->id_token
+      );
+
+      // Get the existing record if it exists
+      $args = array();
+      $args['conditions']['OrcidToken.orcid_source_id'] = $oiscfg['OrcidSource']['id'];
+      $args['conditions']['OrcidToken.orcid_identifier'] = $orcid;
+      $args['contain'] = false;
+
+      $orcid_token = $this->OrcidToken->find('first', $args);
+      if(!empty($orcid_token)) {
+        $data['id'] = $orcid_token['OrcidToken']['id'];
+      }
+
+      // We don't want to change any attributes not specified above
+      if(!$this->OrcidToken->save($data, true, array_keys($data))) {
+        throw new RuntimeException(_txt('er.db.save-a', array('OrcidToken')));
+
+      }
       
       // Now that we have the ORCID, create an Org Identity to store it.
           
