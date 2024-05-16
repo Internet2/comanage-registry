@@ -37,6 +37,11 @@ class OrcidSourcesController extends SOISController {
     'Oauth2Server'
   );
 
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
+    $this->Flash->set(_txt('rs.updated-a3', array('Orcid Data')), array('key' => 'success'));
+    return true;
+  }
+
   /**
    * Update a OrcidSource.
    *

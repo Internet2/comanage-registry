@@ -29,3 +29,16 @@ class OrcidSourceEnum
   const DEFAULT_SCOPE = '/authenticate';
 
 }
+
+class OrcidSourceaPIEnum
+{
+  const AUTH = 'AUT';
+  const MEMBERS = 'MEM';
+  const PUBLIC = 'PUB';
+}
+
+class OrcidSourceTierEnum
+{
+  const PROD = 'PRO';
+  const SANDBOX = 'SBX';
+}

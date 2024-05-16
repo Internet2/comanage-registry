@@ -144,25 +144,36 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
       // Save the fields we want to keep
       $data = array(
         'orcid_identifier' => $orcid,
-        'access_token' => $orcid->access_token,
-        'id_token' => $orcid->id_token
+        'access_token' => $response->access_token,
+        'refresh_token' => $response->refresh_token,
+        'id_token' => $response->id_token,
+        'orcid_source_id' => $orcid_source['OrcidSource']['id']
       );
+
+      $this->log(__METHOD__ . '::orcid token data:' . print_r($data, true), LOG_DEBUG);
+
 
       // Get the existing record if it exists
       $args = array();
-      $args['conditions']['OrcidToken.orcid_source_id'] = $oiscfg['OrcidSource']['id'];
+      $args['conditions']['OrcidToken.orcid_source_id'] = $orcid_source['OrcidSource']['id'];
       $args['conditions']['OrcidToken.orcid_identifier'] = $orcid;
       $args['contain'] = false;
 
       $orcid_token = $this->OrcidToken->find('first', $args);
+
+      $this->OrcidToken->clear();
       if(!empty($orcid_token)) {
-        $data['id'] = $orcid_token['OrcidToken']['id'];
+        $this->OrcidToken->id = $orcid_token['OrcidToken']['id'];
       }
 
+      $this->OrcidToken->set($data);
+      if (!$this->OrcidToken->validates()) {
+        $errors = $this->OrcidToken->validationErrors;
+        $this->log(__METHOD__ . "::OrcidToken Validation Errors\n" . print_r($errors, true), LOG_WARNING);
+      }
       // We don't want to change any attributes not specified above
-      if(!$this->OrcidToken->save($data, true, array_keys($data))) {
+      if(!$this->OrcidToken->save($data)) {
         throw new RuntimeException(_txt('er.db.save-a', array('OrcidToken')));
-
       }
       
       // Now that we have the ORCID, create an Org Identity to store it.

@@ -41,6 +41,8 @@
       <constraint>REFERENCES cm_servers(id)</constraint>
     </field>
     <field name="scope_inherit" type="L" />
+    <field name="tier" type="C" size="3"/>
+    <field name="api" type="C" size="3"/>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
@@ -59,9 +61,9 @@
       <constraint>REFERENCES cm_orcid_sources(id)</constraint>
     </field>
     <field name="orcid_identifier" type="C" size="128"/>
-    <field name="access_token" type="C" size="512"/>
-    <field name="id_token" type="C" size="512"/>
-    <field name="refresh_token" type="C" size="512"/>
+    <field name="access_token" type="XL"/>
+    <field name="id_token" type="XL"/>
+    <field name="refresh_token" type="XL"/>
     <field name="created" type="T" />
     <field name="modified" type="T" />
 

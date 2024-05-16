@@ -41,15 +41,12 @@ class OrcidToken extends AppModel
   public $displayField = 'orcid_identifier';
 
   /**
-   * Actions to take before a validate operation is executed.
+   * Actions to take before a validate operation are executed.
    *
-   * @since  COmanage Registry v0.9.1
+   * @since  COmanage Registry v4.4.0
    */
 
   public function beforeValidate($options = array()) {
-//    if(!empty($this->data["OrcidToken"]["scopes"])) {
-//      $this->data["OrcidToken"]["scopes"] = str_replace(" ",",",trim($this->data["OrcidToken"]["scopes"]));
-//    }
     //Encrypt key here in case validation failed to have the encrypted key and beforeRender function work properly
     $key = Configure::read('Security.salt');
     Configure::write('Security.useOpenSsl', true);
@@ -60,12 +57,14 @@ class OrcidToken extends AppModel
             ) as $column) {
       if(!empty($this->data['OrcidToken'][$column])) {
         $payload = base64_encode(Security::encrypt($this->data['OrcidToken'][$column], $key));
-        $stored_key = ($this->id !== null) ? $this->field($column, ['id' => $this->id]) : '';
+        $stored_key = !empty($this->id) ? $this->field($column, array('id' => $this->id)) : '';
         if($stored_key !== $payload) {
           $this->data['OrcidToken'][$column] = $payload;
         }
       }
     }
+
+    return true;
   }
 
   // Validation rules for table elements
@@ -79,7 +78,7 @@ class OrcidToken extends AppModel
     ),
     'orcid_identifier'    => array(
       'content' => array(
-        'rule'       => 'alphaNumeric',
+        'rule'       => 'notBlank',
         'required'   => true,
         'allowEmpty' => false
       )
@@ -106,4 +105,21 @@ class OrcidToken extends AppModel
       )
     ),
   );
+
+  /**
+   * Unencrypt a value previously encrypted using salt
+   *
+   * @param string $value
+   *
+   * @return false|string
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function getUnencrypted($value) {
+    if(empty($value)) {
+      return '';
+    }
+    Configure::write('Security.useOpenSsl', true);
+    return Security::decrypt(base64_decode($value), Configure::read('Security.salt'));
+  }
 }
