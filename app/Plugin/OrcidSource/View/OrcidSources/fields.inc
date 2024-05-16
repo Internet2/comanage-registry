@@ -80,7 +80,10 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?><span class="required">*</span>
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?>
+        <span class="required">*</span>
+      </div>
     </div>
     <div class="field-info">
       <?php
@@ -104,6 +107,66 @@
             print filter_var($vv_servers[ $orcid_sources[0]['OrcidSource']['server_id'] ], FILTER_SANITIZE_SPECIAL_CHARS);
           }
         }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.api_type'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      global $cm_lang, $cm_texts;
+      $attrs = array();
+      $attrs['value'] = (isset($orcid_sources[0]['OrcidSource']['api_type'])
+        ? $orcid_sources[0]['OrcidSource']['api_type']
+        : OrcidSourceApiEnum::PUBLIC);
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select('api_type',
+                                  $cm_texts[ $cm_lang ]['en.orcidsource.api_type'],
+                                  $attrs);
+
+        if($this->Form->isFieldError('api_type')) {
+          print $this->Form->error('api_type');
+        }
+      } else {
+        print _txt('pl.orcidsource.api_type', null, $orcid_sources[0]['OrcidSource']['api_type']);
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.api_tier'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      global $cm_lang, $cm_texts;
+      $attrs = array();
+      $attrs['value'] = (isset($orcid_sources[0]['OrcidSource']['api_tier'])
+        ? $orcid_sources[0]['OrcidSource']['api_tier']
+        : OrcidSourceTierEnum::PROD);
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select('api_tier',
+                                  $cm_texts[ $cm_lang ]['en.orcidsource.api_tier'],
+                                  $attrs);
+
+        if($this->Form->isFieldError('api_tier')) {
+          print $this->Form->error('api_tier');
+        }
+      } else {
+        print _txt('pl.orcidsource.api_tier', null, $orcid_sources[0]['OrcidSource']['api_tier']);
+      }
       ?>
     </div>
   </li>

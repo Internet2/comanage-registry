@@ -38,6 +38,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
   protected $Http = null;
   protected $server = null;
   protected $orcidToken = null;
+  protected $orcidSource = null;
 
   /**
    * Generate an ORCID callback URL. This is used for authenticated ORCID linking
@@ -118,10 +119,10 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
     $args['contain'] = false;
 
     $OrcidSource = new OrcidSource();
-    $orcid_source = $OrcidSource->find('first', $args);
+    $this->orcidSource = $OrcidSource->find('first', $args);
 
     $args = array();
-    $args['conditions']['OrcidToken.orcid_source_id'] = $orcid_source['OrcidSource']['id'];
+    $args['conditions']['OrcidToken.orcid_source_id'] = $this->orcidSource['OrcidSource']['id'];
     $args['conditions']['OrcidToken.orcid_identifier'] = $orcidIdentifier;
     $args['contain'] = false;
 
@@ -172,7 +173,9 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
 
     $this->log(__METHOD__ . '::orcid options:' . print_r($options, true), LOG_DEBUG);
 
-    $results = $this->Http->$action($this->orcidUrl() . $urlPath,
+    $orcidUrlBase = $this->orcidUrl($this->orcidSource['OrcidSource']['api_type'],
+                                    $this->orcidSource['OrcidSource']['api_tier']);
+    $results = $this->Http->$action($orcidUrlBase . $urlPath,
                                     ($action == 'get' ? $data : json_encode($data)),
                                     $options);
 
@@ -200,19 +203,19 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * @return String URL prefix
    */
   
-  public function orcidUrl($api='public', $tier='prod') {
+  public function orcidUrl($api=OrcidSourceApiEnum::PUBLIC, $tier=OrcidSourceTierEnum::PROD) {
     $orcidUrls = array(
-      'auth' => array(
-        'prod'    => 'https://orcid.org',
-        'sandbox' => 'https://sandbox.orcid.org'
+      OrcidSourceApiEnum::AUTH => array(
+        OrcidSourceTierEnum::PROD    => 'https://orcid.org',
+        OrcidSourceTierEnum::SANDBOX => 'https://sandbox.orcid.org'
       ),
-      'member' => array(
-        'prod'    => 'https://api.orcid.org',
-        'sandbox' => 'https://api.sandbox.orcid.org'
+      OrcidSourceApiEnum::MEMBERS => array(
+        OrcidSourceTierEnum::PROD    => 'https://api.orcid.org',
+        OrcidSourceTierEnum::SANDBOX => 'https://api.sandbox.orcid.org'
       ),
-      'public' => array(
-        'prod'    => 'https://pub.orcid.org',
-        'sandbox' => 'https://pub.sandbox.orcid.org'
+      OrcidSourceApiEnum::PUBLIC => array(
+        OrcidSourceTierEnum::PROD    => 'https://pub.orcid.org',
+        OrcidSourceTierEnum::SANDBOX => 'https://pub.sandbox.orcid.org'
       )
     );
 

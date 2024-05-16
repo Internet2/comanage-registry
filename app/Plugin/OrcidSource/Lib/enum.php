@@ -30,7 +30,7 @@ class OrcidSourceEnum
 
 }
 
-class OrcidSourceaPIEnum
+class OrcidSourceApiEnum
 {
   const AUTH = 'AUT';
   const MEMBERS = 'MEM';

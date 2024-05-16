@@ -63,6 +63,20 @@ class OrcidSource extends AppModel {
         'allowEmpty' => true
       ),
     ),
+    'api_tier' => array(
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => true,
+        'allowEmpty' => false
+      ),
+    ),
+    'api_type' => array(
+      'content' => array(
+        'rule' => 'notBlank',
+        'required' => true,
+        'allowEmpty' => false
+      ),
+    ),
   );
   
   /**

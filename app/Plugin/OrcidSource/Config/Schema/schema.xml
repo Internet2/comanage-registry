@@ -41,8 +41,8 @@
       <constraint>REFERENCES cm_servers(id)</constraint>
     </field>
     <field name="scope_inherit" type="L" />
-    <field name="tier" type="C" size="3"/>
-    <field name="api" type="C" size="3"/>
+    <field name="api_tier" type="C" size="3"/>
+    <field name="api_type" type="C" size="3"/>
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
