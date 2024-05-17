@@ -33,8 +33,8 @@ global $cm_lang, $cm_texts;
 
 $cm_orcid_source_texts['en_US'] = array(
   // Titles, per-controller
-  'ct.orcid_sources.1'  => 'ORCID Organizational Identity Source',
-  'ct.orcid_sources.pl' => 'ORCID Organizational Identity Sources',
+  'ct.orcid_sources.1'        => 'ORCID Organizational Identity Source',
+  'ct.orcid_sources.pl'       => 'ORCID Organizational Identity Sources',
   
   // Error messages
   'er.orcidsource.search'         => 'Search request returned %1$s',

@@ -21,17 +21,18 @@
  *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
- * @since         COmanage Registry v2.0.0
+ * @since         COmanage Registry v4.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-App::uses("SOISController", "Controller");
+App::uses('StandardController', 'Controller');
 
-class OrcidTokensController extends SOISController {
+class OrcidTokensController extends StandardController {
   // Class name, used by Cake
   public $name = 'OrcidTokens';
 
-  protected $orcid_identifier = null;
+  /** @var OrcidSource */
+  protected $orcidSource;
 
   public $uses = array(
     'OrcidSource.OrcidSource',
@@ -39,35 +40,89 @@ class OrcidTokensController extends SOISController {
   );
 
   /**
-   * Get a token
+   * Callback before other controller methods are invoked or views are rendered.
+   * - postcondition: $plugins set
    *
-   * @since  COmanage Registry v2.0.0
+   * @since  COmanage Registry v4.4.0
+   * @throws InvalidArgumentException
    */
 
-  public function token() {
-    $this->request->allowMethod(array('ajax', 'rest'));
-    $this->layout = 'ajax';
-
-    if (empty($this->request->params['pass'][0])) {
+  function beforeFilter() {
+    if (empty($this->request->query['orcidsid'])) {
       throw new BadRequestException(_txt('er.orcidsource.param.notfound', array(_txt('ct.orcid_sources.1') . ' Id')));
     }
     if (empty($this->request->query['orcid'])) {
       throw new BadRequestException(_txt('er.orcidsource.param.notfound', array('ORCID Identifier')));
     }
+
+    $args = array();
+    $args['conditions']['OrcidSource.id'] = $this->request->query['orcidsid'];
+    $args['contain'] = false;
+
+    $this->orcidSource = $this->OrcidSource->find('first', $args);
+
+    if(empty($this->orcidSource)) {
+      throw new InvalidArgumentException(_txt('er.notfound',
+                                              array(_txt('ct.orcid_sources.1'),
+                                                $this->request->query['orcidsid'])));
+    }
+
+    return parent::beforeFilter();
+  }
+
+  /**
+   * Get a token
+   *
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function token() {
+    $this->request->allowMethod(array('ajax', 'restful'));
+    $this->layout = 'ajax';
+
     // Get the token record from the database
     $args = array();
     $args['conditions']['OrcidToken.orcid_identifier'] = $this->request->query['orcid'];
-    $args['conditions']['OrcidToken.orcid_source_id'] = $this->request->params['pass'][0];
+    $args['conditions']['OrcidToken.orcid_source_id'] = $this->orcidSource['OrcidSource']['id'];
     $args['contain'] = false;
 
     $token = $this->OrcidToken->find('first', $args);
 
-    $this->set('vv_token', $token);
+    $columnsToDecrypt = array(
+      'access_token',
+      'id_token',
+      'refresh_token'
+    );
+
+    $data = array();
+    if(!empty($token)) {
+      $data['orcid'] = $token['OrcidToken']['orcid_identifier'];
+      foreach ($token['OrcidToken'] as $columm => $value) {
+        if(in_array($columm, $columnsToDecrypt)) {
+          $data[$columm] = !empty($value) ? $this->OrcidToken->getUnencrypted($value) : '';
+        }
+      }
+    }
+
     $data = array(
-      'token' => $token
+      'token' => $data
     );
     $this->set(compact('data')); // Pass $data to the view
     $this->set('_serialize', 'data');
+  }
+
+  /**
+   * For Models that accept a CO ID, find the provided CO ID.
+   * - precondition: A coid must be provided in $this->request (params or data)
+   *
+   * @since  COmanage Registry v4.4.0
+   * @return Integer The CO ID if found, or -1 if not
+   */
+
+  public function parseCOID($data = null) {
+    if(!empty($this->orcidSource['OrgIdentitySource']['co_id'])) {
+      return $this->orcidSource['OrgIdentitySource']['co_id'];
+    }
   }
 
   /**
@@ -87,19 +142,10 @@ class OrcidTokensController extends SOISController {
 
     // Determine what operations this user can perform
 
-    // Delete an existing OrcidSource?
-    $p['delete'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // Edit an existing OrcidSource?
-    $p['edit'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // View all existing OrcidSources?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
-
-    // View an existing OrcidSource?
-    $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
+    // Retrieve a token record
+    $p['token'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     $this->set('permissions', $p);
-    return($p[$this->action]);
+    return $p[$this->action];
   }
 }

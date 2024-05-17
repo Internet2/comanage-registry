@@ -192,7 +192,7 @@ class Oauth2Server extends AppModel {
       $params['code'] = $code;
       $params['redirect_uri'] = $redirectUri;
     } else {
-      $params['scope'] = $srvr['Oauth2Server']['scope'];
+      $params['scope'] = str_replace(' ', '%20', $srvr['Oauth2Server']['scope']);
     }
     
     $postUrl = $srvr['Oauth2Server']['serverurl'] . "/token";
@@ -215,7 +215,7 @@ class Oauth2Server extends AppModel {
         // Store the raw result in case the server has added some custom attributes
         'token_response' => json_encode($json)
       );
-      
+
       // We shouldn't have a new refresh token on a refresh_token grant
       // (which just gets us a new access token).
       if($grantType != 'refresh_token') {
