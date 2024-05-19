@@ -948,7 +948,7 @@
   <li class="field-stack">
     <div class="field-name">
       <div class="field-title">
-        <?php print ($e ? $this->Form->label('introduction_text_pa', _txt('fd.ef.intro')) : _txt('fd.ef.intro')); ?>
+        <?php print ($e ? $this->Form->label('introduction_text_pa', _txt('fd.ef.intro-a', array(_txt('fd.attrs.pet')))) : _txt('fd.ef.intro-a', array(_txt('fd.attrs.pet')))); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.ef.intro.desc'); ?></div>
     </div>
