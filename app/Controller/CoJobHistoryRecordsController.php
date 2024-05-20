@@ -49,6 +49,33 @@ class CoJobHistoryRecordsController extends StandardController {
   );
 
   /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.comment' => array(
+          'type'    => 'text',
+          'label'   => _txt('fd.comment')
+        ),
+        'search.key' => array(
+          'type'    => 'text',
+          'label'   => _txt('fd.key')
+        ),
+        'search.status' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.status'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.job'),
+        ),
+      );
+    }
+  }
+
+  /**
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
@@ -118,7 +145,7 @@ class CoJobHistoryRecordsController extends StandardController {
     // similar to HistoryRecords::isAuthorized().
     
     // View all CO Job History Records?
-    $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
+    $p['search'] = $p['index'] = ($roles['cmadmin'] || $roles['coadmin']);
     
     // View this CO Job History Record?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
@@ -146,6 +173,24 @@ class CoJobHistoryRecordsController extends StandardController {
       $ret['conditions']['CoJobHistoryRecord.co_person_id'] = $this->request->params['named']['copersonid'];
     } elseif(!empty($this->request->params['named']['orgidentityid'])) {
       $ret['conditions']['CoJobHistoryRecord.org_identity_id'] = $this->request->params['named']['orgidentityid'];
+    }
+    
+    if(!empty($this->request->params['named']['search.comment'])) {
+      // Note that comment is not currently indexed. In theory, since we filter on jobid
+      // the number of records that need to be searched should be limited, and so should
+      // still complete in a reasonable amount of time. However, this may need to be revisited.
+      // (Also, we don't currently support lowercase indexes.)
+      $searchterm = $this->request->params['named']['search.comment'];
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
+      $ret['conditions']['LOWER(CoJobHistoryRecord.comment) LIKE'] = "%$searchterm%";
+    }
+    if(!empty($this->request->params['named']['search.key'])) {
+      $ret['conditions']['CoJobHistoryRecord.key'] = $this->request->params['named']['search.key'];
+    }
+    if(!empty($this->request->params['named']['search.status'])) {
+      $ret['conditions']['CoJobHistoryRecord.status'] = $this->request->params['named']['search.status'];
     }
     
     return $ret;
