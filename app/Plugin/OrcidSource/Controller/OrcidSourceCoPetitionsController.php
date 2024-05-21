@@ -150,8 +150,6 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
         'orcid_source_id' => $orcid_source['OrcidSource']['id']
       );
 
-      $this->log(__METHOD__ . '::orcid token data:' . print_r($data, true), LOG_DEBUG);
-
 
       // Get the existing record if it exists
       $args = array();

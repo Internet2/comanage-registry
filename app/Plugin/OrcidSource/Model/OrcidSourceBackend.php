@@ -166,12 +166,9 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
         'Accept'        => 'application/json',
         'Authorization' => 'Bearer ' . ($OrcidToken->getUnencrypted($this->orcidToken['OrcidToken']['access_token'])
             ?? $this->server['Oauth2Server']['access_token']),
-//        'Content-Type'  => 'application/json'
         'Content-Type'  => 'application/orcid+json'
       )
     );
-
-    $this->log(__METHOD__ . '::orcid options:' . print_r($options, true), LOG_DEBUG);
 
     $orcidUrlBase = $this->orcidUrl($this->orcidSource['OrcidSource']['api_type'],
                                     $this->orcidSource['OrcidSource']['api_tier']);
