@@ -235,7 +235,7 @@ class CoEnrollmentAttribute extends AppModel {
     $telephoneNumberTypes = $TelephoneNumber->types($coid, 'type');
     
     foreach(array_keys($telephoneNumberTypes) as $k)
-      $ret[_txt('ct.co_person_roles.1')]['m:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $telephoneNumberTypes[$k] . ")";
+      $ret[_txt('ct.co_person_roles.1')]['m:telephone_number:'.$k] = _txt('ct.telephone_numbers.1') . " (" . $telephoneNumberTypes[$k] . ")";
     
     $Address = ClassRegistry::init('Address');
     $addressTypes = $Address->types($coid, 'type');
@@ -275,7 +275,7 @@ class CoEnrollmentAttribute extends AppModel {
         $ret[_txt('ct.org_identities.1')]['i:email_address:'.$k] = _txt('fd.email_address.mail') . " (" . $emailAddressTypes[$k] . ")";
         
       foreach(array_keys($telephoneNumberTypes) as $k)
-        $ret[_txt('ct.org_identities.1')]['i:telephone_number:'.$k] = _txt('fd.telephone_number.number') . " (" . $telephoneNumberTypes[$k] . ")";
+        $ret[_txt('ct.org_identities.1')]['i:telephone_number:'.$k] = _txt('ct.telephone_numbers.1') . " (" . $telephoneNumberTypes[$k] . ")";
         
       foreach(array_keys($urlTypes) as $k)
         $ret[_txt('ct.org_identities.1')]['i:url:'.$k] = _txt('fd.url.url') . " (" . $urlTypes[$k] . ")";
