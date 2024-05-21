@@ -1534,6 +1534,7 @@ The request may be viewed at
   'fd.ef.ignauth' =>  'Ignore Authoritative Values',
   'fd.ef.ignauth.desc' => 'Ignore authoritative values for all attributes for this enrollment flow, such as those provided via environment variables, SAML, or LDAP',
   'fd.ef.intro' =>    'Introduction',
+  'fd.ef.intro-a' =>  'Introduction (%1$s)',
   'fd.ef.intro.desc' => 'Optional text to display at the top of a Petition form',
   'fd.ef.intro.start.desc' => 'Optional text to display during Enrollment Flow Start step',
   'fd.ef.inv.regen' => 'Allow Regeneration of Expired Links',
