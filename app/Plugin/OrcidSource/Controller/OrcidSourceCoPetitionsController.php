@@ -144,7 +144,7 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
       // Save the fields we want to keep
       $data = array(
         'orcid_identifier' => $orcid,
-        'access_token' => $response->access_token ?? '',
+        'access_token' => $response->access_token,
         'refresh_token' => $response->refresh_token ?? '',
         'id_token' => $response->id_token ?? '',
         'orcid_source_id' => $orcid_source['OrcidSource']['id']
