@@ -161,6 +161,7 @@ class CoEnrollmentAttribute extends AppModel {
    * (5)  (code=o) Single valued Org Identity attributes, if enabled
    * (6)  (code=i) Multi valued Org Identity attributes, if enabled.Note that since org identities don't support extended types, we use default values here.
    * (7)  (code=e) Enrollment Flow specific attributes -- these don't get copied out of the petition
+   *               Currently we only support a text field which can be multi-value
    *
    * @since  COmanage Registry v0.3
    * @param  integer Identifier of the CO to assemble attributes for
@@ -282,8 +283,8 @@ class CoEnrollmentAttribute extends AppModel {
     }
     
     // (7) Enrollment Flow specific attributes -- these don't get copied out of the petition (code=e)
-    $ret[_txt('ct.petitions.1')]['e:textfield'] = _txt('fd.pt.textfield');
-    
+    $ret[_txt('ct.petitions.1')]['e:co_petition_attribute:textfield'] = _txt('fd.pt.textfield');
+
     // (8) Single valued CO Person attributes (code=c)
     $ret[_txt('ct.co_people.1')]['c:date_of_birth'] = _txt('fd.date_of_birth');
     
@@ -909,7 +910,16 @@ class CoEnrollmentAttribute extends AppModel {
       } elseif($attrCode == 'e') {
         // Attributes for the enrollment flow only -- these do not get copied
         // outside of the petition
-        
+        // Figure out the model name. $attrName is the lowercased version.
+        $attrModelName = Inflector::camelize($attrName);
+        $attrIsHasMany = false;
+
+        if(isset($this->CoEnrollmentFlow->CoPetition->hasMany[$attrModelName])) {
+          $attrIsHasMany = true;
+        }
+
+        $m = $attrModelName . ($attrIsHasMany ? "." . $efAttr['CoEnrollmentAttribute']['id'] : "");
+
         $attr = array();
         
         $attr['CoEnrollmentAttribute'] = $efAttr['CoEnrollmentAttribute'];
@@ -920,8 +930,8 @@ class CoEnrollmentAttribute extends AppModel {
         $attr['description'] = $efAttr['CoEnrollmentAttribute']['description'];
         $attr['required'] = $efAttr['CoEnrollmentAttribute']['required'];
         // Create a pseudo model and field
-        $attr['model'] = "CoPetitionAttribute";
-        $attr['field'] = $attrName;
+        $attr['model'] = $m;
+        $attr['field'] = $attrType;
         
         $attrs[] = $attr;
       } else {
