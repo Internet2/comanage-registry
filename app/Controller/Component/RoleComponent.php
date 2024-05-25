@@ -1021,7 +1021,7 @@ class RoleComponent extends Component {
     
     $args = array();
     $args['conditions']['CoEnrollmentFlow.id'] = $coEfId;
-    $args['conditions']['CoEnrollmentFlow.status'] = StatusEnum::Active;
+    $args['conditions']['NOT']['CoEnrollmentFlow.status'] = TemplateableStatusEnum::Template;
     $args['contain'] = false;
     
     $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');

@@ -1160,7 +1160,22 @@ class AppController extends Controller {
     // XXX A side effect of this current logic is that the link only appears when the person is viewing
     // another link with the CO specified in it (otherwise copersonid isn't set)
                               || ($roles['copersonid'] && $this->Role->isApprover($roles['copersonid']));
-    
+
+    // Since we do not have access to every Petition we will search each Enrollment Flow for special permissions
+    if(!$p['menu']['petitions']) {
+      // Calculate the petition permissions for each enrollment flow
+      $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+      $enrollmentFlowList = $CoEnrollmentFlow->enrollmentFlowList($this->cur_co['Co']['id']);
+      $this->set('vv_enrollment_flow_list', $enrollmentFlowList);
+      foreach($enrollmentFlowList as $eof_id => $eof_name) {
+        $roleStatus = $this->Role->isApproverForFlow($roles['copersonid'], $eof_id);
+        $p['menu']['petitions'][$eof_name] = $roleStatus;
+        if($roleStatus) {
+          $p['menu']['cos'] = true;
+        }
+      }
+    }
+
     // Manage CO extended attributes?
     $p['menu']['extattrs'] = $roles['cmadmin'] || $roles['coadmin'];
     

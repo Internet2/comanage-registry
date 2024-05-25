@@ -138,6 +138,7 @@ $cm_texts['en_US'] = array(
   'ct.co_petition_history_records.pl' => 'CO Petition History Records',
   'ct.co_petitions.1' =>        'CO Petition',
   'ct.co_petitions.pl' =>       'CO Petitions',
+  'ct.co_petitions.pl-a' =>     'CO Petitions (%1$s)',
   'ct.co_pipelines.1' =>        'Pipeline',
   'ct.co_pipelines.pl' =>       'Pipelines',
   'ct.co_provisioning_target_filters.1'  => 'Provisioning Target Filter',
