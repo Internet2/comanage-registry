@@ -475,7 +475,7 @@ class CoEnrollmentAttribute extends AppModel {
                                 $efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
               // Format +## indicates days from today
               
-              $attr['default'] = strftime("%F",
+              $attr['default'] = date("Y-m-d",
                                           strtotime($efAttr['CoEnrollmentAttributeDefault'][0]['value'] . " days"));
             } else {
               // Just copy the string
