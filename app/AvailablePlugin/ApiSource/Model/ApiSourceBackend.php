@@ -267,10 +267,10 @@ class ApiSourceBackend extends OrgIdentitySourceBackend {
     }
     
     if(!empty($attrs['sorAttributes']['validFrom']))
-      $orgdata['OrgIdentity']['valid_from'] = strftime("%F %T", strtotime($attrs['sorAttributes']['validFrom']));
+      $orgdata['OrgIdentity']['valid_from'] = date("Y-m-d H:i:s", strtotime($attrs['sorAttributes']['validFrom']));
     
     if(!empty($attrs['sorAttributes']['validThrough']))
-      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", strtotime($attrs['sorAttributes']['validThrough']));
+      $orgdata['OrgIdentity']['valid_through'] = date("Y-m-d H:i:s", strtotime($attrs['sorAttributes']['validThrough']));
     
     if(!empty($attrs['sorAttributes']['urls'])) {
       foreach($attrs['sorAttributes']['urls'] as $url) {
