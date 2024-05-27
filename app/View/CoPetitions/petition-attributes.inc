@@ -324,10 +324,10 @@
             print '<br /><span class="required">' . _txt('fd.pt.required') . '</span>' . PHP_EOL;
           }
           
-          if(!empty($ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
+          if(!empty($coe_attributes[0]['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
             print '<br /><span class="required">' . _txt('fd.pt.archived') . '</span>' . PHP_EOL;
-          } elseif(isset($ea['CoEnrollmentAttribute']['deleted'])
-                   && $ea['CoEnrollmentAttribute']['deleted']) {
+          } elseif(isset($coe_attributes[0]['CoEnrollmentAttribute']['deleted'])
+                   && $coe_attributes[0]['CoEnrollmentAttribute']['deleted']) {
             print '<br /><span class="required">' . _txt('fd.pt.deleted') . '</span>' . PHP_EOL;
           }
         ?>
