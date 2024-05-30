@@ -1162,7 +1162,7 @@ class AppController extends Controller {
                               || ($roles['copersonid'] && $this->Role->isApprover($roles['copersonid']));
 
     // Since we do not have access to every Petition we will search each Enrollment Flow for special permissions
-    if(!$p['menu']['petitions']) {
+    if(!$p['menu']['petitions'] && isset($this->cur_co['Co']['id'])) {
       // Calculate the petition permissions for each enrollment flow
       $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
       $enrollmentFlowList = $CoEnrollmentFlow->enrollmentFlowList($this->cur_co['Co']['id']);
