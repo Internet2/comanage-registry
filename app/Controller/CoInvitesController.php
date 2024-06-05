@@ -637,7 +637,7 @@ class CoInvitesController extends AppController {
 
                 $co_person = $this->CoInvite->CoPerson->find('first', $args);
                 $cn = generateCn($co_person['PrimaryName']);
-                $vAttrs[$ptid]['sponsorPrimaryName'] = "{$cn} ({$ptid})";
+                $vAttrs[$ptid]['sponsorPrimaryName'] = "{$cn} ({$attributes['sponsor_co_person_id']})";
             } else if(isset($attributes['manager_co_person_id'])) {
                 $args = array();
                 $args['conditions']['CoPerson.id'] = $attributes['manager_co_person_id'];
@@ -645,7 +645,7 @@ class CoInvitesController extends AppController {
 
                 $co_person = $this->CoInvite->CoPerson->find('first', $args);
                 $cn = generateCn($co_person['PrimaryName']);
-                $vAttrs[$ptid]['managerPrimaryName'] = "{$cn} ({$ptid})";
+                $vAttrs[$ptid]['managerPrimaryName'] = "{$cn} ({$attributes['manager_co_person_id']})";
             }
         }
         
