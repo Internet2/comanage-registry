@@ -325,7 +325,12 @@
           }
           
           if(!empty($coe_attributes[0]['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
-            print '<br /><span class="required">' . _txt('fd.pt.archived') . '</span>' . PHP_EOL;
+            $active_attribute = $this->Petition->getAttributeRecord($coe_attributes[0]['CoEnrollmentAttribute']['co_enrollment_attribute_id']);
+            if(!$this->Petition->attributeRecordsMatching(
+              $active_attribute['CoEnrollmentAttribute'], $coe_attributes[0]['CoEnrollmentAttribute'])
+            ) {
+              print '<br /><span class="required">' . _txt('fd.pt.archived') . '</span>' . PHP_EOL;
+            }
           } elseif(isset($coe_attributes[0]['CoEnrollmentAttribute']['deleted'])
                    && $coe_attributes[0]['CoEnrollmentAttribute']['deleted']) {
             print '<br /><span class="required">' . _txt('fd.pt.deleted') . '</span>' . PHP_EOL;
