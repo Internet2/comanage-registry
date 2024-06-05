@@ -125,11 +125,13 @@
   
   function reset_manager() {
     $("#managers").val("");
+    $("#managers").prop("disabled", false);
     $("#EnrolleeCoPersonRoleManagerCoPersonId").val(null);
   }
   
   function reset_sponsor() {
     $("#sponsors").val("");
+    $("#sponsors").prop("disabled", false);
     $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(null);
   }
 </script>
@@ -538,14 +540,19 @@
                 // and we use the people picker, otherwise the sponsor field will
                 // be a dropdown via inList
 
+                print $this->Form->hidden($fieldName,
+                                          array(
+                                            // We don't support two sponsors, but if we did this id would break
+                                            'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
+                                            'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                          ));
+
                 if($ea['modifiable']) {
                   // Use a people picker
                   print '<div class="cm-inline-editable-field">';
-                  $inlineEditableFields['sponsor-val']['set'] = false;
 
+                  // Default Sponsor
                   if(!empty($vv_default_sponsor)) {
-                    $inlineEditableFields['sponsor-val']['set'] = true;
-
                     print '<div class="cm-ief-val">';
                     print generateCn($vv_default_sponsor['PrimaryName']);
                     print $this->element('inlineEditControls', array(
@@ -556,42 +563,17 @@
                     print '</div>';
                   }
 
-                  $iefClasses = "cm-ief-widget";
-                  if ($inlineEditableFields['sponsor-val']['set']) {
-                    $iefClasses .= " hidden";
-                  }
-                  $requiredHtml = "";
-                  $requiredLabel = "";
-                  if($args['required']) {
-                    $requiredHtml = ' required="required"';
-                    $requiredLabel = '<span class="required">*</span>';
-                  }
+                  // Pick Sponsor
+                  print $this->element('pickerWidget', array(
+                    'isRequired' => $args['required'],
+                    'label' => filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS),
+                    'hidden' => !empty($vv_default_sponsor),
+                    'inputId' => 'sponsors',
+                    'placeholder' => _txt('op.people.picker.placeholder'),
+                    'fieldDescription' => _txt('fd.sponsor.desc')
+                  ));
 
-                  print '<div class="' . $iefClasses . '">';
-                  print ' <label for="sponsors">'
-                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
-                        .   $requiredLabel
-                        . '</label>
-                           <div class="ui-widget">
-                             <span class="co-loading-mini-input-container">
-                             <input id="sponsors"
-                                    type="text"
-                                    placeholder="' . _txt("op.people.picker.placeholder") . '"
-                                    class="form-control"' . $requiredHtml . '/>'
-                        . '  <span class="co-loading-mini"><span></span><span></span><span></span></span>
-                           </span>'
-                        . $this->Form->hidden($fieldName,
-                                              array(
-                                                // We don't support two sponsors, but if we did this id would break
-                                                'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
-                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
-                                              ))
-                        . '</div>
-                           <div class="field-desc">
-                             <span class="ui-icon ui-icon-info co-info"></span>
-                             <em>' . _txt('fd.sponsor.desc') . '</em>
-                           </div>';
-                  print '</div>'; // cm-ief-widget
+
                   print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
                   $this->Form->unlockField($fieldName);
@@ -601,15 +583,17 @@
                 }
               } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id') {
                 // Manager always uses a people picker
+                print $this->Form->hidden($fieldName,
+                                          array(
+                                            // We don't support two managers, but if we did this id would break
+                                            'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
+                                            'default' => ($ea['default'] ?? null)
+                                          ));
                 
                 if($ea['modifiable']) {
                   // Use a people picker
                   print '<div class="cm-inline-editable-field">';
-                  $inlineEditableFields['manager-val']['set'] = false;
-
                   if(!empty($vv_default_manager)) {
-                    $inlineEditableFields['manager-val']['set'] = true;
-
                     print '<div class="cm-ief-val">';
                     print generateCn($vv_default_manager['PrimaryName']);
                     print $this->element('inlineEditControls', array(
@@ -620,42 +604,17 @@
                     print '</div>';
                   }
 
-                  $iefClasses = "cm-ief-widget";
-                  if ($inlineEditableFields['manager-val']['set']) {
-                    $iefClasses .= " hidden";
-                  }
-                  $requiredHtml = "";
-                  $requiredLabel = "";
-                  if($args['required']) {
-                    $requiredHtml = ' required="required"';
-                    $requiredLabel = '<span class="required">*</span>';
-                  }
+                  // Pick Manager
+                  print $this->element('pickerWidget', array(
+                    'isRequired' => $args['required'],
+                    'label' => filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS),
+                    'hidden' => !empty($vv_default_manager),
+                    'inputId' => 'managers',
+                    'placeholder' => _txt('op.people.picker.placeholder'),
+                    'fieldDescription' => _txt('fd.manager.desc')
+                  ));
 
-                  print '<div class="' . $iefClasses . '">';
-                  print ' <label for="managers">'
-                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
-                        .   $requiredLabel
-                        . '</label>
-                           <div class="ui-widget">
-                             <span class="co-loading-mini-input-container">
-                               <input id="managers"
-                                      type="text"
-                                      placeholder="' . _txt("op.people.picker.placeholder") . '"
-                                      class="form-control"' . $requiredHtml . '/>'
-                        .  '   <span class="co-loading-mini"><span></span><span></span><span></span></span>
-                             </span>'
-                        . $this->Form->hidden($fieldName,
-                                              array(
-                                                // We don't support two managers, but if we did this id would break
-                                                'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
-                                                'default' => ($ea['default'] ?? null)
-                                              ))
-                        . '</div>
-                           <div class="field-desc">
-                             <span class="ui-icon ui-icon-info co-info"></span>
-                             <em>' . _txt('fd.manager.desc') . '</em>
-                           </div>';
-                  print '</div>'; // cm-ief-widget
+
                   print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
                   $this->Form->unlockField($fieldName);

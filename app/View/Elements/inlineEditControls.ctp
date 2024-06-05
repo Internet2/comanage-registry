@@ -48,7 +48,7 @@
       // Action JavaScript behaviors are defined on each calling page.
       foreach ($actions as $action) {
         if($action == 'remove') {
-          print '<button class="cm-ief-button cm-ief-button-remove" id="cm-ief-button-remove-' . $fieldName . '" title="' . _txt('op.remove') . '">';
+          print '<button type="button" class="cm-ief-button cm-ief-button-remove" id="cm-ief-button-remove-' . $fieldName . '" title="' . _txt('op.remove') . '">';
           print '<em class="material-icons">clear</em>';
           print '</button>';
         }
