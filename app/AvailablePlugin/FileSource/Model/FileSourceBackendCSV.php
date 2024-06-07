@@ -235,7 +235,7 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
         if(!empty($result[$col])) {
           if($attr == 'valid_from' || $attr == 'valid_through') {
             // Convert the value to database format
-            $orgdata['OrgIdentity'][$attr] = strftime("%F %T", strtotime($result[$col]));
+            $orgdata['OrgIdentity'][$attr] = date("Y-m-d H:i:s", strtotime($result[$col]));
           } else {
             // Just copy the value
             $orgdata['OrgIdentity'][$attr] = $result[$col];

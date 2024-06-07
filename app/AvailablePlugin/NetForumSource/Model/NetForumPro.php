@@ -337,7 +337,7 @@ class NetForumPro extends NetForumServer {
     if(!empty($result->MemberExpireDate)) {
       // netFORUM format is 12/31/2016 12:00:00 AM, we need to convert to YYYY-MM-DD HH:MM:SS
       $time = strtotime($result->MemberExpireDate);
-      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", $time);
+      $orgdata['OrgIdentity']['valid_through'] = date("Y-m-d H:i:s", $time);
     }
     
     $orgdata['Name'] = array();
