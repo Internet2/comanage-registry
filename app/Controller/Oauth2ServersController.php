@@ -182,7 +182,7 @@ class Oauth2ServersController extends StandardController {
                    . '&state=' . hash('sha256', session_id());
         // Scope is optional
         if(!empty($osrvr['Oauth2Server']['scope'])) {
-          $targetUrl . '&scope='. str_replace(' ', '%20', $osrvr['Oauth2Server']['scope']);
+          $targetUrl .= '&scope='. str_replace(' ', '%20', $osrvr['Oauth2Server']['scope']);
         }
         
         $this->redirect($targetUrl);
