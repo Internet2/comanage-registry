@@ -650,6 +650,7 @@ The request may be viewed at
     GroupEnum::Admins        => 'Administrators',
     GroupEnum::AllMembers    => 'All Members',
     GroupEnum::Approvers     => 'Approvers',
+    GroupEnum::Clusters      => 'Clusters',
     GroupEnum::NestedAdmins  => 'Nested Administrators',
     GroupEnum::NestedMembers => 'Nested Members'
   ),
@@ -1397,6 +1398,7 @@ The request may be viewed at
   'fd.co_group.nesting_mode_all.desc' => 'For membership in this group via nested groups, require membership in <i>all</i> Nested (Source) Groups to be a member of this group (instead of <i>any</i>)',
   'fd.co_group.no_admin' => 'Hide administrator groups',
   'fd.co_group.no_approver' => 'Hide approver groups',
+  'fd.co_group.regular' => 'Regular groups',
   'fd.co_group.source.1' => 'Source Group',
   'fd.co_group.source.pl' => 'Source Groups',
   'fd.co_group.source.desc' => 'Members of each Source Group become indirect members of %1$s',

@@ -140,6 +140,12 @@ class CoGroupsController extends StandardController {
           'type' => 'checkbox',
           'column' => 1
         ),
+        'search.regular' => array(                // 4th row, left column
+          'label' => _txt('fd.co_group.regular'),
+          'group' => _txt('fd.membership'),
+          'type' => 'checkbox',
+          'column' => 1
+        ),
         'search.owner' => array(                 // 4th row, right column, inline
           'label' => ($action === 'select' ? _txt('fd.co_group_member.owner') : _txt('fd.co_group.my_ownerships')),
           'group' => _txt('fd.membership'),
@@ -844,6 +850,12 @@ class CoGroupsController extends StandardController {
     // Exclude approvers groups
     if(!empty($this->params['named']['search.noapprover'])) {
       $pagcond['conditions'][] = "CoGroup.group_type <> '" . GroupEnum::Approvers . "'";
+    }
+
+    // Only Regular Groups
+    if(!empty($this->params['named']['search.regular'])) {
+      $pagcond['conditions']['CoGroup.auto'] = false;
+      $pagcond['conditions'][] = "CoGroup.group_type='" . GroupEnum::Standard . "'";
     }
 
     // Filter by membership and ownership
