@@ -683,6 +683,7 @@ The request may be viewed at
     GroupEnum::Admins        => 'Administrators',
     GroupEnum::AllMembers    => 'All Members',
     GroupEnum::Approvers     => 'Approvers',
+    GroupEnum::Clusters      => 'Clusters',
     GroupEnum::NestedAdmins  => 'Nested Administrators',
     GroupEnum::NestedMembers => 'Nested Members'
   ),
@@ -2790,6 +2791,7 @@ The request may be viewed at
   'sh.ug.410.datafilter' => 'Adding default context for DataFilters',
   'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers',
   'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types',
+  'sh.ug.440.cluster' =>   'Migrate Clusters group type',
   'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording'
 );
 

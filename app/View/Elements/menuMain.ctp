@@ -245,6 +245,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['search.auto'] = 'f'; // filter out automatic groups by default
         $args['search.noadmin'] = '1'; // exclude administration groups by default
         $args['search.noapprover'] = '1'; // exclude approvers groups by default
+        $args['search.group_type'] = 'S'; // Standard groups
         print $this->Html->link(_txt('op.grm.regular'), $args, array('class' => 'spin'));
         print "</li>";
 
