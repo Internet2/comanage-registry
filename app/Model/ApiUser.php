@@ -153,16 +153,22 @@ class ApiUser extends AppModel {
     if(!empty($this->data['ApiUser'])) {
       // The username must begin with "co_<co_id>.".
       $prefix = "co_" . $this->data['ApiUser']['co_id'] . ".";
-      // Prepend the prefix to the username i got from post
-      $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
-
+      // Prepend the prefix to the username if the prefix is not found at the beggining of the string,
+      // which means that either the strop will return false or an integer greater than 0
+      if(strpos($prefix, $this->data['ApiUser']['username']) === false
+         || strpos($prefix, $this->data['ApiUser']['username']) > 0 ) {
+        $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
+      }
       // Check if the username is unique. Since we enabled changelog we need to do it manually
       $args = array();
       $args['conditions']['ApiUser.username'] = $this->data['ApiUser']['username'];
+      if(!empty($this->id)) {
+        $args['conditions']['NOT']['ApiUser.id'] = $this->id;
+      }
       $args['contain'] = false;
 
-      if($this->find('count', $args) > 0
-         && empty($this->data['ApiUser']["id"])) {
+      if(empty($this->data['ApiUser']["id"])
+         && $this->find('count', $args) > 0) {
         return false;
       }
     }
