@@ -981,14 +981,20 @@ body.view .modelbox-data {
   border: 1px solid #eee;
 }
 /* MATCHABLE INFO BOX */
+.matchable-output {
+  position: relative;
+}
 .co-info-matchable {
-  background-color: #fff;
-  border: 1px solid #53b1f4;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+  background-color: var(--cmg-color-white);
+  border: 1px solid var(--cmg-color-blue-primary);
   margin-top: -1.5em;
 }
 .co-info-matchable-title {
   position: relative;
-  background-color: #53b1f4;
+  background-color:var(--cmg-color-blue-primary);
   color: var(--cmg-color-white);
   text-align: center;
   margin: 0;
@@ -1005,19 +1011,35 @@ body.view .modelbox-data {
   border: 1px dotted #ccc;
 }
 .co-info-matchable > ul {
-  padding: 0.75em;
+  padding: 0;
   margin: 0;
   list-style: none;
-  line-height: 1em;
+  max-height: 40vh;
+  overflow-y: auto;
 }
 .co-info-matchable li {
-   margin-bottom: 0.5em;
+  padding: 0.75em;
+  border-top: 1px solid var(--cmg-color-lightgray-004);
+}
+.co-info-matchable li.co-info-matchable-info {
+  padding: 0.75em 1em;
+  background-color: var(--cmg-color-lightgray-005);
+}
+.co-info-matchable-item {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
+.co-info-matchable-name {
+  display: flex;
+  align-items: center;
 }
 .matchable-output ul .material-icons {
   vertical-align: middle;
   margin-right: 0.25em;
   font-size: 18px;
-  color: #52ADEA;
+  color: var(--cmg-color-blue-primary);
 }
 #co_petition_tandc {
   padding: 0;
