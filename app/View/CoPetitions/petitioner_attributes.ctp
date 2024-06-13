@@ -30,30 +30,35 @@ var givenNameAttr = "";
 var familyNameAttr = "";
   
 $(document).ready(function() {
-  $("input.matchable").keyup(function(event) {
-    if(event.which != 13) {
+  $('input.matchable').keyup(function(event) {
+    var thisFieldId = $(this).attr('id');
+    
+    if(event.which != 13 && $(this).val().length > 2) {
       // 13 is enter/return... don't search on form submit
       // XXX Don't hardcode fields here
-      var thisFieldId = $(this).attr("id");
       $.ajax({
         url: '<?php print $this->Html->url('/');?>' + 'co_people/match/coef:' + <?php print filter_var($co_enrollment_flow_id,FILTER_SANITIZE_URL); ?>
              + '/given:' + document.getElementById(givenNameAttr).value
              + '/family:' + document.getElementById(familyNameAttr).value
       }).done(function(data) {
         //$('#petitionerMatchResults').html(data);
-        $("#matchable-for-" + thisFieldId).html(data);
+        $('#matchable-for-' + thisFieldId).html(data);
+        $('#matchable-for-' + thisFieldId).show();
 
         // provide a close button to manually hide matchable info
-        $("#matchable-for-" + thisFieldId + " .close-button").click(function() {
-          $(this).closest('.matchable-output').hide();
+        $('#matchable-for-' + thisFieldId + ' .close-button').click(function() {
+          $(this).closest('#matchable-for-' + thisFieldId).hide();
         });
       });
+    } else if((event.which == 8 || event.which == 46) && $(this).val().length < 3) {
+      // Catch backspace and hide the advisory when back at 2 or less characters
+      $('#matchable-for-' + thisFieldId).hide();
     }
   });
 
-  // clear out existing matchable output boxes when focusing a matchable field
-  $("input.matchable").focus(function() {
-    $('.matchable-output').html('').show();
+  // Hide matchable output boxes when focusing other fields
+  $("input:not(.matchable)").focus(function() {
+    $('.matchable-output').hide();
   });
 });
 </script>

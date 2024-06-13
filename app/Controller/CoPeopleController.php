@@ -1127,6 +1127,9 @@ class CoPeopleController extends StandardController {
     } else {
       $this->set('matches', $matches);
     }
+    
+    // Set the affiliation types lookup
+    $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
   }
 
   /**
