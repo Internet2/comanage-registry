@@ -235,7 +235,7 @@
   }
   /* MATCHABLE INFO BOX */
   .co-info-matchable {
-    float: right;
+    right: 0;
     width: 70%;
   }
   /* SEARCH PAGE */
