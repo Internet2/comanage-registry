@@ -1718,6 +1718,7 @@ The request may be viewed at
   'fd.lan.res.desc' => 'Lowercase alphanumeric characters only<br />Must not be a reserved word',
   'fd.link.location' => 'Link Location',
   'fd.link.order' =>  'Link Order',
+  'fd.link.to.person' =>  'Linked to Person',
   'fd.link.title' =>  'Link Title',
   'fd.link.url' =>    'Link URL',
   'fd.load.last' =>   'Last Loaded',

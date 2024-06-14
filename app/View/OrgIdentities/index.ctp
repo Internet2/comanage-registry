@@ -90,6 +90,7 @@ if(!empty($vv_alphabet_search)) {
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print  _txt('fd.link.to.person') ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
@@ -114,6 +115,18 @@ if(!empty($vv_alphabet_search)) {
           );
           ?>
         </td>
+        <td><?php
+          if(!empty($p['CoOrgIdentityLink'][0]['co_person_id'])) {
+            $linkedPerson = array(
+              'controller' => 'co_people',
+              'action' => 'canvas',
+              $p['CoOrgIdentityLink'][0]['co_person_id'],
+            );
+
+            print $this->Html->link(generateCn($p["CoOrgIdentityLink"][0]["CoPerson"]["PrimaryName"]),
+                                    $linkedPerson);
+          }
+            ?></td>
         <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
