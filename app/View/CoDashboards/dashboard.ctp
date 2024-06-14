@@ -102,6 +102,14 @@
   
         $sanitizer = $builder->build([
           'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra', 'style'],
+          'tags' => [
+            'div' => [
+              'allowed_attributes' => ['class'],
+            ],
+            'p' => [
+              'allowed_attributes' => ['class'],
+            ]
+          ],
           'keepstyle' => true
         ]);
       }
