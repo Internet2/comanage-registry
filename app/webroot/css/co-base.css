@@ -1032,6 +1032,10 @@ body.view .modelbox-data {
   display: flex;
   align-items: center;
 }
+.co-info-matchable-item .cm-id-display {
+  margin-left: 1em;
+  font-size: 1em;
+}
 .matchable-output ul .material-icons {
   vertical-align: middle;
   margin-right: 0.25em;

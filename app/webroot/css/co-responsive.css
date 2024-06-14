@@ -238,9 +238,6 @@
     right: 0;
     width: 70%;
   }
-  .co-info-matchable-item {
-    grid-template-columns: 2fr 3fr;
-  }
   /* SEARCH PAGE */
   #search input#CoDashboardQ {
     width: 300px;
