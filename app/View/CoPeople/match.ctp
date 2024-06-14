@@ -44,6 +44,7 @@
         generateCn($m['PrimaryName']),
         array('controller' => 'co_people', 'action' => 'canvas', $m['CoPerson']['id'])
       );
+      print ' <span class="text-muted-cmg cm-id-display">ID: ' . $m['CoPerson']['id'] . '</span>';
       print '</span>';
       print '<span class="co-info-matchable-role">';
       if(isset($m['CoPersonRole'][0])) {

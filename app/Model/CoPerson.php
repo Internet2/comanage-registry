@@ -894,12 +894,16 @@ class CoPerson extends AppModel {
       array_push($args['joins'], $args_tmp);
       unset($args_tmp);
     }
-
+    
     if(!empty($args)) {
       $args['conditions']['CoPerson.co_id'] = $coId;
-      $args['conditions']['PrimaryName.primary_name'] = true;
-      $args['contain'][] = 'PrimaryName';
-      $args['contain'][] = 'CoPersonRole';
+      if($mdl == 'Name') {
+        $args['conditions']['Name.primary_name'] = true;
+      }
+      $args['contain'] = array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        'CoPersonRole'
+      );
     } else {
       return [];
     }
