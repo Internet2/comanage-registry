@@ -1701,6 +1701,9 @@ a.ui-button:visited,
   flex-wrap: wrap;
   margin-top: 0.5em;
 }
+.top-search .form-check-inline {
+  margin-top: 1em;
+}
 .top-search .filter-clear-all-button {
   font-size: 0.9em;
   width: auto;

@@ -123,10 +123,13 @@ if(!empty($vv_alphabet_search)) {
               $p['CoOrgIdentityLink'][0]['co_person_id'],
             );
 
-            print $this->Html->link(generateCn($p["CoOrgIdentityLink"][0]["CoPerson"]["PrimaryName"]),
+            print $this->Html->link(generateCn($p['CoOrgIdentityLink'][0]['CoPerson']['PrimaryName']),
                                     $linkedPerson);
+          } else {
+            print '<em>' . _txt('rs.org.not.linked') . '</em>';
           }
-            ?></td>
+            ?>
+        </td>
         <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['title'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
