@@ -305,6 +305,8 @@ class OrgIdentitySource extends AppModel {
    * @param  Integer $targetCoPersonId CO Person ID to link new Org Identity to, if already known
    * @param  Boolean $provision Whether to execute provisioning
    * @param  Integer $coPetitionId If executing as part of a petition, the CO Petition ID
+   * @param  Boolean $duplicateIdentifierHandling Enable duplicate Identifier handling
+   * @param  Boolean $duplicateIdentifierIsLogin Duplicate handling should check for a login enabled identifier
    * @return Integer ID of new Org Identity
    * @throws InvalidArgumentException
    * @throws OverflowException
@@ -318,7 +320,10 @@ class OrgIdentitySource extends AppModel {
                                     $coId=null,
                                     $targetCoPersonId=null,
                                     $provision=true,
-                                    $coPetitionId=null) {
+                                    $coPetitionId=null,
+                                    $duplicateIdentifierHandling=false,
+                                    $duplicateIdentifierIsLogin=false
+  ) {
     // Unlike CoPipeline::syncOrgIdentityToCoPerson, we have a separate call
     // for create vs update. This is because $Backend->retrieve() will return
     // data in a format that is more or less ready for a direct save.
@@ -381,6 +386,58 @@ class OrgIdentitySource extends AppModel {
     }
     
     $orgIdentityId = $this->OrgIdentitySourceRecord->OrgIdentity->id;
+
+    // Check for duplicates
+    if($duplicateIdentifierHandling) {
+      // See if we have an identity already associated with any of the provided identifiers.
+
+      $args                                             = array();
+      $args['conditions']['Identifier.org_identity_id'] = $orgIdentityId;
+      $args['conditions']['Identifier.status']          = StatusEnum::Active;
+      if ($duplicateIdentifierIsLogin) {
+        $args['conditions']['Identifier.login'] = true;
+      }
+      $args['contain'] = false;
+
+      $newOrgIdentifiers = $this->OrgIdentitySourceRecord->OrgIdentity->Identifier->find('all', $args);
+
+      if (!empty($newOrgIdentifiers)) {
+        foreach ($newOrgIdentifiers as $identifier) {
+          // We'll check for any identifier (Org Identity or CO Person), at least
+          // until we find a reason to be more specific.
+          $args = array();
+          // We use LEFT joins because either foreign key might be NULL
+          $args['joins'][0]['table']                           = 'co_people';
+          $args['joins'][0]['alias']                           = 'CoPerson';
+          $args['joins'][0]['type']                            = 'LEFT';
+          $args['joins'][0]['conditions'][0]                   = 'CoPerson.id=Identifier.co_person_id';
+          $args['joins'][1]['table']                           = 'org_identities';
+          $args['joins'][1]['alias']                           = 'OrgIdentity';
+          $args['joins'][1]['type']                            = 'LEFT';
+          $args['joins'][1]['conditions'][0]                   = 'OrgIdentity.id=Identifier.org_identity_id';
+          $args['conditions']['Identifier.identifier']         = $identifier['Identifier']['identifier'];
+          $args['conditions']['Identifier.login']              = $identifier['Identifier']['login'];
+          $args['conditions']['Identifier.type']               = $identifier['Identifier']['type'];
+          $args['conditions']['Identifier.status']             = StatusEnum::Active;
+          $args['conditions']['Identifier.org_identity_id !='] = $orgIdentityId;
+          $args['conditions']['OR']                            = array(
+            'CoPerson.co_id'    => $coId,
+            'OrgIdentity.co_id' => $coId
+            // We don't check other objects since it's not clear what the use
+            // case for checking Identifiers against (eg) Departments is yet...
+          );
+          $args['contain']                                     = false;
+
+          $count = $this->OrgIdentitySourceRecord->OrgIdentity->Identifier->find('count', $args);
+
+          if ($count > 0) {
+            $dbc->rollback();
+            // This identifier is already known, flag the petition as a duplicate
+            throw new OverflowException(_txt('er.ois.linked'));
+          }
+        }
+      }
+    }
     
     // Cut a history record
     try {
