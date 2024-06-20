@@ -167,10 +167,11 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
       $this->OrcidToken->set($data);
       if (!$this->OrcidToken->validates()) {
         $errors = $this->OrcidToken->validationErrors;
-        $this->log(__METHOD__ . "::OrcidToken Validation Errors\n" . print_r($errors, true), LOG_WARNING);
+        $this->log(__METHOD__ . "::OrcidToken Validation Errors:\n" . var_export($errors, true), LOG_ERROR);
       }
       // We don't want to change any attributes not specified above
       if(!$this->OrcidToken->save($data)) {
+        $this->log(__METHOD__ . '::OrcidToken Save failed', LOG_ERROR);
         throw new RuntimeException(_txt('er.db.save-a', array('OrcidToken')));
       }
       
@@ -202,6 +203,7 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
                                                          _txt('pl.orcidsource.linked', array($orcid)));
     }
     catch(Exception $e) {
+      $this->log(__METHOD__ . '::Exception: ' . var_export($e->getMessage(), true), LOG_ERROR);
       // This might happen if (eg) the ORCID is already in use
       throw new RuntimeException($e->getMessage());
     }
