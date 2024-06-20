@@ -2744,7 +2744,37 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
   </table>
-  
+
+  <table name="co_normalizers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <notnull />
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="description" type="C" size="256" />
+    <field name="ordr" type="I" />
+    <field name="plugin" type="C" size="32" />
+    <field name="status" type="C" size="2" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="co_normalizer_id" type="I">
+      <constraint>REFERENCES cm_normalizers(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
+    <index name="co_normalizers_i1">
+      <col>co_id</col>
+    </index>
+    <index name="co_normalizers_i2">
+      <col>co_normalizer_id</col>
+    </index>
+  </table>
+
   <table name="co_terms_and_conditions">
     <field name="id" type="I">
       <key />
@@ -3143,7 +3173,6 @@
     <field name="group_create_admin_only" type="L" />
     <field name="group_validity_sync_window" type="I" />
     <field name="garbage_collection_interval" type="I" />
-    <field name="enable_normalization" type="L" />
     <field name="enable_empty_cou" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="permitted_fields_name" type="C" size="160" />

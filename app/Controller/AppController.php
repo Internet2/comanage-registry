@@ -1209,6 +1209,9 @@ class AppController extends Controller {
     // Manage CO Links?
     $p['menu']['conavigationlinks'] = $roles['cmadmin'] || $roles['coadmin'];
 
+    // Manage Normalizers?
+    $p['menu']['conormalizers'] = $roles['cmadmin'] || $roles['coadmin'];
+
     // Manage CO Permissions?
     $p['menu']['copipelines'] = $roles['cmadmin'] || $roles['coadmin'];
   
