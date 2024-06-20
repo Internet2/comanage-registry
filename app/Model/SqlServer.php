@@ -80,6 +80,12 @@ class SqlServer extends AppModel {
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
+    ),
+    // 'port' is a MySQL reserved keyword
+    'dbport' => array(
+      'rule' => array('range', 1, 65535),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -123,6 +129,10 @@ class SqlServer extends AppModel {
       'prefix' => $prefix,
 //    'encoding' => 'utf8',
     );
+
+    if(!empty($sqlserver['SqlServer']['dbport'])) {
+      $dbconfig['port'] = $sqlserver['SqlServer']['dbport'];
+    }
     
     $datasource = ConnectionManager::create($name, $dbconfig);
     
