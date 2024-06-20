@@ -2455,6 +2455,7 @@ The request may be viewed at
   'rs.mail.verified' => 'Email Address "%1$s" verified',
   'rs.match' =>       'Reference Identifier %1$s obtained from match server',
   'rs.match.accepted' => 'Match request requires administrator intervention, Match Request ID: %1$s',
+  'rs.match.info' =>  'Click a name below to visit that Person\'s canvas for comparison.',
   'rs.match.multiple' => 'Match request returned %1$s candidate matches',
   'rs.match.possible' => 'Possible Matches',
   'rs.match.request' => 'Potential Match',

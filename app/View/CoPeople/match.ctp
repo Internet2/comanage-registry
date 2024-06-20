@@ -32,22 +32,29 @@
     print '<a href="#" class="close-button"><em class="material-icons">close</em></a>';
     print '</div>';
     print "<ul>\n";
-    
+    print '<li class="co-info-matchable-info">';
+    print _txt('rs.match.info');
+    print '</li>';
     foreach ($matches as $m) {
       print "<li>";
-      print '<em class="material-icons">person</em>';
+      print '<span class="co-info-matchable-item">';
+      print '<span class="co-info-matchable-name">';
+      print '<em class="co-info-matchable-icon material-icons">person</em>';
       print $this->Html->link(
         generateCn($m['PrimaryName']),
         array('controller' => 'co_people', 'action' => 'canvas', $m['CoPerson']['id'])
       );
+      print ' <span class="text-muted-cmg cm-id-display">ID: ' . $m['CoPerson']['id'] . '</span>';
+      print '</span>';
+      print '<span class="co-info-matchable-role">';
       if(isset($m['CoPersonRole'][0])) {
-        print " ("
-              . (!empty($m['CoPersonRole'][0]['title']) ? $m['CoPersonRole'][0]['title'] . ", " : "")
-              . (!empty($m['CoPersonRole'][0]['affiliation'])
-                 ? $vv_copr_affiliation_types[ $m['CoPersonRole'][0]['affiliation'] ]
-                 : "")
-              . ")";
+        
+        print (!empty($m['CoPersonRole'][0]['title']) ? $m['CoPersonRole'][0]['title']  : _txt('fd.title.none'))
+              . (!empty($m['CoPersonRole'][0]['affiliation']) ? ", " 
+              . $vv_copr_affiliation_types[ $m['CoPersonRole'][0]['affiliation'] ] : "");
       }
+      print "</span>\n";
+      print "</span>\n";
       print "</li>\n";
     }
     
