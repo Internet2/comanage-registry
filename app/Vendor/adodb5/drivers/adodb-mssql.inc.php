@@ -450,12 +450,13 @@ order by constraint_name, referenced_table_name, keyno";
 
 		$ADODB_FETCH_MODE = $save;
 
-		$arr = false;
+		$arr = [];
 		foreach($constraints as $constr) {
 			//print_r($constr);
+			$arr[$constr[0]][$constr[2]] = array();
 			$arr[$constr[0]][$constr[2]][] = $constr[1].'='.$constr[3];
 		}
-		if (!$arr) return false;
+		if (!empty($arr)) return false;
 
 		$arr2 = false;
 
@@ -541,7 +542,6 @@ order by constraint_name, referenced_table_name, keyno";
 	function SelectDB($dbName)
 	{
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
 			return @mssql_select_db($dbName);
 		}
@@ -726,7 +726,6 @@ order by constraint_name, referenced_table_name, keyno";
 		return $this->Execute($sql) != false;
 	}
 
-	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;

@@ -125,7 +125,7 @@ class SmtpTransport extends AbstractTransport {
 	protected function _bufferResponseLines(array $responseLines) {
 		$response = array();
 		foreach ($responseLines as $responseLine) {
-			if (preg_match('/^(\d{3})(?:[ -]+(.*))?$/', $responseLine, $match)) {
+			if (preg_match('/^(\d{3})(?:[ -]+(.*))?$/', $responseLine ?? '', $match)) {
 				$response[] = array(
 					'code' => $match[1],
 					'message' => isset($match[2]) ? $match[2] : null
@@ -366,7 +366,7 @@ class SmtpTransport extends AbstractTransport {
 
 			$this->_bufferResponseLines($responseLines);
 
-			if (preg_match('/^(' . $checkCode . ')(.)/', $response, $code)) {
+			if (preg_match('/^(' . $checkCode . ')(.)/', $response ?? '', $code)) {
 				if ($code[2] === '-') {
 					continue;
 				}

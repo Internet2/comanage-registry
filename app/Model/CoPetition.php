@@ -1026,7 +1026,7 @@ class CoPetition extends AppModel {
               );                  
             }
           }
-        } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)) {
+        } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m ?? '')) {
           // Extended Attribute
           
           foreach(array_keys($coRoleData[$m]) as $a) {
@@ -3756,7 +3756,7 @@ class CoPetition extends AppModel {
       }
     }
     
-    if(preg_match('/.*CoPersonRole$/', $primaryModel)) {
+    if(preg_match('/.*CoPersonRole$/', $primaryModel ?? '')) {
       // Handle Extended Attributes specially, as usual. To find them, we have to walk
       // the configured attributes.
       
@@ -3764,7 +3764,7 @@ class CoPetition extends AppModel {
         $m = explode('.', $efAttr['model'], 3);
         
         if(count($m) == 2
-           && preg_match('/Co[0-9]+PersonExtendedAttribute/', $m[1])) {
+           && preg_match('/Co[0-9]+PersonExtendedAttribute/', $m[1] ?? '')) {
           $model = $m[1];
           
           // First, dynamically bind the extended attribute to the model if we haven't already.
