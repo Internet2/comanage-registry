@@ -276,9 +276,12 @@
     text-align: left;
     min-height: 2.5em;
   }
+  #pagination .paginationLast {
+    margin-right: 2em;
+  }
   #pagination .paginationCounter {
     float: right;
-    margin-right: 0.5em;
+    margin: 0.25em 0.5em 0 0;
   }
   #pagination.with-pagination-elements .paginationCounter {
     margin-top: 2px;

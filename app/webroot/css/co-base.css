@@ -1331,16 +1331,14 @@ body.co_petitions .ui-dialog {
 #pagination .paginationFirst,
 #pagination .paginationPrev {
   margin-right: 0.5em;
-  font-size: 0.9em;
 }
 #pagination .paginationLast,
 #pagination .paginationNext {
   margin-left: 0.5em;
-  font-size: 0.9em;
 }
 #pagination .pagination-form {
   display: inline-block;
-  margin-left: 2em;
+  margin: 0.25em 0 0 0.5em;
 }
 #pagination .pagination-form input[type=text] {
   height: 2em;
