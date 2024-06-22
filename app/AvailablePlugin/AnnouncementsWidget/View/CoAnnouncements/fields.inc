@@ -132,7 +132,15 @@
           // announcements that contain HTML should use the HTML Sanitizer library on view.
           require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
           $sanitizer = HtmlSanitizer\Sanitizer::create([
-            'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra']
+            'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra'],
+            'tags' => [
+              'div' => [
+                'allowed_attributes' => ['class'],
+              ],
+              'p' => [
+                'allowed_attributes' => ['class'],
+              ]
+            ]
           ]);
         }
         

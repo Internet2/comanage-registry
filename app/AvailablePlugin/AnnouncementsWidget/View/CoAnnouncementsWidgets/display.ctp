@@ -84,7 +84,15 @@
           // Use the html-sanitizer library to clean user-generated HTML output.
           require(APP . '/Vendor/html-sanitizer-1.5/vendor/autoload.php');
           $sanitizer = HtmlSanitizer\Sanitizer::create([
-            'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra']
+            'extensions' => ['basic', 'code', 'image', 'list', 'table', 'details', 'extra'],
+            'tags' => [
+              'div' => [
+                'allowed_attributes' => ['class'],
+              ],
+              'p' => [
+                'allowed_attributes' => ['class'],
+              ]
+            ]
           ]);
           print $sanitizer->sanitize($a['CoAnnouncement']['body']) ;
         } else {
