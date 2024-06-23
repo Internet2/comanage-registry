@@ -2058,6 +2058,7 @@ ul.fields.data-list li {
 .fieldGroupNameCl h2 {
   font-size: 1.2em;
   display: inline;
+  color: var(--cmg-color-blue-primary);
 }
 #restoreLink {
   margin-bottom: 2em;
