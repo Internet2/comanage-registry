@@ -845,6 +845,11 @@ class OrgIdentitiesController extends StandardController {
       // Cake will auto-join the table
       $pagcond['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
     }
+
+    // We need to manually add this in for some reason. (It should have been
+    // added automatically by Cake based on the CoPerson Model definition of
+    // PrimaryName.)
+    $pagcond['conditions']['PrimaryName.primary_name'] = true;
     
     return $pagcond;
   }

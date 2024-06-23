@@ -232,7 +232,8 @@ class StandardController extends AppController {
       $this->set('vv_servers', $this->Server->find('list', $args));
     }
 
-    if(!$this->request->is('restful')) {
+    if(!$this->request->is('restful')
+       && !$this->request->is('ajax')){
       // Include Search Block
       $this->set('vv_search_fields', $this->searchConfig($this->action));
       // Include alphabet Search bar
