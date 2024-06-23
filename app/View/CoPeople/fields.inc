@@ -867,10 +867,12 @@
             print $this->Form->create('CoPerson', array('url' => array('action'=>'edit','id'=>'CoPersonEditAttributesForm')));
             print $this->Form->hidden('CoPerson.co_id', array('default' => $co_people[0]['CoPerson']['co_id'],'id'=>'CoPersonCoIdAgain')). "\n";
           ?>
-          <a href="#tabs-coperson" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-coperson">
-            <em class="material-icons" aria-hidden="true">expand_less</em>
-            <h2><?php print _txt('fd.attrs.cop'); ?></h2>
-          </a>
+          <div class="fieldGroupNameContainer">
+            <a href="#tabs-coperson" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-coperson">
+              <em class="material-icons" aria-hidden="true">expand_less</em>
+              <h2><?php print _txt('fd.attrs.cop'); ?></h2>
+            </a>
+          </div>
           <ul  id="tabs-coperson" class="fields form-list">
             <li>
               <div class="field-name vtop">
