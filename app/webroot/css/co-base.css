@@ -68,7 +68,7 @@ h3 {
   margin: 0;
 }
 a {
-  color: #06c; /* passes accessibility contrast checks against white down to #eee */
+  color: var(--cmg-color-blue-link); /* passes accessibility contrast checks against white down to #eee */
   text-decoration: none;
 }
 #main a:active,
@@ -90,11 +90,11 @@ a {
 }
 #skip-to-content {
   position: relative;
-  background-color: #06c;
+  background-color: var(--cmg-color-blue-link) !important;
   color: var(--cmg-color-white);
   padding: 0 1em 0.25em ;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
   top: -40px;
   text-decoration: underline;
 }
@@ -540,7 +540,7 @@ form#notificationStatus {
   font-size: 0.9em;
   padding: 7px 8px 7px 16px;
   line-height: 1.4em;
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   border: 1px solid transparent;
 }
 #main-menu > li a:hover,
@@ -554,10 +554,10 @@ form#notificationStatus {
   background-color: #f5f5f5;
 }
 #main-menu li li a.selected {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   background-color: #fafafa;
 }
-#main-menu li.active a.menuTop {
+#main-menu li.mm-active a.menuTop {
   background-color: #f2f2f2;
 }
 #main-menu .menuTitleAdjust {
@@ -572,7 +572,7 @@ form#notificationStatus {
   font-size: 1.4em;
   color: #555;
 }
-#main-menu .co-expandable-menu-item.active .material-icons.arrow {
+#main-menu .co-expandable-menu-item.mm-active .material-icons.arrow {
   transform: rotate(-90deg);
 }
 #main-menu #serviceMenu ul .material-icons {
@@ -650,7 +650,7 @@ body.co_people.canvas .titleNavContainer {
 }
 #topLinks a {
   text-decoration: none;
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   /* override ui-icon settings: */
   border: none;
   background: none;
@@ -685,6 +685,7 @@ body.co_people.canvas .titleNavContainer {
   display: block;
   margin-left: 1.5em;
   line-height: 1.2em;
+  padding: 0.4em 0;
 }
 /* INNER CONTENT - for non-table-based layouts */
 #content {
@@ -831,7 +832,7 @@ body.co_people.canvas .titleNavContainer {
   list-style: none;
 }
 .widget-actions .material-icons {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
 }
 .widget-actions .ui-button {
   background: none;
@@ -863,10 +864,20 @@ body.co_people.canvas .titleNavContainer {
   margin: 0;
 }
 #configuration-menu li {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
   list-style: none;
   margin-bottom: 0.5em;
 }
-/* ENROLLMENT FLOW STEPS */
+#configuration-menu a {
+  display: inline-block;
+  padding: 0.2em 0;
+}
+#configuration-menu .material-icons {
+  margin-top: 0;
+}
+  /* ENROLLMENT FLOW STEPS */
 #enrollmentFlowIntro {
   clear: both;
   padding: 1em;
@@ -885,7 +896,7 @@ td.actions {
 .first-cell {
   padding-right: 1em;
 }
-#enrollmentFlowSteps h3 {
+#enrollmentFlowSteps h2 {
   margin: 0;
   font-size: 1.5em;
   padding: 0 0.5em;
@@ -931,6 +942,14 @@ td.actions {
   background-color: rgb(250, 250, 250);
   clear: both;
 }
+.modelbox fieldset {
+  display: contents;
+}
+.modelbox legend {
+  font-size: 1em;
+  display: inline;
+  padding-right: 0.25em;
+}
 .modelbox .boxtitle {
   padding: 0 0 5px 0;
 }
@@ -938,6 +957,7 @@ td.actions {
   font-weight: bold;
 }
 .modelbox .boxtitle .desc {
+  display: block;
   padding: 0.5em 1em 0;
 }
 .modelbox table tr>:first-child{
@@ -1311,20 +1331,18 @@ body.co_petitions .ui-dialog {
 #pagination .paginationFirst,
 #pagination .paginationPrev {
   margin-right: 0.5em;
-  font-size: 0.9em;
 }
 #pagination .paginationLast,
 #pagination .paginationNext {
   margin-left: 0.5em;
-  font-size: 0.9em;
 }
 #pagination .pagination-form {
   display: inline-block;
-  margin-left: 2em;
+  margin: 0.25em 0 0 0.5em;
 }
 #pagination .pagination-form input[type=text] {
-  height: 1em;
-  width: 1.5em;
+  height: 2em;
+  width: 2em;
   margin: 0;
   font-size: 0.9em;
 }
@@ -1375,47 +1393,11 @@ body.co_petitions .ui-dialog {
   display: none; /* hide on mobile */
 }
 /* Alpha search  */
-.searchAlphabet {
-  margin: 0;
-  border-top: 1px solid #ddd;
-  border-bottom: 2px solid #ccc;
-  font-size: 0.9em;
+#CoPersonAlphabet {
+  display: none;
 }
-.searchAlphabet ul {
-  display: table;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-.searchAlphabet li {
-  display: table-cell;
-  width: 3.6%;
-  margin: 0;
-  padding: 0;
-  background-color: #f5f5f5;
-  text-align: center;
-}
-.searchAlphabet li:nth-child(odd) {
-  background-color: #e5e5e5;
-}
-.searchAlphabet a {
-  display: inline-block;
-  text-decoration: none;
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  padding: 4px 0;
-  color: #666;
-}
-.searchAlphabet li.selected a,
-.searchAlphabet li.selected a:hover{
-  background-color: #888;
-  color: #eee;
-}
-.searchAlphabet a:hover {
-  background-color: #aed9f9;
-  color: #333;
-  text-decoration: none;
+#CoPersonSearchForm {
+  border-bottom: 1px solid var(--cmg-color-lightgray-006);
 }
 /* PEOPLE LISTING - TABLE */
 #co-people-index {
@@ -1602,7 +1584,7 @@ a.ui-button,
 a.ui-button:link,
 a.ui-button:visited,
 .ui-button {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   text-decoration: none;
 }
 /* For Top Search (co_people index and org_identity index)
@@ -1613,6 +1595,11 @@ a.ui-button:visited,
 }
 .side-search {
   margin-top: 2em;
+}
+.side-search h2 {
+  font-size: 1em;
+  border-bottom: 1px solid var(--cmg-color-lightgray-006);
+  margin-bottom: 0.5em;
 }
 .top-search legend .material-icons {
   vertical-align: middle;
@@ -1669,7 +1656,8 @@ a.ui-button:visited,
   border: 1px solid #ddd;
   background-color: #fff;
 }
-.top-search label {
+.top-search label,
+.side-search label {
   margin-bottom: 0;
 }
 ::-webkit-input-placeholder,
@@ -1693,6 +1681,10 @@ a.ui-button:visited,
   margin: 1em 0.5em;
   padding: 0;
 }
+.side-search .submit-button {
+  width: unset;
+  padding: 0 1em;
+}
 .top-search .top-search-checkboxes {
   display: flex;
   flex-wrap: wrap;
@@ -1709,8 +1701,7 @@ a.ui-button:visited,
 .top-search .filter-clear-all-button:hover {
   background-color: unset;
 }
-.top-search.top-search-hide-fields label,
-.side-search label {
+.top-search.top-search-hide-fields label {
   display: none;
 }
 #top-search-active-filters {
@@ -1791,7 +1782,7 @@ a.ui-button:visited,
   border: 1px solid #eee;
 }
 .co-card.is-member {
-  border-bottom: 1px solid #06c;
+  border-bottom: 1px solid var(--cmg-color-blue-link);
 }
 .co-card img {
   min-width: 100%;
@@ -1843,7 +1834,6 @@ a.ui-button:visited,
 }
 .personExplorer li:not(.dropdown-item) {
   list-style: none;
-  margin: 0 0 0.5em 0;
 }
 .personExplorer a {
   text-decoration: none;
@@ -1861,21 +1851,38 @@ li .dropdown-item {
 .personExplorer ul.fields {
   margin-bottom: 1em;
 }
+.fieldGroupNameContainer {
+  display: flex;
+  justify-content: space-between;
+  align-content: flex-end;
+  border-bottom: 1px solid var(--cmg-color-lightgray-005);
+}
 .fieldGroupName {
-  display: block;
-  border-bottom: 1px solid #EEEEEE;
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
 }
-#content .fieldGroupName .material-icons,
+#main a.fieldGroupName:hover {
+  text-decoration: none;
+}
+#content .fieldGroupName .material-icons, 
 #content #changeLog .material-icons {
   margin-top: 1px;
+  background-color: var(--cmg-color-blue-link);
+  color: var(--cmg-color-white);
+  border-radius: 3px;
+  font-size: 1.1em;
+}
+.fieldGroupName h2 {
+  font-size: 1.2em;
+  display: inline;
 }
 .coAddEditButtons {
-  float: right;
-  clear: left;
+  align-self: flex-end;
 }
 #content .field-actions-menu .material-icons {
   font-size: 15px;
@@ -1934,10 +1941,17 @@ ul.fields.data-list li {
 }
 .field-data-container {
   display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-template-areas:
+      "value value value value value value value value value action"
+      "label label label label label label label label label action"
+      "collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info";
 }
 .field-actions,
 .field-data {
   display: flex;
+  flex-wrap: wrap;
   padding: 0.2em 1em 0.2em 1em;
   align-content: center;
 }
@@ -1949,6 +1963,9 @@ ul.fields.data-list li {
 .field-data a cite {
   color: initial;
 }
+.action-list-toggle {
+  padding: 0.5em;
+}
 .td-field-actions a,
 .field-actions a {
   text-decoration: none !important;
@@ -1956,6 +1973,9 @@ ul.fields.data-list li {
 .smaller.force-wrap,
 .field-data.force-wrap {
   overflow-wrap: anywhere;
+}
+.field-data.flex-column .force-wrap {
+  margin-left: 1.2em;
 }
 .field-data.data-label {
   align-items: center;
@@ -1967,6 +1987,9 @@ ul.fields.data-list li {
 #names-container ul.data-list li:last-child {
   margin-bottom: 0;
   border-bottom: 1px solid #ccc;
+}
+.personExplorer .coAddEditButtons a {
+  padding: 0.5em;
 }
 .personExplorer .coAddEditButtons .addbutton {
   background: none;
@@ -1999,6 +2022,7 @@ ul.fields.data-list li {
 #changeLog li {
   list-style: none;
   margin: 0 0 0.5em 0;
+  padding: 0;
 }
 #changeLog a {
   text-decoration: none;
@@ -2011,7 +2035,7 @@ ul.fields.data-list li {
   color: var(--cmg-color-white);
 }
 .explorerContainer #changeLog ul {
-  margin-left: 1em;
+  margin-left: 1.5em;
 }
 .explorerContainer #changeLog .fieldGroupNameCl {
   border-bottom: 1px solid #eee;
@@ -2020,11 +2044,20 @@ ul.fields.data-list li {
   padding: 5px;
 }
 .fieldGroupNameCl {
-  display: block;
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
   font-size: 1.1em;
   font-weight: bold;
   padding: 0.3em 0;
   margin: 1em 0 0 0;
+}
+#main a.fieldGroupNameCl:hover {
+  text-decoration: none;
+}
+.fieldGroupNameCl h2 {
+  font-size: 1.2em;
+  display: inline;
 }
 #restoreLink {
   margin-bottom: 2em;
@@ -2203,6 +2236,18 @@ ul.field-children li:nth-child(odd) {
 ul.field-children li:nth-child(even) {
   background-color: #ddd;
 }
+.card-data-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
+  grid-auto-rows: min-content;
+  grid-auto-flow: dense;
+  grid-gap: 2em;
+  padding-right: 0.5em !important;
+  padding-left: 0.5em !important;
+}
+.field-data-container .field-children {
+  grid-area: collapse-info;
+}
 ul.form-list li.field-stack .field-name,
 ul.form-list li.field-stack .field-info {
   display: block;
@@ -2223,36 +2268,19 @@ ul.form-list li.field-stack textarea {
   padding-bottom: 0;
 }
 .checkbox {
+  display: flex;
   margin-bottom: 0.5em;
 }
-.checkbox input {
-  float: left;
-  margin: 4px 4px 0 0;
-}
 .checkbox label {
-  margin-left: 1.5em;
-  display: block;
-}
-.checkbox label::first-line {
-  margin-left: 0;
-}
-.checkbox .subfield {
-  margin-left: 1.5em;
-}
-.checkbox .subfield input {
-  float: none;
-}
-.checkbox .subfield label {
-  display: inline;
-  margin: 0;
+  margin: 0 0 0 0.25em;
 }
 .form-check.checkbox-replace-container {
-  opacity: 0.6;
+  opacity: 0.8;
   position: relative;
 }
 #content .checkbox-replace-container .material-icons {
   margin: 0 .3125rem 0 -.12rem;
-  color: #555;
+  color: #444;
   font-size: 16px;
 }
 .form-check-input.checkbox-replace {
@@ -2392,6 +2420,7 @@ ul, ol { /* MDL override XXX check if still needed */
 #tabs-orgid .field-data-container .field-data > a,
 #tabs-role .field-data-container .field-data > a {
   color: inherit;
+  padding: 4px 0;
 }
 #tabs-orgid .field-data-container .field-data > a.collapsed .material-icons,
 #tabs-role .field-data-container .field-data > a.collapsed .material-icons {
@@ -2433,7 +2462,6 @@ a.asc::before, a.desc::before {
 }
 a.asc::before {
   content: "▲"; /*\25b2 in escaped hex*/
-  top: -2px;
 }
 a.desc::before {
   content: "▼"; /*\25bc in escaped hex*/
@@ -2448,7 +2476,7 @@ a.disabled {
   background-color: var(--cmg-color-blue-primary);
 }
 .ui-button {
-  font-size: 0.9em !important;
+  font-size: 1em !important;
   padding: 0.3em 0.75em 0.3em 0.5em;
   height: min-content;
   /*margin: 0.25em 0.25em 0.25em 0; keep for now */
@@ -2752,9 +2780,9 @@ td.indented {
 .btn-primary.disabled,
 .btn-primary:disabled {
   color: #fff;
-  background-color: #0c75c0;
-  border-color: #0c75c0;
-  opacity: 0.4;
+  background-color: #000;
+  border-color: #000;
+  opacity: 0.7; /* this is important to override default behavior for accessibility */
 }
 .btn-default,
 .btn-default:active {
@@ -2782,7 +2810,7 @@ td.indented {
   padding: 0;
 }
 .dropdown-item > a {
-  color: #06c;
+  color: var(--cmg-color-blue-link);
   display: block;
   padding: 0.5em;
 }

@@ -28,7 +28,7 @@
 ?>
 
 <?php if(isset($vv_NavLinks) || isset($vv_CoNavLinks)): ?>
-<div class="custom-links">
+<nav class="custom-links" aria-label="<?php print _txt('me.menu.customlinks'); ?>">
   <ul>
     <?php
       // Emit dynamically configured (via Navigation Links) links
@@ -46,5 +46,5 @@
       }
     ?>
   </ul>
-</div>
+</nav>
 <?php endif; ?>

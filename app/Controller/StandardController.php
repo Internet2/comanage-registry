@@ -1433,15 +1433,19 @@ class StandardController extends AppController {
   function search() {
     // Construct the URL based on the action mode we're in (select, relink, index, link)
     $action = key($this->data['RedirectAction']);
-
+    
+    $url['controller'] = $this->request->params['controller'];
     $url['action'] = $action;
-    foreach($this->data[$action] as $key => $value) {
-      // pass parameters
-      if(is_int($key) && isset($value['pass'])) {
-        array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
-      } else {
-        foreach ($value as $knamed => $vnamed) {
-          $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
+    
+    if(isset($this->data[$action])) {
+      foreach($this->data[$action] as $key => $value) {
+        // pass parameters
+        if(is_int($key) && isset($value['pass'])) {
+          array_push($url, filter_var($value['pass'], FILTER_SANITIZE_SPECIAL_CHARS));
+        } else {
+          foreach($value as $knamed => $vnamed) {
+            $url[$knamed] = filter_var($vnamed, FILTER_SANITIZE_SPECIAL_CHARS);
+          }
         }
       }
     }

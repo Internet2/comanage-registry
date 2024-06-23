@@ -44,9 +44,9 @@
   }
 ?>
 <div id="changeLog">
-  <a href="#tabs-changelog" class="fieldGroupNameCl">
-    <em class="material-icons">add_box</em>
-    <?php print _txt('fd.changelog'); ?>
+  <a href="#tabs-changelog" class="fieldGroupNameCl" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-changelog">
+    <em class="material-icons" aria-hidden="true">expand_more</em>
+    <h2><?php print _txt('fd.changelog'); ?></h2>
   </a>
   <ul id="tabs-changelog" class="fields data-list data-table" style="display: none;">
     <li>
@@ -119,10 +119,10 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
       }
     });
 

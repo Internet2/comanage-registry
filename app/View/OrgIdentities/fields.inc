@@ -84,12 +84,16 @@
     // Explorer menu toggles
     $(".fieldGroupName").click(function(event) {
       event.preventDefault();
-      $(this).next(".fields").slideToggle("fast");
+      $(this).parent().next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
+        $(this).attr('title','<?php print _txt('op.expand'); ?>');
+        $(this).attr('aria-expanded','false');
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
+        $(this).attr('title','<?php print _txt('op.collapse'); ?>');
+        $(this).attr('aria-expanded','true');
       }
     });
 
@@ -135,25 +139,25 @@
 
       <!-- Names -->
       <li id="fields-name" class="fieldGroup">
-
-        <?php if($e && $this->action != 'add'): ?>
-          <div class="coAddEditButtons">
-            <?php
-              $linktarget = array('controller'    => 'names',
-                'action'        => 'add',
-                'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                'co'            => ($pool_org_identities ? false : $cur_co['Co']['id']));
-              $linkparams = array('class'  => 'addbutton');
-
-              print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
-            ?>
-          </div>
-        <?php endif; // e ?>
-
-        <a href="#tabs-name" class="fieldGroupName">
-          <em class="material-icons">indeterminate_check_box</em>
-          <?php print _txt('fd.name.affil'); ?>
-        </a>
+        <div class="fieldGroupNameContainer">
+          <a href="#tabs-name" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="names-container">
+            <em class="material-icons" aria-hidden="true">expand_less</em>
+            <h2><?php print _txt('fd.name.affil'); ?></h2>
+          </a>
+          <?php if($e && $this->action != 'add'): ?>
+            <div class="coAddEditButtons">
+              <?php
+                $linktarget = array('controller'    => 'names',
+                  'action'        => 'add',
+                  'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                  'co'            => ($pool_org_identities ? false : $cur_co['Co']['id']));
+                $linkparams = array('class'  => 'addbutton');
+  
+                print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
+              ?>
+            </div>
+          <?php endif; // e ?>
+        </div>
 
         <div id="names-container" class="fields">
           <?php if($this->action == 'add'): ?>
@@ -652,26 +656,28 @@
       <?php if($this->action != "add"): ?>       
         <!-- Associated CoPeople listings -->
         <li id="fields-copeople" class="fieldGroup">
-          <div class="coAddEditButtons">
-            <?php
-              if($permissions['link']) {
-                foreach($vv_linkable_cos as $lcoid => $lconame) {
-                  print $this->Html->link(_txt('op.link.to.co', array($lconame)),
-                    array('controller'    => 'co_people',
-                      'action'        => 'link',
-                      'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
-                      'co'            => $lcoid,
-                      'render'        => 'norm'),
-                    array('class'  => 'addbutton'));
-
+          <div class="fieldGroupNameContainer">
+            <a href="#tabs-copeople" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-copeople">
+              <em class="material-icons" aria-hidden="true">expand_less</em>
+              <h2><?php print _txt('ct.co_people.pl'); ?></h2>
+            </a>
+            <div class="coAddEditButtons">
+              <?php
+                if($permissions['link']) {
+                  foreach($vv_linkable_cos as $lcoid => $lconame) {
+                    print $this->Html->link(_txt('op.link.to.co', array($lconame)),
+                      array('controller'    => 'co_people',
+                        'action'        => 'link',
+                        'orgidentityid' => $org_identities[0]['OrgIdentity']['id'],
+                        'co'            => $lcoid,
+                        'render'        => 'norm'),
+                      array('class'  => 'addbutton'));
+  
+                  }
                 }
-              }
-            ?>
+              ?>
+            </div>
           </div>
-          <a href="#tabs-copeople" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('ct.co_people.pl'); ?>
-          </a>
           <ul id="tabs-copeople" class="fields data-list">
             <?php
               if(!empty($org_identities[0]['CoOrgIdentityLink'])) {

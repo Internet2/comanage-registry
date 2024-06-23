@@ -260,7 +260,8 @@
     $mvpa = (count($coe_attributes) > 1);
   ?>
     <div class="modelbox">
-      <div class="boxtitle">
+      <fieldset>
+      <legend class="boxtitle">
         <?php
           // Output the box title
           if(isset($permissions['viewEA']) && $permissions['viewEA']) {
@@ -296,7 +297,7 @@
           $descTypeCount = count(array_count_values($descriptions));
           
           if($descTypeCount == 1 && !empty($coe_attributes[0]['description'])) {
-            print "\n<div class=\"desc\">" . filter_var($coe_attributes[0]['description'],FILTER_SANITIZE_SPECIAL_CHARS) . "</div>\n";
+            print "\n<span class=\"desc\">" . filter_var($coe_attributes[0]['description'],FILTER_SANITIZE_SPECIAL_CHARS) . "</span>\n";
             $groupDesc = true; // Set flag for later
           }
           
@@ -318,7 +319,7 @@
             print '<br /><span class="required">' . _txt('fd.pt.deleted') . '</span>' . PHP_EOL;
           }
         ?>
-      </div>
+      </legend>
 
       <div class="modelbox-data">
       <?php
@@ -774,6 +775,7 @@
       ?>
       </div><!-- modelbox-data -->
       <span class="clearfix"></span>
+      </fieldset>
     </div><!-- modelbox -->
   <?php endforeach; // foreach ($coea_model as $m => $coe_attributes): ?>
   

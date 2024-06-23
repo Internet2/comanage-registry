@@ -56,30 +56,32 @@
 ?>
 
   <li id="fields-<?php print $lmvpa; ?>" class="fieldGroup">
-    <?php
-      // Determine if permission is present for add button
-      if(($self_service
-          && ($this->Permission->selfService($permissions, $edit, $mvpa_model) == PermissionEnum::ReadWrite))
-         || (!$self_service && $edit)):
-    ?>
-      <div class="coAddEditButtons">
-        <?php
-          // Render the add button
-          $linktarget = array(
-            'controller'    => $lmvpapl,
-            'action'        => 'add',
-            $model_param    => ${$lmpl}[0][$model]['id']
-          );
-          $linkparams = array('class' => 'addbutton');
-
-          print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
-        ?>
-      </div>
-    <?php endif; // edit ?>
-    <a href="#tabs-<?php print $lmvpa; ?>" class="fieldGroupName">
-      <em class="material-icons">indeterminate_check_box</em>
-      <?php print _txt('ct.'.$lmvpapl.'.pl'); ?>
-    </a>
+    <div class="fieldGroupNameContainer">
+      <a href="#tabs-<?php print $lmvpa; ?>" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-<?php print $lmvpa; ?>">
+        <em class="material-icons" aria-hidden="true">expand_less</em>
+        <h2><?php print _txt('ct.'.$lmvpapl.'.pl'); ?></h2>
+      </a>
+      <?php
+        // Determine if permission is present for add button
+        if(($self_service
+            && ($this->Permission->selfService($permissions, $edit, $mvpa_model) == PermissionEnum::ReadWrite))
+           || (!$self_service && $edit)):
+        ?>  
+        <div class="coAddEditButtons">
+          <?php
+            // Render the add button
+            $linktarget = array(
+              'controller'    => $lmvpapl,
+              'action'        => 'add',
+              $model_param    => ${$lmpl}[0][$model]['id']
+            );
+            $linkparams = array('class' => 'addbutton');
+  
+            print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
+          ?>
+        </div>
+      <?php endif; // edit ?>
+    </div>
     <ul id="tabs-<?php print $lmvpa; ?>" class="fields data-list">
       <?php
         // Loop through each record and render
