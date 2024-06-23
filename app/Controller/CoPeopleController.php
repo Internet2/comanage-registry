@@ -1109,7 +1109,7 @@ class CoPeopleController extends StandardController {
       return;
     }
     // Validate the request data
-     list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
+    list($criteria, $invalidFields, $unProcessedFields) = $this->CoPerson->validateRequestData($reqData);
     if ($invalidFields > 0 && $this->request->is('restful')) {
       $this->Api->restResultHeader(400, 'Invalid fields');
       return;
@@ -1127,6 +1127,9 @@ class CoPeopleController extends StandardController {
     } else {
       $this->set('matches', $matches);
     }
+    
+    // Set the affiliation types lookup
+    $this->set('vv_copr_affiliation_types', $this->CoPerson->CoPersonRole->types($this->cur_co['Co']['id'], 'affiliation'));
   }
 
   /**

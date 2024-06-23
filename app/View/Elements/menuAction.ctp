@@ -31,11 +31,11 @@
   <?php
   $linkparams = array(
     'id' => 'action-menu-content_' . md5($vv_attr_mdl . $vv_attr_id),
-    'class' => 'coAddEditButtons',
+    'class' => 'action-list-toggle',
     'escape' => false,
     'data-toggle' => 'dropdown',
-    'aria-haspopup' => true,
-    'aria-expanded' => false,
+    'aria-haspopup' => 'true',
+    'aria-expanded' => 'false',
   );
   print $this->Html->link(
     '<em class="material-icons">settings</em>',

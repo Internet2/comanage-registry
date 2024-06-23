@@ -126,7 +126,7 @@ if(!empty($vv_alphabet_search)) {
 ?>
 
 <div class="table-container">
-  <table id="co-people-index" class="common-table">
+  <table id="co-people-index" class="common-table" title="<?php print _txt('in.people.index', array(filter_var($cur_co['Co']['name'],FILTER_SANITIZE_SPECIAL_CHARS))); ?>">
     <thead>
       <tr>
         <th class="spin"><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
@@ -213,7 +213,7 @@ if(!empty($vv_alphabet_search)) {
                       'class' => 'spin',
                       'onclick' => 'noprop(event);',
                       'title' => _txt('op.edit-a',array(_txt('ct.co_person_roles.1'))),
-                      'aria-label' => _txt('op.edit-a',array(_txt('ct.co_person_roles.1')))
+                      'aria-label' => _txt('op.edit-f',array(_txt('ct.co_person_roles.1'),filter_var($roleTitle,FILTER_SANITIZE_SPECIAL_CHARS)))
                     ));
                 }
               } else {

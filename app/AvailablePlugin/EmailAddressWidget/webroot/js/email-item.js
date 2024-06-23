@@ -65,7 +65,7 @@ export default {
     <li :key="id" :data-entity-id="id">
       <div v-if="editing" class="cm-ssw-edit-container">
         <div class="field-actions-menu dropdown">
-          <button class="cm-ssw-dropdown-toggle btn btn-primary" data-toggle="dropdown" aria-haspopup="1" aria-expanded="false">
+          <button class="cm-ssw-dropdown-toggle btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <em className="material-icons" aria-hidden="true">settings</em>
             {{ this.mail }}
           </button>  

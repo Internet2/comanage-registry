@@ -35,7 +35,7 @@ $controller_route_name = Inflector::underscore($controller);
 $search_param = array_keys($vv_alphabet_search_config)[0];
 ?>
 
-<div id="<?php print $req; ?>Alphabet" class="listControl searchAlphabet" aria-label="<?php print $vv_alphabet_search_config[$search_param]['label']; ?>">
+<nav id="<?php print $req; ?>Alphabet" class="listControl searchAlphabet" aria-label="<?php print $vv_alphabet_search_config[$search_param]['label']; ?>">
   <ul>
     <?php
       $args = array();
@@ -77,11 +77,11 @@ $search_param = array_keys($vv_alphabet_search_config)[0];
         '<em class="material-icons">block</em>',
         $args,
         array(
-          'title' => _txt('op.clear.search'),
+          'title' => _txt('op.clear.filters.alpha'),
           'escape' => false,
         )
       );
       print '<li class="spin">' . $clear_alphabet_link . '</li>';
     ?>
   </ul>
-</div>
+</nav>

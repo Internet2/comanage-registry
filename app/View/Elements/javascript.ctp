@@ -97,7 +97,9 @@
     });
 
     // Establish left-side navigation
-    $('#main-menu').metisMenu();
+    $('#main-menu').metisMenu({
+      toggle: false
+    });
 
     // Focus any designated form element
     $('.focusFirst').focus();
@@ -120,8 +122,8 @@
           $("#navigation-drawer").addClass("half-closed");
           $("#main").addClass("drawer-half-closed");
           // ensure all the sub-menus collapse when half-closing the menu
-          $("#navigation .metismenu li ul").removeClass("in");
-          $("#navigation .metismenu li").removeClass("active");
+          $("#navigation .metismenu li ul").removeClass("mm-show");
+          $("#navigation .metismenu li").removeClass("mm-active");
           // save user's application preference for drawer state
           setApplicationPreference("uiDrawerState",{"value":"half-closed"});
         }
@@ -216,10 +218,12 @@
       if ($("#top-search-fields").is(":visible")) {
         $("#top-search-fields").hide();
         $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false");
+        $("#top-search-toggle button.cm-toggle").attr("aria-label","<?php print _txt('me.menu.filters.open'); ?>");
         $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_down");
       } else {
         $("#top-search-fields").show();
         $("#top-search-toggle button.cm-toggle").attr("aria-expanded","true");
+        $("#top-search-toggle button.cm-toggle").attr("aria-label","<?php print _txt('me.menu.filters.close'); ?>");
         $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_up");
       }
     });

@@ -57,9 +57,9 @@
     <ul>
       <!-- Organization Info -->
       <li id="fields-name" class="fieldGroup">
-        <a href="#tabs-name" class="fieldGroupName">
-          <em class="material-icons">indeterminate_check_box</em>
-          <?php print _txt('ct.organizations.1'); ?>
+        <a href="#tabs-name" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="names-container">
+          <em class="material-icons" aria-hidden="true">expand_less</em>
+          <h2><?php print _txt('ct.organizations.1'); ?></h2>
         </a>
 
         <div id="names-container" class="fields">
