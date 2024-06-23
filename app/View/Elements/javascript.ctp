@@ -122,7 +122,7 @@
           $("#navigation-drawer").addClass("half-closed");
           $("#main").addClass("drawer-half-closed");
           // ensure all the sub-menus collapse when half-closing the menu
-          $("#navigation .metismenu li ul").removeClass("in");
+          $("#navigation .metismenu li ul").removeClass("mm-show");
           $("#navigation .metismenu li").removeClass("mm-active");
           // save user's application preference for drawer state
           setApplicationPreference("uiDrawerState",{"value":"half-closed"});

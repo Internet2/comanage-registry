@@ -1872,14 +1872,14 @@ li .dropdown-item {
 #content .fieldGroupName .material-icons, 
 #content #changeLog .material-icons {
   margin-top: 1px;
-  background-color: var(--cmg-color-blue-link);
-  color: var(--cmg-color-white);
+  color: var(--cmg-color-blue-link);
   border-radius: 3px;
   font-size: 1.1em;
 }
 .fieldGroupName h2 {
   font-size: 1.2em;
   display: inline;
+  color: var(--cmg-color-blue-link);
 }
 .coAddEditButtons {
   align-self: flex-end;
