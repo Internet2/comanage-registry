@@ -114,10 +114,14 @@
         event.preventDefault();
         $(this).next(".fields").slideToggle("fast");
         // toggle the +/- icon:
-        if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-          $(this).find(".material-icons").text("add_box");
+        if ($(this).find(".material-icons").text() == "expand_less") {
+          $(this).find(".material-icons").text("expand_more");
+          $(this).attr('title','<?php print _txt('op.expand'); ?>');
+          $(this).attr('aria-expanded','false');
         } else {
-          $(this).find(".material-icons").text("indeterminate_check_box");
+          $(this).find(".material-icons").text("expand_less");
+          $(this).attr('title','<?php print _txt('op.collapse'); ?>');
+          $(this).attr('aria-expanded','true');
         }
       });
     });
@@ -130,9 +134,9 @@
 
           <li id="fields-petition" class="fieldGroup">
 
-            <a href="#tabs-petition" class="fieldGroupName">
-              <em class="material-icons">indeterminate_check_box</em>
-              <?php print _txt('ct.co_petitions.1'); ?>
+            <a href="#tabs-petition" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="<?php print $this->action; ?>_co_petition">
+              <em class="material-icons" aria-hidden="true">expand_less</em>
+              <h2><?php print _txt('ct.co_petitions.1'); ?></h2>
             </a>
 
             <ul id="<?php print $this->action; ?>_co_petition" class="fields form-list">
@@ -326,9 +330,9 @@
           </li>
           
           <li id="identities-petition" class="fieldGroup">
-            <a href="#tabs-identities" class="fieldGroupName">
-              <em class="material-icons">indeterminate_check_box</em>
-              <?php print _txt('fd.pt.identities'); ?>
+            <a href="#tabs-identities" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="co_petition_identities">
+              <em class="material-icons" aria-hidden="true">expand_less</em>
+              <h2><?php print _txt('fd.pt.identities'); ?></h2>
             </a>
 
             <ul id="co_petition_identities" class="fields form-list">
@@ -415,12 +419,12 @@
         <?php endif; // action != add ?>
         
         <li id="tabs-attributes" class="fieldGroup">
-          <a href="#tabs-attributes" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.attrs.pet'); ?>
+          <a href="#tabs-attributes" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-petition-attributes">
+            <em class="material-icons" aria-hidden="true">expand_less</em>
+            <h2><?php print _txt('fd.attrs.pet'); ?></h2>
           </a>
 
-          <div class="fields">
+          <div id="tabs-petition-attributes" class="fields">
             <?php include('petition-attributes.inc'); ?>
           </div>
         </li>
@@ -451,9 +455,9 @@
           ?>
 
           <!--    Petition History    -->
-          <a href="#tabs-history" class="fieldGroupName">
-            <em class="material-icons">indeterminate_check_box</em>
-            <?php print _txt('fd.history.pt'); ?>
+          <a href="#tabs-history" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-history">
+            <em class="material-icons" aria-hidden="true">expand_less</em>
+            <h2><?php print _txt('fd.history.pt'); ?></h2>
           </a>
           <ul id="tabs-history" class="fields data-list data-table">
             <li>

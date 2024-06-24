@@ -43,31 +43,10 @@
   .co-info-topbox {
     word-wrap: break-word;
   }
-
-  .field-data-container {
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    grid-template-areas:
-      "value value value value value value value value value action"
-      "label label label label label label label label label action"
-      "collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info collapse-info";
-  }
   #content.with-sidebar {
     display: grid;
     grid-template-columns: minmax(320px, 1fr);
     grid-template-rows: minmax(500px, 1fr) auto;
-  }
-  .field-data-container .field-children {
-    grid-area: collapse-info;
-  }
-  .card-data-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
-    grid-auto-rows: min-content;
-    grid-auto-flow: dense;
-    grid-gap: 2em;
-    padding-right: 0.5em !important;
-    padding-left: 0.5em !important;
   }
   /* Filter block */
   #filter-block-qaxsbar li {
@@ -208,6 +187,55 @@
   ul.form-list li.field-stack textarea {
     margin: 0.5em 0 0.5em 0.5em;
   }
+  /* Alpha search  */
+  #CoPersonAlphabet {
+    display: block;
+  }
+  #CoPersonSearchForm {
+    border-bottom: none;
+  }
+  .searchAlphabet {
+    margin: 0;
+    border-top: 1px solid #ddd;
+    font-size: 0.9em;
+    background-color: var(--cmg-color-lightgray-006);
+  }
+  .searchAlphabet ul {
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .searchAlphabet li {
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    text-align: center;
+  }
+  .searchAlphabet li:nth-child(odd) {
+    background-color: #e5e5e5;
+  }
+  .searchAlphabet a {
+    display: inline-block;
+    text-decoration: none;
+    margin: 0;
+    padding: 4px 0 5px;
+    width: 100%;
+    height: 100%;
+    color: #666;
+    border-bottom: 1px solid var(--cmg-color-lightgray-007);
+  }
+  .searchAlphabet li.selected a,
+  .searchAlphabet li.selected a:hover{
+    background-color: #666;
+    color: #eee;
+  }
+  .searchAlphabet a:hover {
+    background-color: #aed9f9;
+    color: #333;
+    text-decoration: none;
+  }
   /* ORG IDS */
   body.org_identities.edit ul.form-list .field-name {
     padding-left: 0.75em;
@@ -248,9 +276,12 @@
     text-align: left;
     min-height: 2.5em;
   }
+  #pagination .paginationLast {
+    margin-right: 2em;
+  }
   #pagination .paginationCounter {
     float: right;
-    margin-right: 0.5em;
+    margin: 0.25em 0.5em 0 0;
   }
   #pagination.with-pagination-elements .paginationCounter {
     margin-top: 2px;
@@ -383,7 +414,7 @@
     margin-top: 0;
   }
   /* Listing controls */
-  .listControl li {
+  .listControl:not(.searchAlphabet) li {
     margin-left: 0.5em;
   }
   #peopleToggle {
@@ -426,7 +457,7 @@
   }
   /* PERSON and ORGID CANVAS*/
   .personExplorer ul ul {
-    margin-left: 1em;
+    margin-left: 1.5em;
   }
   /* Filter Block*/
   #filter-block-qaxsbar li {
@@ -629,11 +660,17 @@
   #co_people .person-status {
     width: auto;
   }
+  .searchAlphabet ul {
+    grid-template-columns: repeat(27, 1fr);
+  }
+  .searchAlphabet a {
+    border-bottom: none;
+  }
   #right-sidebar {
     margin-left: 1.5em;
   }
   #right-sidebar #menu {
-    padding-left: 1em;
+    padding: 1em;
   }
   /* Self-Service Widgets (.cm-ssw) */
   .cm-ssw-form-field-email {

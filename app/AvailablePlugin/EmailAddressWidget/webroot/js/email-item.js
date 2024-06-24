@@ -73,7 +73,7 @@ export default {
         <div class="field-actions-menu dropdown">
           <button class="cm-ssw-dropdown-toggle btn btn-primary" 
             :class="this.id == this.$parent.emailId && !(this.core.retain) ? ' replacing' : ''"
-            data-toggle="dropdown" aria-haspopup="1" aria-expanded="false">
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <em className="material-icons" aria-hidden="true">settings</em>
             {{ this.mail }}
           </button>  

@@ -413,6 +413,7 @@
             <?php
               if($this->action == 'select') {
                 if($permissions['select']) {
+                  print '<fieldset>';
                   print $this->Form->hidden('CoGroupMember.rows.'.$i.'.co_group_id',
                                             array('default' => $c['CoGroup']['id'])) . "\n";
 
@@ -476,6 +477,7 @@
                   $args['class'] = 'form-check-label';
                   print $this->Form->label('CoGroupMember.rows.'.$i.'.owner', _txt('fd.group.own'),$args) . "\n";
                   print '</div>';
+                  print '</fieldset>';
                 }
               } else {
                 if($e) {

@@ -170,10 +170,14 @@
       event.preventDefault();
       $(this).next(".fields").slideToggle("fast");
       // toggle the +/- icon:
-      if ($(this).find(".material-icons").text() == "indeterminate_check_box") {
-        $(this).find(".material-icons").text("add_box");
+      if ($(this).find(".material-icons").text() == "expand_less") {
+        $(this).find(".material-icons").text("expand_more");
+        $(this).attr('title','<?php print _txt('op.expand'); ?>');
+        $(this).attr('aria-expanded','false');
       } else {
-        $(this).find(".material-icons").text("indeterminate_check_box");
+        $(this).find(".material-icons").text("expand_less");
+        $(this).attr('title','<?php print _txt('op.collapse'); ?>');
+        $(this).attr('aria-expanded','true');
       }
     });
   });
@@ -227,9 +231,9 @@
     <ul>
       <li id="fields-match-strategy" class="fieldGroup">
 
-        <a href="#tabs-match" class="fieldGroupName">
-          <em class="material-icons">add_box</em>
-          <?php print _txt('fd.pi.match.str'); ?>
+        <a href="#tabs-match" class="fieldGroupName" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-match">
+          <em class="material-icons" aria-hidden="true">expand_more</em>
+          <h2><?php print _txt('fd.pi.match.str'); ?></h2>
         </a>
   
         <!-- Match strategy -->
@@ -332,9 +336,9 @@
 
       <li id="fields-sync" class="fieldGroup">
 
-        <a href="#tabs-sync" class="fieldGroupName">
-          <em class="material-icons">add_box</em>
-          <?php print _txt('fd.pi.sync.str'); ?>
+        <a href="#tabs-sync" class="fieldGroupName" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-sync">
+          <em class="material-icons" aria-hidden="true">expand_more</em>
+          <h2><?php print _txt('fd.pi.sync.str'); ?></h2>
         </a>
 
         <!-- Sync strategy -->
@@ -598,9 +602,9 @@
 
         <li id="fields-cxn" class="fieldGroup">
 
-          <a href="#tabs-cxn" class="fieldGroupName">
-            <em class="material-icons">add_box</em>
-            <?php print _txt('fd.pi.connections'); ?>
+          <a href="#tabs-cxn" class="fieldGroupName" title="<?php print _txt('op.expand') ?>" aria-expanded="false" aria-controls="tabs-cxn">
+            <em class="material-icons" aria-hidden="true">expand_more</em>
+            <h2><?php print _txt('fd.pi.connections'); ?></h2>
           </a>
 
           <ul id="tabs-cxn" class="fields form-list" style="display: none;">

@@ -184,11 +184,21 @@ class HistoryRecord extends AppModel {
     $args = array();
     $args['conditions']['HistoryRecord.id'] = $id;
     $args['contain'][] = 'ActorCoPerson';
-    
+    $args['contain'][] = 'CoGroup';
+    $args['contain'][] = 'OrgIdentity';
+
     $hr = $this->find('first', $args);
     
     if(!empty($hr['ActorCoPerson']['co_id'])) {
       return $hr['ActorCoPerson']['co_id'];
+    }
+
+    if(!empty($hr['CoGroup']['co_id'])) {
+      return $hr['CoGroup']['co_id'];
+    }
+
+    if(!empty($hr['OrgIdentity']['co_id'])) {
+      return $hr['OrgIdentity']['co_id'];
     }
     
     return parent::findCoForRecord($id);

@@ -12,6 +12,11 @@ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuI
 
 ?>
 <li id="fields-<?php print $lmvep; ?>" class="fieldGroup">
+  <div class="fieldGroupNameContainer">
+    <a href="#tabs-<?php print $lmvep; ?>" class="fieldGroupName" title="<?php print _txt('op.collapse') ?>" aria-expanded="true" aria-controls="tabs-<?php print $lmvep; ?>">
+      <em class="material-icons" aria-hidden="true">expand_less</em>
+      <h2><?php print _txt('ct.'.$lmveppl.'.pl'); ?></h2>
+    </a>
     <div class="coAddEditButtons">
       <?php
         // Render the add button
@@ -25,10 +30,7 @@ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuI
         print $this->Html->link(_txt('op.add'), $linktarget, $linkparams);
       ?>
     </div>
-    <a href="#tabs-<?php print $lmvep; ?>" class="fieldGroupName">
-      <em class="material-icons">indeterminate_check_box</em>
-      <?php print _txt('ct.'.$lmveppl.'.pl'); ?>
-    </a>
+  </div>
     <ul id="tabs-<?php print $lmvep; ?>" class="fields data-list">
       <?php
         // Loop through each record and render

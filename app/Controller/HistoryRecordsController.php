@@ -375,6 +375,7 @@ class HistoryRecordsController extends StandardController {
     // View history records?
     // We could allow $self to view own records, but for the moment we don't (for no specific reason)
     $p['index'] = ($roles['cmadmin']
+                   || $roles['coadmin']
                    || ($roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']))
                    || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                     || ($pool &&
@@ -398,6 +399,7 @@ class HistoryRecordsController extends StandardController {
     
     // View a single history record?
     $p['view'] = ($roles['cmadmin']
+                  || $roles['coadmin']
                   || ($roles['apiuser'] && ($roles['cmadmin'] || $roles['coadmin']))
                   || ($managed && ($roles['coadmin'] || $roles['couadmin']
                                    || ($pool &&

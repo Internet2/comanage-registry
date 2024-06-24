@@ -862,6 +862,11 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['conditions'][] = 'CoOrgIdentityLink.id IS NULL';
       $jcnt++;
     }
+
+    // We need to manually add this in for some reason. (It should have been
+    // added automatically by Cake based on the CoPerson Model definition of
+    // PrimaryName.)
+    $pagcond['conditions']['PrimaryName.primary_name'] = true;
     
     return $pagcond;
   }
