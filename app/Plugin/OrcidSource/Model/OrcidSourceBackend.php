@@ -25,16 +25,20 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-App::uses("Server", "Model");
-App::uses("OrgIdentitySourceBackend", "Model");
+App::uses('Server', 'Model');
+App::uses('OrcidToken', 'OrcidSource.Model');
+App::uses('OrcidSource', 'OrcidSource.Model');
+App::uses('OrgIdentitySourceBackend', 'Model');
 App::uses('HttpSocket', 'Network/Http');
 
 class OrcidSourceBackend extends OrgIdentitySourceBackend {
-  public $name = "OrcidSourceBackend";
+  public $name = 'OrcidSourceBackend';
 
   // Cache the Http connection and server configuration
   protected $Http = null;
   protected $server = null;
+  protected $orcidToken = null;
+  protected $orcidSource = null;
 
   /**
    * Generate an ORCID callback URL. This is used for authenticated ORCID linking
@@ -89,11 +93,12 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    *
    * @since  COmanage Registry v3.2.0
    * @param  Integer $serverId Server ID
+   * @param  String $orcidIdentifier Orcid Identifier
    * @return Boolean True on success
    * @throws InvalidArgumentException
    */
 
-  protected function orcidConnect($serverId) {
+  protected function orcidConnect($serverId, $orcidIdentifier) {
     // Pull the server config
     
     $Server = new Server();
@@ -107,17 +112,39 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
     if(!$this->server) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.servers.1'), $serverId)));
     }
+
+    $args = array();
+    $args['conditions']['OrcidSource.org_identity_source_id'] = $this->pluginCfg['org_identity_source_id'];
+    $args['conditions']['OrcidSource.server_id'] = $serverId;
+    $args['contain'] = false;
+
+    $OrcidSource = new OrcidSource();
+    $this->orcidSource = $OrcidSource->find('first', $args);
+
+    $args = array();
+    $args['conditions']['OrcidToken.orcid_source_id'] = $this->orcidSource['OrcidSource']['id'];
+    $args['conditions']['OrcidToken.orcid_identifier'] = $orcidIdentifier;
+    $args['contain'] = false;
+
+    $OrcidToken = new OrcidToken();
+    $this->orcidToken = $OrcidToken->find('first', $args);
     
     // Grab the access token from the config, or throw an error if not found
-    if(empty($this->server['Oauth2Server']['access_token'])) {
+    if(empty($this->orcidToken['OrcidToken']['access_token'])
+       && empty($this->server['Oauth2Server']['access_token'])) {
       throw new InvalidArgumentException(_txt('er.orcidsource.token.none'));
     }
-    
+
     $this->Http = new HttpSocket(array(
       // ORCID uses a wildcard cert (*.orcid.org) that trips up hostname validation
       // on PHP <= ~5.5.6. See CO-1428 for more details.
       'ssl_verify_host' => version_compare(PHP_VERSION, '5.6.0', '>=')
     ));
+
+    if(!empty($this->server['Oauth2Server']['proxy'])) {
+      list($host, $port) = explode(':', $this->server['Oauth2Server']['proxy']);
+      $this->Http->configProxy($host, (int)$port);
+    }
     
     return true;
   }
@@ -135,15 +162,20 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    */
 
   public function orcidRequest($urlPath, $data=array(), $action="get") {
+    $OrcidToken = new OrcidToken();
+
     $options = array(
       'header' => array(
         'Accept'        => 'application/json',
-        'Authorization' => 'Bearer ' . $this->server['Oauth2Server']['access_token'],
-        'Content-Type'  => 'application/json'
+        'Authorization' => 'Bearer ' . ($OrcidToken->getUnencrypted($this->orcidToken['OrcidToken']['access_token'])
+            ?? $this->server['Oauth2Server']['access_token']),
+        'Content-Type'  => 'application/orcid+json'
       )
     );
 
-    $results = $this->Http->$action($this->orcidUrl() . $urlPath,
+    $orcidUrlBase = $this->orcidUrl($this->orcidSource['OrcidSource']['api_type'],
+                                    $this->orcidSource['OrcidSource']['api_tier']);
+    $results = $this->Http->$action($orcidUrlBase . $urlPath,
                                     ($action == 'get' ? $data : json_encode($data)),
                                     $options);
 
@@ -171,19 +203,19 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * @return String URL prefix
    */
   
-  public function orcidUrl($api='public', $tier='prod') {
+  public function orcidUrl($api=OrcidSourceApiEnum::PUBLIC, $tier=OrcidSourceTierEnum::PROD) {
     $orcidUrls = array(
-      'auth' => array(
-        'prod'    => 'https://orcid.org',
-        'sandbox' => 'https://sandbox.orcid.org'
+      OrcidSourceApiEnum::AUTH => array(
+        OrcidSourceTierEnum::PROD    => 'https://orcid.org',
+        OrcidSourceTierEnum::SANDBOX => 'https://sandbox.orcid.org'
       ),
-      'member' => array(
-        'prod'    => 'https://api.orcid.org',
-        'sandbox' => 'https://api.sandbox.orcid.org'
+      OrcidSourceApiEnum::MEMBERS => array(
+        OrcidSourceTierEnum::PROD    => 'https://api.orcid.org',
+        OrcidSourceTierEnum::SANDBOX => 'https://api.sandbox.orcid.org'
       ),
-      'public' => array(
-        'prod'    => 'https://pub.orcid.org',
-        'sandbox' => 'https://pub.sandbox.orcid.org'
+      OrcidSourceApiEnum::PUBLIC => array(
+        OrcidSourceTierEnum::PROD    => 'https://pub.orcid.org',
+        OrcidSourceTierEnum::SANDBOX => 'https://pub.sandbox.orcid.org'
       )
     );
 
@@ -215,9 +247,9 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    */
 
   protected function resultToOrgIdentity($orcid, $personresult) {
-    // We assume results from /v2.1/ORCID/person. There's potentially a bunch of
+    // We assume results from /v3.0/ORCID/person. There's potentially a bunch of
     // stuff available in /activities (both /person and /activities can be
-    // obtained via /v2.1/ORCID/record) that could potentially be used for
+    // obtained via /v3.0/ORCID/record) that could potentially be used for
     // groupable attributes, but we don't have a use case for that yet.
     
     $orgdata = array();
@@ -268,9 +300,9 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
 
   public function retrieve($id) {
     try {
-      $this->orcidConnect($this->pluginCfg['server_id']);
+      $this->orcidConnect($this->pluginCfg['server_id'], $id);
 
-      $orcidbio = $this->orcidRequest("/v2.1/" . $id . "/person");
+      $orcidbio = $this->orcidRequest('/v3.0/' . $id . '/person');
     }
     catch(InvalidArgumentException $e) {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
@@ -309,7 +341,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
     
     $this->orcidConnect($this->pluginCfg['server_id']);
     
-    $records = $this->orcidRequest("/v2.1/search/", $attributes);
+    $records = $this->orcidRequest('/v3.0/search/', $attributes);
     
     // We can control pagination with query params, but the OIS search capability
     // doesn't currently understand pagination.
@@ -319,7 +351,7 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
         if(!empty($rec->{'orcid-identifier'}->{'path'})) {
           $orcid = $rec->{'orcid-identifier'}->{'path'};
 
-          $orcidbio = $this->orcidRequest("/v2.1/" . $orcid . "/person");
+          $orcidbio = $this->orcidRequest('/v3.0/' . $orcid . '/person');
           
           if(!empty($orcidbio)) {
             $ret[ $orcid ] = $this->resultToOrgIdentity($orcid, $orcidbio);

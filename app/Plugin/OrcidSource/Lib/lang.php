@@ -33,14 +33,24 @@ global $cm_lang, $cm_texts;
 
 $cm_orcid_source_texts['en_US'] = array(
   // Titles, per-controller
-  'ct.orcid_sources.1'  => 'ORCID Organizational Identity Source',
-  'ct.orcid_sources.pl' => 'ORCID Organizational Identity Sources',
+  'ct.orcid_sources.1'        => 'ORCID Organizational Identity Source',
+  'ct.orcid_sources.pl'       => 'ORCID Organizational Identity Sources',
   
   // Error messages
-  'er.orcidsource.search'     => 'Search request returned %1$s',
-  'er.orcidsource.token.none' => 'Access token not configured (try resaving configuration)',
-  
+  'er.orcidsource.search'         => 'Search request returned %1$s',
+  'er.orcidsource.token.none'     => 'Access token not configured (try resaving configuration)',
+  'er.orcidsource.param.notfound' => '%1$s was not found',
+
   // Plugin texts
-  'pl.orcidsource.linked'         => 'Obtained ORCID "%1$s" via authenticated OAuth flow',
-  'pl.orcidsource.redirect_url'   => 'Additional ORCID Redirect URI',
+  'pl.orcidsource.api_type'           => 'API type',
+  'pl.orcidsource.linked'             => 'Obtained ORCID "%1$s" via authenticated OAuth flow',
+  'pl.orcidsource.redirect_url'       => 'Additional ORCID Redirect URI',
+  'pl.orcidsource.scope_inherit'      => 'Inherit Scope',
+  'pl.orcidsource.api_tier'           => 'API tier',
+
+  'en.orcidsource.api_tier' =>      array(OrcidSourceTierEnum::PROD     => 'Production',
+                                          OrcidSourceTierEnum::SANDBOX  => 'Sandbox'),
+  'en.orcidsource.api_type' =>      array(OrcidSourceApiEnum::AUTH      => 'Authorize',
+                                          OrcidSourceApiEnum::PUBLIC    => 'Public',
+                                          OrcidSourceApiEnum::MEMBERS   => 'Members'),
 );
