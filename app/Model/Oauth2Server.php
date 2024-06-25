@@ -41,7 +41,8 @@ class Oauth2Server extends AppModel {
   // Default display field for cake generated views
   public $displayField = "serverurl";
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Normalization' => array('priority' => 4));
   
   // Validation rules for table elements
   public $validate = array(
@@ -87,7 +88,12 @@ class Oauth2Server extends AppModel {
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
+    'proxy' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**
@@ -178,6 +184,10 @@ class Oauth2Server extends AppModel {
     }
     
     $HttpSocket = new HttpSocket();
+    if(!empty($srvr['Oauth2Server']['proxy'])) {
+      [$host, $port] = explode(':', $srvr['Oauth2Server']['proxy']);
+      $HttpSocket->configProxy($host, (int)$port);
+    }
 
     $params = array(
       'client_id'     => $srvr['Oauth2Server']['clientid'],
