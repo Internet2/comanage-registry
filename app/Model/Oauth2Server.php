@@ -185,7 +185,7 @@ class Oauth2Server extends AppModel {
     
     $HttpSocket = new HttpSocket();
     if(!empty($srvr['Oauth2Server']['proxy'])) {
-      [$host, $port] = explode(':', $srvr['Oauth2Server']['proxy']);
+      list($host, $port) = explode(':', $srvr['Oauth2Server']['proxy']);
       $HttpSocket->configProxy($host, (int)$port);
     }
 
