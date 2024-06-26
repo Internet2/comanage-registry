@@ -216,6 +216,20 @@ class DataFilterContextEnum
   const ProvisioningTarget = 'PT';
 }
 
+class NormalizerTypeEnum
+{
+  const TrimWhitespace      = 'TW';
+  const MixCase             = 'MC';
+  const PunctuationToSpace  = 'PS';
+
+  // Each type maps to a function having the first letter lowercase
+  public static $type = array(
+    NormalizerTypeEnum::TrimWhitespace      => 'TrimWhitespace',
+    NormalizerTypeEnum::MixCase             => 'MixCase',
+    NormalizerTypeEnum::PunctuationToSpace  => 'PunctuationToSpace'
+  );
+}
+
 class DepartmentEnum {
   const Department          = 'department';
   const ResearchInstitute   = 'researchinstitute';

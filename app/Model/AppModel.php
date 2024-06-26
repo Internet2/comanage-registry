@@ -1657,22 +1657,27 @@ class AppModel extends Model {
    * @param  integer $coId      CO ID
    * @param  string  $attribute Attribute, in Model.attribute form
    * @param  string  $value     Value to normalize
+   * @param  array   $options   Save options
    * @return string             The normalized value
    */
 
-  public function normalizeEnumeration($coId, $attribute, $value) {
+  public function normalizeEnumeration($coId, $attribute, $value, $options = array()) {
     // First, see if there is an enumeration defined for $coId + $attribute.
 
     $args = array();
+    $args['joins'][0]['table'] = 'dictionaries';
+    $args['joins'][0]['alias'] = 'Dictionary';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'AttributeEnumeration.dictionary_id=Dictionary.id';
     $args['conditions']['AttributeEnumeration.co_id'] = $coId;
     $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
     $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
     $args['contain'] = false;
 
     $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
-    $attrEnum = $AttributeEnumeration->find('first', $args);
+    $has_dictionary = (boolean)$AttributeEnumeration->find('count', $args);
 
-    if(empty($attrEnum['AttributeEnumeration']['dictionary_id'])) {
+    if(!$has_dictionary) {
       // If there is no dictionary attached to the Attribute Enumeration
       // configuration then load the normalizer
       $this->Behaviors->load('Normalization');
@@ -1682,7 +1687,7 @@ class AppModel extends Model {
 
       $a = explode('.', $attribute, 2);
       $data[ $a[0] ][ $a[1] ] = $value;
-      $newdata = $this->normalize($data, $coId);
+      $newdata = $this->normalize($data, $coId, $options);
 
       $this->Behaviors->unload('Normalization');
 
