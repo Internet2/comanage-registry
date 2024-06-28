@@ -48,6 +48,8 @@ class OrcidTokensController extends StandardController {
    */
 
   function beforeFilter() {
+    _bootstrap_plugin_txt();
+
     if (empty($this->request->query['orcidsid'])) {
       throw new BadRequestException(_txt('er.orcidsource.param.notfound', array(_txt('ct.orcid_sources.1') . ' Id')));
     }
