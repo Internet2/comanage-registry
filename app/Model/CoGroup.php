@@ -166,6 +166,7 @@ class CoGroup extends AppModel {
       'rule' => array('inList', array(GroupEnum::Standard,
                                       GroupEnum::ActiveMembers,
                                       GroupEnum::Admins,
+                                      GroupEnum::Clusters,
                                       GroupEnum::AllMembers,
                                       GroupEnum::Approvers)),
       'required' => false,
@@ -363,9 +364,29 @@ class CoGroup extends AppModel {
       $this->clear();
 
       if(!$this->save($data)) {
-        throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug101')));
+        throw new RuntimeException(_txt('er.db.save-a', array('CoGroup::_ug430')));
       }
     }
+  }
+
+  /**
+   * Perform upgrade steps for version 4.4.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @param   Integer  $coId  CO ID
+   *
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function _ug440($coId) {
+    // Update the group type from Standard to Cluster
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+
+    $this->updateAll(array('CoGroup.group_type' => GroupEnum::Clusters),     // fields
+                     array('CoGroup.name LIKE' => "'%UnixCluster Group%'",   // Conditions
+                           'CoGroup.group_type' => GroupEnum::Standard,
+                           'CoGroup.co_id' => $coId,
+                           'CoGroup.description LIKE' => "'%automatically by UnixCluster%'"));
   }
 
   /**

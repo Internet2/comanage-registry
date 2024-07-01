@@ -242,9 +242,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['controller'] = 'co_groups';
         $args['action'] = 'index';
         $args['co'] = $menuCoId;
-        $args['search.auto'] = 'f'; // filter out automatic groups by default
-        $args['search.noadmin'] = '1'; // exclude administration groups by default
-        $args['search.noapprover'] = '1'; // exclude approvers groups by default
+        $args['search.regular'] = '1';
         print $this->Html->link(_txt('op.grm.regular'), $args, array('class' => 'spin'));
         print "</li>";
 

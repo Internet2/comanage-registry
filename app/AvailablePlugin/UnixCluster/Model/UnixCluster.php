@@ -325,7 +325,7 @@ class UnixCluster extends ClusterInterface {
               'open' => false,
               'status' => SuspendableStatusEnum::Active,
               'cou_id' => null,
-              'group_type' => GroupEnum::Standard,
+              'group_type' => GroupEnum::Clusters,
               'auto' => false
             )
           );

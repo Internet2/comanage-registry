@@ -684,6 +684,24 @@ class UpgradeVersionShell extends AppShell {
       }
     }
   }
+
+  public function post440() {
+    // Start by pulling the list of COs.
+
+    $args = array();
+    // Because CO is not Changelog but COU is, we have to pull COUs separately
+    $args['contain'] = false;
+
+    $cos = $this->Co->find('all', $args);
+
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+
+      // Update CoGroup Type
+      $this->CoGroup->_ug440($co['Co']['id']);
+    }
+  }
   
   // We should eventually do something like
   //  upgradeShell::populate_default_values("FileSource", "file_sources", "format", "C1")
