@@ -315,6 +315,15 @@ class CoProvisioningTargetsController extends StandardController {
         $this->Api->restResultHeader(500, "Bad Request");
       }
 
+      // Make sure the CoProvisioningTarget exists in the CO
+      $args = array();
+      $args['conditions']['CoProvisioningTarget.id'] = $this->request->params['pass'][0];
+      $args['contain'] = false;
+      $provisioner = $this->CoProvisioningTarget->find('first', $args);
+      if (empty($provisioner)) {
+        throw new NotFoundException(_txt('er.notfound-b', array(_txt('ct.co_provisioning_targets.1'))));
+      }
+
       // Make sure the subject is in the same CO as $id
 
       $args = array();
@@ -323,15 +332,14 @@ class CoProvisioningTargetsController extends StandardController {
       $args['joins'][0]['type'] = 'INNER';
       $args['joins'][0]['conditions'][0] = 'CoProvisioningTarget.co_id=' . $this->_sModel . '.co_id';
       $args['conditions'][$this->_sModel . '.id'] = $this->_sId;
-      $args['conditions']['CoProvisioningTarget.id'] = $this->request->params["pass"][0];
+      $args['conditions']['CoProvisioningTarget.id'] = $this->request->params['pass'][0];
       $args['contain'] = false;
 
       $provisioner = $this->CoProvisioningTarget->find('first', $args);
 
       if (empty($provisioner)) {
         // XXX this could also be co provisioning target not found -- do a separate find to check?
-        $this->Api->restResultHeader(404, $args['joins'][0]['alias'] . " Not Found");
-        return;
+        throw new NotFoundException(_txt('er.notfound-b', array($this->_sModel)));
       }
 
       return $provisioner['CoProvisioningTarget']['co_id'];
