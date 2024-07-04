@@ -111,7 +111,7 @@
                     'controller' => 'match_server_attributes',
                     'action' => 'delete',
                     $c['MatchServerAttribute']['id'],
-                    'coef' => $vv_msid
+                    'matchserver' => $vv_msid
                   )
                 ) . '\',\''
                 . _txt('op.remove') . '\',\''    // dialog confirm button
