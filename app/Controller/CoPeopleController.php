@@ -136,6 +136,12 @@ class CoPeopleController extends StandardController {
           'empty'   => _txt('op.select.all'),
           'options' => $this->viewVars['vv_cous'],
         ),
+        'search.unattached' => array(         // 4th row, left column
+          'label' => _txt('fd.people.no.org'),
+          'type' => 'checkbox',
+          'group' => _txt('fd.people'),
+          'column' => 0
+        ),
       );
     }
   }
@@ -1243,6 +1249,17 @@ class CoPeopleController extends StandardController {
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
       $pagcond['joins'][$jcnt]['conditions'][0] = 'CoPerson.id=CoPersonRole.co_person_id';
       $pagcond['conditions']['CoPersonRole.cou_id'] = $this->request->params['named']['search.cou'];
+      $jcnt++;
+    }
+
+    // Filter by Unattached
+    if(!empty($this->params['named']['search.unattached'])) {
+      $pagcond['joins'][$jcnt]['table'] = 'co_org_identity_links';
+      $pagcond['joins'][$jcnt]['alias'] = 'CoOrgIdentityLink';
+      $pagcond['joins'][$jcnt]['type'] = 'LEFT';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'CoOrgIdentityLink.co_person_id=CoPerson.id';
+      $pagcond['conditions'][] = 'CoOrgIdentityLink.id IS NULL';
+      $jcnt++;
     }
 
     // If a CO Person has more than one roles or more than one partial matches that are identical,

@@ -1822,6 +1822,7 @@ The request may be viewed at
   'fd.password' =>    'Password',
   'fd.pattern' =>     'Pattern',
   'fd.people' =>      '%1$s People',
+  'fd.people.no.org' => 'People without Organizational Identities',
   'fd.perm' =>        'Permission',
   'fd.perms' =>       'Permissions',
   'fd.permitted.name' => 'Name Permitted Fields',
