@@ -183,7 +183,10 @@ Router::connect(
   array(
     'pass' => array('id'),
     'named' => array(
-      'id' => '[0-9]+'
+      'copersonid' => '[0-9]+',
+      'cogroupid' => '[0-9]+',
+      'coemaillistid' => '[0-9]+',
+      'coserviceid' => '[0-9]+'
     )
   )
 );
