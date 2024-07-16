@@ -180,9 +180,16 @@
   ul.form-list .field-info-flex input[type="text"],
   ul.form-list .field-info-flex input[type="number"],
   ul.form-list .field-info-flex input[type="password"],
-  ul.form-list .field-info-flex textarea {
+  ul.form-list .field-info-flex textarea,
+  ul.form-list .field-info-flex .input-wrapper {
     width: auto;
     flex-grow: 1;
+  }
+  ul.form-list .field-info-flex .input-wrapper input {
+    width: 97%;
+  }
+  ul.form-list .field-info-flex .input-wrapper .error-message {
+    position: absolute;
   }
   ul.form-list li.field-stack textarea {
     margin: 0.5em 0 0.5em 0.5em;
