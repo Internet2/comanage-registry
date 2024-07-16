@@ -2169,8 +2169,30 @@ ul.form-list .field-title {
   font-weight: bold;
   margin-bottom: 0;
 }
+ul.form-list .field-title label {
+  margin-bottom: 0;
+}
 ul.form-list .field-info {
   position: relative;
+}
+ul.form-list .field-info.field-info-flex {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+ul.form-list .field-info-flex input[type="text"],
+ul.form-list .field-info-flex input[type="number"],
+ul.form-list .field-info-flex input[type="password"],
+ul.form-list .field-info-flex textarea,
+ul.form-list .field-info-flex .input-wrapper {
+  width: auto;
+  flex-grow: 1;
+}
+ul.form-list .field-info-flex .input-wrapper input {
+  width: 97%;
+}
+ul.form-list .field-info-flex .input-wrapper .error-message {
+  /*position: absolute;*/
 }
 ul.form-list .field-info-prefix {
   margin-right: 0.5em;
@@ -2178,7 +2200,7 @@ ul.form-list .field-info-prefix {
 ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
-  padding: 0.25em 1em 0.5em 0.5em;
+  padding: 0 0 0.5em 0;
 }
 ul.form-list .fields-header {
   background-color: #fff;
