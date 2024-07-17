@@ -266,7 +266,7 @@ class AppController extends Controller {
         $coid = $this->parseCOID($this->Api->getData());
         $roles = $this->Role->calculateCMRoles();
         if($this->requires_co
-           && $coid === -1
+           && (int)$coid === -1
            && !$roles['cmadmin']) {
           throw new InvalidArgumentException(_txt('er.co.specify'), HttpStatusCodesEnum::HTTP_UNAUTHORIZED);
         }
@@ -277,12 +277,27 @@ class AppController extends Controller {
         $args['contain'] = false;
 
         $this->cur_co = $this->Co->find('first', $args);
-      } catch(RuntimeException $e) {
+
+        // In the case a CMP admin performs an API request with an invalid CO Id, we will get
+        // here but the $this->cur_co object will be null
+        if(empty($this->cur_co)
+           || !is_array($this->cur_co)
+           || !isset($this->cur_co['Co'])) {
+          throw new NotFoundException(_txt('er.notfound-b', array(_txt('ct.cos.1'))));
+        }
+      } catch(HttpException $e) {
         // This is probably $id not found... strictly speaking we should somehow
         // check authorization before returning id not found, but we can't really
         // authorize a request for an invalid id.
-        
-        $this->Api->restResultHeader(404, "Not Found");
+        $message = $e->getMessage() ?? 'Not Found';
+
+        $this->Api->restResultHeader($e->getCode(), $message);
+        $this->response->send();
+        exit;
+      } catch(Exception $e) {
+        $message = $e->getMessage() ?? 'Other error';
+
+        $this->Api->restResultHeader($e->getCode(), $message);
         $this->response->send();
         exit;
       }
