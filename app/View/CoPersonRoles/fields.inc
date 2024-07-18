@@ -709,7 +709,7 @@
                     <?php
                       if($c['CoExtendedAttribute']['type'] == 'TIMESTAMP') {
                         print ($e && !$es ? $this->Form->text($cl.'.'.$attr, array('class' => 'datepicker'))
-                          : (($co_person_roles[0][$cl][$attr] > 0) ? strftime("%F", strtotime($co_person_roles[0][$cl][$attr])) : ""));
+                          : (($co_person_roles[0][$cl][$attr] > 0) ? date("Y-m-d", strtotime($co_person_roles[0][$cl][$attr])) : ""));
                       } else {
                         print ($e && !$es ? $this->Form->input($cl.'.'.$attr,
                           isset($co_person_roles[0][$cl][$attr]) ? array('default' => $co_person_roles[0][$cl][$attr]) : array())

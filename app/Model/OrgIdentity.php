@@ -254,16 +254,16 @@ class OrgIdentity extends AppModel {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data['OrgIdentity']['valid_from'], $localTZ);
         
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data['OrgIdentity']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data['OrgIdentity']['valid_from'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
       
       if(!empty($this->data['OrgIdentity']['valid_through'])) {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data['OrgIdentity']['valid_through'], $localTZ);
         
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data['OrgIdentity']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data['OrgIdentity']['valid_through'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
     }
     
