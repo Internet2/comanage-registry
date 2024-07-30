@@ -68,10 +68,11 @@ class CoreApiOrganization extends CoreApi {
    * @param integer  $coId     CO ID
    * @param array    $reqData  Array of request data
    * @param integer  $actorApiUserId  Core API User ID making the request
+   * @param  string  $identifierType Identifier type
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
-  public function createV1($coId, $reqData, $actorApiUserId) {
+  public function createV1($coId, $reqData, $actorApiUserId, $identifierType) {
     $modelMapperName = $this->mapper;
     // Start a transaction
     $dbc = $this->Co->$modelMapperName->getDataSource();
