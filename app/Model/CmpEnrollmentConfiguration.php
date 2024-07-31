@@ -92,6 +92,11 @@ class CmpEnrollmentConfiguration extends AppModel {
       'required' => true,
       'message' => 'The webroot location must be provided'
     ),
+    'authn_events_record_apiusers' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**
@@ -114,6 +119,7 @@ class CmpEnrollmentConfiguration extends AppModel {
       'status'              => StatusEnum::Active,
       'redirect_on_logout'  => null,
       'app_base'            => '/registry/',
+      'authn_events_record_apiusers'  => true,
     );
     
     if($this->save($ef)) {
@@ -158,6 +164,25 @@ class CmpEnrollmentConfiguration extends AppModel {
     $cmp = $this->find('first', $args);
 
     return isset($cmp["CmpEnrollmentConfiguration"]["app_base"]) ? $cmp["CmpEnrollmentConfiguration"]["app_base"] : "";
+  }
+
+  /**
+   * Are we allowed to keep record of the API User's authentication events
+   *
+   * @return boolean True if enabled, false otherwise
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function getAuthnEventsRecordApiUsers() {
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['fields'] = array('CmpEnrollmentConfiguration.authn_events_record_apiusers');
+    $args['contain'] = false;
+
+    $cmp = $this->find('first', $args);
+
+    return $cmp['CmpEnrollmentConfiguration']['authn_events_record_apiusers'] ?? '';
   }
 
 
@@ -269,5 +294,21 @@ class CmpEnrollmentConfiguration extends AppModel {
     }
     
     return false;
+  }
+
+  /**
+   * Perform CmpEnrollmentConfiguration model upgrade steps for version 4.4.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function _ug440() {
+    // Set default Authentication Events Recording for API Users
+
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    $this->updateAll(
+      array('CmpEnrollmentConfiguration.authn_events_record_apiusers'=> true)
+    );
   }
 }

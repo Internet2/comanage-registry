@@ -2176,6 +2176,7 @@
     <field name="attrs_from_saml" type="L" />
     <field name="attrs_from_env" type="L" />
     <field name="attrs_from_coef" type="L" />
+    <field name="authn_events_record_apiusers" type="L" />
     <field name="pool_org_identities" type="L" />
     <field name="eds_help_url" type="C" size="256" />
     <field name="eds_preferred_idps" type="X" size="4000" />
