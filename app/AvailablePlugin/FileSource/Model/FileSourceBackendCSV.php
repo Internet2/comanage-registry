@@ -86,11 +86,15 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
    * @return array Configuration array
    */
   
-  protected function readFieldConfig() {
+  public function readFieldConfig() {
     if($this->fieldCfg) {
       return $this->fieldCfg;
     }
-    
+
+    if($this->coId === null) {
+      throw new RuntimeException(_txt('er.filesource.coid'));
+    }
+
     if($this->pluginCfg['format'] == FileSourceFormat::CSV2) {
       $this->fieldCfg = array();
       
