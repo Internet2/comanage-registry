@@ -116,10 +116,11 @@ class CoreApiPerson extends CoreApi {
    * @param integer  $coId     CO ID
    * @param array    $reqData  Array of request data
    * @param integer  $actorApiUserId  Core API User ID making the request
+   * @param  string  $identifierType Identifier type
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
-  public function createV1($coId, $reqData, $actorApiUserId) {
+  public function createV1($coId, $reqData, $actorApiUserId, $identifierType) {
     $modelMapperName = $this->mapper;
     // Start a transaction
     $dbc = $this->Co->$modelMapperName->getDataSource();
@@ -289,8 +290,25 @@ class CoreApiPerson extends CoreApi {
 
       // Trigger provisioning
       $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
+
+      // Return the list of identifiers that their type match the CORE API configuration
+      $args = array();
+      $args['conditions']['Identifier.co_person_id'] = $co_person_id;
+      $args['conditions']['Identifier.type'] = $identifierType;
+      $args['contain'] = false;
+
+      $identifiers = $this->Co->CoPerson->Identifier->find('all', $args);
+      $idents = array();
+      foreach ($identifiers as $ident) {
+        $idents[ $ident['Identifier']['id'] ] = array (
+          'identifier' => $ident['Identifier']['identifier'],
+          'type' => $ident['Identifier']['type'],
+          'login' => $ident['Identifier']['login'],
+          'status' => $ident['Identifier']['status'],
+        );
+      }
       // Return the identifier
-      return $accessedRecords["Identifier"];
+      return $idents;
     }
     catch(Exception $e) {
       $dbc->rollback();

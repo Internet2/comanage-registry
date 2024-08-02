@@ -235,7 +235,8 @@ class CoreApiController extends Controller {
     try {
       $ret = $this->$modelApiName->createV1($this->cur_api['CoreApi']['co_id'],
                                             $this->request->data,
-                                            $this->cur_api['CoreApi']['api_user_id']);
+                                            $this->cur_api['CoreApi']['api_user_id'],
+                                            $this->cur_api['CoreApi']['identifier_type']);
 
       $this->set('results', array_values($ret));
       $this->Api->restResultHeader(201);
