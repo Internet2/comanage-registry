@@ -138,6 +138,11 @@ class CoIdentifierAssignment extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'minimum_length' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'minimum' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -372,7 +377,11 @@ class CoIdentifierAssignment extends AppModel {
         
         if(!in_array($candidate, $tested)
            // Also check that we didn't get an empty string
-           && trim($candidate) != false) {
+           && trim($candidate) != false
+           // Or that the candidate is too short
+           && (empty($coIdentifierAssignment['CoIdentifierAssignment']['minimum_length'])
+               || ($coIdentifierAssignment['CoIdentifierAssignment']['minimum_length'] > 0
+                   && strlen($candidate) >= $coIdentifierAssignment['CoIdentifierAssignment']['minimum_length']))) {
           // We have a new candidate (ie: one that wasn't generated on a previous loop),
           // so let's see if it is already in use.
           

@@ -84,18 +84,21 @@
       $('#CoIdentifierAssignmentPlugin').closest("li").show('fade');
       $('#CoIdentifierAssignmentMaximum').closest("li").hide('fade');
       $('#CoIdentifierAssignmentMinimum').closest("li").hide('fade');
+      $('#CoIdentifierAssignmentMinimumLength').closest("li").hide('fade');
       $('#CoIdentifierAssignmentFormat').closest("li").hide('fade');
       $('#CoIdentifierAssignmentPermitted').closest("li").hide('fade');
     } else if(algorithm == '<?php print IdentifierAssignmentEnum::Random; ?>') {
       $('#CoIdentifierAssignmentPlugin').closest("li").hide('fade');
       $('#CoIdentifierAssignmentMaximum').closest("li").show('fade');
       $('#CoIdentifierAssignmentMinimum').closest("li").show('fade');
+      $('#CoIdentifierAssignmentMinimumLength').closest("li").show('fade');
       $('#CoIdentifierAssignmentFormat').closest("li").show('fade');
       $('#CoIdentifierAssignmentPermitted').closest("li").show('fade');
     } else {
       $('#CoIdentifierAssignmentPlugin').closest("li").hide('fade');
       $('#CoIdentifierAssignmentMaximum').closest("li").hide('fade');
       $('#CoIdentifierAssignmentMinimum').closest("li").show('fade');
+      $('#CoIdentifierAssignmentMinimumLength').closest("li").show('fade');
       $('#CoIdentifierAssignmentFormat').closest("li").show('fade');
       $('#CoIdentifierAssignmentPermitted').closest("li").show('fade');
     }
@@ -373,6 +376,17 @@
           <option value="(g:1)(m:1)(f:1)(#)@myvo.org"><?php print _txt('fd.ia.format.p3'); ?></option>
         </select>
       <?php endif; ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('minimum_length', _txt('fd.ia.minimum_length')) : _txt('fd.ia.minimum_length')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ia.minimum_length.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('minimum_length') : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['minimum_length'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
