@@ -177,6 +177,8 @@
     }
   }
 
+  $co_person_id = $co_person_id ?? $userInfo['co_person_id'] ?? null;
+
   // Sort attributes by model for printing
   $coea_model = array();
   $misc_attr = array();
@@ -346,8 +348,28 @@
 
             $hfieldName = $ea['model'] . '.' . $ea['field'];
             $fieldName = $hfieldName . "-disabled";
+            $default_val = null;
 
-            print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
+            if(strpos($hfieldName, 'EnrolleeCoPerson.EmailAddress') !== false
+              || strpos($hfieldName, 'EnrolleeOrgIdentity.EmailAddress') !== false) {
+              $email_list = $ea['default'];
+              if(!empty($email_list) && !empty($vv_envsource_delimiter)) {
+                $delimiter = "";
+                if($vv_envsource_delimiter == AuthProviderEnum::Shibboleth) {
+                  $delimiter = ";";
+                } elseif($vv_envsource_delimiter == AuthProviderEnum::Simplesamlphp) {
+                  $delimiter =",";
+                }
+
+                $emails = explode($delimiter, $email_list);
+                if(is_array($emails) && count($emails) > 1) {
+                  // XXX We are only keeping the first email
+                  $default_val = $emails[0];
+                }
+              }
+            }
+
+            print $this->Form->hidden($hfieldName, array('default' => ($default_val ?? $ea['default']) )) . PHP_EOL;
           }
 
           // XXX need to retrieve current values for edit and view
@@ -567,7 +589,7 @@
                                               array(
                                                 // We don't support two sponsors, but if we did this id would break
                                                 'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
-                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                                'default' => ($ea['default'] ?? null)
                                               ))
                         . '</div>
                            <div class="field-desc">
@@ -631,7 +653,7 @@
                                               array(
                                                 // We don't support two managers, but if we did this id would break
                                                 'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
-                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                                'default' => ($ea['default'] ?? null)
                                               ))
                         . '</div>
                            <div class="field-desc">
@@ -651,7 +673,8 @@
                   $args['value'] = generateCn($vv_default_sponsor['PrimaryName']);
                 } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id-disabled') {
                   $args['value'] = generateCn($vv_default_manager['PrimaryName']);
-                } elseif(strpos($fieldName, 'EnrolleeCoPerson.EmailAddress') !== false) {
+                } elseif(strpos($fieldName, 'EnrolleeCoPerson.EmailAddress') !== false
+                         || strpos($fieldName, 'EnrolleeOrgIdentity.EmailAddress') !== false) {
                   $email_list = $args['default'];
                   if(!empty($email_list) && !empty($vv_envsource_delimiter)) {
                     if($vv_envsource_delimiter == AuthProviderEnum::Shibboleth) {
