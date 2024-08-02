@@ -83,7 +83,7 @@
     <div class="field-name">
       <div class="field-title">
         <?php
-        print ($e ? $this->Form->label('redirect_url', _txt('fd.duplicate_check_enrollers.env_remote_user'))
+        print ($e ? $this->Form->label('env_remote_user', _txt('fd.duplicate_check_enrollers.env_remote_user'))
           : _txt('fd.duplicate_check_enrollers.env_remote_user'));
         ?>
       </div>
@@ -152,7 +152,13 @@
     </div>
     <div class="field-info">
       <?php
-      print ($e ? $this->Form->text('redirect_url')
+      print ($e ? $this->Form->text(
+        'redirect_url',
+        array(
+          'size' => 60,
+          'maxlength' => 1024,
+        )
+      )
                 : filter_var($duplicate_check_enrollers[0]['DuplicateCheckEnroller']['redirect_url'],FILTER_SANITIZE_URL));
       ?>
     </div>
