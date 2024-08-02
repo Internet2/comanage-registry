@@ -87,9 +87,17 @@ class DuplicateCheckEnroller extends AppModel {
       )
     ),
     'redirect_url' => array(
-      'rule' => '/.*/',
-      'required' => false,
-      'allowEmpty' => true
+      'content' => array(
+        'rule' => '/.*/',
+        'required' => false,
+        'allowEmpty' => true
+      ),
+      'length' => array(
+        'rule' => array('maxLength', 1024),
+        'required' => false,
+        'allowEmpty' => true,
+        'message' => 'URL length should be at most 512 characters.'
+      ),
     )
   );
 
