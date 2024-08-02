@@ -40,6 +40,7 @@ class CoreApiController extends Controller {
   // we want to use.
   public $components = array('Api',
                              'Auth',
+                             'Session',
                              'RequestHandler', // For REST
                              'Paginator');
   
@@ -162,7 +163,8 @@ class CoreApiController extends Controller {
            && (empty($apiuser['remote_ip'])
                || preg_match($apiuser['remote_ip'], $_SERVER['REMOTE_ADDR']))) {
           // Authentication complete, check authorization
-          
+          $this->Session->write('Auth.User.api', true);
+
           // Try to find a matching CoreApi configuration
           $args = array();
           $args['conditions']['CoreApi.api_user_id'] = $apiuser['id'];
