@@ -276,27 +276,27 @@
       <div class="field-title"><?php print _txt('pl.ldapprovisioner.attrs'); ?> <span class="required">*</span></div>
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.attrs.desc'); ?></div>
     </div>
-    <div class="field-info"><!-- do not apply class "checkbox" here -->
+    <div class="field-info checkbox">
       <?php
         if($e) {
           global $cm_lang, $cm_texts;
           $seenGroupings = array();
 
           // Iterate through the supported object classes
-
           foreach(array_keys($supportedAttributes) as $oc) {
             // Checkbox to enable this objectclass
 
             $ocopts = array();
             $ocopts['label'] = _txt('pl.ldapprovisioner.oc.enable', array($oc));
             $ocopts['onClick'] = 'toggle_div("oc_' . $oc . '_div")';
+            $ocopts['type'] = 'checkbox';
 
             if($supportedAttributes[$oc]['objectclass']['required']) {
               $ocopts['label'] .= " (" . _txt('fd.required') . ")";
               $ocopts['checked'] = true;
               $ocopts['disabled'] = true;
             }
-
+            
             print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
 
             print '<div id="oc_' . $oc . '_div" class="nested">';
@@ -370,7 +370,7 @@
                 print $this->Form->hidden($xgprefix . '.grouping', array('default' => $grouping)) . "\n";
 
                 // Grouping label for display
-                print "&nbsp;&nbsp;" . $supportedAttributes[$oc]['groupings'][$grouping]['label'];
+                print $supportedAttributes[$oc]['groupings'][$grouping]['label'];
 
                 // See if Grouping is typed
                 $xtypeopts = null;
@@ -451,7 +451,7 @@
 
               // Emit the checkbox for exporting the attribute
 
-              print "&nbsp;&nbsp;" . $this->Form->input($xname,
+              print $this->Form->input($xname,
                                                         array('label' => $xlabel,
                                                               'checked' => $xchecked,
                                                               'disabled' => $xdisabled));
