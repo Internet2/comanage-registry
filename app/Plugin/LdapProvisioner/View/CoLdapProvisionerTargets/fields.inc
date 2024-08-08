@@ -283,6 +283,7 @@
           $seenGroupings = array();
 
           // Iterate through the supported object classes
+
           foreach(array_keys($supportedAttributes) as $oc) {
             // Checkbox to enable this objectclass
 
@@ -296,7 +297,7 @@
               $ocopts['checked'] = true;
               $ocopts['disabled'] = true;
             }
-            
+
             print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
 
             print '<div id="oc_' . $oc . '_div" class="nested">';
