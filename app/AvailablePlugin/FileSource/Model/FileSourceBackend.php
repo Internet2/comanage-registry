@@ -38,6 +38,9 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
   protected $archive1 = null;
   protected $archive2 = null;
 
+  // CO Id
+  protected $coId = null;
+
   /**
    * Obtain a list of records changed since $lastStart, through $curStart.
    *
@@ -359,11 +362,20 @@ class FileSourceBackend extends OrgIdentitySourceBackend {
   public function setConfig($cfg) {
     // We want the parent behavior
     parent::setConfig($cfg);
-    
+
+    $args = array();
+    $args['conditions']['OrgIdentitySource.id'] = $cfg['org_identity_source_id'];
+    $args['contain'] = false;
+
+    $OrgIdentitySource = ClassRegistry::init('OrgIdentitySource');
+    $source_configuration =$OrgIdentitySource->find('first', $args);
+
     // But then we also need to pass the updated configuration to our backend
     $Backend = $this->getFSBackend();
     
     $Backend->setConfig($cfg);
+    $this->coId = $source_configuration['OrgIdentitySource']['co_id'];
+    $Backend->setCoId($source_configuration['OrgIdentitySource']['co_id']);
   }
 
   /**

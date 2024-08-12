@@ -1937,13 +1937,12 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                                               $dns['newdnerr'])));
       }
 
-      try {
-        error_reporting(0);
-        ldap_add($cxn, $dns['newdn'], $attributes);
+      error_reporting(0);
+      if(!@ldap_add($cxn, $dns['newdn'], $attributes)) {
         error_reporting($current_error_reporting);
-      } catch(Exception $e) {
         throw new RuntimeException(ldap_error($cxn), ldap_errno($cxn));
       }
+      error_reporting($current_error_reporting);
     }
     
     // Drop the connection

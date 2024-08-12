@@ -38,7 +38,7 @@
     <field name="co_enrollment_flow_wedge_id" type="I">
       <constraint>REFERENCES cm_co_enrollment_flow_wedges(id)</constraint>
     </field>
-    <field name="redirect_url" type="C" />
+    <field name="redirect_url" type="C" size="1024"/>
     <field name="identifier_type" type="C" size="32" />
     <field name="env_remote_user" type="C" size="80" />
     <field name="created" type="T" />
