@@ -38,7 +38,7 @@ class CoPetitionHistoryRecordsController extends StandardController {
       'modified' => 'asc'
     ),
     'contain' => array(
-      'ActorCoPerson' => 'PrimaryName'
+      'ActorCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)))
     )
   );
   
@@ -48,7 +48,7 @@ class CoPetitionHistoryRecordsController extends StandardController {
   // For rendering views, we need more information than just the various ID numbers
   // stored in a petition.
   public $view_contains = array(
-    'ActorCoPerson' => 'PrimaryName'
+    'ActorCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)))
   );
   
   /**

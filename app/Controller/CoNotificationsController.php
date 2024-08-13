@@ -45,11 +45,19 @@ class CoNotificationsController extends StandardController {
   // For rendering views, we need more information than just the various ID numbers
   // stored in a petition.
   public $view_contains = array(
-    'SubjectCoPerson' => 'PrimaryName',
-    'ActorCoPerson' => 'PrimaryName',
-    'RecipientCoPerson' => 'PrimaryName',
+    'SubjectCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
+    'ActorCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
+    'RecipientCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
     'RecipientCoGroup',
-    'ResolverCoPerson' => 'PrimaryName'
+    'ResolverCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    )
   );
 
   /**
@@ -199,7 +207,9 @@ class CoNotificationsController extends StandardController {
         
         $args = array();
         $args['conditions']['SubjectCoPerson.id'] = $this->cur_co_person_id;
-        $args['contain'][] = 'PrimaryName';
+        $args['contain'] = array(
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        );
         
         $cop = $this->CoNotification->SubjectCoPerson->find('first', $args);
         

@@ -52,8 +52,8 @@ class CoPersonRolesController extends StandardController {
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'AdHocAttribute' => array('SourceAdHocAttribute' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'CoPerson', // Used to check status recalculation on save
-    'ManagerCoPerson' => array('PrimaryName'),
-    'SponsorCoPerson' => array('PrimaryName'),
+    'ManagerCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
+    'SponsorCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );
   
@@ -62,8 +62,8 @@ class CoPersonRolesController extends StandardController {
     'Address' => array('SourceAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'AdHocAttribute' => array('SourceAdHocAttribute' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
     'Cou',
-    'ManagerCoPerson' => array('PrimaryName'),
-    'SponsorCoPerson' => array('PrimaryName'),
+    'ManagerCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
+    'SponsorCoPerson' => array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))),
     'TelephoneNumber' => array('SourceTelephoneNumber' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'))))
   );
   
@@ -131,7 +131,7 @@ class CoPersonRolesController extends StandardController {
       $args = array();
       $args['conditions']['CoPerson.id'] = $copid;
       $args['contain'] = array('CoOrgIdentityLink' => array('OrgIdentity'),
-                               'PrimaryName');
+                               'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
       
       $cop = $this->CoPersonRole->CoPerson->find('all', $args);
       
@@ -740,7 +740,7 @@ class CoPersonRolesController extends StandardController {
         
         $args = array();
         $args['conditions']['CoPersonRole.id'] = $id;
-        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['CoPerson'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
         
         $copr = $this->CoPersonRole->find('first', $args);
         
@@ -753,7 +753,7 @@ class CoPersonRolesController extends StandardController {
             
             $args = array();
             $args['conditions']['CoPerson.id'] = filter_var($this->request->data['CoPersonRole']['co_person_id'],FILTER_SANITIZE_SPECIAL_CHARS);
-            $args['contain'][] = 'PrimaryName';
+            $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
             
             $newcop = $this->CoPersonRole->CoPerson->find('first', $args);
             
