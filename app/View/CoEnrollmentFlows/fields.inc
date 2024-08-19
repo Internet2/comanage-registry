@@ -526,6 +526,66 @@
       <ul class="field-children">
         <li>
           <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.appr.confmode'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.appr.confmode.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_confirmation_mode'])
+                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_confirmation_mode']
+                : EnrollmentApprovalConfirmationModeEnum::Never);
+              $attrs['empty'] = false;
+              
+              if($e) {
+                print $this->Form->select('approval_confirmation_mode',
+                  $cm_texts[ $cm_lang ]['en.enrollment.confmode'],
+                  $attrs);
+                
+                if($this->Form->isFieldError('approval_confirmation_mode')) {
+                  print $this->Form->error('approval_confirmation_mode');
+                }
+              } else {
+                print _txt('en.enrollment.confmode', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_confirmation_mode']);
+              }
+            ?>
+          </div>
+        </li>
+      </ul>
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.appr.reqcomment'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.appr.reqcomment.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_require_comment'])
+                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_require_comment']
+                : EnrollmentApprovalConfirmationModeEnum::Never);
+              $attrs['empty'] = false;
+              
+              if($e) {
+                print $this->Form->select('approval_require_comment',
+                  $cm_texts[ $cm_lang ]['en.enrollment.confmode'],
+                  $attrs);
+                
+                if($this->Form->isFieldError('approval_require_comment')) {
+                  print $this->Form->error('approval_require_comment');
+                }
+              } else {
+                print _txt('en.enrollment.confmode', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_require_comment']);
+              }
+            ?>
+          </div>
+        </li>
+      </ul>
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
             <div class="field-title"><?php print _txt('fd.ef.appr.ntf'); ?></div>
             <div class="field-desc"><?php print _txt('fd.ef.appr.ntf.desc'); ?></div>
           </div>

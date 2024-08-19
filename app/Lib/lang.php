@@ -610,6 +610,13 @@ The request may be viewed at
     EnrollmentAuthzEnum::None           => 'None'
   ),
   
+  'en.enrollment.confmode' => array(
+    EnrollmentApprovalConfirmationModeEnum::Always   => 'Always',
+    EnrollmentApprovalConfirmationModeEnum::Approval => 'Approval Only',
+    EnrollmentApprovalConfirmationModeEnum::Denial   => 'Denial Only',
+    EnrollmentApprovalConfirmationModeEnum::Never    => 'Never',
+  ),
+  
   'en.enrollment.dupe' => array(
     EnrollmentDupeModeEnum::Duplicate       => 'Flag as Duplicate',
     EnrollmentDupeModeEnum::Merge           => 'Merge',
@@ -1498,6 +1505,10 @@ The request may be viewed at
   'fd.ef.app.base.desc' => 'Application\'s webroot location, e.g. /registry',
   'fd.ef.appr' =>     'Require Approval For Enrollment',
   'fd.ef.appr.desc' => 'If administrator approval is required, a Petition must be approved before the Enrollee becomes active.',
+  'fd.ef.appr.confmode' => 'Approval Confirmation Mode',
+  'fd.ef.appr.confmode.desc' => 'When to require JavaScript confirmation on "Approve" or "Deny" petition buttons',
+  'fd.ef.appr.reqcomment' => 'Require Comment on Approval',
+  'fd.ef.appr.reqcomment.desc' => 'When to require a comment to "Approve" or "Deny" a petition',
   'fd.ef.appr.pl' =>  'Approvers',
   'fd.ef.appr.gr' =>  'Members of this Group are authorized approvers (or else CO/COU admins by default)',
   'fd.ef.appr.ntf' =>  'Approver Notification Email Message Template',

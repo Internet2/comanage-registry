@@ -242,6 +242,14 @@ class EmailAddressEnum {
   const Preferred     = 'preferred';
   const Recovery      = 'recovery';
 }
+  
+class EnrollmentApprovalConfirmationModeEnum
+{
+  const Always        = 'AL';
+  const Approval      = 'AP';
+  const Denial        = 'D';
+  const Never         = 'N';
+}
 
 class EnrollmentAuthzEnum {
   const AuthUser      = 'AU';
