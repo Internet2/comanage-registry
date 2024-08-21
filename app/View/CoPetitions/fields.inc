@@ -101,6 +101,10 @@
 
   $l = 0;
   
+  // Approval confirmation mode and commenting 
+  $approvalConfirmationMode = $co_petitions[0]['CoEnrollmentFlow']['approval_confirmation_mode'] ?? EnrollmentApprovalConfirmationModeEnum::Never;
+  $approvalRequireComment = $co_petitions[0]['CoEnrollmentFlow']['approval_require_comment'] ?? EnrollmentApprovalConfirmationModeEnum::Never;
+  
   // Unlike most other views, CO Petitions dynamically generates attributes to be
   // completed according to a configuration, not according to a model. This is a
   // lot of logic to embed in a view file, and plausibly this code should be
@@ -125,6 +129,34 @@
         }
       });
     });
+    
+    function confirmPetition(action, confirmationMode, requireCommentMode, formObj) {
+      stopSpinner();
+      // First check if we need to enforce the Comment box. We only need to do this with 
+      // JavaScript if the mode is "Approval Only" or "Denial Only". If the comment field is configured 
+      // to enforce "Always", we set the field to required and let the browser handle it directly.
+      if((action == 'approve' && requireCommentMode == 'AP') || (action == 'deny' && requireCommentMode == 'D')) {
+        if($('#CoPetitionApproverComment').val().trim() == '') {
+          msg = (action == 'approve' ? '<?php print (_txt('fd.ef.appr.invalid.appr')); ?>' : '<?php print (_txt('fd.ef.appr.invalid.deny')); ?>');
+          $('#approver-comment-field-error').text(msg).show();
+          $('#CoPetitionApproverComment').focus();
+          return false; 
+        }
+      }
+      
+      // Check the confirmation mode and provide confirmations as necessary
+      if(confirmationMode == 'AL' || (confirmationMode == 'AP' && action == 'approve') || (confirmationMode == 'D' && action == 'deny')) {
+        msg = (action == 'approve' ? '<?php print (_txt('fd.ef.appr.approve.confirm')); ?>' : '<?php print (_txt('fd.ef.appr.deny.confirm')); ?>');
+        confirmed = confirm(msg);
+      } else {
+        confirmed = true;
+      }
+  
+      if(confirmed) {
+        displaySpinner();
+        formObj.submit();
+      }
+    }
   </script>
 
   <div id="<?php print $this->action; ?>_co_petitions" class="explorerContainer">
@@ -173,26 +205,42 @@
 
                       print $this->Form->create('CoPetition', $args);
 
+                      print '<div id="approve-deny-buttons">';  
+
                       if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
                          && $permissions['approve']) {
-                        print $this->Form->submit(_txt('op.approve'),
+                        print $this->Form->button(_txt('op.approve'),
                           array(
-                            'class' => 'checkbutton approve-button',
-                            'name'  => 'action')
+                            'class' => 'approve-button btn btn-primary',
+                            'name'  => 'action',
+                            'type'  => 'button',
+                            'onclick' => "event.preventDefault(); confirmPetition('approve','" . $approvalConfirmationMode . "','" . $approvalRequireComment . "',this.form);")
                         );
                       }
-                      print $this->Form->submit(_txt('op.deny'),
+                      print $this->Form->button(_txt('op.deny'),
                         array(
-                          'class' => 'cancelbutton deny-button',
-                          'name'  => 'action')
+                          'class' => 'deny-button btn btn-primary',
+                          'name'  => 'action',
+                          'onclick' => "event.preventDefault(); confirmPetition('deny','" . $approvalConfirmationMode . "','" . $approvalRequireComment . "',this.form);")
                       );
+                      
+                      print '</div>';
 
+                      $approverCommentLabel = _txt('fd.pt.approver_comment');
+                      $requireComment = false; 
+                      if($approvalRequireComment != EnrollmentApprovalConfirmationModeEnum::Never) {
+                        $approverCommentLabel = '<span class="required">*</span> ' . _txt('fd.pt.approver_comment');
+                        if($approvalRequireComment == EnrollmentApprovalConfirmationModeEnum::Always) {
+                          $requireComment = true; // for require on approval or denial, we must enforce this with JavaScript only
+                        }
+                      }
                       print $this->Form->input('approver_comment',
                                                array(
-                                                 'label' => _txt('fd.pt.approver_comment'),
-                                                 'placeholder' => _txt('en.required', null, RequiredEnum::Optional)
+                                                 'label' => $approverCommentLabel,
+                                                 'required' => $requireComment,
+                                                 'placeholder' => _txt('en.enrollment.confmode.placeholder', null, $approvalRequireComment)
                                               ));
-
+                      print '<div id="approver-comment-field-error" class="invalid-feedback" style="display: none;"></div>';
                       print '<div class="field-desc">' . _txt('fd.pt.approver_comment.desc') . '</div>';
 
                       print $this->Form->end();
