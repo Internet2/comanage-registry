@@ -130,8 +130,7 @@
       });
     });
     
-    function confirmPetition(action, confirmationMode, requireCommentMode, formObj) {
-      stopSpinner();
+    function confirmPetition(action, confirmationMode, requireCommentMode) {
       // First check if we need to enforce the Comment box. We only need to do this with 
       // JavaScript if the mode is "Approval Only" or "Denial Only". If the comment field is configured 
       // to enforce "Always", we set the field to required and let the browser handle it directly.
@@ -153,9 +152,12 @@
       }
   
       if(confirmed) {
+        $('#approve-deny-buttons input').removeClass('nospin');
         displaySpinner();
-        formObj.submit();
+        return true;
       }
+      
+      return false;
     }
   </script>
 
@@ -209,19 +211,18 @@
 
                       if($co_petitions[0]['CoPetition']['status'] == PetitionStatusEnum::PendingApproval
                          && $permissions['approve']) {
-                        print $this->Form->button(_txt('op.approve'),
+                        print $this->Form->submit(_txt('op.approve'),
                           array(
-                            'class' => 'approve-button btn btn-primary',
+                            'class' => 'approve-button btn btn-primary nospin',
                             'name'  => 'action',
-                            'type'  => 'button',
-                            'onclick' => "event.preventDefault(); confirmPetition('approve','" . $approvalConfirmationMode . "','" . $approvalRequireComment . "',this.form);")
+                            'onclick' => "return confirmPetition('approve','" . $approvalConfirmationMode . "','" . $approvalRequireComment . "');")
                         );
                       }
-                      print $this->Form->button(_txt('op.deny'),
+                      print $this->Form->submit(_txt('op.deny'),
                         array(
-                          'class' => 'deny-button btn btn-primary',
+                          'class' => 'deny-button btn btn-primary nospin',
                           'name'  => 'action',
-                          'onclick' => "event.preventDefault(); confirmPetition('deny','" . $approvalConfirmationMode . "','" . $approvalRequireComment . "',this.form);")
+                          'onclick' => "return confirmPetition('deny','" . $approvalConfirmationMode . "','" . $approvalRequireComment . "');")
                       );
                       
                       print '</div>';
