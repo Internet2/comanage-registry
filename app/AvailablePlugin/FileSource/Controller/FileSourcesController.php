@@ -26,6 +26,7 @@
  */
 
 App::uses("SOISController", "Controller");
+App::uses("FileSourceBackendCSV", "FileSource.Model");
 
 class FileSourcesController extends SOISController {
   // Class name, used by Cake
@@ -57,7 +58,17 @@ class FileSourcesController extends SOISController {
                         array('key' => 'error')); 
       return false;
     }
-    
+
+    // Make sure the file header is correct
+    $FSBackend = new FileSourceBackendCSV($reqdata['FileSource']);
+    $FSBackend->setCoId($curdata["OrgIdentitySource"]["co_id"]);
+    try {
+      $FSBackend->readFieldConfig();
+    } catch (Exception $e) {
+      $this->Flash->set($e->getMessage(), array('key' => 'error'));
+      return false;
+    }
+
     return true;
   }
   
