@@ -36,41 +36,41 @@ class UnixCluster extends ClusterInterface {
 
   // Required by COmanage Plugins
   public $cmPluginType = "cluster";
-	
-	// Add behaviors
+  
+  // Add behaviors
   public $actsAs = array('Containable',
                          'Changelog' => array('priority' => 5));
-	
+  
   // Document foreign keys
   public $cmPluginHasMany = array(
     "CoGroup"  => array("UnixClusterGroup"),
     "CoPerson" => array("UnixClusterAccount")
   );
-	
-	// Association rules from this model to other models
-	public $belongsTo = array(
-		"Cluster",
+  
+  // Association rules from this model to other models
+  public $belongsTo = array(
+    "Cluster",
     "DefaultCoGroup" => array(
       'className' => 'CoGroup',
       'foreignKey' => 'default_co_group_id'
     )
-	);
-	
-	public $hasMany = array(
+  );
+  
+  public $hasMany = array(
     "UnixCluster.UnixClusterAccount",
     "UnixCluster.UnixClusterGroup"
-	);
-	
+  );
+  
   // Default display field for cake generated views
   public $displayField = "cluster_id";
-	
+  
   // Validation rules for table elements
   public $validate = array(
     'cluster_id' => array(
       'rule' => 'numeric',
       'required' => true,
-			'allowEmpty' => false
-		),
+      'allowEmpty' => false
+    ),
     'sync_mode' => array(
       'content' => array(
         'rule' => array('inList',
@@ -182,17 +182,17 @@ class UnixCluster extends ClusterInterface {
         'unfreeze' => 'CO'
       )
     )
-	);
-	
+  );
+  
   /**
    * Expose menu items.
    * 
    * @ since COmanage Registry v3.3.0
    * @ return Array with menu location type as key and array of labels, controllers, actions as values.
    */
-	
+  
   public function cmPluginMenus() {
-  	return array();
+    return array();
   }
   
   /**
@@ -203,8 +203,8 @@ class UnixCluster extends ClusterInterface {
    * @param  Integer $coPersonId CO Person ID
    * @return Boolean             True if an account was created, false if an account already existed
    * @throws RuntimeException
-	 */
-	
+   */
+  
   public function assign($cluster, $coPersonId) {
     // There is related - but not identical - logic in UnixClusterListener::updateUnixClusterAccount.
     
@@ -227,10 +227,10 @@ class UnixCluster extends ClusterInterface {
       // Do we already have a Cluster Account for this CO Person? If so, any
       // additional accounts must be manually created.
       
-  		$args = array();
-  		$args['conditions']['UnixClusterAccount.unix_cluster_id'] = $unixCluster['UnixCluster']['id'];
-  		$args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
-  		
+      $args = array();
+      $args['conditions']['UnixClusterAccount.unix_cluster_id'] = $unixCluster['UnixCluster']['id'];
+      $args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
+      
       if($this->UnixClusterAccount->find('count', $args) > 0) {
         return false;
       }
@@ -429,7 +429,7 @@ class UnixCluster extends ClusterInterface {
    * @param  array  $name       Array of Name
    * @return string             GECOS string
    * @throws RuntimeException
-	 */
+   */
   
   public function calculateGecos($name) {
     // We only use Primary Name for gecos, though we could probably leverage
@@ -451,7 +451,7 @@ class UnixCluster extends ClusterInterface {
    * @param  array  $unixCluster Array of Unix Cluster configurtion
    * @param  string $identifier  Identifier to use as basis for home directory
    * @return string              Home Directory
-	 */
+   */
   
   public function calculateHomeDirectory($unixCluster, $identifier) {
     $homedirAffix = $identifier;
@@ -486,27 +486,27 @@ class UnixCluster extends ClusterInterface {
     );
   }
   
-	/**
-	 * Obtain the current Cluster status for a CO Person.
-	 *
-	 * @since  COmanage Registry v3.3.0
-	 * @param  integer $coPersonId			CO Person ID
-	 * @return Array Array with values
-	 * 							 comment: Human readable string, visible to the CO Person
-	 */
-	
-	public function status($coPersonId) {
-		// Are there any Unix Cluster Accounts for this person?
-		
-		$args = array();
-		$args['conditions']['UnixClusterAccount.unix_cluster_id'] = $this->pluginCfg['UnixCluster']['id'];
-		$args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
-		$args['contain'] = false;
-		
-		$accounts = $this->UnixClusterAccount->find('all', $args);
-		
-		return array(
-			'comment' => _txt('pl.unixcluster.accounts.registered', array(count($accounts)))
-		);
-	}
+  /**
+   * Obtain the current Cluster status for a CO Person.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param  integer $coPersonId      CO Person ID
+   * @return Array Array with values
+   *               comment: Human readable string, visible to the CO Person
+   */
+  
+  public function status($coPersonId) {
+    // Are there any Unix Cluster Accounts for this person?
+    
+    $args = array();
+    $args['conditions']['UnixClusterAccount.unix_cluster_id'] = $this->pluginCfg['UnixCluster']['id'];
+    $args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
+    $args['contain'] = false;
+    
+    $accounts = $this->UnixClusterAccount->find('all', $args);
+    
+    return array(
+      'comment' => _txt('pl.unixcluster.accounts.registered', array(count($accounts)))
+    );
+  }
 }
