@@ -314,8 +314,7 @@ class UnixCluster extends ClusterInterface {
           $acct['primary_co_group_id'] = $userCoGroupId;
         } else {
           // Create a new CO Group, make CO Person a member and owner of it, and assign
-          // $groupname_type of $username and a $gid_type of $uid. Creating a new CO Group
-          // will also provision it.
+          // $groupname_type of $username and a $gid_type of $uid.
           
           $g = array(
             'CoGroup' => array(
@@ -335,6 +334,8 @@ class UnixCluster extends ClusterInterface {
           if(!$this->Cluster->Co->CoGroup->save($g)) {
             throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign CoGroup')));
           }
+
+          $newCoGroupId = $this->Cluster->Co->CoGroup->id;
           
           // Attach the necessary identifiers
           
@@ -417,6 +418,13 @@ class UnixCluster extends ClusterInterface {
     catch(Exception $e) {
       $dbc->rollback();
       throw new RuntimeException($e->getMessage());
+    }
+
+    // The transaction has completed and new objects committed so
+    // now provision the new CO Group if one was created.
+    if(!empty($newCoGroupId)) {
+      $this->Cluster->Co->CoGroup->Behaviors->load('Provisioner');
+      $this->Cluster->Co->CoGroup->manualProvision(null, null, $newCoGroupId, ProvisioningActionEnum::CoGroupAdded);
     }
     
     return true;
