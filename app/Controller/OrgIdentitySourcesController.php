@@ -113,9 +113,12 @@ class OrgIdentitySourcesController extends StandardController {
         try {
           $Backend = $this->OrgIdentitySource->instantiateBackendModel($this->request->params['pass'][0]);
           
-          // With the backend instantiated we can see if the instance supports groupable attributes
-          
-          if(!$pool) {
+          // With the backend instantiated, we can see if the instance supports groupable attributes
+          // The groupable attributes are not needed for a `delete`. While during the calculation process,
+          // we might throw an Exception, e.g., FileSource. Throwing is meaningful for other actions
+          // but not for a `delete`. As a result, we will skip the calculation and allow the `delete` to conclude.
+          // XXX CO-2804
+          if(!$pool && $this->action !== 'delete') {
             // Group mappings only fire via pipelines, which only work when not pooled
             $this->set('vv_plugin_group_attrs', $Backend->groupableAttributes());
           }

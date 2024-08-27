@@ -297,7 +297,7 @@ class GrouperRestClient extends HttpSocket {
     $groups = array();
 
     foreach ($results as $r) {
-      if (array_key_exists('wsGroups', $r)) {
+      if (property_exists($r, 'wsGroups')) {
         foreach ($r->wsGroups as $g) {
           $groups[] = $g->name;
         }

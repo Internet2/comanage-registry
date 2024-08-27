@@ -1475,20 +1475,8 @@ class CoPetition extends AppModel {
                                 StatusEnum::Duplicate,
                                 $actorCoPersonId);
             
-            // While we're here, grab the authenticated identifier, which would otherwise
-            // be done below
-            
-            $this->saveField('authenticated_identifier', $loginIdentifier);
-            
-            // Create a petition history record
-            
-            $this->CoPetitionHistoryRecord->record($id,
-                                                   $actorCoPersonId,
-                                                   PetitionActionEnum::IdentifierAuthenticated,
-                                                   _txt('rs.pt.id.auth', array($loginIdentifier)));
-            
             $this->_commit();
-            throw new OverflowException(_txt('er.pt.duplicate', array($loginIdentifier)));
+            throw new OverflowException(_txt('er.pt.duplicate', array($referenceId)));
           }
           catch(Exception $e) {
             $this->_rollback();

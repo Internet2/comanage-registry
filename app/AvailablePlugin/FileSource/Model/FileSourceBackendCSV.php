@@ -30,7 +30,19 @@ App::uses("FileSourceBackendImpl", "FileSource.Model");
 class FileSourceBackendCSV extends FileSourceBackendImpl {
   // We default to CSV v1 format, but this can be overridden by other parsers.
   protected $fieldCfg = null;
-  
+
+  // CO Id
+  protected $coId = null;
+
+  const MVEAS = array(
+    'Name',
+    'Address',
+    'EmailAddress',
+    'Identifier',
+    'TelephoneNumber',
+    'Url'
+  );
+
   /**
    * Generate the set of attributes for the IdentitySource that can be used to map
    * to group memberships. The returned array should be of the form key => label,
@@ -74,11 +86,15 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
    * @return array Configuration array
    */
   
-  protected function readFieldConfig() {
+  public function readFieldConfig() {
     if($this->fieldCfg) {
       return $this->fieldCfg;
     }
-    
+
+    if($this->coId === null) {
+      throw new RuntimeException(_txt('er.filesource.coid'));
+    }
+
     if($this->pluginCfg['format'] == FileSourceFormat::CSV2) {
       $this->fieldCfg = array();
       
@@ -105,7 +121,11 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
         //  Model.field.type
         //  Identifier.identifier.type+login (special case)
         // Parse them out into the fieldcfg array
-        
+
+        // Validate the label format
+        $this->validateLabel($label);
+
+        // Parse the label
         $bits = explode('.', $label, 3);
         
         switch(count($bits)) {
@@ -212,7 +232,32 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
     
     return $ret;
   }
-  
+
+  /**
+   * Convert a search result into an Org Identity.
+   *
+   * @since  COmanage Registry v4.4.0
+   * @param  string $type Identifier type in header
+   * @return array|null [$login, $type]
+   */
+
+  protected function parseIdentifierType($type) {
+    if(empty($type)) {
+      return [null,null];
+    }
+    $login = false;
+    if(strlen($type) > 6) {
+      $p = strpos($type, '+login', -6);
+
+      if($p) {
+        $login = true;
+        $type = substr($type, 0, $p);
+      }
+    }
+
+    return array($type, $login);
+  }
+
   /**
    * Convert a search result into an Org Identity.
    *
@@ -251,7 +296,7 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
     
     // Walk through MVPAs by type
     
-    foreach(array('Name', 'Address', 'EmailAddress', 'Identifier', 'TelephoneNumber', 'Url') as $model) {
+    foreach(self::MVEAS as $model) {
       $orgdata[$model] = array();
       
       if(!empty($this->fieldCfg[$model])) {
@@ -278,15 +323,8 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
                 // By default set the Identifier to active
                 $n['status'] = SuspendableStatusEnum::Active;
               }
-              
-              if(strlen($n['type']) > 6) {
-                $p = strpos($n['type'], "+login", -6);
-                
-                if($p) {
-                  $n['login'] = true;
-                  $n['type'] = substr($n['type'], 0, $p);
-                }
-              }
+
+              [$n['type'], $n['login']] = $this->parseIdentifierType($n['type']);
             }
             
             $orgdata[$model][] = $n;
@@ -464,6 +502,16 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
   }
 
   /**
+   * Set the CO Id for this backend.
+   *
+   * @param   null  $coId
+   * @since  COmanage Registry v4.4.0
+ */
+  public function setCoId($coId) {
+    $this->coId = $coId;
+  }
+
+  /**
    * Set the plugin configuration for this backend.
    *
    * @since  COmanage Registry v4.0.2
@@ -475,5 +523,112 @@ class FileSourceBackendCSV extends FileSourceBackendImpl {
     
     // We also need to reset the field config
     $this->fieldCfg = null;
+  }
+
+  /**
+   * Field label
+   * Labels are of the form:
+   * - SORID (special case)
+   * - Model.field
+   * - Model.field.type
+   * - Identifier.identifier.type+login (special case)
+   *
+   * @param   string  $label
+   *
+   * @since  COmanage Registry v4.3.5
+   * */
+  protected function validateLabel($label) {
+    try{
+      $bits = explode('.', $label, 3);
+
+      switch(count($bits)) {
+        case 1:
+          if($bits[0] !== 'SORID') {
+            throw new RuntimeException(_txt('er.filesource.invalid.label', array($bits[0])));
+          }
+          break;
+        case 2:
+          // Check the first bit
+          if(!in_array($bits[0], array(
+            'OrgIdentity',
+            'AdHocAttribute'
+          ))) {
+            throw new RuntimeException(_txt('er.filesource.invalid.label', array($bits[0])));
+          }
+          // Check the second bit
+          if($bits[0] == 'OrgIdentity') {
+            // Get a pointer to our model
+            $OrgIdentity = ClassRegistry::init('OrgIdentity');
+            // Get the available Columns from the Schema
+            $orgidentity_columns = array_keys($OrgIdentity->schema());
+
+            if(!in_array($bits[1], $orgidentity_columns, true)) {
+              throw new RuntimeException(_txt('er.filesource.invalid.label', array($bits[0])));
+            }
+          }
+          break;
+        case 3:
+          if(!in_array($bits[0], self::MVEAS)) {
+            throw new RuntimeException(_txt('er.filesource.invalid.label', array($bits[0])));
+          }
+
+          // Get a pointer to our model
+          $mdl = ClassRegistry::init($bits[0]);
+          // Get the available Columns from the Schema
+          $mdl_columns = array_keys($mdl->schema());
+
+          // Check the second bit
+          if(!in_array($bits[1], $mdl_columns, true)) {
+            throw new RuntimeException(
+              _txt('er.filesource.invalid.column',
+                   array(
+                     $bits[1],
+                     $bits[0],
+                   )
+              )
+            );
+          }
+
+          $bit3 = $bits[2];
+          // Check the third bit(Validate type)
+          if($bits[0] === 'Identifier') {
+            [$bit3, $bit_login] = $this->parseIdentifierType($bits[2]);
+          }
+
+          $lang_key_name = 'en.' . Inflector::underscore($bits[0]) . '.type';
+          global $cm_lang, $cm_texts;
+          $default_types = array_keys(_txt($lang_key_name));
+
+          $CoExtendedType = ClassRegistry::init('CoExtendedType');
+          $extended_types = $CoExtendedType->active(
+            $this->coId,
+            $bits[0] . '.type',
+            'list'
+          );
+          $all_types = array_unique(
+            array_merge(
+            $default_types,
+            array_keys($extended_types) // We need the names
+          ));
+
+          if(!in_array($bit3, $all_types, true)) {
+            throw new RuntimeException(
+              _txt('er.filesource.invalid.type',
+                   array(
+                     $bit3,
+                     $bits[1],
+                   )
+              )
+            );
+          }
+
+          break;
+      }
+    } catch(RuntimeException $e) {
+      throw new RuntimeException($e->getMessage());
+    } catch (Exception $e) {
+      CakeLog::write('error', __METHOD__ . ': ' . var_export($e->getMessage(), true));
+      throw new RuntimeException(_txt('er.filesource.header'));
+    }
   }
 }

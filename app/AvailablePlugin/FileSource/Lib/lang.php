@@ -44,7 +44,11 @@ $cm_file_source_texts['en_US'] = array(
 
   // Error messages
   'er.filesource.copy'          => 'Failed to copy "%1$s" to "%2$s"',
+  'er.filesource.coid'          => 'CO Id unknown',
   'er.filesource.header'        => 'Could not parse configuration header',
+  'er.filesource.invalid.label' => 'Header label "%1$s" format is invalid',
+  'er.filesource.invalid.column' => 'Column "%1$s" does not belong to "%2$s"',
+  'er.filesource.invalid.type' => 'Type "%1$s" of "%2$s" is invalid',
   'er.filesource.read'          => 'Cannot open source file "%1$s" for reading',
   'er.filesource.threshold'     => '%1$s of %2$s records changed (%3$s %%, including new records), exceeding threshold of %4$s %% - processing canceled',
   'er.filesource.threshold.cfg' => 'Warning Threshold requires Archive Directory',

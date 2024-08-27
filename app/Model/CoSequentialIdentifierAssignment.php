@@ -96,7 +96,7 @@ class CoSequentialIdentifierAssignment extends AppModel {
     if(!empty($cur)) {
       // Increment an existing counter
       
-      $newCount = $cur[0]['CoSequentialIdentifierAssignment']['last'] + 1;
+      $newCount = max($cur[0]['CoSequentialIdentifierAssignment']['last'] + 1, $start);
       
       $seqData[0]['CoSequentialIdentifierAssignment']['id'] = $cur[0]['CoSequentialIdentifierAssignment']['id'];
       $seqData[0]['CoSequentialIdentifierAssignment']['co_identifier_assignment_id'] = $coIdentifierAssignmentID;

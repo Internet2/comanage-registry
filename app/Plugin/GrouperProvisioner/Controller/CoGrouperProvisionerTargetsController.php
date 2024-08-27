@@ -54,7 +54,7 @@ class CoGrouperProvisionerTargetsController extends SPTController {
     
     // Populate default subject view
     $prefix = "";
-    $db =& ConnectionManager::getDataSource('default');
+    $db = ConnectionManager::getDataSource('default');
     if(isset($db->config['prefix'])) {
       $prefix = $db->config['prefix'];
     }        
