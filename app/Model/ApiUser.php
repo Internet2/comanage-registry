@@ -242,12 +242,34 @@ class ApiUser extends AppModel {
    */
 
   public function isUsernameUnique($check) {
+    if (!is_string($check['username'])) {
+      return false;
+    }
+
     // Check if the username is unique. Since we enabled changelog we need to do it manually
     $args = array();
     $args['conditions']['ApiUser.username'] = $check['username'];
+    $args['conditions']['ApiUser.co_id'] = $this->data['ApiUser']['co_id'];
     $args['contain'] = false;
 
-    return !($this->find('count', $args) > 0 && empty($this->data['ApiUser']["id"]));
+    $users = $this->find('all', $args);
+    $users_count = count($users);
+    $userId = Hash::extract($users, '{n}.ApiUser.id');
+
+    // create
+    if($users_count > 0 && empty($this->data['ApiUser']['id'])) {
+      return false;
+    }
+    // edit
+    if(
+      $users_count > 0
+      && !empty($this->data['ApiUser']['id'])
+      && !in_array($this->data['ApiUser']['id'], $userId)
+    ) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
