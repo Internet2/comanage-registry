@@ -37,54 +37,11 @@ class CoPetitionsController extends StandardController {
   
   public $paginate = array(
     'limit' => 25,
-    'link' => array(
-      'ApproverCoPerson' => array(
-        'class' => 'CoPerson',
-        'ApproverPrimaryName' => array(
-          'class' => 'Name',
-          'conditions' => array(
-            // Linkable behavior doesn't seem to be able to handle multiple joins
-            // against the same table, so we manually specify the join condition for
-            // each name. We then have to explicitly filter on primary name so as
-            // not to produce multiple rows in the join for alternate names the
-            // CO Person might have.
-            'exactly' => 'ApproverPrimaryName.co_person_id = ApproverCoPerson.id AND ApproverPrimaryName.primary_name = true'
-          )
-        )
-      ),
-      'CoEnrollmentFlow',
-      'Cou',
-      'EnrolleeCoPerson' => array(
-        'EnrolleePrimaryName' => array(
-          'class' => 'Name',
-          'conditions' => array(
-            'exactly' => 'EnrolleePrimaryName.co_person_id = EnrolleeCoPerson.id AND EnrolleePrimaryName.primary_name = true')
-        )
-      ),
-      'PetitionerCoPerson' => array(
-        'class' => 'CoPerson',
-        'PetitionerPrimaryName' => array(
-          'class' => 'Name',
-          'conditions' => array(
-            'exactly' => 'PetitionerPrimaryName.co_person_id = PetitionerCoPerson.id AND PetitionerPrimaryName.primary_name = true')
-        )
-      ),
-      'SponsorCoPerson' => array(
-        'class' => 'CoPerson',
-        'SponsorPrimaryName' => array(
-          'class' => 'Name',
-          'conditions' => array(
-            'exactly' => 'SponsorPrimaryName.co_person_id = SponsorCoPerson.id AND SponsorPrimaryName.primary_name = true')
-        )
-      )
-    ),
     'order' => array(
       'modified' => 'desc'
-    ),
-    // contain moved to linkable for CO-896, don't restore since it blanks out associations (breaking linkable)
-    'contain' => false
+    )
   );
-  
+
   // This controller needs a CO to be set
   public $requires_co = true;
   
@@ -669,10 +626,6 @@ class CoPetitionsController extends StandardController {
   public function searchConfig($action) {
     if($action == 'index') {                   // Index
       return array(
-        'search.enrollee' => array(
-          'label' => _txt('fd.enrollee'),
-          'type' => 'text',
-        ),
         'search.enrollmentFlow' => array(
           'type' => 'select',
           'label' => _txt('ct.co_enrollment_flows.1'),
@@ -685,23 +638,11 @@ class CoPetitionsController extends StandardController {
           'empty'   => _txt('op.select.all'),
           'options' => $this->viewVars['vv_cou_list'],
         ),
-        'search.petitioner' => array(
-          'label' => _txt('fd.petitioner'),
-          'type' => 'text',
-        ),
         'search.status' => array(
           'label' => _txt('fd.status'),
           'type' => 'select',
           'empty'   => _txt('op.select.all'),
           'options' => _txt('en.status.pt'),
-        ),
-        'search.sponsor' => array(
-          'label' => _txt('fd.sponsor'),
-          'type' => 'text',
-        ),
-        'search.approver' => array(
-          'label' => _txt('fd.approver'),
-          'type' => 'text',
         ),
       );
     }
@@ -2751,30 +2692,6 @@ class CoPetitionsController extends StandardController {
       $pagcond['conditions']['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
     }
 
-    // CO Person mappings
-    $coperson_alias_mapping = array(
-      'search.enrollee' => 'EnrolleePrimaryName',
-      'search.petitioner' => 'PetitionerPrimaryName',
-      'search.sponsor' => 'SponsorPrimaryName',
-      'search.approver' => 'ApproverPrimaryName',
-    );
-
-    // Filter by Name
-    foreach($coperson_alias_mapping as $search_field => $class) {
-      if(!empty($this->params['named'][$search_field]) ) {
-        $searchterm = $this->params['named'][$search_field];
-        $searchterm = str_replace(urlencode("/"), "/", $searchterm);
-        $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-        $searchterm = trim(strtolower($searchterm));
-        $pagcond['conditions']['AND'][] = array(
-          'OR' => array(
-            'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
-            'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
-          )
-        );
-      }
-    }
-    
     // Filter by Org Identity ID
     if(!empty($this->params['named']['search.orgidentityid'])) {
       $pagcond['conditions']['CoPetition.enrollee_org_identity_id'] = $this->params['named']['search.orgidentityid'];
@@ -2834,22 +2751,12 @@ class CoPetitionsController extends StandardController {
       }
     }
     
-    // Because we're using Linkable behavior to join deeply nested models, we need to
-    // explicitly state which fields can be used for sorting.
-    
     $pagcond['sortlist'] = array(
-      'ApproverPrimaryName.family',
       'CoPetition.created',
       'CoPetition.modified',
       'CoPetition.status',
-      'Cou.name',
-      'EnrolleePrimaryName.family',
-      'PetitionerPrimaryName.family',
-      'SponsorPrimaryName.family'
+      'Cou.name'
     );
-    
-    // Don't use contain
-    $pagcond['contain'] = false;
     
     return $pagcond;
   }

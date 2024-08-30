@@ -36,10 +36,6 @@ class CoPetition extends AppModel {
   
   // Add behaviors
   public $actsAs = array('Containable',
-                         // We need linkable to run first to set up the query,
-                         // changelog to run next to clean it up, and then
-                         // containable (which actually doesn't do anything here)
-                         'Linkable.Linkable' => array('priority' => 4),
                          'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
