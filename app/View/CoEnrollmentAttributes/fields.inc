@@ -377,7 +377,7 @@
       close: function (event, ui) {
         $("#attr_def_val_sponsor_div .co-loading-mini").hide();
       }
-    }).autocomplete("instance")._renderItem = formatCoPersonAutoselectItem;
+    });
 
     // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
     $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
