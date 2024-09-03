@@ -14,7 +14,87 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
-## [5.22.5] - Unreleased
+## [5.22.8] - Unreleased
+
+### Added
+
+- mysql: allow forcing use of emulated prepared statements
+  [#1028](https://github.com/ADOdb/ADOdb/issues/1028)
+  
+### Fixed
+
+- Backtrace output is not channeled through ADODB_OUTP
+  [#1018](https://github.com/ADOdb/ADOdb/issues/1018)
+- PHP 8 compatibility
+  [#1021](https://github.com/ADOdb/ADOdb/issues/1021)
+- Fix getAssoc() with ADODB_FETCH_DEFAULT mode
+  [#1023](https://github.com/ADOdb/ADOdb/issues/1023)
+- mysql: catch getAssoc() execution error in metaColumns()
+  [#1016](https://github.com/ADOdb/ADOdb/issues/1016)
+- ldap: PHP 8.2 error when $LDAP_CONNECT_OPTIONS not set
+  [#1009](https://github.com/ADOdb/ADOdb/issues/1009)
+
+
+## [5.22.7] - 2023-11-04
+
+### Fixed
+
+- Respect @ operator in all error handlers on PHP 8
+  [#981](https://github.com/ADOdb/ADOdb/issues/981)
+- db2: Declaration of ADODB_db2::_query incompatible with parent
+  [#987](https://github.com/ADOdb/ADOdb/issues/987)
+- mysqli: bulkBind reset after one call
+  [#1000](https://github.com/ADOdb/ADOdb/issues/1000)
+- oci8: deprecation warning in selectLimit() on PHP 8.1
+  [#992](https://github.com/ADOdb/ADOdb/issues/992)
+- oci8: Fix Automatic conversion of false to array
+  [#998](https://github.com/ADOdb/ADOdb/issues/998)
+- oci8: Prevent str_replace NULL error in qstr() methods on PHP 8.1
+  [#999](https://github.com/ADOdb/ADOdb/issues/999)
+
+
+## [5.22.6] - 2023-06-11
+
+### Deprecated
+
+- Date/Time Library
+  [#970](https://github.com/ADOdb/ADOdb/issues/970)
+
+### Fixed
+
+- Creation of dynamic property deprecated warning with PHP 8.2
+  [#954](https://github.com/ADOdb/ADOdb/issues/954)
+  [#975](https://github.com/ADOdb/ADOdb/issues/975)
+- Remove unused oldProvider property in _rs2serialize()
+  [#957](https://github.com/ADOdb/ADOdb/issues/957)
+- Fix ADOConnection::execute() documentation of return type
+  [#964](https://github.com/ADOdb/ADOdb/issues/964)
+- Define _query() method in ADOConnection base class
+  [#966](https://github.com/ADOdb/ADOdb/issues/966)
+- Restore rs2html() $htmlspecialchars param behavior
+  [#968](https://github.com/ADOdb/ADOdb/issues/968)
+- adodb_throw() does not respect @ operator on PHP 8
+  [#981](https://github.com/ADOdb/ADOdb/issues/981)
+- loadbalancer: PHP 8.2 warnings
+  [#951](https://github.com/ADOdb/ADOdb/issues/951)
+- mysql: Fail connection if native driver (mysqlnd) is not available
+  [#967](https://github.com/ADOdb/ADOdb/issues/967)
+- pgsql: Fix PHP 8.1 deprecated warning
+  [#956](https://github.com/ADOdb/ADOdb/issues/956)
+- pgsql: avoid Insert_ID() failing when lastval() is not set
+  [#978](https://github.com/ADOdb/ADOdb/issues/978)
+
+
+## [5.22.5] - 2023-04-03
+
+### Removed
+
+- Obsolete ADOConnection::$databaseName property
+  [#932](https://github.com/ADOdb/ADOdb/issues/932)
+- Dead code related to safe_mode
+  [#934](https://github.com/ADOdb/ADOdb/issues/934)
+- pdo: remove unnecessary methods _init() and _affectedrows()
+  [#935](https://github.com/ADOdb/ADOdb/issues/935)
 
 ### Fixed
 
@@ -1344,7 +1424,10 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.22.5]: https://github.com/adodb/adodb/compare/v5.22.4...hotfix/5.22
+[5.22.8]: https://github.com/adodb/adodb/compare/v5.22.7...hotfix/5.22
+[5.22.7]: https://github.com/adodb/adodb/compare/v5.22.6...v5.22.7
+[5.22.6]: https://github.com/adodb/adodb/compare/v5.22.5...v5.22.6
+[5.22.5]: https://github.com/adodb/adodb/compare/v5.22.4...v5.22.5
 [5.22.4]: https://github.com/adodb/adodb/compare/v5.22.3...v5.22.4
 [5.22.3]: https://github.com/adodb/adodb/compare/v5.22.2...v5.22.3
 [5.22.2]: https://github.com/adodb/adodb/compare/v5.22.1...v5.22.2

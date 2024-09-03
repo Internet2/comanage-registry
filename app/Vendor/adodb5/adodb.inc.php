@@ -198,7 +198,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.22.5-dev  Unreleased';
+		$ADODB_vers = 'v5.22.8-dev  Unreleased';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -4203,6 +4203,8 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
+		global $ADODB_FETCH_MODE;
+
 		/*
 		* Insufficient rows to show data
 		*/
@@ -4225,8 +4227,8 @@ class ADORecordSet implements IteratorAggregate {
 		* Get the fetch mode when the call was executed, this may be
 		* different than ADODB_FETCH_MODE
 		*/
-		$fetchMode = $this->connection->fetchMode;
-		if ($fetchMode == ADODB_FETCH_BOTH) {
+		$fetchMode = $this->adodbFetchMode;
+		if ($fetchMode == ADODB_FETCH_BOTH || $fetchMode == ADODB_FETCH_DEFAULT) {
 			/*
 			* If we are using BOTH, we present the data as if it
 			* was in ASSOC mode. This could be enhanced by adding
@@ -4258,7 +4260,7 @@ class ADORecordSet implements IteratorAggregate {
 
 			$myFields = $this->fields;
 
-			if ($fetchMode == ADODB_FETCH_BOTH) {
+			if ($fetchMode == ADODB_FETCH_BOTH || $fetchMode == ADODB_FETCH_DEFAULT) {
 				/*
 				* extract the associative keys
 				*/
