@@ -1260,7 +1260,10 @@ class AppController extends Controller {
     
     // Manage Organizations?
     $p['menu']['organizations'] = $roles['cmadmin'] || $roles['coadmin'];
-    
+
+    // Manage Configuration Labels?
+    $p['menu']['configurationlabels'] = $roles['cmadmin'] || $roles['coadmin'];
+
     // Manage org identity sources? CO Admins can only do this if org identities are NOT pooled
     $this->loadModel('CmpEnrollmentConfiguration');
     

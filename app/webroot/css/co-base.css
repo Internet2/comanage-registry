@@ -3047,3 +3047,26 @@ body.redirect #co-footer {
   margin-top: auto;
   margin-bottom: auto;
 }
+.selected-color {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+/*https://github.com/mdbassit/Coloris*/
+.circle .clr-field button {
+  width: 22px;
+  height: 22px;
+  left: 5px;
+  right: auto;
+  border-radius: 5px;
+}
+.circle .clr-field input {
+  padding-left: 36px !important;
+}
+.circle .clr-field button {
+  border-radius: 50%;
+}
+#clr-close:focus {
+  background-color: var(--cmg-color-black-002);
+}

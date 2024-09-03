@@ -186,6 +186,12 @@
       'permissionKey' => 'vettingsteps',
       'controller'    => 'vetting_steps',
       'action'        => 'index'
+    ),
+    _txt('ct.configuration_labels.pl') => array(
+      'icon'          => 'label',
+      'permissionKey' => 'configurationlabels',
+      'controller'    => 'configuration_labels',
+      'action'        => 'index'
     )
   );
   
