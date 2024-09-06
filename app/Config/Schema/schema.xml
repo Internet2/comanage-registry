@@ -1122,6 +1122,8 @@
     <field name="approver_co_group_id" type="I">
       <constraint>REFERENCES cm_co_groups(id)</constraint>
     </field>
+    <field name="approval_confirmation_mode" type="C" size="2" />
+    <field name="approval_require_comment" type="C" size="2" />
     <!-- verify_email is no longer used (as of v2.0.0), but we can't
          drop the column since that would break changelog history -->
     <field name="verify_email" type="L" />

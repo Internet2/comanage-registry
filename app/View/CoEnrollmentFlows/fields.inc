@@ -50,6 +50,8 @@
   
   $l = 1;
 ?>
+  
+<?php if($e): // we only need form interactivity for edit ?>  
 <script type="text/javascript">
   <!-- JS specific to these fields -->
   
@@ -57,7 +59,7 @@
     // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
     // being saved. (ie: we don't need a group ID if approval is not required)
     
-    var approval = document.getElementById('CoEnrollmentFlowApprovalRequired').checked;
+    var approval = document.getElementById('CoEnrollmentFlowApprovalRequired')?.checked;
     
     if(approval) {
       document.getElementById('approvergroupdiv').style.display = "block";
@@ -68,7 +70,6 @@
       document.getElementById('approvergroupdiv').style.display = "none";
       document.getElementById('approvernotifydiv').style.display = "none";
       document.getElementById('approvalnotifydiv').style.display = "none";
-      document.getElementById('CoEnrollmentFlowApproverCoGroupId').value = "";
       $("#CoEnrollmentFlowRequestVetting").closest("li").hide('fade');
     }
   }
@@ -76,8 +77,8 @@
   function authn_update_gadgets() {
     // Hide and show accordingly.
 
-    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
-    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode')?.value;
+    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn')?.checked;
     
     if(confirm != '<?php print VerificationModeEnum::None; ?>') {
       $("#CoEnrollmentFlowInvitationValidity").closest("ul.field-children").show('fade');
@@ -171,7 +172,7 @@
     // Hide or show gadgets according to current state
     
     // If a validation template is selected, hide the subject and body fields
-    var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId').value;
+    var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId')?.value;
     
     if(vtemplate) {
       $("#CoEnrollmentFlowVerificationSubject").closest("li").hide('fade');
@@ -264,6 +265,8 @@
       }
   }
 </script>
+<?php endif; ?>
+  
 <ul id="<?php print $this->action; ?>_co_enrollment_configuration" class="fields form-list form-list-admin">
   <li>
     <div class="field-name">
@@ -523,6 +526,66 @@
       </div>
     </div>
     <div id="approvernotifydiv" class="subfield" style="display:none">
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.appr.confmode'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.appr.confmode.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_confirmation_mode'])
+                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_confirmation_mode']
+                : EnrollmentApprovalConfirmationModeEnum::Never);
+              $attrs['empty'] = false;
+              
+              if($e) {
+                print $this->Form->select('approval_confirmation_mode',
+                  $cm_texts[ $cm_lang ]['en.enrollment.confmode'],
+                  $attrs);
+                
+                if($this->Form->isFieldError('approval_confirmation_mode')) {
+                  print $this->Form->error('approval_confirmation_mode');
+                }
+              } else {
+                print _txt('en.enrollment.confmode', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_confirmation_mode']);
+              }
+            ?>
+          </div>
+        </li>
+      </ul>
+      <ul class="field-children">
+        <li>
+          <div class="field-name">
+            <div class="field-title"><?php print _txt('fd.ef.appr.reqcomment'); ?></div>
+            <div class="field-desc"><?php print _txt('fd.ef.appr.reqcomment.desc'); ?></div>
+          </div>
+          <div class="field-info">
+            <?php
+              global $cm_lang, $cm_texts;
+              $attrs = array();
+              $attrs['value'] = (!empty($co_enrollment_flows[0]['CoEnrollmentFlow']['approval_require_comment'])
+                ? $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_require_comment']
+                : EnrollmentApprovalConfirmationModeEnum::Never);
+              $attrs['empty'] = false;
+              
+              if($e) {
+                print $this->Form->select('approval_require_comment',
+                  $cm_texts[ $cm_lang ]['en.enrollment.confmode'],
+                  $attrs);
+                
+                if($this->Form->isFieldError('approval_require_comment')) {
+                  print $this->Form->error('approval_require_comment');
+                }
+              } else {
+                print _txt('en.enrollment.confmode', null, $co_enrollment_flows[0]['CoEnrollmentFlow']['approval_require_comment']);
+              }
+            ?>
+          </div>
+        </li>
+      </ul>
       <ul class="field-children">
         <li>
           <div class="field-name">
