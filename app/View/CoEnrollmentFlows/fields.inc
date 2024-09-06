@@ -50,6 +50,8 @@
   
   $l = 1;
 ?>
+  
+<?php if($e): // we only need form interactivity for edit ?>  
 <script type="text/javascript">
   <!-- JS specific to these fields -->
   
@@ -57,7 +59,7 @@
     // Hide and show accordingly. Reset sub-popups to prevent superfluous data from
     // being saved. (ie: we don't need a group ID if approval is not required)
     
-    var approval = document.getElementById('CoEnrollmentFlowApprovalRequired').checked;
+    var approval = document.getElementById('CoEnrollmentFlowApprovalRequired')?.checked;
     
     if(approval) {
       document.getElementById('approvergroupdiv').style.display = "block";
@@ -68,7 +70,6 @@
       document.getElementById('approvergroupdiv').style.display = "none";
       document.getElementById('approvernotifydiv').style.display = "none";
       document.getElementById('approvalnotifydiv').style.display = "none";
-      document.getElementById('CoEnrollmentFlowApproverCoGroupId').value = "";
       $("#CoEnrollmentFlowRequestVetting").closest("li").hide('fade');
     }
   }
@@ -76,8 +77,8 @@
   function authn_update_gadgets() {
     // Hide and show accordingly.
 
-    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode').value;
-    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn').checked;
+    var confirm = document.getElementById('CoEnrollmentFlowEmailVerificationMode')?.value;
+    var authn = document.getElementById('CoEnrollmentFlowRequireAuthn')?.checked;
     
     if(confirm != '<?php print VerificationModeEnum::None; ?>') {
       $("#CoEnrollmentFlowInvitationValidity").closest("ul.field-children").show('fade');
@@ -171,7 +172,7 @@
     // Hide or show gadgets according to current state
     
     // If a validation template is selected, hide the subject and body fields
-    var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId').value;
+    var vtemplate = document.getElementById('CoEnrollmentFlowVerificationTemplateId')?.value;
     
     if(vtemplate) {
       $("#CoEnrollmentFlowVerificationSubject").closest("li").hide('fade');
@@ -264,6 +265,8 @@
       }
   }
 </script>
+<?php endif; ?>
+  
 <ul id="<?php print $this->action; ?>_co_enrollment_configuration" class="fields form-list form-list-admin">
   <li>
     <div class="field-name">

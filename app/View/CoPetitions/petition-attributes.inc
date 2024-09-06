@@ -46,7 +46,7 @@
           'co' => $cur_co['Co']['id'],
           'mode' => PeoplePickerModeEnum::Sponsor,
           'petitionid' => $vv_co_petition_id,
-          'token' => $vv_petition_token
+          'token' => $this->action == 'view' && !isset($vv_petition_token) ? 'test' : $vv_petition_token
         );
         
         print $this->Html->url($sponsorurl);
@@ -89,7 +89,7 @@
           'co' => $cur_co['Co']['id'],
           'mode' => PeoplePickerModeEnum::Manager,
           'petitionid' => $vv_co_petition_id,
-          'token' => $vv_petition_token
+          'token' => $this->action == 'view' && !isset($vv_petition_token) ? 'test' : $vv_petition_token
         );
         
         print $this->Html->url($managerurl);
