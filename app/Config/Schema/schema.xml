@@ -44,7 +44,37 @@
       <unique />
     </index>
   </table>
-  
+
+  <table name="configuration_labels">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="co_id" type="I">
+      <constraint>REFERENCES cm_cos(id)</constraint>
+    </field>
+    <field name="label" type="C" size="64" />
+    <field name="color" type="C" size="9" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+    <field name="configuration_label_id" type="I">
+      <constraint>REFERENCES cm_configuration_labels(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
+    <index name="configuration_labels_i1">
+      <col>label</col>
+    </index>
+    <index name="configuration_labels_i2">
+      <col>color</col>
+    </index>
+    <index name="configuration_labels_i3">
+      <col>co_id</col>
+    </index>
+  </table>
+
   <table name="locks">
     <field name="id" type="I">
       <key />
@@ -76,6 +106,7 @@
     </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="128" />
+    <field name="configuration_labels" type="C" size="1024" />
     <field name="parent_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
     </field>
@@ -2104,6 +2135,9 @@
     <field name="co_enrollment_attribute_id" type="I">
       <constraint>REFERENCES cm_co_enrollment_attributes(id)</constraint>
     </field>
+    <field name="configuration_label_id" type="I">
+      <constraint>REFERENCES cm_configuration_labels(id)</constraint>
+    </field>
     <field name="revision" type="I" />
     <field name="deleted" type="L" />
     <field name="actor_identifier" type="C" size="256" />
@@ -2114,6 +2148,10 @@
     
     <index name="co_enrollment_attributes_i2">
       <col>co_enrollment_attribute_id</col>
+    </index>
+
+    <index name="co_enrollment_attributes_i2">
+      <col>configuration_label_id</col>
     </index>
   </table>
   

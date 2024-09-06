@@ -121,6 +121,25 @@ class Cou extends AppModel {
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'configuration_labels' => array(
+      'content' => array(
+        'rule' => array('validateConfigurationLabelSyntax'),
+        'required' => false,
+        'allowEmpty' => true,
+        'message' => array('Characters allowed are a-z0-9_- and the comma(,) separator.'),
+        'last' => 'true',
+      ),
+      'exists' => array(
+        'rule' => array('validateConfigurationLabelExists'),
+        'message' => array('One of the Configuration labels does not exist.'),
+        'last' => 'true',
+      ),
+      'size' => array(
+        'rule' => array('maxlength', 1024),
+        'message' => array('Max length is 1024 characters.'),
+        'last' => 'true',
+      ),
     )
   );
 
@@ -489,5 +508,56 @@ class Cou extends AppModel {
     $this->CoGroup->addDefaults($coId, $couId);
     
     return true;
+  }
+
+  /**
+   * Validates whether a label value belongsTo cm_labels table
+   *
+   * @param array $check
+   *
+   * @return bool TRUE if label is valid or FALSE if it is not.
+   * @since  COmanage Registry v4.4.0
+   */
+  public function validateConfigurationLabelExists($check) {
+    if (!is_string($check['configuration_labels'])) {
+      return false;
+    }
+
+    $labelsList = explode(',', $check['configuration_labels']);
+
+    // Check if the label is unique. Since we enabled changelog we need to do it manually
+    foreach ($labelsList as $label) {
+      $args = array();
+      $args['conditions']['ConfigurationLabel.label'] = $label;
+      $args['conditions']['ConfigurationLabel.co_id'] = $this->data['Cou']['co_id'];
+      $args['contain'] = false;
+
+      $ConfigurationLabel = ClassRegistry::init('ConfigurationLabel');
+      $notFoundLabels = $ConfigurationLabel->find('count', $args);
+
+      if($notFoundLabels == 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+
+  /**
+   * Validates whether a label value is syntactically correct.
+   * Practically this is the same check we do in cm_labels.
+   * Additionally, we allow the comma separator
+   *
+   * @param array $check
+   *
+   * @return bool TRUE if label is valid or FALSE if it is not.
+   * @since  COmanage Registry v4.4.0
+   */
+  public function validateConfigurationLabelSyntax($check) {
+    if (!is_string($check['configuration_labels'])) {
+      return false;
+    }
+    return preg_match('/^[,a-z0-9_-]{3,}$/', $check['configuration_labels']) === 1;
   }
 }
