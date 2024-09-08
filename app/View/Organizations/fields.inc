@@ -52,6 +52,14 @@
   if(isset($cur_co))
     print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 ?>
+<?php if($this->action == 'view' && !empty($organizations[0]['OrganizationSourceRecord']['OrganizationSource']['id'])): ?>
+  <div class="co-info-topbox">
+    <em class="material-icons">info</em>
+    <div class="co-info-topbox-text">
+      <?php print _txt('in.org.os.src', array($organizations[0]['OrganizationSourceRecord']['OrganizationSource']['description'])); ?>
+    </div>
+  </div>
+<?php endif; // view ?>
 <div id="<?php print $this->action; ?>_organization" class="explorerContainer">
   <div id="coOrgIdExplorer" class="personExplorer">
     <ul>
@@ -106,12 +114,28 @@
                   print $this->Form->error('type');
                 }
               } else {
-                // $vv_available_types will only show the permitted types, and en.url.type will
-                // not be aware of any extended types, so we just show the raw type key.
-                print filter_var($organizations[0]['Organization']['type'],FILTER_SANITIZE_SPECIAL_CHARS);
+                if(!empty($vv_available_types[ $organizations[0]['Organization']['type'] ])) {
+                  print($vv_available_types[ $organizations[0]['Organization']['type'] ]);
+                }
               }
               ?>
             </span>
+          </li>
+          <li>
+            <div class="field-name">
+              <?php print $this->Form->label('saml_scope',_txt('fd.scope.saml')); ?>
+            </div>
+            <div class="field-info">
+              <?php print ($e ? $this->Form->input('saml_scope') : filter_var($organizations[0]['Organization']['saml_scope'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <?php print $this->Form->label('logo_url',_txt('fd.logo_url')); ?>
+            </div>
+            <div class="field-info">
+              <?php print ($e ? $this->Form->input('logo_url') : filter_var($organizations[0]['Organization']['logo_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            </div>
           </li>
           <?php if($e): ?>
             <li class="fields-submit">
@@ -164,6 +188,12 @@
           $args['mvpa_model'] = 'AdHocAttribute';
           $args['self_service'] = false;
           $args['mvpa_format'] = 'formatAdHoc';
+          
+          print $this->element('mvpa', $args);
+          
+          $args['mvpa_model'] = 'Contact';
+          $args['self_service'] = false;
+          $args['mvpa_format'] = 'formatContact';
           
           print $this->element('mvpa', $args);
         }

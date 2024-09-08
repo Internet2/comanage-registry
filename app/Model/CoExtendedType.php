@@ -53,6 +53,7 @@ class CoExtendedType extends AppModel {
       // Also need to add to supportedAttrs(), below
       'rule' => array('inList', array('Address.type',
                                       'CoDepartment.type',
+                                      'Contact.type',
                                       'CoPersonRole.affiliation',
                                       'EmailAddress.type',
                                       'Identifier.type',
@@ -278,6 +279,7 @@ class CoExtendedType extends AppModel {
     // Also need to add to $validate, above
     $ret['Address.type'] = _txt('ct.addresses.1') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['CoDepartment.type'] = _txt('ct.co_departments.1');
+    $ret['Contact.type'] = _txt('ct.contacts.1');
     $ret['CoPersonRole.affiliation'] = _txt('fd.affiliation') . " (" . _txt('ct.co_person_roles.1') . ")";
     $ret['EmailAddress.type'] = _txt('ct.email_addresses.1') . " (" . _txt('ct.co_people.1') . ")";
     $ret['Identifier.type'] = _txt('ct.identifiers.1') . " (" . _txt('ct.co_people.1') . ", " . _txt('ct.co_groups.1') . ")";

@@ -51,13 +51,19 @@
   print $this->element("pageTitleAndButtons", $params);
 
 ?>
-
+<?php
+  // Search Block
+  if(!empty($vv_search_fields)) {
+    print $this->element('search', array('vv_search_fields' => $vv_search_fields));
+  }
+?>
 <div class="table-container">
   <table id="organizations">
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print _txt('ct.organization_sources.1'); ?></th>
         <th class="thinActionButtonsCol"><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
@@ -79,6 +85,13 @@
           ?>
         </td>
         <td><?php print filter_var($c['Organization']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td>
+          <?php
+            if(!empty($c['OrganizationSourceRecord']['OrganizationSource'])) {
+              print filter_var($c['OrganizationSourceRecord']['OrganizationSource']['description'],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+          ?>
+        </td>
         <td>
           <?php
             if($permissions['edit']) {

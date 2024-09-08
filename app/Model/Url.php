@@ -92,6 +92,13 @@ class Url extends AppModel {
         'allowEmpty' => false
       )
     ),
+    'language' => array(
+      'content' => array(
+        'rule'       => array('validateLanguage'),
+        'required'   => false,
+        'allowEmpty' => true
+      )
+    ),
     'co_person_id' => array(
       'content' => array(
         'rule' => 'numeric',

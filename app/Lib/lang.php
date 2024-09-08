@@ -157,6 +157,10 @@ $cm_texts['en_US'] = array(
   'ct.co_terms_and_conditions.pl' => 'Terms and Conditions',
   'ct.co_themes.1' =>           'Theme',
   'ct.co_themes.pl' =>          'Themes',
+  'ct.configuration_labels.1' =>  'Configuration Label',
+  'ct.configuration_labels.pl' => 'Configuration Labels',
+  'ct.contacts.1' =>            'Contact',
+  'ct.contacts.pl' =>           'Contacts',
   'ct.cos.1' =>                 'CO',
   'ct.cos.pl' =>                'COs',
   'ct.cous.1' =>                'COU',
@@ -181,8 +185,6 @@ $cm_texts['en_US'] = array(
   'ct.identity_documents.pl' => 'Identity Documents',
   'ct.kafka_servers.1' =>       'Kafka Server',
   'ct.kafka_servers.pl' =>      'Kafka Servers',
-  'ct.configuration_labels.1' =>  'Configuration Label',
-  'ct.configuration_labels.pl' => 'Configuration Labels',
   'ct.ldap_servers.1' =>        'LDAP Server',
   'ct.ldap_servers.pl' =>       'LDAP Servers',
   'ct.match_server_attributes.1' =>  'Match Server Attribute',
@@ -195,6 +197,10 @@ $cm_texts['en_US'] = array(
   'ct.navigation_links.pl' =>   'Navigation Links',
   'ct.oauth2_servers.1' =>      'OAuth2 Server',
   'ct.oauth2_servers.pl' =>     'OAuth2 Servers',
+  'ct.organization_source_records.1' => 'Organization Source Record',
+  'ct.organization_source_records.pl' => 'Organization Source Records',
+  'ct.organization_sources.1' =>   'Organization Source',
+  'ct.organization_sources.pl' => 'Organization Sources',
   'ct.organizations.1' =>       'Organization',
   'ct.organizations.pl' =>      'Organizations',
   'ct.org_identities.1' =>      'Organizational Identity',
@@ -477,6 +483,15 @@ The request may be viewed at
                             ContactEnum::Postal => 'Postal',
                             ContactEnum::Forwarding => 'Forwarding'),
   
+  // Note this is for the Contact MVPA, whereas en.contact is for Telephone and Address
+  'en.contact.type' =>  array(
+    ContactTypeEnum::Administrative  => 'Administrative',
+    ContactTypeEnum::Billing         => 'Billing',
+    ContactTypeEnum::Other           => 'Other',
+    ContactTypeEnum::Support         => 'Support',
+    ContactTypeEnum::Technical       => 'Technical'
+  ),
+  
   'en.comparison' => array(
     ComparisonEnum::Contains               => 'Contains',
     ComparisonEnum::ContainsInsensitive    => 'Contains (case insensitive)',
@@ -705,6 +720,7 @@ The request may be viewed at
   'en.identifier.type' =>  array(IdentifierEnum::AffiliateSOR => 'Affiliate SoRID',
                                  IdentifierEnum::Badge => 'Badge',
                                  IdentifierEnum::Enterprise => 'Enterprise',
+                                 IdentifierEnum::EntityID => 'Entity ID',
                                  IdentifierEnum::ePPN => 'ePPN',
                                  IdentifierEnum::ePTID => 'ePTID',
                                  IdentifierEnum::ePUID => 'ePUID',
@@ -712,6 +728,10 @@ The request may be viewed at
                                  IdentifierEnum::GuestSOR => 'Guest SoRID',
                                  IdentifierEnum::HRSOR => 'HR SoRID',
                                  IdentifierEnum::Mail => 'Mail',
+                                 // Name is intended for use with Registry objects like
+                                 // Organizations and Departments that may have additional
+                                 // names (which are basically Identifiers, not human names)
+                                 IdentifierEnum::Name => 'Name',
                                  IdentifierEnum::National => 'National',
                                  IdentifierEnum::Network => 'Network',
                                  IdentifierEnum::OIDCsub => 'OIDC sub',
@@ -730,6 +750,8 @@ The request may be viewed at
   //  http://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers
   // as well as any official languages of REFEDS participants not in the above list
   //  https://refeds.org/resources_list.html
+  // and those that are explicitly used in the InCommon MDQ feed
+  //  https://spaces.at.internet2.edu/display/MDQ/production-metadata
   // The key is the ISO 639-2 two letter tag
   //  http://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt
   // See also http://people.w3.org/rishida/names/languages.html
@@ -737,7 +759,11 @@ The request may be viewed at
   'en.language' => array(
     'af'      => 'Afrikaans',
     'ar'      => 'Arabic (العربية)',
+    'eu'      => 'Basque',
     'bn'      => 'Bengali',
+    'bg'      => 'Bulgarian (български език)',
+    'ca'      => 'Catalan',
+    'zh'      => 'Chinese',
     'zh-Hans' => 'Chinese - Simplified (简体中文)',
     'zh-Hant' => 'Chinese - Traditional (繁體中文)',
     'hr'      => 'Croatian (Hrvatski)',
@@ -748,11 +774,13 @@ The request may be viewed at
     'et'      => 'Estonian (Eesti Keel)',
     'fi'      => 'Finnish (Suomi)',
     'fr'      => 'French (Français)',
+    'gl'      => 'Galician (Galego)',
     'de'      => 'German (Deutsch)',
     'el'      => 'Greek (ελληνικά)',
     'he'      => 'Hebrew (עִבְרִית)',
     'hi'      => 'Hindi (हिंदी)',
     'hu'      => 'Hungarian (Magyar)',
+    'is'      => 'Icelandic (Íslenska)',
     'id'      => 'Indonesian (Bahasa Indonesia)',
     'it'      => 'Italian (Italiano)',
     'ja'      => 'Japanese (日本語)',
@@ -766,6 +794,7 @@ The request may be viewed at
     'ro'      => 'Romanian (Limba Română)',
     'ru'      => 'Russian (Pyccĸий)',
     'sr'      => 'Serbian (српски / Srpski)',
+    'sk'      => 'Slovak (Slovenský Jazyk)',
     'sl'      => 'Slovene (Slovenski Jezik)',
     'es'      => 'Spanish (Español)',
     'sv'      => 'Swedish (Svenska)',
@@ -1038,6 +1067,13 @@ The request may be viewed at
     SyncModeEnum::Update                    => 'Update'
   ),
   
+  'en.sync.org.mode' => array(
+    OrgSyncModeEnum::Accrual                => 'Accrual',
+    OrgSyncModeEnum::Full                   => 'Full',
+    OrgSyncModeEnum::Manual                 => 'Manual',
+    OrgSyncModeEnum::Update                 => 'Update'
+  ),
+  
   'en.sync.query.mismatch.mode' => array(
     OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
     OrgIdentityMismatchEnum::Ignore         => 'Ignore'
@@ -1267,6 +1303,8 @@ The request may be viewed at
   'er.orgp.pool' =>   'Failed to pool organizational identities',
   'er.orgp.unk-a' =>  'Unknown Org Identity "%1$s"',
   'er.orgp.unpool' => 'Failed to unpool organizational identities',
+  'er.os.sync.empty' => 'Backend returned empty inventory, aborting',
+  'er.os.sync.manual' => 'Organization Source %1$s is in Manual mode',
   'er.pagenum.nan' => 'Page number must be an integer',
   'er.pagenum.exceeded' => 'Page number may not be larger than %1$s',
   'er.perm.status' => 'Permission Denied: Status is %1$s',
@@ -1440,6 +1478,12 @@ The request may be viewed at
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
   'fd.configuration_label.desc' =>  'Label value with minimum length 3 and consisting of characters, digits, underscores (_) and hsConfiguration  (-).',
+  'fd.contact.company' => 'Company',
+  'fd.contact.family' => 'Family Name',
+  'fd.contact.given' => 'Given Name',
+  'fd.contact.mail' => 'Email Address',
+  'fd.contact.number' => 'Telephone Number',
+  'fd.contact.type' => 'Contact Type',
   'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.created' =>     'Created',
   'fd.created.tz' =>  'Created (%1$s)',
@@ -1755,6 +1799,7 @@ The request may be viewed at
   'fd.link.title' =>  'Link Title',
   'fd.link.url' =>    'Link URL',
   'fd.load.last' =>   'Last Loaded',
+  'fd.logo_url' =>    'Logo URL',
   'fd.manager' =>     'Manager',
   'fd.manager.desc' => 'Use the search box to pick a new manager (use a name, email address, or identifier)',
   'fd.match.callback_url' => 'Match Resolution Callback URL',
@@ -1846,6 +1891,9 @@ The request may be viewed at
   'fd.organization_id' => 'Organization ID',
   'fd.orgidentity' => 'OrgIdentity',
   'fd.orgidentity.attached.no' => 'Unattached Organizational Identities',
+  'fd.os.scope.saml' => 'SAML Scope',
+//use fd.sorid instead
+//  'fd.os.source_key' => 'Source Key',
   'fd.ou' =>          'Department',
   'fd.owners' =>      'Owners',
   'fd.page.goto' =>   'Go to page',
@@ -1919,6 +1967,7 @@ The request may be viewed at
   'fd.revision' =>    'Revision',
   'fd.roles' =>       'Roles',
   'fd.room' =>        'Room',
+  'fd.scope.saml' =>  'SAML Scope',
   'fd.search.all' =>  'Search All Fields',
   'fd.search.limit.global' => 'Global Search Limit',
   'fd.search.limit.global.desc' => 'For global search, the maximum number of records to return (per record type)',
@@ -2129,6 +2178,10 @@ The request may be viewed at
   'in.job.running'     => 'The Job queue is currently being processed by process #%1$s (lock %2$s held since %3$s)',
   'in.ois.noinventory' => 'This Organizational Identity Source does not support viewing inventory.',
   'in.ois.nosearch'    => 'This Organizational Identity Source cannot be searched.',
+  'in.org.os'          => 'This is the current record available directly from the source. To view the latest record retrieved and cached by Registry, click <i>View Organization Source Record</i>.',
+  'in.org.os.notfound' => 'The requested key was not found in the source. If an Organization was already created using this key, the source may have deleted or expired its record.',
+  'in.org.os.src'      => 'This Organization was created from an Organization Source (%1$s). Changes made here will be overwritten at the next sync.',
+  'in.org.osr'         => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organization Source</i>.',
   'in.orgidentities'   => 'Organizational Identities represent a person\'s identity as asserted by a "home" institution, such as their University or a social identity provider.  Reading the documentation before editing them is advised.',
   'in.orgid.co'        => 'An Organizational Identity already attached to a CO Person within the CO cannot be re-invited or linked.',
   'in.orgid.email'     => 'An Organizational Identity must have an email address defined in order to be invited.',
@@ -2137,6 +2190,7 @@ The request may be viewed at
   'in.orgid.oisr'      => 'This is the latest record retrieved from the source, as cached by Registry. To view the current record directly from the source, click <i>View Organizational Identity Source</i>.',
   'in.orgid.pi.role'   => 'CO Person Role created from this Org Identity via Pipeline',
   'in.orgid.pi.group'  => '%1$s Group Membership created from this Org Identity via Pipeline',
+  'in.os.nosearch'     => 'This Organization Source cannot be searched.',
   'in.pagination.format' =>  'Page {:page} of {:pages}, Viewing {:start}-{:end} of {:count}',
   'in.people.index'    => '%1$s people table listing all people in this CO by name, status, and roles',
   'in.pl.noconfig'     => 'This plugin has no configurable options',
@@ -2364,6 +2418,8 @@ The request may be viewed at
   // XXX replace these?
   'op.order.attr' =>  'Reorder Attributes',
   'op.order.link' =>  'Reorder Links',
+  'op.org.add.os' =>  'Add New Organization From Source',
+  'op.org.sync.os' => 'Resync Organization From Source',
   'op.orgid.add.ois' => 'Add New Org Identity From Source',
   'op.orgid.edit.ois' => 'This Organizational Identity was created from an Organizational Identity Source (%1$s) and therefore cannot be edited.',
   'op.orgid.petition.ois' => 'Add New Org Identity From Source and Link To Petition',
@@ -2540,6 +2596,10 @@ The request may be viewed at
   'rs.org.src.sync' => 'Org Identity synced from Source "%1$s" (%2$s)',
   'rs.org.src.synced' => 'Org Identity updated based on new or updated source record',
   'rs.org.src.unchanged' => 'Source record is unchanged, no changes were processed',
+  'rs.os.src.deleted' => 'Source record is no longer available, Organization deleted',
+  'rs.os.src.removed' => 'Source record is no longer available',
+  'rs.os.src.synced' => 'Organization updated based on new or updated source record',
+  'rs.os.src.unchanged' => 'Source record is unchanged, no changes were processed',
   'rs.pi.match' =>    'Org Identity matched to CO Person via Pipeline %1$s (%2$s) match strategy %3$s',
   'rs.pi.ok' =>       'Pipeline executed successfully',
   'rs.pi.role.status' => 'Updated role status to %1$s due to removal of source record',
@@ -2707,7 +2767,8 @@ The request may be viewed at
   'sh.ug.400.org' =>      'Instantiating default Organization Extended Types',
   'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource',
   'sh.ug.410.datafilter' => 'Adding default context for DataFilters',
-  'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers'
+  'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers',
+  'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

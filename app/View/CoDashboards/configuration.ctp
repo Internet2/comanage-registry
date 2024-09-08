@@ -145,6 +145,12 @@
       'controller'    => 'org_identity_sources',
       'action'        => 'index'
     ),
+    _txt('ct.organization_sources.pl') => array(
+      'icon'          => 'cloud_sync',
+      'permissionKey' => 'orgsources',
+      'controller'    => 'organization_sources',
+      'action'        => 'index'
+    ),
     _txt('ct.co_pipelines.pl') => array(
       'icon'          => 'input',
       'permissionKey' => 'copipelines',

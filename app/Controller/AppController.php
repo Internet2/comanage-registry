@@ -1258,8 +1258,9 @@ class AppController extends Controller {
     // View/Edit own Demographics profile?
     $p['menu']['nsfdemoprofile'] = $roles['user'];
     
-    // Manage Organizations?
+    // Manage Organizations and their sources?
     $p['menu']['organizations'] = $roles['cmadmin'] || $roles['coadmin'];
+    $p['menu']['orgsources'] = $roles['cmadmin'] || $roles['coadmin'];
 
     // Manage Configuration Labels?
     $p['menu']['configurationlabels'] = $roles['cmadmin'] || $roles['coadmin'];

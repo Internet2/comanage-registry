@@ -48,8 +48,10 @@ class OrganizationsController extends StandardController {
   public $edit_contains = array(
     'Address',
     'AdHocAttribute',
+    'Contact',
     'EmailAddress',
     'Identifier',
+    'OrganizationSourceRecord' => array('OrganizationSource'),
     'TelephoneNumber',
     'Url'
   );
@@ -57,11 +59,36 @@ class OrganizationsController extends StandardController {
   public $view_contains = array(
     'Address',
     'AdHocAttribute',
+    'Contact',
     'EmailAddress',
     'Identifier',
+    'OrganizationSourceRecord' => array('OrganizationSource'),
     'TelephoneNumber',
     'Url'
   );
+  
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function searchConfig($action) {
+    if($action == 'index') { 
+      return array(
+        'search.name' => array(
+          'type'    => 'text',
+          'label'   => _txt('fd.name')
+        ),
+        'search.orgSource' => array(
+          'label' => _txt('ct.organization_sources.1'),
+          'type' => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => $this->viewVars['vv_org_sources'],
+        )
+      );
+    }
+  }
   
   /**
    * Callback after controller methods are invoked but before views are rendered.
@@ -80,9 +107,53 @@ class OrganizationsController extends StandardController {
       $this->set('vv_identifiers_types', $this->Organization->Identifier->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_telephone_numbers_types', $this->Organization->TelephoneNumber->types($this->cur_co['Co']['id'], 'type'));
       $this->set('vv_urls_types', $this->Organization->Url->types($this->cur_co['Co']['id'], 'type'));
+
+      // Available Organization Sources, for filtering
+      $args = array();
+      $args['conditions']['OrganizationSource.status'] = SuspendableStatusEnum::Active;
+      $args['conditions']['OrganizationSource.co_id'] = $this->cur_co['Co']['id'];
+      $args['fields'] = array('id', 'description');
+      $args['contain'] = false;
+
+      $this->set('vv_org_sources', $this->Organization->OrganizationSourceRecord->OrganizationSource->find('list', $args));
     }
 
     parent::beforeRender();
+  }
+
+  /**
+   * Determine the conditions for pagination of the index view, when rendered via the UI.
+   *
+   * @since  COmanage Registry v4.4.0
+   * @return Array An array suitable for use in $this->paginate
+   * @throws InvalidArgumentException
+   */
+
+  function paginationConditions() {
+    $ret = array();
+
+    // Filter by Organization Name
+    if(!empty($this->request->params['named']['search.name'])) {
+      $searchterm = $this->request->params['named']['search.name'];
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
+      $ret['conditions']['LOWER(Organization.name) LIKE'] = "%$searchterm%";
+    }
+/* This doesn't work as is
+    // Filter by Source Key
+    if(!empty($this->request->params['named']['search.source_key'])) {
+      // Cake will auto-join the table
+      $ret['conditions']['OrganizationSourceRecord.source_key'] = $this->request->params['named']['search.source_key'];
+    }
+*/
+    // Filter by Organization Source
+    if(!empty($this->request->params['named']['search.orgSource'])) {
+      // Cake will auto-join the table
+      $ret['conditions']['OrganizationSourceRecord.organization_source_id'] = $this->request->params['named']['search.orgSource'];
+    }
+
+    return $ret;
   }
 
   /**
@@ -118,6 +189,7 @@ class OrganizationsController extends StandardController {
     
     // View all existing Organization?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);
+    $p['search'] = $p['index'];
     
     // View an existing Organization?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin'] || $roles['comember']);

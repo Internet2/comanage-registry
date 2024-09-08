@@ -546,8 +546,11 @@ class CoPetitionsController extends StandardController {
                 $enrollmentAttributes = $this->CoPetition
                                              ->CoEnrollmentFlow
                                              ->CoEnrollmentAttribute
-                                             ->mapEnvAttributes($enrollmentAttributes,
-                                                                $envValues);
+                                             ->mapEnvAttributes(
+                                                $this->cur_co['Co']['id'],
+                                                $enrollmentAttributes,
+                                                $envValues
+                                              );
               }
             }
           }
@@ -555,7 +558,11 @@ class CoPetitionsController extends StandardController {
           $enrollmentAttributes = $this->CoPetition
                                        ->CoEnrollmentFlow
                                        ->CoEnrollmentAttribute
-                                       ->mapEnvAttributes($enrollmentAttributes, array());
+                                       ->mapEnvAttributes(
+                                          $this->cur_co['Co']['id'], 
+                                          $enrollmentAttributes, 
+                                          array()
+                                        );
         
           // As a special case, we need to figure out who the default sponsor is,
           // if any, and lookup their information for rendering (when People Pickers

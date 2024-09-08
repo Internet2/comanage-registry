@@ -210,6 +210,18 @@ class ContactEnum
   const Postal      = 'postal';
 }
 
+// Note ContactTypeEnum is for the default Extended Types associated with the Contact MVPA,
+// whereas ContactEnum is for TelephoneNumber and Address
+class ContactTypeEnum
+{
+  // These are from the SAML Metadata 2.0 spec
+  const Administrative  = 'administrative';
+  const Billing         = 'billing';
+  const Other           = 'other';
+  const Support         = 'support';
+  const Technical       = 'technical';
+}
+
 class DataFilterContextEnum
 {
   const OrgIdentitySource  = 'OS';
@@ -409,6 +421,7 @@ class IdentifierEnum
   const AffiliateSOR       = 'sor-affiliate';
   const Badge              = 'badge';
   const Enterprise         = 'enterprise';
+  const EntityID           = 'entityid';
   const ePPN               = 'eppn';
   const ePTID              = 'eptid';
   const ePUID              = 'epuid';
@@ -416,6 +429,7 @@ class IdentifierEnum
   const GuestSOR           = 'sor-guest';
   const HRSOR              = 'sor-hr';
   const Mail               = 'mail';
+  const Name               = 'name';
   const National           = 'national';
   const Network            = 'network';
   const OIDCsub            = 'oidcsub';
@@ -563,8 +577,14 @@ class Oauth2GrantEnum
 
 class OrganizationEnum {
   const Academic            = 'edu';
+  const Archive             = 'archive';
   const Commercial          = 'com';
+  const Facility            = 'facility';
+  const Funder              = 'funder';
   const Government          = 'gov';
+  const HealthCare          = 'health';
+  const NonProfit           = 'nonprofit';
+  const Other               = 'other';
 }
 
 class OrgIdentityMismatchEnum
@@ -577,6 +597,14 @@ class OrgIdentityStatusEnum
 {
   const Removed          = 'RM';
   const Synced           = 'SY';
+}
+
+class OrgSyncModeEnum
+{
+  const Accrual = 'A';
+  const Full    = 'F';
+  const Manual  = 'M';
+  const Update  = 'U';
 }
 
 class PeoplePickerModeEnum

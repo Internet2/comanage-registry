@@ -108,6 +108,42 @@
       ?>
     </span>
   </li>
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('language', _txt('fd.language'));
+        } else {
+          print _txt('fd.language');
+        }
+      ?>
+    </span>
+    <span class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($urls[0]['Url']['language'])
+                           ? $urls[0]['Url']['language']
+                           : null);
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('language',
+                                    $cm_texts[ $cm_lang ]['en.language'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('language')) {
+            print $this->Form->error('language');
+          }
+        } else {
+          if(!empty($urls[0]['Url']['language'])) {
+            print _txt('en.language', null, $urls[0]['Url']['language']);
+          }
+        }
+      ?>
+    </span>
+  </li>
   <?php if(!empty($urls[0]['Url']['SourceUrl']['id'])): ?>
     <li>
       <span class="field-name">

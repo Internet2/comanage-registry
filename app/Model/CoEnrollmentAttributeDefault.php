@@ -107,12 +107,14 @@ class CoEnrollmentAttributeDefault extends AppModel {
     $hidden = isset($request->data['CoEnrollmentAttribute']['hidden'])
               && $request->data['CoEnrollmentAttribute']['hidden'];
     if(!$modifiable || $hidden) {
-      // A default value must be provided if field is not modifiable
-      if(empty($this->data['CoEnrollmentAttributeDefault']['value'])) {
+      // A default value must be provided if field is not modifiable, unless an Environment
+      // Variable for Default Value is set. (eg: If the SP might pass along the IdP Entity ID,
+      // which might or might not map to an Organization.)
+      if(empty($this->data['CoEnrollmentAttributeDefault']['value'])
+         && empty($request->data['CoEnrollmentAttribute']['default_env'])) {
         return _txt('er.field.unmutable.req');
       }
     }
-
 
     return true;
   }

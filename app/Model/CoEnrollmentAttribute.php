@@ -491,10 +491,15 @@ class CoEnrollmentAttribute extends AppModel {
           }
           $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
         } elseif(in_array($efAttr['CoEnrollmentAttribute']['attribute'],
-                          array('r:sponsor_co_person_id', 'r:manager_co_person_id'),
+                          array(
+                            'o:o',
+                            'r:manager_co_person_id',
+                            'r:o',
+                            'r:sponsor_co_person_id'
+                          ),
                           true)
         ) {
-          // Special case for sponsor and manager, we want to make sure the modifiable field passes
+          // For certain fields we want to make sure the modifiable field passes
           // through even if there is no default value
           if(isset($efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'])) {
             $attr['modifiable'] = $efAttr['CoEnrollmentAttributeDefault'][0]['modifiable'];
@@ -527,26 +532,14 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
           } elseif($attrName == 'cou_id') {
             // We have to set up a select based on the available COUs
-            // Get the Configuration Label id
+            
             $args = array();
-            $args['conditions']['ConfigurationLabel.id'] = $efAttr['CoEnrollmentAttribute']['configuration_label_id'];
-            $args['contain'] = false;
-            $labelRec = $this->ConfigurationLabel->find('first', $args);
-            $labelValue = $labelRec['ConfigurationLabel']['label'] ?? '';
-
-            $args = array();
+            $args['fields'] = array('Cou.id', 'Cou.name');
+            $args['conditions'] = array('CoEnrollmentFlow.id' => $actualEfId);
             $args['joins'][0]['table'] = 'co_enrollment_flows';
             $args['joins'][0]['alias'] = 'CoEnrollmentFlow';
             $args['joins'][0]['type'] = 'INNER';
             $args['joins'][0]['conditions'][0] = 'Cou.co_id=CoEnrollmentFlow.co_id';
-            $args['conditions']['CoEnrollmentFlow.id'] = $actualEfId;
-            if(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
-              $args['conditions']['OR']['LOWER(Cou.configuration_labels) LIKE'] = '%' . strtolower($labelValue) . '%';
-              $args['conditions']['OR']['Cou.id'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
-            } else {
-              $args['conditions']['LOWER(Cou.configuration_labels) LIKE'] = '%' . strtolower($labelValue) . '%';
-            }
-            $args['fields'] = array('Cou.id', 'Cou.name');
             $args['order'] = 'Cou.name ASC';
 
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Cou->find('list', $args);
@@ -992,12 +985,13 @@ class CoEnrollmentAttribute extends AppModel {
    * Map environment variables into enrollment attribute default values.
    *
    * @since  COmanage Registry v0.8.2
+   * @param  int   Current CO ID
    * @param  Array Array of CO enrollment attributes, as returned by enrollmentFlowAttributes()
    * @param  Array Array of CMP enrollment attributes, as returned by CmpEnrollmentConfiguration::enrollmentAttributesFromEnv()
    * @return Array Array of CO enrollment attributes
    */
   
-  public function mapEnvAttributes($enrollmentAttributes, $envValues) {
+  public function mapEnvAttributes($coId, $enrollmentAttributes, $envValues) {
     // First, map the enrollment attributes by model+field, but only for those
     // that we might actually populate (ie: org attributes). We partly have to
     // do this because CO Enrollment Attributes and CMP Enrollment Attributes
@@ -1093,8 +1087,36 @@ class CoEnrollmentAttribute extends AppModel {
           : ( !empty($enrollmentAttributes[$i]['default'])
             ? $enrollmentAttributes[$i]['default'] : '');
 
-        $enrollmentAttributes[$i]['modifiable'] = (!isset($enrollmentAttributes[$i]['modifiable'])) ? true :
-          $enrollmentAttributes[$i]['modifiable'];
+        // If the attribute is Organization _and_ Attribute Enumerations are enabled for
+        // the attribute, the value in the variable _may_ be an Entity ID. If it is not
+        // numeric (Entity IDs must be a URI) We'll look up the value and try to map it
+        // to an Organization, and if so we'll replace the value with the Organization
+        // foreign key. If we fail to map the value we'll assume it's just the foreign 
+        // key directly.
+
+        if(($enrollmentAttributes[$i]['CoEnrollmentAttribute']['attribute'] == 'r:o'
+            || $enrollmentAttributes[$i]['CoEnrollmentAttribute']['attribute'] == 'o:o')
+            && !empty($enrollmentAttributes[$i]['validate']['content']['dictionary'])
+            && !empty($enrollmentAttributes[$i]['default'])
+            && !is_numeric($enrollmentAttributes[$i]['default'])) {
+          $Organization = ClassRegistry::init('Organization');
+          
+          $orgs = $Organization->lookupByIdentifier($coId, $enrollmentAttributes[$i]['default']);
+
+          if(!empty($orgs[0])) {
+            // We _should_ get no more than one Organization, but if we get more than one
+            // we'll non-deterministically pick the first one returned by the database.
+
+            $enrollmentAttributes[$i]['default'] = $orgs[0]['Organization']['id'];
+          }
+          // updateValidationRules will populate the dictionary, so we don't need to
+          // explicitly call AttributeEnumeration->enumerations() here
+        }
+
+        $enrollmentAttributes[$i]['modifiable'] = 
+          (!isset($enrollmentAttributes[$i]['modifiable'])) 
+          ? true 
+          : $enrollmentAttributes[$i]['modifiable'];
         // XXX Should we define default value for each env_var in case of complex attributes, e.g. given name
         // We use allowEmpty to check, which is more accurate than $validate->required.
         // Required is true if the attribute is required by the enrollment flow configuration,

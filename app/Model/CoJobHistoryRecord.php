@@ -49,7 +49,7 @@ class CoJobHistoryRecord extends AppModel {
       'allowEmpty' => false
     ),
     'record_key' => array(
-      'rule' => array('maxLength', 64),
+      'rule' => array('maxLength', 256),
       'required' => false,
       'allowEmpty' => true
     ),

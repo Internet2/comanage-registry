@@ -142,7 +142,42 @@
   <?php else: // org identity
       print $this->Form->hidden('login', array('default' => false)) . "\n";
     endif; // org identity ?>
+  <li>
+    <span class="field-name">
+      <?php
+        if($e) {
+          print $this->Form->label('language', _txt('fd.language'));
+        } else {
+          print _txt('fd.language');
+        }
+      ?>
+    </span>
+    <span class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
 
+        $attrs = array();
+        $attrs['value'] = (isset($identifiers[0]['Identifier']['language'])
+                           ? $identifiers[0]['Identifier']['language']
+                           : null);
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('language',
+                                    $cm_texts[ $cm_lang ]['en.language'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('language')) {
+            print $this->Form->error('language');
+          }
+        } else {
+          if(!empty($identifiers[0]['Identifier']['language'])) {
+            print _txt('en.language', null, $identifiers[0]['Identifier']['language']);
+          }
+        }
+      ?>
+    </span>
+  </li>
   <li>
     <div class="field-name">
       <?php
