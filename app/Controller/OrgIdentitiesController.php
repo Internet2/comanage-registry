@@ -244,12 +244,15 @@ class OrgIdentitiesController extends StandardController {
     $args = array();
     $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
     if(!$this->viewVars['pool_org_identities']) {
-      $args['conditions']['OrgIdentitySource.co_id'] = isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : -1;
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'] ?? -1;
     }
     $args['fields'] = array('id', 'description');
     $args['contain'] = false;
     
-    $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));
+    $this->set(
+      'vv_org_id_sources',
+      isset($this->cur_co['Co']['id']) ? $this->OrgIdentitySource->find('list', $args) : []
+    );
 
     // Get the affiliations for display in the search filter bar
     global $cm_lang, $cm_texts;

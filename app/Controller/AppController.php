@@ -280,9 +280,13 @@ class AppController extends Controller {
 
         // In the case a CMP admin performs an API request with an invalid CO Id, we will get
         // here but the $this->cur_co object will be null
-        if(empty($this->cur_co)
-           || !is_array($this->cur_co)
-           || !isset($this->cur_co['Co'])) {
+        if(!$roles['cmadmin']
+           && (
+             empty($this->cur_co)
+             || !is_array($this->cur_co)
+             || !isset($this->cur_co['Co'])
+          )
+        ) {
           throw new NotFoundException(_txt('er.notfound-b', array(_txt('ct.cos.1'))));
         }
       } catch(HttpException $e) {
