@@ -57,7 +57,7 @@ class ConfigurationLabel extends AppModel {
         'rule' => array('validateLabel'),
         'required' => true,
         'allowEmpty' => false,
-        'message' => array('Allowed characters are a-z0-9_-. Value must be at least 3 characters long.'),
+        'message' => array('Allowed characters are a-zA-Z0-9_-. Value must be at least 3 characters long.'),
         'last' => 'true',
       ),
       'size' => array(
@@ -76,6 +76,7 @@ class ConfigurationLabel extends AppModel {
         'rule' => array('validateHex'),
         'required' => true,
         'allowEmpty' => false,
+        'message' => array('Color format is not allowed.'),
       ),
       'size' => array(
         'rule' => array('maxlength', 9),
@@ -133,6 +134,10 @@ class ConfigurationLabel extends AppModel {
 
   /**
    * Validates whether a hexadecimal/plain color value is syntactically correct.
+   * Allowed:
+   *  - #ccc,      three digit hex
+   *  - #cccccc,   six digit hex
+   *  - #ccccccc9, six digit hex with alpha value
    *
    * @param array $check
    *   The hexadecimal string to validate. Must contain a leading '#'
@@ -144,7 +149,9 @@ class ConfigurationLabel extends AppModel {
     if (!is_string($check['color'])) {
       return false;
     }
-    return preg_match('/^(#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)$/', $check['color']) === 1;
+
+    $pattern = '/^#([0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?|[0-9a-fA-F]{3})$/';
+    return preg_match($pattern, $check['color']) === 1;
   }
 
   /**
@@ -159,6 +166,6 @@ class ConfigurationLabel extends AppModel {
     if (!is_string($check['label'])) {
       return false;
     }
-    return preg_match('/^[a-z0-9_-]{3,}$/', $check['label']) === 1;
+    return preg_match('/^[a-zA-Z0-9_-]{3,}$/', $check['label']) === 1;
   }
 }
