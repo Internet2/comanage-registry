@@ -23,6 +23,7 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB2_mysql extends ADODB_DataDict {
+    var $quote;
 	var $databaseType = 'mysql';
 	var $alterCol = ' MODIFY COLUMN';
 	var $addFk = ' ADD FOREIGN KEY';

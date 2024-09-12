@@ -1515,6 +1515,9 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	/** @var mysqli_result result link identifier */
 	var $_queryID;
 
+    var $adodbFetchMode;
+
+
 	function __construct($queryID, $mode = false)
 	{
 		if ($mode === false) {

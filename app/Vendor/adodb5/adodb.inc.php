@@ -227,7 +227,7 @@ if (!defined('_ADODB_LAYER')) {
 		var $name = '';
 		var $max_length=0;
 		var $type="";
-/*
+
 		// additional fields by dannym... (danny_milo@yahoo.com)
 		var $not_null = false;
 		// actually, this has already been built-in in the postgres, fbsql AND mysql module? ^-^
@@ -236,7 +236,14 @@ if (!defined('_ADODB_LAYER')) {
 		var $has_default = false; // this one I have done only in mysql and postgres for now ...
 			// others to come (dannym)
 		var $default_value; // default, if any, and supported. Check has_default first.
-*/
+        var $attnum;
+        var $primary_key;
+        var $unique;
+        var $auto_increment;
+        var $binary;
+        var $scale;
+        var $unsigned;
+        var $zerofill;
 	}
 
 
