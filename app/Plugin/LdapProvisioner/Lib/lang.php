@@ -74,6 +74,8 @@ $cm_ldap_provisioner_texts['en_US'] = array(
   'pl.ldapprovisioner.group_ocs'      => 'Additional Group Object Classes',
   'pl.ldapprovisioner.group_ocs.desc' => 'Additional externally managed object classes (comma separated) to define for the group record, see <a href="https://spaces.internet2.edu/x/ygYwAg">documentation</a>',
   'pl.ldapprovisioner.info'           => 'The LDAP server must be available and the specified credentials must be valid before this configuration can be saved.',
+  'pl.ldapprovisioner.network_timeout'      => 'Network Timeout',
+  'pl.ldapprovisioner.network_timeout.desc' => 'Option to allow setting network timeout. Defaults to 10 seconds.',
   'pl.ldapprovisioner.password'       => 'Password',
   'pl.ldapprovisioner.password.desc'  => 'Password to use for authentication',
   'pl.ldapprovisioner.person_ocs'     => 'Additional Person Object Classes',

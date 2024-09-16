@@ -33,6 +33,7 @@
       <constraint>REFERENCES cm_co_provisioning_targets(id)</constraint>
     </field>
     <field name="serverurl" type="C" size="256" />
+    <field name="network_timeout" type="I"/>
     <field name="binddn" type="C" size="128" />
     <field name="password" type="C" size="64" />
     <field name="basedn" type="C" size="128" />

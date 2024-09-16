@@ -153,6 +153,15 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.ldapprovisioner.network_timeout'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.ldapprovisioner.network_timeout.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('network_timeout', array('size' => 50)) : filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['network_timeout'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <div class="field-title"><?php print _txt('pl.ldapprovisioner.binddn'); ?> <span class="required">*</span></div>
       <div class="field-desc"><?php print _txt('pl.ldapprovisioner.binddn.desc'); ?></div>
     </div>
