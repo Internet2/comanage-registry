@@ -1,6 +1,6 @@
 <?php
 /**
- * COmanage Registry Federation Source Plugin Language File
+ * COmanage Registry Federation Organization Source Enumerations
  *
  * Portions licensed to the University Corporation for Advanced Internet
  * Development, Inc. ("UCAID") under one or more contributor license agreements.
@@ -24,29 +24,9 @@
  * @since         COmanage Registry v4.4.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-  
-global $cm_lang, $cm_texts;
 
-// When localizing, the number in format specifications (eg: %1$s) indicates the argument
-// position as passed to _txt.  This can be used to process the arguments in
-// a different order than they were passed.
-
-$cm_federation_source_texts['en_US'] = array(
-  // Titles, per-controller
-  'ct.federation_sources.1'  => 'Federation Organization Source',
-  'ct.federation_sources.pl' => 'Federation Organization Sources',
-
-  // Enumeration language texts
-  'pl.federationsource.en.protocol' => array(
-    MetadataProtocol::File  => "Metadata File",
-    MetadataProtocol::MDQ   => "MDQ"
-  ),
-
-  // Error messages
-  'er.federationsource.notfound.entityid' => 'entityID not found in metadata response',
-  
-  // Plugin texts
-  'pl.federationsource.count'       => 'Populated %1$s records from all IdPs endpoint',
-  'pl.federationsource.entityid'    => 'Entity ID',
-  'pl.federationsource.protocol'    => 'Protocol'
-);
+class MetadataProtocol
+{
+  const File  = "F";
+  const MDQ   = "MQ";
+}

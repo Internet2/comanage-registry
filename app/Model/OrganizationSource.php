@@ -197,7 +197,11 @@ class OrganizationSource extends AppModel {
     // While we're here, get the plugin its configuration if it doesn't have it already
 
     if(!$this->$m->getConfig()) {
-      $cfg = $this->$m->find('first', array($m.'.id' => $id));
+      $args = array();
+      $args['conditions'][$m.'.organization_source_id'] = $id;
+      $args['contain'] = 'OrganizationSource';
+
+      $cfg = $this->$m->find('first', $args);
 
       $this->$m->setConfig($cfg);
     }

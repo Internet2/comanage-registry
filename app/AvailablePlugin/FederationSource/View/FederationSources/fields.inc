@@ -98,6 +98,35 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('protocol', _txt('pl.federationsource.protocol')) : _txt('pl.federationsource.protocol')); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+        global $cm_lang, $cm_texts;
+
+        $attrs = array();
+        $attrs['value'] = (isset($federation_sources[0]['FederationSource']['protocol']) ? $federation_sources[0]['FederationSource']['protocol'] : "");
+        $attrs['empty'] = true;
+
+        if($e) {
+          print $this->Form->select('protocol',
+                                    $cm_texts[ $cm_lang ]['pl.federationsource.en.protocol'],
+                                    $attrs);
+
+          if($this->Form->isFieldError('protocol')) {
+            print $this->Form->error('protocol');
+          }
+        } else {
+          print _txt('pl.federationsource.en.protocol', null, filter_var($federation_sources[0]['FederationSource']['protocol'],FILTER_SANITIZE_SPECIAL_CHARS));
+        }
+      ?>
+    </div>
+  </li>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

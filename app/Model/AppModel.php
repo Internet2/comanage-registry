@@ -1671,16 +1671,13 @@ class AppModel extends Model {
    * @param  integer $coId      CO ID
    * @param  string  $attribute Attribute, in Model.attribute form
    * @param  string  $value     Value to validate
-   * @return boolean            True on success
-   * @throws InvalidArgumentException
+   * @return boolean            True if valid, false otherwise
    */
 
   public function validateEnumeration($coId, $attribute, $value) {
     $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
     
-    $AttributeEnumeration->isValid($coId, $attribute, $value);
-    
-    return true;
+    return $AttributeEnumeration->isValid($coId, $attribute, $value);
   }
   
   /**

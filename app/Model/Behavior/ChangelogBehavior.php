@@ -25,7 +25,24 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+App::import('Model', 'ConnectionManager');
+
 class ChangelogBehavior extends ModelBehavior {
+  /**
+   * Abort a transaction.
+   * 
+   * @since  COmanage Regisry v4.4.0
+   */
+  
+  public function abortChangelogTxn() {
+    // Because we open a transaction in beforeSave, if a Model aborts a save in beforeSave
+    // we'll end up with an open transacation (CO-2829) which will cause Jobs (and potentially
+    // other longer run processes) from cleaning up correctly. (This isn't necessary for expunge.)
+
+    $dataSource = ConnectionManager::getDataSource('default');
+    $dataSource->rollback();
+  }
+
   /**
    * Handle changelog archive following (after) save of Model.
    *

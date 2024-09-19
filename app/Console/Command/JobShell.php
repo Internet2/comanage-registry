@@ -25,6 +25,8 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+App::import('Model', 'ConnectionManager');
+
 class JobShell extends AppShell {
   var $uses = array('Co',
                     'CoJob',
@@ -95,6 +97,35 @@ class JobShell extends AppShell {
         // We have to look at $this->params for coid since we won't have it when we
         // were passed the Job ID.
         $pluginModel->execute($this->params['coid'], $this->CoJob, $params);
+
+        $dbc = ConnectionManager::getDataSource('default');;
+
+        if($dbc->inTransaction()) {
+          // The plugin left an open transaction for one reason or another, including
+          // possibly CO-2829. In order to properly terminate the job and release the lock
+          // we need to close any open transactions. If the open transaction is created
+          // per record, there could be a lot...
+          for($i = $dbc->getTransactionNesting();$i >= 0;$i--) {
+            // We rollback because it's safer than commit. This does mean we're likely
+            // to lose whatever Job History the plugin tried to create.
+            $dbc->rollback();
+
+            // if(!$dbc->inTransaction())
+            //   break;
+          }
+
+          // Record both Job History and finish the job in case the plugin managed to
+          // finish the job before leaving the open transacation.
+
+          $this->CoJob->CoJobHistoryRecord->record($this->CoJob->id,
+                                                   null,
+                                                   _txt('er.jb.txn'),
+                                                   null,
+                                                   null,
+                                                   JobStatusEnum::Failed);
+
+          $this->CoJob->finish($this->CoJob->id, _txt('er.jb.txn.fail'), JobStatusEnum::Failed);
+        }
       }
     }
     catch(Exception $e) {

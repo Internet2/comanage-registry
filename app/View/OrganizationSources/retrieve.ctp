@@ -53,8 +53,7 @@
   );
 
   $this->Html->addCrumb($vv_organization_source['OrganizationSource']['description'], $args);
-  $this->Html->addCrumb(cmg_urldecode($key));
-
+  $this->Html->addCrumb($vv_organization_record['Organization']['source_key']);
   // Add top links
   $params['topLinks'] = array();
 
@@ -161,7 +160,7 @@
             <?php print _txt('fd.sorid'); ?>
           </td>
           <td>
-            <?php print cmg_urldecode($key); ?>
+            <?php print $vv_organization_record['Organization']['source_key']; ?>
           </td>
         </tr>
         <tr class="line<?php print $l++ % 2; ?>">
@@ -194,7 +193,7 @@
         </tr>
         <tr class="line<?php print $l++ % 2; ?>">
           <td>
-            <?php print _txt('fd.os.scope'); ?>
+            <?php print _txt('fd.os.scope.saml'); ?>
           </td>
           <td>
             <?php

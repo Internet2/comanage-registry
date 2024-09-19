@@ -260,7 +260,7 @@ class OrganizationSourcesController extends StandardController {
         $r = $this->OrganizationSource->retrieve($id, $key);
 
         $this->set('title_for_layout',
-                   _txt('op.view-a', array(filter_var($key,FILTER_SANITIZE_SPECIAL_CHARS))));
+                   _txt('op.view-a', array(filter_var($r['rec']['Organization']['source_key'],FILTER_SANITIZE_SPECIAL_CHARS))));
         
         if(!empty($r['rec']['Organization'])) {
           $this->set('vv_organization_record', $r['rec']);

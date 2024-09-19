@@ -187,9 +187,17 @@ class IdentityDocument extends AppModel {
                          : '';
     
     if($docType) {
-      $this->validateEnumeration($coId,
-                                 'IdentityDocument.issuing_authority.'.$docType,
-                                 $issuing_authority);
+      // On error, validateEnumeration throws an error, which means the transaction
+      // aborts and ChangelogBehavior leaves its transaction open.
+      if(!$this->validateEnumeration($coId,
+                                     'IdentityDocument.issuing_authority.'.$docType, 
+                                     $issuing_authority)) {
+        // We need to close any open Changelog Transaction in case we're run within a Job
+
+        $this->abortChangelogTxn();
+
+        throw new InvalidArgumentException(_txt('er.ae.value', array('IdentityDocument.issuing_authority.'.$docType)));
+      }
     }
     
     // Possibly convert the requested timestamps to UTC from browser time.

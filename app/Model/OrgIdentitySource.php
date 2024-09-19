@@ -511,6 +511,7 @@ class OrgIdentitySource extends AppModel {
                              $provision,
                              $brec['raw'],
                              $this->OrgIdentitySourceRecord->OrgIdentity->OrgIdentitySourceRecord->id);
+      $dbc->commit();
     }
     catch(UnexpectedValueException $e) {
       // The pipeline received a 202 response from the Match Server, which we
@@ -525,9 +526,6 @@ class OrgIdentitySource extends AppModel {
       $dbc->rollback();
       throw new RuntimeException($e->getMessage());
     }
-    
-    // Commit
-    $dbc->commit();
     
     return $this->OrgIdentitySourceRecord->OrgIdentity->id;
   }

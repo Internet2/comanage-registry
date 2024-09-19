@@ -289,6 +289,11 @@
     <index name="organizations_i1">
       <col>co_id</col>
     </index>
+    
+    <index name="organizations_i2">
+      <col>co_id</col>
+      <col>name</col>
+    </index>
   </table>
 
   <table name="organization_source_records">
@@ -898,6 +903,10 @@
     </index>
     <index name="co_departments_i2">
       <col>cou_id</col>
+    </index>
+    <index name="co_departments_i3">
+      <col>co_id</col>
+      <col>name</col>
     </index>
   </table>
   

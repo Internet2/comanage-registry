@@ -56,6 +56,13 @@ class FederationSource extends OrganizationSourceBackend {
       'rule' => 'numeric',
       'required' => true,
       'allowEmpty' => false
+    ),
+    'protocol' => array(
+      'rule' => array('inList',
+                      array(MetadataProtocol::File,
+                            MetadataProtocol::MDQ)),
+      'required' => true,
+      'allowEmpty' => false
     )
   );
 
@@ -70,6 +77,88 @@ class FederationSource extends OrganizationSourceBackend {
    */
   public function cmPluginMenus() {
     return array();
+  }
+
+  /**
+   * Make a request to the configured server.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  string  $entityId  Entity ID to request, or null for all IdPs
+   * @return mixed              Result of request, as returned by HttpClient
+   */
+
+  protected function doRequest($entityID=null) {
+    // Start by pulling our server configuration
+    $cfg = $this->getConfig();
+
+    if(empty($cfg['FederationSource']['server_id'])) {
+      throw new InvalidArgumentException("Server ID not specified"); // XXX I18n
+    }
+
+    $HttpServer = ClassRegistry::init('HttpServer');
+
+    $args = array();
+    $args['conditions']['HttpServer.server_id'] = $cfg['FederationSource']['server_id'];
+    $args['contain'] = false;
+
+    $srvr = $HttpServer->find('first', $args);
+
+    $Http = new CoHttpClient();
+
+    $Http->setBaseUrl($srvr['HttpServer']['serverurl']);
+
+    if($cfg['FederationSource']['protocol'] == MetadataProtocol::MDQ) {
+      $Http->setRequestOptions(array(
+        'header' => array(
+          'Content-Type'  => 'application/samlmetadata+xml'
+        )
+      ));
+
+      $url = "/entities/";
+      
+      if($entityID) {
+        $url .= urlencode($entityID);
+      } else {
+        $url .= "idps/all";
+      }
+    } else {
+      $url = "";
+    }
+
+    return $Http->get($url);
+  }
+
+  /**
+   * Find a note in metadata, which might or might not be prefixed.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  array    $metadata   Array of parsed metadata
+   * @param  string   $prefix     Prefix that might or might not be used
+   * @param  string   $node       Name of top level node
+   * @param  string   $node2      Name of child node
+   * @return mixed                The contents of $metadata at the specified node, or null
+   */
+
+  protected function findMetadataEntry($metadata, $prefix, $node1, $node2=null) {
+    if(!empty($metadata[$node1])) {
+      if($node2) {
+        return $this->findMetadataEntry($metadata[$node1], $prefix, $node2);
+      } else {
+        return $metadata[$node1];
+      }
+    } else {
+      $p1 = $prefix . ":" . $node1;
+
+      if(!empty($metadata[$p1])) {
+        if($node2) {
+          return $this->findMetadataEntry($metadata[$p1], $prefix, $node2);
+        } else {
+          return $metadata[$p1];
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -137,47 +226,79 @@ class FederationSource extends OrganizationSourceBackend {
   }
 
   /**
-   * Make a request to the configured MDQ server.
+   * Populate the local cache by parsing the full metadata file.
    * 
    * @since  COmanage Registry v4.4.0
-   * @param  string  $entityId  Entity ID to request, or null for all IdPs
-   * @return mixed              Result of request, as returned by HttpClient
+   * @return int              The number of records cached
+   * @throws RuntimeException
    */
 
-  protected function mdqRequest($entityID=null) {
-    // Start by pulling our server configuration
-    $cfg = $this->getConfig();
-
-    if(empty($cfg['FederationSource']['server_id'])) {
-      throw new InvalidArgumentException("Server ID not specified"); // XXX I18n
+  protected function populateCache() {
+    if(!empty($this->mdcache)) {
+      return count($this->mdcache);
     }
 
-    $HttpServer = ClassRegistry::init('HttpServer');
+    // This $response object uses over 100MB of memory(!), whereas the various
+    // XML processors below (using XMLReader, which is more efficient) use only a 
+    // trivial amount. Each cache entry (array from resultToOrganization) uses about
+    // 20kb, which once 100+MB have been allocated can easily push us over the max
+    // limit, so we unset the $response as soon as we can dispose of it.
+    // In aggregate, we'll use about 30MB to hold the cache.
 
-    $args = array();
-    $args['conditions']['HttpServer.server_id'] = $cfg['FederationSource']['server_id'];
-    $args['contain'] = false;
+    // Measurements based on memory_get_usage() reports and the InCommon MDQ aggregate,
+    // which is about 55MB when downloaded.
 
-    $srvr = $HttpServer->find('first', $args);
+    $response = $this->doRequest();
 
-    $Http = new CoHttpClient();
+    if($response->code == 200) {
+      $XMLReader = XMLReader::XML($response->body);
 
-    $Http->setBaseUrl($srvr['HttpServer']['serverurl']);
-    $Http->setRequestOptions(array(
-      'header' => array(
-        'Content-Type'  => 'application/samlmetadata+xml'
-      )
-    ));
+      // We're done with this, claim back the memory before we populate the cache
+      unset($response);
 
-    $url = "/entities/";
-    
-    if($entityID) {
-      $url .= urlencode($entityID);
+      $count = 0;
+
+      while($XMLReader->read()) {
+        // Node names might or might not be prefixed with a namespace label (eg: "md:")
+        // depending on the server.
+
+        if($XMLReader->nodeType == XMLReader::END_ELEMENT) continue;
+
+        if($XMLReader->name == 'EntityDescriptor' || $XMLReader->name == 'md:EntityDescriptor') {
+          $metadata = Xml::toArray(Xml::build($XMLReader->readOuterXML()));
+
+          $IDPSSODescriptor = $this->findMetadataEntry($metadata, 'md', 'EntityDescriptor', 'IDPSSODescriptor');
+
+          if(empty($IDPSSODescriptor)) {
+            // This is not an IdP, skip it
+            continue;
+          }
+
+          if(!empty($metadata['EntityDescriptor']['@entityID'])) {
+            // Note Xml will strip the md: namespace indicator when present, but only for
+            // top level attributes in the array
+            $entityID = $metadata['EntityDescriptor']['@entityID'];
+
+            $this->mdcache[$entityID]['rec'] = $this->resultToOrganization($metadata['EntityDescriptor']);
+            // We json_encode the result for consistency with search()
+            $this->mdcache[$entityID]['raw'] = json_encode($this->mdcache[$entityID]['rec']);
+
+            if(!empty($this->mdcache[$entityID])) {
+              // print "Display Name: " . $this->mdcache[$entityID]['rec']['Organization']['name'] . "\n";
+            }
+          }
+
+          $count++;
+        }
+      }
+
+      return $count;
     } else {
-      $url .= "idps/all";
-    }
+      // XXX There might be more information in $response->body, we should bubble that up
+      // or log it
 
-    return $Http->get($url);
+      throw new RuntimeException($response->reasonPhrase);
+    }
   }
 
   /**
@@ -194,62 +315,18 @@ class FederationSource extends OrganizationSourceBackend {
     // since it's required to do a Full Sync and will make an Update Sync more efficient
     // for more than a handful of entries.
 
+    // In File mode, we need to process the whole file regardless.
+
     $CoJobHistoryRecord = ClassRegistry::init('CoJobHistoryRecord');
 
-    // This $response object uses over 100MB of memory(!), whereas the various
-    // XML processors below (using XMLReader, which is more efficient) use only a 
-    // trivial amount. Each cache entry (array from resultToOrganization) uses about
-    // 20kb, which once 100+MB have been allocated can easily push us over the max
-    // limit, so we unset the $response as soon as we can dispose of it.
-    // In aggregate, we'll use about 30MB to hold the cache.
+    $count = $this->populateCache();
 
-    // Measurements based on memory_get_usage() reports and the InCommon MDQ aggregate,
-    // which is about 55MB when downloaded.
-
-    $response = $this->mdqRequest();
-
-    if($response->code == 200) {
-      $XMLReader = XMLReader::XML($response->body);
-
-      // We're done with this, claim back the memory before we populate the cache
-      unset($response);
-
-      $count = 0;
-
-      while($XMLReader->read()) {
-        if($XMLReader->nodeType == XMLReader::END_ELEMENT) continue;
-
-        if($XMLReader->name == 'EntityDescriptor') {
-          $metadata = Xml::toArray(Xml::build($XMLReader->readOuterXML()));
-
-          if(!empty($metadata['EntityDescriptor']['@entityID'])) {
-            $entityID = $metadata['EntityDescriptor']['@entityID'];
-            
-            $this->mdcache[$entityID]['rec'] = $this->resultToOrganization($metadata['EntityDescriptor']);
-            // We json_encode the result for consistency with search()
-            $this->mdcache[$entityID]['raw'] = json_encode($this->mdcache[$entityID]['rec']);
-
-            if(!empty($this->mdcache[$entityID])) {
-              // print "Display Name: " . $this->mdcache[$entityID]['rec']['Organization']['name'] . "\n";
-            }
-          }
-
-          $count++;
-        }
-      }
-
-      $CoJobHistoryRecord->record($coJobId,
-                                  null,
-                                  _txt('pl.federationsource.count', array($count)),
-                                  null,
-                                  null,
-                                  JobStatusEnum::Notice);
-    } else {
-      // XXX There might be more information in $response->body, we should bubble that up
-      // or log it
-
-      throw new RuntimeException($response->reasonPhrase);
-    }
+    $CoJobHistoryRecord->record($coJobId,
+                                null,
+                                _txt('pl.federationsource.count', array($count)),
+                                null,
+                                null,
+                                JobStatusEnum::Notice);
   }
 
   /**
@@ -265,6 +342,8 @@ class FederationSource extends OrganizationSourceBackend {
 
     // Use the entity ID as the source_key
     $ret['Organization']['source_key'] = $metadata['@entityID'];
+
+    $IDPSSODescriptorExt = $this->findMetadataEntry($metadata, 'md', 'IDPSSODescriptor', 'Extensions');
 
     // Note that the SAML Metadata UI spec (§2.4.3) says the following order of precedence SHOULD
     // be used for populating a display name:
@@ -283,16 +362,16 @@ class FederationSource extends OrganizationSourceBackend {
       'description' => array('field' => 'mdui:Description', 'maxlen' => 128),
       'logo_url' => array('field' => 'mdui:Logo', 'maxlen' => 256)
     ) as $field => $src) {
-      if(!empty($metadata['IDPSSODescriptor']['Extensions']['mdui:UIInfo'][ $src['field'] ]['@'])) {
+      if(!empty($IDPSSODescriptorExt['mdui:UIInfo'][ $src['field'] ]['@'])) {
         // If there is just a single value, use that
 
-        $ret['Organization'][$field] = substr($metadata['IDPSSODescriptor']['Extensions']['mdui:UIInfo'][ $src['field'] ]['@'], 0, $src['maxlen']);
-      } elseif(!empty($metadata['IDPSSODescriptor']['Extensions']['mdui:UIInfo'][ $src['field'] ])) {
+        $ret['Organization'][$field] = substr($IDPSSODescriptorExt['mdui:UIInfo'][ $src['field'] ]['@'], 0, $src['maxlen']);
+      } elseif(!empty($IDPSSODescriptorExt['mdui:UIInfo'][ $src['field'] ])) {
         // We have multiple values, most likely flagged by language. We don't really have a good
         // pattern to follow here for a single valued attribute, so we'll start by looking for
         // an English entry, and if we don't find that we'll use the first one.
 
-        foreach($metadata['IDPSSODescriptor']['Extensions']['mdui:UIInfo'][ $src['field'] ] as $xv) {
+        foreach($IDPSSODescriptorExt['mdui:UIInfo'][ $src['field'] ] as $xv) {
           if(!empty($xv['@xml:lang']) && $xv['@xml:lang'] == 'en') {
             $ret['Organization'][$field] = substr($xv['@'], 0, $src['maxlen']);
             break;
@@ -302,7 +381,7 @@ class FederationSource extends OrganizationSourceBackend {
         if(empty($ret['Organization'][$field])) {
           // No English entry found, use the first one
 
-          $ret['Organization'][$field] = substr($metadata['IDPSSODescriptor']['Extensions']['mdui:UIInfo'][ $src['field'] ][0]['@'], 0, $src['maxlen']);
+          $ret['Organization'][$field] = substr($IDPSSODescriptorExt['mdui:UIInfo'][ $src['field'] ][0]['@'], 0, $src['maxlen']);
         }
       }
 
@@ -315,10 +394,10 @@ class FederationSource extends OrganizationSourceBackend {
       }
     }
 
-    if(!empty($metadata['IDPSSODescriptor']['Extensions']['shibmd:Scope']['@'])) {
+    if(!empty($IDPSSODescriptorExt['shibmd:Scope']['@'])) {
       // For now we only support single value scopes since it's not clear what to do with
       // multiple values
-      $ret['Organization']['saml_scope'] = $metadata['IDPSSODescriptor']['Extensions']['shibmd:Scope']['@'];
+      $ret['Organization']['saml_scope'] = $IDPSSODescriptorExt['shibmd:Scope']['@'];
 
       // Try to guess an organization type from the scope. This isn't going to be perfect.
 
@@ -344,17 +423,19 @@ class FederationSource extends OrganizationSourceBackend {
     // appears to be the more "official", though in most cases they're the same. (An example
     // where they differ is Penn State.)
 
-    if(!empty($metadata['Organization']['OrganizationName']['@'])) {
+    $OrganizationName = $this->findMetadataEntry($metadata, 'md', 'Organization', 'OrganizationName');
+
+    if($OrganizationName && !empty($OrganizationName['@'])) {
       // There's only one OrganizatonName, push it one level down for compatibility with
       // processing multiple URLs.
 
-      $metadata['Organization']['OrganizationName'] = array($metadata['Organization']['OrganizationName']);
+      $OrganizationName = array($OrganizationName);
     }
 
-    if(is_array($metadata['Organization']['OrganizationName'])) {
+    if(is_array($OrganizationName)) {
       // Multiple values, probably for different languages
 
-      foreach($metadata['Organization']['OrganizationName'] as $name) {
+      foreach($OrganizationName as $name) {
         $ret['Identifier'][] = array(
           'identifier'  => $name['@'],
           'type'        => IdentifierEnum::Name,
@@ -370,15 +451,17 @@ class FederationSource extends OrganizationSourceBackend {
       }
     }
 
-    if(!empty($metadata['Organization']['OrganizationURL']['@'])) {
+    $OrganizationURL = $this->findMetadataEntry($metadata, 'md', 'Organization', 'OrganizationURL');
+
+    if(!empty($OrganizationURL['@'])) {
       // There's only one URL, push it one level down for compatibility with
       // processing multiple URLs.
 
-      $metadata['Organization']['OrganizationURL'] = array($metadata['Organization']['OrganizationURL']);
+      $OrganizationURL = array($OrganizationURL);
     }
     
-    if(is_array($metadata['Organization']['OrganizationURL'])) {
-      foreach($metadata['Organization']['OrganizationURL'] as $url) {
+    if(is_array($OrganizationURL)) {
+      foreach($OrganizationURL as $url) {
         $ret['Url'][] = array(
           'url'         => $url['@'],
           'type'        => UrlEnum::Official,
@@ -389,26 +472,30 @@ class FederationSource extends OrganizationSourceBackend {
 
     // Contact People
 
-    if(!empty($metadata['ContactPerson']['@contactType'])) {
+    $ContactPerson = $this->findMetadataEntry($metadata, 'md', 'ContactPerson');
+    
+    if(!empty($ContactPerson['@contactType'])) {
       // There's only one Contact, push it one level down for compatibility with
       // processing multiple Contacts.
 
-      $metadata['ContactPerson'] = array($metadata['ContactPerson']);
+      $ContactPerson = array($ContactPerson);
     }
 
-    if(!empty($metadata['ContactPerson'])) {
-      foreach($metadata['ContactPerson'] as $cp) {
+    if(!empty($ContactPerson)) {
+      foreach($ContactPerson as $cp) {
         // Convert a SAML ContactPerson to a Registry Contact. EmailAddress and TelephoneNumber
         // are technically multi-valued, but few entities have multiple values, so for now we
         // just use the first one we see.
         $t = array('EmailAddress' => null, 'TelephoneNumber' => null);
 
         foreach(array_keys($t) as $k) {
-          if(!empty($cp[$k])) {
-            if(is_array($cp[$k])) {
-              $t[$k] = $cp[$k][0];
+          $info = $this->findMetadataEntry($cp, 'md', $k);
+
+          if(!empty($info)) {
+            if(is_array($info)) {
+              $t[$k] = $info[0];
             } else {
-              $t[$k] = $cp[$k];
+              $t[$k] = $info;
             }
           }
         }
@@ -421,14 +508,14 @@ class FederationSource extends OrganizationSourceBackend {
             $t['EmailAddress'] = $parsed['path'];
           } else {
             // While EmailAddress is supposed to be a URI, not everyone correctly populates it
-            $t['EmailAddress'] = $cp['EmailAddress'];
+            //$t['EmailAddress'] = $cp['EmailAddress'];
           }
         }
 
         $ret['Contact'][] = array(
-          'given'   => !empty($cp['GivenName']) ? $cp['GivenName'] : null,
-          'family'  => !empty($cp['SurName']) ? $cp['SurName'] : null,
-          'company' => !empty($cp['Company']) ? $cp['Company'] : null,
+          'given'   => !empty($cp['GivenName']) ? $cp['GivenName'] : (!empty($cp['md:GivenName']) ? $cp['md:GivenName'] : null),
+          'family'  => !empty($cp['SurName']) ? $cp['SurName'] : (!empty($cp['md:SurName']) ? $cp['md:SurName'] : null),
+          'company' => !empty($cp['Company']) ? $cp['Company'] : (!empty($cp['md:Company']) ? $cp['md:Company'] : null),
           'number'  => $t['TelephoneNumber'],
           'mail'    => $t['EmailAddress'],
           'type'    => !empty($cp['@contactType']) ? $cp['@contactType'] : null,
@@ -457,13 +544,23 @@ class FederationSource extends OrganizationSourceBackend {
    */
 
   public function retrieve($key) {
+    $cfg = $this->getConfig();
+
+    $rKey = urldecode($key);
+
+    // In File mode, we need to parse the entire file
+    if($cfg['FederationSource']['protocol'] == MetadataProtocol::File) {
+      $this->populateCache();
+    }
+
     // Do we already have the record in the cache?
-    if(!empty($this->mdcache[$key])) {
-      return $this->mdcache[$key];
+    if(!empty($this->mdcache[$rKey])) {
+      return $this->mdcache[$rKey];
     }
 
     // Otherwise this is basically just search, which will throw InvalidArgumentException
-    // on not found
+    // on not found. Note we're passing the _un_decoded $key because search is going to
+    // urldecode it.
 
     $rec = $this->search(array('entityID' => $key));
 
@@ -484,40 +581,59 @@ class FederationSource extends OrganizationSourceBackend {
   public function search($attributes) {
     $ret = array();
 
-    // We need to decode the URL because mdqRequest will re-encode it in order
-    // to work with the base64 manipulated key strings.
-    $response = $this->mdqRequest(urldecode($attributes['entityID']));
+    $cfg = $this->getConfig();
 
-    if($response->code == 200) {
-      $metadata = Xml::toArray(Xml::build($response->body));
+    $searchKey = urldecode($attributes['entityID']);
 
-      if(empty($metadata['EntityDescriptor']['@entityID'])) {
-        throw new RuntimeException('er.federationsource.notfound.entityid');
+    if($cfg['FederationSource']['protocol'] == MetadataProtocol::MDQ) {
+      // We need to decode the URL because mdqRequest will re-encode it in order
+      // to work with the base64 manipulated key strings.
+      $response = $this->doRequest($searchKey);
+
+      if($response->code == 200) {
+        $metadata = Xml::toArray(Xml::build($response->body));
+
+        if(empty($metadata['EntityDescriptor']['@entityID'])) {
+          throw new RuntimeException('er.federationsource.notfound.entityid');
+        }
+
+        $entityID = $metadata['EntityDescriptor']['@entityID'];
+
+        $ret[$entityID]['rec'] = $this->resultToOrganization($metadata['EntityDescriptor']);
+
+        // Because of differences between how the XML is processed here vs when cached via
+        // preRunChecks, we can't use the raw XML here. Instead, we json_encode the
+        // post-processed record.
+
+        // Some records (eg https://idp.gbu.edu.in/idp/shibboleth) have invalid UTF-8 characters
+        // in them. We could use JSON_INVALID_UTF8_IGNORE here, but then a save will fail
+        // somewhere else, possible causing the job to abort.
+        $ret[$entityID]['raw'] = json_encode($ret[$entityID]['rec']);
+      } elseif($response->code == 404) {
+        // Invalid entity ID
+
+        throw new InvalidArgumentException($response->reasonPhrase);
+      } else {
+        // XXX There might be more information in $response->body, we should bubble that up
+        // or log it
+
+        throw new RuntimeException($response->reasonPhrase);
       }
-
-      $entityID = $metadata['EntityDescriptor']['@entityID'];
-
-      $ret[$entityID]['rec'] = $this->resultToOrganization($metadata['EntityDescriptor']);
-
-      // Because of differences between how the XML is processed here vs when cached via
-      // preRunChecks, we can't use the raw XML here. Instead, we json_encode the
-      // post-processed record.
-
-      // Some records (eg https://idp.gbu.edu.in/idp/shibboleth) have invalid UTF-8 characters
-      // in them. We could use JSON_INVALID_UTF8_IGNORE here, but then a save will fail
-      // somewhere else, possible causing the job to abort.
-      $ret[$entityID]['raw'] = json_encode($ret[$entityID]['rec']);
-    } elseif($response->code == 404) {
-      // Invalid entity ID
-
-      throw new InvalidArgumentException($response->reasonPhrase);
     } else {
-      // XXX There might be more information in $response->body, we should bubble that up
-      // or log it
+      // We have to retrieve and parse the entire file, so we'll use the cache
 
-      throw new RuntimeException($response->reasonPhrase);
+      $this->populateCache();
+
+      // Since we only support searching on entityID (as per MDQ) we can just check
+      // the cache (similar to retrieve).
+
+      if(!empty($this->mdcache[$searchKey])) {
+        $ret[ $attributes['entityID'] ] = $this->mdcache[$searchKey];
+      } else {
+        throw new InvalidArgumentException(_txt('er.notfound-b', array($searchKey)));
+      }
     }
-    
+      
     return $ret;
   }
 
