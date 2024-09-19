@@ -194,7 +194,7 @@ components:
           $ref: '#/components/schemas/meta'
         co_id:
           description: CO ID for this CO Person
-          type: string
+          type: integer
         date_of_birth:
           description: CO Person date of birth
           type: string
@@ -370,7 +370,7 @@ components:
         meta:
           $ref: '#/components/schemas/meta'
         co_group_id:
-          type: string
+          type: integer
           description: CO Group ID for this membership
         member:
           type: boolean
@@ -399,7 +399,7 @@ components:
         meta:
           $ref: '#/components/schemas/meta'
         cou_id:
-          type: string
+          type: integer
           description: COU for this Role
         title:
           type: string
@@ -507,7 +507,7 @@ components:
         meta:
           $ref: '#/components/schemas/meta'
         co_id:
-          type: string
+          type: integer
           description: CO for this Org Identity
         title:
           type: string
@@ -741,7 +741,7 @@ components:
       properties:
         id:
           description: COmanage Registry identifier for this object
-          type: string
+          type: integer
         actor_identifier:
           description: The identifier for the actor who last modified this object
           type: string
@@ -762,7 +762,7 @@ components:
           readOnly: true
         revision:
           description: The revision number for this object
-          type: string
+          type: integer
           minimum: 0
           readOnly: true
       required:
