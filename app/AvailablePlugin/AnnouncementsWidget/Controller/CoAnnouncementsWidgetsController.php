@@ -136,6 +136,9 @@ class CoAnnouncementsWidgetsController extends SDWController {
         );
       }
     }
+    if(isset($this->cur_co)) {
+      $args['conditions']['CoAnnouncementChannel.co_id'] = $this->cur_co['Co']['id'];
+    }
     $args['order'] = array('CoAnnouncement.created DESC');
     // For a large number of announcements, containable might not be the most
     // optimal approach
