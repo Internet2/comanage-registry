@@ -150,9 +150,9 @@
                       $c['VettingRequest']['id']
                     )
                   ) . '\',\''
-                  . _txt('op.remove') . '\',\''    // dialog confirm button
+                  . _txt('op.delete') . '\',\''    // dialog confirm button
                   . _txt('op.cancel') . '\',\''    // dialog cancel button
-                  . _txt('op.remove') . '\',[\''   // dialog title
+                  . _txt('op.delete') . '\',[\''   // dialog title
                   . filter_var(_jtxt($c['VettingRequest']['id']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                   . '\']);">'
                   . _txt('op.cancel')

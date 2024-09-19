@@ -313,11 +313,11 @@
                             'url' => 'javascript:void(0);',
                             'label' => _txt('op.delete'),
                             'onclick' => array(
-                              'dg_bd_txt' => _txt('js.remove'),
+                              'dg_bd_txt' => _txt('js.delete'),
                               'dg_url' => $this->Html->url($dg_url),
-                              'dg_conf_btn' => _txt('op.remove'),
+                              'dg_conf_btn' => _txt('op.delete'),
                               'dg_cancel_btn' => _txt('op.cancel'),
-                              'dg_title' => _txt('op.remove'),
+                              'dg_title' => _txt('op.delete'),
                               'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($n)), FILTER_SANITIZE_STRING),
                             ),
                           );

@@ -2254,6 +2254,8 @@ The request may be viewed at
   'js.auth.lock'      =>  'Please confirm locking \x22{0}\x22 for {1}.',
   'js.auth.reset'     =>  'Please confirm resetting \x22{0}\x22 for {1}.',
   'js.auth.unlock'    =>  'Please confirm unlocking \x22{0}\x22 for {1}.',
+  'js.delete'         =>  'Are you sure you wish to delete \x22{0}\x22?  This action cannot be undone.',
+  'js.delete.role'    =>  'this role',
   'js.intrash'        =>  'Are you sure you wish to move \x22{0}\x22 to Trash? You will be able to restore it until Garbage Collector runs.',
   'js.move.trash'     =>  'Move to Trash',
   'js.ois.inventory'  =>  'Are you sure you wish to retrieve the full inventory from this backend? This may be slow and result in a large page load.',

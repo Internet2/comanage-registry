@@ -89,7 +89,7 @@
             if($permissions['delete']) {
               print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                 . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.remove') . '\',\''    // dialog body text
+                . _txt('js.delete') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
                   array(
                     'controller' => 'urls',
@@ -97,9 +97,9 @@
                     $u['Url']['id']
                   )
                 ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.delete') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
+                . _txt('op.delete') . '\',[\''   // dialog title
                 . filter_var(_jtxt($u['Url']['url']),FILTER_SANITIZE_URL)  // dialog body text replacement strings
                 . '\']);">'
                 . _txt('op.delete')
