@@ -532,14 +532,28 @@ class CoEnrollmentAttribute extends AppModel {
             $attr['validate']['content']['rule'][1] = array_keys($attr['select']);
           } elseif($attrName == 'cou_id') {
             // We have to set up a select based on the available COUs
-            
+            // Get the Configuration Label id
             $args = array();
-            $args['fields'] = array('Cou.id', 'Cou.name');
-            $args['conditions'] = array('CoEnrollmentFlow.id' => $actualEfId);
+            $args['conditions']['ConfigurationLabel.id'] = $efAttr['CoEnrollmentAttribute']['configuration_label_id'];
+            $args['contain'] = false;
+            $labelRec = $this->ConfigurationLabel->find('first', $args);
+            $labelValue = $labelRec['ConfigurationLabel']['label'] ?? '';
+
+            $args = array();
             $args['joins'][0]['table'] = 'co_enrollment_flows';
             $args['joins'][0]['alias'] = 'CoEnrollmentFlow';
             $args['joins'][0]['type'] = 'INNER';
             $args['joins'][0]['conditions'][0] = 'Cou.co_id=CoEnrollmentFlow.co_id';
+            $args['conditions']['CoEnrollmentFlow.id'] = $actualEfId;
+            if(!empty($labelValue)
+               && !empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])
+            ) {
+              $args['conditions']['OR']['LOWER(Cou.configuration_labels) LIKE'] = '%' . strtolower($labelValue) . '%';
+              $args['conditions']['OR']['Cou.id'] = $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
+            } elseif(!empty($labelValue)) {
+              $args['conditions']['LOWER(Cou.configuration_labels) LIKE'] = '%' . strtolower($labelValue) . '%';
+            }
+            $args['fields'] = array('Cou.id', 'Cou.name');
             $args['order'] = 'Cou.name ASC';
 
             $attr['select'] = $this->CoEnrollmentFlow->CoPetition->Cou->find('list', $args);
