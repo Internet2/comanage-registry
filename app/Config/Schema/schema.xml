@@ -2657,6 +2657,7 @@
     <field name="minimum_length" type="I" />
     <field name="minimum" type="I" />
     <field name="maximum" type="I" />
+    <field name="transliterate" type="L" />
     <field name="permitted" type="C" size="2" />
     <field name="collision_resolution" type="C" size="64" />
     <field name="exclusions" type="C" size="8" />

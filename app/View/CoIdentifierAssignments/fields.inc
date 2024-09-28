@@ -392,6 +392,18 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print _txt('fd.ia.transliterate'); ?>
+      </div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+                    ? $this->Form->input('transliterate') . ' ' . $this->Form->label('transliterate', _txt('fd.ia.transliterate'))
+                    : filter_var($co_identifier_assignments[0]['CoIdentifierAssignment']['transliterate'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('permitted', _txt('fd.ia.permitted')) : _txt('fd.ia.permitted')); ?>
       </div>
       <div class="field-desc"><?php print _txt('fd.ia.permitted.desc'); ?></div>

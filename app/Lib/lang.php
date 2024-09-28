@@ -1741,6 +1741,7 @@ The request may be viewed at
   'fd.ia.minimum_length.desc' => 'If a generated identifier is not at least this long, the identifier will be rejected',
   'fd.ia.permitted' => 'Permitted Characters',
   'fd.ia.permitted.desc' => 'When substituting parameters in a format, only permit these characters to be used',
+  'fd.ia.transliterate' => 'Enable Transliteration',
   'fd.ia.type.email' => 'Email Type',
   'fd.ia.type.email.desc' => 'For Identifier Assignments applied to Type <i>Mail</i>, an Email Address (instead of an Identifier) will be created with this type (if not blank)',
   // fd.id.seq should be used only for database internal column IDs
