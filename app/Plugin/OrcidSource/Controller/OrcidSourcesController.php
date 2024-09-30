@@ -31,8 +31,16 @@ class OrcidSourcesController extends SOISController {
   // Class name, used by Cake
   public $name = "OrcidSources";
 
-  public $uses = array("OrcidSource.OrcidSource",
-                       "OrcidSource.OrcidSourceBackend");
+  public $uses = array(
+    'OrcidSource.OrcidSource',
+    'OrcidSource.OrcidSourceBackend',
+    'Oauth2Server'
+  );
+
+  function checkWriteFollowups($reqdata, $curdata = null, $origdata = null) {
+    $this->Flash->set(_txt('rs.updated-a3', array('Orcid Data')), array('key' => 'success'));
+    return true;
+  }
 
   /**
    * Update a OrcidSource.
@@ -48,6 +56,24 @@ class OrcidSourcesController extends SOISController {
     // We can't scope this down past the plugin URL since our callback will be
     // based on the CO Petition ID, not the plugin instantiation ID.
     $this->set('vv_orcid_redirect_url', $this->OrcidSourceBackend->callbackUrl());
+
+    // First pull our Oauth2Server configuration
+
+    $args = array();
+    $args['joins'][0]['table'] = 'servers';
+    $args['joins'][0]['alias'] = 'Server';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'Oauth2Server.server_id=Server.id';
+    $args['joins'][1]['table'] = 'orcid_sources';
+    $args['joins'][1]['alias'] = 'OrcidSource';
+    $args['joins'][1]['type'] = 'INNER';
+    $args['joins'][1]['conditions'][0] = 'OrcidSource.server_id=Server.id';
+    $args['conditions']['OrcidSource.id'] = $id;
+    $args['contain'] = false;
+
+    $oauth_server = $this->Oauth2Server->find('first', $args);
+    $this->set('vv_oauth_server', $oauth_server);
+
   }
   
   /**

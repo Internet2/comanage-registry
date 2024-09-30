@@ -723,6 +723,7 @@
     <field name="refresh_token" type="C" size="160" />
     <field name="access_token" type="C" size="160" />
     <field name="token_response" type="XL" />
+    <field name="proxy" type="C" size="512" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     

@@ -80,7 +80,10 @@
   </li>
   <li>
     <div class="field-name">
-      <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?><span class="required">*</span>
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('server_id', _txt('fd.server')) : _txt('fd.server')); ?>
+        <span class="required">*</span>
+      </div>
     </div>
     <div class="field-info">
       <?php
@@ -105,6 +108,93 @@
           }
         }
       ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.api_type'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      global $cm_lang, $cm_texts;
+      $attrs = array();
+      $attrs['value'] = (isset($orcid_sources[0]['OrcidSource']['api_type'])
+        ? $orcid_sources[0]['OrcidSource']['api_type']
+        : OrcidSourceApiEnum::PUBLIC);
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select('api_type',
+                                  $cm_texts[ $cm_lang ]['en.orcidsource.api_type'],
+                                  $attrs);
+
+        if($this->Form->isFieldError('api_type')) {
+          print $this->Form->error('api_type');
+        }
+      } else {
+        print _txt('pl.orcidsource.api_type', null, $orcid_sources[0]['OrcidSource']['api_type']);
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('pl.orcidsource.api_tier'); ?>
+        <span class="required">*</span>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php
+      global $cm_lang, $cm_texts;
+      $attrs = array();
+      $attrs['value'] = (isset($orcid_sources[0]['OrcidSource']['api_tier'])
+        ? $orcid_sources[0]['OrcidSource']['api_tier']
+        : OrcidSourceTierEnum::PROD);
+      $attrs['empty'] = false;
+
+      if($e) {
+        print $this->Form->select('api_tier',
+                                  $cm_texts[ $cm_lang ]['en.orcidsource.api_tier'],
+                                  $attrs);
+
+        if($this->Form->isFieldError('api_tier')) {
+          print $this->Form->error('api_tier');
+        }
+      } else {
+        print _txt('pl.orcidsource.api_tier', null, $orcid_sources[0]['OrcidSource']['api_tier']);
+      }
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('pl.orcidsource.scope_inherit'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+        ? $this->Form->input('scope_inherit')
+        : (isset($orcid_sources[0]['OrcidSource']['scope_inherit'])
+        && $orcid_sources[0]['OrcidSource']['scope_inherit']
+          ? _txt('fd.yes') : _txt('fd.no')));
+      print ' ' . $this->Form->label('scope_inherit',_txt('pl.orcidsource.scope_inherit'));
+      ?>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.server.oauth2.scope'); ?></div>
+    </div>
+    <div class="field-info">
+      <input type="text" readonly="true" size="60" value="<?php
+      if($orcid_sources[0]['OrcidSource']['scope_inherit']) {
+        print filter_var($vv_oauth_server['Oauth2Server']['scope'], FILTER_SANITIZE_SPECIAL_CHARS);
+      } else {
+        print filter_var(OrcidSourceEnum::DEFAULT_SCOPE, FILTER_SANITIZE_SPECIAL_CHARS);
+      }
+      ?>" />
     </div>
   </li>
   <?php if($e): ?>

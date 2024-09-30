@@ -41,7 +41,8 @@ class Oauth2Server extends AppModel {
   // Default display field for cake generated views
   public $displayField = "serverurl";
   
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Normalization' => array('priority' => 4));
   
   // Validation rules for table elements
   public $validate = array(
@@ -87,7 +88,12 @@ class Oauth2Server extends AppModel {
       'rule' => 'notBlank',
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
+    'proxy' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   /**
@@ -178,6 +184,10 @@ class Oauth2Server extends AppModel {
     }
     
     $HttpSocket = new HttpSocket();
+    if(!empty($srvr['Oauth2Server']['proxy'])) {
+      list($host, $port) = explode(':', $srvr['Oauth2Server']['proxy']);
+      $HttpSocket->configProxy($host, (int)$port);
+    }
 
     $params = array(
       'client_id'     => $srvr['Oauth2Server']['clientid'],
@@ -192,7 +202,7 @@ class Oauth2Server extends AppModel {
       $params['code'] = $code;
       $params['redirect_uri'] = $redirectUri;
     } else {
-      $params['scope'] = $srvr['Oauth2Server']['scope'];
+      $params['scope'] = str_replace(' ', '%20', $srvr['Oauth2Server']['scope']);
     }
     
     $postUrl = $srvr['Oauth2Server']['serverurl'] . "/token";
@@ -215,7 +225,7 @@ class Oauth2Server extends AppModel {
         // Store the raw result in case the server has added some custom attributes
         'token_response' => json_encode($json)
       );
-      
+
       // We shouldn't have a new refresh token on a refresh_token grant
       // (which just gets us a new access token).
       if($grantType != 'refresh_token') {
