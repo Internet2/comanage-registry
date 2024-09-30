@@ -117,7 +117,9 @@ class Oauth2Server extends AppModel {
       // to do this check for).
       
       $args = array();
-      $args['conditions']['Oauth2Server.id'] = $this->data['Oauth2Server']['id'];
+      // XXX In the case of Configuration import there will be no ID if we are creating the record.
+      //     We will default to -1 in order to fetch nothing and skip the callback
+      $args['conditions']['Oauth2Server.id'] = $this->data['Oauth2Server']['id'] ?? -1;
       $args['contain'] = false;
       
       $curdata = $this->find('first', $args);
