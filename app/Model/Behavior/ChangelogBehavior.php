@@ -85,8 +85,10 @@ class ChangelogBehavior extends ModelBehavior {
         if(isset($model->hasMany[$amodel]) || isset($model->hasOne[$amodel])) {
           // Standard approach is to update associated (child) models in afterSave.
           // (Otherwise this is handled in beforeSave.)
+          $aoptions = $model->hasMany[$amodel] ?? $model->hasOne[$amodel] ?? null;
+          $parentfk = $aoptions['foreignKey'] ?? $parentfk;
           
-          $col = $amodel.".".$parentfk;
+          $col = $amodel . "." . $parentfk;
           
           if(!$model->$amodel->updateAll(array($col => $model->archiveId),
                                          array($col => $model->id))) {
