@@ -646,6 +646,28 @@
       <col>server_id</col>
     </index>
   </table>
+
+  <table name="kdc_servers">
+    <field name="id" type="I">
+      <key />
+      <autoincrement />
+    </field>
+    <field name="server_id" type="I">
+      <constraint>REFERENCES cm_servers(id)</constraint>
+    </field>
+    <field name="hostname" type="C" size="256" />
+    <field name="admin_hostname" type="C" size="256" />
+    <field name="admin_port" type="I" />
+    <field name="realm" type="C" size="256" />
+    <field name="principal" type="C" size="256" />
+    <field name="keytab" type="C" size="256" />
+    <field name="created" type="T" />
+    <field name="modified" type="T" />
+
+    <index name="kdc_servers_i1">
+      <col>server_id</col>
+    </index>
+  </table>
   
   <table name="ldap_servers">
     <field name="id" type="I">

@@ -765,6 +765,7 @@ class ServerEnum
   // When adding a new server type, be sure to add it to ServersController::view_contains
   const HttpServer    = 'HT';
   const KafkaServer   = 'KA';
+  const KdcServer     = 'KC';
 // CO-1320
 //  const LdapServer    = 'LD';
   const MatchServer   = 'MT';
