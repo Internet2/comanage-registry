@@ -304,7 +304,7 @@
           'icon'    => 'circle-close',
           'title'   => _txt('op.delete'),
           'url'     => 'javascript:js_confirm_generic(\''
-            . _txt('js.remove') . '\',\''    // dialog body text
+            . _txt('js.delete') . '\',\''    // dialog body text
             . $this->Html->url(              // dialog confirm URL
               array(
                 'controller' => 'co_people',
@@ -312,9 +312,9 @@
                 $co_people[0]['CoPerson']['id']
               )
             ) . '\',\''
-            . _txt('op.remove') . '\',\''    // dialog confirm button
+            . _txt('op.delete') . '\',\''    // dialog confirm button
             . _txt('op.cancel') . '\',\''    // dialog cancel button
-            . _txt('op.remove') . '\',[\''   // dialog title
+            . _txt('op.delete') . '\',[\''   // dialog title
             . filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
             . '\'])'
         );
@@ -569,11 +569,11 @@
                             'url' => 'javascript:void(0);',
                             'label' => _txt('op.delete'),
                             'onclick' => array(
-                              'dg_bd_txt' => _txt('js.remove'),
+                              'dg_bd_txt' => _txt('js.delete'),
                               'dg_url' => $this->Html->url($dg_url),
-                              'dg_conf_btn' => _txt('op.remove'),
+                              'dg_conf_btn' => _txt('op.delete'),
                               'dg_cancel_btn' => _txt('op.cancel'),
-                              'dg_title' => _txt('op.remove'),
+                              'dg_title' => _txt('op.delete'),
                               'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($n)), FILTER_SANITIZE_STRING),
                             ),
                           );
@@ -779,7 +779,7 @@
                       'order' => $this->Menu->getMenuOrder('Delete'),
                       'icon' => $this->Menu->getMenuIcon('Delete'),
                       'url' => 'javascript:void(0);',
-                      'label' => _txt('op.delete'),
+                      'label' => _txt('op.remove'),
                       'onclick' => array(
                         'dg_bd_txt' => _txt('js.remove.member'),
                         'dg_url' => $this->Html->url($dg_url),
@@ -1107,9 +1107,9 @@
                     '#collapse_link_' . md5("CoPersonRole" . $r['id']),
                     $linkparams
                   );
-
-                  // Badge Column
                   print '</div>';
+                  
+                  // Badge Column
                   print '<div class="field-data data-label">';
                   print $this->element('badgeList', array('vv_badge_list' => $badge_list_role));
                   print '</div>';
@@ -1201,12 +1201,12 @@
                         'icon' => $this->Menu->getMenuIcon('Delete'),
                         'label' => _txt('op.delete'),
                         'onclick' => array(
-                          'dg_bd_txt' => _txt('js.remove'),
+                          'dg_bd_txt' => _txt('js.delete'),
                           'dg_url' => $this->Html->url($dr_url),
-                          'dg_conf_btn' => _txt('op.remove'),
+                          'dg_conf_btn' => _txt('op.delete'),
                           'dg_cancel_btn' => _txt('op.cancel'),
-                          'dg_title' => _txt('op.remove'),
-                          'db_bd_txt_repl_str' => filter_var(_jtxt(generateCn($co_people[0]['PrimaryName'])), FILTER_SANITIZE_STRING),
+                          'dg_title' => _txt('op.delete'),
+                          'db_bd_txt_repl_str' => filter_var(_jtxt(!empty($r['title']) ? $r['title'] : _txt('js.delete.role')), FILTER_SANITIZE_STRING),
                         ),
                       );
                     }
