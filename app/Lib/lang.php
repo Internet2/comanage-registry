@@ -2001,6 +2001,7 @@ The request may be viewed at
   'fd.server.oauth2.proxy' => 'Proxy',
   'fd.server.oauth2.proxy.desc' => 'Configuration string in the form <b>[host:port]</b>',
   'fd.server.oauth2.scope' => 'Scope',
+  'fd.server.port' => 'Port',
   'fd.server.sql.database' => 'Database',
   'fd.server.http.auth_type' => 'HTTP Authentication Type',
   'fd.server.http.password' => 'Password or Token',

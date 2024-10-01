@@ -746,6 +746,8 @@
     <field name="password" type="C" size="80" />
     <!-- "database" is reserved by MySQL -->
     <field name="databas" type="C" size="128" />
+    <!-- "port" is reserved by MySQL -->
+    <field name="dbport" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
