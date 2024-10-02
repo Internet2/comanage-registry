@@ -702,6 +702,10 @@ class UpgradeVersionShell extends AppShell {
 
       $this->CoExtendedType->addDefault($co['Co']['id'], 'Contact.type');
     }
+
+    // Configuration: Enable Authentication Events for API users
+    $this->out(_txt('sh.ug.440.auth_events'));
+    $this->CmpEnrollmentConfiguration->_ug440();
   }
   
   // We should eventually do something like

@@ -244,11 +244,15 @@ class AppController extends Controller {
         }
         
         // Record the Authentication Event
-        $this->loadModel('AuthenticationEvent');
-        
-        $this->AuthenticationEvent->record($this->Session->read('Auth.User.username'),
-                                           AuthenticationEventEnum::ApiLogin,
-                                           $_SERVER['REMOTE_ADDR']);
+        // Determine if API Authentication Events are recorded
+        $this->loadModel('CmpEnrollmentConfiguration');
+        $apiUserEventRecord = $this->CmpEnrollmentConfiguration->getAuthnEventsRecordApiUsers();
+        if($apiUserEventRecord) {
+          $this->loadModel('AuthenticationEvent');
+          $this->AuthenticationEvent->record($this->Session->read('Auth.User.username'),
+                                             AuthenticationEventEnum::ApiLogin,
+                                             $_SERVER['REMOTE_ADDR']);
+        }
         
         $this->Session->write('Auth.User.api', true);
       }
