@@ -1426,6 +1426,7 @@ The request may be viewed at
   'fd.au.mt' =>       'Change Message Template',
   'fd.au.mt.desc' =>  'If set, when an authenticator is updated the associated CO Person will be sent a message using this template',
   'fd.automatic' =>   'Automatic',
+  'fd.auth.event.rec.api.enable' => 'Enable API User Authentication Events Recording',
   'fd.bcc' =>         'BCC',
   'fd.bcc.desc' =>    'Comma separated list of valid email addresses to bcc',
   'fd.cc' =>          'CC',
@@ -2788,7 +2789,8 @@ The request may be viewed at
   'sh.ug.410.envsource' => 'Adding default duplicate_mode for EnvSource',
   'sh.ug.410.datafilter' => 'Adding default context for DataFilters',
   'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers',
-  'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types'
+  'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types',
+  'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
