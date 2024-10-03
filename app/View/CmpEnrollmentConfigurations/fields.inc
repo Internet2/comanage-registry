@@ -401,11 +401,11 @@
     </div>
     <div class="field-info checkbox">
       <?php print ($e
-        ? $this->Form->input('authn_events_record_apiusers')
+        ? $this->Form->checkbox('authn_events_record_apiusers')
         : (isset($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['authn_events_record_apiusers'])
         && $cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['authn_events_record_apiusers']
           ? _txt('fd.yes') : _txt('fd.no')));
-      print ' ' . $this->Form->label('authn_events_record_apiusers',_txt('fd.auth.event.rec.api.enable'));
+      print ' ' . $this->Form->label('authn_events_record_apiusers',_txt('op.enable'));
       ?>
   </li>
 
