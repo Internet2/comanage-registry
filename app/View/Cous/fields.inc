@@ -110,7 +110,6 @@
           : _txt('op.list', array(_txt('fd.label')))
         );
         ?>
-        <span class="required">*</span>
       </div>
       <div class="field-desc"><?php print _txt('fd.cou.configuration_labels.desc'); ?></div>
     </div>
