@@ -114,6 +114,9 @@ class CoPetitionsController extends StandardController {
   
   // Cached copy of enrollment flow ID, once determined
   protected $cachedEnrollmentFlowID = -1;
+
+  // The default is to use Linkable and not Containable.
+  protected $linkable = true;
   
   // Index of next steps. This ordering may be a bit unintuitive, since often a
   // step leads to a next step when the predecessor is not configured to run.
@@ -666,6 +669,50 @@ class CoPetitionsController extends StandardController {
     }
   }
 
+  /**
+   * Obtain all petitions.
+   *
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function index() {
+      // Linkable and not Containable is the default.
+      $this->set('vv_linkable', true);
+
+      $db = ConnectionManager::getDataSource('default');
+      $db_driver = explode("/", $db->config['datasource'], 2);
+      $db_driverName = $db_driver[1];
+
+      if($db_driverName == 'Mysql') {
+        $linkableThreshold = (int) env('COMANAGE_REGISTRY_PETITION_LINKABLE_THRESHOLD');
+
+        if($linkableThreshold > 0) {
+          // Setting changelog archived to true causes Changelog behavior to not
+          // modify the query and count all rows in the table.
+          $args = array();
+          $args['changelog']['archived'] = true;
+          $petitionCount = $this->CoPetition->find('count', $args);
+
+          if($petitionCount >= $linkableThreshold) {
+            // Remove the linkable configuration from paginate.
+            unset($this->paginate['link']);
+
+            // Remove the Linkable behavior from the model.
+            $this->CoPetition->actsAs = array('Containable',
+                                              'Changelog' => array('priority' => 5));
+
+            // Signal to the searchConfig function that containable will be used.
+            $this->linkable = false;
+
+            // Signal to the view that containable will be used.
+            $this->set('vv_linkable', false);
+          }
+        }
+      }
+
+    parent::index();
+  }
+
 
   /**
    * Search Block fields configuration
@@ -675,7 +722,7 @@ class CoPetitionsController extends StandardController {
 
   public function searchConfig($action) {
     if($action == 'index') {                   // Index
-      return array(
+      $config = array(
         'search.enrollee' => array(
           'label' => _txt('fd.enrollee'),
           'type' => 'text',
@@ -711,6 +758,15 @@ class CoPetitionsController extends StandardController {
           'type' => 'text',
         ),
       );
+
+      if(!$this->linkable) {
+        unset($config['search.enrollee']);
+        unset($config['search.petitioner']);
+        unset($config['search.sponsor']);
+        unset($config['search.approver']);
+      }
+
+      return $config;
     }
   }
 
@@ -2762,27 +2818,29 @@ class CoPetitionsController extends StandardController {
       $pagcond['conditions']['CoPetition.enrollee_co_person_id'] = $this->params['named']['search.copersonid'];
     }
 
-    // CO Person mappings
-    $coperson_alias_mapping = array(
-      'search.enrollee' => 'EnrolleePrimaryName',
-      'search.petitioner' => 'PetitionerPrimaryName',
-      'search.sponsor' => 'SponsorPrimaryName',
-      'search.approver' => 'ApproverPrimaryName',
-    );
+    if($this->linkable) {
+      // CO Person mappings
+      $coperson_alias_mapping = array(
+        'search.enrollee' => 'EnrolleePrimaryName',
+        'search.petitioner' => 'PetitionerPrimaryName',
+        'search.sponsor' => 'SponsorPrimaryName',
+        'search.approver' => 'ApproverPrimaryName',
+      );
 
-    // Filter by Name
-    foreach($coperson_alias_mapping as $search_field => $class) {
-      if(!empty($this->params['named'][$search_field]) ) {
-        $searchterm = $this->params['named'][$search_field];
-        $searchterm = str_replace(urlencode("/"), "/", $searchterm);
-        $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-        $searchterm = trim(strtolower($searchterm));
-        $pagcond['conditions']['AND'][] = array(
-          'OR' => array(
-            'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
-            'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
-          )
-        );
+      // Filter by Name
+      foreach($coperson_alias_mapping as $search_field => $class) {
+        if(!empty($this->params['named'][$search_field]) ) {
+          $searchterm = $this->params['named'][$search_field];
+          $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+          $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+          $searchterm = trim(strtolower($searchterm));
+          $pagcond['conditions']['AND'][] = array(
+            'OR' => array(
+              'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
+              'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
+            )
+          );
+        }
       }
     }
     
@@ -2859,8 +2917,16 @@ class CoPetitionsController extends StandardController {
       'SponsorPrimaryName.family'
     );
     
-    // Don't use contain
-    $pagcond['contain'] = false;
+    if($this->linkable) {
+      // Don't use contain
+      $pagcond['contain'] = false;
+    } else {
+      $pagcond['sortlist'] = array_diff($pagcond['sortlist'], array('ApproverPrimaryName.family',
+                                                                    'Cou.name',
+                                                                    'EnrolleePrimaryName.family',
+                                                                    'PetitionerPrimaryName.family',
+                                                                    'SponsorPrimaryName.family'));
+    }
     
     return $pagcond;
   }
