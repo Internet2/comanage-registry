@@ -135,7 +135,7 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
             print "</li>";
           }
 
-          if(isset($permissions['menu']['petitions']) && $permissions['menu']['petitions']) {
+          if(isset($permissions['menu']['petitions']) && $permissions['menu']['petitions'] === true) {
             print '<li>';
             $args = array();
             $args['plugin'] = null;
@@ -149,6 +149,29 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
             print $this->Html->link(_txt('ct.co_petitions.pl'), $args, array('class' => 'spin'));
     
             print "</li>";
+          }
+
+          if(isset($permissions['menu']['petitions']) && is_array($permissions['menu']['petitions'])) {
+            foreach ($permissions['menu']['petitions'] as $eof_name => $allowed) {
+              if($allowed) {
+                print '<li>';
+                $args = array();
+                $args['plugin'] = null;
+                $args['controller'] = 'co_petitions';
+                $args['action'] = 'index';
+                $args['co'] = $menuCoId;
+                $args['sort'] = 'CoPetition.created';
+                $args['direction'] = 'desc';
+                $args['search.status'] = StatusEnum::PendingApproval;
+                $coef_id = array_search($eof_name, $vv_enrollment_flow_list);
+                $args['search.enrollmentFlow'] = $coef_id;
+
+                print $this->Html->link(_txt('ct.co_petitions.pl-a', array($eof_name)), $args, array('class' => 'spin'));
+
+                print "</li>";
+              }
+
+            }
           }
           
           if(isset($permissions['menu']['vettingrequests']) && $permissions['menu']['vettingrequests']) {
@@ -221,6 +244,8 @@ if(!empty($vv_app_prefs['uiMainMenuSelectedParentId']) && $drawerState != 'half-
         $args['co'] = $menuCoId;
         $args['search.auto'] = 'f'; // filter out automatic groups by default
         $args['search.noadmin'] = '1'; // exclude administration groups by default
+        $args['search.noapprover'] = '1'; // exclude approvers groups by default
+        $args['search.group_type'] = 'S'; // Standard groups
         print $this->Html->link(_txt('op.grm.regular'), $args, array('class' => 'spin'));
         print "</li>";
 

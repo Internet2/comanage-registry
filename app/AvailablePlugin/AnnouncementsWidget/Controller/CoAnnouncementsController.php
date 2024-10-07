@@ -84,6 +84,9 @@ class CoAnnouncementsController extends StandardController {
       $args = array();
       $args['conditions']['CoAnnouncementChannel.co_id'] = $this->cur_co['Co']['id'];
       $args['conditions']['CoAnnouncementChannel.status'] = SuspendableStatusEnum::Active;
+      if(isset($this->cur_co)) {
+        $args['conditions']['CoAnnouncementChannel.co_id'] = $this->cur_co['Co']['id'];
+      }
       $args['order'] = array('CoAnnouncementChannel.name ASC');
 
       if(!$this->Role->isCoOrCouAdmin($this->Session->read('Auth.User.co_person_id'),
@@ -252,6 +255,10 @@ class CoAnnouncementsController extends StandardController {
       
       // The index view needs the group memberships to know which actions to offer
       $this->set('vv_groups', $coGroupIds);
+    }
+
+    if(isset($this->cur_co)) {
+      $ret['conditions']['CoAnnouncementChannel.co_id'] = $this->cur_co['Co']['id'];
     }
     
     return $ret;

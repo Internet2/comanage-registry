@@ -135,6 +135,7 @@ function comanage_utils::consume_injected_environment() {
         COMANAGE_REGISTRY_DATABASE
         COMANAGE_REGISTRY_DATABASE_HOST
         COMANAGE_REGISTRY_DATABASE_PORT
+        COMANAGE_REGISTRY_DATABASE_POSTGRES_SSLMODE
         COMANAGE_REGISTRY_DATABASE_USER
         COMANAGE_REGISTRY_DATABASE_USER_PASSWORD
         COMANAGE_REGISTRY_EMAIL_FROM
@@ -500,6 +501,11 @@ EOF
     if [[ -n "${COMANAGE_REGISTRY_DATABASE_PORT}" ]]; then
         php_string+=$'\n    '
         php_string+="'port' => ${COMANAGE_REGISTRY_DATABASE_PORT},"
+    fi
+
+    if [[ "${COMANAGE_REGISTRY_DATABASE_POSTGRES_SSLMODE}"  =~ ^(disable|allow|prefer|require|verify-ca|verify-full)$ ]]; then
+        php_string+=$'\n    '
+        php_string+="'sslmode' => '${COMANAGE_REGISTRY_DATABASE_POSTGRES_SSLMODE}',"
     fi
 
     php_string+=$'\n    );\n}\n';

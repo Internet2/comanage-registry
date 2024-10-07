@@ -90,6 +90,7 @@ if(!empty($vv_alphabet_search)) {
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('PrimaryName.family', _txt('fd.name')); ?></th>
+      <th><?php print  _txt('fd.link.to.person') ?></th>
       <th><?php print $this->Paginator->sort('o', _txt('fd.o')); ?></th>
       <th><?php print $this->Paginator->sort('ou', _txt('fd.ou')); ?></th>
       <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
@@ -113,6 +114,21 @@ if(!empty($vv_alphabet_search)) {
             )
           );
           ?>
+        </td>
+        <td><?php
+          if(!empty($p['CoOrgIdentityLink'][0]['co_person_id'])) {
+            $linkedPerson = array(
+              'controller' => 'co_people',
+              'action' => 'canvas',
+              $p['CoOrgIdentityLink'][0]['co_person_id'],
+            );
+
+            print $this->Html->link(generateCn($p['CoOrgIdentityLink'][0]['CoPerson']['PrimaryName']),
+                                    $linkedPerson);
+          } else {
+            print '<em>' . _txt('rs.org.not.linked') . '</em>';
+          }
+            ?>
         </td>
         <td><?php print filter_var($p['OrgIdentity']['o'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print filter_var($p['OrgIdentity']['ou'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
@@ -153,7 +169,7 @@ if(!empty($vv_alphabet_search)) {
             if($permissions['delete']) {
               print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                 . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.remove') . '\',\''    // dialog body text
+                . _txt('js.delete') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
                   array(
                     'controller' => 'org_identities',
@@ -161,9 +177,9 @@ if(!empty($vv_alphabet_search)) {
                     $p['OrgIdentity']['id']
                   )
                 ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.delete') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
+                . _txt('op.delete') . '\',[\''   // dialog title
                 . filter_var(_jtxt(generateCn($p['PrimaryName'])),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                 . '\']);">'
                 . _txt('op.delete')

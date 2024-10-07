@@ -45,6 +45,7 @@ class CoEnrollmentAttributesController extends StandardController {
   public $uses = array('CoEnrollmentAttribute',
                        'AttributeEnumeration',
                        'CmpEnrollmentConfiguration',
+                       'ConfigurationLabel',
                        'CoPersonRole');
   
   // We don't directly require a CO, but indirectly we do.
@@ -164,7 +165,13 @@ class CoEnrollmentAttributesController extends StandardController {
           $this->set('title_for_layout', $this->viewVars['title_for_layout'] . " (" . $efname . ")");
           $this->set('vv_ef_name', $efname);
           $this->set('vv_ef_id', $this->CoEnrollmentAttribute->CoEnrollmentFlow->id);
-          
+          // Set the Configuration labels
+          $args = array();
+          $args['conditions']['ConfigurationLabel.co_id'] = $coid;
+          $args['fields'] = array('id', 'label');
+          $args['contain'] = false;
+          $this->set('vv_configuration_labels', $this->ConfigurationLabel->find('list', $args));
+
           // Determine attribute enumerations
           
           $supportedAttrEnums = array(

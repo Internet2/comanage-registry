@@ -1,0 +1,1380 @@
+openapi: 3.0.3
+
+info:
+  title: COmanage Registry REST API v1
+  description: |
+    A collection of lower level APIs providing table level access to the COmanage Registry Data Model.
+  contact:
+    name: COmanage Project
+    url: https://spaces.at.internet2.edu/display/COmanage/About+the+COmanage+Project
+    email: comanage-users@internet2.edu
+  license:
+    name: APACHE LICENSE, VERSION 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.4.0
+
+servers:
+  - url: https://localhost/registry
+    description: |
+      Most deployments serve Registry using the default path /registry. If your deployment changes the
+      default path you must adjust the relative URIs.
+
+tags:
+  - name: v1
+
+paths:
+  /co_group_members.json:
+    get:
+      summary: Retrieve existing group memberships.
+      description: |
+        Retrieve existing group memberships for the `CoGroup` with ID `cogroupid`,
+        or for the CO Person with ID `copersonid`.
+
+        With no query string parameter retrieve all existing group memberships
+        across all groups and COs (requires platform administrator privileges).
+      operationId: getCoGroupMembers
+      tags:
+        - v1
+      parameters:
+        - name: cogroupid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `CoGroupMember` objects attached to the CoGroup with ID `cogroupid`.
+          examples:
+            cogroupid-example:
+              value: /co_group_members.json?cogroupid=20
+              summary: Retrieve CoGroupMember objects for the CoGroup with ID 20
+        - name: copersonid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `CoGroupMember` objects attached to the CoPerson with ID `copersonid`.
+          examples:
+            cogroupid-example:
+              value: /co_group_members.json?copersonid=20
+              summary: Retrieve CoGroupMember objects for the CoPerson with ID 20
+      responses:
+        '200':
+          description: CoGroupMember returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoGroupMembersResponseType"
+        '401':
+          description: Authentication required.
+        '404':
+          description: ID `cogroupid` or `copersonid` not found.
+        '500':
+          description: Unknown error.
+
+    post:
+      summary: Add a member to a group.
+      description: |
+        Add a member and/or owner to a `CoGroup` by creating a new
+        `CoGroupMember` object.
+      operationId: addCoGroupMember
+      tags:
+        - v1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoGroupMembersRequestType"
+      responses:
+        '201':
+          description: CoGroupMember added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ResponseType:
+                    type: string
+                    enum:
+                      - "NewObject"
+                  Version:
+                    type: string
+                    enum:
+                      - "1.0"
+                  ObjectType:
+                    type: string
+                    enum:
+                      - "CoGroupMember"
+                  Id:
+                    type: string
+                    example: "100"
+        '400':
+          description: CoGroupMember Request not provided in POST body or an error in one or more provided fields.
+        '401':
+          description: Authentication required.
+        '403':
+          description: The specififed CoGroup or CoPerson does not exist, or the CoPerson is already a member of the CoGroup.
+        '500':
+          description: Unknown error.
+
+  /co_group_members/{id}.json:
+    delete:
+      summary: Remove a member from a group.
+      description: |
+        Remove a member from a CoGroup by deleting the `CoGroupMember` object
+        with ID `id`.
+      operationId: deleteCoGroupMember
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Remove the `CoGroupMember` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_group_members/10.json
+              summary: Remove CoGroupMember object with ID 10
+      responses:
+        '200':
+          description: CoGroupMember deleted.
+        '400':
+          description: ID `id` not provided.
+        '401':
+          description: Authentication required.
+        '404':
+          description: ID `id` not found for object.
+        '500':
+          description: Unknown error.
+
+    get:
+      summary: Retrieve an existing group membership.
+      description: |
+        Retrieve an existing CoGroupMember object with ID `id`.
+      operationId: getCoGroupMember
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Retrieve the `CoGroupMember` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_group_members/10.json
+              summary: Retrieve the CoGroupMember object with ID 10
+      responses:
+        '200':
+          description: CoGroupMember returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoGroupMembersResponseType"
+        '401':
+          description: Authentication required.
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+    put:
+      summary: Edit an existing group membership.
+      description: |
+        Edit the `CoGroupMembership` object with ID `id`.
+      operationId: editCoGroupMember
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Edit the `CoGroupMember` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_group_members/10.json
+              summary: Edit CoGroupMember object with ID 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoGroupMembersRequestType"
+      responses:
+        '200':
+          description: CoGroupMember updated.
+        '400':
+          description: CoGroupMember Request not provided in body or error in one or more fields.
+        '401':
+          description: Authentication required.
+        '403':
+          description: The specififed CoGroup or CoPerson does not exist, or the CoPerson is already a member of the CoGroup.
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+  /co_groups/{id}.json:
+    delete:
+      summary: Remove a group.
+      description: |
+        Remove the `CoGroup` object with ID `id`.
+      operationId: deleteCoGroup
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Remove the `CoGroup` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_groups/10.json
+              summary: Remove CoGroup object with ID 10
+      responses:
+        '200':
+          description: CoGroup deleted.
+        '400':
+          description: ID `id` not provided.
+        '401':
+          description: Authentication required.
+        '403':
+          description: CoGroup cannot be deleted.
+        '404':
+          description: ID `id` not found for object.
+        '500':
+          description: Unknown error.
+
+    get:
+      summary: Retrieve an existing group.
+      description: |
+        Retrieve a `CoGroup` object by ID.
+      operationId: getCoGroup
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Retrieve the `CoGroup` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_groups/10.json
+              summary: Retrieve CoGroup object with ID 10
+      responses:
+        '200':
+          description: CoGroup returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoGroupsResponseType"
+        '401':
+          description: Authentication required.
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+    put:
+      summary: Edit an existing group.
+      description: |
+        Edit the `CoGroup` object with ID `id`.
+      operationId: editCoGroup
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Edit the `CoGroup` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_groups/10.json
+              summary: Edit CoGroup object with ID 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoGroupsRequestType"
+      responses:
+        '200':
+          description: CoGroup updated
+        '400':
+          description: CoGroup Request not provided in body or error in one or more fields
+        '401':
+          description: Authentication required.
+        '403':
+          description: Name In Use or Name Reserved
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+  /co_groups.json:
+    get:
+      summary: Retrieve existing groups for CO or person by ID or identifier.
+      description: |
+        Retrieve existing `CoGroup` objects for the CO with ID `coid`,
+        or for the CO Person with ID `copersonid`, or for the CO Person
+        with identifier `identifier`.
+
+        With no query string parameter retrieve all existing CoGroups
+        (requires platform administrator privileges).
+      operationId: getCoGroups
+      tags:
+        - v1
+      parameters:
+        - name: coid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `CoGroup` objects attached to the CO with ID `coid`.
+          examples:
+            coid-example:
+              value: /co_groups.json?coid=2
+              summary: Retrieve CoGroups objects for the CO with ID 2
+        - name: copersonid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `CoGroup` objects attached to the CO Person with ID `copersonid`.
+          examples:
+            copersonid-example:
+              value: /co_groups.json?copersonid=1000
+              summary: Retrieve CoGroups objects attached to the CO Person with ID 1000
+        - name: search.identifier
+          in: query
+          schema:
+            type: string
+          description: |
+            Retrieve `CoGroup` objects attached to the CO Person with identifier `identifier`.
+            Requires the `coid` query parameter.
+          examples:
+            search.identifier-example:
+              value: /co_groups.json?coid=2&search.identifier=albert.einstein
+              summary: Retrieve CoGroups objects attached to the CO Person in CO 2 with identifier albert.einstein
+      responses:
+        '200':
+          description: CoGroups returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoGroupsResponseType"
+        '401':
+          description: Authentication required.
+        '404':
+          description: coid not found.
+        '500':
+          description: Unknown error.
+
+    post:
+      summary: Add a new group.
+      description: |
+        Add a new `CoGroup` object.
+      operationId: addCoGroup
+      tags:
+        - v1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoGroupsRequestType"
+      responses:
+        '201':
+          description: CoGroup added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ResponseType:
+                    type: string
+                    enum:
+                      - "NewObject"
+                  Version:
+                    type: string
+                    enum:
+                      - "1.0"
+                  ObjectType:
+                    type: string
+                    enum:
+                      - "CoGroup"
+                  Id:
+                    type: string
+                    example: "3"
+        '400':
+          description: CoGroup Request not provided in POST body.
+        '401':
+          description: Authentication required.
+        '403':
+          description: Name In Use or Name Reserved.
+        '500':
+          description: Unknown error.
+
+  /co_groups/reconcile.json:
+    put:
+      summary: Reconcile all group memberships.
+      description: |
+        Reconcile all membership groups in the CO with ID `coid`.
+      operationId: reconcileAllCoGroupMembers
+      tags:
+        - v1
+      parameters:
+        - name: coid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Reconcile all membership groups for the CO with ID `coid`.
+          examples:
+            coid-example:
+              value: /co_groups/reconcile.json?coid=2
+              summary: Reconcile all membership groups for the CO with ID 2
+      responses:
+        '200':
+          description: All CoGroup memberships reconciled.
+        '401':
+          description: Authentication required.
+        '403':
+          description: The specified CO does not exist.
+        '500':
+          description: Unknown error.
+
+  /co_groups/reconcile/{id}.json:
+    post:
+      summary: Reconcile memberships for one group.
+      description: |
+        Reconcile memberships for the CO Group with ID `id`.
+      operationId: reconcileCoGroupMembers
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Reconcile memberships for the CO Group with ID `id`.
+          examples:
+            id-example:
+              value: /co_groups/reconcile/10.json
+              summary: Reconcile memberships for the CO Group with ID 10
+      responses:
+        '200':
+          description: All memberships reconciled.
+        '401':
+          description: Authentication required.
+        '500':
+          description: Unknown error.
+
+  /co_people.json:
+    get:
+      summary: Retrieve existing people for a CO by email address or identifier.
+      description: |
+        Retrieve existing people for the CO with ID `coid`, or existing people in the CO
+        with ID `coid` with email address `search.mail`, or existing people in the CO
+        with ID `coid` with identifier `search.identifier`.
+
+        Only one of `search.mail` or `search.identifier` may be used in a query.
+
+        The `coid` parameter is required when using `search.mail` or `search.identifier`.
+
+        With no query string parameter retrieve all existing people
+        across all COs (requires platform administrator privileges).
+      operationId: getCoPeople
+      tags:
+        - v1
+      parameters:
+        - name: coid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `CoPerson` objects in the CO with ID `coid`.
+          examples:
+            coid-example:
+              value: /co_people.json?coid=2
+              summary: Retrieve CoPerson objects for the CO with ID 2
+        - name: search.mail
+          in: query
+          schema:
+            type: string
+          description: |
+            Retrieve `CoPerson` objects in the CO with ID `coid` and with email address `search.mail`.
+          examples:
+            search.mail-example:
+              value: /co_people.json?coid=2&search.mail=albert.einstein@ligo.org
+              summary: Retrieve CoPerson objects for the CO with ID 2 and email address albert.einstein@ligo.org
+        - name: search.identifier
+          in: query
+          schema:
+            type: string
+          description: |
+            Retrieve `CoPerson` objects in the CO with ID `coid` and with identifier `search.identifier`.
+          examples:
+            search.identifier-example:
+              value: /co_people.json?coid=2&search.identifier=http%3A%2F%2Fcilogon.org%2FserverT%2Fusers%2F64703
+              summary: Retrieve CoPerson objects for the CO with ID 2 and identifier http://cilogon.org/serverT/users/64703
+      responses:
+        '200':
+          description: CoPeople returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoPeopleResponseType"
+        '401':
+          description: Authentication required.
+        '404':
+          description: id or coid not found.
+        '500':
+          description: Unknown error.
+
+    post:
+      summary: Add a new person.
+      description: |
+        Add a new CO Person. A person must have an OrgIdentity before they can be added
+        to a CO. Note that linking to an OrgIdentity and invitations are separate operations.
+      operationId: addCoPerson
+      tags:
+        - v1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoPeopleRequestType"
+      responses:
+        '201':
+          description: CoPerson created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ResponseType:
+                    type: string
+                    enum:
+                      - "NewObject"
+                  Version:
+                    type: string
+                    enum:
+                      - "1.0"
+                  ObjectType:
+                    type: string
+                    enum:
+                      - "CoPerson"
+                  Id:
+                    type: string
+                    example: "100"
+        '400':
+          description: CoPerson Request not provided in POST body or an error in one or more provided fields.
+        '401':
+          description: Authentication required.
+        '403':
+          description: The specififed CO does not exist.
+        '500':
+          description: Unknown error.
+
+  /co_people/{id}.json:
+    delete:
+      summary: Remove a person.
+      description: |
+        Remove a CO Person. This method will also delete related data, such as
+        CoPersonRoles, EmailAddresses, and Identifiers. A person must be removed
+        from any COs (CoPerson records must be deleted) before the OrgIdentity record
+        can be removed.
+      operationId: deleteCoPerson
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Remove the `CoPerson` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_people/10.json
+              summary: Remove CoPerson object with ID 10
+      responses:
+        '200':
+          description: CoPerson deleted.
+        '400':
+          description: ID `id` not provided.
+        '401':
+          description: Authentication required.
+        '403':
+          description: The CO Person has one or more Person Role records an cannot be deleted.
+        '404':
+          description: ID `id` not found for object.
+        '500':
+          description: Unknown error.
+
+    get:
+      summary: Retrieve an existing person.
+      description: |
+        Retrieve an existing CO Person object with ID `id`.
+      operationId: getCoPerson
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Retrieve the `CoPerson` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_people/10.json
+              summary: Retrieve the CoPerson object with ID 10
+      responses:
+        '200':
+          description: CoPerson returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoPeopleResponseType"
+        '401':
+          description: Authentication required.
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+    put:
+      summary: Edit an existing person.
+      description: |
+        Edit the `CoPerson` object with ID `id`.
+      operationId: editCoPerson
+      tags:
+        - v1
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: |
+            Edit the `CoPerson` object with ID `id`.
+          examples:
+            id-example:
+              value: /co_people/10.json
+              summary: Edit CoPerson object with ID 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CoPeopleRequestType"
+      responses:
+        '200':
+          description: CoPerson updated.
+        '400':
+          description: CoPerson Request not provided in body or error in one or more fields.
+        '401':
+          description: Authentication required.
+        '403':
+          description: The specififed CO does not exist.
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+  /email_addresses.json:
+    get:
+      summary: Retrieve email addresses.
+      description: |
+        Retrieve `EmailAddress` objects.
+
+        Use an optional query parameter to filter for objects attached to
+        a CO Department, CO Person, Organization, or Organizational Identity.
+
+        Query parameters are mutually exclusive. 
+
+        Platform privileges required when no query parameter is used.
+      operationId: getEmailAddresses
+      tags:
+        - v1
+      parameters:
+        - name: copersonid
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `EmailAddress` objects attached to a CO Person.
+          examples:
+            copersonid-example:
+              value: /email_addresses.json?copersonid=12
+              summary: Retrieve EmailAddress objects for CO Person with ID 12
+        - name: codeptid            
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `EmailAddress` objects attached to a CO Department
+          examples:
+            codeptid-example:
+              value: /email_addresses.json?codeptid=2
+              summary: Retrieve EmailAddress objects for CO Department with ID 2
+        - name: organizationid            
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `EmailAddress` objects attached to an Organization
+          examples:
+            organizationid-example:
+              value: /email_addresses.json?organizationid=2
+              summary: Retrieve EmailAddress objects for Organization with ID 2
+        - name: orgidentityid            
+          in: query
+          schema:
+            type: integer
+          description: |
+            Retrieve `EmailAddress` objects attached to an Organizational Identity
+          examples:
+            organizationid-example:
+              value: /email_addresses.json?orgidentityid=2
+              summary: Retrieve EmailAddress objects for Organizational Identity with ID 2
+      responses:
+        '200':
+          description: EmailAddresses returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailAddressesResponseType"
+        '204':
+          description: The requested object was found, but has no email addresses attached.
+        '401':
+          description: Authentication required.
+        '404':
+          description: id not found for object.
+        '500':
+          description: Unknown error.
+
+    post:
+      summary: Add a new email address.
+      description: |
+        Add a new `EmailAddress` object.
+      operationId: addEmailAddress
+      tags:
+        - v1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailAddressesRequestType"
+      responses:
+        '201':
+          description: EmailAddress added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ResponseType:
+                    type: string
+                    enum:
+                      - "NewObject"
+                  Version:
+                    type: string
+                    enum:
+                      - "1.0"
+                  ObjectType:
+                    type: string
+                    enum:
+                      - "EmailAddress"
+                  Id:
+                    type: string
+                    example: "3"
+        '400':
+          description: EmailAddress Request not provided in POST body
+
+components:
+  schemas:
+    CoGroupRequest:
+      type: object
+      required:
+        - Version
+        - CoId
+        - Name
+        - Description
+        - Open
+        - Status
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoId:
+          type: string
+          example: "2"
+        Name:
+          type: string
+          example: "Data Readers"
+        Description:
+          type: string
+          example: "People with read access to the data"
+        Open:
+          type: boolean
+          example: true
+        Status:
+          type: string
+          enum:
+            - Active
+            - Suspended
+          example: Active
+        CouId:
+          type: string
+          example: "7"
+
+    CoGroupResponse:
+      type: object
+      required:
+        - Version
+        - Id
+        - CoId
+        - Name
+        - Description
+        - Open
+        - Status
+        - GroupType
+        - Auto
+        - Created
+        - Modified
+        - Revision
+        - Deleted
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        Id:
+          type: string
+          example: "40"
+        CoId:
+          type: string
+          example: "2"
+        CouId:
+          type: string
+          example: "2"
+        Name:
+          type: string
+          example: "Data Readers"
+        Description:
+          type: string
+          example: "People with read access to the data"
+        Open:
+          type: boolean
+          example: false
+        Status:
+          type: string
+          enum:
+            - Active
+            - Suspended
+          example: Active
+        GroupType:
+          type: string
+          enum:
+            - S
+            - MA
+            - A
+            - M
+            - AP
+            - AN
+            - MN
+        Auto:
+          type: boolean
+          example: false
+        NestingModeAll:
+          type: boolean
+          example: false
+        Created:
+          type: string
+          example: 2022-02-28 18:39:43
+        Modified:
+          type: string
+          example: 2022-02-28 18:39:43
+        Revision:
+          type: string
+          example: "0"
+        Deleted:
+          type: boolean
+          example: false
+        Actoridentifier:
+          type: string
+          example: "albert.einstein"
+
+    CoGroupsRequestType:
+      type: object
+      properties:
+        RequestType:
+          type: string
+          enum:
+            - CoGroups
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoGroups:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoGroupRequest"
+
+    CoGroupsResponseType:
+      type: object
+      properties:
+        ResponseType:
+          type: string
+          enum:
+            - CoGroups
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoGroups:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoGroupResponse"
+
+    CoGroupMemberRequest:
+      type: object
+      required:
+        - Version
+        - CoGroupId
+        - Person
+        - Member
+        - Owner
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoGroupId:
+          type: string
+          example: "20"
+        Person:
+          type: object
+          properties:
+            Type:
+              type: string
+              enum:
+                - CO
+              example: CO
+            Id:
+              type: string
+              example: "12"
+        Member:
+          type: boolean
+          example: true
+        Owner:
+          type: boolean
+          example: false
+        ValidFrom:
+          type: string
+          example: "2024-03-22 05:00:00"
+        ValidThrough:
+          type: string
+          example: "2024-04-01 04:59:59"
+
+    CoGroupMemberResponse:
+      type: object
+      required:
+        - Version
+        - Id
+        - CoGroupId
+        - Person
+        - Member
+        - Owner
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        Id:
+          type: string
+          example: "279"
+        CoGroupId:
+          type: string
+          example: "40"
+        Person:
+          type: object
+          properties:
+            Type:
+              type: string
+              enum:
+                - CO
+              example: CO
+            Id:
+              type: string
+              example: "421"
+        Member:
+          type: boolean
+          example: true
+        Owner:
+          type: boolean
+          example: true
+        ValidFrom:
+          type: string
+          example: "2024-03-22 05:00:00"
+        ValidThrough:
+          type: string
+          example: "2024-04-01 04:59:59"
+
+    CoGroupMembersRequestType:
+      type: object
+      properties:
+        RequestType:
+          type: string
+          enum:
+            - CoGroupMembers
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoGroupMembers:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoGroupMemberRequest"
+
+    CoGroupMembersResponseType:
+      type: object
+      properties:
+        ResponseType:
+          type: string
+          enum:
+            - CoGroupMembers
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoGroupMembers:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoGroupMemberResponse"
+
+    CoPersonRequest:
+      type: object
+      required:
+        - Version
+        - CoId
+        - Status
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoId:
+          type: string
+          example: "2"
+        Timezone:
+          type: string
+          example: "America/Chicago"
+        DateOfBirth:
+          type: string
+          example: "1970-12-25"
+        Status:
+          type: string
+          enum:
+            - Active
+            - Approved
+            - Confirmed
+            - Declined
+            - Deleted
+            - Denied
+            - Duplicate
+            - Expired
+            - GracePeriod
+            - Invited
+            - Locked
+            - Pending
+            - PendingApproval
+            - PendingConfirmation
+            - PendingVetting
+            - Suspended
+          example: Active
+
+    CoPersonResponse:
+      type: object
+      required:
+        - Version
+        - Id
+        - CoId
+        - Status
+        - Created
+        - Modified
+        - Revision
+        - Deleted
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        Id:
+          type: string
+          example: "40"
+        CoId:
+          type: string
+          example: "2"
+        Timezone:
+          type: string
+          example: "America/Chicago"
+        DateOfBirth:
+          type: string
+          example: "1970-12-25"
+        Status:
+          type: string
+          enum:
+            - Active
+            - Approved
+            - Confirmed
+            - Declined
+            - Deleted
+            - Denied
+            - Duplicate
+            - Expired
+            - GracePeriod
+            - Invited
+            - Locked
+            - Pending
+            - PendingApproval
+            - PendingConfirmation
+            - PendingVetting
+            - Suspended
+          example: Active
+        Created:
+          type: string
+          example: 2022-02-28 18:39:43
+        Modified:
+          type: string
+          example: 2022-02-28 18:39:43
+        Revision:
+          type: string
+          example: "0"
+        Deleted:
+          type: boolean
+          example: false
+        Actoridentifier:
+          type: string
+          example: "albert.einstein"
+
+    CoPeopleRequestType:
+      type: object
+      properties:
+        RequestType:
+          type: string
+          enum:
+            - CoPeople
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoPeople:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoPersonRequest"
+
+    CoPeopleResponseType:
+      type: object
+      properties:
+        ResponseType:
+          type: string
+          enum:
+            - CoPeople
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        CoPeople:
+          type: array
+          items:
+            $ref: "#/components/schemas/CoPersonResponse"
+
+    EmailAddressRequest:
+      type: object
+      required:
+        - Version
+        - Mail
+        - Type
+        - Verified
+        - Person
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        Mail:
+          type: string
+          example: albert.einstein@ligo.org
+        Type:
+          type: string
+          enum:
+            - delivery
+            - forwarding
+            - list
+            - official
+            - personal
+            - preferred
+            - recovery
+          example: official
+        Description:
+          type: string
+          example: "LIGO vanity email address"
+        Verified:
+          type: boolean
+          example: true
+        Person:
+          type: object
+          properties:
+            Type:
+              type: string
+              enum:
+                - CO
+                - Dept
+                - Org
+                - Organization
+              example: CO
+            Id:
+              type: string
+              example: "12"
+
+    EmailAddressResponse:
+      type: object
+      required:
+        - Version
+        - Id
+        - Mail
+        - Type
+        - Verified
+        - Created
+        - Modified
+        - Revision
+        - Deleted
+      properties:
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        Id:
+          type: string
+          example: "2314"
+        Mail:
+          type: string
+          example: albert.einstein@ligo.org
+        Type:
+          type: string
+          enum:
+            - delivery
+            - forwarding
+            - list
+            - official
+            - personal
+            - preferred
+            - recovery
+          example: official
+        Description:
+          type: string
+        Verified:
+          type: boolean
+          example: false
+        Person:
+          type: object
+          properties:
+            Type:
+              type: string
+              enum:
+                - CO
+                - Dept
+                - Org
+                - Organization
+              example: CO
+            Id:
+              type: string
+              example: "12"
+        Created:
+          type: string
+          example: 2022-02-28 18:39:43
+        Modified:
+          type: string
+          example: 2022-02-28 18:39:43
+        SourceEmailAddressId:
+          type: string
+        Revision:
+          type: string
+          example: "0"
+        Deleted:
+          type: boolean
+          example: false
+        ActorIdentifier:
+          type: string
+          example: "albert.einstein"
+
+    EmailAddressesRequestType:
+      type: object
+      properties:
+        RequestType:
+          type: string
+          enum:
+            - EmailAddresses
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        EmailAddresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailAddressRequest"
+
+    EmailAddressesResponseType:
+      type: object
+      properties:
+        ResponseType:
+          type: string
+          enum:
+            - EmailAddresses
+        Version:
+          type: string
+          enum:
+            - "1.0"
+        EmailAddresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailAddressResponse"
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+security:
+  - basicAuth: []
+
+externalDocs:
+  description: COmanage Registry REST API v1
+  url: https://spaces.at.internet2.edu/display/COmanage/REST+API+v1

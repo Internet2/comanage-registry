@@ -35,6 +35,17 @@ class ApiUser extends AppModel {
   public $belongsTo = array(
     "Co"
   );
+
+  public $hasMany = array(
+    // An API User can have many history records
+    'HistoryRecord' => array(
+      'foreignKey' => 'actor_api_user_id',
+      'dependent' => true
+    ),
+  );
+
+  // Associated models that should be relinked to the archived attribute during Changelog archiving
+  public $relinkToArchive = array('HistoryRecord');
     
   // Default display field for cake generated views
   public $displayField = "username";
@@ -63,6 +74,16 @@ class ApiUser extends AppModel {
       'filter' => array(
         'rule' => array('validateInput'),
         'message' => array('Username contains invalid characters.'),
+        'last' => 'true',
+      ),
+      'unique' => array(
+        'rule' => array('isUsernameUnique'),
+        'message' => array('Username already exists.'),
+        'last' => 'true',
+      ),
+      'prefix' => array(
+        'rule' => array('checkPrefix'),
+        'message' => array('Prefix invalid.'),
         'last' => 'true',
       )
     ),
@@ -150,20 +171,18 @@ class ApiUser extends AppModel {
 
   public function beforeValidate($options = array())
   {
-    if(!empty($this->data['ApiUser'])) {
+    if(is_array($this->data) && !empty($this->data['ApiUser'])) {
       // The username must begin with "co_<co_id>.".
-      $prefix = "co_" . $this->data['ApiUser']['co_id'] . ".";
-      // Prepend the prefix to the username i got from post
-      $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
+      $prefix = 'co_' . $this->data['ApiUser']['co_id'] . '.';
 
-      // Check if the username is unique. Since we enabled changelog we need to do it manually
-      $args = array();
-      $args['conditions']['ApiUser.username'] = $this->data['ApiUser']['username'];
-      $args['contain'] = false;
-
-      if($this->find('count', $args) > 0
-         && empty($this->data['ApiUser']["id"])) {
-        return false;
+      // Prepend the prefix to the username if the prefix is not found at the beginning of the string,
+      // which means that either the 'strops' will return false or an integer greater than 0
+      // The UI will strip the prefix before sending.
+      // Nevertheless, when done through the command line, e.g.,
+      // the Configuration Export plugin, we will get the full username.
+      $position = strpos($this->data['ApiUser']['username'], $prefix);
+      if($position === false || $position > 0 ) {
+        $this->data['ApiUser']['username'] = $prefix . $this->data['ApiUser']['username'];
       }
     }
 
@@ -187,16 +206,16 @@ class ApiUser extends AppModel {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data['ApiUser']['valid_from'], $localTZ);
 
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data['ApiUser']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data['ApiUser']['valid_from'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
 
       if(!empty($this->data['ApiUser']['valid_through'])) {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data['ApiUser']['valid_through'], $localTZ);
 
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data['ApiUser']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data['ApiUser']['valid_through'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
     }
     
@@ -222,5 +241,61 @@ class ApiUser extends AppModel {
     $this->saveField('password', $passwordHasher->hash($token), array('callbacks' => false));
     
     return $token;
+  }
+
+  /**
+   * Check if the username is Unique
+   *
+   * @param  array  $check  Array of fields to validate
+   *
+   * @return bool
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function isUsernameUnique($check) {
+    if (!is_string($check['username'])) {
+      return false;
+    }
+
+    // Check if the username is unique. Since we enabled changelog we need to do it manually
+    $args = array();
+    $args['conditions']['ApiUser.username'] = $check['username'];
+    $args['conditions']['ApiUser.co_id'] = $this->data['ApiUser']['co_id'];
+    $args['contain'] = false;
+
+    $users = $this->find('all', $args);
+    $users_count = count($users);
+    $userId = Hash::extract($users, '{n}.ApiUser.id');
+
+    // create
+    if($users_count > 0 && empty($this->data['ApiUser']['id'])) {
+      return false;
+    }
+    // edit
+    if(
+      $users_count > 0
+      && !empty($this->data['ApiUser']['id'])
+      && !in_array($this->data['ApiUser']['id'], $userId)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Check the username prefix
+   *
+   * @param  array  $check  Array of fields to validate
+   *
+   * @return bool
+   * @since  COmanage Registry v4.4.0
+   */
+
+  public function checkPrefix($check) {
+    // The username must begin with "co_<co_id>.".
+    $prefix = 'co_' . $this->data['ApiUser']['co_id'] . '.';
+    $position = strpos($check['username'], $prefix);
+    return !($position === false || $position > 0 );
   }
 }

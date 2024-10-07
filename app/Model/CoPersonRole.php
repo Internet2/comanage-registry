@@ -369,9 +369,35 @@ class CoPersonRole extends AppModel {
       foreach(array('o', 'ou', 'title') as $a) {
         if(!empty($this->data[$this->alias][$a])) {
           // Validate Enumeration
-          $this->validateEnumeration($coId,
-                                     'CoPersonRole.'.$a, 
-                                     $this->data[$this->alias][$a]);
+
+          // On error, validateEnumeration throws an error, which means the transaction
+          // aborts and ChangelogBehavior leaves its transaction open.
+          
+          // In PE, this should really be done in a validation callback
+
+          if(!$this->validateEnumeration($coId,
+                                         'CoPersonRole.'.$a, 
+                                         $this->data[$this->alias][$a])) {
+            // Before we error out, try mapping the field to the Enumeration.
+            // While (eg) the UI will provide a popup that should map to the Enumeration,
+            // inbound data from Org Identity Sources and APIs might not.
+
+            $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
+
+            try {
+              $this->data[$this->alias][$a] = $AttributeEnumeration->mapStringToEntry($coId,
+                                                                                      'CoPersonRole.'.$a, 
+                                                                                      $this->data[$this->alias][$a]);
+            }
+            catch(Exception $e) {
+              // We need to close any open Changelog Transaction in case we're run within a Job
+
+              $this->abortChangelogTxn();
+
+              throw new InvalidArgumentException($e->getMessage());
+            }
+          }
+
           // Normalize Enumeration
           $this->data[$this->alias][$a] = $this->normalizeEnumeration($coId,
                                                                       'CoPersonRole.'.$a,
@@ -390,16 +416,16 @@ class CoPersonRole extends AppModel {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data[$this->alias]['valid_from'], $localTZ);
         
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data[$this->alias]['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data[$this->alias]['valid_from'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
       
       if(!empty($this->data[$this->alias]['valid_through'])) {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data[$this->alias]['valid_through'], $localTZ);
         
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data[$this->alias]['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data[$this->alias]['valid_through'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
     }
 

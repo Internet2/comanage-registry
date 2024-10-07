@@ -71,6 +71,11 @@ class EmailAddressWidgetVerification extends AppModel {
       'required' => true,
       'allowEmpty' => false
     ),
+    'email_id' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'type' => array(
       'content' => array(
         'rule' => array('validateExtendedType',
@@ -89,15 +94,16 @@ class EmailAddressWidgetVerification extends AppModel {
   );
 
   /**
-   * Create the email and history recordw
+   * Create the email and history record
    *
    * @since  COmanage Registry v4.1.0
-   * @param  string $token     Token used for verification
-   * @return integer           ID of the new EmailAddress Record
+   * @param  string  $token             Token used for verification
+   * @param  integer $actorCoPersonId   ID of the new EmailAddress Record
+   * @param  integer $coId              CO ID
    * @throws RuntimeException
    */
 
-  public function addEmailToPerson($token, $actorCoPersonId) {
+  public function addEmailToPerson($token, $actorCoPersonId, $coId) {
     // Retrieve the Verification record and the configuration
     $rec = $this->getRecordToVerify($token);
 
@@ -111,8 +117,12 @@ class EmailAddressWidgetVerification extends AppModel {
 
     try {
       $EmailAddress = ClassRegistry::init('EmailAddress');
+      // We need to update the Email Address validation rule
+      $EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
       if(!$EmailAddress->save($emailAttrs, array("provision" => true,
                                                  "trustVerified" => true))) {
+        $this->log(__METHOD__ . "::invalid_fields::message: " . print_r($EmailAddress->invalidFields(), true), LOG_ERROR);
+        $this->log(__METHOD__ . "::data: " . print_r($emailAttrs, true), LOG_DEBUG);
         throw new RuntimeException(_txt('er.db.save'));
       }
 
@@ -125,7 +135,62 @@ class EmailAddressWidgetVerification extends AppModel {
                                        ActionEnum::EmailAddressVerified,
                                        _txt('pl.emailaddresswidget.rs.mail.added.verified',
                                             array($rec['EmailAddressWidgetVerification']['email'])));
-
+      
+      // Delete the Verification Request table record and return
+      $this->delete($rec['EmailAddressWidgetVerification']['id']);
+      return $EmailAddress->id;
+    } catch(Exception $e) {
+      // Attempt to delete the Verification Request table record before throwing exception
+      $this->delete($rec['EmailAddressWidgetVerification']['id']);
+      throw new RuntimeException($e->getMessage());
+    }
+  }
+  
+  /**
+   * Replace the email and add a history record
+   *
+   * @since  COmanage Registry v4.1.0
+   * @param  string  $token             Token used for verification
+   * @param  integer $actorCoPersonId   ID of the new EmailAddress Record
+   * @param  integer $coId              CO ID
+   * @return integer           ID of the EmailAddress Record
+   * @throws RuntimeException
+   */
+  
+  public function replaceEmailForPerson($token, $actorCoPersonId, $coId) {
+    // Retrieve the Verification record and the configuration
+    $rec = $this->getRecordToVerify($token);
+    
+    // Create the CO Person Email record for replacement
+    $emailAttrs = array(
+      'id' => $rec['EmailAddressWidgetVerification']['email_id'],
+      'mail' => $rec['EmailAddressWidgetVerification']['email'],
+      'type' => $rec['EmailAddressWidgetVerification']['type'],
+      'verified' => true,
+      'co_person_id' => $rec['EmailAddressWidgetVerification']['co_person_id']
+    );
+    
+    try {
+      $EmailAddress = ClassRegistry::init('EmailAddress');
+      $EmailAddress->validate['type']['content']['rule'][1]['coid'] = $coId;
+      if(!$EmailAddress->save($emailAttrs, array("provision" => true,
+                                                 "trustVerified" => true))) {
+        $this->log(__METHOD__ . "::invalid_fields::message: " . print_r($EmailAddress->invalidFields(), true), LOG_ERROR);
+        $this->log(__METHOD__ . "::data: " . print_r($emailAttrs, true), LOG_DEBUG);
+        throw new RuntimeException(_txt('er.db.save'));
+      }
+      
+      $CoPerson = ClassRegistry::init('CoPerson');
+      // History Record for the new record + verification
+      $CoPerson->HistoryRecord->record($rec['EmailAddressWidgetVerification']['co_person_id'],
+        null,
+        null,
+        $actorCoPersonId,
+        ActionEnum::EmailAddressVerified,
+        _txt('pl.emailaddresswidget.rs.mail.updated.verified',
+          array($rec['EmailAddressWidgetVerification']['email'],
+                $rec['EmailAddressWidgetVerification']['email_id'])));
+      
       $this->delete($rec['EmailAddressWidgetVerification']['id']);
       return $EmailAddress->id;
       // Delete the Verification Request table record and return
@@ -165,7 +230,7 @@ class EmailAddressWidgetVerification extends AppModel {
   }
 
   /**
-   * Create the email and history recordw
+   * Create the email and history record
    *
    * @since  COmanage Registry v4.1.0
    * @param  string $token       Token used for verification
@@ -191,8 +256,14 @@ class EmailAddressWidgetVerification extends AppModel {
     if(!$this->checkValidity($token)) {
       throw new RuntimeException(_txt('er.emailaddresswidget.timeout'), HttpStatusCodesEnum::HTTP_NOT_ACCEPTABLE);
     }
-
-    return $this->addEmailToPerson($token, $actorCoPersonId);
+  
+    if($rec['EmailAddressWidgetVerification']['email_id'] > 0) {
+      // We need to update / replace an email address
+      return $this->replaceEmailForPerson($token, $actorCoPersonId, $coid);
+    } 
+    
+    // We need to add a new email address
+    return $this->addEmailToPerson($token, $actorCoPersonId, $coid);
   }
 
   /**

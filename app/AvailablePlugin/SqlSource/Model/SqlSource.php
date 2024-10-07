@@ -36,7 +36,10 @@ class SqlSource extends AppModel {
   public $cmServerType = ServerEnum::SqlServer;
   
   // Association rules from this model to other models
-  public $belongsTo = array("OrgIdentitySource");
+  public $belongsTo = array(
+    "OrgIdentitySource",
+    "Server"
+  );
   
   public $hasMany = array();
   

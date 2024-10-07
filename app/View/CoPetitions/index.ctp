@@ -87,13 +87,13 @@
   <table id="co_people">
     <thead>
       <tr>
-        <th><?php print $this->Paginator->sort('EnrolleePrimaryName.family', _txt('fd.enrollee')); ?></th>
+        <th><?php print $vv_linkable ? $this->Paginator->sort('EnrolleePrimaryName.family', _txt('fd.enrollee')) : _txt('fd.enrollee'); ?></th>
         <th><?php print $this->Paginator->sort('CoPetition.status', _txt('fd.status')); ?></th>
         <th><?php print $this->Paginator->sort('CoEnrollmentFlow.name', _txt('ct.co_enrollment_flows.1')); ?></th>
         <th><?php print $this->Paginator->sort('Cou.name', _txt('fd.cou')); ?></th>
-        <th><?php print $this->Paginator->sort('PetitionerPrimaryName.family', _txt('fd.petitioner')); ?></th>
-        <th><?php print $this->Paginator->sort('SponsorPrimaryName.family', _txt('fd.sponsor')); ?></th>
-        <th><?php print $this->Paginator->sort('ApproverPrimaryName.family', _txt('fd.approver')); ?></th>
+        <th><?php print $vv_linkable ? $this->Paginator->sort('PetitionerPrimaryName.family', _txt('fd.petitioner')) : _txt('fd.petitioner'); ?></th>
+        <th><?php print $vv_linkable ? $this->Paginator->sort('SponsorPrimaryName.family', _txt('fd.sponsor')) : _txt('fd.sponsor'); ?></th>
+        <th><?php print $vv_linkable ? $this->Paginator->sort('ApproverPrimaryName.family', _txt('fd.approver')) : _txt('fd.approver'); ?></th>
         <th><?php print $this->Paginator->sort('CoPetition.created', _txt('fd.created.tz', array($vv_tz))); ?></th>
         <th><?php print $this->Paginator->sort('CoPetition.modified', _txt('fd.modified.tz', array($vv_tz))); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
@@ -106,8 +106,13 @@
       <tr class="line<?php print ($i % 2)+1; ?>">
         <td>
           <?php
-            $displayName = (!empty($p['EnrolleePrimaryName']['id']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new'));
-            $displayNameWithId = (!empty($p['EnrolleePrimaryName']['id']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new')) . ' (' . $p['CoPetition']['id'] . ')';
+            if($vv_linkable) {
+              $displayName = (!empty($p['EnrolleePrimaryName']['id']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new'));
+              $displayNameWithId = (!empty($p['EnrolleePrimaryName']['id']) ? generateCn($p['EnrolleePrimaryName']) : _txt('fd.enrollee.new')) . ' (' . $p['CoPetition']['id'] . ')';
+            } else {
+              $displayName = (!empty($p['EnrolleeCoPerson']['PrimaryName']['id']) ? generateCn($p['EnrolleeCoPerson']['PrimaryName']) : _txt('fd.enrollee.new'));
+              $displayNameWithId = (!empty($p['EnrolleeCoPerson']['PrimaryName']['id']) ? generateCn($p['EnrolleeCoPerson']['PrimaryName']) : _txt('fd.enrollee.new')) . ' (' . $p['CoPetition']['id'] . ')';
+            }
             print $this->Html->link($displayName,
                                     array(
                                       'controller' => 'co_petitions',
@@ -136,7 +141,12 @@
         <td>
           <?php
             if(!empty($p['PetitionerCoPerson']['id'])) {
-              print $this->Html->link(generateCn($p['PetitionerPrimaryName']),
+              if($vv_linkable) {
+                $name = $p['PetitionerPrimaryName'];
+              } else {
+                $name = $p['PetitionerCoPerson']['PrimaryName'];
+              }
+              print $this->Html->link(generateCn($name),
                                       array(
                                         'controller' => 'co_people',
                                         'action' => 'canvas',
@@ -150,7 +160,12 @@
         <td>
           <?php
             if(isset($p['SponsorCoPerson']['id']) && $p['SponsorCoPerson']['id'] != '') {
-              print $this->Html->link(generateCn($p['SponsorPrimaryName']),
+              if($vv_linkable) {
+                $name = $p['SponsorPrimaryName'];
+              } else {
+                $name = $p['SponsorCoPerson']['PrimaryName'];
+              }
+              print $this->Html->link(generateCn($name),
                                       array(
                                         'controller' => 'co_people',
                                         'action' => 'canvas',
@@ -162,7 +177,12 @@
         <td>
           <?php
             if(isset($p['ApproverCoPerson']['id']) && $p['ApproverCoPerson']['id'] != '') {
-              print $this->Html->link(generateCn($p['ApproverPrimaryName']),
+              if($vv_linkable) {
+                $name = $p['ApproverPrimaryName'];
+              } else {
+                $name = $p['ApproverCoPerson']['PrimaryName'];
+              }
+              print $this->Html->link(generateCn($name),
                                       array(
                                         'controller' => 'co_people',
                                         'action' => 'canvas',
@@ -204,7 +224,7 @@
                    && $p["permissions"]["deny"])) {
               print '<button type="button" class="deletebutton" title="' . _txt('op.delete-a',array($displayNameWithId))
                 . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.remove') . '\',\''    // dialog body text
+                . _txt('js.delete') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
                   array(
                     'controller' => 'co_petitions',
@@ -212,9 +232,9 @@
                     $p['CoPetition']['id']
                   )
                 ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.delete') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
+                . _txt('op.delete') . '\',[\''   // dialog title
                 . filter_var(_jtxt($displayNameWithId),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                 . '\']);">'
                 . _txt('op.delete')
@@ -230,7 +250,12 @@
 
               $options = array();
               $options['class'] = 'invitebutton';
-              $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt(_txt('op.inv.resend.confirm', array(filter_var(generateCn($p['EnrolleePrimaryName']),FILTER_SANITIZE_SPECIAL_CHARS)))) . "', '"
+              if($vv_linkable) {
+                $name = $p['EnrolleePrimaryName'];
+              } else {
+                $name = $p['EnrolleeCoPerson']['PrimaryName'];
+              }
+              $options['onclick'] = "javascript:js_confirm_generic('" . _jtxt(_txt('op.inv.resend.confirm', array(filter_var(generateCn($name),FILTER_SANITIZE_SPECIAL_CHARS)))) . "', '"
                                                                    . Router::url($url) . "', '"
                                                                    . _txt('op.inv.resend') . "');return false";
               $options['title'] = _txt('op.inv.resend.to', array($displayNameWithId));

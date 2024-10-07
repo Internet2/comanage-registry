@@ -89,6 +89,15 @@ class CoEnrollmentAttributeDefault extends AppModel {
     // Organizational Identity attributes (type 'o'),
     // or Extended Attributes (type 'x')
     $request = Router::getRequest();
+
+    // CMD Line Save action
+    // CO-2712
+    if(is_null($request)) {
+      // Just return true for now.
+      return true;
+    }
+
+    // UI POST request
     $attrCode = explode(':', $request->data['CoEnrollmentAttribute']['attribute']);
     if(!in_array($attrCode[0], array('r', 'g', 'o', 'x'))) {
       return true;
@@ -98,12 +107,14 @@ class CoEnrollmentAttributeDefault extends AppModel {
     $hidden = isset($request->data['CoEnrollmentAttribute']['hidden'])
               && $request->data['CoEnrollmentAttribute']['hidden'];
     if(!$modifiable || $hidden) {
-      // A default value must be provided if field is not modifiable
-      if(empty($this->data['CoEnrollmentAttributeDefault']['value'])) {
+      // A default value must be provided if field is not modifiable, unless an Environment
+      // Variable for Default Value is set. (eg: If the SP might pass along the IdP Entity ID,
+      // which might or might not map to an Organization.)
+      if(empty($this->data['CoEnrollmentAttributeDefault']['value'])
+         && empty($request->data['CoEnrollmentAttribute']['default_env'])) {
         return _txt('er.field.unmutable.req');
       }
     }
-
 
     return true;
   }

@@ -128,8 +128,8 @@ class MeemEnrollerCoPetitionsController extends CoPetitionsController {
       );
       
       if(!empty($cfg['MeemEnroller']['mfa_initial_exemption'])) {
-        $grmem['CoGroupMember']['valid_from'] = strftime("%F %T", time());
-        $grmem['CoGroupMember']['valid_through'] = strftime("%F %T", (time() + ($cfg['MeemEnroller']['mfa_initial_exemption'] * 3600)));
+        $grmem['CoGroupMember']['valid_from'] = date("Y-m-d H:i:s", time());
+        $grmem['CoGroupMember']['valid_through'] = date("Y-m-d H:i:s", (time() + ($cfg['MeemEnroller']['mfa_initial_exemption'] * 3600)));
       }
       
       $this->CoGroupMember->clear();

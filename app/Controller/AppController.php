@@ -244,11 +244,15 @@ class AppController extends Controller {
         }
         
         // Record the Authentication Event
-        $this->loadModel('AuthenticationEvent');
-        
-        $this->AuthenticationEvent->record($this->Session->read('Auth.User.username'),
-                                           AuthenticationEventEnum::ApiLogin,
-                                           $_SERVER['REMOTE_ADDR']);
+        // Determine if API Authentication Events are recorded
+        $this->loadModel('CmpEnrollmentConfiguration');
+        $apiUserEventRecord = $this->CmpEnrollmentConfiguration->getAuthnEventsRecordApiUsers();
+        if($apiUserEventRecord) {
+          $this->loadModel('AuthenticationEvent');
+          $this->AuthenticationEvent->record($this->Session->read('Auth.User.username'),
+                                             AuthenticationEventEnum::ApiLogin,
+                                             $_SERVER['REMOTE_ADDR']);
+        }
         
         $this->Session->write('Auth.User.api', true);
       }
@@ -266,7 +270,7 @@ class AppController extends Controller {
         $coid = $this->parseCOID($this->Api->getData());
         $roles = $this->Role->calculateCMRoles();
         if($this->requires_co
-           && $coid === -1
+           && (int)$coid === -1
            && !$roles['cmadmin']) {
           throw new InvalidArgumentException(_txt('er.co.specify'), HttpStatusCodesEnum::HTTP_UNAUTHORIZED);
         }
@@ -277,12 +281,31 @@ class AppController extends Controller {
         $args['contain'] = false;
 
         $this->cur_co = $this->Co->find('first', $args);
-      } catch(RuntimeException $e) {
+
+        // In the case a CMP admin performs an API request with an invalid CO Id, we will get
+        // here but the $this->cur_co object will be null
+        if(!$roles['cmadmin']
+           && (
+             empty($this->cur_co)
+             || !is_array($this->cur_co)
+             || !isset($this->cur_co['Co'])
+          )
+        ) {
+          throw new NotFoundException(_txt('er.notfound-b', array(_txt('ct.cos.1'))));
+        }
+      } catch(HttpException $e) {
         // This is probably $id not found... strictly speaking we should somehow
         // check authorization before returning id not found, but we can't really
         // authorize a request for an invalid id.
-        
-        $this->Api->restResultHeader(404, "Not Found");
+        $message = $e->getMessage() ?? 'Not Found';
+
+        $this->Api->restResultHeader($e->getCode(), $message);
+        $this->response->send();
+        exit;
+      } catch(Exception $e) {
+        $message = $e->getMessage() ?? 'Other error';
+
+        $this->Api->restResultHeader($e->getCode(), $message);
         $this->response->send();
         exit;
       }
@@ -1161,7 +1184,22 @@ class AppController extends Controller {
     // XXX A side effect of this current logic is that the link only appears when the person is viewing
     // another link with the CO specified in it (otherwise copersonid isn't set)
                               || ($roles['copersonid'] && $this->Role->isApprover($roles['copersonid']));
-    
+
+    // Since we do not have access to every Petition we will search each Enrollment Flow for special permissions
+    if(!$p['menu']['petitions'] && isset($this->cur_co['Co']['id'])) {
+      // Calculate the petition permissions for each enrollment flow
+      $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+      $enrollmentFlowList = $CoEnrollmentFlow->enrollmentFlowList($this->cur_co['Co']['id']);
+      $this->set('vv_enrollment_flow_list', $enrollmentFlowList);
+      foreach($enrollmentFlowList as $eof_id => $eof_name) {
+        $roleStatus = $this->Role->isApproverForFlow($roles['copersonid'], $eof_id);
+        $p['menu']['petitions'][$eof_name] = $roleStatus;
+        if($roleStatus) {
+          $p['menu']['cos'] = true;
+        }
+      }
+    }
+
     // Manage CO extended attributes?
     $p['menu']['extattrs'] = $roles['cmadmin'] || $roles['coadmin'];
     
@@ -1228,9 +1266,13 @@ class AppController extends Controller {
     // View/Edit own Demographics profile?
     $p['menu']['nsfdemoprofile'] = $roles['user'];
     
-    // Manage Organizations?
+    // Manage Organizations and their sources?
     $p['menu']['organizations'] = $roles['cmadmin'] || $roles['coadmin'];
-    
+    $p['menu']['orgsources'] = $roles['cmadmin'] || $roles['coadmin'];
+
+    // Manage Configuration Labels?
+    $p['menu']['configurationlabels'] = $roles['cmadmin'] || $roles['coadmin'];
+
     // Manage org identity sources? CO Admins can only do this if org identities are NOT pooled
     $this->loadModel('CmpEnrollmentConfiguration');
     

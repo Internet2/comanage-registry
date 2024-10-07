@@ -80,6 +80,7 @@
         print '<span class="api-username-prefix">' . $prefix . '</span>';
         print ($e ? $this->Form->input('username', array(
                                                     'class'     => 'focusFirst',
+                                                    'div'       => array('class' => 'input-wrapper'),
                                                     'maxlength' => 50 - strlen($prefix),
                                                   )
                                       )

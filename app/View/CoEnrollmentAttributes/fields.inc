@@ -290,6 +290,14 @@
       let value = $("option:selected", element).attr('value');
       fields_updated = false;
 
+      // Currently the labels feature is only supported for COUs
+      if(value == 'r:cou_id') {
+        $('#filter_attributes_bylabel_div').show();
+      } else {
+        $('#filter_attributes_bylabel_div').hide();
+      }
+
+
       if( databind !== null
           && databind !== ''
           && $.isPlainObject(databind)) {
@@ -377,7 +385,7 @@
       close: function (event, ui) {
         $("#attr_def_val_sponsor_div .co-loading-mini").hide();
       }
-    }).autocomplete("instance")._renderItem = formatCoPersonAutoselectItem;
+    });
 
     // Used in inline-edit mode for Sponsor (i.e. when sponsor list > 50)
     $("#cm-ief-button-remove-sponsor_co_person_id").click(function() {
@@ -689,6 +697,34 @@
           <?php print ($e
             ? $this->Form->input('ordr')
             : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </td>
+      </tr>
+      <tr id="filter_attributes_bylabel_div" class="line<?php print ($l % 2); $l++; ?>">
+        <td>
+          <b><?php print _txt('fd.ea.attr.filter'); ?></b><br />
+          <span class="descr"><?php print _txt('fd.ea.attr.filter.desc'); ?></span>
+        </td>
+        <td>
+          <?php
+          global $cm_lang, $cm_texts;
+          $attrs['value'] = (isset($co_enrollment_attributes)
+            ? $co_enrollment_attributes[0]['CoEnrollmentAttribute']['configuration_label_id']
+            : '');
+          $attrs['empty'] = true;
+
+          if($e) {
+            print $this->Form->select('configuration_label_id',
+                                      $vv_configuration_labels,
+                                      $attrs);
+
+            if($this->Form->isFieldError('configuration_label_id')) {
+              print $this->Form->error('configuration_label_id');
+            }
+          } else {
+            print !empty(co_enrollment_attributes[0]['CoEnrollmentAttribute']['configuration_label_id'])
+            ? $vv_configuration_labels[ $co_enrollment_attributes[0]['CoEnrollmentAttribute']['configuration_label_id'] ] : '';
+          }
+          ?>
         </td>
       </tr>
     </tbody>

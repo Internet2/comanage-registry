@@ -150,7 +150,7 @@ class AttributeEnumeration extends AppModel {
    * @param  integer $coId      CO ID
    * @param  string  $attribute Attribute, of the form Model.attribute
    * @param  string  $value     Value to test
-   * @return boolean            True if $value is valid for $attribute
+   * @return boolean            True if $value is valid for $attribute, false otherwise
    * @throws InvalidArgumentException
    */
 
@@ -180,6 +180,56 @@ class AttributeEnumeration extends AppModel {
       return true;
     }
     
+    return false;
+  }
+
+  /**
+   * Convert a string (as provided via some form of input field) and convert it to a
+   * valid entry, in accordance with the AttributeEnumeration configuration.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, of the form Model.attribute
+   * @param  string  $value     Value to test
+   * @return string             String suitable for use
+   * @throws InvalidArgumentException
+   */
+
+  public function mapStringToEntry($coId, $attribute, $value) {
+    // Note this logic is slightly different than isValid(), above.
+    // First, see if there is an enumeration defined.
+
+    $args = array();
+    $args['conditions']['AttributeEnumeration.co_id'] = $coId;
+    $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $attrEnum = $this->find('first', $args);
+    
+    // If there is no configuration, or there is no dictionary attached to the
+    // configuration, then just use $value as provided. Note we _don't_ check
+    // allow_other yet, since if an entry is present we want to use that instead.
+    
+    if(empty($attrEnum)
+       || empty($attrEnum['AttributeEnumeration']['dictionary_id'])) {
+      return $value;
+    }
+
+    // Next try to have the Dictionary map the value to an entry.
+    $entry = $this->Dictionary->mapToEntry($attrEnum['AttributeEnumeration']['dictionary_id'], $value);
+
+    if($entry != null) {
+      return $entry;
+    }
+
+    // The Dictionary could not map the request. Now check allow_other.
+
+    if(isset($attrEnum['AttributeEnumeration']['allow_other'])
+       && $attrEnum['AttributeEnumeration']['allow_other']) {
+      return $value;
+    }
+
     throw new InvalidArgumentException(_txt('er.ae.value', array($attribute)));
   }
   

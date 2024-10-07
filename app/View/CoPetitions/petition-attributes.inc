@@ -46,7 +46,7 @@
           'co' => $cur_co['Co']['id'],
           'mode' => PeoplePickerModeEnum::Sponsor,
           'petitionid' => $vv_co_petition_id,
-          'token' => $vv_petition_token
+          'token' => $this->action == 'view' && !isset($vv_petition_token) ? 'test' : $vv_petition_token
         );
         
         print $this->Html->url($sponsorurl);
@@ -89,7 +89,7 @@
           'co' => $cur_co['Co']['id'],
           'mode' => PeoplePickerModeEnum::Manager,
           'petitionid' => $vv_co_petition_id,
-          'token' => $vv_petition_token
+          'token' => $this->action == 'view' && !isset($vv_petition_token) ? 'test' : $vv_petition_token
         );
         
         print $this->Html->url($managerurl);
@@ -125,11 +125,13 @@
   
   function reset_manager() {
     $("#managers").val("");
+    $("#managers").prop("disabled", false);
     $("#EnrolleeCoPersonRoleManagerCoPersonId").val(null);
   }
   
   function reset_sponsor() {
     $("#sponsors").val("");
+    $("#sponsors").prop("disabled", false);
     $("#EnrolleeCoPersonRoleSponsorCoPersonId").val(null);
   }
 </script>
@@ -249,14 +251,27 @@
   foreach($coea_model as $m => $coe_attributes):
 
     // Skip any attributes that were deleted before the creation of this petition.
-    // For multi-component attributes we just look at the first.
-    if(isset($coe_attributes[0]['CoEnrollmentAttribute']['deleted'])
-       && $coe_attributes[0]['CoEnrollmentAttribute']['deleted']
-       && ($coe_attributes[0]['CoEnrollmentAttribute']['modified']
-           < $co_petitions[0]['CoPetition']['created'])) {
+    // Multi-value attributes might get formed either when we have an MVPA or when
+    // we have an attribute that its label share the same name with another archived attribute.
+    // As a result, the safest approach is to unset all the archived attributes and skip if the remaining
+    // set of attributes is empty. If we still have attributes, we reset the index counting and continue
+    foreach ($coe_attributes as $idx => $enrollment_attribute) {
+      if(isset($enrollment_attribute['CoEnrollmentAttribute']['deleted'])
+        && $enrollment_attribute['CoEnrollmentAttribute']['deleted']
+        && ($enrollment_attribute['CoEnrollmentAttribute']['modified']
+          < $co_petitions[0]['CoPetition']['created'])) {
+        unset($coe_attributes[$idx]);
+      }
+    }
+    if(empty($coe_attributes)) {
       continue;
     }
+    // We need to reset the indexes in order to move forward
+    $coe_attributes = array_values($coe_attributes);
 
+    // XXX We can not rely on the count to determine if this is an mvpa. Because we might have
+    //     multiple entries also in the case of the archived enrollment attributes that have the same
+    //     label value
     $mvpa = (count($coe_attributes) > 1);
   ?>
     <div class="modelbox">
@@ -312,10 +327,15 @@
             print '<br /><span class="required">' . _txt('fd.pt.required') . '</span>' . PHP_EOL;
           }
           
-          if(!empty($ea['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
-            print '<br /><span class="required">' . _txt('fd.pt.archived') . '</span>' . PHP_EOL;
-          } elseif(isset($ea['CoEnrollmentAttribute']['deleted'])
-                   && $ea['CoEnrollmentAttribute']['deleted']) {
+          if(!empty($coe_attributes[0]['CoEnrollmentAttribute']['co_enrollment_attribute_id'])) {
+            $active_attribute = $this->Petition->getAttributeRecord($coe_attributes[0]['CoEnrollmentAttribute']['co_enrollment_attribute_id']);
+            if(!$this->Petition->attributeRecordsMatching(
+              $active_attribute['CoEnrollmentAttribute'], $coe_attributes[0]['CoEnrollmentAttribute'])
+            ) {
+              print '<br /><span class="required">' . _txt('fd.pt.archived') . '</span>' . PHP_EOL;
+            }
+          } elseif(isset($coe_attributes[0]['CoEnrollmentAttribute']['deleted'])
+                   && $coe_attributes[0]['CoEnrollmentAttribute']['deleted']) {
             print '<br /><span class="required">' . _txt('fd.pt.deleted') . '</span>' . PHP_EOL;
           }
         ?>
@@ -521,14 +541,19 @@
                 // and we use the people picker, otherwise the sponsor field will
                 // be a dropdown via inList
 
+                print $this->Form->hidden($fieldName,
+                                          array(
+                                            // We don't support two sponsors, but if we did this id would break
+                                            'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
+                                            'default' => (isset($ea['default']) ? $ea['default'] : null)
+                                          ));
+
                 if($ea['modifiable']) {
                   // Use a people picker
                   print '<div class="cm-inline-editable-field">';
-                  $inlineEditableFields['sponsor-val']['set'] = false;
 
+                  // Default Sponsor
                   if(!empty($vv_default_sponsor)) {
-                    $inlineEditableFields['sponsor-val']['set'] = true;
-
                     print '<div class="cm-ief-val">';
                     print generateCn($vv_default_sponsor['PrimaryName']);
                     print $this->element('inlineEditControls', array(
@@ -539,42 +564,17 @@
                     print '</div>';
                   }
 
-                  $iefClasses = "cm-ief-widget";
-                  if ($inlineEditableFields['sponsor-val']['set']) {
-                    $iefClasses .= " hidden";
-                  }
-                  $requiredHtml = "";
-                  $requiredLabel = "";
-                  if($args['required']) {
-                    $requiredHtml = ' required="required"';
-                    $requiredLabel = '<span class="required">*</span>';
-                  }
+                  // Pick Sponsor
+                  print $this->element('pickerWidget', array(
+                    'isRequired' => $args['required'],
+                    'label' => filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS),
+                    'hidden' => !empty($vv_default_sponsor),
+                    'inputId' => 'sponsors',
+                    'placeholder' => _txt('op.people.picker.placeholder'),
+                    'fieldDescription' => _txt('fd.sponsor.desc')
+                  ));
 
-                  print '<div class="' . $iefClasses . '">';
-                  print ' <label for="sponsors">'
-                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
-                        .   $requiredLabel
-                        . '</label>
-                           <div class="ui-widget">
-                             <span class="co-loading-mini-input-container">
-                             <input id="sponsors"
-                                    type="text"
-                                    placeholder="' . _txt("op.people.picker.placeholder") . '"
-                                    class="form-control"' . $requiredHtml . '/>'
-                        . '  <span class="co-loading-mini"><span></span><span></span><span></span></span>
-                           </span>'
-                        . $this->Form->hidden($fieldName,
-                                              array(
-                                                // We don't support two sponsors, but if we did this id would break
-                                                'id'      => 'EnrolleeCoPersonRoleSponsorCoPersonId',
-                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
-                                              ))
-                        . '</div>
-                           <div class="field-desc">
-                             <span class="ui-icon ui-icon-info co-info"></span>
-                             <em>' . _txt('fd.sponsor.desc') . '</em>
-                           </div>';
-                  print '</div>'; // cm-ief-widget
+
                   print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
                   $this->Form->unlockField($fieldName);
@@ -584,15 +584,17 @@
                 }
               } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id') {
                 // Manager always uses a people picker
+                print $this->Form->hidden($fieldName,
+                                          array(
+                                            // We don't support two managers, but if we did this id would break
+                                            'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
+                                            'default' => ($ea['default'] ?? null)
+                                          ));
                 
                 if($ea['modifiable']) {
                   // Use a people picker
                   print '<div class="cm-inline-editable-field">';
-                  $inlineEditableFields['manager-val']['set'] = false;
-
                   if(!empty($vv_default_manager)) {
-                    $inlineEditableFields['manager-val']['set'] = true;
-
                     print '<div class="cm-ief-val">';
                     print generateCn($vv_default_manager['PrimaryName']);
                     print $this->element('inlineEditControls', array(
@@ -603,42 +605,17 @@
                     print '</div>';
                   }
 
-                  $iefClasses = "cm-ief-widget";
-                  if ($inlineEditableFields['manager-val']['set']) {
-                    $iefClasses .= " hidden";
-                  }
-                  $requiredHtml = "";
-                  $requiredLabel = "";
-                  if($args['required']) {
-                    $requiredHtml = ' required="required"';
-                    $requiredLabel = '<span class="required">*</span>';
-                  }
+                  // Pick Manager
+                  print $this->element('pickerWidget', array(
+                    'isRequired' => $args['required'],
+                    'label' => filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS),
+                    'hidden' => !empty($vv_default_manager),
+                    'inputId' => 'managers',
+                    'placeholder' => _txt('op.people.picker.placeholder'),
+                    'fieldDescription' => _txt('fd.manager.desc')
+                  ));
 
-                  print '<div class="' . $iefClasses . '">';
-                  print ' <label for="managers">'
-                        .   filter_var($m,FILTER_SANITIZE_SPECIAL_CHARS)
-                        .   $requiredLabel
-                        . '</label>
-                           <div class="ui-widget">
-                             <span class="co-loading-mini-input-container">
-                               <input id="managers"
-                                      type="text"
-                                      placeholder="' . _txt("op.people.picker.placeholder") . '"
-                                      class="form-control"' . $requiredHtml . '/>'
-                        .  '   <span class="co-loading-mini"><span></span><span></span><span></span></span>
-                             </span>'
-                        . $this->Form->hidden($fieldName,
-                                              array(
-                                                // We don't support two managers, but if we did this id would break
-                                                'id'      => 'EnrolleeCoPersonRoleManagerCoPersonId',
-                                                'default' => (isset($ea['default']) ? $ea['default'] : null)
-                                              ))
-                        . '</div>
-                           <div class="field-desc">
-                             <span class="ui-icon ui-icon-info co-info"></span>
-                             <em>' . _txt('fd.manager.desc') . '</em>
-                           </div>';
-                  print '</div>'; // cm-ief-widget
+
                   print '</div>'; // cm-inline-editable-field
                   // We need to unlock the field for autocomplete manipulation
                   $this->Form->unlockField($fieldName);
@@ -652,7 +629,7 @@
                 } elseif($fieldName == 'EnrolleeCoPersonRole.manager_co_person_id-disabled') {
                   $args['value'] = generateCn($vv_default_manager['PrimaryName']);
                 } elseif(strpos($fieldName, 'EnrolleeCoPerson.EmailAddress') !== false) {
-                  $email_list = $args['default'];
+                  $email_list = $args['default'] ?? '';
                   if(!empty($email_list) && !empty($vv_envsource_delimiter)) {
                     if($vv_envsource_delimiter == AuthProviderEnum::Shibboleth) {
                       $emails = explode(";", $email_list);
@@ -700,15 +677,6 @@
             print '<div class="modelbox-data-label">';
             print filter_var($ea['label'],FILTER_SANITIZE_SPECIAL_CHARS);
 
-            /* XXX Don't show required status for view (read-only):
-            if($ea['required']) {
-              if($mvpa && !$ea['mvpa_required']) {
-                print "<span class=\"required\">&dagger;</span>\n";
-              } else {
-                print "<span class=\"required\">*</span>\n";
-              }
-            } */
-
             if(isset($ea['description'])
               && !$groupDesc
               && $ea['description'] != "") {
@@ -747,7 +715,7 @@
                   // timezone adjustment here and render the original value, which in most
                   // cases will be good enough. (And the operational value in CoPersonRoles
                   // is correct, so the actual impact of this is minimal.)
-                  // This shoud be fixed in PE, however.
+                  // This should be fixed in PE, however.
                   print $this->Time->nice($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]); //$vv_tz);
                 }
                 break;

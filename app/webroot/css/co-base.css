@@ -816,6 +816,9 @@ body.co_people.canvas .titleNavContainer {
 .widget-list li:nth-child(2n+1) {
   background-color: #f8f8f8;
 }
+.widget-header {
+  margin-bottom: 1em;
+}
 .widget-list .announcement-title {
   font-size: 1.4em;
   font-weight: bold;
@@ -1255,6 +1258,12 @@ body.petitionerAttributes td {
   margin: 0.5em 0;
   float: right !important;
 }
+#approve-deny-buttons {
+  display: flex;
+  gap: 0.5em;
+  margin: 0.5em 0 1em;
+  font-size: 0.9em;
+}
 body.co_petitions .approve-button,
 body.co_petitions .deny-button,
 #vetting-plugin-wrapper .approve-button,
@@ -1266,7 +1275,6 @@ body.co_petitions .deny-button,
 }
 body.co_petitions .approve-button,
 #vetting-plugin-wrapper .approve-button {
-  float: left;
   background-color: #070;
   background-image: none;
 }
@@ -1689,6 +1697,9 @@ a.ui-button:visited,
   display: flex;
   flex-wrap: wrap;
   margin-top: 0.5em;
+}
+.top-search .form-check-inline {
+  margin-top: 1em;
 }
 .top-search .filter-clear-all-button {
   font-size: 0.9em;
@@ -2163,8 +2174,30 @@ ul.form-list .field-title {
   font-weight: bold;
   margin-bottom: 0;
 }
+ul.form-list .field-title label {
+  margin-bottom: 0;
+}
 ul.form-list .field-info {
   position: relative;
+}
+ul.form-list .field-info.field-info-flex {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+ul.form-list .field-info-flex input[type="text"],
+ul.form-list .field-info-flex input[type="number"],
+ul.form-list .field-info-flex input[type="password"],
+ul.form-list .field-info-flex textarea,
+ul.form-list .field-info-flex .input-wrapper {
+  width: auto;
+  flex-grow: 1;
+}
+ul.form-list .field-info-flex .input-wrapper input {
+  width: 97%;
+}
+ul.form-list .field-info-flex .input-wrapper .error-message {
+  /*position: absolute;*/
 }
 ul.form-list .field-info-prefix {
   margin-right: 0.5em;
@@ -2172,7 +2205,7 @@ ul.form-list .field-info-prefix {
 ul.form-list .field-desc {
   font-size: 0.9em;
   font-style: italic;
-  padding: 0.25em 1em 0.5em 0.5em;
+  padding: 0 0 0.5em 0;
 }
 ul.form-list .fields-header {
   background-color: #fff;
@@ -2835,6 +2868,13 @@ td.indented {
 }
 .invalid-feedback {
   font-size: 1em;
+  color: var(--cmg-color-red-002);
+}
+.form-control.is-invalid, 
+.was-validated .form-control:invalid {
+  border-color: var(--cmg-color-red-002);
+  /* The following is an override to change the color of the SVG output from _forms.scss - for accessibility color contrast */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23cc0000' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23cc0000' stroke='none'/%3e%3c/svg%3e");
 }
 /* SELF-SERVICE WIDGETS (PLUGIN) Common Styles */
 .cm-ssw {
@@ -2859,7 +2899,8 @@ ul.cm-ssw-field-list {
   padding: 0;
   row-gap: 0.5em;
 }
-ul.cm-ssw-field-list li {
+ul.cm-ssw-field-list li,
+.cm-ssw-display.editing ul.cm-ssw-field-list li.no-items-notice {
   padding: 0 1em;
 }
 .cm-ssw-display.editing ul.cm-ssw-field-list {
@@ -2910,6 +2951,9 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   margin-left: 0;
   top: 0;
 }
+.cm-ssw-password-message {
+  padding: 0 1em;
+}
 .cm-ssw .alert {
   margin-bottom: 0;
   border-radius: 0;
@@ -2924,6 +2968,9 @@ ul.cm-ssw-field-list ul.dropdown-menu button.btn {
   column-gap: 0.5em;
   text-transform: none;
   padding: 0.5em;
+}
+.cm-ssw-dropdown-toggle.replacing {
+  border: 1px dashed var(--cmg-color-gray-border);
 }
 .cm-ssw-dropdown-toggle:hover {
   text-decoration: none;
@@ -3004,4 +3051,27 @@ body.redirect #co-footer {
 #filter-block-qaxsbar li label {
   margin-top: auto;
   margin-bottom: auto;
+}
+.selected-color {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+/*https://github.com/mdbassit/Coloris*/
+.circle .clr-field button {
+  width: 22px;
+  height: 22px;
+  left: 5px;
+  right: auto;
+  border-radius: 5px;
+}
+.circle .clr-field input {
+  padding-left: 36px !important;
+}
+.circle .clr-field button {
+  border-radius: 50%;
+}
+#clr-close:focus {
+  background-color: var(--cmg-color-black-002);
 }

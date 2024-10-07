@@ -322,16 +322,16 @@ class CoGroupMember extends AppModel {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data['CoGroupMember']['valid_from'], $localTZ);
 
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data['CoGroupMember']['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data['CoGroupMember']['valid_from'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
 
       if(!empty($this->data['CoGroupMember']['valid_through'])) {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data['CoGroupMember']['valid_through'], $localTZ);
 
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data['CoGroupMember']['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data['CoGroupMember']['valid_through'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
     }
   }
@@ -433,15 +433,21 @@ class CoGroupMember extends AppModel {
    * NOTE: If this function is called within a transaction, a read lock will be obtained (SELECT FOR UPDATE).
    *
    * @since  COmanage Registry v4.1.0
-   * @param  Array   List of Model relations
-   * @param  Integer Maximium number of results to retrieve (or null)
-   * @param  Integer Offset to start retrieving results from (or null)
-   * @param  String Field to sort by (or null)
-   * @param  Boolean Whether to only return valid (validfrom/through) entries
+   * @param  Array   $model      List of Model relations
+   * @param  Integer $limit      Maximium number of results to retrieve (or null)
+   * @param  Integer $offset     Offset to start retrieving results from (or null)
+   * @param  String  $order      Field to sort by (or null)
+   * @param  Boolean $validOnly  Whether to only return valid (validfrom/through) entries
+   * @param  Boolean $isOwner    Whether to only return owners or not
    * @return Array Group information, as returned by find
    */
 
-  public function findRecord($model=array(), $limit=null, $offset=null, $order=null, $validOnly=false) {
+  public function findRecord($model=array(),
+                             $limit=null,
+                             $offset=null,
+                             $order=null,
+                             $validOnly=false,
+                             $isOwner=null) {
     $args = array();
     $args['joins'][0]['table'] = 'co_groups';
     $args['joins'][0]['alias'] = 'CoGroup';
@@ -451,6 +457,15 @@ class CoGroupMember extends AppModel {
       'id', 'co_group_id', 'co_person_id', 'member', 'owner', 'valid_from', 'valid_through'
     );
     $args['conditions']['CoGroup.status'] = StatusEnum::Active;
+    // Unless we are interested in active members or non active members we will fetch everyone
+    if(is_bool($isOwner)) {
+      if($isOwner) {
+        $args['conditions']['CoGroupMember.owner'] = true;
+      } else {
+        $args['conditions'][] = 'CoGroupMember.owner IS NOT true';
+      }
+    }
+
     foreach ($model as $modelId => $modelNAme) {
       $args['conditions']['CoGroupMember.' . Inflector::underscore($modelNAme).'_id'] = $modelId;
     }

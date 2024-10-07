@@ -3750,4 +3750,25 @@ class DboSource extends DataSource {
 		parent::__destruct();
 	}
 
+	/**
+	 * Checks if a transaction is running.
+	 * This was added to Cake 2 by the COmanage Project in support of CO-2829,
+	 * based on code available in Cake 4
+	 *
+	 * @return bool True if a transaction is running else false.
+	 */
+	public function inTransaction()	{
+		return $this->_transactionStarted;
+	}
+
+	/**
+	 * This function is _not_ in Cake 4, but we could maybe use rollbackSavepoint()
+	 * instead?
+	 * 
+	 * @return int Current transaction nesting count
+	 */
+
+	public function getTransactionNesting() {
+		return $this->_transactionNesting;
+	}
 }

@@ -25,7 +25,24 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
+App::import('Model', 'ConnectionManager');
+
 class ChangelogBehavior extends ModelBehavior {
+  /**
+   * Abort a transaction.
+   * 
+   * @since  COmanage Regisry v4.4.0
+   */
+  
+  public function abortChangelogTxn() {
+    // Because we open a transaction in beforeSave, if a Model aborts a save in beforeSave
+    // we'll end up with an open transacation (CO-2829) which will cause Jobs (and potentially
+    // other longer run processes) from cleaning up correctly. (This isn't necessary for expunge.)
+
+    $dataSource = ConnectionManager::getDataSource('default');
+    $dataSource->rollback();
+  }
+
   /**
    * Handle changelog archive following (after) save of Model.
    *
@@ -68,8 +85,10 @@ class ChangelogBehavior extends ModelBehavior {
         if(isset($model->hasMany[$amodel]) || isset($model->hasOne[$amodel])) {
           // Standard approach is to update associated (child) models in afterSave.
           // (Otherwise this is handled in beforeSave.)
+          $aoptions = $model->hasMany[$amodel] ?? $model->hasOne[$amodel] ?? null;
+          $parentfk = $aoptions['foreignKey'] ?? $parentfk;
           
-          $col = $amodel.".".$parentfk;
+          $col = $amodel . "." . $parentfk;
           
           if(!$model->$amodel->updateAll(array($col => $model->archiveId),
                                          array($col => $model->id))) {
@@ -547,7 +566,6 @@ class ChangelogBehavior extends ModelBehavior {
       $belongs = $model->belongsTo;
       $contain = array_merge(array_keys($has), array_keys($belongs));
     }
-    
     $ret = $contain;
     
     foreach($contain as $k => $v) {

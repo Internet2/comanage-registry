@@ -78,6 +78,17 @@
   </li>
   <li>
     <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.server.oauth2.proxy'); ?>
+        <div class="field-desc"><?php print _txt('fd.server.oauth2.proxy.desc'); ?></div>
+      </div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('proxy') : filter_var($oauth2_servers[0]['Oauth2Server']['proxy'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
       <?php print $this->Form->label('clientid',_txt('fd.server.oauth2.clientid')); ?><span class="required">*</span>
     </div>
     <div class="field-info">

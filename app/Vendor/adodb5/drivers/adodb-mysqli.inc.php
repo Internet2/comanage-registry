@@ -75,6 +75,25 @@ class ADODB_mysqli extends ADOConnection {
 	var $ssl_capath = null;
 	var $ssl_cipher = null;
 
+	/**
+	 * Forcing emulated prepared statements.
+	 *
+	 * When set to true, ADODb will not execute queries using MySQLi native
+	 * bound variables, and will instead use the built-in string interpolation
+	 * and argument quoting from the parent class {@see ADOConnection::Execute()}.
+	 *
+	 * This is needed for some database engines that use mysql wire-protocol but
+	 * do not support prepared statements, like
+	 * {@see https://manticoresearch.com/ Manticore Search} or
+	 * {@see https://clickhouse.com/ ClickHouse}.
+	 *
+	 * WARNING: This is a potential security risk, and strongly discouraged for code
+	 * handling untrusted input {@see https://github.com/ADOdb/ADOdb/issues/1028#issuecomment-2081586024}.
+	 *
+	 * @var bool $doNotUseBoundVariables
+	 */
+	var $doNotUseBoundVariables = false;
+
 	/** @var mysqli Identifier for the native database connection */
 	var $_connectionID = false;
 
@@ -936,9 +955,11 @@ class ADODB_mysqli extends ADOConnection {
 				   AND table_name='$table'";
 
 		$schemaArray = $this->getAssoc($SQL);
-		$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
+		if (is_array($schemaArray)) {
+			$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
+			$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
+		}
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs))
@@ -1104,6 +1125,10 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	public function execute($sql, $inputarr = false)
 	{
+		if ($this->doNotUseBoundVariables) {
+			return parent::execute($sql, $inputarr);
+		}
+
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this, $sql, $inputarr);
@@ -1489,6 +1514,9 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	/** @var mysqli_result result link identifier */
 	var $_queryID;
+
+    var $adodbFetchMode;
+
 
 	function __construct($queryID, $mode = false)
 	{

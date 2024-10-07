@@ -102,6 +102,28 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ?
+          $this->Form->label('configuration_labels', _txt('op.list', array(_txt('ct.configuration_labels.pl'))))
+          : _txt('op.list', array(_txt('fd.label')))
+        );
+        ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.cou.configuration_labels.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php
+      print ($e ? $this->Form->input('configuration_labels', array(
+                                                              'type' => 'text',
+                                                              'maxlength' => 1024,
+                                                            )
+      )
+        : filter_var($cous[0]['Cou']['configuration_labels'],FILTER_SANITIZE_SPECIAL_CHARS));
+      ?>
+    </div>
+  </li>
   <?php if($e): ?>
     <li class="fields-submit">
       <div class="field-name">

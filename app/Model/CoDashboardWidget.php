@@ -79,7 +79,17 @@ class CoDashboardWidget extends AppModel {
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
-    )
+    ),
+    'header' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'footer' => array(
+      'rule' => '/.*/',
+      'required' => false,
+      'allowEmpty' => true
+    ),
   );
   
   public $_targetid = null;

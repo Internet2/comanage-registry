@@ -109,7 +109,8 @@ class UpgradeVersionShell extends AppShell {
     "4.3.2" => array('block' => false),
     "4.3.3" => array('block' => false),
     "4.3.4" => array('block' => false),
-    "4.3.5" => array('block' => false)
+    "4.3.5" => array('block' => false),
+    "4.4.0" => array('block' => false, 'post' => 'post440')
   );
   
   public function getOptionParser() {
@@ -684,6 +685,30 @@ class UpgradeVersionShell extends AppShell {
         $this->CoGroup->_ug430($co['Co']['id'],  $co['Co']['name'], $cou['Cou']['id'], $cou['Cou']['name']);
       }
     }
+  }
+
+  public function post440() {
+    $args = array();
+    $args['contain'] = false;
+    
+    $cos = $this->Co->find('all', $args);
+    
+    // We update inactive COs as well, in case they become active again
+    foreach($cos as $co) {
+      $this->out('- ' . $co['Co']['name']);
+      
+      // 4.4.0 adds the Contact MVPA, so we instantiate the default types across all COs.
+      $this->out(_txt('sh.ug.440.contact'));
+      $this->CoExtendedType->addDefault($co['Co']['id'], 'Contact.type');
+
+      // 4.4.0 adds the cluster grout type across all COs
+      $this->out(_txt('sh.ug.440.cluster'));
+      $this->CoGroup->_ug440($co['Co']['id']);
+    }
+
+    // Configuration: Enable Authentication Events for API users
+    $this->out(_txt('sh.ug.440.auth_events'));
+    $this->CmpEnrollmentConfiguration->_ug440();
   }
   
   // We should eventually do something like

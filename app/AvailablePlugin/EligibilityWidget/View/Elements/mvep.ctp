@@ -39,7 +39,7 @@ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuI
           $sorted_data = Hash::sort(${$lmpl}[0][$mvep_model], "{n}.ordr", 'asc', 'numeric');
           foreach($sorted_data as $m) {
             $editable = ($action == 'edit');
-            $removetxt = _txt('js.remove');
+            $removetxt = _txt('js.delete');
             $displaystr = (!empty($mvep_field) ? $m[$mvep_field] : "");
             // Append the COU Name
             $displaystr .= ' <cite class="text-muted-cmg cm-id-display">'
@@ -143,9 +143,9 @@ $action_icon = ($edit ? $this->Menu->getMenuIcon('Edit') : $this->Menu->getMenuI
                 'onclick' => array(
                   'dg_bd_txt' => $removetxt,
                   'dg_url' => $this->Html->url($dg_url),
-                  'dg_conf_btn' => _txt('op.remove'),
+                  'dg_conf_btn' => _txt('op.delete'),
                   'dg_cancel_btn' => _txt('op.cancel'),
-                  'dg_title' => _txt('op.remove'),
+                  'dg_title' => _txt('op.delete'),
                   'db_bd_txt_repl_str' => filter_var(_jtxt($displaystr),FILTER_SANITIZE_STRING),
                 ),
               );

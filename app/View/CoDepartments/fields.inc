@@ -203,6 +203,22 @@
               ?>
             </span>
           </li>
+          <li>
+            <div class="field-name">
+              <?php print $this->Form->label('saml_scope',_txt('fd.scope.saml')); ?>
+            </div>
+            <div class="field-info">
+              <?php print ($e ? $this->Form->input('saml_scope') : filter_var($organizations[0]['Organization']['saml_scope'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
+              <?php print $this->Form->label('logo_url',_txt('fd.logo_url')); ?>
+            </div>
+            <div class="field-info">
+              <?php print ($e ? $this->Form->input('logo_url') : filter_var($organizations[0]['Organization']['logo_url'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+            </div>
+          </li>
           <li class="field-stack">
             <div class="field-name">
               <div class="field-title">
@@ -360,6 +376,12 @@
           $args['mvpa_model'] = 'AdHocAttribute';
           $args['self_service'] = false;
           $args['mvpa_format'] = 'formatAdHoc';
+          
+          print $this->element('mvpa', $args);
+
+          $args['mvpa_model'] = 'Contact';
+          $args['self_service'] = false;
+          $args['mvpa_format'] = 'formatContact';
           
           print $this->element('mvpa', $args);
         }

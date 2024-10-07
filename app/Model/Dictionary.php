@@ -188,4 +188,63 @@ class Dictionary extends AppModel {
         break;
     }
   }
+
+  /**
+   * Try to find a corresponding DictionaryEntry for the provided value.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  integer  $id     Dictionary ID
+   * @param  string   $value  Value to search for
+   * @return string           Value if found, null otherwise
+   */
+
+  public function mapToEntry($id, $value) {
+    $mode = $this->field('mode', array('Dictionary.id' => $id));
+    $coId = $this->field('co_id', array('Dictionary.id' => $id));
+    
+    if(!$mode) {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.dictionaries.1', $id)));
+    }
+
+    // Note these checks are intentionally case sensitive, since they
+    // should come from a prepopulated list and match exactly.
+
+    switch($mode) {
+      // For Organizations and CoDepartments, we use the name field, since that's what
+      // we return in entries(), above. If there are multiple entries with the same name
+      // we use whichever the database returns first.
+      case DictionaryModeEnum::Department:
+        return $this->Co->CoDepartment->field('id', array('CoDepartment.name' => $value,
+                                                          'CoDepartment.co_id' => $coId));
+        break;
+      case DictionaryModeEnum::Organization:
+        return $this->Co->Organization->field('id', array('Organization.name' => $value,
+                                                          'Organization.co_id' => $coId));
+        break;
+      case DictionaryModeEnum::Standard:
+        // As for isValidEntry(), this is slightly tricky because $value could
+        // be a code or a value, but we only want to consider value when code is
+        // empty.
+        
+        $args = array();
+        $args['conditions']['DictionaryEntry.dictionary_id'] = $id;
+        $args['conditions']['OR'][] = array('DictionaryEntry.code' => $value);
+        $args['conditions']['OR'][] = array(
+          'DictionaryEntry.code' => null,
+          'DictionaryEntry.value' => $value
+        );
+
+        $entry = $this->DictionaryEntry->find('first', $args);
+        
+        if(!empty($entry)) {
+          return !empty($entry['DictionaryEntry']['code']) ? $entry['DictionaryEntry']['code'] : $value;
+        }
+        break;
+      default:
+        throw new LogicException('NOT IMPLEMENTED');
+        break;
+    }
+
+    return null;
+  }
 }

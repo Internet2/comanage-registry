@@ -63,6 +63,7 @@
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
         <th><?php print $this->Paginator->sort('ParentCou.name', _txt('fd.parent')); ?></th>
         <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+        <th><?php print $this->Paginator->sort('configuration_labels', _txt('ct.configuration_labels.pl')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
@@ -98,6 +99,7 @@
           ?>
         </td>
         <td><?php print filter_var($c['Cou']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td><?php print filter_var($c['Cou']['configuration_labels'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
           <?php
             if($permissions['edit']) {
@@ -112,7 +114,7 @@
             if($permissions['delete']) {
               print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
                 . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.remove') . '\',\''    // dialog body text
+                . _txt('js.delete') . '\',\''    // dialog body text
                 . $this->Html->url(              // dialog confirm URL
                   array(
                     'controller' => 'cous',
@@ -120,9 +122,9 @@
                     $c['Cou']['id']
                   )
                 ) . '\',\''
-                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.delete') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\',[\''   // dialog title
+                . _txt('op.delete') . '\',[\''   // dialog title
                 . filter_var(_jtxt($c['Cou']['name']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
                 . '\']);">'
                 . _txt('op.delete')

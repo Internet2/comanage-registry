@@ -1401,6 +1401,8 @@ class adoSchema {
 	 */
 	var $existingData;
 
+    var $obj;
+
 	/**
 	 * Creates an adoSchema object
 	 *

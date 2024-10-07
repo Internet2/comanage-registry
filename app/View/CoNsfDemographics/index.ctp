@@ -116,9 +116,9 @@
                 . '" onclick="javascript:js_confirm_generic(\''
                 . _txt('op.delete.consfdemographics') . '\',\'' // dialog body text
                 . $this->Html->url($args) . '\',\''             // dialog confirm URL
-                . _txt('op.remove') . '\',\''    // dialog confirm button
+                . _txt('op.delete') . '\',\''    // dialog confirm button
                 . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.remove') . '\');">'   // dialog title
+                . _txt('op.delete') . '\');">'   // dialog title
                 . _txt('op.delete')
                 . '</button>';
             }

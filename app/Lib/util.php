@@ -145,6 +145,29 @@ function formatAdHoc($aha) {
 }
 
 /**
+ * Format a Contact for rendering.
+ *
+ * @since  COmanage Registry v4.4.0
+ * @param  array  $contact Contact
+ * @return string          Formatted string
+ */
+
+function formatContact($contact) {
+  // We'll just keep looking for fields to render until we find one
+
+  if(!empty($contact['given']) || !empty($contact['family'])) {
+    return generateCn($contact);
+  }
+
+  foreach(array('company', 'mail', 'number') as $t)
+  if(!empty($contact[$t])) {
+    return $contact[$t];
+  }
+
+  return "(?)";
+}
+
+/**
  * Render a telephone number in E.123 format
  *
  * @since  COmanage Registry v0.9.4

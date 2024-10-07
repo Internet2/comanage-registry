@@ -187,9 +187,17 @@ class IdentityDocument extends AppModel {
                          : '';
     
     if($docType) {
-      $this->validateEnumeration($coId,
-                                 'IdentityDocument.issuing_authority.'.$docType,
-                                 $issuing_authority);
+      // On error, validateEnumeration throws an error, which means the transaction
+      // aborts and ChangelogBehavior leaves its transaction open.
+      if(!$this->validateEnumeration($coId,
+                                     'IdentityDocument.issuing_authority.'.$docType, 
+                                     $issuing_authority)) {
+        // We need to close any open Changelog Transaction in case we're run within a Job
+
+        $this->abortChangelogTxn();
+
+        throw new InvalidArgumentException(_txt('er.ae.value', array('IdentityDocument.issuing_authority.'.$docType)));
+      }
     }
     
     // Possibly convert the requested timestamps to UTC from browser time.
@@ -202,16 +210,16 @@ class IdentityDocument extends AppModel {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data[$this->alias]['valid_from'], $localTZ);
 
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data[$this->alias]['valid_from'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data[$this->alias]['valid_from'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
 
       if(!empty($this->data[$this->alias]['valid_through'])) {
         // This returns a DateTime object adjusting for localTZ
         $offsetDT = new DateTime($this->data[$this->alias]['valid_through'], $localTZ);
 
-        // strftime converts a timestamp according to server localtime (which should be UTC)
-        $this->data[$this->alias]['valid_through'] = strftime("%F %T", $offsetDT->getTimestamp());
+        // date converts a timestamp according to server localtime which is UTC
+        $this->data[$this->alias]['valid_through'] = date("Y-m-d H:i:s", $offsetDT->getTimestamp());
       }
     }
     

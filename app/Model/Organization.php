@@ -41,9 +41,14 @@ class Organization extends AppModel {
     "Co"
   );
   
+  public $hasOne = array(
+    "OrganizationSourceRecord" => array('dependent' => true)
+  );
+  
   public $hasMany = array(
     "Address" => array('dependent' => true),
     "AdHocAttribute" => array('dependent' => true),
+    "Contact" => array('dependent' => true),
     "EmailAddress" => array('dependent' => true),
     "Identifier" => array('dependent' => true),
     "TelephoneNumber" => array('dependent' => true),
@@ -80,8 +85,49 @@ class Organization extends AppModel {
         'required' => false,
         'allowEmpty' => true
       )
+    ),
+    'saml_scope' => array(
+      'rule' => array('validateInput'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'logo_url' => array(
+      'content' => array(
+        'rule' => array('url', true),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_URL))
+      )
     )
   );
+
+  /**
+   * Lookup an Organization based on an Identifier associated with it.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  integer $coId        CO ID
+   * @param  string  $identifier  Identifier (currently all types are searched)
+   * @return array                Array, as returned by find
+   */
+
+  public function lookupByIdentifier($coId, $identifier) {
+    $args = array();
+    $args['conditions']['Organization.co_id'] = $coId;
+    $args['conditions']['Identifier.identifier'] = $identifier;
+    $args['conditions']['Identifier.status'] = SuspendableStatusEnum::Active;
+    $args['conditions']['Identifier.deleted'] = false;
+    $args['conditions']['Identifier.identifier_id'] = null;
+    $args['joins'][0]['table'] = 'identifiers';
+    $args['joins'][0]['alias'] = 'Identifier';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'Identifier.organization_id=Organization.id';
+    $args['contain'] = false;
+
+    return $this->find('all', $args);
+  }
   
   /**
    * Perform a keyword search.
@@ -107,7 +153,7 @@ class Organization extends AppModel {
     $args['conditions']['Organization.co_id'] = $coId;
     $args['order'] = array('Organization.name');
     $args['contain'] = false;
-    
+
     return $this->find('all', $args);
   }
 }

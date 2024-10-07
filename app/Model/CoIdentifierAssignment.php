@@ -97,7 +97,7 @@ class CoIdentifierAssignment extends AppModel {
                                                  IdentifierEnum::OpenID,
                                                  IdentifierEnum::UID))),
         'required' => false,
-        'allowEmpty' => false
+        'allowEmpty' => true
       )
     ),
     'email_type' => array(
@@ -114,6 +114,8 @@ class CoIdentifierAssignment extends AppModel {
     ),
     'login' => array(
       'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     ),
     'algorithm' => array(
       'rule' => array(
@@ -138,6 +140,11 @@ class CoIdentifierAssignment extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'minimum_length' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'minimum' => array(
       'rule' => 'numeric',
       'required' => false,
@@ -145,6 +152,11 @@ class CoIdentifierAssignment extends AppModel {
     ),
     'maximum' => array(
       'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'transliterate' => array(
+      'rule' => 'boolean',
       'required' => false,
       'allowEmpty' => true
     ),
@@ -339,9 +351,63 @@ class CoIdentifierAssignment extends AppModel {
         $iaFormat = $coIdentifierAssignment['CoIdentifierAssignment']['format'];
       }
 
+      // Possibly transliterate names. We have a name array for People, or a simple
+      // string for other entities.
+
+      $nameinfo = $obj['PrimaryName'] ?? $obj[$objType]['name'];
+
       try {
+        if(isset($coIdentifierAssignment['CoIdentifierAssignment']['transliterate'])
+           && $coIdentifierAssignment['CoIdentifierAssignment']['transliterate']) {
+          // The PHP transliteration library is basically a wrapper around unicode libraries.
+          // The documentation is extremely technical and has a fairly steep learning curve.
+          // A background in linguistics helps, but only somewhat.
+          // 
+          //   https://unicode-org.github.io/icu/userguide/transforms/general/
+          //   http://www.unicode.org/reports/tr15/#Norm_Forms
+          //
+          // Any-Latin will convert any script to a Latin representation, which might still
+          // have composed characters, such as é. We shouldn't actually use "Any", though, since
+          // by default Japanese Kanji (which are Chinese derived characters) will be
+          // transliterated using Chinese guidance. Unfortunately there isn't a better
+          // option available, and the transliterator library basically gives up and doesn't
+          // try to address Japanese.
+          //
+          // NFKD will decompose and separate, so (eg) the "ﬁ" ligature becomes "f" and "i",
+          // and å becomes just a. For identifier assignment, this is preferable... in the
+          // unlikely event someone pastes in "ﬁ" we really want "fi".
+          //
+          // We could perform other transformations here, such as converting to lowercase,
+          // but for the sake of functional compartmentalization we don't.
+          //
+          // Note this approach isn't without problems. For exmaple, Kanji in Japanese can
+          // translate to multiple words each with different pronunciations, and therefore
+          // different transliterations. Or, different European speakers might prefer
+          // different transliterations, eg å to a or aa. As such, this feature is
+          // experimental pending real world feedback.
+
+          $txid = "Any-Latin; NFKD; [:Nonspacing Mark:] Remove; NFKC";
+
+          if(is_array($nameinfo)) {
+            // We don't currently support substitutions on honorific or suffix, so we don't
+            // bother transliterating them. We could also use the language field as a hint
+            // for what transliteration to apply, but for now we don't.
+            foreach(array('given', 'middle', 'family') as $n) {
+              if(!empty($nameinfo[$n])) {
+                // This could return false, but it's not clear what to do in that case...
+                // throw an exception?
+                $nameinfo[$n] = transliterator_transliterate($txid, $nameinfo[$n]);
+              }
+            }
+          } else {
+            // Simple string swap
+            
+            $nameinfo = transliterator_transliterate($txid, $nameinfo);
+          }          
+        }
+
         $base = $this->substituteParameters($iaFormat,
-                                            $obj['PrimaryName'] ?? $obj[$objType]['name'],
+                                            $nameinfo,
                                             $obj['Identifier'],
                                             $coIdentifierAssignment['CoIdentifierAssignment']['permitted']);
       }
@@ -372,7 +438,11 @@ class CoIdentifierAssignment extends AppModel {
         
         if(!in_array($candidate, $tested)
            // Also check that we didn't get an empty string
-           && trim($candidate) != false) {
+           && trim($candidate) != false
+           // Or that the candidate is too short
+           && (empty($coIdentifierAssignment['CoIdentifierAssignment']['minimum_length'])
+               || ($coIdentifierAssignment['CoIdentifierAssignment']['minimum_length'] > 0
+                   && strlen($candidate) >= $coIdentifierAssignment['CoIdentifierAssignment']['minimum_length']))) {
           // We have a new candidate (ie: one that wasn't generated on a previous loop),
           // so let's see if it is already in use.
           

@@ -150,6 +150,12 @@ class OrgIdentitiesController extends StandardController {
           'label' => _txt('fd.title'),
           'type' => 'text',
         ),
+        'search.unattached' => array(         // 5th row, right column
+          'label' => _txt('fd.orgidentity.attached.no'),
+          'type' => 'checkbox',
+          'group' => _txt('fd.orgidentity'),
+          'column' => 1
+        ),
       );
     }
   }
@@ -238,12 +244,15 @@ class OrgIdentitiesController extends StandardController {
     $args = array();
     $args['conditions']['OrgIdentitySource.status'] = SuspendableStatusEnum::Active;
     if(!$this->viewVars['pool_org_identities']) {
-      $args['conditions']['OrgIdentitySource.co_id'] = isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : -1;
+      $args['conditions']['OrgIdentitySource.co_id'] = $this->cur_co['Co']['id'] ?? -1;
     }
     $args['fields'] = array('id', 'description');
     $args['contain'] = false;
     
-    $this->set('vv_org_id_sources', $this->OrgIdentitySource->find('list', $args));
+    $this->set(
+      'vv_org_id_sources',
+      isset($this->cur_co['Co']['id']) ? $this->OrgIdentitySource->find('list', $args) : []
+    );
 
     // Get the affiliations for display in the search filter bar
     global $cm_lang, $cm_texts;
@@ -838,12 +847,23 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['joins'][$jcnt]['alias'] = 'Identifier';
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
       $pagcond['joins'][$jcnt]['conditions'][0] = 'Identifier.org_identity_id=OrgIdentity.id';
+      $jcnt++;
     }
     
     // Filter by org identity source
     if(!empty($this->request->params['named']['search.orgIdentitySource'])) {
       // Cake will auto-join the table
       $pagcond['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
+    }
+
+    // Filter by openness
+    if(!empty($this->params['named']['search.unattached'])) {
+      $pagcond['joins'][$jcnt]['table'] = 'co_org_identity_links';
+      $pagcond['joins'][$jcnt]['alias'] = 'CoOrgIdentityLink';
+      $pagcond['joins'][$jcnt]['type'] = 'LEFT';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'CoOrgIdentityLink.org_identity_id=OrgIdentity.id';
+      $pagcond['conditions'][] = 'CoOrgIdentityLink.id IS NULL';
+      $jcnt++;
     }
 
     // We need to manually add this in for some reason. (It should have been

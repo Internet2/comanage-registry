@@ -1108,6 +1108,39 @@ class AppModel extends Model {
       if(!empty($copt['OrgIdentitySource']['co_id'])) {
         return $copt['OrgIdentitySource']['co_id'];
       }
+    } elseif(isset($this->validate['organization_source_id'])) {
+      // Organization Source plugins will refer to an organization source
+      // Test this before organization_id for Organization Source Records
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'][] = 'OrganizationSource';
+    
+      $os = $this->find('first', $args);
+      
+      if(!empty($os['OrganizationSource']['co_id'])) {
+        return $os['OrganizationSource']['co_id'];
+      }
+    } elseif(isset($this->validate['organization_id'])) {
+      // Find the CO via the Organization
+      // (This is really only for Contacts, since other MVPAs point to CoPerson and are
+      // covered above... sigh, PE makes this better...)
+      
+      $args = array();
+      $args['conditions'][$this->alias.'.id'] = $id;
+      $args['contain'] = array('CoDepartment', 'Organization');
+      
+      $cop = $this->find('first', $args);
+      
+      // Is this an MVPA where this is an org identity, CO department, or Organization?
+      
+      if(!empty($cop['CoDepartment']['co_id'])) {
+        return $cop['CoDepartment']['co_id'];
+      }
+      
+      if(!empty($cop['Organization']['co_id'])) {
+        return $cop['Organization']['co_id'];
+      }
     } elseif(isset($this->validate['co_enrollment_flow_wedge_id'])) {
       // As of v4.0.0, Enroller Plugins refer to an enrollment flow wedge,
       // which in turn refer to an enrollment flow
@@ -1638,16 +1671,13 @@ class AppModel extends Model {
    * @param  integer $coId      CO ID
    * @param  string  $attribute Attribute, in Model.attribute form
    * @param  string  $value     Value to validate
-   * @return boolean            True on success
-   * @throws InvalidArgumentException
+   * @return boolean            True if valid, false otherwise
    */
 
   public function validateEnumeration($coId, $attribute, $value) {
     $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
     
-    $AttributeEnumeration->isValid($coId, $attribute, $value);
-    
-    return true;
+    return $AttributeEnumeration->isValid($coId, $attribute, $value);
   }
   
   /**

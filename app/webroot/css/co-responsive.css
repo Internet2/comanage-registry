@@ -161,9 +161,8 @@
     width: 65%;
     overflow-wrap: anywhere;
   }
-  ul.form-list .field-info-flex {
-    display: inline-flex;
-    align-items: center;
+  ul.form-list .field-desc {
+    padding: 0.25em 1em 0.5em 0.5em;
   }
   ul.form-list-admin .field-name {
     width: 50%;
@@ -176,13 +175,6 @@
   ul.form-list input[type="number"],
   ul.form-list input[type="password"] {
     width: 97%;
-  }
-  ul.form-list .field-info-flex input[type="text"],
-  ul.form-list .field-info-flex input[type="number"],
-  ul.form-list .field-info-flex input[type="password"],
-  ul.form-list .field-info-flex textarea {
-    width: auto;
-    flex-grow: 1;
   }
   ul.form-list li.field-stack textarea {
     margin: 0.5em 0 0.5em 0.5em;

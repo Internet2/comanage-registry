@@ -395,6 +395,19 @@
       ?>
     </div>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title"><?php print _txt('fd.auth.event.rec.api.enable'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php print ($e
+        ? $this->Form->checkbox('authn_events_record_apiusers')
+        : (isset($cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['authn_events_record_apiusers'])
+        && $cmp_enrollment_configurations[0]['CmpEnrollmentConfiguration']['authn_events_record_apiusers']
+          ? _txt('fd.yes') : _txt('fd.no')));
+      print ' ' . $this->Form->label('authn_events_record_apiusers',_txt('op.enable'));
+      ?>
+  </li>
 
   <?php if($e): ?>
     <li class="fields-submit">

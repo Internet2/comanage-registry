@@ -607,7 +607,8 @@
         }
   
         // Test for invalid fields (HTML5) and turn off spinner explicitly if found.
-        if(document.querySelectorAll(":invalid").length) {
+        // Also let the .nospin class override the spin class.
+        if(document.querySelectorAll(":invalid").length || $(this).hasClass('nospin')) {
           stopSpinner();
         }
       }

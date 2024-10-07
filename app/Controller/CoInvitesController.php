@@ -628,6 +628,26 @@ class CoInvitesController extends AppController {
         );
         
         $vAttrs = $this->CoInvite->CoPetition->CoPetitionAttribute->find("list", $vArgs);
+
+        foreach($vAttrs as $ptid => $attributes) {
+            if(isset($attributes['sponsor_co_person_id'])) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $attributes['sponsor_co_person_id'];
+                $args['contain'] = array('PrimaryName');
+
+                $co_person = $this->CoInvite->CoPerson->find('first', $args);
+                $cn = generateCn($co_person['PrimaryName']);
+                $vAttrs[$ptid]['sponsorPrimaryName'] = "{$cn} ({$attributes['sponsor_co_person_id']})";
+            } else if(isset($attributes['manager_co_person_id'])) {
+                $args = array();
+                $args['conditions']['CoPerson.id'] = $attributes['manager_co_person_id'];
+                $args['contain'] = array('PrimaryName');
+
+                $co_person = $this->CoInvite->CoPerson->find('first', $args);
+                $cn = generateCn($co_person['PrimaryName']);
+                $vAttrs[$ptid]['managerPrimaryName'] = "{$cn} ({$attributes['manager_co_person_id']})";
+            }
+        }
         
         $this->set('co_petition_attribute_values', $vAttrs);
         

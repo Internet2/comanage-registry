@@ -88,7 +88,7 @@
         if(!empty(${$lmpl}[0][$mvpa_model])) {
           foreach(${$lmpl}[0][$mvpa_model] as $m) {
             $editable = ($action == 'edit');
-            $removetxt = _txt('js.remove');
+            $removetxt = _txt('js.delete');
             $displaystr = (!empty($mvpa_field) ? $m[$mvpa_field] : "");
             $laction = $action;
             // Store the action list
@@ -312,9 +312,9 @@
                 'onclick' => array(
                   'dg_bd_txt' => $removetxt,
                   'dg_url' => $this->Html->url($dg_url),
-                  'dg_conf_btn' => _txt('op.remove'),
+                  'dg_conf_btn' => _txt('op.delete'),
                   'dg_cancel_btn' => _txt('op.cancel'),
-                  'dg_title' => _txt('op.remove'),
+                  'dg_title' => _txt('op.delete'),
                   'db_bd_txt_repl_str' => filter_var(_jtxt($displaystr),FILTER_SANITIZE_STRING),
                 ),
               );

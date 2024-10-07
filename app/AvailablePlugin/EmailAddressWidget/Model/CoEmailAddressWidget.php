@@ -83,15 +83,17 @@ class CoEmailAddressWidget extends CoDashboardWidgetBackend {
    *
    * @since COmanage Registry v4.1.0
    * @param string  $emailAddress Email address to be added
+   * @param string  $emailId      Email address ID (for update/replace)
    * @param string  $emailType    Type of email address to be added
    * @param integer $copersonid   The CO Person to be added the email
    * @return integer id of the new row
    */
-  public function generateToken($emailAddress, $emailType, $copersonid) {
+  public function generateToken($emailAddress, $emailId, $emailType, $copersonid) {
     $token = generateRandomToken(8);
 
     $fields = array(
       'email' => $emailAddress,
+      'email_id' => $emailId,
       'type' => $emailType,
       'token' => $token,
       'co_email_address_widget_id' => $this->id,

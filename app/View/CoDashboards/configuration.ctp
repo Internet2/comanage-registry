@@ -145,6 +145,12 @@
       'controller'    => 'org_identity_sources',
       'action'        => 'index'
     ),
+    _txt('ct.organization_sources.pl') => array(
+      'icon'          => 'cloud_sync',
+      'permissionKey' => 'orgsources',
+      'controller'    => 'organization_sources',
+      'action'        => 'index'
+    ),
     _txt('ct.co_pipelines.pl') => array(
       'icon'          => 'input',
       'permissionKey' => 'copipelines',
@@ -185,6 +191,12 @@
       'icon'          => 'verified_user',
       'permissionKey' => 'vettingsteps',
       'controller'    => 'vetting_steps',
+      'action'        => 'index'
+    ),
+    _txt('ct.configuration_labels.pl') => array(
+      'icon'          => 'label',
+      'permissionKey' => 'configurationlabels',
+      'controller'    => 'configuration_labels',
       'action'        => 'index'
     )
   );

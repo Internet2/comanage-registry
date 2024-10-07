@@ -58,6 +58,7 @@ class CoDepartment extends AppModel {
   public $hasMany = array(
     "Address" => array('dependent' => true),
     "AdHocAttribute" => array('dependent' => true),
+    "Contact" => array('dependent' => true),
     "EmailAddress" => array('dependent' => true),
     "Identifier" => array('dependent' => true),
     "TelephoneNumber" => array('dependent' => true),
@@ -102,6 +103,22 @@ class CoDepartment extends AppModel {
       'rule' => array('validateInput'),
       'required' => false,
       'allowEmpty' => true
+    ),
+    'saml_scope' => array(
+      'rule' => array('validateInput'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'logo_url' => array(
+      'content' => array(
+        'rule' => array('url', true),
+        'required' => false,
+        'allowEmpty' => true,
+      ),
+      'filter' => array(
+        'rule' => array('validateInput',
+                        array('filter' => FILTER_SANITIZE_URL))
+      )
     ),
     'leadership_co_group_id' => array(
       'content' => array(

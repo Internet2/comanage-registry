@@ -134,6 +134,12 @@ class CoGroupsController extends StandardController {
           'type' => 'checkbox',
           'column' => 1
         ),
+        'search.noapprover' => array(                // 4th row, left column
+          'label' => _txt('fd.co_group.no_approver'),
+          'group' => _txt('fd.membership'),
+          'type' => 'checkbox',
+          'column' => 1
+        ),
         'search.owner' => array(                 // 4th row, right column, inline
           'label' => ($action === 'select' ? _txt('fd.co_group_member.owner') : _txt('fd.co_group.my_ownerships')),
           'group' => _txt('fd.membership'),
@@ -651,8 +657,14 @@ class CoGroupsController extends StandardController {
     if($this->request->is('restful')) {
       if($this->request->method() == "GET"
          && isset($this->request->query["copersonid"])) {
-        return $this->CoGroup->Co->CoPerson->field('co_id',
-                                                    array('id' => $this->request->query["copersonid"]));
+        $coId =  $this->CoGroup->Co->CoPerson->field('co_id',
+                                                     array('id' => $this->request->query["copersonid"]));
+
+        if(empty($coId)) {
+          throw new NotFoundException(_txt('er.notfound-b', array(_txt('ct.co_people.1'))));
+        }
+        
+        return $coId;
       }
     }
 
@@ -832,12 +844,12 @@ class CoGroupsController extends StandardController {
 
     // Exclude admin groups
     if(!empty($this->params['named']['search.noadmin'])) {
-      $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Admins;
+      $pagcond['conditions'][] = "CoGroup.group_type <> '" . GroupEnum::Admins . "'";
     }
 
     // Exclude approvers groups
     if(!empty($this->params['named']['search.noapprover'])) {
-      $pagcond['conditions']['CoGroup.group_type <>'] = GroupEnum::Approvers;
+      $pagcond['conditions'][] = "CoGroup.group_type <> '" . GroupEnum::Approvers . "'";
     }
 
     // Filter by membership and ownership

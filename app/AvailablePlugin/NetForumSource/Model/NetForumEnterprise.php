@@ -396,9 +396,9 @@ class NetForumEnterprise extends NetForumServer {
     
     // The format here is a Unix timestamp, which we created when we parsed the membership records
     if(!empty($result->Membership->ValidFrom))
-      $orgdata['OrgIdentity']['valid_from'] = strftime("%F %T", (integer)$result->Membership->ValidFrom);
+      $orgdata['OrgIdentity']['valid_from'] = date("Y-m-d H:i:s", (integer)$result->Membership->ValidFrom);
     if(!empty($result->Membership->ValidThrough))
-      $orgdata['OrgIdentity']['valid_through'] = strftime("%F %T", (integer)$result->Membership->ValidThrough);
+      $orgdata['OrgIdentity']['valid_through'] = date("Y-m-d H:i:s", (integer)$result->Membership->ValidThrough);
     
     $orgdata['Name'] = array();
     if(!empty($result->ind_first_name))

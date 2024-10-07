@@ -262,7 +262,8 @@
                   'CoService' => 'name',
                   'CoDepartment' => 'name',
                   'CoEmailList' => 'name',
-                  'CoEnrollmentFlow' => 'name')
+                  'CoEnrollmentFlow' => 'name',
+                  'Organization' => 'name')
             as $m => $k) {
       if(!empty($vv_results[$m])) {
         $mpl = Inflector::tableize($m);

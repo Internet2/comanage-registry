@@ -210,6 +210,18 @@ class ContactEnum
   const Postal      = 'postal';
 }
 
+// Note ContactTypeEnum is for the default Extended Types associated with the Contact MVPA,
+// whereas ContactEnum is for TelephoneNumber and Address
+class ContactTypeEnum
+{
+  // These are from the SAML Metadata 2.0 spec
+  const Administrative  = 'administrative';
+  const Billing         = 'billing';
+  const Other           = 'other';
+  const Support         = 'support';
+  const Technical       = 'technical';
+}
+
 class DataFilterContextEnum
 {
   const OrgIdentitySource  = 'OS';
@@ -241,6 +253,14 @@ class EmailAddressEnum {
   const Personal      = 'personal';
   const Preferred     = 'preferred';
   const Recovery      = 'recovery';
+}
+  
+class EnrollmentApprovalConfirmationModeEnum
+{
+  const Always        = 'AL';
+  const Approval      = 'AP';
+  const Denial        = 'D';
+  const Never         = 'N';
 }
 
 class EnrollmentAuthzEnum {
@@ -308,6 +328,8 @@ class GroupEnum
   const AllMembers    = "M";
   const Approvers     = "AP";
   // XXX CO-1100, not yet supported
+
+  const Clusters      = 'CL';
   const NestedAdmins  = "AN";
   const NestedMembers = "MN";
 }
@@ -401,6 +423,7 @@ class IdentifierEnum
   const AffiliateSOR       = 'sor-affiliate';
   const Badge              = 'badge';
   const Enterprise         = 'enterprise';
+  const EntityID           = 'entityid';
   const ePPN               = 'eppn';
   const ePTID              = 'eptid';
   const ePUID              = 'epuid';
@@ -408,6 +431,7 @@ class IdentifierEnum
   const GuestSOR           = 'sor-guest';
   const HRSOR              = 'sor-hr';
   const Mail               = 'mail';
+  const Name               = 'name';
   const National           = 'national';
   const Network            = 'network';
   const OIDCsub            = 'oidcsub';
@@ -555,8 +579,14 @@ class Oauth2GrantEnum
 
 class OrganizationEnum {
   const Academic            = 'edu';
+  const Archive             = 'archive';
   const Commercial          = 'com';
+  const Facility            = 'facility';
+  const Funder              = 'funder';
   const Government          = 'gov';
+  const HealthCare          = 'health';
+  const NonProfit           = 'nonprofit';
+  const Other               = 'other';
 }
 
 class OrgIdentityMismatchEnum
@@ -569,6 +599,14 @@ class OrgIdentityStatusEnum
 {
   const Removed          = 'RM';
   const Synced           = 'SY';
+}
+
+class OrgSyncModeEnum
+{
+  const Accrual = 'A';
+  const Full    = 'F';
+  const Manual  = 'M';
+  const Update  = 'U';
 }
 
 class PeoplePickerModeEnum
@@ -729,6 +767,7 @@ class ServerEnum
   // When adding a new server type, be sure to add it to ServersController::view_contains
   const HttpServer    = 'HT';
   const KafkaServer   = 'KA';
+  const KdcServer     = 'KC';
 // CO-1320
 //  const LdapServer    = 'LD';
   const MatchServer   = 'MT';
