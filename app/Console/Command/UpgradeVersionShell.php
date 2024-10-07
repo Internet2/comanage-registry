@@ -688,9 +688,6 @@ class UpgradeVersionShell extends AppShell {
   }
 
   public function post440() {
-    // 4.4.0 adds the Contact MVPA, so we instantiate the default types across all COs.
-    $this->out(_txt('sh.ug.440.contact'));
-    
     $args = array();
     $args['contain'] = false;
     
@@ -699,8 +696,14 @@ class UpgradeVersionShell extends AppShell {
     // We update inactive COs as well, in case they become active again
     foreach($cos as $co) {
       $this->out('- ' . $co['Co']['name']);
-
+      
+      // 4.4.0 adds the Contact MVPA, so we instantiate the default types across all COs.
+      $this->out(_txt('sh.ug.440.contact'));
       $this->CoExtendedType->addDefault($co['Co']['id'], 'Contact.type');
+
+      // 4.4.0 adds the cluster grout type across all COs
+      $this->out(_txt('sh.ug.440.cluster'));
+      $this->CoGroup->_ug440($co['Co']['id']);
     }
 
     // Configuration: Enable Authentication Events for API users

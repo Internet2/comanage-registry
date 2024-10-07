@@ -328,6 +328,8 @@ class GroupEnum
   const AllMembers    = "M";
   const Approvers     = "AP";
   // XXX CO-1100, not yet supported
+
+  const Clusters      = 'CL';
   const NestedAdmins  = "AN";
   const NestedMembers = "MN";
 }
