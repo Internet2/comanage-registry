@@ -30,6 +30,10 @@ App::uses("CoProvisionerPluginTarget", "Model");
 class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
   // Define class name for cake
   public $name = "CoLdapProvisionerTarget";
+
+  /** @var int NETWORK_TIMEOUT_DEFAULT */
+  // 10 means 10 seconds
+  public const NETWORK_TIMEOUT_DEFAULT = 10;
   
   // Add behaviors
   public $actsAs = array('Containable');
@@ -1823,6 +1827,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     // Use LDAP v3 (this could perhaps become an option at some point), although note
     // that ldap_rename (used below) *requires* LDAP v3.
     ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
+    ldap_set_option($cxn, LDAP_OPT_NETWORK_TIMEOUT, self::NETWORK_TIMEOUT_DEFAULT);
 
     error_reporting(0);
     if(!@ldap_bind($cxn,
@@ -2000,6 +2005,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Use LDAP v3 (this could perhaps become an option at some point)
     ldap_set_option($cxn, LDAP_OPT_PROTOCOL_VERSION, 3);
+    ldap_set_option($cxn, LDAP_OPT_NETWORK_TIMEOUT, self::NETWORK_TIMEOUT_DEFAULT);
 
     error_reporting(0);
     if(!@ldap_bind($cxn, $bindDn, $password)) {
