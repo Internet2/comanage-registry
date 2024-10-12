@@ -247,4 +247,87 @@ class Dictionary extends AppModel {
 
     return null;
   }
+  
+  /**
+   * Given a string in the Dictionary, find the corresponding display value.
+   *
+   * @since  COmanage Registry v4.4.0
+   * @param  integer  $id     Dictionary ID
+   * @param  string   $value  Value to check
+   * @return string           Display string
+   * @throws InvalidArgumentException
+   */
+  
+  public function mapToString($id, $value) {
+    // This is similar to isValidEntry, above, however we try to find a display
+    // string in accordance with our configuratio.
+
+    $mode = $this->field('mode', array('Dictionary.id' => $id));
+    $coId = $this->field('co_id', array('Dictionary.id' => $id));
+    
+    if(!$mode) {
+      throw new InvalidArgumentException(_txt('er.notfound', array('ct.dictionaries.1', $id)));
+    }
+    
+    switch($mode) {
+      case DictionaryModeEnum::Department:
+        // $value is actually CoDepartment.id. We check the co_id and return the name.
+        $args = array();
+        $args['conditions']['CoDepartment.id'] = (int)$value;
+        // We shouldn't need to do this, but since the field is technically a string...
+        $args['conditions']['CoDepartment.co_id'] = $coId;
+        $args['contain'] = false;
+
+        $dept = $this->Co->CoDepartment->find('first', $args);
+
+        if(empty($dept)) {
+          throw new InvalidArgumentException(_txt('er.notfound', array('ct.co_departments.1', $value)));
+        }
+
+        return $dept['CoDepartment']['name'];
+        break;
+      case DictionaryModeEnum::Organization:
+        // Similar to Department, above
+        $args = array();
+        $args['conditions']['Organization.id'] = (int)$value;
+        $args['conditions']['Organization.co_id'] = $coId;
+        $args['contain'] = false;
+
+        $org = $this->Co->Organization->find('first', $args);
+
+        if(empty($org)) {
+          throw new InvalidArgumentException(_txt('er.notfound', array('ct.organizations.1', $value)));
+        }
+
+        return $org['Organization']['name'];
+        break;
+      case DictionaryModeEnum::Standard:
+        // Make sure $value is valid. This is slightly tricky because $value could
+        // be a code or a value, but we only want to consider value when code is
+        // empty. Note these checks are intentionally case sensitive, since they
+        // should come from a prepopulated list and match exactly.
+        
+        $args = array();
+        $args['conditions']['DictionaryEntry.dictionary_id'] = $id;
+        $args['conditions']['OR'][] = array('DictionaryEntry.code' => $value);
+        $args['conditions']['OR'][] = array(
+          'DictionaryEntry.code' => null,
+          'DictionaryEntry.value' => $value
+        );
+        
+        // In either case we want to return the value, not the code
+
+        $entry = $this->DictionaryEntry->find('first', $args);
+
+        if(empty($entry)) {
+          throw new InvalidArgumentException(_txt('er.notfound', array('ct.dictionary_entries.1', $value)));
+        }
+
+        return $entry['DictionaryEntry']['value'];
+        break;
+      default:
+        throw new LogicException('NOT IMPLEMENTED');
+        break;
+    }
+  }
 }

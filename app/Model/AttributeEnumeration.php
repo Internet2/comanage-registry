@@ -114,6 +114,27 @@ class AttributeEnumeration extends AppModel {
     
     return true;
   }
+
+  /**
+   * Determine if an Attribute Enumeration is enabled for the specified attribute.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  integer $coId      CO ID
+   * @param  string  $attribute Attribute, of the form Model.attribute
+   * @return boolean            True if $attribute has an Attribute Enumeration, false otherwise
+   */
+
+  public function enabled($coId, $attribute) {
+    $args = array();
+    $args['conditions']['AttributeEnumeration.co_id'] = $coId;
+    $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $cfg = $this->find('first', $args);
+
+    return !empty($cfg);
+  }
   
   /**
    * Determine the available enumeration values for a given attribute.
@@ -181,6 +202,58 @@ class AttributeEnumeration extends AppModel {
     }
     
     return false;
+  }
+  
+  /**
+   * Convert an entry (as stored on the CoPersonRole or OrgIdentity) to a string
+   * (the display value of the enumeration) in accordance with the AtrtibuteEnumeration
+   * configuration.
+   * 
+   * @since  COmanage Registry v4.4.0
+   * @param  integer  $coId       CO ID
+   * @param  string   $attribute  Attribute, of the form Model.attribute
+   * @param  string   $value      Value to map
+   * @return string               Display string
+   * @throws InvalidArgumentException
+   */
+
+  public function mapEntryToString($coId, $attribute, $value) {
+    // This is pretty similar to isValid(), above, except we want to return a
+    // string instead of a boolean.
+
+    // First, see if there is an enumeration defined for $coId + $attribute.
+    
+    $args = array();
+    $args['conditions']['AttributeEnumeration.co_id'] = $coId;
+    $args['conditions']['AttributeEnumeration.attribute'] = $attribute;
+    $args['conditions']['AttributeEnumeration.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+    
+    $attrEnum = $this->find('first', $args);
+
+    // If there is no configuration, we just return $value
+
+    if(empty($attrEnum)) {
+      return $value;
+    }
+
+    // If there is a Dictionary, ask the Dictionary to map the value
+
+    try {
+      return $this->Dictionary->mapToString($attrEnum['AttributeEnumeration']['dictionary_id'], $value);
+    }
+    catch(InvalidArgumentException $e) {
+      // If there was a not-found error we'll fall through to see if allow_other applies
+    }
+
+    // If we allow_other, return $value
+    
+    if(isset($attrEnum['AttributeEnumeration']['allow_other']) 
+       && $attrEnum['AttributeEnumeration']['allow_other']) {
+      return $value;
+    }
+    
+    throw new InvalidArgumentException('er.ae.value', array($value));
   }
 
   /**

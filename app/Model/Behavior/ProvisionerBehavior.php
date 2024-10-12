@@ -1192,6 +1192,28 @@ class ProvisionerBehavior extends ModelBehavior {
                                 $coPersonModel->Co->Cluster->marshallProvisioningData($coPersonData['CoPerson']['co_id'],
                                                                                       $coPersonData['CoPerson']['id']));
     
+    // If Attribute Enumerations are defined on any of the CoPersonRole attributes,
+    // make sure their values (not codes) are exported for provisioning purposes.
+    // (We could do this after removing any inactive Roles, but it's clearer to keep
+    // the "clean up" operations together.)
+
+    if(!empty($coPersonData['CoPersonRole'])) {
+      // We simply call mapEntryToString for all supported fields, since it will correctly
+      // handle cases where there is no Attribute Enumeration defined.
+
+      $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
+
+      for($i = 0;$i < count($coPersonData['CoPersonRole']);$i++) {
+        // We should really use AttributeEnumeration::supportedAttrs()...
+
+        foreach(array('o', 'ou', 'title') as $f) {
+          if(!empty($coPersonData['CoPersonRole'][$i][$f])) {
+            $coPersonData['CoPersonRole'][$i][$f] = $AttributeEnumeration->mapEntryToString($coPersonData[$coPersonModel->alias]['co_id'], 'CoPersonRole.'.$f, $coPersonData['CoPersonRole'][$i][$f]);
+          }
+        }
+      }
+    }
+
     // At the moment, if a CO Person is not active we remove their Role Records
     // (even if those are active) and group memberships, but leave the rest of the
     // data in tact.

@@ -1400,6 +1400,7 @@ The request may be viewed at
   'fd.admin' =>       'Administrator',
   'fd.ae.allow_other' => 'Allow Other Values',
   'fd.ae.allow_other.desc' => 'If enabled, a free form field will be made available in addition to the select list',
+  'fd.ae.attr.other' => 'Other Value:',
   'fd.affil-a' =>     '%1$s Affiliation',
   'fd.affiliation' => 'Affiliation',
   'fd.affiliation.ep' => 'eduPersonAffiliation',

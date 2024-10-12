@@ -29,25 +29,77 @@
 $mname = (!empty($modelName) ? $modelName : Inflector::singularize($this->name));
 // eg: "co_person_roles"
 $tname = Inflector::tableize($this->name);
+
+// We work with three fields for each attribute:
+// (1) #attribute-select: The select list with the enumeration values
+// (2) #attribute-other: If "allow other values" is enabled, the free form field
+// (3) #attribute-field: The actual field, which will be hidden if there is an
+//     enumeration, and whose name can vary depending on whether we are the operational
+//     attribute or in a petition
+
+// Some shortcuts
+$field = !empty($fieldName) ? $fieldName : ($mname . "." . $column);
+// Camel Case field
+$cField = $mname . Inflector::camelize($column);
+
+$enumEnabled = !empty($vv_enums[$field]['dictionary']);
+$allowOther = isset($vv_enums[$field]['allow_other']) && $vv_enums[$field]['allow_other'];
 ?>
 <?php if($editable): ?>
+  <!-- (1) The select widget -->
+
   <div id="<?php print $column; ?>-enumeration" style="display:none" class="mb-1">
-    <select id="<?php print $column; ?>-select" onchange='enum_set_value("<?php print $mname . Inflector::camelize($column); ?>", "<?php print $column; ?>");'>
+    <select class="form-control" id="<?php print $cField; ?>Select" onchange="enum_set_value('Select', '<?php print $mname . Inflector::camelize($column); ?>', '<?php print $column; ?>')">
     </select>
   </div>
-  <div id="<?php print $column; ?>-field">
+
+  <!-- (2) The "other" widget -->
+
+  <div id="<?php print $column; ?>-other" style="display:none" class="mb-1">
     <?php
       $args = array();
-      $args['onkeyup'] = "document.getElementById('".$column."-select').value = ''";
+      // onkeyup
+      $args['onchange'] = "enum_set_value('Other', '" . $mname . Inflector::camelize($column) . "', '" . $column . "')";
+      $args['class'] = 'form-control';
+      $args['label'] = $allowOther ? _txt('fd.ae.attr.other') : false;
+      $args['id'] = $cField . "Other";
       
+      print $this->Form->input($column."-other", $args);
+    ?>
+  </div>
+
+  <!-- (3) The actual field -->
+
+  <div id="<?php print $column; ?>-field" style="display:xxxnone" class="mb-1">
+    <?php
+      $args = array();
+      $args['class'] = 'form-control';
+      $args['required'] = isset($required) && $required;
+      $args['label'] = false;
+
+      if(!empty($default)) {
+        $args['value'] = $default;
+      }
+
       if(!empty($fieldName)) {
-        $args['label'] = false;
         print $this->Form->input($fieldName, $args);
       } else {
         print $this->Form->input($mname.'.'.$column, $args);
       }
     ?>
   </div>
+
 <?php else: // $editable ?>
-  <?php print filter_var($$tname[0][$mname][$column],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+  <?php 
+    if(!empty($$tname[0][$mname][$column])) {
+      // Standard field
+      print filter_var($$tname[0][$mname][$column],FILTER_SANITIZE_SPECIAL_CHARS);
+    } elseif(!empty($vv_enums[$fieldName]['dictionary'][$default])) {
+      // Petition view, value set that corresponds to dictionary entry
+      print filter_var($vv_enums[$fieldName]['dictionary'][$default],FILTER_SANITIZE_SPECIAL_CHARS);
+    } elseif(!empty($default)) {
+      // Petition view, value set that does not correspond to dictionary entry
+      print filter_var($default,FILTER_SANITIZE_SPECIAL_CHARS);
+    }
+  ?>
 <?php endif; // $editable ?>
