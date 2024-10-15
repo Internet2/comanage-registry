@@ -921,7 +921,9 @@ class CoPipeline extends AppModel {
           'title'                => $orgIdentity['OrgIdentity']['title'],
           'valid_from'           => $orgIdentity['OrgIdentity']['valid_from'],
           'valid_through'        => $orgIdentity['OrgIdentity']['valid_through'],
-          'status'               => StatusEnum::Active,
+          // Set the new role status to be the same as the new Person status, 
+          // to match sync_coperson_status (but only on add)
+          'status'               => !empty($coPerson['CoPerson']['status']) ? $coPerson['CoPerson']['status'] : StatusEnum::Active,
           // Note the inbound record will contain 'manager_identifier' and
           // 'sponsor_identifier'. Those are populated below, these are so
           // comparison against the CoPersonRole record works.
