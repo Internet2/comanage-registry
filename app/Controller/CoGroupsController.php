@@ -121,6 +121,7 @@ class CoGroupsController extends StandardController {
           'type'    => 'select',
           'empty'   => _txt('op.select.all'),
           'options' => _txt('en.group.type'),
+          'element' => 'multiSelect',
         ),
         'search.member' => array(                 // 4th row, right column
           'label' => ($action === 'select' ? _txt('fd.co_group_member.member') : _txt('fd.co_group.my_memberships')),
@@ -839,7 +840,7 @@ class CoGroupsController extends StandardController {
     // Filter by group type
     if(!empty($this->params['named']['search.group_type'])) {
       $searchterm = $this->params['named']['search.group_type'];
-      $pagcond['conditions']['CoGroup.group_type'] = $searchterm;
+      $pagcond['conditions']['CoGroup.group_type'] = explode(',', $searchterm);
     }
 
     // Exclude admin groups

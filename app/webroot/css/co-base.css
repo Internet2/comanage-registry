@@ -1654,6 +1654,7 @@ a.ui-button:visited,
 }
 .top-search input[type=text],
 .top-search select,
+.p-multiselect.top-search,
 .side-search input[type=text],
 .side-search select {
   width: 100%;
@@ -1662,6 +1663,7 @@ a.ui-button:visited,
   height: 28px;
   padding: 2px 4px;
   border: 1px solid #ddd;
+  border-radius: 0;
   background-color: #fff;
 }
 .top-search label,
