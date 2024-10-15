@@ -2028,7 +2028,7 @@ The request may be viewed at
   'fd.set.not' =>     'Not Set',
   'fd.sorid' =>       'Source Key',
   'fd.sor_label' =>   'System of Record Label',
-  'fd.sor_label.desc' => 'Label used by ID Match server, see <a href="https://spaces.at.internet2.edu/display/COmanage/Integrating+With+ID+Match#IntegratingWithIDMatch-SystemofRecordLabelssorlabel">Integrating With ID Match</a> for details',
+  'fd.sor_label.desc' => 'Label used by ID Match server, see <a href="https://spaces.at.internet2.edu/display/COmanage/Integrating+With+ID+Match#IntegratingWithIDMatch-SystemofRecordLabelssorlabel">Integrating With ID Match</a> for details. May also be used by plugins as needed.',
   'fd.sort.by' =>     'Sort By',
   'fd.source' =>      'Source',
   'fd.sponsor' =>     'Sponsor',
