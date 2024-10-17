@@ -1,0 +1,37 @@
+.p-multiselect .p-multiselect-label.p-placeholder {
+    color: black;
+    font-size: inherit;
+}
+
+.p-multiselect .p-multiselect-label {
+    padding: 0.1em 0 0;
+}
+
+.p-multiselect .p-multiselect-trigger {
+    background: transparent;
+    color: black;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    height: 10px;
+    width: 10px;
+    align-self: center;
+}
+
+.p-multiselect-panel .p-multiselect-header,
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    color: black;
+}
+
+.p-multiselect-header .p-checkbox::after {
+    content: "Select all Items";
+    position: absolute;
+    width: 10em;
+    left: 2.5em;
+    bottom: 0;
+}
+
+.p-component {
+    font-size: inherit;
+}

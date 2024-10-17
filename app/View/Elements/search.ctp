@@ -101,13 +101,14 @@ $hasActiveFilters = false;
               }
               // Construct aria-controls string
               $key_fields = explode('.', $key);
-              $aria_controls = $key_fields[0] . ucfirst($key_fields[1]);
+              $aria_controls = $key_fields[0] . Inflector::camelize($key_fields[1]);
 
               // We have named filters - not just a sort.
               $hasActiveFilters = true;
             ?>
             <button class="top-search-active-filter deletebutton spin"
-                    type="button" aria-controls="<?php print $aria_controls; ?>"
+                    type="button"
+                    aria-controls="<?php print $aria_controls; ?>"
                     title="<?php print _txt('op.clear.filters.1');?>">
                <span class="top-search-active-filter-title<?php print !is_null(filter_var(urldecode($params), FILTER_VALIDATE_BOOLEAN,FILTER_NULL_ON_FAILURE)) ? " no-value" : "" ?>">
                  <?php print $vv_search_fields[$key]['label']; ?>
@@ -118,8 +119,7 @@ $hasActiveFilters = false;
                  $value = $params;
                  // Get user friendly name from an Enumerator Class
                  // XXX How should we handle dynamic Enumerator lists?
-                 if(isset($vv_search_fields[$key]['enum'])
-                    && isset($cm_texts[ $cm_lang ][$vv_search_fields[$key]['enum']][$params])) {
+                 if(isset($vv_search_fields[$key]['enum'], $cm_texts[$cm_lang][$vv_search_fields[$key]['enum']][$params])) {
                    $value = $cm_texts[ $cm_lang ][$vv_search_fields[$key]['enum']][$params];
                    print filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
                    continue;
@@ -127,17 +127,22 @@ $hasActiveFilters = false;
                  // Get user friendly name from the dropdown Select List
                  // XXX Currently we do not have a use case where the grouping name would create a namespace
                  if (isset($vv_search_fields[$key]['options'])) {
-                   // Outside any groups
-                   if (isset($vv_search_fields[$key]['options'][$value])) {
-                     print filter_var($vv_search_fields[$key]['options'][$value], FILTER_SANITIZE_SPECIAL_CHARS);
-                   } else {
-                     // Inside a group
-                     foreach(array_keys($vv_search_fields[$key]['options']) as $optgroup) {
-                       if( is_array($vv_search_fields[$key]['options'][$optgroup])
-                           && isset($vv_search_fields[$key]['options'][$optgroup][$value]) ) {
-                         print filter_var($vv_search_fields[$key]['options'][$optgroup][$value], FILTER_SANITIZE_SPECIAL_CHARS);
-                         print $this->Html->tag('span','(' . $optgroup . ')', array('class' => 'ml-1') );
-                         break;
+                   foreach (explode(',', $value) as $idx => $val) {
+                     // Outside any groups
+                     if (isset($vv_search_fields[$key]['options'][$val])) {
+                       if($idx > 0) {
+                         print ', ';
+                       }
+                       print filter_var($vv_search_fields[$key]['options'][$val], FILTER_SANITIZE_SPECIAL_CHARS);
+                     } else {
+                       // Inside a group
+                       foreach(array_keys($vv_search_fields[$key]['options']) as $optgroup) {
+                         if( is_array($vv_search_fields[$key]['options'][$optgroup])
+                           && isset($vv_search_fields[$key]['options'][$optgroup][$val]) ) {
+                           print filter_var($vv_search_fields[$key]['options'][$optgroup][$val], FILTER_SANITIZE_SPECIAL_CHARS);
+                           print $this->Html->tag('span','(' . $optgroup . ')', array('class' => 'ml-1') );
+                           break;
+                         }
                        }
                      }
                    }
@@ -149,6 +154,7 @@ $hasActiveFilters = false;
                <?php endif; ?>
             </button>
           <?php endforeach; ?>
+          <!--  Clear button  -->
           <?php if($hasActiveFilters): ?>
              <button id="top-search-clear-all-button" class="filter-clear-all-button spin btn" type="button" aria-controls="top-search-clear" onclick="event.stopPropagation()">
                 <?php print _txt('op.clear.filters.pl');?>
@@ -199,6 +205,32 @@ $hasActiveFilters = false;
         }
         $idx = ($i % 2);
         $field_subgroup_columns[$idx][$key] = $this->Form->input($key, $formParams);
+        // XXX Replace the CAKE HTML element with a primevue module
+        if(isset($options['element'])) {
+          $element = $field_subgroup_columns[$idx][$key];
+          // Parse the ID attribute
+          $regexId = '/id="(.*?)"/m';
+          preg_match_all($regexId, $element, $matchesId, PREG_SET_ORDER, 0);
+
+          // Parse the Name attribute
+          $regexName = '/name="(.*?)"/m';
+          preg_match_all($regexName, $element, $matchesName, PREG_SET_ORDER, 0);
+
+          // Parse the Name attribute
+          $regexClass = '/class="(.*?)"/m';
+          preg_match_all($regexClass, $element, $matchesClass, PREG_SET_ORDER, 0);
+          if(!empty($matchesId[0][1]) && !empty($matchesName[0][1])) {
+            $vueElement = $this->element($options['element'], [
+              'mountElementId' => $matchesId[0][1],
+              'mountElementName' => $matchesName[0][1],
+              'elementParams' => $formParams,
+              'containerPostfixId' => $key,
+              'containerClasses' => $matchesClass[0][1],
+              'values' => $search_params[$key] ?? ''
+            ]);
+            $field_subgroup_columns[$idx][$key] = $vueElement;
+          }
+        }
         $i++;
       }
       ?>
