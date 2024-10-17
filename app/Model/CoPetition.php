@@ -237,13 +237,13 @@ class CoPetition extends AppModel {
             
             if($model == 'EnrolleeCoPersonRole' && $efAttr['field'] == 'affiliation') {
               // Affiliation is an extended type, so we need to update the validation
-              // rule to pass the COID.  Set the actual validation rule to be match the
+              // rule. Set the actual validation rule to be match the
               // enrollment configuration.
               
               // Should we do this for all attributes, as is the case in validateRelated()? (CO-907)
               
               if(!empty($efAttr['validate']['content']['rule'])) {
-                $xfield->getRule('content')->rule = $efAttr['validate']['content']['rule'];
+                $this->$model->validate['affiliation']['content']['rule'] = $efAttr['validate']['content']['rule'];
               }
             }
           }
