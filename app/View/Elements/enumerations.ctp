@@ -87,8 +87,24 @@ $tname = Inflector::tableize($this->name);
       $cfg = $vv_enums[$attr];
       
       // The current persisted value in the database (if any)
+      $curval = "";
+
+      if(!empty($$tname[0][ $attrBits[0] ][ $attrBits[1] ])) {
+        // Regular model
+        $curval = $$tname[0][ $attrBits[0] ][ $attrBits[1] ];
+      } elseif(!empty($co_enrollment_attributes)) {
+        // Petition
+        foreach($co_enrollment_attributes as $ea) {
+          if(isset($ea['model']) 
+             && $ea['model'] == $attrBits[0]
+             && $ea['field'] == $attrBits[1]) {
+            $curval = $ea['default'];
+          }
+        }
+      }
+
       print "var p" . Inflector::camelize($attrBits[1]) . " = \""
-            . (!empty($$tname[0][ $attrBits[0] ][ $attrBits[1] ]) ? $$tname[0][ $attrBits[0] ][ $attrBits[1] ] : "")
+            . $curval
             . "\";\n";
       
       print "other['" . $attr . "'] = " . ($cfg['allow_other'] ? "true" : "false") . ";\n";
@@ -121,9 +137,25 @@ $tname = Inflector::tableize($this->name);
   ?>
   
   // Set the value of the text field (which is what we'll save in the database)
-  // based on the select. Note this value is subject to server side validation.
-  function enum_set_value(eid, column) {
-    document.getElementById(eid).value = document.getElementById(column+'-select').value;
+  // based on the updated attribute enumeration field. Note this value is subject
+  // to server side validation.
+  function enum_set_value(widget, eid, column) {
+    // We don't want to make any changes when we get an Other notification
+    // if the entry is blank
+    // if(widget == 'Other') {
+    //   if(document.getElementById(eid+widget).value == '') {
+    //     return;
+    //   }
+    // }
+
+    document.getElementById(eid).value = document.getElementById(eid+widget).value;
+
+    // Blank out the inactive widget
+    if(widget == 'Select') {
+      document.getElementById(eid+'Other').value = '';
+    } else {
+      document.getElementById(eid+'Select').value = '';
+    }
   }
   
   // Update gadgets according to the current state.
@@ -167,22 +199,27 @@ $tname = Inflector::tableize($this->name);
       }
       
       if(enums[curattr] && Object.keys(enums[curattr]).length > 0) {
+        // We have a dictionary, so show the select
         $("#<?php print $bits[1]; ?>-enumeration").show("fade");
         
-        // Keep the free form field if appropriately configured
+        // Show the free form field if appropriately configured
 
         if(other[curattr]) {
-          $("#<?php print $bits[1]; ?>-field").show("fade");
+          $("#<?php print $bits[1]; ?>-other").show("fade");
         } else {
-          $("#<?php print $bits[1]; ?>-field").hide("fade");
+          $("#<?php print $bits[1]; ?>-other").hide("fade");
         }
+
+        // Always hide the actual value field when the dictionary is in use
+        $("#<?php print $bits[1]; ?>-field").hide("fade");
         
-        var select = document.getElementById('<?php print $bits[1]; ?>-select');
+        var select = document.getElementById(attrid + 'Select');
         
         if(select.options.length > 0) {
           select.options.length = 0;
         }
         
+        var found = 0; // Did we find the current value in the select list?
         var i = 0;
         
         select.options[i++] = new Option('', '');
@@ -194,6 +231,7 @@ $tname = Inflector::tableize($this->name);
             
             if(p<?php print Inflector::camelize($bits[1]); ?> == j) {
               select.selectedIndex = i-1;
+              found++;
             }
           }
         } else {
@@ -203,11 +241,19 @@ $tname = Inflector::tableize($this->name);
             
             if(p<?php print Inflector::camelize($bits[1]); ?> == enums[curattr][j]) {
               select.selectedIndex = i-1;
+              found++;
             }
           }
         }
+
+        if(!found) {
+          // Set the default value in the other field
+          document.getElementById(attrid + 'Other').value = p<?php print Inflector::camelize($bits[1]); ?>;
+        }
       } else {
+        // Standard form element, hide the enumeration widgets
         $("#<?php print $bits[1]; ?>-enumeration").hide("fade");
+        $("#<?php print $bits[1]; ?>-other").hide("fade");
         $("#<?php print $bits[1]; ?>-field").show("fade");
       }
     <?php endforeach; // $enumerables ?>

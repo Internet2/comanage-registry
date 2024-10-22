@@ -1110,21 +1110,31 @@ class CoEnrollmentAttribute extends AppModel {
 
         if(($enrollmentAttributes[$i]['CoEnrollmentAttribute']['attribute'] == 'r:o'
             || $enrollmentAttributes[$i]['CoEnrollmentAttribute']['attribute'] == 'o:o')
-            && !empty($enrollmentAttributes[$i]['validate']['content']['dictionary'])
+            // && !empty($enrollmentAttributes[$i]['validate']['content']['dictionary'])
             && !empty($enrollmentAttributes[$i]['default'])
             && !is_numeric($enrollmentAttributes[$i]['default'])) {
-          $Organization = ClassRegistry::init('Organization');
-          
-          $orgs = $Organization->lookupByIdentifier($coId, $enrollmentAttributes[$i]['default']);
+          // Note that $enrollmentAttributes[$i]['validate']['content']['dictionary']
+          // is only populated for Attribute Enumerations where Allow Other Values is
+          // false, so we need to separately check if Attribute Enumerations are enabled
+          // for this attribute.
 
-          if(!empty($orgs[0])) {
-            // We _should_ get no more than one Organization, but if we get more than one
-            // we'll non-deterministically pick the first one returned by the database.
+          $AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
 
-            $enrollmentAttributes[$i]['default'] = $orgs[0]['Organization']['id'];
+          $attr = $enrollmentAttributes[$i]['CoEnrollmentAttribute']['attribute'] == 'r:o'
+                  ? 'CoPersonRole.o' : 'OrgIdentity.o';
+
+          if($AttributeEnumeration->enabled($coId, $attr)) {
+            $Organization = ClassRegistry::init('Organization');
+            
+            $orgs = $Organization->lookupByIdentifier($coId, $enrollmentAttributes[$i]['default']);
+
+            if(!empty($orgs[0])) {
+              // We _should_ get no more than one Organization, but if we get more than one
+              // we'll non-deterministically pick the first one returned by the database.
+
+              $enrollmentAttributes[$i]['default'] = $orgs[0]['Organization']['id'];
+            }
           }
-          // updateValidationRules will populate the dictionary, so we don't need to
-          // explicitly call AttributeEnumeration->enumerations() here
         }
 
         $enrollmentAttributes[$i]['modifiable'] = 

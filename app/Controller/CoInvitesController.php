@@ -38,7 +38,12 @@ class CoInvitesController extends AppController {
     )
   );
   
-  public $uses = array('CoInvite', 'CoOrgIdentityLink', 'EmailAddress');
+  public $uses = array(
+    'CoInvite',
+    'AttributeEnumeration',
+    'CoOrgIdentityLink',
+    'EmailAddress'
+  );
   
   // This controller needs a CO to be set, but only for send
   public $requires_co = false;
@@ -106,6 +111,41 @@ class CoInvitesController extends AppController {
     
     // Allow invite handling to process without a login page
     $this->Auth->allow('confirm', 'decline', 'reply');
+  }
+  
+  /**
+   * Callback after controller methods are invoked but before views are rendered.
+   *
+   * @since  COmanage Registry v4.4.0
+   */
+  
+  function beforeRender() {
+    // As a general rule, any viewvars that needs to be used by /view as well as one
+    // or more execute_ steps should be set here.
+    
+    if(!$this->request->is('restful')) {
+      if($this->action == 'reply') {
+        // Pull AttributeEnumeration configuration for use with Attribute Enumeration
+        // view elements
+
+        $supportedEnumAttrs = $this->AttributeEnumeration->supportedAttrs();
+        $enums = array();
+
+        foreach(array_keys($supportedEnumAttrs) as $ea) {
+          $enum = $this->AttributeEnumeration->enumerations($this->cur_co['Co']['id'], $ea);
+
+          if(!empty($enum)) {
+            // We prefix the model name for consistency with the models names used
+            // by petition-attributes
+            $enums["Enrollee".$ea] = $enum;
+          }
+        }
+
+        $this->set('vv_enums', $enums);
+      }
+    }
+    
+    parent::beforeRender();
   }
   
   /**

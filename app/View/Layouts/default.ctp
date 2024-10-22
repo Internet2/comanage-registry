@@ -80,14 +80,20 @@
     ?>
 
     <!-- Load JavaScript -->
+    <!-- Load Bootstrap, jQuery, and Vue (other scripts at bottom) -->
+    <!-- https://unpkg.com/primevue@3.53.0  -->
+    <!-- https://ui-libs.vercel.app/ -->
     <?php
       /* only JQuery, Bootstrap, and Vue here - other scripts at bottom. Note that until
          jQueryUI is deprecated, it must be loaded after Bootstrap.  */
-      print $this->Html->script('jquery/jquery-3.7.1.min.js') . "\n    ";
-      print $this->Html->script('bootstrap/bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js') . "\n    ";
-      print $this->Html->script('jquery/jquery-ui-1.13.2.custom/jquery-ui.min.js') . "\n    ";
-      print $this->Html->script('autocomplete.comanage') . "\n    ";
-      print $this->Html->script('vue/vue-3.2.31.global.prod.js') . "\n    ";
+      print $this->Html->script([
+        'jquery/jquery-3.7.1.min',
+        'bootstrap/bootstrap-4.5.3-dist/js/bootstrap.bundle.min',
+        'jquery/jquery-ui-1.13.2.custom/jquery-ui.min',
+        'autocomplete.comanage',
+        'vue/vue-3.2.31.global.prod',
+        'vue/primevue-3.53.0.core.min',
+        'vue/primevue-3.53.0.multiselect.min']) . PHP_EOL;
     ?>
 
     <!-- Include external files and scripts -->

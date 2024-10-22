@@ -33,7 +33,12 @@ class CoPetitionsController extends StandardController {
   public $helpers = array('Time');
   
   // When using additional models, we must also specify our own
-  public $uses = array('CoPetition', 'CmpEnrollmentConfiguration', 'OrgIdentitySource');
+  public $uses = array(
+    'CoPetition',
+    'AttributeEnumeration',
+    'CmpEnrollmentConfiguration',
+    'OrgIdentitySource'
+  );
   
   public $paginate = array(
     'limit' => 25,
@@ -442,7 +447,6 @@ class CoPetitionsController extends StandardController {
                                                     ->CoEnrollmentFlow
                                                     ->enrollmentFlowList( $this->cur_co['Co']['id'] ) );
       }
-
       
       if(in_array($this->action, array('petitionerAttributes', 'view'))) {
         $defaultValues = array();
@@ -647,6 +651,24 @@ class CoPetitionsController extends StandardController {
                                               ->CoEnrollmentFlow
                                               ->Co
                                               ->CoSetting->emptyCouEnabled($this->cur_co['Co']['id']));
+
+        // Pull AttributeEnumeration configuration for use with Attribute Enumeration
+        // view elements
+
+        $supportedEnumAttrs = $this->AttributeEnumeration->supportedAttrs();
+        $enums = array();
+
+        foreach(array_keys($supportedEnumAttrs) as $ea) {
+          $enum = $this->AttributeEnumeration->enumerations($this->cur_co['Co']['id'], $ea);
+
+          if(!empty($enum)) {
+            // We prefix the model name for consistency with the models names used
+            // by petition-attributes
+            $enums["Enrollee".$ea] = $enum;
+          }
+        }
+        
+        $this->set('vv_enums', $enums);
       }
       
       if($enrollmentFlowID > -1 && !isset($this->viewVars['vv_configured_steps'])) {

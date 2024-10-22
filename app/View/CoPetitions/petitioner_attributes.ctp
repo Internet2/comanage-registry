@@ -28,6 +28,14 @@
 <script type="text/javascript">
 var givenNameAttr = "";
 var familyNameAttr = "";
+
+function js_local_onload() {
+  // Local (to this view) initializations
+
+  <?php if(!empty($vv_enums)): ?>
+  enum_update_gadgets(false);
+  <?php endif; ?>
+}
   
 $(document).ready(function() {
   $('input.matchable').keyup(function(event) {

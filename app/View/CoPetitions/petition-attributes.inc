@@ -33,6 +33,13 @@
   // Track the names of the matching fields and emit them later
   $givenNameAttr = "";
   $familyNameAttr = "";
+
+  if(!empty($vv_enums)) {
+    $args = array();
+    $args['enumerables'] = array_keys($vv_enums);
+
+    print $this->element('enumerations', $args);
+  }
 ?>
 <script type="text/javascript">
   $(function() {
@@ -347,7 +354,6 @@
 
         // Output the fields
         foreach ($coe_attributes as $ea):
-
           $fieldName = $ea['model'] . '.' . $ea['field'];
 
           // Emit the field itself, according to the type of field
@@ -357,6 +363,11 @@
 
           if(isset($ea['validate']['content']['rule'][0])) {
             $ruleType = $ea['validate']['content']['rule'][0];
+          }
+
+          // Attribute Enumerations require special handling
+          if(isset($vv_enums[$fieldName])) {
+            $ruleType = 'attrEnum';
           }
 
           // Output disabled fields
@@ -370,10 +381,19 @@
             print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
           }
 
-          // XXX need to retrieve current values for edit and view
-
           if($e) {
             switch($ruleType) {
+            case 'attrEnum':
+              $args = array(
+                'column' => $ea['field'],
+                'editable' => $ea['modifiable'],
+                'fieldName' => $fieldName,
+                'modelName' => $ea['model'],
+                'required' => $ea['required'],
+                'default' => $ea['default']
+              );
+              print $this->element('enumerableField', $args);
+              break;
             case 'inList':
               // This is a select
               print '<div class="form-group">' . PHP_EOL;
@@ -670,7 +690,6 @@
               print PHP_EOL . '<div class="desc">' . $ea['description'] . '</div>' . PHP_EOL;
             }
           } else {
-
             // Emit the current values for this attribute, if set, with labels
             print '<div class="modelbox-data-field">';
             // Emit the label
@@ -688,6 +707,17 @@
             print '<div class="modelbox-data-value">';
             if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
               switch($ruleType) {
+              case 'attrEnum':
+                $args = array(
+                  'column' => $ea['field'],
+                  'editable' => false,
+                  'fieldName' => $fieldName,
+                  'modelName' => $ea['model'],
+                  'required' => $ea['required'],
+                  'default' => $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]
+                );
+                print $this->element('enumerableField', $args);
+                break;
               case 'inList':
                 // It's possible this is no longer a valid selection, especially for extended types.
                 if(!empty($ea['select'][ $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]])) {
