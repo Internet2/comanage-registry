@@ -480,7 +480,7 @@ class CoPersonRole extends AppModel {
           $field = explode('-', $field)[0];
           $this->validate[$field]['content']['required'] = true;
           $this->validate[$field]['content']['allowEmpty'] = false;
-          $this->validate[$field]['content']['message'] = "COU is required";
+          $this->validate[$field]['content']['message'] = _txt('er.field.req');
         }
       }
     }
