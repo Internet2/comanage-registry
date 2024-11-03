@@ -1285,7 +1285,11 @@ class StandardController extends AppController {
       if(!empty($local['sortlist'])) {
         $sortlist = $local['sortlist'];
       }
-      
+
+      if(!empty($this->viewVars['vv_app_prefs']['paginationLimitValue'])) {
+        $this->paginate['limit'] = (int)$this->viewVars['vv_app_prefs']['paginationLimitValue'];
+      }
+
       $this->Paginator->settings = $this->paginate;
       
       $this->set($modelpl, $this->Paginator->paginate($req, array(), $sortlist));

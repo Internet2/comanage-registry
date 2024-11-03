@@ -53,15 +53,35 @@ function generateFlash(text, type) {
 }
 
 // Set an application preference
-// tag     - name of preference to save (string, required)
-// value   - value to save (json in the form of {"value":"something"} or {"value":null} to unset)
-function setApplicationPreference(tag,value) {
+// tag           - name of preference to save (string, required)
+// value         - value to save (json in the form of {"value":"something"} or {"value":null} to unset)
+// displayNoty   - display a noty message after ajax returns
+// reload        - if true we will reload the view
+function setApplicationPreference(tag,value,displayNoty=false, reload=false) {
   var apUrl = "/registry/application_preferences/" + tag;
   var jsonData = value;
-  $.ajax({
+  jsonData.noty = displayNoty
+
+  let jqxhr = $.ajax({
+    cache: false,
     url: apUrl,
     type: 'PUT',
     data: jsonData
+  });
+
+  // On success, fire the next request
+  jqxhr.done((data, textStatus, jqXHR) => {
+    // For use cases like the pagination limit, we want to reload the view since other parameters
+    // of the view are affected and need to be recalculated
+    if(reload) {
+      window.location.reload()
+    }
+  });
+
+  jqxhr.fail(function(jqXHR, textStatus, errorThrown) {
+    if(parseInt(jqXHR.status) > 300 && displayNoty) {
+      generateFlash("<?php print _txt('er.app.preferences'); ?>" + errorThrown + " (" +  jqXHR.status + ")", 'error')
+    }
   });
 }
 

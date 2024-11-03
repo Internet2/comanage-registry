@@ -30,6 +30,7 @@ class UpgradeVersionShell extends AppShell {
                     'Address',
                     'ApiUser',
                     'AttributeEnumeration',
+                    'ApplicationPreference',
                     'CmpEnrollmentConfiguration',
                     'Co',
                     'CoEnrollmentAttributeDefault',
@@ -709,6 +710,10 @@ class UpgradeVersionShell extends AppShell {
     // Configuration: Enable Authentication Events for API users
     $this->out(_txt('sh.ug.440.auth_events'));
     $this->CmpEnrollmentConfiguration->_ug440();
+
+    // Application Preferences
+    $this->out(_txt('sh.ug.440.application_preferences'));
+    $this->ApplicationPreference->_ug440();
   }
   
   // We should eventually do something like
