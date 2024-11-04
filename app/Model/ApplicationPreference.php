@@ -35,7 +35,8 @@ class ApplicationPreference extends AppModel {
   // Add behaviors
   // Because ApplicationPreference isn't maintaining application data (it's
   // basically frontend state, there's no reason to enable ChangelogBehavior).
-  public $actsAs = array('Containable');
+  public $actsAs = array('Containable',
+                         'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $belongsTo = array(
@@ -127,9 +128,7 @@ class ApplicationPreference extends AppModel {
     // We only allow one value per tag, so if we have a value do an update.
     // (We could also just delete any existing value, but this approach
     // preserves changelog.)
-    
-    $this->_begin();
-    
+
     $pref = array(
       'co_person_id' => $coPersonId,
       'tag' => $tag,
@@ -141,21 +140,39 @@ class ApplicationPreference extends AppModel {
     $args['conditions']['ApplicationPreference.tag'] = $tag;
     $args['contain'] = false;
     
-    $ids = $this->findForUpdate($args['conditions'], array('id'));
-    
-    if(!empty($ids[0]['ApplicationPreference']['id'])) {
-      // convert to an update
-      $pref['id'] = $ids[0]['ApplicationPreference']['id'];
+    $application_preferences = $this->find('all', $args);
+
+    if(!empty($application_preferences[0]['ApplicationPreference'])) {
+      $pref['id'] = $application_preferences[0]['ApplicationPreference']['id'];
     }
     
     try {
+      // Let Changelog handle the revisioning
       $this->save($pref);
-      $this->_commit();
     } catch(Exception $e) {
-      $this->_rollback();
       throw new RuntimeException($e->getMessage());
     }
     
     return $this->id;
+  }
+
+  /**
+   * Perform Application Preference model upgrade steps for version 4.4.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.0.0
+   */
+
+  public function _ug440() {
+    // Reset the foreign key
+    $this->updateAll(
+      array('ApplicationPreference.application_preference_id' => null)
+    );
+
+    // Delete all the records to reset the table
+    $this->deleteAll(
+      array('ApplicationPreference.id IS NOT NULL'),
+      true
+    );
   }
 }

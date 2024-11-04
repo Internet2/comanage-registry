@@ -3486,12 +3486,16 @@
     <field name="value" type="C" size="256" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
-    
+    <field name="application_preference_id" type="I">
+      <constraint>REFERENCES cm_application_preferences(id)</constraint>
+    </field>
+    <field name="revision" type="I" />
+    <field name="deleted" type="L" />
+    <field name="actor_identifier" type="C" size="256" />
+
     <index name="application_preferences_i1">
       <col>co_person_id</col>
-    </index>
-    <index name="application_preferences_i2">
-      <col>application_preferences_id</col>
+      <col>tag</col>
     </index>
   </table>
 </schema>

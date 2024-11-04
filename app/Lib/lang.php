@@ -1126,6 +1126,7 @@ The request may be viewed at
   'er.ae.value' =>    'Value not permitted by Attribute Enumeration (%1$s)',
   'er.archived' =>    'This record is already archived and cannot be edited',
   'er.api.username.prefix' => 'API username must begin with "%1$s"',
+  'er.app.preferences' => 'Failed to update your Preference: ',
   'er.auth' =>        'Not authenticated',
   'er.auth.co' =>     'You are not a member of any COs. Please contact an administrator for assistance.',
   'er.auth.empty' =>  'Found empty username at login. Please contact an administrator for assistance.',
@@ -2300,6 +2301,7 @@ The request may be viewed at
   'op.api.key.generate' => 'Generate API Key',
   'op.api.key.confirm' => 'Are you sure you wish to generate a new API Key?',
   'op.approve' =>     'Approve',
+  'op.app.preferences.updated' => '"%1$s" successfully updated to "%2$s"',
   'op.attach' =>      'Attach %1$s',
   'op.back' =>        'Back',
   'op.begin' =>       'Begin',
@@ -2793,7 +2795,8 @@ The request may be viewed at
   'sh.ug.410.httpserver' => 'Adding default auth_type for HttpServers',
   'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types',
   'sh.ug.440.cluster' =>   'Migrate Clusters group type',
-  'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording'
+  'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording',
+  'sh.ug.440.application_preferences' => 'Reset Application Preferences table'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

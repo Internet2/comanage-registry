@@ -439,6 +439,9 @@ class AppController extends Controller {
     $model = $this->modelClass;
     
     $this->$model->updateValidationRules(isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : null);
+
+    // Load the application Preferences for this user
+    $this->getAppPrefs();
   }
 
   /**
@@ -455,8 +458,7 @@ class AppController extends Controller {
     if(!$this->request->is('restful')) {
       $this->getTheme();
       $this->getUImode();
-      $this->getAppPrefs();
-      
+
       if($this->Session->check('Auth.User.org_identities')) {
         $this->menuAuth();
         $this->menuContent();
