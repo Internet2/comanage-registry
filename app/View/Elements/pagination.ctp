@@ -120,7 +120,10 @@
       <option value="100">100</option>
     </select>
     <?php print _txt('fd.page.limit.records'); ?>
-    <input id="set-pagination-limit" type="button" value="<?php print _txt('op.set'); ?>"/>
+    <input id="set-pagination-limit"
+           class="spin submit-button btn btn-primary"
+           type="button"
+           value="<?php print _txt('op.set'); ?>"/>
     <script type="text/javascript">
       $(function() {
         // Check if the currentLimit holds an appropriate value on first load, and set the select option
