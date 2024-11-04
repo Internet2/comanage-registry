@@ -74,7 +74,10 @@ function setApplicationPreference(tag,value,displayNoty=false, reload=false) {
     // For use cases like the pagination limit, we want to reload the view since other parameters
     // of the view are affected and need to be recalculated
     if(reload) {
-      window.location.reload()
+      let currentUrl = window.location.toString()
+      // Force the url back to page one because the new page size cannot include our current page number
+      currentUrl = currentUrl.replace(new RegExp('\/page:[0-9]*', 'g'), '')+'/page:1';
+      window.location.replace(currentUrl)
     }
   });
 
