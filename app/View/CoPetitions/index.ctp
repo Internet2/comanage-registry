@@ -133,7 +133,21 @@
           ?>
         </td>
         <td>
-          <?php if(!empty($p['CoEnrollmentFlow']['name'])) { print $p['CoEnrollmentFlow']['name']; } ?>
+          <?php
+          if(!empty($p['CoEnrollmentFlow']['name'])) { print $p['CoEnrollmentFlow']['name']; }
+          if(isset($this->request->params['named']['search.enrollmentFlow'])) {
+            $enrollmentFlowId = $this->request->params['named']['search.enrollmentFlow'];
+            if($p['CoPetition']['co_enrollment_flow_id'] !== (int)$enrollmentFlowId) {
+              print $this->Badge->badgeIt(
+                _txt('fd.archived'),
+                $this->Badge->getBadgeColor('Warning'),
+                false,
+                false,
+                array('ml-1', 'border-0')
+              );
+            }
+          }
+          ?>
         </td>
         <td>
           <?php if(!empty($p['Cou']['name'])) { print $p['Cou']['name']; } ?>

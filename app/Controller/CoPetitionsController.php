@@ -2820,7 +2820,12 @@ class CoPetitionsController extends StandardController {
 
     // Filter by Enrollment Flow
     if(!empty($this->request->params['named']['search.enrollmentFlow'])) {
-      $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $this->request->params['named']['search.enrollmentFlow'];
+      $pagcond['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoPetition.co_enrollment_flow_id' => $this->request->params['named']['search.enrollmentFlow'],
+          'CoEnrollmentFlow.co_enrollment_flow_id' => $this->request->params['named']['search.enrollmentFlow'],
+        )
+      );
     }
 
     // Filter by COU
