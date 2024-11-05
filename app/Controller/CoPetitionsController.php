@@ -2820,7 +2820,12 @@ class CoPetitionsController extends StandardController {
 
     // Filter by Enrollment Flow
     if(!empty($this->request->params['named']['search.enrollmentFlow'])) {
-      $pagcond['conditions']['CoPetition.co_enrollment_flow_id'] = $this->request->params['named']['search.enrollmentFlow'];
+      $pagcond['conditions']['AND'][] = array(
+        'OR' => array(
+          'CoPetition.co_enrollment_flow_id' => $this->request->params['named']['search.enrollmentFlow'],
+          'CoEnrollmentFlow.co_enrollment_flow_id' => $this->request->params['named']['search.enrollmentFlow'],
+        )
+      );
     }
 
     // Filter by COU
@@ -2852,14 +2857,35 @@ class CoPetitionsController extends StandardController {
       // Filter by Name
       foreach($coperson_alias_mapping as $search_field => $class) {
         if(!empty($this->params['named'][$search_field]) ) {
+          $dbc = $this->CoPetition->getDataSource();
+          $db_driver = explode("/", $dbc->config['datasource'], 2);
+          $db_driverName = $db_driver[1];
+
           $searchterm = $this->params['named'][$search_field];
           $searchterm = str_replace(urlencode("/"), "/", $searchterm);
           $searchterm = str_replace(urlencode(" "), " ", $searchterm);
-          $searchterm = trim(strtolower($searchterm));
+          $searchterm = strtolower(trim($searchterm));
+
+          if ($db_driverName !== 'Postgres') {
+            // SQL
+            $sqlWhereClauseFull = "LOWER(CONCAT($class.given, ' ', $class.family)) LIKE '%$searchterm%'";
+            $sqlWhereClauseCn = "LOWER(CONCAT($class.given, ' ', $class.middle, ' ', $class.family)) LIKE '%$searchterm%'";
+          } else {
+            // Postgresql
+            $sqlWhereClauseFull = "LOWER($class.given || ' ' || $class.family) LIKE '%$searchterm%'";
+            $sqlWhereClauseCn = "LOWER($class.given || ' ' || $class.middle || ' ' || $class.family) LIKE '%$searchterm%'";
+          }
+
           $pagcond['conditions']['AND'][] = array(
             'OR' => array(
+              // Family
               'LOWER('. $class . '.family) LIKE' => '%' . $searchterm . '%',
+              // Given
               'LOWER('. $class . '.given) LIKE' => '%' . $searchterm . '%',
+              // Given + Family
+              $sqlWhereClauseFull,
+              // Given + Middle + Family
+              $sqlWhereClauseCn
             )
           );
         }

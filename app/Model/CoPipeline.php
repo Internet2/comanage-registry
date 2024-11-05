@@ -212,6 +212,26 @@ class CoPipeline extends AppModel {
     
     $this->Co->CoPetition->linkCoPerson($enrollmentFlowId, $coPetitionId, $coPersonId, null);
 
+    // We also need to link the CO Person Role (if we created one) so that status updates
+    // process correctly. The calling code doesn't directly have access to the Person Role
+    // so we just look it up here (if there is one).
+
+    $args = array();
+    $args['conditions']['CoPersonRole.co_person_id'] = $coPersonId;
+    $args['conditions']['CoPersonRole.source_org_identity_id'] = $orgIdentityId;
+    $args['contain'] = false;
+
+    $role = $this->Co->CoPerson->CoPersonRole->find('first', $args);
+
+    if(!empty($role)) {
+      $this->Co->CoPetition->id = $coPetitionId;
+      $this->Co->CoPetition->saveField('enrollee_co_person_role_id', $role['CoPersonRole']['id']);
+
+      if(!empty($role['CoPersonRole']['cou_id'])) {
+        $this->Co->CoPetition->saveField('cou_id', $role['CoPersonRole']['cou_id']);
+      }
+    }
+
     // Trigger the email confirmation
 
     $this->Co->CoPetition->sendConfirmation($coPetitionId, null);

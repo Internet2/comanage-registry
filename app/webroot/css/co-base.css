@@ -1362,7 +1362,8 @@ body.co_petitions .ui-dialog {
 #pagination .pagination-form option {
   padding: 0;
 }
-#pagination .pagination-form input[type="submit"] {
+#pagination .pagination-form input[type="submit"],
+#pagination .pagination-form input[type="button"] {
   width: auto;
   height: auto;
   padding: 2px 4px;
