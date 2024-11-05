@@ -742,8 +742,8 @@
     <field name="client_secret" type="C" size="80" />
     <field name="access_grant_type" type="C" size="2" />
     <field name="scope" type="C" size="256" />
-    <field name="refresh_token" type="C" size="160" />
-    <field name="access_token" type="C" size="160" />
+    <field name="refresh_token" type="XL" />
+    <field name="access_token" type="XL" />
     <field name="token_response" type="XL" />
     <field name="proxy" type="C" size="512" />
     <field name="created" type="T" />
