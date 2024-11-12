@@ -440,7 +440,9 @@ class CoPipeline extends AppModel {
     }
     
     if($syncAction == SyncActionEnum::Add || $syncAction == SyncActionEnum::Relink) {
-      if(!empty($pipeline['CoPipeline']['sync_replace_cou_id'])) {
+      if($pipeline['CoPipeline']['create_role'] &&
+         !empty($pipeline['CoPipeline']['sync_replace_cou_id']) &&
+         !empty($targetIds['co_person_id'])) {
         // See if there is already a role in the specified COU for this CO Person,
         // and if so expire it. (This will typically only be useful with a Match Strategy.)
         
