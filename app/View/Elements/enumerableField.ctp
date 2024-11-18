@@ -94,7 +94,7 @@ $allowOther = isset($vv_enums[$field]['allow_other']) && $vv_enums[$field]['allo
     if(!empty($$tname[0][$mname][$column])) {
       // Standard field
       print filter_var($$tname[0][$mname][$column],FILTER_SANITIZE_SPECIAL_CHARS);
-    } elseif(!empty($vv_enums[$fieldName]['dictionary'][$default])) {
+    } elseif(isset($fieldName, $default) && !empty($vv_enums[$fieldName]['dictionary'][$default])) {
       // Petition view, value set that corresponds to dictionary entry
       print filter_var($vv_enums[$fieldName]['dictionary'][$default],FILTER_SANITIZE_SPECIAL_CHARS);
     } elseif(!empty($default)) {

@@ -103,7 +103,8 @@ class ApplicationPreferencesController extends StandardController {
         $this->ApplicationPreference->store($coPersonId, $this->request->params['tag'], $value);
 
         // Since we are reloading we need to store the flass message in the session on success
-        if($this->request->data['noty'] == 'true') {
+        if(isset($this->request->data['noty'])
+           && $this->request->data['noty'] == 'true') {
           $tagToHuman = Inflector::humanize(Inflector::underscore($this->request->params['tag']));
           $this->Flash->set(
             _txt('op.app.preferences.updated',
