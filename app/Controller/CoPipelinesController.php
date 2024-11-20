@@ -107,6 +107,14 @@ class CoPipelinesController extends StandardController {
     $args['contain'] = false;
 
     $this->set('vv_linkable_enrollment_flows', $this->CoPipeline->CoEnrollmentFlow->find('list', $args));
+
+    // Provide a list of available clusters.
+    $args = array();
+    $args['conditions']['Cluster.co_id'] = $this->cur_co['Co']['id'];
+    $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+
+    $this->set('vv_clusters', $this->CoPipeline->Co->Cluster->find('list', $args));
     
     parent::beforeRender();
   }
