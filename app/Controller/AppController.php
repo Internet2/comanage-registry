@@ -235,7 +235,7 @@ class AppController extends Controller {
         // Perform the IP Address check
         $ipregex = $this->Session->read('Auth.User.remote_ip');
         
-        if(!empty($ipregex) && !preg_match($ipregex, $_SERVER['REMOTE_ADDR'])) {
+        if(!empty($ipregex) && !preg_match($ipregex, $_SERVER['REMOTE_ADDR'] ?? '')) {
           $this->Api->restResultHeader(401, "Unauthorized");
           // We force an exit here to prevent any views from rendering, but also
           // to prevent Cake from dumping the default layout

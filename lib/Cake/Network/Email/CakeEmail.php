@@ -621,7 +621,7 @@ class CakeEmail {
 			if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
 				return;
 			}
-		} elseif (preg_match($this->_emailPattern, $email)) {
+		} elseif (preg_match($this->_emailPattern, $email ?? '')) {
 			return;
 		}
 		if ($email == '') {
@@ -835,7 +835,7 @@ class CakeEmail {
 			} else {
 				$encoded = $this->_encode($alias);
 				if (
-					$encoded === $alias && preg_match('/[^a-z0-9 ]/i', $encoded) ||
+					$encoded === $alias && preg_match('/[^a-z0-9 ]/i', $encoded ?? '') ||
 					strpos($encoded, ',') !== false
 				) {
 					$encoded = '"' . str_replace('"', '\"', $encoded) . '"';
@@ -992,7 +992,7 @@ class CakeEmail {
 		if (is_bool($message)) {
 			$this->_messageId = $message;
 		} else {
-			if (!preg_match('/^\<.+@.+\>$/', $message)) {
+			if (!preg_match('/^\<.+@.+\>$/', $message ?? '')) {
 				throw new SocketException(__d('cake_dev', 'Invalid format for Message-ID. The text should be something like "<uuid@server.com>"'));
 			}
 			$this->_messageId = $message;
@@ -1375,7 +1375,7 @@ class CakeEmail {
  * @return array Wrapped message
  */
 	protected function _wrap($message, $wrapLength = CakeEmail::LINE_LENGTH_MUST) {
-		if (strlen($message) === 0) {
+		if (strlen($message ?? '') === 0) {
 			return array('');
 		}
 		$message = str_replace(array("\r\n", "\r"), "\n", $message);
@@ -1388,11 +1388,11 @@ class CakeEmail {
 				$formatted[] = '';
 				continue;
 			}
-			if (strlen($line) < $wrapLength) {
+			if (strlen($line ?? '') < $wrapLength) {
 				$formatted[] = $line;
 				continue;
 			}
-			if (!preg_match('/<[a-z]+.*>/i', $line)) {
+			if (!preg_match('/<[a-z]+.*>/i', $line ?? '')) {
 				$formatted = array_merge(
 					$formatted,
 					explode("\n", wordwrap($line, $wrapLength, "\n", $cut))
@@ -1403,12 +1403,12 @@ class CakeEmail {
 			$tagOpen = false;
 			$tmpLine = $tag = '';
 			$tmpLineLength = 0;
-			for ($i = 0, $count = strlen($line); $i < $count; $i++) {
+			for ($i = 0, $count = strlen($line ?? ''); $i < $count; $i++) {
 				$char = $line[$i];
 				if ($tagOpen) {
 					$tag .= $char;
 					if ($char === '>') {
-						$tagLength = strlen($tag);
+						$tagLength = strlen($tag ?? '');
 						if ($tagLength + $tmpLineLength < $wrapLength) {
 							$tmpLine .= $tag;
 							$tmpLineLength += $tagLength;
@@ -1462,7 +1462,7 @@ class CakeEmail {
 						$formatted[] = trim(substr($tmpLine, 0, $lastSpace));
 						$tmpLine = substr($tmpLine, $lastSpace + 1);
 
-						$tmpLineLength = strlen($tmpLine);
+						$tmpLineLength = strlen($tmpLine ?? '');
 					}
 				}
 			}

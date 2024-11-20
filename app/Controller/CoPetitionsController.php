@@ -1816,7 +1816,7 @@ class CoPetitionsController extends StandardController {
         $found = false;
         
         foreach(preg_split('/\R/', $allowList) as $u) {
-          if(preg_match($u, $targetUrl)) {
+          if(preg_match($u, $targetUrl ?? '')) {
             $found = true;
             break;
           }
@@ -1874,7 +1874,7 @@ class CoPetitionsController extends StandardController {
         $found = false;
         
         foreach(preg_split('/\R/', $allowList) as $u) {
-          if(preg_match($u, $targetUrl)) {
+          if(preg_match($u, $targetUrl ?? '')) {
             $found = true;
             break;
           }

@@ -455,7 +455,7 @@ class CoEnrollmentAttribute extends AppModel {
             // For date types, convert to an actual date
             
             if(preg_match("/^[0-2][0-9]\-[0-9]{2}$/",
-                          $efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+                          $efAttr['CoEnrollmentAttributeDefault'][0]['value'] ?? '')) {
               // MM-DD indicates next MM-DD. Rather than muck around with PHP date parsing,
               // we'll see if {THISYEAR}-MM-DD is before now(). If it is, we'll increment
               // the year.
@@ -469,7 +469,7 @@ class CoEnrollmentAttribute extends AppModel {
               
               $attr['default'] = $curyear . "-" . $efAttr['CoEnrollmentAttributeDefault'][0]['value'];
             } elseif(preg_match("/^\+[0-9]+$/",
-                                $efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+                                $efAttr['CoEnrollmentAttributeDefault'][0]['value'] ?? '')) {
               // Format +## indicates days from today
               
               $attr['default'] = strftime("%F",

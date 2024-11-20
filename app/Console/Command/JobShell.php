@@ -201,7 +201,7 @@ class JobShell extends AppShell {
         
         // For attributes of type int, is the value an integer?
         if($format[$attr]['type'] == 'int') {
-          if(!preg_match('/^[0-9.+-]*$/', $val)) {
+          if(!preg_match('/^[0-9.+-]*$/', $val ?? '')) {
             throw new InvalidArgumentException("Value for " . $attr . " is not an integer"); // XXX I18n
           }
         }
