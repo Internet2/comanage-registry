@@ -58,7 +58,13 @@
   <div id="search">
     <?php
       print $this->Form->input('q', $options);
-      print $this->Form->submit(_txt('op.search'));
+      $options = array(
+        'type' => 'submit',
+        'class' => 'btn btn-primary global-search-submit',
+        'escape' => false
+      );
+      $submitButtonText = '<span class="material-icons-outlined">search</span><span class="search-button-text">' . _txt('op.search') . '</span>';
+      print $this->Form->button($submitButtonText, $options);
     ?>
   </div>
   <?php
