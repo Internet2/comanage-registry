@@ -283,6 +283,18 @@ class CoPeopleController extends StandardController {
           }
         }
       }
+
+      // The summary boxes need to know if Attribute Enumerations are in use
+      $enums = array();
+
+      foreach(array("CoPersonRole", "OrgIdentity") as $m) {
+        // We don't actually use all of these currently, but we'll populate them anyway
+        foreach(array("o", "ou", "title") as $attr) {
+          $enums[$m][$attr] = $this->Co->AttributeEnumeration->enumerations($this->cur_co['Co']['id'], $m.".".$attr);
+        }
+      }
+      
+      $this->set('vv_enums', $enums);
     }
     
     parent::beforeRender();
