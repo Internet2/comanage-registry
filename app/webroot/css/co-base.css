@@ -845,14 +845,24 @@ body.co_people.canvas .titleNavContainer {
 #redirect-box {
   background-color: #f5f5f5;
   border: 1px solid #ddd;
-  margin: 1em auto;
-  padding: 1em;
+  margin: 0 auto 2em;
+  padding: 1.5em 1em 1.25em;
   text-align: center;
-  width: 240px;
+  min-width: 240px;
 }
 #redirect-spinner {
   padding: 1em 1em 2em;
   position: relative;
+}
+.co-redirect-warning {
+  justify-content: center;
+  margin: 2em auto 0;
+  min-width: 240px;
+  border: 1px solid var(--cmg-color-lightgray-006);
+  border-bottom: none;
+}
+.co-redirect-warning .material-icons {
+  color: var(--cmg-color-red-002) !important;
 }
 /* SELECT CO */
 #fpCoList .co-row {

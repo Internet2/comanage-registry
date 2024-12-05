@@ -199,6 +199,12 @@
 
         <div id="content">
           <div id="content-inner">
+            <div class="co-info-topbox co-redirect-warning">
+              <em class="material-icons">warning</em>
+              <div class="co-info-topbox-text">
+                <?php print _txt('op.close.browser'); ?>  
+              </div>
+            </div>
             <div id="redirect-box">
               <?php print $this->fetch('content'); ?>
             </div>

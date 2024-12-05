@@ -386,12 +386,19 @@
   }
   /* REDIRECT PAGE */
   #redirect-box {
-    margin: 4em auto;
-    padding: 2em 2em 1.5em;
-    width: 320px;
+    margin: 0 auto 4em;
+    padding: 2em 2em 1.75em;
+    min-width: 320px;
+    max-width: 380px;
   }
   body.ui-mode-basic #redirect-box {
     left: unset;
+  }
+  .co-redirect-warning {
+    min-width: 320px;
+    max-width: 380px;
+    margin: 4em auto 0;
+    font-size: 1.1em;
   }
   /********************************/
   /* My Population - People Index */

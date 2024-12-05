@@ -2312,6 +2312,7 @@ The request may be viewed at
   'op.clear.filters.alpha' =>  'Clear alphabet filter',
   'op.clear.filters.pl' =>  'Clear Filters',
   'op.clear.search' =>   'Clear search',
+  'op.close.browser' => 'Please do not close your browser.',
   'op.cluster.acct.auto' => 'Autogenerate Cluster Accounts',
   'op.cluster.acct.auto.confirm' => 'Are you sure you wish to autogenerate cluster accounts?',
   'op.collapse' =>    'Collapse this section',
