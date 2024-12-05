@@ -116,9 +116,18 @@ a {
 /* TOP MENU (BLACK BAR) */
 #top-menu {
   position: relative;
-  line-height: 1.5em;
-  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
   background-color: var(--cmg-color-black-002);
+  z-index: 20;
+  min-height: 37px;
+}
+#top-menu-left {
+  display: flex;
+  align-items: center;
+  gap: 1em;
 }
 button.cm-toggle {
   padding: 0;
@@ -129,6 +138,7 @@ button.cm-toggle {
 }
 #top-menu button.cm-toggle {
   color: var(--cmg-color-white);
+  border: 1px dotted transparent; /* to avoid shifting the buttons on focus */
 }
 #top-menu button.cm-toggle:focus {
   border: 1px dotted #fff;
@@ -159,10 +169,6 @@ body.logged-out #user-menu {
   text-align: right;
 }
 body.logged-in #user-menu {
-  position: absolute;
-  margin: 0;
-  top: 0;
-  right: 1em;
   display: flex;
 }
 #user-menu #user,
@@ -182,41 +188,50 @@ body.logged-in #user-menu {
   vertical-align: bottom;
   font-size: 20px;
 }
+#global-search {
+  margin: 0.5em 0;
+}
 #global-search-box {
-  position: absolute;
-  top: 30px;
-  right: 0;
-  min-width: 320px;
-  z-index: 10;
-  margin: 0;
-  padding: 8px;
-  background-color: #f8f8f8;
-  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
-  border-radius: 2px;
+  display: flex;
+  align-items: center;
+}
+#global-search-box label {
+  /* This is hidden except to screen readers. These rules help avoid false positives in automated accessiblity checkers. */
+  color: var(--cmg-color-white);
+  background-color: var(--cmg-color-black-001);
 }
 #global-search-box .submit,
 #global-search-box .input.text {
   display: inline-block;
 }
-#global-search-box #CoDashboardQ {
-  width: 194px;
-  padding: 18px 6px;
+#global-search-box #global-search-field {
+  width: 100px;
+  padding: 12px 8px;
   height: 24px;
-  margin: 2px 8px 0 0;
+  margin: 0 0.5em 0 0;
   border-radius: 2px;
-  border: 1px solid #ccc;
-  font-size: 16px;
+  border: none;
 }
 #global-search-box #CoDashboardQ:focus {
   background-color: #ffd;
 }
 #global-search-box .btn {
-  position: relative;
-  top: -4px;
+  padding: 0.3em 0.6em;
+  margin: 0;
+}
+.global-search-submit .material-icons-outlined {
+  display: none;
+}
+#global-search-box #CoDashboardQ:focus-visible {
+  outline: 3px solid var(--cmg-color-blue-primary);
+}
+#global-search-box .btn-primary:hover {
+  background-color: var(--cmg-color-blue-primary);
+  border-color: var(--cmg-color-gray-border);
 }
 #user-menu #user,
 #user-menu #logout {
-  margin-right: 12px;
+  margin-right: 1em;
 }
 #user-common-name {
   display: none;
@@ -231,17 +246,14 @@ body.logged-in #user-menu {
 #user-menu .icon-adjust {
   margin-right: -8px;
 }
-#user {
-  margin-top: 2px;
-}
 #user-panel {
   position: absolute;
   right: 0;
-  top: 27px;
   z-index: 200;
   color: var(--cmg-color-black-002);
   background-color: #f8f8f8;
   border: 1px solid #eee;
+  margin-top: 6px;
   padding: 1em;
   min-width: calc(100vw - 50px);
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
@@ -310,9 +322,6 @@ body.logged-in #user-menu {
   margin-top: 0;
 }
 /* NOTIFICATIONS */
-#notifications {
-  margin-top: 2px;
-}
 #user-notification-count {
   position: relative;
   top: -1px;
@@ -323,8 +332,8 @@ body.logged-in #user-menu {
   width: 220px;
   right: 140px;
   background-color: #f8f8f8;
-  top: 30px;
   list-style: none;
+  margin-top: 6px;
   padding: 0 0 1em;
   box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
   border-radius: 3px;
@@ -593,7 +602,7 @@ form#notificationStatus {
 }
 .custom-links a {
   display: block;
-  padding: 8px 4px 8px 16px;
+  padding: 0.5em;
   color: #92B6D1;
 }
 /* CONTENT */
@@ -697,7 +706,7 @@ body.co_people.canvas .titleNavContainer {
 }
 /* SEARCH PAGE */
 #CoDashboardSearchForm {
-  margin-bottom: 1em;
+  margin-bottom: 1.25em;
 }
 #search-results {
   display: flex;
@@ -713,17 +722,23 @@ body.co_people.canvas .titleNavContainer {
 #search-results .co-card li:nth-child(2n+1) {
   background-color: #ededed;
 }
+#search {
+  display: flex;
+  gap: 1em;
+}
+#search label {
+  font-size: 1.4em;
+}
 #search .input.text,
 #search .submit {
   display: inline-block;
 }
 #search input#CoDashboardQ {
-  height: 24px;
-  width: 170px;
-  margin-right: 0.5em;
-  padding: 4px;
+  width: 100%;
+  padding: 0.4em 0.75rem;
   border: 1px solid #ccc;
-  font-size: 16px;
+  font-size: 1.4em;
+  border-radius: 3px;
 }
 #search input#CoDashboardQ:focus {
   background-color: #ffd;

@@ -82,8 +82,18 @@
     display: block;
     color: white;
   }
-  #global-search-box #CoDashboardQ {
-    font-size: 14px;
+  #global-search-box #global-search-field {
+    width: 140px;
+    font-size: 0.9rem;
+  }
+  .global-search-submit {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+  }
+  .global-search-submit .material-icons-outlined {
+    display: inline;
+    font-size: 0.9rem;
   }
   #user-common-name {
     display: inline;
@@ -259,9 +269,11 @@
     width: 70%;
   }
   /* SEARCH PAGE */
+  #search {
+    gap: 0.5em;
+  }
   #search input#CoDashboardQ {
     width: 300px;
-    font-size: 14px;
   }
   /* PAGINATION */
   #pagination {
@@ -322,6 +334,9 @@
     position: relative;
     z-index: 8;
   }
+  #global-search-box #global-search-field {
+    width: 180px;
+  }
   #user-menu {
     z-index: 30;
   }
@@ -333,6 +348,7 @@
   }
   #notifications #notifications-menu {
     width: 400px;
+    right: 177px;
   }
   /* USER DEFINED LINKS (top) */
   #user-defined-links-left {
@@ -348,10 +364,6 @@
   }
   #user-defined-links-top .custom-links a {
     color: white;
-  }
-  /* USER MENU */
-  #global-search-box {
-    right: 200px;
   }
   /* RIGHT SIDEBAR */
   .sidebar {

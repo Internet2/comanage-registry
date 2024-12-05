@@ -163,19 +163,6 @@
     // END DESKTOP MENU DRAWER BEHAVIOR
 
     // USER MENU BEHAVIORS
-    // Toggle the global search box
-    $("#global-search-toggle").click(function (e) {
-      e.stopPropagation();
-      if ($("#global-search-box").is(":visible")) {
-        $("#global-search-box").hide();
-        $(this).attr("aria-expanded","false");
-      } else {
-        $("#global-search-box").show();
-        $("#global-search-box .input input[type='text']").focus();
-        $(this).attr("aria-expanded","true");
-      }
-    });
-
     // Toggle the custom user panel in the user menu
     $("#user-panel-toggle").click(function(e) {
       e.stopPropagation();
@@ -202,8 +189,8 @@
 
     // Hide interface items on click outside
     $(document).on('click', function (e) {
-      if ($(e.target).closest("#user-panel, #global-search-box, #notification-menu").length === 0) {
-        $("#user-panel, #global-search-box, #notifications-menu").hide();
+      if ($(e.target).closest("#user-panel, #notification-menu").length === 0) {
+        $("#user-panel, #notifications-menu").hide();
       }
       if ($(e.target).closest(".cm-inline-editable-field").length === 0) {
         $(".cm-inline-editable-field").removeClass('active');
