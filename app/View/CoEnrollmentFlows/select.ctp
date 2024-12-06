@@ -45,6 +45,7 @@
 <div id="co_enrollment_flows" class="co-grid co-grid-with-header container">
   <div class="row co-grid-header">
     <div class="col"><?php print _txt('fd.name'); ?></div>
+    <div class="col-6"><?php print _txt('fd.desc'); ?></div>
     <div class="col actions"><?php print _txt('fd.actions'); ?></div>
   </div>
 
@@ -53,6 +54,9 @@
     <div class="row">
       <div class="col first-cell">
         <?php print filter_var($c['CoEnrollmentFlow']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
+      </div>
+      <div class="col-6">
+        <?php print filter_var($c['CoEnrollmentFlow']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
       <div class="col actions">
         <?php

@@ -73,6 +73,7 @@
         <th><?php print $this->Paginator->sort('name', _txt('fd.name')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print $this->Paginator->sort('authz_level', _txt('fd.ef.authz')); ?></th>
+        <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
@@ -117,6 +118,7 @@
             }
           ?>
         </td>
+        <td><?php print filter_var($c['CoEnrollmentFlow']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td>
           <?php
             if($permissions['select']
