@@ -645,6 +645,30 @@
     observer[element].observe(element,cmActionMenuOptions);
   }
 
+  // Copy a value to browser clipboard (only works on HTTPS)
+  // (This is here rather than in comanage.js to more easily use the i18n strings.) 
+  async function copyValue(val,callingElement) {
+    try {
+      // remove extra white spaces and trim the value
+      let valWithNormalizedSpaces = val.replace(/\s+/g, ' ').trim();
+      // copy to clipboard
+      await navigator.clipboard.writeText(valWithNormalizedSpaces);
+      // provide feedback
+      $(callingElement).find('.material-icons').text('thumb_up');
+      $(callingElement).attr('aria-label', '<?php print _txt('op.copy.value.ok'); ?>');
+      // reset feedback
+      setTimeout(() => $(callingElement).find('.material-icons').text('content_copy'), 800);
+      setTimeout(() => $(callingElement).attr('aria-label', '<?php print _txt('op.copy.value'); ?>'), 2200);
+    } catch($e) {
+      // this will be rendered if browser is not on HTTPS
+      let msg = '<?php print _txt('er.javascript.copy') ?>';
+      if(window.location.protocol != 'https:') {
+        msg += ' ' + '<?php print _txt('er.javascript.requires.https') ?>';
+      }
+      alert(msg + "\n\n" + $e);
+    }
+  }
+
   // Define default text for confirm dialog
   var defaultConfirmOk = "<?php print _txt('op.ok'); ?>";
   var defaultConfirmCancel = "<?php print _txt('op.cancel'); ?>";

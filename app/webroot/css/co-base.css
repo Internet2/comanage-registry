@@ -855,6 +855,9 @@ body.co_people.canvas .titleNavContainer {
   background: none;
   border: none;
 }
+#content .ui-button-materialicons .material-icons {
+  font-size: 1em;
+}
 /* REDIRECT PAGE */
 #redirect-box {
   background-color: #f5f5f5;
