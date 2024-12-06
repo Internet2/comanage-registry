@@ -284,6 +284,19 @@
   <li>
     <div class="field-name">
       <div class="field-title">
+        <?php print ($e ? $this->Form->label('description',_txt('fd.description')) : _txt('fd.description')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.ef.desc.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+        ? $this->Form->input('description')
+        : filter_var($co_enrollment_flows[0]['CoEnrollmentFlow']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
         <?php print ($e ? $this->Form->label('status',_txt('fd.status')) : _txt('fd.status')); ?>
         <span class="required">*</span>
       </div>
