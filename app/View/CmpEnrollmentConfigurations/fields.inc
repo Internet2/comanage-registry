@@ -408,6 +408,28 @@
       print ' ' . $this->Form->label('authn_events_record_apiusers',_txt('op.enable'));
       ?>
   </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.env_mfa'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.env_mfa.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print $this->Form->input('env_mfa'); ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print _txt('fd.env_mfa_value'); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.env_mfa_value.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print $this->Form->input('env_mfa_value'); ?>
+    </div>
+  </li>
 
   <?php if($e): ?>
     <li class="fields-submit">

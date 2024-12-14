@@ -97,6 +97,16 @@ class CmpEnrollmentConfiguration extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'env_mfa' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'env_mfa_value' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    )
   );
   
   /**
@@ -120,6 +130,8 @@ class CmpEnrollmentConfiguration extends AppModel {
       'redirect_on_logout'  => null,
       'app_base'            => '/registry/',
       'authn_events_record_apiusers'  => true,
+      'env_mfa'             => null,
+      'env_mfa_value'       => null
     );
     
     if($this->save($ef)) {
@@ -203,6 +215,35 @@ class CmpEnrollmentConfiguration extends AppModel {
     $cmp = $this->find('first', $args);
 
     return isset($cmp["CmpEnrollmentConfiguration"]["redirect_on_logout"]) ? $cmp["CmpEnrollmentConfiguration"]["redirect_on_logout"] : "";
+  }
+
+  /**
+   * Determine if MFA is required for this platform, and if so how to check.
+   * 
+   * @since  COmanage Registry v4.5.0
+   * @return array      'var': Env Variable to check, 'value': Value that Env Variable should match
+   */
+
+  public function getMfaEnv() {
+    $ret = array();
+
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['fields'] = array('CmpEnrollmentConfiguration.env_mfa', 'CmpEnrollmentConfiguration.env_mfa_value');
+    $args['contain'] = false;
+
+    $cmp = $this->find('first', $args);
+
+    if(!empty($cmp['CmpEnrollmentConfiguration']['env_mfa'])
+       && !empty($cmp['CmpEnrollmentConfiguration']['env_mfa_value'])) {
+      $ret['var'] = $cmp['CmpEnrollmentConfiguration']['env_mfa'];
+      $ret['value'] = !empty($cmp['CmpEnrollmentConfiguration']['env_mfa_value']) 
+                      ? $cmp['CmpEnrollmentConfiguration']['env_mfa_value']
+                      : "yes";
+    }
+
+    return $ret;
   }
 
   /**
@@ -294,6 +335,30 @@ class CmpEnrollmentConfiguration extends AppModel {
     }
     
     return false;
+  }
+
+  /**
+   * Reset (clear) the MFA configuration so MFA is no longer required for access.
+   * 
+   * @since  COmanage Registry v4.5.0
+   */
+
+  public function resetMfaEnv() {
+    $ret = array();
+
+    $args = array();
+    $args['conditions']['CmpEnrollmentConfiguration.name'] = 'CMP Enrollment Configuration';
+    $args['conditions']['CmpEnrollmentConfiguration.status'] = StatusEnum::Active;
+    $args['contain'] = false;
+
+    $cmp = $this->find('first', $args);
+
+    $cmp['CmpEnrollmentConfiguration']['env_mfa'] = null;
+    $cmp['CmpEnrollmentConfiguration']['env_mfa_value'] = null;
+
+    $this->save($cmp);
+
+    return $ret;
   }
 
   /**

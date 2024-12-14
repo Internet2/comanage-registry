@@ -324,6 +324,25 @@ class AppController extends Controller {
       $this->Security->validatePost = false;
       $this->Security->csrfCheck = false;
     } else { // restful
+      // Before we do anything else, see if the CMP Configuration requires MFA.
+      // If it does, throw an error if not asserted (unless the Controller permits it).
+
+      $this->loadModel('CmpEnrollmentConfiguration');
+      $mfaConfig = $this->CmpEnrollmentConfiguration->getMfaEnv();
+      
+      if(!empty($mfaConfig['var'])) {
+        if(!method_exists($this, "skipMfa")
+           || !$this->skipMfa($this->action)) {
+          // MFA is required for access to Registry, and is not skipped for this
+          // action, so check for it and throw an error if not asserted
+
+          if(getenv($mfaConfig['var']) !== $mfaConfig['value']) {
+            $this->Flash->set(_txt('er.mfa.login'), array('key' => 'error'));
+            $this->redirect("/");
+          }
+        }
+      }
+      
       // Since we might be delivering unauthenticated views, set a timezone.
       // See if we've collected it from the browser in a previous page load. Otherwise
       // use the system default. If the user set a preferred timezone, we'll catch that below.

@@ -165,6 +165,18 @@ class PagesController extends AppController {
   }
   
   /**
+   * Determine if MFA, if otherwise required, is not required for this action.
+   * 
+   * @since  COmanage Registry v4.5.0
+   * @param  string   $action   Controller action
+   * @return bool               true if MFA can be skipped, false otherwise
+   */
+
+  public function skipMfa() {
+    return true;
+  }
+
+  /**
    * Authorization for this Controller, called by Auth component
    * - precondition: Session.Auth holds data used for authz decisions
    * - postcondition: $permissions set with calculated permissions

@@ -3303,6 +3303,24 @@ class CoPetitionsController extends StandardController {
   }
   
   /**
+   * Determine if MFA, if otherwise required, is not required for this action.
+   * 
+   * @since  COmanage Registry v4.5.0
+   * @param  string   $action   Controller action
+   * @return bool               true if MFA can be skipped, false otherwise
+   */
+
+  public function skipMfa($action) {
+    // As a first pass, we permit skipping MFA for any of the runtime steps.
+    // We check both keys and values in $nextSteps because the initial step
+    // (start) is only in the keys, and the final step (redirectOnConfirm)
+    // is only in the values.
+
+    return(in_array($action, array_keys($this->nextSteps))
+           || in_array($action, array_values($this->nextSteps)));
+  }
+
+  /**
    * Start a new CO Petition
    *
    * @since  COmanage Registry v0.9.4
