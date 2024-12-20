@@ -309,6 +309,19 @@ class UnixCluster extends ClusterInterface {
                               ->CoGroup
                               ->Identifier
                               ->field('co_group_id', $args['conditions']);
+
+        // Make sure the group is not deleted.
+        if(!empty($userCoGroupId)) {
+          $args = array();
+          $args['conditions']['CoGroup.id'] = $userCoGroupId;
+          $args['contain'] = false;
+
+          $g = $this->Cluster->Co->CoGroup->find('first', $args);
+
+          if($g['CoGroup']['deleted']) {
+            $userCoGroupId = null;
+          }
+        }
         
         if(!empty($userCoGroupId)) {
           $acct['primary_co_group_id'] = $userCoGroupId;
