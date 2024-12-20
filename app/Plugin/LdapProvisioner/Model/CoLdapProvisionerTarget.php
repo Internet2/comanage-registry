@@ -1545,7 +1545,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                              ARRAY_FILTER_USE_KEY)) {
               // ... and it's not set, so remove the it from the list of objectclasses
               
-              $k = array_search($oc, $attributes['objectclass']);
+              $k = array_search($oc, ($attributes['objectclass'] ?? array()));
               
               if($k !== false) {
                 unset($attributes['objectclass'][$k]);
