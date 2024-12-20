@@ -170,14 +170,19 @@
       <?php endif; ?>
 
       <div id="top-menu">
-        <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
-          <button id="co-hamburger" class="cm-toggle" aria-controls="navigation-drawer"><em class="material-icons">menu</em></button>
-        <?php endif; ?>
-        <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
-          <div id="user-defined-links-top">
-            <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
-          </div>
-        <?php endif; ?>
+        <div id="top-menu-left">
+          <?php if($vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
+            <button id="co-hamburger" class="cm-toggle" aria-controls="navigation-drawer"><em class="material-icons">menu</em></button>
+          <?php endif; ?>
+          <?php if(!empty($cur_co['Co']['id']) && $vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
+            <?php print $this->element('searchGlobal'); ?>
+          <?php endif; ?>
+          <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
+            <div id="user-defined-links-top">
+              <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
+            </div>
+          <?php endif; ?>
+        </div>
         <nav id="user-menu" aria-label="<?php print _txt('me.menu.user'); ?>">
           <?php print $this->element('menuUser'); ?>
         </nav>

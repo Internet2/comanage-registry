@@ -27,34 +27,6 @@
  */
 ?>
 
-<?php if(!empty($cur_co['Co']['id']) && $vv_ui_mode === EnrollmentFlowUIMode::Full): ?>
-
-  <div id="global-search" class="topMenu">
-    <?php
-      $options = array(
-        'type' => 'get',
-        'url' => array(
-          'plugin' => null,
-          'action' => 'search'
-        )
-      );
-      print $this->Form->create('CoDashboard', $options);
-      print $this->Form->label('q', '<span class="sr-only">' . _txt('op.search')
-        . '</span><button type="button" id="global-search-toggle" aria-expanded="false" class="cm-toggle"><em class="material-icons">search</em></button>');
-      print '<div id="global-search-box" style="display: none;">';
-      $options = array(
-        'label' => false,
-      );
-      print $this->Form->input('q', $options);
-      print $this->Form->submit(_txt('op.search'));
-      print $this->Form->hidden('co', array('default' => $cur_co['Co']['id']));
-      print '</div>';
-      print $this->Form->end();
-    ?>
-  </div>
-
-<?php endif; ?>
-
 <?php if(isset($vv_my_notifications)): ?>
 
   <div id="notifications">
