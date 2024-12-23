@@ -76,7 +76,7 @@ class CoSqlProvisionerTargetsController extends SPTController {
   
   public function resync($id) {
     try {
-      $this->CoSqlProvisionerTarget->syncAllReferenceData($this->cur_co['Co']['id'], true);
+      $this->CoSqlProvisionerTarget->syncAllReferenceData($this->cur_co['Co']['id'], true, $id);
       
       $this->Flash->set(_txt('pl.sqlprovisioner.resync.ok'), array('key' => 'success'));
     }

@@ -421,12 +421,10 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     // Just let any exceptions bubble up the stack
-    $prefix = (!empty($this->data['CoSqlProvisionerTarget']['table_prefix'])
-                ? $this->data['CoSqlProvisionerTarget']['table_prefix']
-                : "sp_");
+    $prefix = $coProvisioningTargetData['CoSqlProvisionerTarget']['table_prefix'] ?? 'sp_';
     
     $this->CoProvisioningTarget->Co->Server->SqlServer->connect($coProvisioningTargetData['CoSqlProvisionerTarget']['server_id'],
-                                                                "targetdb",
+                                                                'targetdb',
                                                                 $prefix);
     
     // Start a transaction
@@ -515,12 +513,14 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
    * which doesn't have an CO Provisioning Target context, but also used for
    * manual resync.
    *
+   * @param  int     $coId                        CO ID to sync reference data for
+   * @param  boolean $syncGroups                  Also sync Group reference data
+   * @param  int     $CoSqlProvisionerTargetId    CoSqlProvisionerTarget ID to sync reference data for
+   *
    * @since  COmanage Registry v3.3.0
-   * @param  int     $coId       CO ID to sync reference data for
-   * @param  boolean $syncGroups Also sync Group reference data
    */
   
-  public function syncAllReferenceData($coId, $syncGroups=false) {
+  public function syncAllReferenceData($coId, $syncGroups=false, $CoSqlProvisionerTargetId=null) {
     // Pull all SqlProvisioner configurations for the CO
     
     $args = array();
@@ -530,23 +530,24 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     $args['joins'][0]['conditions'][0] = 'CoSqlProvisionerTarget.co_provisioning_target_id=CoProvisioningTarget.id';
     $args['conditions']['CoProvisioningTarget.co_id'] = $coId;
     $args['conditions']['CoProvisioningTarget.status !='] = ProvisionerModeEnum::Disabled;
+    if($CoSqlProvisionerTargetId !== null) {
+      $args['conditions']['CoSqlProvisionerTarget.id'] = $CoSqlProvisionerTargetId;
+    }
     $args['contain'] = false;
     
     $targets = $this->find('all', $args);
-    
-    // Loop through each configuration, instantiating a DataSource, then
-    // performing the sync
 
-    $prefix = (!empty($this->data['CoSqlProvisionerTarget']['table_prefix'])
-            ? $this->data['CoSqlProvisionerTarget']['table_prefix']
-            : "sp_");
-    
     if(!empty($targets)) {
       foreach($targets as $t) {
+        // Loop through each configuration, instantiating a DataSource, then
+        // performing the sync
+
+        $prefix = $t['CoSqlProvisionerTarget']['table_prefix'] ?? 'sp_';
+
         // We need a unique data source label for each target
         $sourceLabel = 'targetdb' . $t['CoSqlProvisionerTarget']['server_id'];
         
-        // Just let any exceptions bubble up the stack
+        // Let any exceptions bubble up the stack
         $this->CoProvisioningTarget->Co->Server->SqlServer->connect($t['CoSqlProvisionerTarget']['server_id'], 
                                                                     $sourceLabel,
                                                                     $prefix);
@@ -730,7 +731,21 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
                 }
               }
             }
-            
+
+            // XXX If we try to sync CoGroupMembers without syncing the groups first we will fail to complete the process
+            //     This can occur if we manually sync from CoPerson Canvas, where only CoPerson Sync will fire.
+            if($Model->alias == 'SpCoGroupMember') {
+              $SpCoGroup =  new Model(array(
+                                        'table' => $this->parentModels['CoGroup']['table'],
+                                        'name'  => $this->parentModels['CoGroup']['name'],
+                                        'ds'    => 'targetdb'
+                                      ));
+              $SpCoGroup->id = $data['SpCoGroupMember']['co_group_id'];
+              if($SpCoGroup->field('name') === false) {
+                $this->log(__METHOD__ . "::CO Group with id:{$data['SpCoGroupMember']['co_group_id']} not found");
+                continue;
+              }
+            }
             // No need to validate anything, though we also don't have any validation rules
             $Model->save($data, false);
           }
