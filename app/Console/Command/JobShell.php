@@ -345,6 +345,9 @@ class JobShell extends AppShell {
         $this->out(_txt('er.lock', array($e->getMessage())), 1, Shell::QUIET);
         return;
       }
+
+      // Load localizations
+      $this->CoLocalization->load($this->params['coid']);
       
       $this->dispatch($command, $this->params);
       
