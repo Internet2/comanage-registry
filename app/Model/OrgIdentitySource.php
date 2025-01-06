@@ -1456,6 +1456,8 @@ class OrgIdentitySource extends AppModel {
    */
   
   public function syncOrgIdentitySource($orgIdentitySource, $force=false, $coJobId=null) {
+    $dbc = ConnectionManager::getDataSource('default');;
+
     // We don't check here that the source is in Manual mode in case an admin
     // wants to manually force a sync. (syncAll honors that setting.)
     
@@ -1627,6 +1629,14 @@ class OrgIdentitySource extends AppModel {
             // XXX we should really record this error somewhere (or does syncorgidentity do that for us?)
             $resCnt['error']++;
           }
+
+          // We should not have any open transactions at this point
+          // but if we do we rollback so that we do not continue onto
+          // the next OrgIdentity with an open transaction.
+          $dbc = $this->getDataSource();
+          for($i = $dbc->getTransactionNesting();$i >= 0;$i--) {
+            $dbc->rollback();
+          }
         }
       }
       
@@ -1726,6 +1736,14 @@ class OrgIdentitySource extends AppModel {
                                                        null,
                                                        JobStatusEnum::Failed);
         }        
+
+        // We should not have any open transactions at this point
+        // but if we do we rollback so that we do not continue onto
+        // creating the next OrgIdentity with an open transaction.
+        $dbc = $this->getDataSource();
+        for($i = $dbc->getTransactionNesting();$i >= 0;$i--) {
+          $dbc->rollback();
+        }
       }
       
       if($changelist !== false) {
