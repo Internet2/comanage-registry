@@ -866,6 +866,9 @@ class OrgIdentitiesController extends StandardController {
       $jcnt++;
     }
 
+    // CO-2882, we need at least the following fields for the View to render properly
+    $this->paginate['fields'] = $this->OrgIdentity->getPaginateFields();
+
     // We need to manually add this in for some reason. (It should have been
     // added automatically by Cake based on the CoPerson Model definition of
     // PrimaryName.)
