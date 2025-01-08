@@ -95,6 +95,18 @@ class OrgIdentity extends AppModel {
     // An Org Identity may belong to a CO, if not pooled
     "Co"
   );
+
+  // Select clause for the paginator
+  private $paginate_fields = array( "DISTINCT OrgIdentity.id",
+    "PrimaryName.given",
+    "PrimaryName.family",
+    "OrgIdentity.title",
+    "OrgIdentity.affiliation",
+    "OrgIdentity.o",
+    "OrgIdentity.ou",
+    "OrgIdentity.created",
+    "OrgIdentity.modified"
+  );
   
   // Default display field for cake generated views
   public $displayField = "PrimaryName.family";
@@ -421,6 +433,16 @@ class OrgIdentity extends AppModel {
     // for each CO, see if a link exists from $id to a co person in that CO
     
     return $cos;
+  }
+
+  /**
+   * Get paginator Select clause
+   *
+   * @since  COmanage Registry v4.4.1
+   * @return array
+   */
+  public function getPaginateFields() {
+    return $this->paginate_fields;
   }
 
   /**
