@@ -24,12 +24,8 @@
  * @since         COmanage Registry v1.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-
-  // As a general rule, all Registry pages are post-login and so shouldn't be cached
-  header("Expires: Thursday, 10-Jan-69 00:00:00 GMT");
-  header("Cache-Control: no-store, no-cache, max-age=0, must-revalidate");
-  header("Pragma: no-cache");
-  header("Content-Security-Policy: frame-ancestors 'self'");
+  
+  print $this->element('httpHeaders');
 ?>
 <!DOCTYPE html>
 <html>

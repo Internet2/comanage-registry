@@ -16,8 +16,8 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
   
-header("Content-Security-Policy: frame-ancestors 'self'");
-$cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework');
+  print $this->element('httpHeaders');
+  $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework');
 ?>
 <!DOCTYPE html>
 <html>
