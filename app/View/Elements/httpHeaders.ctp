@@ -32,7 +32,7 @@ header("Pragma: no-cache");
 
 header("Content-Security-Policy: object-src 'none'; base-uri 'none'; frame-ancestors 'self'");
 header("X-Content-Type-Options: nosniff");
-header("Permissions-Policy: accelerometer=(),autoplay=(),camera=(),display-capture=(),encrypted-media=(),fullscreen=(),geolocation=(),gyroscope=(),magnetometer=(),microphone=(),midi=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),sync-xhr=(self),usb=(),web-share=(),xr-spatial-tracking=()");
+header("Permissions-Policy: accelerometer=(),autoplay=(),camera=(),cross-origin-isolated=(),display-capture=(),encrypted-media=(),fullscreen=(),geolocation=(),gyroscope=(),keyboard-map=(),magnetometer=(),microphone=(),midi=(),payment=(),picture-in-picture=(),publickey-credentials-get=(),screen-wake-lock=(),sync-xhr=(self),usb=(),web-share=(),xr-spatial-tracking=(),gamepad=(),hid=(),idle-detection=(),interest-cohort=(),serial=()");
 header("Cross-Origin-Opener-Policy: same-origin");
 header("X-Permitted-Cross-Domain-Policies: none");
 
