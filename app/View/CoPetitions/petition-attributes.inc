@@ -390,7 +390,7 @@
                 'fieldName' => $fieldName,
                 'modelName' => $ea['model'],
                 'required' => $ea['required'],
-                'default' => $ea['default']
+                'default' => $ea['default'] ?? ''
               );
               print $this->element('enumerableField', $args);
               break;

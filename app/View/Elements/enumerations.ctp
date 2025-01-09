@@ -78,7 +78,10 @@ $tname = Inflector::tableize($this->name);
   
   // And whether or not other values are permitted
   var other = [];
-  
+
+  // Holding the default values
+  var p = {};
+
   <?php
     // Build javascript arrays based on our PHP configuration
     foreach($vv_enums as $attr => $cfg) {
@@ -87,7 +90,7 @@ $tname = Inflector::tableize($this->name);
       $cfg = $vv_enums[$attr];
       
       // The current persisted value in the database (if any)
-      $curval = "";
+      $curval = '';
 
       if(!empty($$tname[0][ $attrBits[0] ][ $attrBits[1] ])) {
         // Regular model
@@ -98,12 +101,13 @@ $tname = Inflector::tableize($this->name);
           if(isset($ea['model']) 
              && $ea['model'] == $attrBits[0]
              && $ea['field'] == $attrBits[1]) {
-            $curval = $ea['default'];
+            $curval = $ea['default'] ?? '';
           }
         }
       }
 
-      print "var p" . Inflector::camelize($attrBits[1]) . " = \""
+      // We are passing the defaultValue to a tmp variable
+      print "p['" . $attrBits[0] . Inflector::camelize($attrBits[1]) . "'] = \""
             . $curval
             . "\";\n";
       
@@ -213,42 +217,56 @@ $tname = Inflector::tableize($this->name);
         // Always hide the actual value field when the dictionary is in use
         $("#<?php print $bits[1]; ?>-field").hide("fade");
         
-        var select = document.getElementById(attrid + 'Select');
-        
-        if(select.options.length > 0) {
-          select.options.length = 0;
-        }
-        
-        var found = 0; // Did we find the current value in the select list?
-        var i = 0;
-        
-        select.options[i++] = new Option('', '');
-        
-        if(coded[curattr]) {
-          // We want the code as the select value
-          for(j in enums[curattr]) {
-            select.options[i++] = new Option(enums[curattr][j], j);
-            
-            if(p<?php print Inflector::camelize($bits[1]); ?> == j) {
-              select.selectedIndex = i-1;
-              found++;
-            }
-          }
-        } else {
-          // No code, so just use the entry as the value
-          for(j in enums[curattr]) {
-            select.options[i++] = new Option(enums[curattr][j]);
-            
-            if(p<?php print Inflector::camelize($bits[1]); ?> == enums[curattr][j]) {
-              select.selectedIndex = i-1;
-              found++;
-            }
-          }
-        }
+        const select = document.getElementById(attrid + 'Select');
 
-        if(!found) {
-          // Set the default value in the other field
-          document.getElementById(attrid + 'Other').value = p<?php print Inflector::camelize($bits[1]); ?>;
+        if(select !== undefined && select !== null) {
+          if(select.options.length > 0) {
+            select.options.length = 0;
+          }
+
+          let found = 0; // Did we find the current value in the select list?
+          let i = 0;
+
+          // Add an empty option
+          select.options[i++] = new Option('', '', false, false);
+
+          if(coded[curattr]) {
+            // sort the fields
+            const sortedEnumCurAttr = sortProperties(enums[curattr])
+            // We want the code as the select value
+            for(let j in sortedEnumCurAttr) {
+              select.options[i++] = new Option(
+                sortedEnumCurAttr[j][1],
+                sortedEnumCurAttr[j][0],
+                false,
+                p[attrid] === sortedEnumCurAttr[j][0]
+              );
+
+              if(p[attrid] === sortedEnumCurAttr[j][0]) {
+                found++;
+              }
+            }
+          } else {
+            // No code, so use the entry as the value
+            // todo: when do i get in here??
+            for(let j in enums[curattr]) {
+              select.options[i++] = new Option(
+                enums[curattr][j],
+                enums[curattr][j],
+                false,
+                p[attrid] == j.toString()
+              );
+
+              if(p[attrid] == j.toString()) {
+                found++;
+              }
+            }
+          }
+
+          if(found == 0) {
+            // Set the default value in the other field
+            document.getElementById(attrid + 'Other').value = p[attrid];
+          }
         }
       } else {
         // Standard form element, hide the enumeration widgets
