@@ -1725,8 +1725,15 @@ class OrgIdentitySource extends AppModel {
           // either since we should have counted this in 'synced' already.
         }
         catch(Exception $e) {
-          // Create a job history record to record the error
-          
+          // Create a job history record to record the error.
+          // Because of the exception we just caught there may be one or
+          // more open transactions so roll them back so that we can
+          // effectively save a job history record.
+          $dbc = $this->getDataSource();
+          for($i = $dbc->getTransactionNesting();$i >= 0;$i--) {
+            $dbc->rollback();
+          }
+
           $resCnt['error']++;
           
           $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
