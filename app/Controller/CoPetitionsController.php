@@ -96,14 +96,24 @@ class CoPetitionsController extends StandardController {
   // For rendering views, we need more information than just the various ID numbers
   // stored in a petition.
   public $view_contains = array(
-    'ApproverCoPerson' => 'PrimaryName',
-    'EnrolleeCoPerson' => 'PrimaryName',
-    'EnrolleeOrgIdentity' => 'PrimaryName',
-    'PetitionerCoPerson' => 'PrimaryName',
-    'SponsorCoPerson' => 'PrimaryName',
+    'ApproverCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
+    'EnrolleeCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
+    'EnrolleeOrgIdentity' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
+    'PetitionerCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
+    'SponsorCoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
     'CoPetitionHistoryRecord' => array(
       'ActorCoPerson' => array(
-        'PrimaryName'
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
       )
     ),
     'CoEnrollmentFlow' => array(
@@ -112,7 +122,9 @@ class CoPetitionsController extends StandardController {
     'CoInvite',
     'Cou',
     'OrgIdentitySourceRecord' => array(
-      'OrgIdentity' => 'PrimaryName',
+      'OrgIdentity' => array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+      ),
       'OrgIdentitySource'
     )
   );
@@ -500,7 +512,7 @@ class CoPetitionsController extends StandardController {
               if(!empty($a[$t.'_co_person_id'])) {
                 $args = array();
                 $args['conditions']['CoPerson.id'] = $a[$t.'_co_person_id'];
-                $args['contain'] = array('PrimaryName');
+                $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
                 
                 $pName = $this->CoPetition->Co->CoPerson->find('first', $args);
                 
@@ -612,7 +624,7 @@ class CoPetitionsController extends StandardController {
               if($defaultCoPersonId) {
                 $args = array();
                 $args['conditions']['CoPerson.id'] = $defaultCoPersonId;
-                $args['contain'] = array('PrimaryName');
+                $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
                 
                 $this->set('vv_default_sponsor', $this->CoPetition->Co->CoPerson->find('first', $args));
               }
@@ -632,7 +644,7 @@ class CoPetitionsController extends StandardController {
               if($defaultCoPersonId) {
                 $args = array();
                 $args['conditions']['CoPerson.id'] = $defaultCoPersonId;
-                $args['contain'] = array('PrimaryName');
+                $args['contain'] = array('PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)));
                 
                 $this->set('vv_default_manager', $this->CoPetition->Co->CoPerson->find('first', $args));
               }

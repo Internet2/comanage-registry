@@ -42,17 +42,25 @@ class AddressesController extends MVPAController {
   
   public $edit_contains = array(
     'CoDepartment',
-    'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
+    'CoPersonRole' => array(
+      'CoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    )),
     'Organization',
-    'OrgIdentity' => array('PrimaryName')
+    'OrgIdentity' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    )
   );
 
   public $view_contains = array(
     'CoDepartment',
-    'CoPersonRole' => array('CoPerson' => 'PrimaryName'),
+    'CoPersonRole' => array('CoPerson' => array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    )),
     'Organization',
     'OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource'),
-                           'PrimaryName'),
+                           'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    ),
     'SourceAddress'
   );
   
