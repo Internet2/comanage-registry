@@ -55,8 +55,11 @@
         break;
     <?php endforeach; ?>
     }
-    
-    return ret;
+    if (ret != undefined) {
+      return sortProperties(ret)
+    }
+
+    return ret
   }
   
   function ext_attr_type(attrname) {
@@ -143,8 +146,8 @@
       if(enums != undefined) {
         // Enumerations are defined for the attribute, so generate an appropriate select
         var options = "<option value=''></option>";
-        for(let id of Object.keys(enums)) {
-          options += "<option value='" + id + "'>" + enums[id] + "</option>";
+        for(let i=0; i<enums.length; i++) {
+          options += "<option value='" + enums[i][0] + "'>" + enums[i][1] + "</option>";
         }
         $("#def_enum_val").find('option').remove().end().append($(options));
         
@@ -356,7 +359,7 @@
       }
       if ($.inArray(cur_value, attributesProperty) !== -1) {
           option.attr('selected', 'selected');
-          <?php if(!empty($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])): ?>
+          <?php if(isset($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])): ?>
           option.attr('data-default', '<?php print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS); ?>');
           <?php endif; ?>
       }
@@ -484,12 +487,12 @@
     print $this->Form->hidden('CoEnrollmentAttributeDefault.0.co_enrollment_attribute_id') . "\n";
   }
 
-  $co_enrollment_attribute_attribute = !empty($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'])
+  $co_enrollment_attribute_attribute = isset($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'])
                                        ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['attribute'],FILTER_SANITIZE_SPECIAL_CHARS)
                                        : '';
   print $this->Form->hidden('attribute', array('value' => $co_enrollment_attribute_attribute)) . "\n";
 
-  $co_enrollment_attribute_value_def = !empty($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])
+  $co_enrollment_attribute_value_def = isset($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'])
                                        ? filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS)
                                        : '';
   print $this->Form->hidden('CoEnrollmentAttributeDefault.0.value', array('value' => filter_var($co_enrollment_attribute_value_def,FILTER_SANITIZE_SPECIAL_CHARS))) . "\n";
@@ -499,6 +502,7 @@
 <div class="table-container">
   <table id="<?php print $this->action; ?>_co_enrollment_attribute">
     <tbody>
+      <!--   LABEL  -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td width="50%"> <!-- force a width here and below so the two tables line up -->
           <b><?php print _txt('fd.ea.label'); ?></b><br />
@@ -510,6 +514,7 @@
             : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['label'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </td>
       </tr>
+      <!--   DESCRIPTION   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.ea.desc'); ?></b><br />
@@ -521,6 +526,7 @@
             : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </td>
       </tr>
+      <!--   ATTRIBUTE   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.attribute'); ?></b>
@@ -634,6 +640,7 @@
           </div>
         </td>
       </tr>
+      <!--   REQUIRED   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.required'); ?></b>
@@ -660,6 +667,7 @@
           ?>
         </td>
       </tr>
+      <!--   ATTRIBUTES FROM ENV CONFIGURATIONS   -->
       <?php if(isset($vv_attributes_from_env) && $vv_attributes_from_env): ?>
         <tr class="line<?php print ($l % 2); $l++; ?>">
           <td>
@@ -677,6 +685,7 @@
           </td>
         </tr>
       <?php endif; ?>
+      <!--  DEFAULT ENV VALUE   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.ea.default_env'); ?></b><br />
@@ -688,6 +697,7 @@
             : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['default_env'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </td>
       </tr>
+      <!--   ORDER   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.ea.order'); ?></b><br />
@@ -699,6 +709,7 @@
             : filter_var($co_enrollment_attributes[0]['CoEnrollmentAttribute']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </td>
       </tr>
+      <!--   CONFIGURATION LABEL    -->
       <tr id="filter_attributes_bylabel_div" class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.ea.attr.filter'); ?></b><br />
@@ -729,11 +740,13 @@
       </tr>
     </tbody>
     <tbody id="attr_def_div" style="display: <?php print $display;?>">
+      <!--  DEFAULT VALUE TEXTBOX/DROPDOWN/DATE PICKER  -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td width="50%">
           <b><?php print _txt('fd.ed.default'); ?></b><br />
         </td>
         <td>
+          <!--     DEFAULT DIV/TEXTBOX     -->
           <div id="attr_def_val_div">
             <?php if($e): ?>
                 <input name="def_val_div"
@@ -747,6 +760,7 @@
               <?php print filter_var($co_enrollment_attributes[0]['CoEnrollmentAttributeDefault'][0]['value'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
             <?php endif; ?>
           </div>
+          <!--     DEFAULT AFFILIATION     -->
           <div id="attr_def_val_affil_div">
             <?php if($e): ?>
               <select name="def_affil_val"
@@ -761,6 +775,7 @@
               </select>
             <?php endif; ?>
           </div>
+          <!--     DEFAULT COU     -->
           <div id="attr_def_val_cou_div">
             <?php if($e): ?>
               <select name="def_cou_val"
@@ -775,6 +790,7 @@
               </select>
             <?php endif; ?>
           </div>
+          <!--     DEFAULT DATE     -->
           <div id="attr_def_val_date_div" class="modelbox-data">
             <?php if($e): ?>
               <input name="def_date_type"
@@ -824,6 +840,7 @@
               <br />
             <?php endif; ?>
           </div>
+          <!--    DEFAULT ENUMERATOR DIV      -->
           <div id="attr_def_val_enum_div">
             <?php if($e): ?>
               <select name="def_enum_val"
@@ -833,6 +850,7 @@
               </select>
             <?php endif; ?>
           </div>
+          <!--    DEFAULT GROUP      -->
           <div id="attr_def_val_group_div">
             <?php if($e): ?>
               <select name="def_group_val"
@@ -847,6 +865,7 @@
               </select>
             <?php endif; ?>
           </div>
+         <!--     DEFAULT MANAGER     -->
           <div id="attr_def_val_manager_div">
             <!-- Always use a people picker (unlike Sponsor) -->
             <div class="cm-inline-editable-field">
@@ -890,6 +909,7 @@
               </div>
             </div>
           </div>
+          <!--     DEFAULT SPONSOR     -->
           <div id="attr_def_val_sponsor_div">
             <?php if($e && $vv_sponsor_mode != SponsorEligibilityEnum::None): ?>
               <?php if(isset($vv_sponsors)): ?>
@@ -954,6 +974,7 @@
           </div>
         </td>
       </tr>
+      <!--   MODIFY   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.ed.modify'); ?></b><br />
@@ -967,6 +988,7 @@
               ? _txt('fd.yes') : _txt('fd.no'))); ?>
         </td>
       </tr>
+      <!--   HIDDEN   -->
       <tr class="line<?php print ($l % 2); $l++; ?>">
         <td>
           <b><?php print _txt('fd.hidden'); ?></b><br />

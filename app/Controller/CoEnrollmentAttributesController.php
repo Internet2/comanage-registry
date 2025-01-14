@@ -302,7 +302,7 @@ class CoEnrollmentAttributesController extends StandardController {
               // the dropdown won't either).
               if(!empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'])
                  && $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'] == 'r:sponsor_co_person_id'
-                 && !empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
+                 && isset($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
                 // The default value is a CO Person ID
                 $args = array();
                 $args['conditions']['CoPerson.id'] = $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'];
@@ -315,7 +315,7 @@ class CoEnrollmentAttributesController extends StandardController {
             // Also populate the current manager, if set
             if(!empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'])
                && $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttribute']['attribute'] == 'r:manager_co_person_id'
-               && !empty($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
+               && isset($this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'])) {
               // The default value is a CO Person ID
               $args = array();
               $args['conditions']['CoPerson.id'] = $this->viewVars['co_enrollment_attributes'][0]['CoEnrollmentAttributeDefault'][0]['value'];

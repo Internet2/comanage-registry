@@ -97,7 +97,7 @@ class ApplicationPreferencesController extends StandardController {
       // We expect a simple json doc of { "value": "foo" }, but if we don't have
       // a valid value we'll just treat it as a null. The client can also pass
       // { "value": null }
-      $value = !empty($this->request->data['value']) ? $this->request->data['value'] : null;
+      $value = $this->request->data['value'] ?? null;
       
       try {
         $this->ApplicationPreference->store($coPersonId, $this->request->params['tag'], $value);
