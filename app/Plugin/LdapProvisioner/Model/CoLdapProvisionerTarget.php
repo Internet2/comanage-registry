@@ -266,6 +266,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Marshalled attributes ready for export
     $attributes = array();
+    $attributes['objectclass'] = array();
     
     // Full set of supported attributes (not what's configured)
     $supportedAttributes = $this->supportedAttributes();
@@ -1545,7 +1546,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                              ARRAY_FILTER_USE_KEY)) {
               // ... and it's not set, so remove the it from the list of objectclasses
               
-              $k = array_search($oc, ($attributes['objectclass'] ?? array()));
+              $k = array_search($oc, $attributes['objectclass']);
               
               if($k !== false) {
                 unset($attributes['objectclass'][$k]);
