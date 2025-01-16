@@ -137,10 +137,14 @@ class Lock extends AppModel {
    * Release a lock.
    *
    * @since  COmanage Registry v3.3.0
-   * @param  integer $id  Lock ID
+   * @param  mixed $id  integer Lock ID or string 'all'
    */
   
   public function release($id) {
-    return $this->delete($id);
+    if($id == 'all') {
+      return $this->deleteAll(array('Lock.id is not null'));
+    } else {
+      return $this->delete($id);
+    }
   }
 }
