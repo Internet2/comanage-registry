@@ -510,11 +510,14 @@ class DboSource extends DataSource {
 					return true;
 				}
 			}
+      CakeLog::write(LOG_DEBUG, "query: \n" . $query->queryString);
 			return $query;
 		} catch (PDOException $e) {
 			if (isset($query->queryString)) {
+        CakeLog::write(LOG_ERROR, "query: \n" . $query->queryString);
 				$e->queryString = $query->queryString;
 			} else {
+        CakeLog::write(LOG_ERROR, "sql: \n" . $sql);
 				$e->queryString = $sql;
 			}
 			throw $e;
