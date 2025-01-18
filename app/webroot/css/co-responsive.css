@@ -268,13 +268,6 @@
     right: 0;
     width: 70%;
   }
-  /* SEARCH PAGE */
-  #search {
-    gap: 0.5em;
-  }
-  #search input#CoDashboardQ {
-    width: 300px;
-  }
   /* PAGINATION */
   #pagination {
     text-align: left;
@@ -569,6 +562,10 @@
     border-bottom: 1em solid transparent;
     justify-content: space-between;
     align-items: end;
+  }
+  /* SEARCH PAGE */
+  #search input#CoDashboardQ {
+    width: 300px;
   }
   /* GENERAL */
   .submit-buttons {

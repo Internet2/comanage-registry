@@ -724,7 +724,8 @@ body.co_people.canvas .titleNavContainer {
 }
 #search {
   display: flex;
-  gap: 1em;
+  gap: 0.5em;
+  align-items: flex-end;
 }
 #search label {
   font-size: 1.4em;
@@ -744,10 +745,8 @@ body.co_people.canvas .titleNavContainer {
   background-color: #ffd;
   border: 1px solid #ccc;
 }
-#search input[type=submit] {
-  position: relative;
-  top: -2px;
-  height: 33px;
+#search .global-search-submit {
+  margin-bottom: 2px;
 }
 #search-results .co-card .co-card {
   background-color: var(--cmg-color-white);
