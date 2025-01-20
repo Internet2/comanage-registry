@@ -104,8 +104,8 @@
   if(!$e && !$permissions['view'])
     return false;
   
-  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
-  print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . "\n";
+  print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . PHP_EOL;
+  print $this->Form->hidden('co_provisioning_target_id', array('default' => $vv_ptid)) . PHP_EOL;
   
   // Determine the starting index for newly emitted attributes and groupings
   $newattri = count($co_ldap_provisioner_targets[0]['CoLdapProvisionerAttribute']);
@@ -239,9 +239,7 @@
         global $cm_lang, $cm_texts;
 
         $attrs = array();
-        $attrs['value'] = (isset($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode'])
-          ? $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode']
-          : LdapProvUnconfAttrEnum::Remove);
+        $attrs['value'] = ($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['unconf_attr_mode'] ?? LdapProvUnconfAttrEnum::Remove);
         $attrs['empty'] = false;
 
         if($e) {
@@ -293,12 +291,14 @@
             $ocopts['type'] = 'checkbox';
 
             if($supportedAttributes[$oc]['objectclass']['required']) {
-              $ocopts['label'] .= " (" . _txt('fd.required') . ")";
+              $ocopts['label'] .= ' (' . _txt('fd.required') . ')';
               $ocopts['checked'] = true;
               $ocopts['disabled'] = true;
+            } else {
+              $ocopts['checked'] = filter_var($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['oc_' . strtolower($oc)], FILTER_VALIDATE_BOOL) ?? false;
             }
 
-            print $this->Form->input('oc_' . strtolower($oc), $ocopts) . "<br />";
+            print $this->Form->input('oc_' . strtolower($oc), $ocopts) . '<br />';
 
             print '<div id="oc_' . $oc . '_div" class="nested">';
             
@@ -312,9 +312,7 @@
               }
               
               $attrs = array();
-              $attrs['value'] = (isset($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['cluster_id'])
-                                 ? $co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['cluster_id']
-                                 : null);
+              $attrs['value'] = ($co_ldap_provisioner_targets[0]['CoLdapProvisionerTarget']['cluster_id'] ?? null);
               $attrs['empty'] = false;
               
               print _txt('ct.clusters.1');
@@ -364,11 +362,11 @@
                 // If we're editing an existing grouping, emit the cross reference
 
                 if(!empty($currentGroupings[$grouping]['id'])) {
-                  print $this->Form->hidden($xgprefix . '.id') . "\n";
+                  print $this->Form->hidden($xgprefix . '.id') . PHP_EOL;
                 }
 
                 // Grouping name for form submission
-                print $this->Form->hidden($xgprefix . '.grouping', array('default' => $grouping)) . "\n";
+                print $this->Form->hidden($xgprefix . '.grouping', array('default' => $grouping)) . PHP_EOL;
 
                 // Grouping label for display
                 print $supportedAttributes[$oc]['groupings'][$grouping]['label'];
@@ -409,19 +407,19 @@
                 $seenGroupings[ $supportedAttributes[$oc]['attributes'][$attr]['grouping'] ] = true;
               }
 
-              // If we're editing an existing attribute, emit the cross reference
+              // If we're editing an existing attribute, emit the cross-reference
 
               if(!empty($currentAttributes[$oc][$attr]['id'])) {
-                print $this->Form->hidden($xprefix . '.id' /*,array('default' => $currentAttributes[$oc][$attr]['id'])*/) . "\n";
+                print $this->Form->hidden($xprefix . '.id' /*,array('default' => $currentAttributes[$oc][$attr]['id'])*/) . PHP_EOL;
               }
 
               // Emit the attribute name
 
-              print $this->Form->hidden($xprefix . '.attribute', array('default' => $attr)) . "\n";
+              print $this->Form->hidden($xprefix . '.attribute', array('default' => $attr)) . PHP_EOL;
 
               // Emit the associated object class
 
-              print $this->Form->hidden($xprefix . '.objectclass', array('default' => $oc)) . "\n";
+              print $this->Form->hidden($xprefix . '.objectclass', array('default' => $oc)) . PHP_EOL;
 
               // Set up for the checkbox
 
@@ -435,17 +433,17 @@
               $xdisabled = false;
 
               if(!empty($supportedAttributes[$oc]['attributes'][$attr]['description'])) {
-                $xlabel .= " (" . $supportedAttributes[$oc]['attributes'][$attr]['description'] . ")";
+                $xlabel .= ' (' . $supportedAttributes[$oc]['attributes'][$attr]['description'] . ')';
               }
 
               if($supportedAttributes[$oc]['attributes'][$attr]['required']) {
                 // If this attribute is required, make sure the export field gets set
                 // to true when saving
-                print $this->Form->hidden($xname, array('default' => true)) . "\n";
+                print $this->Form->hidden($xname, array('default' => true)) . PHP_EOL;
 
                 // For required checkboxes, the hidden attribute is what we actually save
-                $xname .= "-required";
-                $xlabel .= " (" . _txt('fd.required') . ")";
+                $xname .= '-required';
+                $xlabel .= ' (' . _txt('fd.required') . ')';
                 $xchecked = true;
                 $xdisabled = true;
               }
@@ -453,9 +451,9 @@
               // Emit the checkbox for exporting the attribute
 
               print $this->Form->input($xname,
-                                                        array('label' => $xlabel,
-                                                              'checked' => $xchecked,
-                                                              'disabled' => $xdisabled));
+                                       array('label' => $xlabel,
+                                             'checked' => $xchecked,
+                                             'disabled' => $xdisabled));
 
               // If this attribute supports multiple types, emit the select box.
 
