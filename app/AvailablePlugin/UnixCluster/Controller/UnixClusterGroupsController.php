@@ -53,6 +53,23 @@ class UnixClusterGroupsController extends StandardController {
   
   // We need to track the Unix Cluster ID under certain circumstances to enable performRedirect
   private $ucid = null;
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.4.1
+   */
+
+  public function searchConfig($action) {
+    if($action === 'index') {  // Index
+      return array(
+        'search.groupDesc' => array(
+          'label' => _txt('fd.description'),
+          'type' => 'text',
+        ),
+      );
+    }
+  }
   
   /**
    * Callback before other controller methods are invoked or views are rendered.
@@ -197,7 +214,10 @@ class UnixClusterGroupsController extends StandardController {
 
     // View an existing Unix Cluster Group?
     $p['view'] = ($roles['cmadmin'] || $roles['coadmin']);
-    
+
+    // Search
+    $p['search'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     $this->set('permissions', $p);
     return($p[$this->action]);
   }
@@ -213,6 +233,15 @@ class UnixClusterGroupsController extends StandardController {
     // Only retrieve attributes in the current unix cluster
 
     $ret = array();
+
+    // Filter by group description
+    if(!empty($this->params['named']['search.groupDesc'])) {
+      $searchterm = $this->params['named']['search.groupDesc'];
+      $searchterm = str_replace(urlencode("/"), "/", $searchterm);
+      $searchterm = str_replace(urlencode(" "), " ", $searchterm);
+      $searchterm = trim(strtolower($searchterm));
+      $ret['conditions']['LOWER(CoGroup.name) LIKE'] = "%$searchterm%";
+    }
 
     $ret['conditions']['UnixClusterGroup.unix_cluster_id'] = $this->request->params['named']['ucid'];
 
