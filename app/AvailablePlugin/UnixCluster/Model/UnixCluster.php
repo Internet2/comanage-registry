@@ -57,8 +57,8 @@ class UnixCluster extends ClusterInterface {
   );
   
   public $hasMany = array(
-    "UnixCluster.UnixClusterAccount",
-    "UnixCluster.UnixClusterGroup"
+    'UnixCluster.UnixClusterAccount' => array('dependent' => true),
+    'UnixCluster.UnixClusterGroup'   => array('dependent' => true),
   );
   
   // Default display field for cake generated views

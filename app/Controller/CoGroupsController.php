@@ -151,6 +151,28 @@ class CoGroupsController extends StandardController {
     }
   }
   
+  public function beforeFilter() {
+    if (CakePlugin::loaded('UnixCluster')) {
+      // UnixCluster plugin is loaded
+      // XXX CAKEPHP does something very peculiar. We need to first instantiate the model and then
+      // bind it. Then it works. If we do not instantiate it first then it is not working correctly.
+      // For example containable will fail
+      // Probably related to (CO-1988)
+      ClassRegistry::init('UnixCluster.UnixClusterGroup');
+      $this->CoGroup->bindModel(array(
+                                  'hasMany' => array(
+                                    'UnixClusterGroup' => array(
+                                      'className' => 'UnixClusterGroup',
+                                      'foreignKey' => 'co_group_id',
+                                      'dependent' => false,
+                                    ),
+                                  ),
+                                ), false);
+    }
+
+    parent::beforeFilter();
+  }
+
   /**
    * Callback after controller methods are invoked but before views are rendered.
    *
@@ -172,6 +194,19 @@ class CoGroupsController extends StandardController {
       $args['contain'] = false;
       
       $this->set('co_identifier_assignments', $this->Co->CoIdentifierAssignment->find('all', $args));
+
+      if (CakePlugin::loaded('UnixCluster')) {
+        // Check if this Group is associated with any UnixCluster
+        if ($this->action == 'view' || $this->action == 'edit') {
+          $args = array();
+          $args['conditions']['UnixClusterGroup.co_group_id'] = $this->CoGroup->id;
+          $args['contain'] = array('UnixCluster' => array('Cluster'));
+
+          $unixClusterGroups = $this->CoGroup->UnixClusterGroup->find('all', $args);
+
+          $this->set('vv_unix_cluster_groups', $unixClusterGroups);
+        }
+      }
     }
 
     parent::beforeRender();
