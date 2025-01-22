@@ -370,8 +370,8 @@
               }
 
               if(!empty($c['CoGroup']['group_type'])) {
-                if($c['CoGroup']['group_type'] != GroupEnum::Standard) {
-                  // Non-standard groups can't be deleted
+                if(!in_array($c['CoGroup']['group_type'], array(GroupEnum::Standard, GroupEnum::Clusters),true)) {
+                  // Only standard and cluster groups can be deleted by the user. Other groups cannot.
                   $d = false;
                 }
 
