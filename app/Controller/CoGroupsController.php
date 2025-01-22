@@ -192,7 +192,7 @@ class CoGroupsController extends StandardController {
     // prevents that since beforeDelete callbacks don't fire.
     
     if(isset($curdata['CoGroup']['group_type'])
-       && $curdata['CoGroup']['group_type'] != GroupEnum::Standard) {
+       && !in_array($curdata['CoGroup']['group_type'], array(GroupEnum::Standard, GroupEnum::Clusters),true)) {
       if($this->request->is('restful')) {
         $this->Api->restResultHeader(403, "This group cannot be deleted");
       } else {
