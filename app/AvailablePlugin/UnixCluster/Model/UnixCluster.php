@@ -57,8 +57,8 @@ class UnixCluster extends ClusterInterface {
   );
   
   public $hasMany = array(
-    'UnixCluster.UnixClusterAccount' => array('dependent' => true),
-    'UnixCluster.UnixClusterGroup'   => array('dependent' => true),
+    "UnixCluster.UnixClusterAccount",
+    "UnixCluster.UnixClusterGroup"
   );
   
   // Default display field for cake generated views
@@ -489,6 +489,10 @@ class UnixCluster extends ClusterInterface {
     return array(
       'UnixCluster.UnixClusterAccount' => array(
         'displayField' => 'username',
+        'permissions' => array('cmadmin', 'coadmin')
+      ),
+      'UnixCluster.UnixClusterGroup' => array(
+        'displayField' => 'CoGroup.name',
         'permissions' => array('cmadmin', 'coadmin')
       )
     );

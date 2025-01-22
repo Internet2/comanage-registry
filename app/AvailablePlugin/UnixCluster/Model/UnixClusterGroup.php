@@ -148,4 +148,26 @@ class UnixClusterGroup extends AppModel {
 
     return parent::findCoForRecord($id);
   }
+
+  /**
+   * Perform a keyword search.
+   *
+   * @since  COmanage Registry v4.4.1
+   * @param  integer $coId  CO ID to constrain search to
+   * @param  string  $q     String to search for
+   * @param  integer $limit Search limit
+   * @return Array Array of search results, as from find('all)
+   */
+
+  public function search($coId, $q, $limit) {
+    // We get to the CO ID via the CO Person ID since it's more direct
+    $args = array();
+    $args['conditions']['LOWER(CoGroup.name) LIKE'] = '%' . strtolower($q) . '%';
+    $args['conditions']['CoGroup.co_id'] = $coId;
+    $args['order'] = array('CoGroup.name');
+    $args['limit'] = $limit;
+    $args['contain'] = array('CoGroup');
+
+    return $this->find('all', $args);
+  }
 }
