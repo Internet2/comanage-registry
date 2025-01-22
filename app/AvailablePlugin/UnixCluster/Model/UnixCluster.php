@@ -490,6 +490,10 @@ class UnixCluster extends ClusterInterface {
       'UnixCluster.UnixClusterAccount' => array(
         'displayField' => 'username',
         'permissions' => array('cmadmin', 'coadmin')
+      ),
+      'UnixCluster.UnixClusterGroup' => array(
+        'displayField' => 'CoGroup.name',
+        'permissions' => array('cmadmin', 'coadmin')
       )
     );
   }
