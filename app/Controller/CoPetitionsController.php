@@ -3066,12 +3066,18 @@ class CoPetitionsController extends StandardController {
       ));
     } elseif($this->action == "petitionerAttributes"
       && $this->request->method() == "POST") {
-      $this->redirect(array(
-                        'plugin'     => $this->request->params["plugin"], // XXX We support plugins
-                        'controller' => $this->request->params["controller"],
-                        'action'     => $this->request->params["action"],
-                        $this->request->data['CoPetition']['id'])
+      $toRoute = array(
+        'plugin'     => $this->request->params["plugin"], // XXX We support plugins
+        'controller' => $this->request->params["controller"],
+        'action'     => $this->request->params["action"],
+        $this->request->data['CoPetition']['id']
       );
+
+      if(isset($this->viewVars['vv_petition_token'])) {
+        $toRoute['token'] = $this->viewVars['vv_petition_token'];
+      }
+
+      $this->redirect($toRoute);
     } elseif($this->viewVars['permissions']['index']) {
       // For admins, return to the list of petitions pending approval. For admins,
       // this is probably where they'll want to go. For others, they probably won't
@@ -3137,7 +3143,7 @@ class CoPetitionsController extends StandardController {
       }
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
-        $this->log($e->getMessage());
+        $this->log($e->getMessage(), LOG_ERROR);
         $this->performRedirect();
       }
     }
