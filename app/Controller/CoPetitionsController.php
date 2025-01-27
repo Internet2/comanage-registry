@@ -667,6 +667,7 @@ class CoPetitionsController extends StandardController {
         // Pull AttributeEnumeration configuration for use with Attribute Enumeration
         // view elements
 
+        $this->AttributeEnumeration = ClassRegistry::init('AttributeEnumeration');
         $supportedEnumAttrs = $this->AttributeEnumeration->supportedAttrs();
         $enums = array();
 
