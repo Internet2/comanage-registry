@@ -413,13 +413,20 @@ class ProvisionerBehavior extends ModelBehavior {
         }
       }
     }
-    
+
+    // If a group goes to or from Active, we need to rewrite its members (or really their group memberships)
+    $groupStatusChanged = isset($model->cacheData[ $model->alias ]['status'])
+                          && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
+                          && ($model->cacheData[ $model->alias ]['status'] == StatusEnum::Active
+                              || $model->data[ $model->alias ]['status'] == StatusEnum::Active);
+    $groupIsRenamed = isset($model->cacheData[ $model->alias ]['name'])
+                            && $model->cacheData[ $model->alias ]['name'] != $model->data[ $model->alias ]['name'];
     if($model->name != 'CoGroup'
        // If a group goes to or from Active, we need to rewrite its members (or really their group memberships)
-       || (isset($model->cacheData[ $model->alias ]['status'])
-           && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
-           && ($model->cacheData[ $model->alias ]['status'] == StatusEnum::Active
-               || $model->data[ $model->alias ]['status'] == StatusEnum::Active))) {
+       || $groupStatusChanged
+       // If a group is renamed, we need to rewrite its members (or really their group memberships)
+       || $groupIsRenamed
+    ) {
       // First, find the co_person_id (directly or indirectly) and pull the record.
       // We could have more than one if an Org Identity is updated.
       
