@@ -232,6 +232,7 @@ class UnixCluster extends ClusterInterface {
       $args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
       
       if($this->UnixClusterAccount->find('count', $args) > 0) {
+        $dbc->rollback();
         return false;
       }
       
