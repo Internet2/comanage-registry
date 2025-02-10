@@ -353,7 +353,9 @@ class AuthenticatorsController extends SAuthController {
       
       $args = array();
       $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
-      $args['contain'][] = 'PrimaryName';
+      $args['contain'] = array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+      );
       
       $this->set('vv_co_person', $this->Authenticator->Co->CoPerson->find('first', $args));
     }

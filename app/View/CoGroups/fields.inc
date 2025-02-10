@@ -140,6 +140,31 @@
         <?php print filter_var(_txt('en.group.type', null, $co_groups[0]['CoGroup']['group_type']),FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
     </li>
+  <?php endif; // cluster ?>
+  <?php if(!empty($vv_unix_cluster_groups)): ?>
+    <li>
+      <div class="field-name">
+        <div class="field-title">
+          <?php print _txt('ct.clusters.pl'); ?>
+        </div>
+      </div>
+      <div class="field-info">
+        <?php
+        foreach($vv_unix_cluster_groups as $vuclg) {
+          if (isset($vuclg['UnixCluster']) && $vuclg['UnixCluster']['id'] !== null) {
+            print $this->Html->link($vuclg['UnixCluster']['Cluster']['description'],
+                                    array(
+                                      'plugin' => 'unix_cluster',
+                                      'controller' => 'unix_cluster_groups',
+                                      'action' => 'index',
+                                      'ucid' => $vuclg['UnixClusterGroup']['unix_cluster_id'],
+                                    ),
+                                    array('class' => 'linkbutton'));
+          }
+        }
+        ?>
+      </div>
+    </li>
   <?php endif; // group_type ?>
   <li>
     <div class="field-name">

@@ -232,6 +232,7 @@ class UnixCluster extends ClusterInterface {
       $args['conditions']['UnixClusterAccount.co_person_id'] = $coPersonId;
       
       if($this->UnixClusterAccount->find('count', $args) > 0) {
+        $dbc->rollback();
         return false;
       }
       
@@ -245,7 +246,7 @@ class UnixCluster extends ClusterInterface {
       $args['conditions']['CoPerson.co_id'] = $cluster['Cluster']['co_id'];
       $args['contain'] = array(
         'Identifier' => array('conditions' => array('Identifier.status' => SuspendableStatusEnum::Active)),
-        'PrimaryName'
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))
       );
       
       $coPerson = $this->Cluster->Co->CoPerson->find('first', $args);
@@ -489,6 +490,10 @@ class UnixCluster extends ClusterInterface {
     return array(
       'UnixCluster.UnixClusterAccount' => array(
         'displayField' => 'username',
+        'permissions' => array('cmadmin', 'coadmin')
+      ),
+      'UnixCluster.UnixClusterGroup' => array(
+        'displayField' => 'CoGroup.name',
         'permissions' => array('cmadmin', 'coadmin')
       )
     );

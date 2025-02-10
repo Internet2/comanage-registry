@@ -486,7 +486,9 @@ class Identifier extends AppModel {
     $args['limit'] = $limit;
     $args['contain'] = array(
       'CoGroup',
-      'CoPerson' => 'PrimaryName',
+      'CoPerson' => array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+      ),
       'Organization'
     );
     

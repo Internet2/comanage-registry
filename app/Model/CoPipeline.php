@@ -341,7 +341,7 @@ class CoPipeline extends AppModel {
       $args['conditions']['OrgIdentity.id'] = $orgIdentityId;
       $args['contain'] = array(
         'Name',
-        'PrimaryName',
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
         'Address',
         'AdHocAttribute',
         'EmailAddress',

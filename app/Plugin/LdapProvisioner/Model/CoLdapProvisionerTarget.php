@@ -266,6 +266,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     
     // Marshalled attributes ready for export
     $attributes = array();
+    $attributes['objectclass'] = array();
     
     // Full set of supported attributes (not what's configured)
     $supportedAttributes = $this->supportedAttributes();

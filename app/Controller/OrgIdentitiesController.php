@@ -46,21 +46,31 @@ class OrgIdentitiesController extends StandardController {
   );
   
   public $delete_contains = array(
-    'CoOrgIdentityLink' => array('CoPerson' => array('Co', 'PrimaryName')),
+    'CoOrgIdentityLink' => array(
+      'CoPerson' => array(
+        'Co',
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        )
+    ),
     'Name',
-    'PrimaryName'
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
   );
   
   public $edit_contains = array(
     'Address',
     'AdHocAttribute',
     'Co',
-    'CoOrgIdentityLink' => array('CoPerson' => array('Co', 'PrimaryName')),
+    'CoOrgIdentityLink' => array(
+      'CoPerson' => array(
+        'Co',
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        )
+    ),
     'EmailAddress',
     'Identifier',
     'Name',
     'OrgIdentitySourceRecord' => array('OrgIdentitySource'),
-    'PrimaryName',
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
     'TelephoneNumber',
     'Url'
   );
@@ -69,7 +79,10 @@ class OrgIdentitiesController extends StandardController {
     'Address',
     'AdHocAttribute',
     'Co',
-    'CoOrgIdentityLink' => array('CoPerson' => array('Co', 'PrimaryName')),
+    'CoOrgIdentityLink' => array('CoPerson' => array(
+        'Co',
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+    )),
     'EmailAddress',
     'Identifier',
     'Name',
@@ -77,7 +90,7 @@ class OrgIdentitiesController extends StandardController {
 // This causes slowness on MariaDB. See CO-1406.
 //    'PipelineCoPersonRole',
     'PipelineCoGroupMember' => array('CoGroup'),
-    'PrimaryName',
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
     'TelephoneNumber',
     'Url'
   );
@@ -385,7 +398,9 @@ class OrgIdentitiesController extends StandardController {
       // Find the CO Person name
       $args = array();
       $args['conditions']['CoPerson.id'] = $this->request->params['named']['copersonid'];
-      $args['contain'][] = 'PrimaryName';
+      $args['contain'] = array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+      );
       
       $cop = $this->OrgIdentity->CoOrgIdentityLink->CoPerson->find('first', $args);
       
@@ -485,7 +500,9 @@ class OrgIdentitiesController extends StandardController {
       // Pull the PrimaryName
       $args = array();
       $args['conditions']['OrgIdentity.id'] = $this->request->data['OrgIdentity']['id'];
-      $args['contain'][] = 'PrimaryName';
+      $args['contain'] = array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))
+      );
       
       $p = $this->OrgIdentity->find('first', $args);
       
@@ -865,6 +882,9 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['conditions'][] = 'CoOrgIdentityLink.id IS NULL';
       $jcnt++;
     }
+
+    // CO-2882, we need at least the following fields for the View to render properly
+    $this->paginate['fields'] = $this->OrgIdentity->getPaginateFields();
 
     // We need to manually add this in for some reason. (It should have been
     // added automatically by Cake based on the CoPerson Model definition of

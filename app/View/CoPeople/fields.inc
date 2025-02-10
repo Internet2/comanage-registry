@@ -367,6 +367,15 @@
 
   // Line number, for rendering
   $l = 1;
+
+  function maybe_render_enumeration($vv_enums,$model, $attribute, $value) {
+    if(!empty($value)
+        && !empty($vv_enums[$model][$attribute]['dictionary'][$value])) {
+      return $vv_enums[$model][$attribute]['dictionary'][$value];
+    }
+
+    return $value;
+  }
 ?>
 
 <script type="text/javascript">
@@ -1233,9 +1242,9 @@
                   $card_role_args = array();
                   $card_role_args[_txt('fd.ordr')] = !empty($r['ordr']) ? filter_var($r['ordr'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.cou')] = !empty($r['Cou']['name']) ? filter_var($r['Cou']['name'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
-                  $card_role_args[_txt('fd.title')] = !empty($r['title']) ? filter_var($r['title'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.title')] = !empty($r['title']) ? filter_var(maybe_render_enumeration($vv_enums, 'CoPersonRole', 'title', $r['title']), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.affiliation')] = !empty($r['affiliation']) ? filter_var($vv_copr_affiliation_types[$r['affiliation']], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
-                  $card_role_args[_txt('fd.o')] = !empty($r['o']) ? filter_var($r['o'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                  $card_role_args[_txt('fd.o')] = !empty($r['o']) ? filter_var(maybe_render_enumeration($vv_enums, 'CoPersonRole', 'o', $r['o']), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.valid_from')] = !empty($r['valid_from']) ? filter_var($this->Time->format($r['valid_from'], "%F %T", false, $vv_tz), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.valid_through')] = !empty($r['valid_through']) ? filter_var($this->Time->format($r['valid_through'], "%F %T", false, $vv_tz), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                   $card_role_args[_txt('fd.status')] = $status;
@@ -1457,7 +1466,7 @@
                                                     ? filter_var($link['OrgIdentity']['OrgIdentitySourceRecord']['OrgIdentitySource']['description'] ,FILTER_SANITIZE_SPECIAL_CHARS)
                                                     : '-';
                 $card_org_args[_txt('fd.o')] = !empty($link['OrgIdentity']['o'])
-                                               ? filter_var($link['OrgIdentity']['o'], FILTER_SANITIZE_SPECIAL_CHARS) : '-';
+                                               ? filter_var(maybe_render_enumeration($vv_enums, 'OrgIdentity', 'o', $link['OrgIdentity']['o']), FILTER_SANITIZE_SPECIAL_CHARS) : '-';
                 $card_org_args[_txt('fd.status')] = !empty($link['OrgIdentity']['status'])
                                                     ? filter_var(
                                                         $cm_texts[ $cm_lang ]['en.status.org'][ $link['OrgIdentity']['status'] ],

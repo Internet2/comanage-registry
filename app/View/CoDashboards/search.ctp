@@ -274,8 +274,8 @@
       if(!empty($vv_results[$m])) {
         $mpl = Inflector::tableize($m);
         print '<div class="co-card">';
-        print "<h2>" . _txt('ct.'.$mpl.'.pl') . "</h2>";
-        print "<ul>";
+        print '<h2>' . _txt('ct.'.$mpl.'.pl') . '</h2>';
+        print '<ul>';
         
         foreach($vv_results[$m] as $r) {
           $args = array(
@@ -284,8 +284,18 @@
             'action'     => 'edit',
             $r[$m]['id']
           );
-          
-          print "<li>" . $this->Html->link($r[$m][$k], $args). "</li>\n";
+
+          $id = $r[$m]['id'];
+
+          $idCiteElement = $this->Html->tag(
+            'cite',
+            "(ID: {$id})",
+            array('class' => "text-muted-cmg ml-2 {$m}-id-display")
+          );
+          print $this->Html->tag(
+              'li',
+              $this->Html->link($r[$m][$k], $args) . $idCiteElement
+            ) . PHP_EOL;
         }
         
         print "</ul>\n";
@@ -301,24 +311,41 @@
         
         $mpl = Inflector::tableize($pmodel);
         print '<div class="co-card">';
-        print "<h2>" . _txt('ct.'.$mpl.'.pl') . "</h2>";
-        print "<ul>";
+        print '<h2>' . _txt('ct.'.$mpl.'.pl') . '</h2>';
+        print '<ul>';
         
         foreach($vv_results[$m] as $r) {
+          $pmodelFinal = $pmodel;
           $field = $vv_plugin_display_fields[$m];
-          
+
+          $id = $r[$pmodelFinal]['id'];
+          $accessNameField = explode('.', $field);
+          if (count($accessNameField) > 1) {
+            $field = $accessNameField[1];
+            $pmodelFinal = $accessNameField[0];
+          }
+          $mplFinal = Inflector::tableize($pmodelFinal);
+
           $args = array(
-            'plugin'     => Inflector::underscore($plugin),
-            'controller' => $mpl,
+            'plugin'     => $mplFinal === $mpl ? Inflector::underscore($plugin) : null,
+            'controller' => $mplFinal,
             'action'     => 'edit',
-            $r[$pmodel]['id']
+            $r[$pmodelFinal]['id']
           );
-          
-          print "<li>" . $this->Html->link($r[$pmodel][$field], $args). "</li>\n";
+
+          $idCiteElement = $this->Html->tag(
+            'cite',
+            "(ID: {$id})",
+            array('class' => "text-muted-cmg ml-2 {$pmodel}-id-display")
+          );
+          print $this->Html->tag(
+            'li',
+            $this->Html->link($r[$pmodelFinal][$field], $args) . $idCiteElement
+          ) . PHP_EOL;
         }
         
-        print "</ul>\n";
-        print "</div>\n";
+        print '</ul>' . PHP_EOL;
+        print '</div>' . PHP_EOL;
       }
     }
   ?>

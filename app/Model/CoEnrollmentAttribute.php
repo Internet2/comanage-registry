@@ -446,7 +446,7 @@ class CoEnrollmentAttribute extends AppModel {
           // Currently, they are always modifiable.
           $attr['default'] = $defaultValues[ $attr['model'] ][ $attr['field'] ];
           $attr['modifiable'] = true;
-        } elseif(!empty($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
+        } elseif(isset($efAttr['CoEnrollmentAttributeDefault'][0]['value'])) {
           // These are the default values configured per-enrollment flow attribute
           
           if(($attrCode == 'r'

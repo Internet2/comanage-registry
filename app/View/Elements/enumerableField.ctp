@@ -70,7 +70,7 @@ $allowOther = isset($vv_enums[$field]['allow_other']) && $vv_enums[$field]['allo
 
   <!-- (3) The actual field -->
 
-  <div id="<?php print $column; ?>-field" style="display:xxxnone" class="mb-1">
+  <div id="<?php print $column; ?>-field" style="display:none" class="mb-1">
     <?php
       $args = array();
       $args['class'] = 'form-control';

@@ -50,14 +50,19 @@ class CoPeopleController extends StandardController {
   public $delete_contains = array(
     'CoPersonRole',
     'Name',
-    'PrimaryName'
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
   );
   
   // Use edit_contains to select the associated models we need for canvas.
   public $edit_contains = array(
     'CoGroupMember' => array('CoGroup'),
     'CoNsfDemographic',
-    'CoOrgIdentityLink' => array('OrgIdentity' => array('Identifier', 'PrimaryName')),
+    'CoOrgIdentityLink' => array(
+      'OrgIdentity' => array(
+        'Identifier',
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+      )
+    ),
     'CoPersonRole' => array('CoPetition', 'Cou', 'order' => 'CoPersonRole.ordr ASC'),
     // This deep nesting will allow us to display the source of the attribute
     'EmailAddress' => array('SourceEmailAddress' => array('OrgIdentity' => array('OrgIdentitySourceRecord' => array('OrgIdentitySource')))),
@@ -75,7 +80,7 @@ class CoPeopleController extends StandardController {
     'EmailAddress',
     'Identifier',
     'Name',
-    'PrimaryName',
+    'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
     'Url'
   );
 
@@ -283,6 +288,18 @@ class CoPeopleController extends StandardController {
           }
         }
       }
+
+      // The summary boxes need to know if Attribute Enumerations are in use
+      $enums = array();
+
+      foreach(array("CoPersonRole", "OrgIdentity") as $m) {
+        // We don't actually use all of these currently, but we'll populate them anyway
+        foreach(array("o", "ou", "title") as $attr) {
+          $enums[$m][$attr] = $this->Co->AttributeEnumeration->enumerations($this->cur_co['Co']['id'], $m.".".$attr);
+        }
+      }
+      
+      $this->set('vv_enums', $enums);
     }
     
     parent::beforeRender();
@@ -643,7 +660,9 @@ class CoPeopleController extends StandardController {
       // Pull the PrimaryName (we're probably here from an edit directly on canvas)
       $args = array();
       $args['conditions']['CoPerson.id'] = $this->request->data['CoPerson']['id'];
-      $args['contain'][] = 'PrimaryName';
+      $args['contain'] = array(
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+      );
       
       $p = $this->CoPerson->find('first', $args);
       
@@ -770,7 +789,9 @@ class CoPeopleController extends StandardController {
   public function invite() {
     $args = array();
     $args['conditions']['OrgIdentity.id'] = $this->request->params['named']['orgidentityid'];
-    $args['contain'] = array('PrimaryName');
+    $args['contain'] = array(
+      'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))
+    );
     
     $orgp = $this->CoPerson->CoOrgIdentityLink->OrgIdentity->find('first', $args);
     
@@ -1074,7 +1095,10 @@ class CoPeopleController extends StandardController {
       if(!empty($this->request->params['named']['orgidentityid'])) {
         $args = array();
         $args['conditions']['OrgIdentity.id'] = $this->request->params['named']['orgidentityid'];
-        $args['contain'] = array('CoPetition', 'PrimaryName');
+        $args['contain'] = array(
+          'CoPetition',
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        );
         
         $this->set('vv_org_identity', $this->CoPerson->CoOrgIdentityLink->OrgIdentity->find('first', $args));
         $this->set('title_for_layout', _txt('op.link'));
@@ -1089,7 +1113,9 @@ class CoPeopleController extends StandardController {
       if(!empty($copersonid)) {
         $args = array();
         $args['conditions']['CoPerson.id'] = $copersonid;
-        $args['contain'] = 'PrimaryName';
+        $args['contain'] = array(
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))
+        );
         
         $this->set('vv_co_person', $this->CoPerson->find('first', $args));
       }
@@ -1324,7 +1350,7 @@ class CoPeopleController extends StandardController {
       $args = array();
       $args['conditions']['CoPerson.id'] = $id;
       $args['contain'] = array(
-        'PrimaryName',
+        'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
         'CoGroupMember',
         'CoOrgIdentityLink' => array('OrgIdentity' => array('OrgIdentitySourceRecord')),
         'Identifier'
@@ -1413,7 +1439,9 @@ class CoPeopleController extends StandardController {
       if(!empty($this->request->params['named']['copersonroleid'])) {
         $args = array();
         $args['conditions']['CoPersonRole.id'] = $this->request->params['named']['copersonroleid'];
-        $args['contain']['CoPerson'] = 'PrimaryName';
+        $args['contain']['CoPerson'] = array(
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        );
         $args['contain'][] = 'CoPetition';
         
         $this->set('vv_co_person_role', $this->CoPerson->CoPersonRole->find('first', $args));
@@ -1422,7 +1450,9 @@ class CoPeopleController extends StandardController {
       if(!empty($this->request->params['named']['tocopersonid'])) {
         $args = array();
         $args['conditions']['CoPerson.id'] = $this->request->params['named']['tocopersonid'];
-        $args['contain'][] = 'PrimaryName';
+        $args['contain'] = array(
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true))
+        );
         
         $this->set('vv_to_co_person', $this->CoPerson->find('first', $args));
         $this->set('title_for_layout', _txt('op.relink'));

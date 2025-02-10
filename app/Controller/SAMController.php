@@ -770,7 +770,9 @@ class SAMController extends StandardController {
         
         $args = array();
         $args['conditions']['CoPerson.id'] = $coPersonId;
-        $args['contain'][] = 'PrimaryName';
+        $args['contain'] = array(
+          'PrimaryName' => array('conditions' => array('PrimaryName.primary_name' => true)),
+        );
         
         $this->set('vv_co_person', $this->CoPerson->find('first', $args));
       }
