@@ -382,11 +382,13 @@ class CoGroup extends AppModel {
     // Update the group type from Standard to Cluster
     // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
 
-    $this->updateAll(array('CoGroup.group_type' => GroupEnum::Clusters),     // fields
-                     array('CoGroup.name LIKE' => "'%UnixCluster Group%'",   // Conditions
-                           'CoGroup.group_type' => GroupEnum::Standard,
-                           'CoGroup.co_id' => $coId,
-                           'CoGroup.description LIKE' => "'%automatically by UnixCluster%'"));
+    $standardGroup = GroupEnum::Standard;
+    $clusterGroup = GroupEnum::Clusters;
+    $this->updateAll(array('CoGroup.group_type' => "'" .$clusterGroup . "'"),   // fields
+                     array("CoGroup.name LIKE '%UnixCluster Group%'",           // Conditions
+                           "CoGroup.group_type='{$standardGroup}'",
+                           "CoGroup.co_id={$coId}",
+                           "CoGroup.description LIKE '%automatically by UnixCluster%'"));
   }
 
   /**
