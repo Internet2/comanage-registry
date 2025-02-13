@@ -401,13 +401,24 @@
     
     // Manager Auto-complete
     $("#managers").autocomplete({
-      source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Manager)); ?>",
-      minLength: 3,
-      select: function(event, ui) {
-        $("#managers").val(ui.item.label);
-        document.getElementById('CoEnrollmentAttributeDefault0Value').value = ui.item.value;
-        return false;
-      }
+        source: "<?php print $this->Html->url(array('controller' => 'co_people', 'action' => 'find', 'co' => $cur_co['Co']['id'], 'mode' => PeoplePickerModeEnum::Manager)); ?>",
+        select: function(event, ui) {
+            $("#managers").val(ui.item.label + " (" + ui.item.value + ")");
+            document.getElementById('CoEnrollmentAttributeDefault0Value').value = ui.item.value;
+            return false;
+        },
+        search: function (event, ui) {
+            $("#attr_def_val_manager_div .co-loading-mini").show();
+        },
+        focus: function (event, ui) {
+            event.preventDefault();
+            $("#attr_def_val_manager_div .co-loading-mini").hide();
+            $("#managers").val(ui.item.label + " (" + ui.item.value + ")");
+        },
+        close: function (event, ui) {
+            $("#attr_def_val_manager_div .co-loading-mini").hide();
+        },
+        minLength: 3
     });
 
     // Used in inline-edit mode for Manager
@@ -899,8 +910,11 @@
               ?>
               <div class="<?php print $iefClasses; ?>">
                 <div class="ui-widget">
-                  <input id="managers" type="text" />
-                  <input type="hidden" name="def_manager_val" id="def_manager_val" />
+                  <span class="co-loading-mini-input-container">
+                    <input id="managers" type="text" />
+                    <span class="co-loading-mini"><span></span><span></span><span></span></span>
+                  </span>
+                <input type="hidden" name="def_manager_val" id="def_manager_val" />
                 </div>
                 <div class="field-desc">
                   <span class="ui-icon ui-icon-info co-info"></span>
