@@ -309,25 +309,29 @@ class CoPipeline extends AppModel {
        ($syncAction == SyncActionEnum::Delete && !$pipeline['CoPipeline']['sync_on_delete'])) {
       return true;
     }
-    
-    // We need to find a CO Person to operate on.
-    $targetIds = $this->findTargetCoPersonId($pipeline, $orgIdentityId, $actorCoPersonId);
-    
-    if(!$targetIds['co_person_id']) {
-      // What we do here depends on the sync action. On add, we create a new CO Person.
-      // On update, we do not and abort. This will be a bit confusing if something goes wrong
-      // during an initial add, but short of a "force" (manual operation), there's
-      // not much else to do. On delete we also abort.
-      
-      if($syncAction != SyncActionEnum::Add) {
-        // If we don't have a CO Person record on an update or delete, there's
-        // nothing to do. For relink, we expect the new target to already exist.
-        // (Relink to a "new" person should be submitted as an Add, since if
-        // "sync on add" is disabled we shouldn't create a new CO Person.)
-        return true;
+
+    // `findTargetCoPersonId` will try to save a new Link if the requirements are met. During
+    // an unlink action this will create a loop and it will eventually fail.
+    if ($syncAction !== SyncActionEnum::Unlink) {
+      // We need to find a CO Person to operate on.
+      $targetIds = $this->findTargetCoPersonId($pipeline, $orgIdentityId, $actorCoPersonId);
+      if(!$targetIds['co_person_id']) {
+        // What we do here depends on the sync action. On add, we create a new CO Person.
+        // On update, we do not and abort. This will be a bit confusing if something goes wrong
+        // during an initial add, but short of a "force" (manual operation), there's
+        // not much else to do. On delete we also abort.
+
+        if($syncAction != SyncActionEnum::Add) {
+          // If we don't have a CO Person record on an update or delete, there's
+          // nothing to do. For relink, we expect the new target to already exist.
+          // (Relink to a "new" person should be submitted as an Add, since if
+          // "sync on add" is disabled we shouldn't create a new CO Person.)
+          return true;
+        }
       }
+
     }
-    
+
     if(($syncAction == SyncActionEnum::Delete
         && !empty($pipeline['CoPipeline']['sync_status_on_delete']))
        || $syncAction == SyncActionEnum::Unlink) {
