@@ -30,7 +30,25 @@ App::uses('HttpSocket', 'Network/Http');
 class CoHttpClient extends HttpSocket {
   protected $_baseUrl = null;
   protected $_requestOptions = array();
-  
+
+
+  /**
+   * CoHttpClient constructor.
+   *
+   * @param array $config Configuration options for the HttpClient.
+   */
+  public function __construct($config = array())
+  {
+    if (!isset($config['timeout'])) {
+      // Initialize default values
+      // Set the default timeout to 5 seconds instead of 30.
+      $config['timeout'] = 5;
+    }
+    // Call the parent constructor
+    parent::__construct($config);
+
+  }
+
   /**
    * Build a URL using the configured base URL.
    *
@@ -189,11 +207,15 @@ class CoHttpClient extends HttpSocket {
     }
     
     if(isset($config['ssl_verify_host'])) {
-      $this->config['ssl_verify_host'];
+      $this->config['ssl_verify_host'] = $config['ssl_verify_host'];
     }
     
     if(isset($config['ssl_verify_peer'])) {
-      $this->config['ssl_verify_peer'];
+      $this->config['ssl_verify_peer'] = $config['ssl_verify_peer'];
+    }
+
+    if(isset($config['timeout'])) {
+      $this->config['timeout'] = $config['timeout'];
     }
   }
   
