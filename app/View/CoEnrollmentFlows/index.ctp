@@ -123,13 +123,26 @@
           <?php
             if($permissions['select']
                && $c['CoEnrollmentFlow']['status'] == TemplateableStatusEnum::Active) {
+              
+              $petitionUrlArr = [
+                'controller' => 'co_petitions',
+                'action' => 'start',
+                'coef' => $c['CoEnrollmentFlow']['id']
+              ];
+              
+              $petitionUrl = $this->Html->url($petitionUrlArr, true);
+              
               print $this->Html->link(_txt('op.begin'),
-                                      array(
-                                        'controller' => 'co_petitions',
-                                        'action' => 'start',
-                                        'coef' => $c['CoEnrollmentFlow']['id']
-                                      ),
+                                      $petitionUrlArr,
                                       array('class' => 'forwardbutton')) . "\n";
+            
+              print $this->Form->button('<em class="material-icons" aria-hidden="true">content_copy</em> ' . _txt('op.copy.url'),
+                array(
+                  'onclick' => "copyValue('" . $petitionUrl . "', this)",
+                  'aria-label' => _txt('op.copy.value'),
+                  'class' => 'ui-button ui-corner-all ui-widget ui-button-materialicons',
+                  'escape' => false
+                )) . "\n";
             }
 
             if($permissions['edit']) {

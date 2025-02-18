@@ -62,18 +62,32 @@
         <?php
           if($permissions['select']) {
 
+            $petitionUrlArr = [
+              'controller' => 'co_petitions',
+              'action' => 'start',
+              'coef' => $c['CoEnrollmentFlow']['id']
+            ];
+            
+            $petitionUrl = $this->Html->url($petitionUrlArr, true);
+              
             // begin button
-            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>',
-              array(
-                'controller' => 'co_petitions',
-                'action' => 'start',
-                'coef' => $c['CoEnrollmentFlow']['id']
-              ),
+            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>', 
+              $petitionUrlArr,
               array(
                 'class' => 'co-button btn btn-primary',
                 'escape' => false
               )
             ) . "\n";
+            
+            // copy URL button
+            print $this->Form->button('<em class="material-icons" aria-hidden="true">content_copy</em> ' ._txt('op.copy.url'),
+                array(
+                  'onclick' => "copyValue('" . $petitionUrl . "', this, '" . _txt('op.copy.value') . "', '" . _txt('op.copy.value.ok') . "')",
+                  'aria-label' => _txt('op.copy.value'),
+                  'class' => 'cm-copy-value-button cm-hover-button btn btn-primary',
+                  'escape' => false
+                )
+              ) . "\n";
 
             // QR code button - requires GD2 library
             if (extension_loaded ("gd")) {
