@@ -2349,6 +2349,8 @@ class CoPetitionsController extends StandardController {
     $ef = $this->CoPetition->find('first', $args);
 
     // The step is done
+
+    // Suitable for Self Signup
     if($ef["CoEnrollmentFlow"]["email_verification_mode"] === VerificationModeEnum::SkipIfVerified
        && $ef["CoInvite"]["skip_invite"]) {
       $confirm_url = array(
