@@ -166,12 +166,31 @@ class EnvSourceCoPetitionsController extends CoPetitionsController {
     }
     catch(OverflowException $e) {
       // $sorid is already associated with this OIS or duplicate has been detected
-      
-      $this->flagDuplicate($id,
-                           null, // $newOrgId won't be set
-                           $actorCoPersonId,
-                           _txt('er.envsource.sorid.dupe', array($sorid, $oiscfg['OrgIdentitySource']['description'])),
-                           $cfg['EnvSource']['redirect_on_duplicate']);
+
+      // We want to ignore flagDuplicate if we are on a Create New Role Mode
+      $args = array();
+      $args['conditions']['CoPetition.id'] = $id;
+      $CoPetition = ClassRegistry::init('CoPetition');
+      // Get the Petition
+      $co_petition = $CoPetition->find('first', $args);
+      $CoEnrollmentFlow = ClassRegistry::init('CoEnrollmentFlow');
+      // Get the Enrollment Flow Duplicate Mode
+      $enrollmentFlow_duplicate_mode = $CoEnrollmentFlow->field(
+        'duplicate_mode',
+        array('CoEnrollmentFlow.id' => $co_petition['CoPetition']['co_enrollment_flow_id'])
+      );
+      // Should we flag as duplicate or continue?
+      if (!in_array($enrollmentFlow_duplicate_mode, [
+          EnrollmentDupeModeEnum::NewRole,
+          EnrollmentDupeModeEnum::NewRoleCouCheck
+        ])) {
+        // Flag Duplicate
+        $this->flagDuplicate($id,
+          null, // $newOrgId won't be set
+          $actorCoPersonId,
+          _txt('er.envsource.sorid.dupe', array($sorid, $oiscfg['OrgIdentitySource']['description'])),
+          $cfg['EnvSource']['redirect_on_duplicate']);
+      }
     }
     catch(Exception $e) {
       // rethrow the exception and let the parent handle it
