@@ -2022,6 +2022,36 @@ class AppModel extends Model {
     return $ret;
   }
 
+
+  /**
+   * Validate a CSV list of enums.
+   *
+   * Validate comma-separated values in the passed fields against a list of
+   * allowed language key values.
+   *
+   * @param array $fieldsArray Array of fields with CSV values to validate
+   * @param string $langKey Language key referring to the allowed values
+   * @return bool                True if all values are valid, false otherwise
+   * @since COmanage Registry v4.5.0
+   *
+   */
+  public function validateCsvListOfEnums($fieldsArray, $langKey) {
+    // Load dynamic texts. We do this here because lang.php doesn't have access to models yet.
+    global $cm_lang, $cm_texts;
+    $listOfAllowedValues = $cm_texts[ $cm_lang ][$langKey];
+
+    foreach ($fieldsArray as $clmn => $csvValue) {
+      $listOfValues = explode(',', $csvValue);
+      foreach($listOfValues as $value) {
+        if(!in_array($value, $listOfAllowedValues)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
   /**
    * Validate that at least one of the named fields contains a value.
    *
