@@ -272,7 +272,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
     $supportedAttributes = $this->supportedAttributes();
     
     // Cached group membership, interim solution for CO-1348 (see below)
-    $groupMembers = array();
+    $activeGroupMembers = array();
     
     // Note we don't need to check for inactive status where relevant since
     // ProvisionerBehavior will remove those from the data we get.
@@ -334,11 +334,16 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
         continue;
       }
       
-      if($group && empty($groupMembers) && in_array($oc, $this->groupSchemas)) {
+      if($group && empty($activeGroupMembers) && in_array($oc, $this->groupSchemas)) {
         // As an interim solution to CO-1348 we'll pull all group members here (since we no longer get them)
         
         $args = array();
+        $args['joins'][0]['table'] = 'co_people';
+        $args['joins'][0]['alias'] = 'CoPerson';
+        $args['joins'][0]['type'] = 'INNER';
+        $args['joins'][0]['conditions'][0] = 'CoPerson.id=CoGroupMember.co_person_id';
         $args['conditions']['CoGroupMember.co_group_id'] = $provisioningData['CoGroup']['id'];
+        $args['conditions']['CoPerson.status'] = array(StatusEnum::Active, StatusEnum::GracePeriod);
         $args['conditions']['AND'][] = array(
           'OR' => array(
             'CoGroupMember.valid_from IS NULL',
@@ -352,8 +357,8 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
           )
         );
         $args['contain'] = false;
-        
-        $groupMembers = $this->CoLdapProvisionerDn->CoGroup->CoGroupMember->find('all', $args);
+
+        $activeGroupMembers = $this->CoLdapProvisionerDn->CoGroup->CoGroupMember->find('all', $args);
       }
       
       if($supportedAttributes[$oc]['objectclass']['required']
@@ -1006,7 +1011,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                   $members = $this->CoLdapProvisionerDn
                                   ->CoGroup
                                   ->CoGroupMember
-                                  ->mapCoGroupMembersToIdentifiers($groupMembers, $targetType);
+                                  ->mapCoGroupMembersToIdentifiers($activeGroupMembers, $targetType);
                   
                   if(!empty($members)) {
                     // Unlike member, hasMember is not required. However, like owner, we can't have
@@ -1037,7 +1042,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'member':
-                $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($groupMembers);
+                $attributes[$attr] = $this->CoLdapProvisionerDn->dnsForMembers($activeGroupMembers);
                 
                 if(empty($attributes[$attr])) {
                   // groupofnames requires at least one member
@@ -1046,7 +1051,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                 }
                 break;
               case 'owner':
-                $owners = $this->CoLdapProvisionerDn->dnsForOwners($groupMembers);
+                $owners = $this->CoLdapProvisionerDn->dnsForOwners($activeGroupMembers);
                 
                 if(!empty($owners)) {
                   // Can't have an empty owners list (it should either not be present
@@ -1263,7 +1268,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                       $members = $this->CoLdapProvisionerDn
                                       ->CoGroup
                                       ->CoGroupMember
-                                      ->mapCoGroupMembersToIdentifiers($groupMembers, $cluster[0]['uid_type']);
+                                      ->mapCoGroupMembersToIdentifiers($activeGroupMembers, $cluster[0]['uid_type']);
                       
                       if(!empty($members)) {
                         // Unlike member, memberUid is not required. However, like owner, we can't have
@@ -1298,7 +1303,7 @@ class CoLdapProvisionerTarget extends CoProvisionerPluginTarget {
                       $members = $this->CoLdapProvisionerDn
                                       ->CoGroup
                                       ->CoGroupMember
-                                      ->mapCoGroupMembersToIdentifiers($groupMembers, $ug['UnixCluster']['uid_type']);
+                                      ->mapCoGroupMembersToIdentifiers($activeGroupMembers, $ug['UnixCluster']['uid_type']);
                       
                       if(!empty($members)) {
                         // Unlike member, memberUid is not required. However, like owner, we can't have
