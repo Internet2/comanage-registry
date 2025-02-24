@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -60,8 +60,8 @@
         <th><?php print $this->Paginator->sort('Cou.ou', _txt('fd.cou')); ?></th>
         <th><?php print $this->Paginator->sort('title', _txt('fd.title')); ?></th>
         <th><?php print $this->Paginator->sort('affiliation', _txt('fd.affiliation')); ?></th>
-        <th><?php print $this->Paginator->sort('valid_from', _txt('fd.valid_from')); ?></th>
-        <th><?php print $this->Paginator->sort('valid_through', _txt('fd.valid_through')); ?></th>
+        <th><?php print $this->Paginator->sort('valid_from', _txt('fd.valid_from'), array('direction' => 'desc')); ?></th>
+        <th><?php print $this->Paginator->sort('valid_through', _txt('fd.valid_through'), array('direction' => 'desc')); ?></th>
         <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>

@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.7
@@ -116,7 +116,7 @@
     <thead>
       <tr>
         <th><?php print $this->Paginator->sort('id', _txt('fd.id.seq')); ?></th>
-        <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
+        <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz)), array('direction' => 'desc')); ?></th>
         <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
         <th><?php print $this->Paginator->sort('ActorCoPerson.PrimaryName.family', _txt('fd.actor')); ?></th>
         <th><?php print $this->Paginator->sort('ActorApiUser.username', _txt('fd.actor.api')); ?></th>

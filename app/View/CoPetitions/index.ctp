@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -94,8 +94,8 @@
         <th><?php print $vv_linkable ? $this->Paginator->sort('PetitionerPrimaryName.family', _txt('fd.petitioner')) : _txt('fd.petitioner'); ?></th>
         <th><?php print $vv_linkable ? $this->Paginator->sort('SponsorPrimaryName.family', _txt('fd.sponsor')) : _txt('fd.sponsor'); ?></th>
         <th><?php print $vv_linkable ? $this->Paginator->sort('ApproverPrimaryName.family', _txt('fd.approver')) : _txt('fd.approver'); ?></th>
-        <th><?php print $this->Paginator->sort('CoPetition.created', _txt('fd.created.tz', array($vv_tz))); ?></th>
-        <th><?php print $this->Paginator->sort('CoPetition.modified', _txt('fd.modified.tz', array($vv_tz))); ?></th>
+        <th><?php print $this->Paginator->sort('CoPetition.created', _txt('fd.created.tz', array($vv_tz)), array('direction' => 'desc')); ?></th>
+        <th><?php print $this->Paginator->sort('CoPetition.modified', _txt('fd.modified.tz', array($vv_tz)), array('direction' => 'desc')); ?></th>
         <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
