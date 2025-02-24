@@ -1062,8 +1062,12 @@ class AppController extends Controller {
    */
   protected function getUImode() {
     $this->set('vv_ui_mode', EnrollmentFlowUIMode::Full);
-    // Auth.User.name is emtpy during the entire Enrollment Flow
+    // Auth.User.name is empty during the entire Enrollment Flow
     if(!$this->Session->check('Auth.User.name')) {
+      $this->set('vv_ui_mode', EnrollmentFlowUIMode::Basic);
+    }
+    // We should take into consideration an Invitation Flow that finds a match.
+    if(!empty($this->viewVars['vv_co_petition_id']) && !empty($this->viewVars["vv_petition_token"])) {
       $this->set('vv_ui_mode', EnrollmentFlowUIMode::Basic);
     }
   }
