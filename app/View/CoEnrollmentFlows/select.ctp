@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.5
@@ -45,8 +45,8 @@
 <div id="co_enrollment_flows" class="co-grid co-grid-with-header container">
   <div class="row co-grid-header">
     <div class="col"><?php print _txt('fd.name'); ?></div>
-    <div class="col-6"><?php print _txt('fd.desc'); ?></div>
-    <div class="col actions"><?php print _txt('fd.actions'); ?></div>
+    <div class="col"><?php print _txt('fd.desc'); ?></div>
+    <div class="col"><?php print _txt('fd.actions'); ?></div>
   </div>
 
   <?php $i = 0; ?>
@@ -55,7 +55,7 @@
       <div class="col first-cell">
         <?php print filter_var($c['CoEnrollmentFlow']['name'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
-      <div class="col-6">
+      <div class="col">
         <?php print filter_var($c['CoEnrollmentFlow']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
       <div class="col actions">
@@ -69,9 +69,9 @@
             ];
             
             $petitionUrl = $this->Html->url($petitionUrlArr, true);
-              
+            
             // begin button
-            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>', 
+            print $this->Html->link(_txt('op.begin') . ' <em class="material-icons" aria-hidden="true">forward</em>',
               $petitionUrlArr,
               array(
                 'class' => 'co-button btn btn-primary',
@@ -115,7 +115,7 @@
                   )
                 ),
                 array(
-                  'class' => 'co-button qr-button btn btn-primary', 
+                  'class' => 'co-button qr-button btn btn-primary',
                   'escape' => false,
                   'title'  => _txt('op.display.qr.for',array($c['CoEnrollmentFlow']['name']))
                 )

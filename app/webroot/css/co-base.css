@@ -1171,9 +1171,9 @@ iframe#tandc_content {
 #reconcile-table .reconcile-fields {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 1fr; 
+  grid-auto-columns: 1fr;
   /* An alternative for grid-auto-columns is minmax(0, 1fr) - but by allowing the #reconcile-table-container
-     to overflow-x: scroll, we can get cleaner layout that works better for all devices. */ 
+     to overflow-x: scroll, we can get cleaner layout that works better for all devices. */
 }
 #reconcile-table .reconcile-fields ul.match-attr-list {
   padding: 1em 1em 1em 0;
@@ -1227,7 +1227,7 @@ iframe#tandc_content {
   background-color: #c33;
   color: var(--cmg-color-white);
 }
-#view_co_petition .ui-button, 
+#view_co_petition .ui-button,
 #vetting-plugin-wrapper .ui-button {
   margin: 0.5em 0.5em 1.5em 0;
 }
@@ -1910,7 +1910,7 @@ li .dropdown-item {
 #main a.fieldGroupName:hover {
   text-decoration: none;
 }
-#content .fieldGroupName .material-icons, 
+#content .fieldGroupName .material-icons,
 #content #changeLog .material-icons {
   margin-top: 1px;
   color: var(--cmg-color-blue-link);
@@ -2559,6 +2559,12 @@ a.disabled {
   background-color: #e5e5e5 !important;
   font-weight: bold;
 }
+.co-grid .col.actions {
+  display: flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: 0.5em;
+}
 .co-grid .co-row,
 .co-grid .row {
   border-top: 1px solid #eee;
@@ -2900,7 +2906,7 @@ td.indented {
   font-size: 1em;
   color: var(--cmg-color-red-002);
 }
-.form-control.is-invalid, 
+.form-control.is-invalid,
 .was-validated .form-control:invalid {
   border-color: var(--cmg-color-red-002);
   /* The following is an override to change the color of the SVG output from _forms.scss - for accessibility color contrast */
