@@ -333,6 +333,7 @@ class UnixCluster extends ClusterInterface {
           $this->Cluster->Co->CoGroup->clear();
           
           if(!$this->Cluster->Co->CoGroup->save($g)) {
+            $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->Cluster->Co->CoGroup->invalidFields(), true), LOG_ERROR);
             throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign CoGroup')));
           }
 
@@ -365,6 +366,7 @@ class UnixCluster extends ClusterInterface {
           $this->Cluster->Co->CoGroup->Identifier->validate['type']['content']['rule'][1]['coid'] = $cluster['Cluster']['co_id'];
         
           if(!$this->Cluster->Co->CoGroup->Identifier->saveMany($ids)) {
+            $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->Cluster->Co->CoGroup->Identifier->invalidFields(), true), LOG_ERROR);
             throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign Identifier')));
           }
           
@@ -382,6 +384,7 @@ class UnixCluster extends ClusterInterface {
           $this->Cluster->Co->CoGroup->CoGroupMember->clear();
           
           if(!$this->Cluster->Co->CoGroup->CoGroupMember->save($gm)) {
+            $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->Cluster->Co->CoGroup->CoGroupMember->invalidFields(), true), LOG_ERROR);
             throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign CoGroupMember')));
           }
           
@@ -399,6 +402,7 @@ class UnixCluster extends ClusterInterface {
           $this->UnixClusterGroup->clear();
           
           if(!$this->UnixClusterGroup->save($ucg)) {
+            $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->UnixClusterGroup->invalidFields(), true), LOG_ERROR);
             throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign UnixClusterGroup')));
           }
         }
@@ -408,6 +412,7 @@ class UnixCluster extends ClusterInterface {
       $this->UnixClusterAccount->clear();
       
       if(!$this->UnixClusterAccount->save($acct)) {
+        $this->log(__METHOD__ . "::invalid_fields::message" . print_r($this->UnixClusterAccount->invalidFields(), true), LOG_ERROR);
         throw new RuntimeException(_txt('er.db.save-a', array('UnixCluster::assign UnixClusterAccount')));
       }
       
