@@ -198,7 +198,22 @@ class CoInvitesController extends AppController {
                                                       filter_var($this->request->params['pass'][0],FILTER_SANITIZE_SPECIAL_CHARS))));
       }
     }
-    
+    else if($this->action == "verifyEmailAddress") {
+      // verifyEmailAddress has an email address id as parameter. Use that to determine the CO
+
+      if(!empty($this->request->params['named']['email_address_id'])) {
+        $args = array();
+        $args['conditions']['EmailAddress.id'] = $this->request->params['named']['email_address_id'];
+        $args['contain'] = array('CoPerson');
+
+        $ea = $this->CoInvite->CoPerson->EmailAddress->find('first', $args);
+
+        if(!empty($ea) && !empty($ea['CoPerson'])) {
+          return $ea['CoPerson']['co_id'];
+        }
+      }
+    }
+
     if($this->action == "send" && !empty($this->request->params['named']['copersonid'])) {
       $coId = $this->CoInvite->CoPerson->field('co_id',
                                                array('id' => $this->request->params['named']['copersonid']));
