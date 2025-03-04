@@ -124,14 +124,12 @@
         <td>
           <?php
             if(!empty($c['CoTAndCAgreement'])) {
-              print _txt('fd.tc.agree.yes')
-                    . " ("
-                    . $c['CoTAndCAgreement']['identifier']
-                    . ", "
-                    . $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
-                    . ")";
+              print _txt('fd.tc.agree.yes', array(
+                $c['CoTAndCAgreement']['identifier'],
+                $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
+              ));
 
-              if(!empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])) {
+              if(!empty($c['CurrentCoTermsandConditions'])) {
                 print "</br>" . _txt('fd.tc.archived');
               }
             } else {
@@ -140,7 +138,7 @@
           ?>
         </td>
         <td>
-          <?php if(!empty($c['CoTAndCAgreement'])): ?>
+          <?php if(!empty($c['CoTAndCAgreement']) && empty($c['CurrentCoTermsandConditions'])): ?>
           <button class="checkbutton"
                   type="button"
                   onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
@@ -152,14 +150,14 @@
           <?php else: ?>
           <button class="checkbutton"
                   type="button"
-                  onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',
-                                      '<?php print addslashes($c['CoTermsAndConditions']['url']); ?>',
+                  onClick="open_tandc('<?php print addslashes(empty($c['CurrentCoTermsandConditions']) ? $c['CoTermsAndConditions']['description'] : $c['CurrentCoTermsandConditions']['description']); ?>',
+                                      '<?php print addslashes(empty($c['CurrentCoTermsandConditions']) ? $c['CoTermsAndConditions']['url'] : $c['CurrentCoTermsandConditions']['url']); ?>',
                                       'agree',
                                       '<?php
                                           $args = array(
                                             'controller' => 'co_terms_and_conditions',
                                             'action' => 'agree',
-                                            $c['CoTermsAndConditions']['id'],
+                                            (empty($c['CurrentCoTermsandConditions']) ? $c['CoTermsAndConditions']['id'] : $c['CurrentCoTermsandConditions']['id']),
                                             'copersonid' => $vv_co_person['CoPerson']['id']
                                           );
 
