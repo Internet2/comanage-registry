@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          https://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v4.0.0
@@ -100,6 +100,9 @@
                                       $(this).dialog("close");
                                     }
                                   });
+
+    // Improve the button classes
+    $(".ui-dialog .ui-dialog-buttonset button").removeClass("ui-button ui-corner-all ui-widget").addClass("btn btn-primary");
 
     // Open dialog
     $("#dialog-review").dialog("open");
