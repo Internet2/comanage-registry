@@ -133,9 +133,18 @@ class SqlServer extends AppModel {
     if(!empty($sqlserver['SqlServer']['dbport'])) {
       $dbconfig['port'] = $sqlserver['SqlServer']['dbport'];
     }
-    
+
+    // Drop any Connection with the same name before we try to connect.
+    // If the connection does not exist, false will be returned which we ignore
+    ConnectionManager::drop($name);
+    // Connect to the database
     $datasource = ConnectionManager::create($name, $dbconfig);
-    
+
+    // Database connection failed
+    if ($datasource === null) {
+      throw new RuntimeException(_txt('er.db.connect', array($name)));
+    }
+
     return true;
   }
 }

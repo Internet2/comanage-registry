@@ -264,8 +264,10 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
        && $this->server_id == $this->pluginCfg['server_id']) {
       return $this->SourceRecord;
     }
-    
-    if(!$this->SqlServer) {
+
+    // We do not have an SqlServer object or the configuration changed
+    if(!$this->SqlServer || $this->server_id != $this->pluginCfg['server_id']) {
+      $this->sqlServer = null;
       $this->SqlServer = ClassRegistry::init('SqlServer');
 
       $this->SqlServer->connect($this->pluginCfg['server_id'], "sourcedb");
