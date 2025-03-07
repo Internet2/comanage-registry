@@ -186,7 +186,7 @@
   ul.form-list input[type="password"] {
     width: 97%;
   }
-  ul.form-list li.field-stack textarea {
+  ul.form-list li.field-stack .field-info {
     margin: 0.5em 0 0.5em 0.5em;
   }
   /* Alpha search  */

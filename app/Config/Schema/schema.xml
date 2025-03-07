@@ -847,6 +847,7 @@
     </field>
     <field name="name" type="C" size="128" />
     <field name="description" type="C" size="256" />
+    <field name="introduction" type="X" size="4000" />
     <field name="open" type="L" />
     <field name="status" type="C" size="2" />
     <field name="group_type" type="C" size="2" />
