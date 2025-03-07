@@ -1457,6 +1457,7 @@ The request may be viewed at
   'fd.co_dashboard_widgets.footer.desc' =>  'Text placed below the widget',
   'fd.co_dashboard_widgets.header' =>  'Widget Header',
   'fd.co_dashboard_widgets.header.desc' =>  'Text placed below the title and above the widget',
+  'fd.co_group.about' => 'About this group',
   'fd.co_group.admin' => 'Admin',
   'fd.co_group.approver' => 'Approver',
   'fd.co_group.auto' => 'Automatic',

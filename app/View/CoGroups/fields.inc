@@ -182,6 +182,14 @@
       <?php print ($e ? $this->Form->input('description') : filter_var($co_groups[0]['CoGroup']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title"><?php print ($e ? $this->Form->label('introduction', _txt('fd.co_group.about')) : _txt('fd.co_group.about')); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e ? $this->Form->input('introduction') : filter_var($co_groups[0]['CoGroup']['introduction'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print ($e ? $this->Form->label('status', _txt('fd.status')) : _txt('fd.status')); ?></div>
