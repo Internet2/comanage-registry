@@ -199,19 +199,20 @@
     // END USER MENU BEHAVIOR
 
     // Toggle the top search filter box
-    $("#top-search-toggle, #top-search-toggle button.cm-toggle").click(function(e) {
+    $("#top-search-toggle").click(function(e) {
       e.preventDefault();
       e.stopPropagation();
-      if ($("#top-search-fields").is(":visible")) {
-        $("#top-search-fields").hide();
-        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false");
-        $("#top-search-toggle button.cm-toggle").attr("aria-label","<?php print _txt('me.menu.filters.open'); ?>");
-        $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_down");
+      const appPrefsTag = $(this).attr('data-filters-id');
+      if ($("#top-search-fields").hasClass("visible")) {
+        $("#top-search-fields").removeClass("visible").addClass("invisible");
+        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false").attr("aria-label","<?php print _txt('me.menu.filters.open'); ?>");
+        $("#top-search-toggle .drop-arrow").text("arrow_drop_down");
+        setApplicationPreference(appPrefsTag,{"value":null});
       } else {
-        $("#top-search-fields").show();
-        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","true");
-        $("#top-search-toggle button.cm-toggle").attr("aria-label","<?php print _txt('me.menu.filters.close'); ?>");
-        $("#top-search-toggle button.cm-toggle .drop-arrow").text("arrow_drop_up");
+        $("#top-search-fields").removeClass("invisible").addClass("visible");
+        $("#top-search-toggle button.cm-toggle").attr("aria-expanded","true").attr("aria-label","<?php print _txt('me.menu.filters.close'); ?>");
+        $("#top-search-toggle .drop-arrow").text("arrow_drop_up");
+        setApplicationPreference(appPrefsTag,{"value":"open"});
       }
     });
 

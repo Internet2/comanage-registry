@@ -85,10 +85,27 @@ $hasActiveFilters = false;
   foreach ($this->request->params['pass'] as $idx => $value) {
     print $this->Form->hidden($this->request->action . '.'. $idx . '.pass', array('default' => filter_var($value,FILTER_SANITIZE_SPECIAL_CHARS))). "\n";
   }
-
+    
+  // The application preferences tag
+  $appPrefsTag = 'filters' . $controller .  $cur_co['Co']['id'];
+  
+  // The default filter box state
+  $filtersAriaExpanded = 'false';
+  $filtersAriaLabel = _txt('me.menu.filters.open');
+  $filtersDropIcon = 'arrow_drop_down';
+  $topSearchFieldsClass = 'invisible';
+  
+  // Determine if the current filters are toggled open on first load
+  if(!empty($vv_app_prefs[$appPrefsTag]) && $vv_app_prefs[$appPrefsTag] == 'open') {
+    $filtersAriaExpanded = 'true';
+    $filtersAriaLabel = _txt('me.menu.filters.close');
+    $filtersDropIcon = 'arrow_drop_up';
+    $topSearchFieldsClass = 'visible';
+  }
   ?>
+  
   <fieldset onclick="event.stopPropagation();" aria-label="<?php print _txt('me.menu.filters.form'); ?>">
-    <legend id="top-search-toggle">
+    <legend id="top-search-toggle" data-filters-id="<?php print $appPrefsTag ?>">
       <em class="material-icons" aria-hidden="true">search</em>
       <?php print _txt('op.filter');?>
 
@@ -162,12 +179,17 @@ $hasActiveFilters = false;
           <?php endif; ?>
         </span>
       <?php endif; ?>
-      <button class="cm-toggle" aria-expanded="false" aria-controls="top-search-fields" type="button"  aria-label="<?php print _txt('me.menu.filters.open'); ?>">
-        <em class="material-icons drop-arrow" aria-hidden="true">arrow_drop_down</em>
+      <button
+        type="button"
+        class="cm-toggle"
+        aria-expanded="<?php print $filtersAriaExpanded; ?>"
+        aria-controls="top-search-fields"
+        aria-label="<?php print $filtersAriaLabel; ?>">
+        <em class="material-icons drop-arrow" aria-hidden="true"><?php print $filtersDropIcon; ?></em>
       </button>
     </legend>
 
-    <div id="top-search-fields">
+    <div id="top-search-fields" class="<?php print $topSearchFieldsClass; ?>">
       <?php
       $i = 0;
       $field_subgroup_columns = array();
@@ -358,5 +380,5 @@ $hasActiveFilters = false;
     ?>
   </ul>
 </div>
-  <?php endif; ?>
-  <?php print $this->Form->end();?>
+<?php endif; ?>
+<?php print $this->Form->end();?>
