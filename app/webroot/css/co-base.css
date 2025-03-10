@@ -1637,17 +1637,14 @@ a.ui-button:visited,
   border-bottom: 1px solid var(--cmg-color-lightgray-006);
   margin-bottom: 0.5em;
 }
-.top-search legend .material-icons {
-  vertical-align: middle;
-}
-.top-search legend button.cm-toggle {
-  position: absolute;
-  right: 0.5em;
-}
 #content .top-search legend .material-icons {
   font-size: 20px;
 }
-#content .top-search legend button.cm-toggle .material-icons {
+#content .top-search legend button.cm-toggle {
+  position: absolute;
+  right: 0.25em;
+}
+#content .top-search legend .material-icons.drop-arrow {
   font-size: 34px;
   line-height: 17px;
 }
@@ -1674,6 +1671,9 @@ a.ui-button:visited,
 #top-search-fields {
   display: none;
   padding: 0.25em 0.5em;
+}
+#top-search-fields.visible {
+  display: block;
 }
 #top-search-submit {
   float: right;
