@@ -70,12 +70,12 @@ class CoreApiPeopleController extends CoreApiController {
       $expunge_on_delete = isset($this->cur_api['CoreApi']['expunge_on_delete'])
                            && $this->cur_api['CoreApi']['expunge_on_delete'];
       if($expunge_on_delete) {
-        $ret = $this->Person->expungeV1($this->cur_api['CoreApi']['co_id'],
+        $ret = $this->CoreApiPerson->expungeV1($this->cur_api['CoreApi']['co_id'],
                                         $req_identifier,
                                         $this->cur_api['CoreApi']['identifier_type'],
                                         $this->cur_api['CoreApi']['api_user_id']);
       } else {
-        $ret = $this->Person->deleteV1($this->cur_api['CoreApi']['co_id'],
+        $ret = $this->CoreApiPerson->deleteV1($this->cur_api['CoreApi']['co_id'],
                                        $req_identifier,
                                        $this->cur_api['CoreApi']['identifier_type']);
       }
