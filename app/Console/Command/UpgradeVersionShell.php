@@ -39,12 +39,13 @@ class UpgradeVersionShell extends AppShell {
                     'CoGroup',
                     'CoIdentifierAssignment',
                     'CoJob',
+                    'CoMessageTemplate',
                     'CoSetting',
                     'DataFilter',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
                     'HttpServer',
                     'Identifier',
-                    'CoMessageTemplate',
+                    'MatchServer',
                     'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
   
@@ -112,7 +113,8 @@ class UpgradeVersionShell extends AppShell {
     "4.3.4" => array('block' => false),
     "4.3.5" => array('block' => false),
     "4.4.0" => array('block' => false, 'post' => 'post440'),
-    "4.4.1" => array('block' => false)
+    "4.4.1" => array('block' => false),
+    "4.4.2" => array('block' => false, 'post' => 'post442')
   );
   
   public function getOptionParser() {
@@ -715,6 +717,18 @@ class UpgradeVersionShell extends AppShell {
     // Application Preferences
     $this->out(_txt('sh.ug.440.application_preferences'));
     $this->ApplicationPreference->_ug440();
+  }
+
+  public function post442() {
+    // MatchServers now have SSL configuration options, which should default to true
+    $this->out(_txt('sh.ug.442.match'));
+    $this->MatchServer->updateAll(
+      array(
+        'MatchServer.ssl_verify_host' => true,
+        'MatchServer.ssl_verify_peer' => true
+      ),
+      true
+    );
   }
   
   // We should eventually do something like

@@ -57,6 +57,22 @@
   
   print $this->Form->hidden('server_id', array('default' => $match_servers[0]['Server']['id'])) . "\n";
 ?>
+<script type="text/javascript">
+  function fields_update_gadgets() {
+    // Hide or show gadgets according to current state
+    
+    if(document.getElementById('MatchServerSslVerifyPeer').checked) {
+      $("#MatchServerSslVerifyHost").closest("li").show('fade');
+    } else {
+      $("#MatchServerSslVerifyHost").closest("li").hide('fade');
+    }
+  }
+  
+  function js_local_onload() {
+    fields_update_gadgets();
+  }
+  <!-- JS specific to these fields -->
+</script>
 <ul id="<?php print $this->action; ?>_match_server" class="fields form-list">
   <li>
     <div class="field-name">
@@ -88,6 +104,41 @@
     </div>
     <div class="field-info">
       <?php print $vv_api_endpoint; ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ssl_verify_peer', _txt('fd.server.http.ssl_verify_peer')) : _txt('fd.server.http.ssl_verify_peer')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_peer.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        print ($e
+               ? $this->Form->input('ssl_verify_peer',
+                                    array('onChange' => 'fields_update_gadgets();',
+                                          'default' => true))
+               : ($match_servers[0]['MatchServer']['ssl_verify_peer']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
+    </div>
+  </li>
+  <li>
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('ssl_verify_host', _txt('fd.server.http.ssl_verify_host')) : _txt('fd.server.http.ssl_verify_host')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.server.http.ssl_verify_host.desc'); ?></div>
+    </div>
+    <div class="field-info checkbox">
+      <?php
+        print ($e
+               ? $this->Form->input('ssl_verify_host',
+                                    array('default' => true))
+               : ($match_servers[0]['MatchServer']['ssl_verify_host']
+                  ? _txt('fd.yes') : _txt('fd.no')));
+      ?>
     </div>
   </li>
   <?php if($e): ?>

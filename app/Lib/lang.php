@@ -2806,7 +2806,8 @@ The request may be viewed at
   'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types',
   'sh.ug.440.cluster' =>   'Migrate Clusters group type',
   'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording',
-  'sh.ug.440.application_preferences' => 'Reset Application Preferences table'
+  'sh.ug.440.application_preferences' => 'Reset Application Preferences table',
+  'sh.ug.442.match' =>    'Updating Match Server configuration'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them
