@@ -123,10 +123,15 @@ class SshKey extends AppModel {
     // We currently only support OpenSSH format, which is a triple of type/key/comment,
     // and RFC 4716 Secure Shell (SSH) Public Key File format.
 
+    // RFC4716 format
     if(preg_match("/^---- BEGIN SSH2 PUBLIC KEY ----.*/", $keyfileString) == 1) {
+      // Currently parseRfc4716 will only get the first ssh key if multiples exist
       list($keyType, $key, $comment) = $this->parseRfc4716($keyfileString);
     } else {
-      $bits = explode(' ', $keyfileString, 3);
+      // OpenSSH format
+      // According to the OpenSSH format each key lives in each own line
+      $sshKeyLine = explode("\n", $keyfileString);
+      $bits = explode(' ', $sshKeyLine[0], 3);
 
       $keyType = $this->convertSshKeyTypeToEnum($bits[0]);
       $key = $bits[1];
@@ -153,7 +158,7 @@ class SshKey extends AppModel {
   /**
    * Convert key type string into an enum.
    *
-   * @param  string  SSH key type string parsed from file
+   * @param  string  $keyTypeString SSH key type string parsed from file
    * @return string  SshKeyTypeEnum
    * @throws InvalidArgumentException
    *
@@ -254,7 +259,7 @@ class SshKey extends AppModel {
           continue;
         }
       } else {
-        // Stop parsing when we find the end marker and so ingore any
+        // Stop parsing when we find the end marker and so ignore any
         // non-conforming end material.
         if(preg_match("/^---- END SSH2 PUBLIC KEY ----.*/", $line) === 1) {
           break;
