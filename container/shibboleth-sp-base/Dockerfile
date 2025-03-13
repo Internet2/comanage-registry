@@ -22,16 +22,16 @@ ARG LOG4SHIB_VERSION
 ENV LOG4SHIB_VERSION=${LOG4SHIB_VERSION:-2.0.1}
 
 ARG XERCESC_VERSION
-ENV XERCESC_VERSION=${XERCESC_VERSION:-3.2.5}
+ENV XERCESC_VERSION=${XERCESC_VERSION:-3.3.0}
 
 ARG XMLSECC_VERSION
-ENV XMLSECC_VERSION=${XMLSECC_VERSION:-2.0.4}
+ENV XMLSECC_VERSION=${XMLSECC_VERSION:-3.0.0}
 
 ARG XMLTOOLING_VERSION
 ENV XMLTOOLING_VERSION=${XMLTOOLING_VERSION:-3.2.4}
 
 ARG OPENSAMLC_VERSION
-ENV OPENSAMLC_VERSION=${OPENSAMLC_VERSION:-3.2.1}
+ENV OPENSAMLC_VERSION=${OPENSAMLC_VERSION:-3.3.1}
 
 ARG SHIBBOLETH_SP_VERSION
 ENV SHIBBOLETH_SP_VERSION=${SHIBBOLETH_SP_VERSION:-3.4.1}
@@ -61,13 +61,13 @@ RUN LOG4SHIB_URL="https://shibboleth.net/downloads/log4shib/${LOG4SHIB_VERSION}/
       && rm -f log4shib.tar.gz \
       && cd src \
       && LD_FLAGS=-lpthread CXXFLAGS="-fPIC" ./configure --disable-static \
-            --disable-doxygen \ 
+            --disable-doxygen \
             --prefix=/opt/shibboleth-sp \
             --build=x86_64 \
       && LD_FLAGS=-lpthread make \
       && make -j 2 install \
       && cd .. \
-      && rm -r src 
+      && rm -r src
 
 RUN XERCESC_DIST_URLS="\
     https://mirrors.ocf.berkeley.edu/apache/xerces/c/3/sources/xerces-c-${XERCESC_VERSION}.tar.gz \
@@ -88,7 +88,7 @@ RUN XERCESC_DIST_URLS="\
       && make -j 2 \
       && make install \
       && cd .. \
-      && rm -r src 
+      && rm -r src
 
 RUN XMLSECC_DIST_URLS="\
     https://mirrors.ocf.berkeley.edu/apache/santuario/c-library/xml-security-c-${XMLSECC_VERSION}.tar.gz \
@@ -113,7 +113,7 @@ RUN XMLSECC_DIST_URLS="\
       && make -j 2 \
       && make install \
       && cd .. \
-      && rm -r src 
+      && rm -r src
 
 RUN XMLTOOLING_URL="https://shibboleth.net/downloads/c++-opensaml/${OPENSAMLC_VERSION}/xmltooling-${XMLTOOLING_VERSION}.tar.gz" \
       && wget -O xmltooling.tar.gz "${XMLTOOLING_URL}" \
@@ -129,7 +129,7 @@ RUN XMLTOOLING_URL="https://shibboleth.net/downloads/c++-opensaml/${OPENSAMLC_VE
       && make -j 2 \
       && make install \
       && cd .. \
-      && rm -r src 
+      && rm -r src
 
 RUN OPENSAMLC_URL="https://shibboleth.net/downloads/c++-opensaml/${OPENSAMLC_VERSION}/opensaml-${OPENSAMLC_VERSION}.tar.gz" \
       && wget -O opensamlc.tar.gz "${OPENSAMLC_URL}" \
@@ -144,7 +144,7 @@ RUN OPENSAMLC_URL="https://shibboleth.net/downloads/c++-opensaml/${OPENSAMLC_VER
       && make -j 2 \
       && make install \
       && cd .. \
-      && rm -r src 
+      && rm -r src
 
 RUN SHIBBOLETH_SP_URL="https://shibboleth.net/downloads/service-provider/${SHIBBOLETH_SP_VERSION}/shibboleth-sp-${SHIBBOLETH_SP_VERSION}.tar.gz" \
       && wget -O shibboleth-sp.tar.gz "${SHIBBOLETH_SP_URL}" \
@@ -167,7 +167,7 @@ RUN SHIBBOLETH_SP_URL="https://shibboleth.net/downloads/service-provider/${SHIBB
       && make -j 2 \
       && make install \
       && cd .. \
-      && rm -r src 
+      && rm -r src
 
 COPY container/shibboleth-sp-base/shib2.load /opt/shibboleth-sp/etc/shibboleth/shib2.load
 COPY container/shibboleth-sp-base/shibboleth2.xml.template /opt/shibboleth-sp/etc/shibboleth/shibboleth2.xml.template
