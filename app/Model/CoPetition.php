@@ -2892,20 +2892,19 @@ class CoPetition extends AppModel {
       }
     }
 
-    // Create New Role if duplicate.
-    // In the case of a duplicate petition, if the email is already verified we will have to skip
-    $enrollmentFlow_duplicate_mode = $this->CoEnrollmentFlow
+    // Create New Role if duplicate and this is an Invitation Enrollment Flow
+    $enrollmentFlowDuplicateMode = $this->CoEnrollmentFlow
       ->field('duplicate_mode', array('CoEnrollmentFlow.id' => $pt['CoPetition']['co_enrollment_flow_id']));
-    if(in_array($enrollmentFlow_duplicate_mode, [
+    if(in_array($enrollmentFlowDuplicateMode, [
         EnrollmentDupeModeEnum::NewRole,
         EnrollmentDupeModeEnum::NewRoleCouCheck
-      ])) {
-      $skip_invite = true;
-      // Take the first a
-      if ($toEmail === null) {
-        // All the EmailAddresses are verified. Just pick one to allow the flow to continue
-        $toEmail = $pt['EnrolleeCoPerson']['EmailAddress'][0];
-      }
+      ])
+      // The email has been verified already
+      && $toEmail == null
+    ) {
+      // All the EmailAddresses are verified. Just pick one to allow the flow to continue
+      // and handle the duplicate outcome
+      $toEmail = $pt['EnrolleeCoPerson']['EmailAddress'][0];
     }
 
     // Should we proceed with Email Confirmation or not?
