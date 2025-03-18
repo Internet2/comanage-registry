@@ -1335,7 +1335,6 @@
     <field name="sync_on_update" type="L" />
     <field name="sync_on_delete" type="L" />
     <field name="sync_coperson_status" type="C" size="2" />
-    <field name="sync_coperson_attributes" type="C" size="512" />
     <field name="create_role" type="L" />
     <field name="sync_cou_id" type="I">
       <constraint>REFERENCES cm_cous(id)</constraint>
