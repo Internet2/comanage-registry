@@ -1299,6 +1299,7 @@ The request may be viewed at
   'er.nt.res' =>      'Notification is not pending resolution and cannot be resolved',
   'er.nt.send-a' =>     'Notification to %1$s failed',
   'er.nt.send-b' =>     'Notification to %1$s failed (%2$s)',
+  'er.notenabled' =>    '%1$s "%2$s" Not Enabled',
   'er.notfound' =>    '%1$s "%2$s" Not Found',
   'er.notfound-b' =>  '%1$s Not Found',
   'er.notimpl' =>     'Not Implemented',
