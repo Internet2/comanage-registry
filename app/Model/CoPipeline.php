@@ -131,16 +131,6 @@ class CoPipeline extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    'sync_coperson_attributes' => array(
-      'content' => array(
-        'rule' => '/.*/',
-        'required'   => false,
-        'allowEmpty' => true
-      ),
-      'filter' => array(
-        'rule' => array('validateCsvListOfEnums', 'en.sync.org.attributes'),
-      ),
-    ),
     'create_role' => array(
       'rule'       => 'boolean',
       'required'   => false,
@@ -1079,7 +1069,6 @@ class CoPipeline extends AppModel {
     // Next handle associated models
     
     // Supported associated models and their parent relation
-    // XXX For any changes check also in enum.php: class OrgSyncAttributesEnum
     $models = array(
       'Address'         => 'co_person_role_id',
       'AdHocAttribute'  => 'co_person_role_id',
@@ -1089,12 +1078,6 @@ class CoPipeline extends AppModel {
       'TelephoneNumber' => 'co_person_role_id',
       'Url'             => 'co_person_id'
     );
-
-    // Filter out the attributes that will not be synced
-    $attributesToSync = explode(',', $coPipeline['CoPipeline']['sync_coperson_attributes']);
-    $models = array_filter($models, static function($v, $k) use ($attributesToSync) {
-      return in_array($k, $attributesToSync);
-    }, ARRAY_FILTER_USE_BOTH);
 
     foreach($models as $m => $pkey) {
       // Model key used by changelog, eg identifier_id

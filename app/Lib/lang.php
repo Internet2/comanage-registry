@@ -1078,16 +1078,6 @@ The request may be viewed at
     OrgSyncModeEnum::Update                 => 'Update'
   ),
 
-  'en.sync.org.attributes' => array(
-    OrgSyncAttributesEnum::Address          => 'Address',
-    OrgSyncAttributesEnum::AdHocAttribute   => 'AdHocAttribute',
-    OrgSyncAttributesEnum::EmailAddress     => 'EmailAddress',
-    OrgSyncAttributesEnum::Name             => 'Name',
-    OrgSyncAttributesEnum::Identifier       => 'Identifier',
-    OrgSyncAttributesEnum::TelephoneNumber  => 'TelephoneNumber',
-    OrgSyncAttributesEnum::Url              => 'Url',
-  ),
-
   'en.sync.query.mismatch.mode' => array(
     OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
     OrgIdentityMismatchEnum::Ignore         => 'Ignore'
