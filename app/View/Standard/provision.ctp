@@ -29,10 +29,19 @@
   $model = $this->name;
 
   print $this->element("pageTitleAndButtons", array('title' => filter_var($title_for_layout, FILTER_SANITIZE_SPECIAL_CHARS)));
-  if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
-    include(APP . "View/" . $model . "/tabs.inc");
+
+  if(!empty($this->plugin)) {
+    if(file_exists(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc")) {
+      include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc");
+    } elseif(file_exists(LOCAL . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc")) {
+      include(LOCAL . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc");
+    }
+  } else {
+    if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
+      include(APP . "View/" . $model . "/tabs.inc");
+    }
   }
-  
+
   // REST API Provisioning Request Type
   $requestType = "Unknown";
 
