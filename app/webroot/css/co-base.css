@@ -124,6 +124,9 @@ a {
   z-index: 20;
   min-height: 37px;
 }
+#top-menu.top-menu-redirect {
+  justify-content: flex-end;
+}
 #top-menu-left {
   display: flex;
   align-items: center;

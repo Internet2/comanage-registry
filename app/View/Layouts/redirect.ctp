@@ -125,7 +125,7 @@
     <!-- Primary layout -->
     <div id="comanage-wrapper">
 
-      <div id="top-menu">
+      <div id="top-menu" <?php if(empty($vv_NavLinks) && empty($vv_CoNavLinks)) print 'class="top-menu-redirect"'; ?>>
         <?php if(!empty($vv_NavLinks) || !empty($vv_CoNavLinks)): ?>
           <div id="user-defined-links-top">
             <?php print $this->element('links'); // XXX allow user to set this location (e.g. top or side) ?>
