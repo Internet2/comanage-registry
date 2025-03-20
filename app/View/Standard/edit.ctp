@@ -54,8 +54,18 @@
     }
   }
   print $this->element("pageTitleAndButtons", $params);
-  if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
-    include(APP . "View/" . $model . "/tabs.inc");
+
+  if(!empty($this->plugin)) {
+    if(file_exists(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc")) {
+      include(APP . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc");
+    } elseif(file_exists(LOCAL . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc")) {
+      include(LOCAL . "Plugin/" . $this->plugin . "/View/" . $model . "/tabs.inc");
+    }
+
+  } else {
+    if(file_exists(APP . "View/" . $model . "/tabs.inc")) {
+      include(APP . "View/" . $model . "/tabs.inc");
+    }
   }
 
   $submit_label = _txt('op.save');
