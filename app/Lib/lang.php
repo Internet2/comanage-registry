@@ -1077,7 +1077,7 @@ The request may be viewed at
     OrgSyncModeEnum::Manual                 => 'Manual',
     OrgSyncModeEnum::Update                 => 'Update'
   ),
-  
+
   'en.sync.query.mismatch.mode' => array(
     OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
     OrgIdentityMismatchEnum::Ignore         => 'Ignore'
@@ -1292,6 +1292,7 @@ The request may be viewed at
   'er.nt.res' =>      'Notification is not pending resolution and cannot be resolved',
   'er.nt.send-a' =>     'Notification to %1$s failed',
   'er.nt.send-b' =>     'Notification to %1$s failed (%2$s)',
+  'er.notenabled' =>    '%1$s "%2$s" Not Enabled',
   'er.notfound' =>    '%1$s "%2$s" Not Found',
   'er.notfound-b' =>  '%1$s Not Found',
   'er.notimpl' =>     'Not Implemented',
@@ -2810,7 +2811,8 @@ The request may be viewed at
   'sh.ug.440.contact' =>   'Instantiating default Contact Extended Types',
   'sh.ug.440.cluster' =>   'Migrate Clusters group type',
   'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording',
-  'sh.ug.440.application_preferences' => 'Reset Application Preferences table'
+  'sh.ug.440.application_preferences' => 'Reset Application Preferences table',
+  'sh.ug.442.match' =>    'Updating Match Server configuration'
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

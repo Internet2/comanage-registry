@@ -326,13 +326,23 @@ class ProvisionerBehavior extends ModelBehavior {
     // find all the groups with which that person has an association and rewrite them.
     
     if($model->name == 'CoPerson') {
-      if(isset($model->cacheData[ $model->alias ]['status'])
-         && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
-         && (in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
-             || in_array($model->data[ $model->alias ]['status'], $this->groupStatuses))) {
+      // calculate if the person status has changed
+      $personStatusChanged = isset($model->cacheData[ $model->alias ]['status'])
+        && $model->cacheData[ $model->alias ]['status'] != $model->data[ $model->alias ]['status']
+        && (
+          in_array($model->cacheData[ $model->alias ]['status'], $this->groupStatuses)
+          || in_array($model->data[ $model->alias ]['status'], $this->groupStatuses)
+        );
+
+      if(
         // We have a CO Person status change to or from a relevant status. Trigger a rewrite
         // of all groups of which the person is a member.
-        
+        $personStatusChanged
+        // When syncing via a pipeline then GroupMemberships might also be affected. Trigger a rewrite
+        // of all groups of which the person is a member.
+        || $provisioningAction === ProvisioningActionEnum::CoPersonPipelineProvisioned
+        || $provisioningAction === ProvisioningActionEnum::CoPersonPetitionProvisioned
+      ) {
         $syncGroups = true;
         $gmodel = $model->CoGroupMember->CoGroup;
         $copid = $model->data[ $model->alias ]['id'];

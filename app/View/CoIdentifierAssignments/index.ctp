@@ -122,6 +122,7 @@
     <thead>
     <tr>
       <th><?php print $this->Paginator->sort('description', _txt('fd.desc')); ?></th>
+      <th><?php print $this->Paginator->sort('status', _txt('fd.status')); ?></th>
       <th><?php print $this->Paginator->sort('identifier_type', _txt('fd.type')); ?></th>
       <th class="order"><?php print $this->Paginator->sort('ordr', _txt('fd.order')); ?></th>
       <th><?php print $this->Paginator->sort('context', _txt('fd.ia.context')); ?></th>
@@ -140,6 +141,7 @@
               'action' => ($permissions['edit'] ? 'edit' : ($permissions['view'] ? 'view' : '')), $c['CoIdentifierAssignment']['id'], 'co' => $cur_co['Co']['id']));
           ?>
         </td>
+        <td><?php print _txt('en.status.susp', null, $c['CoIdentifierAssignment']['status']); ?></td>
         <td><?php print filter_var($c['CoIdentifierAssignment']['identifier_type'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
         <td><?php print $c['CoIdentifierAssignment']['ordr']; ?></td>
         <td><?php print _txt('en.ia.context', null, $c['CoIdentifierAssignment']['context']); ?></td>

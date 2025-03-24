@@ -62,7 +62,11 @@ class SyncJob extends CoJobBackend {
         if(empty($ois)) {
           throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.org_identity_sources.1'), $params['ois_id'])));
         }
-        
+
+        if($ois['OrgIdentitySource']['status'] !== SuspendableStatusEnum::Active) {
+          throw new RuntimeException(_txt('er.notenabled', array(_txt('ct.org_identity_sources.1'), $params['ois_id'])));
+        }
+
         if(!empty($params['source_key'])) {
           $targetCoPersonId = null;
           $orgIdentityId = null;

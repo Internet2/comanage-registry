@@ -206,7 +206,45 @@ class CoPerson extends AppModel {
   public $cm_enum_txt = array(
     'status' => 'en.status'
   );
-  
+
+  /**
+   * Perform actions after a record is deleted.
+   *
+   * This method identifies enrollment attributes associated with the CO Person
+   * being deleted and removes related records to maintain data consistency.
+   * @return void
+   * @since  COmanage Registry v4.4.2
+   */
+  public function afterDelete() {
+    $args = array();
+    $args['joins'][0]['table'] = 'co_enrollment_attributes';
+    $args['joins'][0]['alias'] = 'CoEnrollmentAttribute';
+    $args['joins'][0]['type'] = 'INNER';
+    $args['joins'][0]['conditions'][0] = 'CoEnrollmentAttribute.id=CoEnrollmentAttributeDefault.co_enrollment_attribute_id';
+    $args['conditions']['CoEnrollmentAttributeDefault.value'] = $this->id;
+    $args['conditions']['CoEnrollmentAttribute.attribute'] = array(
+      'r:manager_co_person_id',
+      'r:sponsor_co_person_id',
+    );
+    $args['contain'] = false;
+
+    $this->CoEnrollmentAttributeDefault = ClassRegistry::init('CoEnrollmentAttributeDefault');
+    $result = $this->CoEnrollmentAttributeDefault->find('all', $args);
+
+    if(!empty($result)) {
+      foreach ($result as $record) {
+        if (isset($record['CoEnrollmentAttributeDefault']['id'])) {
+          // Delete the default value
+          $this->CoEnrollmentAttributeDefault->clear();
+          $this->CoEnrollmentAttributeDefault->id = $record['CoEnrollmentAttributeDefault']['id'];
+          // Empty the value and continue to the next. We do not need the callbacks to be fired.
+          $this->CoEnrollmentAttributeDefault->saveField('value', '', array('callbacks' => false));
+        }
+      }
+    }
+  }
+
+
   public $cm_enum_types = array(
     'status' => 'StatusEnum'
   );

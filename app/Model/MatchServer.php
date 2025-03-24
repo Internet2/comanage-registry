@@ -67,6 +67,16 @@ class MatchServer extends AppModel {
       'rule' => 'notBlank',
       'required' => true,
       'allowEmpty' => false
+    ),
+    'ssl_verify_peer' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'ssl_verify_host' => array(
+      'rule' => array('boolean'),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -297,6 +307,22 @@ class MatchServer extends AppModel {
         'Content-Type'  => 'application/json'
       )
     ));
+
+    // Additional options for CoHttPClinet
+    $sslConfig = array();
+
+    if(isset($srvr['MatchServer']['ssl_verify_host'])) {
+      $sslConfig['ssl_verify_host'];
+    };
+
+    if(isset($srvr['MatchServer']['ssl_verify_peer'])) {
+      $sslConfig['ssl_verify_peer'];
+    };
+
+    if(!empty($sslConfig)) {
+      $Http->setConfig($sslConfig);
+    }
+
     $Http->configAuth(
       'Basic',
       $srvr['MatchServer']['username'],
