@@ -67,7 +67,11 @@ class MeemEnroller extends AppModel {
       'foreignKey' => 'mfa_exempt_co_group_id'
     )
   );
-  
+
+  public $hasMany = array(
+    'MeemMfaStatus' => array('dependent' => true),
+  );
+
   // Default display field for cake generated views
   public $displayField = "co_enrollment_flow_wedge_id";
   

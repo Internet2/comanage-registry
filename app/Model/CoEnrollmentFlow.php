@@ -853,79 +853,66 @@ class CoEnrollmentFlow extends AppModel {
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
-  
+
   public function duplicate($id) {
-    // First pull all the stuff we'll need to copy.
-    
-    $args = array();
-    $args['conditions']['CoEnrollmentFlow.id'] = $id;
-    $args['contain']['CoEnrollmentAttribute'][] = 'CoEnrollmentAttributeDefault';
-    $args['contain'][] = 'CoEnrollmentSource';
-    
-    // This find will not pull archived or deleted attributes (as managed via
-    // Changelog behavior), which seems about right. However, we'll want to clear
-    // the attribute changelog metadata, below.
-    $ef = $this->find('first', $args);
-    
-    if(empty($ef)) {
+    // This maintains a per-Model map of old_id -> new_id
+    $idmap = array();
+
+    // (0) Start a transaction. If we error out, we can roll back.
+    $dbc = $this->getDataSource();
+    $dbc->begin();
+
+    // (1) First copy the self
+
+    $this->duplicateObjects($this, 'id', $id, $idmap, true);
+
+    if(empty($idmap['CoEnrollmentFlow'])) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.co_enrollment_flows.1'), $id)));
     }
-    
-    // We need to rename the flow
-    
-    $ef['CoEnrollmentFlow']['name'] = _txt('fd.copy-a', array($ef['CoEnrollmentFlow']['name']));
-    
-    // And remove all the keys (Cake will re-key on save)
-    
-    unset($ef['CoEnrollmentFlow']['id']);
-    unset($ef['CoEnrollmentFlow']['created']);
-    unset($ef['CoEnrollmentFlow']['modified']);
-    
-    for($i = 0;$i < count($ef['CoEnrollmentAttribute']);$i++) {
-      unset($ef['CoEnrollmentAttribute'][$i]['id']);
-      unset($ef['CoEnrollmentAttribute'][$i]['co_enrollment_flow_id']);
-      unset($ef['CoEnrollmentAttribute'][$i]['created']);
-      unset($ef['CoEnrollmentAttribute'][$i]['modified']);
-      // For changelog behavior
-      unset($ef['CoEnrollmentAttribute'][$i]['revision']);
-      unset($ef['CoEnrollmentAttribute'][$i]['co_enrollment_attribute_id']);
-      unset($ef['CoEnrollmentAttribute'][$i]['actor_identifier']);
-      
-      for($j = 0;$j < count($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault']);$j++) {
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['id']);
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['co_enrollment_attribute_id']);
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['created']);
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['modified']);
-        // For changelog behavior
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['revision']);
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['co_enrollment_attribute_id']);
-        unset($ef['CoEnrollmentAttribute'][$i]['CoEnrollmentAttributeDefault'][$j]['actor_identifier']);
+
+    try {
+      // (2) Copy objects with a direct relation to CO EnrollmentFlow
+
+      foreach(array(
+                'CoEnrollmentAttribute',
+                'CoEnrollmentSource',
+                'CoEnrollmentFlowWedge',
+              ) as $m) {
+        $this->duplicateObjects($this->$m, 'co_enrollment_flow_id', $id, $idmap);
       }
+
+      // (3) Copy objects with a different parent relation
+
+      foreach(array(
+                'CoEnrollmentAttributeDefault' => 'CoEnrollmentAttribute',
+              ) as $m => $parentm) {
+        $fk = Inflector::underscore($parentm) . "_id";
+
+        // If we don't have any parent objects, we can't have any objects to copy
+        if(!empty($idmap[$parentm])) {
+          $this->duplicateObjects($this->$parentm->$m, $fk, array_keys($idmap[$parentm]), $idmap);
+        }
+      }
+
+      // (4) Copy plugin objects
+
+      $pluginsTypeList = array(
+        'CoEnrollmentFlowWedge' => array(
+          'type'   => 'enroller',
+          'fk'     => 'co_enrollment_flow_wedge_id',
+          'pmodel' => $this->CoEnrollmentFlowWedge
+        ),
+      );
+      $this->duplicatePlugins($pluginsTypeList, $idmap);
+
+      $dbc->commit();
     }
-    
-    for($i = 0;$i < count($ef['CoEnrollmentSource']);$i++) {
-      unset($ef['CoEnrollmentSource'][$i]['id']);
-      unset($ef['CoEnrollmentSource'][$i]['co_enrollment_flow_id']);
-      unset($ef['CoEnrollmentSource'][$i]['created']);
-      unset($ef['CoEnrollmentSource'][$i]['modified']);
-      // For changelog behavior
-      unset($ef['CoEnrollmentSource'][$i]['revision']);
-      unset($ef['CoEnrollmentSource'][$i]['co_enrollment_source_id']);
-      unset($ef['CoEnrollmentSource'][$i]['actor_identifier']);
+    catch(Exception $e) {
+      $dbc->rollback();
+      throw new RuntimeException($e->getMessage());
     }
-    
-    // We explicitly disable validation here for a couple of reasons. First, we're
-    // copying a record in the database, so the values should already be valid.
-    // Second, this isn't always the case, because sometimes the data model gets
-    // updated, introducing new fields. When this happens, the existing records
-    // may have (eg) a null instead of a false (which validation would expect).
-    // There's no real reason to fail to save in such a scenario.
-    
-    if(!$this->saveAssociated($ef, array('deep' => true, 'validate' => false))) {
-      throw new RuntimeException(_txt('er.db.save'));
-    }
-    
-    return true;
+
+    return $idmap['CoEnrollmentFlow'][$id];
   }
   
   /**
