@@ -1078,6 +1078,16 @@ The request may be viewed at
     OrgSyncModeEnum::Update                 => 'Update'
   ),
 
+  'en.sync.org.attributes' => array(
+    OrgSyncAttributesEnum::Address          => 'Address',
+    OrgSyncAttributesEnum::AdHocAttribute   => 'AdHocAttribute',
+    OrgSyncAttributesEnum::EmailAddress     => 'EmailAddress',
+    OrgSyncAttributesEnum::Name             => 'Name',
+    OrgSyncAttributesEnum::Identifier       => 'Identifier',
+    OrgSyncAttributesEnum::TelephoneNumber  => 'TelephoneNumber',
+    OrgSyncAttributesEnum::Url              => 'Url',
+  ),
+
   'en.sync.query.mismatch.mode' => array(
     OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
     OrgIdentityMismatchEnum::Ignore         => 'Ignore'
@@ -1956,6 +1966,8 @@ The request may be viewed at
   'fd.pi.sync.type' => 'Sync Identifier Type',
   'fd.pi.sync.type.desc' => 'For fields such as <i>manager</i> or <i>sponsor</i>, the inbound identifier type',
   'fd.pi.sync.upd' => 'Sync on Update',
+  'fd.pi.sync.attributes' => 'Attributes to Sync',
+  'fd.pi.sync.attributes.desc' => 'Choose which attributes will be copied/synced to the CoPerson',
   'fd.pipeline' =>    'Pipeline',
   'fd.pipeline.desc.ef' => 'Org Identities created directly (not via an Org Identity Source) from this Enrollment Flow will be processed using the specified Pipeline',
   'fd.pipeline.desc.ois' => 'Org Identities created from this Source will be processed using the specified Pipeline',
@@ -2812,7 +2824,8 @@ The request may be viewed at
   'sh.ug.440.cluster' =>   'Migrate Clusters group type',
   'sh.ug.440.auth_events' => 'Enable Api User Authentication Event Recording',
   'sh.ug.440.application_preferences' => 'Reset Application Preferences table',
-  'sh.ug.442.match' =>    'Updating Match Server configuration'
+  'sh.ug.442.match' =>    'Updating Match Server configuration',
+  'sh.ug.450.pipeline' =>    'Updating CoPipeline configuration',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

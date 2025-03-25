@@ -131,6 +131,16 @@ class CoPipeline extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'sync_coperson_attributes' => array(
+      'content' => array(
+        'rule' => '/.*/',
+        'required'   => false,
+        'allowEmpty' => true
+      ),
+      'filter' => array(
+        'rule' => array('validateCsvListOfEnums', 'en.sync.org.attributes'),
+      ),
+    ),
     'create_role' => array(
       'rule'       => 'boolean',
       'required'   => false,
@@ -1069,6 +1079,7 @@ class CoPipeline extends AppModel {
     // Next handle associated models
     
     // Supported associated models and their parent relation
+    // XXX For any changes check also in enum.php: class OrgSyncAttributesEnum
     $models = array(
       'Address'         => 'co_person_role_id',
       'AdHocAttribute'  => 'co_person_role_id',
@@ -1078,6 +1089,12 @@ class CoPipeline extends AppModel {
       'TelephoneNumber' => 'co_person_role_id',
       'Url'             => 'co_person_id'
     );
+
+    // Filter out the attributes that will not be synced
+    $attributesToSync = explode(',', $coPipeline['CoPipeline']['sync_coperson_attributes']);
+    $models = array_filter($models, static function($v, $k) use ($attributesToSync) {
+      return in_array($k, $attributesToSync);
+    }, ARRAY_FILTER_USE_BOTH);
 
     foreach($models as $m => $pkey) {
       // Model key used by changelog, eg identifier_id
@@ -1534,5 +1551,38 @@ class CoPipeline extends AppModel {
     }
     
     return $coPersonId;
+  }
+
+  /**
+   * Perform CoSetting model upgrade steps for version 4.5.0.
+   * This function should only be called by UpgradeVersionShell.
+   *
+   * @since  COmanage Registry v4.5.0
+   */
+
+  public function _ug450() {
+    // Temporarily unbind all relations
+    $this->unbindModel(
+      array(
+        'belongsTo' => array(
+          "Co",
+          "CoEnrollmentFlow",
+          "MatchServer",
+          "SyncCou",
+          "ReplaceCou",
+        ),
+      )
+    );
+
+    global $cm_lang, $cm_texts;
+    $listOfAllowedValues = $cm_texts[ $cm_lang ]['en.sync.org.attributes'];
+    $value = implode(',', array_values($listOfAllowedValues));
+
+    // Update Pipeline Attributes list
+
+    // We use updateAll here which doesn't fire callbacks (including ChangelogBehavior).
+    $this->updateAll(
+      array('CoPipeline.sync_coperson_attributes'=> "'" . $value . "'")
+    );
   }
 }
