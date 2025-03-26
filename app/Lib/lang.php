@@ -1951,6 +1951,7 @@ The request may be viewed at
   'fd.pi.sync.del' => 'Sync on Delete',
   'fd.pi.sync.del.stat' => 'Role Status on Delete',
   'fd.pi.sync.del.stat.desc' => 'When the source record is no longer valid, the corresponding CO Person Role will be set to this status',
+  'fd.pi.sync.establish_clusters.desc' => 'If enabled, establish cluster accounts when creating new CoPerson records',
   'fd.pi.sync.role' => 'Create CO Person Role Record',
   'fd.pi.sync.str' => 'Sync Strategy',
   'fd.pi.sync.type' => 'Sync Identifier Type',

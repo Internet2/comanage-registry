@@ -439,6 +439,22 @@
               ?>
             </div>
           </li>
+          <?php if(!empty($vv_clusters)): ?>
+          <li>
+            <div class="field-name">
+              <div class="field-title">
+                <?php print _txt('fd.ef.clusters'); ?>
+              </div>
+              <span class="field-desc"><?php print _txt('fd.pi.sync.establish_clusters.desc'); ?></span>
+            </div>
+            <div class="field-info checkbox">
+              <?php print ($e
+                           ? $this->Form->input('establish_clusters', array('onChange' => 'fields_update_gadgets()')) . ' ' .
+                             $this->Form->label('establish_clusters', _txt('fd.ef.clusters'))
+                           : (isset($co_pipelines[0]['CoPipeline']['establish_clusters']) ? _txt('fd.yes') : _txt('fd.no'))); ?>
+            </div>
+          </li>
+          <?php endif ?>
           <li>
             <div class="field-name">
               <div class="field-title"><?php print _txt('fd.pi.sync.role'); ?></div>

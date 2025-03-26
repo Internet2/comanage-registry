@@ -174,8 +174,69 @@ class CoPipeline extends AppModel {
         'allowEmpty' => true,
         'unfreeze' => 'CO'
       )
+    ),
+    'establish_clusters' => array(
+      'rule'       => 'boolean',
+      'required'   => false,
+      'allowEmpty' => true
     )
   );
+
+  /**
+   * Possibly assign cluster accounts. Modeled after method with
+   * the same name on class CoPetition.
+   *
+   * @since  COmanage Registry v4.5.0
+   * @param  Integer $coPersonId CO Person ID
+   */
+
+  public function assignClusterAccounts($coPersonId) {
+    // Find all active clusters.
+    $args = array();
+    $args['conditions']['Cluster.status'] = SuspendableStatusEnum::Active;
+    $args['contain'] = false;
+
+    $clusters = $this->Co->Cluster->find('all', $args);
+
+    $clusterIds = array();
+
+    foreach($clusters as $c) {
+      $clusterIds[] = $c['Cluster']['id'];
+    }
+
+    if($clusterIds) {
+      $res = $this->Co->Cluster->assign($coPersonId, null, $clusterIds);
+    } else {
+      $res = array();
+    }
+
+    if(!empty($res)) {
+      // Create History Records for any results of interest
+
+      foreach($res as $desc => $result) {
+        $str = false;
+
+        if($result === true) {
+          $str = _txt('rs.cluster.acct.ok', array($desc));
+        } else {
+          $str = $result;
+        }
+
+        if($str !== false) {
+          try {
+            $this->Co->CoPerson->HistoryRecord->record($coPersonId,
+                                                       null,
+                                                       null,
+                                                       null,
+                                                       PetitionActionEnum::ClusterAccountAutoCreated,
+                                                       $str);
+          }
+          catch(Exception $e) {
+          }
+        }
+      }
+    }
+  }
   
   /**
    * Create a Petition using the specified Enrollment Flow.
@@ -1516,6 +1577,12 @@ class CoPipeline extends AppModel {
       // This will return an array describing which, if any, identifiers were assigned,
       // but we don't do anything with the result here
       $this->Co->CoPerson->Identifier->assign('CoPerson', $coPersonId, $actorCoPersonId, false);
+
+      // Maybe create a UnixCluster object.
+      $establishClusters = $coPipeline['CoPipeline']['establish_clusters'] ?? false;
+      if($establishClusters) {
+        $this->assignClusterAccounts($coPersonId);
+      }
     
       // Trigger provisioning
       
