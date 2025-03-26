@@ -91,9 +91,6 @@ class CoEnrollmentFlowWedge extends AppModel {
       $modelName = $this->data['CoEnrollmentFlowWedge']['plugin'];
 
       $target = array();
-      if(!empty($this->data['CoEnrollmentFlowWedge'][$modelName])) {
-        $target[$modelName] = $this->data['CoEnrollmentFlowWedge'][$modelName];
-      }
       $target[$modelName]['co_enrollment_flow_wedge_id'] = $this->data['CoEnrollmentFlowWedge']['id'];
 
       // We need to disable validation since we want to create an empty row
