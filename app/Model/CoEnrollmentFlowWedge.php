@@ -39,7 +39,13 @@ class CoEnrollmentFlowWedge extends AppModel {
   public $belongsTo = array(
     "CoEnrollmentFlow"
   );
-  
+
+  public $hasManyPlugins = array(
+    "enroller" => array(
+      'coreModelFormat' => '%s'
+    )
+  );
+
   // Default display field for cake generated views
   public $displayField = "CoEnrollmentFlowWedgedescription";
   
