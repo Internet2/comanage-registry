@@ -414,6 +414,61 @@
           </li>
           <li>
             <div class="field-name">
+                <div class="field-title">
+                  <?php print _txt('fd.pi.sync.attributes'); ?>
+                </div>
+                <span class="field-desc"><?php print _txt('fd.pi.sync.attributes.desc'); ?></span>
+            </div>
+            <div class="field-info">
+              <?php
+              global $cm_lang, $cm_texts;
+              $attrs['value'] = ($co_pipelines[0]['CoPipeline']['sync_coperson_attributes'] ?? '');
+              $attrs['empty'] = true;
+              if ($e) {
+                $element = $this->Form->select(
+                  'sync_coperson_attributes',
+                  $cm_texts[$cm_lang]['en.sync.org.attributes'],
+                  $attrs
+                );
+
+                $formParams = [
+                  'options' => $cm_texts[$cm_lang]['en.sync.org.attributes'],
+                  'label' => '',
+                  ...$attrs
+                ];
+
+                // Parse the ID attribute
+                $regexId = '/id="(.*?)"/m';
+                preg_match_all($regexId, $element, $matchesId, PREG_SET_ORDER, 0);
+
+                // Parse the Name attribute
+                $regexName = '/name="(.*?)"/m';
+                preg_match_all($regexName, $element, $matchesName, PREG_SET_ORDER, 0);
+
+                // Parse the Name attribute
+                $regexClass = '/class="(.*?)"/m';
+                preg_match_all($regexClass, $element, $matchesClass, PREG_SET_ORDER, 0);
+                print $this->element('multiSelect', [
+                  'mountElementId' => $matchesId[0][1],
+                  'mountElementName' => $matchesName[0][1],
+                  'elementParams' => $formParams,
+                  'containerPostfixId' => 'models',
+                  'containerClasses' => $matchesClass[0][1] ?? '',
+                  'values' => $attrs['value'] ?? ''
+                ]);
+
+                if ($this->Form->isFieldError('sync_coperson_attributes')) {
+                  print $this->Form->error('sync_coperson_attributes');
+                }
+              } else {
+                print _txt('en.sync.org.attributes', null, $co_pipelines[0]['CoPipeline']['sync_coperson_attributes']);
+              }
+
+              ?>
+            </div>
+          </li>
+          <li>
+            <div class="field-name">
               <div class="field-title">
                 <?php print _txt('fd.pi.sync.coperson.status'); ?>
               </div>
