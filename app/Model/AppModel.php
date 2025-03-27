@@ -139,8 +139,11 @@ class AppModel extends Model {
         $pluginModel = ClassRegistry::init($p . "." . $p);
         
         // Check if the plugin has explicitly listed relationships
-        if(!empty($pluginModel->cmPluginHasMany)
-           && !empty($pluginModel->cmPluginHasMany[ $this->name ])) {
+        if(
+          !empty($pluginModel->cmPluginHasMany)
+          && !empty($pluginModel->cmPluginHasMany[ $this->name ])
+          && is_array($pluginModel->cmPluginHasMany[ $this->name ])
+        ) {
           foreach($pluginModel->cmPluginHasMany[ $this->name ] as $fkModel => $acfg) {
             $assoc = array();
             
@@ -168,7 +171,8 @@ class AppModel extends Model {
               
               // Default association settings
               $assoc['hasMany'][ $acfg ] = array(
-                'className' => $acfg,
+                // The Plugin className needs the Plugin name prefix
+                'className' => $pluginModel->name . '.' . $acfg,
                 'dependent' => true
               );
             }

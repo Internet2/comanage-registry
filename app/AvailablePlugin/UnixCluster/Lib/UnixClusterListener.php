@@ -37,13 +37,57 @@ class UnixClusterListener implements CakeEventListener {
 
   public function implementedEvents() {
     return array(
-      // For now, we skip all delete operations, and simply leave the UnixClusterAccount
-      // object unmodified on delete of upstream objects
-      // 'Model.afterDelete' => 'updateUnixClusterAccount',
+      'Model.afterDelete' => 'handleAfterDelete',
       'Model.afterSave'   => 'updateUnixClusterAccount'
     );
   }
-  
+
+
+  /**
+   * Handle the deletion event for UnixClusterAccount.
+   *
+   * If a UnixClusterAccount is deleted and associated groups are flagged for deletion,
+   * this method ensures the associated primary group is also deleted.
+   *
+   * @since  COmanage Registry v3.3.0
+   * @param CakeEvent $event Cake Event containing subject data for the deleted model
+   * @return void
+   */
+  public function handleAfterDelete(CakeEvent $event) {
+    $subject = $event->subject();
+    $subjectData = $subject->data;
+    $subjectName = $subject->name;
+
+    if ($subject->name === 'UnixClusterAccount' && $subject->deletePrimaryGroup) {
+      $primaryGroupId = $subject->cacheData['PrimaryCoGroup']['id'] ?? null;
+      $unixClusterId = $subject->cacheData['UnixCluster']['id'] ?? null;
+
+
+      if($primaryGroupId === null && $subject->id) {
+        // Attempt to retrieve the Group ID from the cluster account record
+        $primaryGroupId = $subject->field('primary_co_group_id', ['id' => $subject->id]);
+        $unixClusterId = $subject->field('unix_cluster_id', ['id' => $subject->id]);
+      }
+
+      if ($primaryGroupId) {
+        $CoGroup = ClassRegistry::init('CoGroup');
+        $CoGroup->deleteAll(['CoGroup.id' => $primaryGroupId], true, true);
+        $UnixClusterGroup = ClassRegistry::init('UnixCluster.UnixClusterGroup');
+        $UnixClusterGroup->deleteAll(array(
+          'UnixClusterGroup.co_group_id' => $primaryGroupId,
+          'UnixClusterGroup.unix_cluster_id' => $unixClusterId,
+        ), true, true);
+      } else {
+        if ($primaryGroupId === null) {
+          // Optionally, log or handle the case where the Group ID could not be retrieved
+          throw new RuntimeException("Unable to retrieve the primary group ID for UnixClusterAccount ID: " . $subject->id);
+        }
+      }
+    }
+
+
+  }
+
   /**
    * Update Unix Cluster Accounts based on updated attributes, if appropriate.
    *

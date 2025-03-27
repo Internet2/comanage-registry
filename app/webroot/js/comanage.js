@@ -123,7 +123,8 @@ function replaceTokens(text,replacements) {
 // cancelbtxt         - cancel button text  (string, optional)
 // titletxt           - dialog title text   (string, optional)
 // tokenReplacements  - strings to replace tokens in dialog body text (array, optional)
-function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenReplacements) {
+// checkboxText       - checkbox text (Optional)
+function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenReplacements, checkboxText) {
 
   var bodyText = txt;
   var forwardUrl = url;
@@ -135,6 +136,11 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
   // Perform token replacements on the body text if they exist
   if (replacements != undefined) {
     bodyText = replaceTokens(bodyText,replacements);
+  }
+
+  // Extra text or html
+  if (checkboxText != null && checkboxText != undefined && checkboxText !== '') {
+    bodyText += `<br><input type="checkbox" class="mt-2" id="additionalCheckbox"> ${checkboxText}</input>`;
   }
 
   // Set defaults for confirm, cancel, and title
@@ -153,7 +159,7 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
   $("#dialog").dialog("option", "title", title);
 
   // Set the body text of the dialog
-  $("#dialog-text").text(bodyText);
+  $("#dialog-text").html(bodyText);
 
   // Set the dialog buttons
   var dbuttons = []
@@ -171,8 +177,13 @@ function js_confirm_generic(txt, url, confirmbtxt, cancelbtxt, titletxt, tokenRe
       // Handle the submit button
       loadUiDialogSpinner($("#btn-confirm-generic-conf"));
       // loadButtonSpinner($("#btn-confirm-generic-conf"), confirmbtxt);
+      const isChecked = $("#additionalCheckbox")?.is(":checked")
       // Redirect to action
-      window.location = forwardUrl;
+      if (isChecked) {
+        window.location = forwardUrl + '/checked:1';
+      } else {
+        window.location = forwardUrl;
+      }
     }
   });
   $("#dialog").dialog("option", "buttons", dbuttons);
