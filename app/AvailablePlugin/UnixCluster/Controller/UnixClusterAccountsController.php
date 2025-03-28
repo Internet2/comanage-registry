@@ -95,6 +95,14 @@ class UnixClusterAccountsController extends StandardController {
                                                 array('id' => $this->request->params['pass'][0]));
     }
     
+    if (
+      $this->action == 'delete'
+      && isset($this->request->params['named']['checked'])
+      && filter_var($this->request->params['named']['checked'],FILTER_VALIDATE_BOOLEAN)
+    ) {
+      $this->UnixClusterAccount->deletePrimaryGroup = true;
+    }
+
     if(!empty($ucid)) {
       $args = array();
       $args['conditions']['UnixCluster.id'] = $ucid;

@@ -83,5 +83,6 @@ $cm_unix_cluster_texts['en_US'] = array(
   'pl.unixcluster.fd.username_type.desc' => 'CO Person Identifier type used to autopopulate Unix Username',
   'pl.unixcluster.rs.added' => 'Added Unix Cluster Account (unix cluster id %1$s, username %2$s, uid %3$s)',
   'pl.unixcluster.rs.deleted' => 'Deleted Unix Cluster Account (unix cluster id %1$s, username %2$s, uid %3$s)',
-  'pl.unixcluster.rs.edited' => 'Edited Unix Cluster Account (from unix cluster id %1$s, username %2$s, uid %3$s to unix cluster id %4$s, username %5$s, uid %6$s)'
+  'pl.unixcluster.rs.edited' => 'Edited Unix Cluster Account (from unix cluster id %1$s, username %2$s, uid %3$s to unix cluster id %4$s, username %5$s, uid %6$s)',
+  'pl.unixcluster.rs.delete.groups' => 'Delete linked Group'
 );

@@ -117,26 +117,27 @@
             }
             
             if($permissions['delete']) {
-              print '<button type="button" class="deletebutton" title="' . _txt('op.delete')
-                . '" onclick="javascript:js_confirm_generic(\''
-                . _txt('js.delete') . '\',\''    // dialog body text
-                . $this->Html->url(              // dialog confirm URL
-                  array(
-                    'plugin' => 'unix_cluster',
-                    'controller' => 'unix_cluster_accounts',
-                    'action' => 'delete',
-                    $a['UnixClusterAccount']['id'],
-                    'ucid' => $a['UnixClusterAccount']['unix_cluster_id'],
-                    'copersonid' => $a['UnixClusterAccount']['co_person_id']
+              print $this->element('buttonToConfirmDialog', array(
+                  'data' => array(
+                    'btnTitle' => _txt('op.delete'),
+                    'action' => _txt('op.delete'),
+                    'dialogTitle' => _txt('op.delete'),
+                    'bodyText' => _txt('js.delete'),
+                    'bodyTxtReplacementStrings' => array(
+                            filter_var(_jtxt($a['UnixClusterAccount']['gecos']),FILTER_SANITIZE_STRING),
+                    ),
+                    'checkBoxText' => _txt('pl.unixcluster.rs.delete.groups'),
+                    'confirmUrl' =>   array(
+                      'plugin' => 'unix_cluster',
+                      'controller' => 'unix_cluster_accounts',
+                      'action' => 'delete',
+                      $a['UnixClusterAccount']['id'],
+                      'ucid' => $a['UnixClusterAccount']['unix_cluster_id'],
+                      'copersonid' => $a['UnixClusterAccount']['co_person_id'],
+                    ),
                   )
-                ) . '\',\''
-                . _txt('op.delete') . '\',\''    // dialog confirm button
-                . _txt('op.cancel') . '\',\''    // dialog cancel button
-                . _txt('op.delete') . '\',[\''   // dialog title
-                . filter_var(_jtxt($a['UnixClusterAccount']['gecos']),FILTER_SANITIZE_STRING)  // dialog body text replacement strings
-                . '\']);">'
-                . _txt('op.delete')
-                . '</button>';
+                )
+              );
             }
           ?>
           <?php ; ?>

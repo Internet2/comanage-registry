@@ -31,7 +31,9 @@ class UnixClusterAccount extends AppModel {
   
   // Current schema version for API
   public $version = "1.0";
-  
+
+  public $deletePrimaryGroup = false;
+
   public $permittedApiFilters = array(
     'unix_cluster_id' => 'UnixCluster.UnixCluster'
   );
