@@ -29,7 +29,7 @@ App::uses('AppHelper', 'View/Helper');
 
 class PermissionHelper extends AppHelper {
   /**
-   * Calculate a self service permission. Because this is likely to be called in the
+   * Calculate a self-service permission. Because this is likely to be called in the
    * context of a function that can be run by an admin, this will also return suitable
    * values when invoked by an admin.
    *
@@ -77,5 +77,44 @@ class PermissionHelper extends AppHelper {
       
       return $maxperm;
     }
+  }
+
+
+  /**
+   * Determine if the user has permission to perform specific actions on a notification.
+   *
+   * This method calculates the permissions for a specific notification ID.
+   *
+   * @since COmanage Registry v4.5.0
+   * @param int $notificationId The ID of the notification to check permissions for.
+   * @return array An associative array of permissions indicating what actions the user can perform.
+   *               - acknowledge: Boolean indicating if the user can acknowledge the notification.
+   *               - cancel: Boolean indicating if the user can cancel the notification.
+   */
+  public function getNotificationActionPermit($notificationId) {
+
+    // Get the controller object
+    $controller = $this->_View->get('controller');
+    $roles = $controller->Role->calculateCMRoles();
+
+
+    // Construct the permission set for this user, which will also be passed to the view.
+    $p = array();
+
+    // Determine what operations this user can perform
+
+    // Acknowledge (but not necessary resolve!) this notification?
+    $p['acknowledge'] = ($roles['cmadmin']
+      || $roles['coadmin']
+      || (!empty($this->request->params['pass'][0])
+        && $controller->Role->isNotificationRecipient($notificationId, $roles['copersonid'])));
+
+    // Cancel this notification?
+    $p['cancel'] = ($roles['cmadmin']
+      || $roles['coadmin']
+      || (!empty($this->request->params['pass'][0])
+        && $controller->Role->isNotificationSender($notificationId, $roles['copersonid'])));
+
+    return $p;
   }
 }

@@ -60,6 +60,25 @@ class CoNotificationsController extends StandardController {
     )
   );
 
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.action' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.action'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.action'),
+        ),
+        'search.status' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.status'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.not'),
+        ),
+      );
+    }
+  }
+
   /**
    * View a specific notification.
    *
@@ -199,6 +218,9 @@ class CoNotificationsController extends StandardController {
     parent::index();
     
     if(!$this->request->is('restful')) {
+      // CAKEPHP2 does not provide an API that will allow accessing the controller object from a helper class
+      // To bypass this limitation we need to pass the object to the view and access it through the view Variable.
+      $this->set('controller', $this);
       // Attempt to generate a more descriptive page title. If we fail at any point
       // we'll automatically revert back to the default title.
       
@@ -274,7 +296,9 @@ class CoNotificationsController extends StandardController {
                        && $this->request->params['named']['resolvercopersonid'] == $roles['copersonid'])
                    || (isset($this->request->params['named']['subjectcopersonid'])
                        && $this->request->params['named']['subjectcopersonid'] == $roles['copersonid']));
-    
+
+    $p['search'] = $p['index'];
+
     // View this notification?
     $p['view'] = ($roles['cmadmin']
                   || $roles['coadmin']
@@ -298,24 +322,28 @@ class CoNotificationsController extends StandardController {
     // Only retrieve notifications for the requested subject
     
     $ret = array();
-    
-    if(!empty($this->request->query['status'])) {
+    $this->cur_request_filter_txt = _txt('fd.all');
+
+    // Filter by Status
+    if(isset($this->request->params['named']['search.status'])) {
       // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
       // or "all" for all.) An unknown status code should generate some noise, but nothing more.
       
-      $status = filter_var($this->request->query['status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
-      
-      if($status == 'all') {
-        $this->cur_request_filter_txt = _txt('fd.all');
-      } else {
+      $status = filter_var($this->request->params['named']['search.status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+
+      if(!empty($status)) {
         $this->cur_request_filter_txt = _txt('en.status.not', null, $status);
         $ret['conditions']['CoNotification.status'] = $status;
       }
-    } else {
-      // Default is to show notifications in pending status
-      $this->cur_request_filter_txt = _txt('fd.unresolved');
-      $ret['conditions']['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
-                                                          NotificationStatusEnum::PendingResolution);
+    }
+
+    // Filter by Resolve
+    if(!empty($this->request->params['named']['search.action'])) {
+      // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
+      // or "all" for all.) An unknown status code should generate some noise, but nothing more.
+
+      $action = filter_var($this->request->params['named']['search.action'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+      $ret['conditions']['CoNotification.action'] = $action;
     }
     
     // Keep this order in sync with isAuthorized (index check), above

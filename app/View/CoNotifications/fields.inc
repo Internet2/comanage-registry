@@ -82,7 +82,8 @@
             $route['origin'] = $this->request->params['named']['origin'];
           }
           print $this->Html->link(
-            '<em class="material-icons mr-1" aria-hidden="true">check_circle_outline</em>' . _txt('op.ack'),
+            '<em class="material-icons mr-1" aria-hidden="true">check_circle_outline</em>'
+            . '<span class="align-bottom">' . _txt('op.ack') . '</span>',
             $route,
             array(
               'class' => 'btn btn-primary btn-sm mt-auto mb-auto mr-1',
@@ -104,7 +105,8 @@
             $route['origin'] = $this->request->params['named']['origin'];
           }
           print $this->Html->link(
-           '<em class="material-icons mr-1" aria-hidden="true">cancel</em>' . _txt('op.cancel'),
+            '<em class="material-icons mr-1" aria-hidden="true">cancel</em>'
+            . '<span class="align-bottom">' . _txt('op.cancel') . '</span>',
             $route,
             array(
               'class' => 'btn btn-danger btn-sm mt-auto mb-auto',
@@ -184,7 +186,10 @@
       <?php print _txt('fd.action'); ?>
     </div>
     <div class="field-info">
-      <?php print filter_var($co_notifications[0]['CoNotification']['action'], FILTER_SANITIZE_STRING); ?>
+      <?php
+      global $cm_lang, $cm_texts;
+      print $cm_texts[$cm_lang]['en.action'][filter_var($co_notifications[0]['CoNotification']['action'],FILTER_SANITIZE_STRING)];
+      ?>
     </div>
   </li>
   <li>
