@@ -75,7 +75,7 @@
         </li>
       <?php endforeach; ?>
       <li id="see-all">
-        <a href="<?php print $this->Html->url('/');?>co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"
+        <a href="<?php print $this->Html->url('/');?>co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc/search.status:<?php print NotificationStatusEnum::PendingResolution; ?>/op:search"
            class="co-raised-button btn btn-default"><?php print _txt('op.see.notifications')?></a>
       </li>
     </ul>
