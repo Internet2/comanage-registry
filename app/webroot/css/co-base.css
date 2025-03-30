@@ -1882,6 +1882,7 @@ a.ui-button:visited,
 .personExplorer a {
   text-decoration: none;
 }
+th .dropdown-item,
 li .dropdown-item {
   padding: unset;
 }
@@ -2009,6 +2010,10 @@ ul.fields.data-list li {
 }
 .action-list-toggle {
   padding: 0.5em;
+}
+.bulk-actions:hover .action-list-toggle .material-icons,
+.bulk-actions:focus .action-list-toggle .material-icons {
+  color: var(--cmg-color-gray-border);
 }
 .td-field-actions a,
 .field-actions a {
@@ -2893,7 +2898,7 @@ td.indented {
 .dropdown-item > a:focus,
 .dropdown-item > a:hover {
   text-decoration: none !important;
-  color: var(--cmg-color-black-002);
+  color: var(--cmg-color-black-002) !important;
 }
 .text-muted-cmg {
   color: #555 !important;

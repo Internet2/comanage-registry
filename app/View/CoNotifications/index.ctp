@@ -59,6 +59,28 @@
         . "/direction:" . $sortdir
         . "/" . $vv_request_type . ":" . $vv_co_person_id;
 
+  if ($permissions['bulk']) {
+    // Bulk actions per page
+    $action_args = array();
+    $action_args['vv_attr_mdl'] = "CoNotification";
+    $action_args['vv_attr_id'] = 1;
+    $action_args['vv_menu_classes'] = 'float-right bulk-actions';
+    $action_args['vv_actions'][] = array(
+      'order' => $this->Menu->getMenuOrder('Acknowledge'),
+      'icon' => $this->Menu->getMenuIcon('Acknowledge'),
+      'url' => $this->Html->url(
+        array(
+          'controller' => 'co_notifications',
+          'action' => 'acknowledgesel',
+          'list' => Hash::extract($co_notifications, '{n}.CoNotification.id'),
+          'origin'     => base64_encode($this->request->url),
+          $vv_request_type => $vv_co_person_id,
+        )
+      ),
+      'label' => _txt('op.ack.selected'),
+    );
+  }
+
   // Search Block
   if(!empty($vv_search_fields)) {
     print $this->element('search', array('vv_search_fields' => $vv_search_fields));
@@ -74,7 +96,13 @@
         <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
         <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
         <th><?php print $this->Paginator->sort('resolution_time', _txt('fd.resolved.tz', array($vv_tz))); ?></th>
-        <th><?php print _txt('fd.actions'); ?></th>
+        <th><?php
+          print _txt('fd.actions');
+          if ($permissions['bulk']) {
+            print $this->element('menuAction', $action_args);
+          }
+          ?>
+        </th>
       </tr>
     </thead>
 

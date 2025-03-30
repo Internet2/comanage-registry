@@ -2305,6 +2305,7 @@ The request may be viewed at
   // Operations
   'op.accept' =>      'Accept',
   'op.ack' =>         'Acknowledge',
+  'op.ack.selected' => 'Acknowledge Selected',
   'op.action' =>      'Action',
   'op.add' =>         'Add',
   'op.add-a' =>       'Add %1$s',
@@ -2450,6 +2451,7 @@ The request may be viewed at
   'op.mt' => 'Message Template',
   'op.mt.test.wait' => 'Sending...',
   'op.next' =>        'Next',
+  'op.not.unresolved' => 'Unresolved Notifications (%1$s)',
   'op.ois.conf.gr' => 'Configure Group Mapping',
   'op.ois.toggle.format' => 'Toggle formatting',
   'op.ois.inventory' => 'View %1$s Inventory',
@@ -2618,6 +2620,7 @@ The request may be viewed at
   'rs.nm.primary' =>  'Primary name updated',
   'rs.nm.primary-a' => 'Primary name updated to "%1$s"',
   'rs.nt.ackd' =>     'Notification acknowledged',
+  'rs.nt.ackd.plural' =>  'Notifications acknowledged',
   'rs.nt.ackd-a' =>   'Notification acknowledged: "%1$s"',
   'rs.nt.cxld' =>     'Notification canceled',
   'rs.nt.cxld-a' =>   'Notification canceled: "%1$s"',

@@ -957,6 +957,9 @@ class AppController extends Controller {
       if(!empty($copersonid)) {
         $this->set('vv_my_notifications', $this->CoNotification->pending($copersonid, 5));
         $this->set('vv_my_notification_count', $this->CoNotification->pending($copersonid, 0));
+        $this->set('vv_my_notification_count_resolve', $this->CoNotification->pending($copersonid, 0, array(
+          NotificationStatusEnum::PendingResolution
+        )));
         $this->set('vv_co_person_id_notifications', $copersonid);
       }
     }

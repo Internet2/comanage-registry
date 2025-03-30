@@ -74,6 +74,7 @@ class CoNotificationsController extends StandardController {
           'label'   => _txt('fd.status'),
           'empty'   => _txt('op.select.all'),
           'options' => _txt('en.status.not'),
+          'element' => 'multiSelect',
         ),
       );
     }
@@ -305,7 +306,9 @@ class CoNotificationsController extends StandardController {
                   || (!empty($this->request->params['pass'][0])
                       && $this->Role->isNotificationParticipant($this->request->params['pass'][0],
                                                                 $roles['copersonid'])));
-    
+
+    $p['bulk'] = $p['index'] && ($roles['cmadmin'] || $roles['coadmin']);
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }
@@ -332,8 +335,13 @@ class CoNotificationsController extends StandardController {
       $status = filter_var($this->request->params['named']['search.status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
 
       if(!empty($status)) {
-        $this->cur_request_filter_txt = _txt('en.status.not', null, $status);
-        $ret['conditions']['CoNotification.status'] = $status;
+        $statusList = explode(',', $status);
+        $statusTxtList = [];
+        foreach($statusList as $s) {
+          $statusTxtList[] = _txt('en.status.not', null, $s);
+        }
+        $this->cur_request_filter_txt = implode(', ', $statusTxtList);
+        $ret['conditions']['CoNotification.status'] = explode(',', $status);
       }
     }
 

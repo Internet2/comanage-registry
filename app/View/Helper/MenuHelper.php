@@ -50,6 +50,7 @@ class MenuHelper extends AppHelper {
       'PrimaryName'   => 2,   // material-icons "local_offer"
       'AuthEvent'     => 3,   // material-icons "login"
       'Provision'     => 4,   // material-icons "fast_forward"
+      'Acknowledge'   => 5,   // material-icons "check_circle"
       'PetitionView'  => 9,   // material-icons "person_add"
       'View'          => 10,  // material-icons "visibility"
       'Edit'          => 12,  // material-icons "edit"
@@ -85,6 +86,7 @@ class MenuHelper extends AppHelper {
       'Relink'        =>  'link',
       'Unlink'        =>  'link_off',
       'Delete'        =>  'delete',
+      'Acknowledge'   =>  'check_circle_outline',
     );
 
     return $icon[$action];
