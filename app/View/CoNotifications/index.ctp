@@ -60,6 +60,12 @@
         . "/" . $vv_request_type . ":" . $vv_co_person_id;
 
   if ($permissions['bulk']) {
+    $notificationsToAcknowledge = [];
+    foreach ($co_notifications as $cnot) {
+        if ($cnot['CoNotification']['action'] === NotificationStatusEnum::PendingAcknowledgment) {
+            $notificationsToAcknowledge[] = $cnot['CoNotification']['id'];
+        }
+    }
     // Bulk actions per page
     $action_args = array();
     $action_args['vv_attr_mdl'] = "CoNotification";
@@ -72,8 +78,9 @@
         array(
           'controller' => 'co_notifications',
           'action' => 'acknowledgesel',
-          'list' => Hash::extract($co_notifications, '{n}.CoNotification.id'),
-          'origin'     => base64_encode($this->request->url),
+          'list' => $notificationsToAcknowledge,
+          // We have to add the forward slash prefix for the Router::url to work correctly
+          'origin'     => base64_encode('/' . $this->request->url),
           $vv_request_type => $vv_co_person_id,
         )
       ),

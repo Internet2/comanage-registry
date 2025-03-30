@@ -123,6 +123,39 @@ class CoNotificationsController extends StandardController {
   }
 
   /**
+   * Acknowledge the specified notification.
+   * - postcondition: CO Invitation status set to 'Acknowledged'
+   * - postcondition: Session flash message updated (HTML)
+   *
+   * @since  COmanage Registry v4.5.0
+   */
+
+  public function acknowledgesel() {
+    if(isset($this->request->params['named']['list']) && !empty($this->request->params['named']['list'])) {
+      $ids = $this->request->params['named']['list'];
+      foreach($ids as $id) {
+        try {
+          $this->CoNotification->acknowledge((int)$id, $this->Session->read('Auth.User.co_person_id'));
+        }
+        catch(Exception $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        }
+      }
+
+      $this->Flash->set(_txt('rs.nt.ackd.plural'), array('key' => 'success'));
+    } else {
+      $this->Flash->set(_txt('op.not.none', array(_txt('op.ack'))), array('key' => 'information'));
+    }
+
+    if(isset($this->request->params['named']['origin'])) {
+      $this->redirect(base64_decode($this->request->params['named']['origin']));
+    } else {
+      // Not really clear where to redirect to
+      $this->redirect("/");
+    }
+  }
+
+  /**
    * Determine the CO ID based on some attribute of the request.
    * This method is intended to be overridden by model-specific controllers.
    *
@@ -299,6 +332,7 @@ class CoNotificationsController extends StandardController {
                        && $this->request->params['named']['subjectcopersonid'] == $roles['copersonid']));
 
     $p['search'] = $p['index'];
+    $p['acknowledgesel'] = ($roles['cmadmin'] || $roles['coadmin']);
 
     // View this notification?
     $p['view'] = ($roles['cmadmin']

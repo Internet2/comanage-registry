@@ -2452,6 +2452,7 @@ The request may be viewed at
   'op.mt.test.wait' => 'Sending...',
   'op.next' =>        'Next',
   'op.not.unresolved' => 'Unresolved Notifications (%1$s)',
+  'op.not.none' => 'No Notifications to %1$s',
   'op.ois.conf.gr' => 'Configure Group Mapping',
   'op.ois.toggle.format' => 'Toggle formatting',
   'op.ois.inventory' => 'View %1$s Inventory',
