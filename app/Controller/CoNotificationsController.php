@@ -63,18 +63,18 @@ class CoNotificationsController extends StandardController {
   public function searchConfig($action) {
     if($action == 'index') {                   // Index
       return array(
-        'search.action' => array(
-          'type'    => 'select',
-          'label'   => _txt('fd.action'),
-          'empty'   => _txt('op.select.all'),
-          'options' => _txt('en.action'),
-        ),
         'search.status' => array(
           'type'    => 'select',
           'label'   => _txt('fd.status'),
           'empty'   => _txt('op.select.all'),
           'options' => _txt('en.status.not'),
           'element' => 'multiSelect',
+        ),
+        'search.action' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.action'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.action'),
         ),
       );
     }
