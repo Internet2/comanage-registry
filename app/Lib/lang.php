@@ -2305,7 +2305,7 @@ The request may be viewed at
   // Operations
   'op.accept' =>      'Accept',
   'op.ack' =>         'Acknowledge',
-  'op.ack.selected' => 'Acknowledge Selected',
+  'op.ack.all' => 'Acknowledge All',
   'op.action' =>      'Action',
   'op.add' =>         'Add',
   'op.add-a' =>       'Add %1$s',

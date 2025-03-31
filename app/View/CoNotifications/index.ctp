@@ -84,7 +84,7 @@
           $vv_request_type => $vv_co_person_id,
         )
       ),
-      'label' => _txt('op.ack.selected'),
+      'label' => _txt('op.ack.all'),
     );
   }
 
