@@ -32,6 +32,29 @@
 
   // Add page title
   $params = array();
+  // Add top links
+  if ($permissions['bulk']) {
+    $notificationsToAcknowledge = [];
+    foreach ($co_notifications as $cnot) {
+      if ($cnot['CoNotification']['action'] == NotificationStatusEnum::PendingAcknowledgment) {
+        $notificationsToAcknowledge[] = $cnot['CoNotification']['id'];
+      }
+    }
+    $params['topLinks'] = array();
+    $params['topLinks'][] = $this->Html->link(
+      _txt('op.ack.all'),
+      array(
+        'controller' => 'co_notifications',
+        'action' => 'acknowledgesel',
+        'list' => $notificationsToAcknowledge,
+        // We have to add the forward slash prefix for the Router::url to work correctly
+        'origin'     => base64_encode('/' . $this->request->url),
+        $vv_request_type => $vv_co_person_id,
+      ),
+      array('class' => 'checkbutton')
+    );
+  }
+
   $params['title'] = $title_for_layout;
   print $this->element("pageTitleAndButtons", $params);
 
@@ -59,35 +82,6 @@
         . "/direction:" . $sortdir
         . "/" . $vv_request_type . ":" . $vv_co_person_id;
 
-  if ($permissions['bulk']) {
-    $notificationsToAcknowledge = [];
-    foreach ($co_notifications as $cnot) {
-        if ($cnot['CoNotification']['action'] === NotificationStatusEnum::PendingAcknowledgment) {
-            $notificationsToAcknowledge[] = $cnot['CoNotification']['id'];
-        }
-    }
-    // Bulk actions per page
-    $action_args = array();
-    $action_args['vv_attr_mdl'] = "CoNotification";
-    $action_args['vv_attr_id'] = 1;
-    $action_args['vv_menu_classes'] = 'float-right bulk-actions';
-    $action_args['vv_actions'][] = array(
-      'order' => $this->Menu->getMenuOrder('Acknowledge'),
-      'icon' => $this->Menu->getMenuIcon('Acknowledge'),
-      'url' => $this->Html->url(
-        array(
-          'controller' => 'co_notifications',
-          'action' => 'acknowledgesel',
-          'list' => $notificationsToAcknowledge,
-          // We have to add the forward slash prefix for the Router::url to work correctly
-          'origin'     => base64_encode('/' . $this->request->url),
-          $vv_request_type => $vv_co_person_id,
-        )
-      ),
-      'label' => _txt('op.ack.all'),
-    );
-  }
-
   // Search Block
   if(!empty($vv_search_fields)) {
     print $this->element('search', array('vv_search_fields' => $vv_search_fields));
@@ -103,13 +97,7 @@
         <th><?php print $this->Paginator->sort('comment', _txt('fd.comment')); ?></th>
         <th><?php print $this->Paginator->sort('created', _txt('fd.created.tz', array($vv_tz))); ?></th>
         <th><?php print $this->Paginator->sort('resolution_time', _txt('fd.resolved.tz', array($vv_tz))); ?></th>
-        <th><?php
-          print _txt('fd.actions');
-          if ($permissions['bulk']) {
-            print $this->element('menuAction', $action_args);
-          }
-          ?>
-        </th>
+        <th><?php print _txt('fd.actions'); ?></th>
       </tr>
     </thead>
 
