@@ -94,14 +94,25 @@ print $this->Html->css('primevue-overrides')
       if(this.selected != null && this.selected.length > 0) {
         document.getElementById(this.inputId).value = this.selected
       }
+
+      // expose globally via unique name
+      window["closeDropdown<?= $containerId ?>"] = this.closeDropdown;
     },
     components: {
       MultiSelect : primevue.multiselect
+    },
+    methods: {
+      closeDropdown() {
+        if (this.$refs.cmgMultiSelect && this.$refs.cmgMultiSelect.hide) {
+          this.$refs.cmgMultiSelect.hide();
+        }
+      }
     },
     template: `
       <label class="mr-2" :for="inputId">{{ label }}</label>
       <MultiSelect v-model="selected"
                    :inputId="inputId"
+                   ref="cmgMultiSelect"
                    :inputProps="inputProps"
                    optionLabel="name"
                    optionValue="code"
