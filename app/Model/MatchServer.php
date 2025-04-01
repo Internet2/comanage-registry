@@ -312,12 +312,12 @@ class MatchServer extends AppModel {
     $sslConfig = array();
 
     if(isset($srvr['MatchServer']['ssl_verify_host'])) {
-      $sslConfig['ssl_verify_host'];
-    };
+      $sslConfig['ssl_verify_host'] = $srvr['MatchServer']['ssl_verify_host'];
+    }
 
     if(isset($srvr['MatchServer']['ssl_verify_peer'])) {
-      $sslConfig['ssl_verify_peer'];
-    };
+      $sslConfig['ssl_verify_peer'] = $srvr['MatchServer']['ssl_verify_peer'];
+    }
 
     if(!empty($sslConfig)) {
       $Http->setConfig($sslConfig);
