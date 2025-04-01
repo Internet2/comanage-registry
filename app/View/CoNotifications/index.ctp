@@ -36,7 +36,7 @@
   if ($permissions['bulk']) {
     $notificationsToAcknowledge = [];
     foreach ($co_notifications as $cnot) {
-      if ($cnot['CoNotification']['action'] == NotificationStatusEnum::PendingAcknowledgment) {
+      if ($cnot['CoNotification']['status'] === NotificationStatusEnum::PendingAcknowledgment) {
         $notificationsToAcknowledge[] = $cnot['CoNotification']['id'];
       }
     }

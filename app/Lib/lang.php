@@ -374,6 +374,7 @@ The request may be viewed at
     ActionEnum::IdentityDocumentAdded       => 'Identity Document Added',
     ActionEnum::IdentityDocumentEdited      => 'Identity Document Edited',
     ActionEnum::IdentityDocumentDeleted     => 'Identity Document Deleted',
+    ActionEnum::InTrash                     => 'In Trash',
     ActionEnum::InvitationConfirmed         => 'Invitation Confirmed',
     ActionEnum::InvitationDeclined          => 'Invitation Declined',
     ActionEnum::InvitationExpired           => 'Invitation Expired',

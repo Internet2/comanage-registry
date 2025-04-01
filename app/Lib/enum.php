@@ -95,6 +95,7 @@ class ActionEnum
   const IdentityDocumentAdded           = 'AIDD';
   const IdentityDocumentEdited          = 'EIDD';
   const IdentityDocumentDeleted         = 'DIDD';
+  const InTrash                         = 'TR';
   const InvitationConfirmed             = 'INVC';
   const InvitationDeclined              = 'INVD';
   const InvitationExpired               = 'INVE';
