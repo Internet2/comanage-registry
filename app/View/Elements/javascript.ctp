@@ -204,6 +204,15 @@
       e.stopPropagation();
       const appPrefsTag = $(this).attr('data-filters-id');
       if ($("#top-search-fields").hasClass("visible")) {
+        // Close MultiSelect dropdowns if any
+        const $form = $(this).closest('form')
+        // Multi Select elements
+        $form.find('.p-multiselect').each(function() {
+          // find the container
+          const containerDiv = $(this).parent();
+          const containerId = containerDiv.attr('id');
+          window['closeDropdown' + containerId]();
+        })
         $("#top-search-fields").removeClass("visible").addClass("invisible");
         $("#top-search-toggle button.cm-toggle").attr("aria-expanded","false").attr("aria-label","<?php print _txt('me.menu.filters.open'); ?>");
         $("#top-search-toggle .drop-arrow").text("arrow_drop_down");
