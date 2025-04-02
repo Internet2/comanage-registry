@@ -97,7 +97,7 @@ class KafkaServer extends AppModel {
         'allowEmpty' => true
       )
     ),
-    'partition' => array(
+    'partition_number' => array(
       'content' => array(
         'rule' => array('range', 0, null),
         'required' => false,
@@ -165,7 +165,7 @@ class KafkaServer extends AppModel {
     if($this->topic == null) 
       return array();
     
-    $consumed = $this->topic->consumeBatch($this->srvr['KafkaServer']['partition'],
+    $consumed = $this->topic->consumeBatch($this->srvr['KafkaServer']['partition_number'],
                                       $this->srvr['KafkaServer']['timeout'] * 1000,
                                       $this->srvr['KafkaServer']['batch_size']);
     /*
@@ -234,7 +234,7 @@ class KafkaServer extends AppModel {
 
     $this->topic = $this->consumer->newTopic($this->srvr['KafkaServer']['topic'], $topicConf);
 
-    $this->topic->consumeStart($this->srvr['KafkaServer']['partition'], RD_KAFKA_OFFSET_STORED);
+    $this->topic->consumeStart($this->srvr['KafkaServer']['partition_number'], RD_KAFKA_OFFSET_STORED);
 
     return true;
   }

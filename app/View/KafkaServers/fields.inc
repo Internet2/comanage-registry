@@ -188,7 +188,7 @@
       </div>
     </div>
     <div class="field-info">
-      <?php print ($e ? $this->Form->input('partition', array('default' => 0)) : $kafka_servers[0]['KafkaServer']['partition']); ?>
+      <?php print ($e ? $this->Form->input('partition_number', array('default' => 0)) : $kafka_servers[0]['KafkaServer']['partition_number']); ?>
     </div>
   </li>
   <li>
