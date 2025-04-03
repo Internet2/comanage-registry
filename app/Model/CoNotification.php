@@ -291,10 +291,11 @@ class CoNotification extends AppModel {
    * @since  COmanage Registry v0.8.4
    * @param  Integer  $coPersonId CO Person ID to obtain notifications for
    * @param  Integer  $max        Maximum number of notifications to obtain, null for all or 0 for a count
+   * @param  Array    $type       What type of acknowlegment to fetch
    * @return Mixed    Array of pending notifications, or Integer of count of notifications
    */
   
-  public function pending($coPersonId, $max=null) {
+  public function pending($coPersonId, $max=null, $type=array(NotificationStatusEnum::PendingAcknowledgment)) {
     // We need the groups the person is a member of. There's probably a clever join
     // to pull from co_notifications in one query, put the obvious joins aren't working.
     
@@ -327,8 +328,9 @@ class CoNotification extends AppModel {
     if(!empty($groups)) {
       $args['conditions']['OR']['CoNotification.recipient_co_group_id'] = array_keys($groups);
     }
-    $args['conditions']['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
-                                                         NotificationStatusEnum::PendingResolution);
+//    $args['conditions']['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
+//                                                         NotificationStatusEnum::PendingResolution);
+    $args['conditions']['CoNotification.status'] = $type;
     $args['order']['CoNotification.created'] = 'desc';
     if($max > 0) {
       $args['limit'] = $max;
@@ -392,16 +394,14 @@ class CoNotification extends AppModel {
     
     // Update the notification. We don't authorize $coPersonId since the controller
     // should have done that already.
-    
-    // updateAll has some annoying characteristics, such as not updating the modified
-    // time (which Cake otherwise does automatically) and doing strange things with
-    // joins to belongsTo assocations. So we'll do use saveField multiple times, even
-    // though it's slightly less efficient.
-    
+
+    $this->clear();
     $this->id = $id;
-    $this->saveField('status', $resolution);
-    $this->saveField('resolver_co_person_id', $coPersonId);
-    $this->saveField('resolution_time', date('Y-m-d H:i:s'));
+    $this->save([
+      'status' => $resolution,
+      'resolver_co_person_id' => $coPersonId,
+      'resolution_time' => date('Y-m-d H:i:s')
+    ]);
     
     // Create a history record
     

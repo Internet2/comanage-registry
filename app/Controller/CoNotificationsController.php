@@ -60,6 +60,26 @@ class CoNotificationsController extends StandardController {
     )
   );
 
+  public function searchConfig($action) {
+    if($action == 'index') {                   // Index
+      return array(
+        'search.status' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.status'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.status.not'),
+          'element' => 'multiSelect',
+        ),
+        'search.action' => array(
+          'type'    => 'select',
+          'label'   => _txt('fd.action'),
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('en.action'),
+        ),
+      );
+    }
+  }
+
   /**
    * View a specific notification.
    *
@@ -93,6 +113,39 @@ class CoNotificationsController extends StandardController {
     }
     
     $this->Flash->set(_txt('rs.nt.ackd'), array('key' => 'success'));
+
+    if(isset($this->request->params['named']['origin'])) {
+      $this->redirect(base64_decode($this->request->params['named']['origin']));
+    } else {
+      // Not really clear where to redirect to
+      $this->redirect("/");
+    }
+  }
+
+  /**
+   * Acknowledge the specified notification.
+   * - postcondition: CO Invitation status set to 'Acknowledged'
+   * - postcondition: Session flash message updated (HTML)
+   *
+   * @since  COmanage Registry v4.5.0
+   */
+
+  public function acknowledgesel() {
+    if(isset($this->request->params['named']['list']) && !empty($this->request->params['named']['list'])) {
+      $ids = $this->request->params['named']['list'];
+      foreach($ids as $id) {
+        try {
+          $this->CoNotification->acknowledge((int)$id, $this->Session->read('Auth.User.co_person_id'));
+        }
+        catch(Exception $e) {
+          $this->Flash->set($e->getMessage(), array('key' => 'error'));
+        }
+      }
+
+      $this->Flash->set(_txt('rs.nt.ackd.plural'), array('key' => 'success'));
+    } else {
+      $this->Flash->set(_txt('op.not.none', array(_txt('op.ack'))), array('key' => 'information'));
+    }
 
     if(isset($this->request->params['named']['origin'])) {
       $this->redirect(base64_decode($this->request->params['named']['origin']));
@@ -199,6 +252,9 @@ class CoNotificationsController extends StandardController {
     parent::index();
     
     if(!$this->request->is('restful')) {
+      // CAKEPHP2 does not provide an API that will allow accessing the controller object from a helper class
+      // To bypass this limitation we need to pass the object to the view and access it through the view Variable.
+      $this->set('controller', $this);
       // Attempt to generate a more descriptive page title. If we fail at any point
       // we'll automatically revert back to the default title.
       
@@ -274,14 +330,19 @@ class CoNotificationsController extends StandardController {
                        && $this->request->params['named']['resolvercopersonid'] == $roles['copersonid'])
                    || (isset($this->request->params['named']['subjectcopersonid'])
                        && $this->request->params['named']['subjectcopersonid'] == $roles['copersonid']));
-    
+
+    $p['search'] = $p['index'];
+    $p['acknowledgesel'] = ($roles['cmadmin'] || $roles['coadmin']);
+
     // View this notification?
     $p['view'] = ($roles['cmadmin']
                   || $roles['coadmin']
                   || (!empty($this->request->params['pass'][0])
                       && $this->Role->isNotificationParticipant($this->request->params['pass'][0],
                                                                 $roles['copersonid'])));
-    
+
+    $p['bulk'] = $p['index'] && ($roles['cmadmin'] || $roles['coadmin']);
+
     $this->set('permissions', $p);
     return $p[$this->action];
   }
@@ -298,24 +359,33 @@ class CoNotificationsController extends StandardController {
     // Only retrieve notifications for the requested subject
     
     $ret = array();
-    
-    if(!empty($this->request->query['status'])) {
+    $this->cur_request_filter_txt = _txt('fd.all');
+
+    // Filter by Status
+    if(isset($this->request->params['named']['search.status'])) {
       // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
       // or "all" for all.) An unknown status code should generate some noise, but nothing more.
       
-      $status = filter_var($this->request->query['status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
-      
-      if($status == 'all') {
-        $this->cur_request_filter_txt = _txt('fd.all');
-      } else {
-        $this->cur_request_filter_txt = _txt('en.status.not', null, $status);
-        $ret['conditions']['CoNotification.status'] = $status;
+      $status = filter_var($this->request->params['named']['search.status'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+
+      if(!empty($status)) {
+        $statusList = explode(',', $status);
+        $statusTxtList = [];
+        foreach($statusList as $s) {
+          $statusTxtList[] = _txt('en.status.not', null, $s);
+        }
+        $this->cur_request_filter_txt = implode(', ', $statusTxtList);
+        $ret['conditions']['CoNotification.status'] = explode(',', $status);
       }
-    } else {
-      // Default is to show notifications in pending status
-      $this->cur_request_filter_txt = _txt('fd.unresolved');
-      $ret['conditions']['CoNotification.status'] = array(NotificationStatusEnum::PendingAcknowledgment,
-                                                          NotificationStatusEnum::PendingResolution);
+    }
+
+    // Filter by Resolve
+    if(!empty($this->request->params['named']['search.action'])) {
+      // Status is expected to be the corresponding short code. (Or omitted, for unresolved,
+      // or "all" for all.) An unknown status code should generate some noise, but nothing more.
+
+      $action = filter_var($this->request->params['named']['search.action'], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+      $ret['conditions']['CoNotification.action'] = $action;
     }
     
     // Keep this order in sync with isAuthorized (index check), above

@@ -24,10 +24,14 @@
  * @since         COmanage Registry v4.0.0
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
+
+  // If we're not passed an array of actions, we'll just return an empty string
+  $defaultActionMenuClasses = 'field-actions-menu dropdown dropleft';
+  $menuClasses = !empty($vv_menu_classes) ? $defaultActionMenuClasses . ' ' . $vv_menu_classes : $defaultActionMenuClasses;
 ?>
 
 <div id="action-menu_<?php print md5($vv_attr_mdl . $vv_attr_id); ?>"
-     class="field-actions-menu dropdown dropleft">
+     class="<?php print $menuClasses ?>">
   <?php
   $linkparams = array(
     'id' => 'action-menu-content_' . md5($vv_attr_mdl . $vv_attr_id),

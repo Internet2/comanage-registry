@@ -75,8 +75,21 @@
         </li>
       <?php endforeach; ?>
       <li id="see-all">
-        <a href="<?php print $this->Html->url('/');?>co_notifications/index/recipientcopersonid:<?php print $vv_co_person_id_notifications; ?>/sort:created/direction:desc"
-           class="co-raised-button btn btn-default"><?php print _txt('op.see.notifications')?></a>
+      <?php
+        print $this->Html->link(
+          _txt('op.see.notifications'),
+          [
+            'controller' => 'co_notifications',
+            'action' => 'index',
+            'recipientcopersonid' => $vv_co_person_id_notifications,
+            'sort' => 'created',
+            'direction' => 'desc',
+            'search.status' => NotificationStatusEnum::PendingAcknowledgment,
+            'op' => 'search',
+          ],
+          ['class' => 'co-raised-button btn btn-default']
+        );
+      ?>
       </li>
     </ul>
   </div>
@@ -151,6 +164,27 @@
                   );
                   print $this->Html->link('<em class="material-icons" aria-hidden="true">group_work</em>' . _txt('op.grm.my.groupmems'), $args,
                     array('escape' => false, 'id' => 'co-mygroups-link', 'class' => 'co-profile-button co-raised-button btn btn-default'));
+                }
+
+                // UnResolved Notifications
+                if(!empty($vv_co_person_id_notifications)) {
+                  $args = array(
+                    'controller' => 'co_notifications',
+                    'action' => 'index',
+                    'recipientcopersonid' => $vv_co_person_id_notifications,
+                    'sort' => 'created',
+                    'direction' => 'desc',
+                    'search.status' => NotificationStatusEnum::PendingResolution,
+                    'op' => 'search',
+                  );
+                  print $this->Html->link(
+                          '<em class="material-icons" aria-hidden="true">mark_unread_chat_alt</em>' . _txt('op.not.unresolved', array($vv_my_notification_count_resolve)),
+                          $args,
+                          array(
+                            'escape' => false,
+                            'id' => 'unresolved-notifications-link',
+                            'class' => 'co-profile-button co-raised-button btn btn-default')
+                  );
                 }
 
                 print '</div>';
