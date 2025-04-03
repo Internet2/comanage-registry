@@ -651,6 +651,7 @@ body.co_people.canvas .titleNavContainer {
 /* TOP CONTENT LINKS (contextual) */
 #topLinks {
   margin: 0;
+  margin-left: auto;
   padding: 0;
 }
 #topLinks.ui-widget-content {
