@@ -591,6 +591,10 @@ class CoPeopleController extends StandardController {
           $this->performRedirect();
         }
       } else {
+        if (filter_var($this->request->data["CoPerson"]["cluster-groups"]  ?? 0, FILTER_VALIDATE_BOOL)) {
+          $this->CoPerson->deleteClusterGroupsOnExpunge = true;
+        }
+
         // Perform the expunge
         
         try {

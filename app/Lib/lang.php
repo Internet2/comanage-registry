@@ -2336,6 +2336,7 @@ The request may be viewed at
   'op.confirm-a' =>   'Confirm %1$s',
   'op.cont' =>        'Continue',
   'op.confirm.box' => 'Check the box to confirm',
+  'op.confirm.cluster.groups' => 'Check the box to delete Cluster Groups',
   'op.copy.url' =>    'Copy URL',
   'op.copy.value' =>  'Copy value',
   'op.copy.value.ok' => 'Value copied to clipboard.',

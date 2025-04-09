@@ -181,10 +181,19 @@
   </p>
   <?php endif; ?>
 
+  <?php if (CakePlugin::loaded('UnixCluster')): ?>
   <div class="checkbox">
     <?php
-      print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"));
-      print $this->Form->label('confirm',_txt('op.confirm.box'));
+      print $this->Form->checkbox('cluster-groups', array('onClick' => "maybe_enable_submit()"));
+      print $this->Form->label('cluster-groups',_txt('op.confirm.cluster.groups'));
+    ?>
+  </div>
+  <?php endif; ?>
+
+  <div class="checkbox">
+    <?php
+    print $this->Form->checkbox('confirm', array('onClick' => "maybe_enable_submit()"));
+    print $this->Form->label('confirm',_txt('op.confirm.box'));
     ?>
   </div>
   

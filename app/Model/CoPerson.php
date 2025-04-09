@@ -31,7 +31,9 @@ class CoPerson extends AppModel {
   
   // Current schema version for API
   public $version = "1.0";
-  
+
+  public $deleteClusterGroupsOnExpunge = false;
+
   // Add behaviors
   public $actsAs = array('Containable',
                          'Provisioner',
@@ -339,7 +341,12 @@ class CoPerson extends AppModel {
 				continue;
 			}
 
-			$Model = $this->{$assoc};
+      // XXX This method of instantiation does not work well with Plugins. For example, it messes up the alias name
+			// $Model = $this->{$assoc};
+      $Model = ClassRegistry::init($data['className']);
+      if ($Model->name === 'UnixClusterAccount' && $this->deleteClusterGroupsOnExpunge) {
+        $Model->deletePrimaryGroup = true;
+      }
 
 			if ($data['foreignKey'] === false && $data['conditions'] && in_array($this->name, $Model->getAssociated('belongsTo'))) {
 				$Model->recursive = 0;
