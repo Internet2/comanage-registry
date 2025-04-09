@@ -94,6 +94,11 @@ class Oauth2Server extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    'access_token_exp' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    )
   );
   
   /**
@@ -157,6 +162,47 @@ class Oauth2Server extends AppModel {
 
   public function exchangeCode($id, $code, $redirectUri, $store=true) {
     return $this->obtainToken($id, 'authorization_code', $code, $redirectUri, $store);
+  }
+
+  /**
+   * Determine if the stored access token is expired now or will be
+   * at a time now + deltat in the future.
+   *
+   * @since  COmanage Registry 4.5.0
+   * @param  Integer $id          Oauth2Server ID
+   * @param  Integer $deltat      Seconds from now to test expiration
+   * @return Boolean true if expired false if not or null if cannot be determined
+   * @throws RuntimeException
+   */
+
+  public function isExpired($id, $deltat = 0) {
+    $args = array();
+    $args['conditions']['Oauth2Server.id'] = $id;
+    $args['contain'] = false;
+
+    $srvr = $this->find('first', $args);
+
+    if(!$srvr) {
+      throw new RuntimeException(_txt('er.notfound', array(_txt('ct.oauth2_servers.1'), $id)));
+    }
+
+    // The model is not required to store the access token and the
+    // OAuth2 server is not required to provide an expiration time
+    // when sending the access token, though it is RECOMMENDED in
+    // section 5.1 of RFC 6749.
+    if(!array_key_exists('access_token', $srvr['Oauth2Server']) ||
+       !array_key_exists('access_token_exp', $srvr['Oauth2Server'])) {
+       return null;
+    }
+
+    $accessTokenExp =  $srvr['Oauth2Server']['access_token_exp'];
+    $now = time();
+
+    if($accessTokenExp + $deltat < $now) {
+      return true;
+    }
+
+    return false;
   }
   
   /**
@@ -229,9 +275,19 @@ class Oauth2Server extends AppModel {
       );
 
       // We shouldn't have a new refresh token on a refresh_token grant
-      // (which just gets us a new access token).
+      // (which just gets us a new access token). Additionally section
+      // 4.4.3 of RFC 6749 explains that the server should NOT return
+      // a refresh token for a client credentials grant.
       if($grantType != 'refresh_token') {
-        $data['refresh_token'] = $json->refresh_token;
+        if(property_exists($json, 'refresh_token')) {
+          $data['refresh_token'] = $json->refresh_token;
+        }
+      }
+
+      // If the Oauth2 server returned expires_in use it to set the
+      // access token expiration time. See section 5.1 of RFC 6749.
+      if(property_exists($json, 'expires_in')) {
+        $data['access_token_exp'] = time() + $json->expires_in;
       }
       
       // We don't want to change any attributes not specified above
