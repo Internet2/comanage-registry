@@ -92,9 +92,9 @@ RUN XERCESC_DIST_URLS="\
 
 RUN XMLSECC_DIST_URLS="\
     https://mirrors.ocf.berkeley.edu/apache/santuario/c-library/xml-security-c-${XMLSECC_VERSION}.tar.gz \
-    https://mirrors.ocf.berkeley.edu/apache/santuario/c-library/xml-security-c-${XMLSECC_VERSION}.tar.gz \
     http://www.gtlib.gatech.edu/pub/apache/santuario/c-library/xml-security-c-${XMLSECC_VERSION}.tar.gz \
     http://apache.mirrors.spacedump.net/santuario/c-library/xml-security-c-${XMLSECC_VERSION}.tar.gz \
+    https://shibboleth.net/downloads/xml-security-c/${XMLSECC_VERSION}/xml-security-c-${XMLSECC_VERSION}.tar.gz \
     http://apache.mirror.serversaustralia.com.au/santuario/c-library/xml-security-c-${XMLSECC_VERSION}.tar.gz" \
     && for distUrl in ${XMLSECC_DIST_URLS}; \
       do \
