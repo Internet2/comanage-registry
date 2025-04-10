@@ -188,16 +188,16 @@ class CoHttpClient extends HttpSocket {
       }
     }
     
-    if(isset($config['ssl_verify_host'])) {
-      $this->config['ssl_verify_host'] = $config['ssl_verify_host'];
-    }
-    
-    if(isset($config['ssl_verify_peer'])) {
-      $this->config['ssl_verify_peer'] = $config['ssl_verify_peer'];
-    }
+    // Disable SSL verification if configured
 
-    if(isset($config['timeout'])) {
-      $this->config['timeout'] = $config['timeout'];
+    if(isset($config['ssl_verify_peer'])
+       && !$config['ssl_verify_peer']) {
+      $this->config['ssl_verify_peer'] = false;
+      $this->config['ssl_verify_peer_name'] = false;
+      $this->config['ssl_verify_host'] = false;
+    } elseif(isset($config['ssl_verify_host'])
+       && !$config['ssl_verify_host']) {
+      $this->config['ssl_verify_host'] = false;
     }
   }
   

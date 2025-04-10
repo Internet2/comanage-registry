@@ -307,27 +307,21 @@ class MatchServer extends AppModel {
         'Content-Type'  => 'application/json'
       )
     ));
-
-    // Additional options for CoHttPClinet
-    $sslConfig = array();
-
-    if(isset($srvr['MatchServer']['ssl_verify_host'])) {
-      $sslConfig['ssl_verify_host'] = $srvr['MatchServer']['ssl_verify_host'];
-    }
-
-    if(isset($srvr['MatchServer']['ssl_verify_peer'])) {
-      $sslConfig['ssl_verify_peer'] = $srvr['MatchServer']['ssl_verify_peer'];
-    }
-
-    if(!empty($sslConfig)) {
-      $Http->setConfig($sslConfig);
-    }
-
     $Http->configAuth(
       'Basic',
       $srvr['MatchServer']['username'],
       $srvr['MatchServer']['password']
     );
+
+    if(isset($srvr['MatchServer']['ssl_verify_peer'])
+       && !$srvr['MatchServer']['ssl_verify_peer']) {
+      $Http->config['ssl_verify_peer'] = false;
+      $Http->config['ssl_verify_peer_name'] = false;
+      $Http->config['ssl_verify_host'] = false;
+    } elseif(isset($srvr['MatchServer']['ssl_verify_host'])
+       && !$srvr['MatchServer']['ssl_verify_host']) {
+      $Http->config['ssl_verify_host'] = false;
+    }
     
     $url = "/people/" . urlencode($sorLabel) . "/" . urlencode($sorId);
     
