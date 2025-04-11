@@ -610,6 +610,18 @@ class OrgSyncModeEnum
   const Update  = 'U';
 }
 
+// XXX For any changes check also in CoPipeline::syncOrgIdentityToCoPerson
+class OrgSyncAttributesEnum
+{
+  const Address         = 'Address';
+  const AdHocAttribute  = 'AdHocAttribute';
+  const EmailAddress    = 'EmailAddress';
+  const Identifier      = 'Identifier';
+  const Name            = 'Name';
+  const TelephoneNumber = 'TelephoneNumber';
+  const Url             = 'Url';
+}
+
 class PeoplePickerModeEnum
 {
   const Manager   = 'M';

@@ -40,6 +40,7 @@ class UpgradeVersionShell extends AppShell {
                     'CoIdentifierAssignment',
                     'CoJob',
                     'CoMessageTemplate',
+                    'CoPipeline',
                     'CoSetting',
                     'DataFilter',
                     'GrouperProvisioner.CoGrouperProvisionerTarget',
@@ -114,7 +115,8 @@ class UpgradeVersionShell extends AppShell {
     "4.3.5" => array('block' => false),
     "4.4.0" => array('block' => false, 'post' => 'post440'),
     "4.4.1" => array('block' => false),
-    "4.4.2" => array('block' => false, 'post' => 'post442')
+    "4.4.2" => array('block' => false, 'post' => 'post442'),
+    "4.5.0" => array('block' => false, 'post' => 'post450'),
   );
   
   public function getOptionParser() {
@@ -730,7 +732,13 @@ class UpgradeVersionShell extends AppShell {
       true
     );
   }
-  
+
+  public function post450() {
+    // Pipelines support attribute filtering
+    $this->out(_txt('sh.ug.450.pipeline'));
+    $this->CoPipeline->_ug450();
+  }
+
   // We should eventually do something like
   //  upgradeShell::populate_default_values("FileSource", "file_sources", "format", "C1")
   // rather than copying/pasting updateAll syntax
