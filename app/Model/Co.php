@@ -466,6 +466,7 @@ class Co extends AppModel {
         'CoDashboardWidget' => 'CoDashboard',
         'CoEnrollmentAttribute' => 'CoEnrollmentFlow',
         'CoEnrollmentSource' => 'CoEnrollmentFlow',
+        'CoEnrollmentFlowWedge' => 'CoEnrollmentFlow',
         'CoGroupOisMapping' => 'OrgIdentitySource',
         'CoGroupNesting' => 'CoGroup',
         'HttpServer' => 'Server',
@@ -526,6 +527,11 @@ class Co extends AppModel {
           'type'   => 'dashboardwidget',
           'fk'     => 'co_dashboard_widget_id',
           'pmodel' => $this->CoDashboard->CoDashboardWidget
+        ),
+        'CoEnrollmentFlowWedge' => array(
+          'type'   => 'enroller',
+          'fk'     => 'co_enrollment_flow_wedge_id',
+          'pmodel' => $this->CoEnrollmentFlow->CoEnrollmentFlowWedge
         ),
         'CoProvisioningTarget' => array(
           'type'   => 'provisioner',
@@ -666,11 +672,12 @@ class Co extends AppModel {
               $fk = Inflector::underscore($alias).'_id';
               $fkClass = $alias;
             }
-            
-            if(strpos($fkClass, '.')) {
-              // Model name of the form Plugin.Model, but we only use Model in $idmap
-              $fkClass = substr($fkClass, strpos($fkClass, '.')+1);
-            }
+
+            // Explode the array and get the last element which is the class.
+            // This approach will handle both plugin internal dependencies as well as
+            // dependencies to core models
+            $fkClassParts = explode(".", $fkClass);
+            $fkClass = array_pop($fkClassParts);
             
             if(!empty($fk) && !empty($o[$model->name][$fk])
                && !empty($fkClass) && !empty($idmap[$fkClass][ $o[$model->name][$fk] ])) {
