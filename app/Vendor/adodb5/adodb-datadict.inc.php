@@ -524,8 +524,8 @@ class ADODB_DataDict {
 		}
 
 		if (is_array($idxs)) {
-			foreach($idxs as $idx => $idxdef) {
-				$sql_idxs = $this->createIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
+			foreach($idxs as $index => $idxdef) {
+				$sql_idxs = $this->createIndexSql($index, $tabname, $idxdef['cols'], $idxdef['opts']);
 				$sql = array_merge($sql, $sql_idxs);
 			}
 		}
@@ -869,7 +869,8 @@ class ADODB_DataDict {
 			}
 
 			// XXX NOT NULL??
-			foreach ($this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname) as $ln) {
+			$createdLines = $this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname);
+			foreach ($createdLines as $ln) {
 				if(strpos($ln, 'CONSTRAINT') !== false) {
 					$constraints[] = $ln;
 				} else {
