@@ -9,13 +9,16 @@
         </xsl:copy>
     </xsl:template>
 
-    <!-- Partition is a reserved word for MySql -->
-<!--    <xsl:template match="field[@name='partition']">-->
-<!--        <xsl:copy>-->
-<!--            <xsl:apply-templates select="@*"/>-->
-<!--            <xsl:attribute name="name">"<xsl:value-of select="@name" />"</xsl:attribute>-->
-<!--        </xsl:copy>-->
-<!--    </xsl:template>-->
+    <!-- Partition is a reserved word for Postgresql -->
+    <!-- We use the backtick even thought postgresql needs double quotes. This is how adodb works. -->
+    <!-- Adodb will identify that this word needs to be quoted and will pick the database appropriate -->
+    <!-- quotes from the configuration -->
+    <xsl:template match="field[@name='partition']">
+        <xsl:copy>
+            <xsl:apply-templates select="@*"/>
+            <xsl:attribute name="name">`<xsl:value-of select="@name" />`</xsl:attribute>
+        </xsl:copy>
+    </xsl:template>
 
     <!-- Index column name -->
     <xsl:template match="col[contains(., '(') and contains(., ')')]">
