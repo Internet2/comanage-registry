@@ -76,6 +76,8 @@ class ConfigurationLabelsController extends StandardController {
         }
       }
     }
+
+    return true;
   }
 
   /**
