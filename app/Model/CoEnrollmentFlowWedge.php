@@ -100,6 +100,7 @@ class CoEnrollmentFlowWedge extends AppModel {
       $target[$modelName]['co_enrollment_flow_wedge_id'] = $this->data['CoEnrollmentFlowWedge']['id'];
 
       // We need to disable validation since we want to create an empty row
+      $this->$modelName = ClassRegistry::init($modelName);
       if(!$this->$modelName->save($target, false)) {
         $this->_rollback();
 

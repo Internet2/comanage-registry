@@ -411,12 +411,12 @@ class Co extends AppModel {
     // This maintains a per-Model map of old_id -> new_id
     $idmap = array();
     
-    // (0) Start a transcation. If we error out, we can rollback.
+    // (0) Start a transaction. If we error out, we can roll back.
     $this->_begin();
     
     // (1) First copy the CO itself
     
-    $this->duplicateObjects($this, 'id', $id, $idmap);
+    $this->duplicateObjects($this, 'id', $id, $idmap, true);
     
     if(empty($idmap['Co'])) {
       throw new InvalidArgumentException(_txt('er.notfound', array(_txt('ct.cos.1'), $id)));
@@ -429,7 +429,7 @@ class Co extends AppModel {
       // so we copy those first. Furthermore, COUs are trees, and so require special
       // care when copying.
       
-      $this->duplicateObjects($this->Cou, 'co_id', $id, $idmap, true);
+      $this->duplicateObjects($this->Cou, 'co_id', $id, $idmap);
       
       foreach(array(
         'CoGroup',
@@ -498,84 +498,43 @@ class Co extends AppModel {
           }
         }
       }
-      
+
       // (5) Copy plugin objects
       
-      // Figure out our set of plugins to make dealing with instantiated objects easier.
-      // We'll store them by type.
-      
-      $plugins = array();
-      
-      foreach(App::objects('plugin') as $p) {
-        $m = ClassRegistry::init($p . "." . $p);
+      $pluginTypesList = array(
+         'Authenticator' => array(
+           'type'   => 'authenticator',
+           'fk'     => 'authenticator_id',
+           'pmodel' => $this->Authenticator
+         ),
+         'CoDashboardWidget' => array(
+           'type'   => 'dashboardwidget',
+           'fk'     => 'co_dashboard_widget_id',
+           'pmodel' => $this->CoDashboard->CoDashboardWidget
+         ),
+         'CoEnrollmentFlowWedge' => array(
+           'type'   => 'enroller',
+           'fk'     => 'co_enrollment_flow_wedge_id',
+           'pmodel' => $this->CoEnrollmentFlow->CoEnrollmentFlowWedge
+         ),
+         'CoProvisioningTarget' => array(
+           'type'   => 'provisioner',
+           'fk'     => 'co_provisioning_target_id',
+           'pmodel' => $this->CoProvisioningTarget
+         ),
+         'DataFilter' => array(
+           'type'   => 'datafilter',
+           'fk'     => 'data_filter_id',
+           'pmodel' => $this->DataFilter
+         ),
+         'OrgIdentitySource' => array(
+           'type'   => 'orgidsource',
+           'fk'     => 'org_identity_source_id',
+           'pmodel' => $this->OrgIdentitySource
+         )
+      );
 
-        // XXX As of v2.0.0, $cmPluginType may also be an array.
-        //     If it is an array, pick up the first
-        $pluginType = is_array($m->cmPluginType) ? $m->cmPluginType[0] : $m->cmPluginType;
-
-        $plugins[$pluginType][$p] = $m;
-      }
-      
-      // Make sure to update this list in delete() as well
-      foreach(array(
-        'Authenticator' => array(
-          'type'   => 'authenticator',
-          'fk'     => 'authenticator_id',
-          'pmodel' => $this->Authenticator
-        ),
-        'CoDashboardWidget' => array(
-          'type'   => 'dashboardwidget',
-          'fk'     => 'co_dashboard_widget_id',
-          'pmodel' => $this->CoDashboard->CoDashboardWidget
-        ),
-        'CoEnrollmentFlowWedge' => array(
-          'type'   => 'enroller',
-          'fk'     => 'co_enrollment_flow_wedge_id',
-          'pmodel' => $this->CoEnrollmentFlow->CoEnrollmentFlowWedge
-        ),
-        'CoProvisioningTarget' => array(
-          'type'   => 'provisioner',
-          'fk'     => 'co_provisioning_target_id',
-          'pmodel' => $this->CoProvisioningTarget
-        ),
-        'DataFilter' => array(
-          'type'   => 'datafilter',
-          'fk'     => 'data_filter_id',
-          'pmodel' => $this->DataFilter
-        ),
-        'OrgIdentitySource' => array(
-          'type'   => 'orgidsource',
-          'fk'     => 'org_identity_source_id',
-          'pmodel' => $this->OrgIdentitySource
-        )
-      ) as $parentm => $pmcfg) {
-        $pmodel = $pmcfg['pmodel'];
-        
-        if(!empty($idmap[$parentm]) 
-           && !empty($plugins[ $pmcfg['type'] ])) {
-          foreach($plugins[ $pmcfg['type'] ] as $pluginName => $m) {
-            // Some plugin types have a special naming convention for the core model
-            // (eg: CoFooPlugin instead of FooPlugin).
-            $coreModelName = sprintf($pmodel->hasManyPlugins[ $pmcfg['type'] ]['coreModelFormat'], $pluginName);
-            $corem = ClassRegistry::init($pluginName . "." . $coreModelName);
-            if(!empty($corem->duplicatableModels)) {
-              // Duplicate models as indicated by the plugin
-              
-              foreach($corem->duplicatableModels as $dupeModelName => $dupecfg) {
-                // Probably need to load the model
-                $dupem = ClassRegistry::init($pluginName . "." . $dupeModelName);
-                // Skip duplication if no records exist
-                if(!empty($idmap[$dupecfg['parent']])) {
-                  $this->duplicateObjects($dupem, $dupecfg['fk'], array_keys($idmap[$dupecfg['parent']]), $idmap);
-                }
-              }
-            } else {
-              // Duplicate the main plugin object
-              $this->duplicateObjects($corem, $pmcfg['fk'], array_keys($idmap[$parentm]), $idmap);
-            }
-          }
-        }
-      }
+      $this->duplicatePlugins($pluginTypesList, $idmap);
       
       $this->_commit();
     }
@@ -586,124 +545,7 @@ class Co extends AppModel {
     
     return $idmap['Co'][$id];
   }
-  
-  /**
-   * Duplicate objects associated with a CO.
-   *
-   * @since  COmanage Registry v3.2.0
-   * @param  Model   $model      Model to duplicate
-   * @param  String  $foreignKey The name of the foreign key from $model to its parent (or 'id' if no parent)
-   * @param  Integer $fkid       The ID of the foreign key in $model
-   * @param  Array   $idmap      Reference to an array of old IDs to new IDs (originals to duplicates)
-   * @param  Boolean $isTree     True if $model implements TreeBehavior
-   * @return Boolean True on success
-   * @throws InvalidArgumentException
-   * @throws RuntimeException
-   */
-  
-  protected function duplicateObjects($model, $foreignKey, $fkid, &$idmap, $isTree=false) {
-    // Pull all records from $model with a foreign key $fkid into its parent.
-    // eg: All COUs where co_id=$fkid.
-    
-    $args = array();
-    $args['conditions'][$model->name.'.'.$foreignKey] = $fkid;
-    $args['contain'] = false;
-    if($isTree) {
-      // We will order by parent_id using the NULLS FIRST option.
-      // PostgreSQL needs the NULLS FIRST in order to put the null at the top
-      // We will treat this as the default
-      $args['order'] = $model->name . '.parent_id ASC NULLS FIRST';
 
-      // What should we do in the case of MySQL
-      $db = $model->getDataSource();
-      $db_driver = explode("/", $db->config['datasource'], 2);
-      $db_driverName = $db_driver[1];
-      if(preg_match("/mysql/i", $db_driverName)) {
-        // MySQL, MariaDB treats NULLs as NULLs are treated as less than 0 and
-        // places them at the top of an ASC dataset
-        $args['order'] = $model->name . '.parent_id ASC';
-      }
-    }
-    
-    $objs = $model->find('all', $args);
-    
-    if(!empty($objs)) {
-      foreach($objs as $o) {
-        if($model->name == 'Co') {
-          // Special case: rename the CO
-          
-          $o['Co']['name'] = _txt('fd.copy-a', array($o['Co']['name']));
-          $o['Co']['description'] = _txt('fd.copy-a', array($o['Co']['description']));
-        }
-        
-        // Cache the id and foreign key, and remove the metadata
-        $oldId = $o[$model->name]['id'];
-        
-        // Don't remove foreign keys (other than for changelog) since we use them
-        // below to map to their new values
-        foreach(array(
-          'id',
-          'created',
-          'modified',
-          'revision',
-          'deleted',
-          'actor_identifier',
-          Inflector::underscore($model->name).'_id',
-          // For Trees, we'll let TreeBehavior recalculate lft and rght on save
-          'lft',
-          'rght'
-        ) as $field) {
-          if(isset($o[$model->name][$field])) {
-            unset($o[$model->name][$field]);
-          }
-        }
-        
-        if(!empty($model->belongsTo)) {
-          // Use the relations to populate any foreign key. This approach should
-          // get the primary relation (eg: co_id) as well as the parent for
-          // TreeBehavior.
-          
-          foreach($model->belongsTo as $alias => $config) {
-            if(is_array($config)) {
-              $fk = $config['foreignKey'];
-              $fkClass = $config['className'];
-            } else {
-              // Inflect the alias to get the foreign key
-              $fk = Inflector::underscore($alias).'_id';
-              $fkClass = $alias;
-            }
-
-            // Explode the array and get the last element which is the class.
-            // This approach will handle both plugin internal dependencies as well as
-            // dependencies to core models
-            $fkClassParts = explode(".", $fkClass);
-            $fkClass = array_pop($fkClassParts);
-            
-            if(!empty($fk) && !empty($o[$model->name][$fk])
-               && !empty($fkClass) && !empty($idmap[$fkClass][ $o[$model->name][$fk] ])) {
-              // eg: $o['CoGroup']['cou_id'] = $idmap['Cou'][$old_cou_id]
-              $o[$model->name][$fk] = $idmap[$fkClass][ $o[$model->name][$fk] ];
-            }
-          }
-        }
-        
-        $model->clear();
-        
-        // Disable validation since we're copying data, which may have been valid
-        // at time of save even though it wouldn't validate now. Disable callbacks
-        // so eg provisioners, changelog, and random logic don't fire.
-        $model->save($o, array('validate' => false, 'callbacks' => false));
-        
-        if($isTree) {
-          // Since we disabled callbacks, we have to manually rebuild the tree
-          $model->recover('parent');
-        }
-        
-        $idmap[$model->name][$oldId] = $model->id;
-      }
-    }
-  }
-  
   /**
    * Perform initial setup for a CO.
    *

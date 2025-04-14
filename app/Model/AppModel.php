@@ -853,7 +853,183 @@ class AppModel extends Model {
     
     return $ret;
   }
-  
+
+  /**
+   * Duplicate objects.
+   *
+   * @since  COmanage Registry v3.2.0
+   * @param  Model   $model      Model to duplicate
+   * @param  String  $foreignKey The name of the foreign key from $model to its parent (or 'id' if no parent)
+   * @param  Integer $fkid       The ID of the foreign key in $model
+   * @param  Array   $idmap      Reference to an array of old IDs to new IDs (originals to duplicates)
+   * @param  Boolean $alterName  if true we will change the name and description of the copied model.
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+
+  protected function duplicateObjects($model, $foreignKey, $fkid, &$idmap, $alterName=false) {
+    // Pull all records from $model with a foreign key $fkid into its parent.
+    // eg: All COUs where co_id=$fkid.
+
+    $args = array();
+    $args['conditions'][$model->name.'.'.$foreignKey] = $fkid;
+    $args['contain'] = false;
+    if($model->Behaviors->loaded('Tree')) {
+      // We will order by parent_id using the NULLS FIRST option.
+      // PostgreSQL needs the NULLS FIRST in order to put the null at the top
+      // We will treat this as the default
+      $args['order'] = $model->name . '.parent_id ASC NULLS FIRST';
+
+      // What should we do in the case of MySQL
+      $db = $model->getDataSource();
+      $db_driver = explode("/", $db->config['datasource'], 2);
+      $db_driverName = $db_driver[1];
+      if(preg_match("/mysql/i", $db_driverName)) {
+        // MySQL, MariaDB treats NULLs as NULLs are treated as less than 0 and
+        // places them at the top of an ASC dataset
+        $args['order'] = $model->name . '.parent_id ASC';
+      }
+    }
+
+    $objs = $model->find('all', $args);
+
+    if(!empty($objs)) {
+      foreach($objs as $o) {
+        if($alterName) {
+          // Special case: rename the Model Name and Description
+
+          $o[$model->name]['name'] = _txt('fd.copy-a', array($o[$model->name]['name']));
+          if (isset($o[$model->name]['description']) && !empty($o[$model->name]['description'])) {
+            $o[$model->name]['description'] = _txt('fd.copy-a', array($o[$model->name]['description']));
+          }
+        }
+
+        // Cache the id and foreign key, and remove the metadata
+        $oldId = $o[$model->name]['id'];
+
+        // Don't remove foreign keys (other than for changelog) since we use them
+        // below to map to their new values
+        foreach(array(
+                  'id',
+                  'created',
+                  'modified',
+                  'revision',
+                  'deleted',
+                  'actor_identifier',
+                  Inflector::underscore($model->name).'_id',
+                  // For Trees, we'll let TreeBehavior recalculate lft and rght on save
+                  'lft',
+                  'rght'
+                ) as $field) {
+          if(isset($o[$model->name][$field])) {
+            unset($o[$model->name][$field]);
+          }
+        }
+
+        if(!empty($model->belongsTo)) {
+          // Use the relations to populate any foreign key. This approach should
+          // get the primary relation (eg: co_id) as well as the parent for
+          // TreeBehavior.
+
+          foreach($model->belongsTo as $alias => $config) {
+            if(is_array($config)) {
+              $fk = $config['foreignKey'];
+              $fkClass = $config['className'];
+            } else {
+              // Inflect the alias to get the foreign key
+              $fk = Inflector::underscore($alias).'_id';
+              $fkClass = $alias;
+            }
+
+            // Explode the array and get the last element which is the class.
+            // This approach will handle both plugin internal dependencies as well as
+            // dependencies to core models
+            $fkClassParts = explode(".", $fkClass);
+            $fkClass = array_pop($fkClassParts);
+
+            if(!empty($fk) && !empty($o[$model->name][$fk])
+              && !empty($fkClass) && !empty($idmap[$fkClass][ $o[$model->name][$fk] ])) {
+              // eg: $o['CoGroup']['cou_id'] = $idmap['Cou'][$old_cou_id]
+              $o[$model->name][$fk] = $idmap[$fkClass][ $o[$model->name][$fk] ];
+            }
+          }
+        }
+
+        $model->clear();
+
+        // Disable validation since we're copying data, which may have been valid
+        // at time of save even though it wouldn't validate now. Disable callbacks
+        // so eg provisioners, changelog, and random logic don't fire.
+        $model->save($o, array('validate' => false, 'callbacks' => false));
+
+        if($model->Behaviors->loaded('Tree')) {
+          // Since we disabled callbacks, we have to manually rebuild the tree
+          $model->recover('parent');
+        }
+
+        $idmap[$model->name][$oldId] = $model->id;
+      }
+    }
+  }
+
+  /**
+   * Duplicate Plugins.
+   *
+   * @since  COmanage Registry v4.5.0
+   * @param  Array   $pluginTypeList List of plugin types and configuration for each type
+   * @param  Array   $idmap      Reference to an array of old IDs to new IDs (originals to duplicates)
+   * @return Boolean True on success
+   * @throws InvalidArgumentException
+   * @throws RuntimeException
+   */
+  protected function duplicatePlugins($pluginTypeList, &$idmap) {
+    // Figure out our set of plugins to make dealing with instantiated objects easier.
+    // We'll store them by type.
+
+    $plugins = array();
+
+    foreach(App::objects('plugin') as $p) {
+      $m = ClassRegistry::init($p . "." . $p);
+
+      // XXX As of v2.0.0, $cmPluginType may also be an array.
+      //     If it is an array, pick up the first
+      $pluginType = is_array($m->cmPluginType) ? $m->cmPluginType[0] : $m->cmPluginType;
+
+      $plugins[$pluginType][$p] = $m;
+    }
+
+    // Make sure to update this list in delete() as well
+    foreach($pluginTypeList as $parentm => $pmcfg) {
+      $pmodel = $pmcfg['pmodel'];
+
+      if(!empty($idmap[$parentm])
+        && !empty($plugins[ $pmcfg['type'] ])) {
+        foreach($plugins[ $pmcfg['type'] ] as $pluginName => $m) {
+          // Some plugin types have a special naming convention for the core model
+          // (eg: CoFooPlugin instead of FooPlugin).
+          $coreModelName = sprintf($pmodel->hasManyPlugins[ $pmcfg['type'] ]['coreModelFormat'], $pluginName);
+          $corem = ClassRegistry::init($pluginName . "." . $coreModelName);
+          if(!empty($corem->duplicatableModels)) {
+            // Duplicate models as indicated by the plugin
+
+            foreach($corem->duplicatableModels as $dupeModelName => $dupecfg) {
+              // Probably need to load the model
+              $dupem = ClassRegistry::init($pluginName . "." . $dupeModelName);
+              // Skip duplication if no records exist
+              if(!empty($idmap[$dupecfg['parent']])) {
+                $this->duplicateObjects($dupem, $dupecfg['fk'], array_keys($idmap[$dupecfg['parent']]), $idmap);
+              }
+            }
+          } else {
+            // Duplicate the main plugin object
+            $this->duplicateObjects($corem, $pmcfg['fk'], array_keys($idmap[$parentm]), $idmap);
+          }
+        }
+      }
+    }
+  }
+
   /**
    * Filter a model's native attributes from its related models.
    *
