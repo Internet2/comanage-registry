@@ -1502,7 +1502,7 @@ The request may be viewed at
   'fd.co_people.filter' => 'CO Person Filter',
   'fd.co_people.search' => 'CO Person Search',
   'fd.co_people.status' => 'CO Person Status',
-  'fd.configuration_label.desc' =>  'Label value with minimum length 3 and consisting of characters, digits, underscores (_) and dashes (-).',
+  'fd.configuration_label.desc' =>  'Label value with minimum length 3 and consisting of lower case characters, digits, underscores (_) and dashes (-).',
   'fd.contact.company' => 'Company',
   'fd.contact.family' => 'Family Name',
   'fd.contact.given' => 'Given Name',

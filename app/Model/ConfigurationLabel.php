@@ -57,7 +57,7 @@ class ConfigurationLabel extends AppModel {
         'rule' => array('validateLabel'),
         'required' => true,
         'allowEmpty' => false,
-        'message' => array('Allowed characters are a-zA-Z0-9_-. Value must be at least 3 characters long.'),
+        'message' => array('Allowed characters are a-z0-9_-. Value must be at least 3 characters long.'),
         'last' => 'true',
       ),
       'size' => array(
@@ -166,6 +166,6 @@ class ConfigurationLabel extends AppModel {
     if (!is_string($check['label'])) {
       return false;
     }
-    return preg_match('/^[a-zA-Z0-9_-]{3,}$/', $check['label']) === 1;
+    return preg_match('/^[a-z0-9_-]{3,}$/', $check['label']) === 1;
   }
 }
