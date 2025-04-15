@@ -1969,6 +1969,7 @@ The request may be viewed at
   'fd.pi.sync.type.desc' => 'For fields such as <i>manager</i> or <i>sponsor</i>, the inbound identifier type',
   'fd.pi.sync.upd' => 'Sync on Update',
   'fd.pi.sync.attributes' => 'Attributes to Sync',
+  'fd.pi.sync.attributes.placeholder' => 'Select Attributes',
   'fd.pi.sync.attributes.desc' => 'Choose which attributes will be copied/synced to the CoPerson',
   'fd.pipeline' =>    'Pipeline',
   'fd.pipeline.desc.ef' => 'Org Identities created directly (not via an Org Identity Source) from this Enrollment Flow will be processed using the specified Pipeline',
