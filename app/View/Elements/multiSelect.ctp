@@ -35,7 +35,8 @@
  * $containerPostfixId, string, A unique string that will be used to construct the ID attribute of the
  *                              module container
  * $containerClasses,   string, List of classes for the container element
- * $values,             string, List of selected Values
+ * $values,             string, List of selected Values,
+ * $placeholder,        string, Placeholder Text for the dropdown
  */
 
 // Figure out the widget ID so we can overwrite the dashboard's widget div
@@ -46,6 +47,7 @@ if (empty($mountElementId)) {
 $mountElementId = $mountElementId;
 $elementParams = $elementParams ?? [];
 $containerId = 'element-container-' . str_replace('.', '-', $containerPostfixId);
+$placeholder = $placeholder ?? _txt('fd.all');
 
 // Calculate the options
 $options = [];
@@ -74,6 +76,7 @@ print $this->Html->css('primevue-overrides')
         inputId: '<?= $mountElementId ?>',
         selected: <?= $selectedValues ?? json_encode([]) ?>,
         label: '<?= $elementParams['label'] ?>',
+        placeholder: '<?= $placeholder ?>',
         optionsList: <?= json_encode($options) ?>,
         //inputValue: '<?php //= $inputValue ?>//',
         inputProps: {
@@ -118,7 +121,7 @@ print $this->Html->css('primevue-overrides')
                    optionValue="code"
                    :options="optionsList"
                    class="top-search"
-                   placeholder="All">
+                   :placeholder="placeholder">
       </MultiSelect>
    `
   })

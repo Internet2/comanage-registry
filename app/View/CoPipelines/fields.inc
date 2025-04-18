@@ -454,7 +454,8 @@
                   'elementParams' => $formParams,
                   'containerPostfixId' => 'models',
                   'containerClasses' => $matchesClass[0][1] ?? '',
-                  'values' => $attrs['value'] ?? ''
+                  'values' => $attrs['value'] ?? '',
+                  'placeholder' => _txt('fd.pi.sync.attributes.placeholder'),
                 ]);
 
                 if ($this->Form->isFieldError('sync_coperson_attributes')) {
