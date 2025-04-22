@@ -243,7 +243,7 @@
     <field name="id" type="I">
       <key />
     </field>
-    <field name="street" type="X" size="400" />
+    <field name="street" type="X" size="4000" />
     <field name="room" type="C" size="64" />
     <field name="locality" type="C" size="128" />
     <field name="state" type="C" size="128" />
