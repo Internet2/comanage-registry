@@ -325,6 +325,9 @@ class ADODB2_postgres extends ADODB_DataDict
 									AND table_name = '{$tabname}'
 							) THEN {$sqlCommand};
 							END IF;
+						EXCEPTION
+							WHEN OTHERS THEN
+								RAISE NOTICE 'An error occurred: %', SQLERRM;
 						END$$;
 					NOTEXISTS;
 					$sql_con[] = $ifNotExists;
@@ -450,16 +453,16 @@ class ADODB2_postgres extends ADODB_DataDict
 		return $sql;
 	}
 
-  function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
-  {
-	$line = array();
-	$fk_name = $tabname . '_' . $fname . '_fk';
-	$line[] = $fname . ' ' . $ftype . ' ' . $suffix;
-    if ($fconstraint) {
-		$line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
-    }
-	return $line;
-  }
+	function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
+	{
+		$line = array();
+		$fk_name = $tabname . '_' . $fname . '_fk';
+		$line[] = $fname . ' ' . $ftype . ' ' . $suffix;
+		if ($fconstraint) {
+			$line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
+		}
+		return $line;
+	}
 
 	// return string must begin with space
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
