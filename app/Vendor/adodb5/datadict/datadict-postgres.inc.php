@@ -30,6 +30,8 @@ class ADODB2_postgres extends ADODB_DataDict
 	var $addCol = ' ADD COLUMN';
 	var $quote = '"';
 	var $renameTable = 'ALTER TABLE %s RENAME TO %s'; // at least since 7.1
+
+	var $addConstraint = 'CONSTRAINT %s FOREIGN KEY (%s) ';
 	var $dropTable = 'DROP TABLE %s CASCADE';
 
 	public $blobAllowsDefaultValue = true;
@@ -229,7 +231,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		if ($has_alter_column) {
 			$tabname = $this->tableName($tabname);
 			$sql = array();
-			list($lines,$pkey) = $this->_genFields($flds);
+			list($lines, $pkey, $indexes, $constraints) = $this->_genFields($flds, false, $tabname);
 			$set_null = false;
 			foreach($lines as $v) {
 				$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
@@ -307,6 +309,30 @@ class ADODB2_postgres extends ADODB_DataDict
 					// this does not error out if the column is already null
 					$sql[] = $alter . ' DROP NOT NULL';
 				}
+			}
+
+			if (is_array($constraints) && !empty($constraints)) {
+				$sql_con = array();
+				foreach($constraints as $idx => $con) {
+					$sqlCommand = "ALTER TABLE {$tabname} ADD {$con}";
+					$constraintName = preg_match('/CONSTRAINT ([^ ]+)/i', $con, $matches) ? $matches[1] : '';
+					$ifNotExists = <<<NOTEXISTS
+						DO $$
+						BEGIN
+							IF NOT EXISTS (
+								SELECT 1 FROM information_schema.table_constraints
+								WHERE constraint_name = '{$constraintName}'
+									AND table_name = '{$tabname}'
+							) THEN {$sqlCommand};
+							END IF;
+						EXCEPTION
+							WHEN OTHERS THEN
+								RAISE NOTICE 'An error occurred: %', SQLERRM;
+						END$$;
+					NOTEXISTS;
+					$sql_con[] = $ifNotExists;
+				}
+				$sql = array_merge($sql, $sql_con);
 			}
 			return $sql;
 		}
@@ -427,16 +453,19 @@ class ADODB2_postgres extends ADODB_DataDict
 		return $sql;
 	}
 
-  function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
-  {
-    if ($fconstraint) {
-      $suffix .= ' ' . $fconstraint;
-    }
-    return [$fname . ' ' . $ftype . $suffix];
-  }
+	function _createLine($fname, $ftype, $suffix, $fconstraint, $tabname=null)
+	{
+		$line = array();
+		$fk_name = $tabname . '_' . $fname . '_fk';
+		$line[] = $fname . ' ' . $ftype . ' ' . $suffix;
+		if ($fconstraint) {
+			$line[] =  sprintf($this->addConstraint, $fk_name, $fname) . $fconstraint;
+		}
+		return $line;
+	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
+	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		if ($fautoinc) {
 			$ftype = 'SERIAL';

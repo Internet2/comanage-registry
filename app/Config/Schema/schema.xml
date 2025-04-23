@@ -321,7 +321,7 @@
     
     <index name="organization_source_records_i1">
       <col>organization_source_id</col>
-      <col>source_key</col>
+      <col>source_key(255)</col>
     </index>
     
     <index name="organization_source_records_i2">
@@ -2612,7 +2612,7 @@
     
     <index name="org_identity_source_records_i1">
       <col>org_identity_source_id</col>
-      <col>sorid</col>
+      <col>sorid(255)</col>
 <!-- With changelog behavior (CO-1107) this constraint can't be enforced by the database
       <unique />
 -->

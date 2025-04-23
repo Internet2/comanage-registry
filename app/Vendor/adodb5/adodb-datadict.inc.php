@@ -524,8 +524,8 @@ class ADODB_DataDict {
 		}
 
 		if (is_array($idxs)) {
-			foreach($idxs as $idx => $idxdef) {
-				$sql_idxs = $this->createIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
+			foreach($idxs as $index => $idxdef) {
+				$sql_idxs = $this->createIndexSql($index, $tabname, $idxdef['cols'], $idxdef['opts']);
 				$sql = array_merge($sql, $sql_idxs);
 			}
 		}
@@ -858,7 +858,7 @@ class ADODB_DataDict {
 						$fdefault = $this->connection->qstr($fdefault);
 				}
 			}
-			$suffix = $this->_createSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned);
+			$suffix = $this->_createSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, $pkey);
 
 			// add index creation
 			if ($widespacing) $fname = str_pad($fname,24);
@@ -869,7 +869,8 @@ class ADODB_DataDict {
 			}
 
 			// XXX NOT NULL??
-			foreach ($this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname) as $ln) {
+			$createdLines = $this->_createLine($fname, $ftype, $suffix, $fconstraint, $tabname);
+			foreach ($createdLines as $ln) {
 				if(strpos($ln, 'CONSTRAINT') !== false) {
 					$constraints[] = $ln;
 				} else {
@@ -918,8 +919,22 @@ class ADODB_DataDict {
 	}
 
 
-	// return string must begin with space
-	function _createSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+	/**
+	 * Construct an database specific SQL string of constraints for column.
+	 *
+	 * @param string $fname         column name
+	 * @param string & $ftype       column type
+	 * @param bool   $fnotnull      NOT NULL flag
+	 * @param string|bool $fdefault DEFAULT value
+	 * @param bool   $fautoinc      AUTOINCREMENT flag
+	 * @param string $fconstraint   CONSTRAINT value
+	 * @param bool   $funsigned     UNSIGNED flag
+	 * @param string|bool $fprimary PRIMARY value
+	 * @param array  & $pkey        array of primary key column names
+	 *
+	 * @return string Combined constraint string, must start with a space
+	 */
+	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";

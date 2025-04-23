@@ -107,7 +107,7 @@
     </index>
     
     <index name="co_announcements_i4">
-      <col>body</col>
+      <col>body(64)</col>
     </index>
   </table>
   

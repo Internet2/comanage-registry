@@ -67,12 +67,12 @@
     <field name="created" type="T" />
     <field name="modified" type="T" />
 
-    <index name="orcid_sources_i1">
+    <index name="orcid_tokens_i1">
       <col>orcid_source_id</col>
       <col>orcid_identifier</col>
       <unique />
     </index>
-    <index name="orcid_identifiers_i2">
+    <index name="orcid_tokens_i2">
       <col>orcid_identifier</col>
     </index>
   </table>
