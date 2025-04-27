@@ -638,7 +638,7 @@
     <field name="groupid" type="C" size="80" />
     <field name="topic" type="C" size="80" />
     <field name="batch_size" type="I" />
-    <field name="partition" type="I" />
+    <field name="partition_number" type="I" />
     <field name="timeout" type="I" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
