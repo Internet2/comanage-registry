@@ -88,7 +88,9 @@
       }
 
       $this->dbc = ADONewConnection($this->db_driverName);
-      if (Configure::read('debug') >= 2) {
+      $envDatabaseVerbose = getenv('COMANAGE_REGISTRY_DATABASE_VERBOSE');
+      if (Configure::read('debug') >= 2
+          || filter_var($envDatabaseVerbose, FILTER_VALIDATE_BOOLEAN)) {
         $this->dbc->debug = true;
       }
       if(isset($this->db->config['port'])) {
