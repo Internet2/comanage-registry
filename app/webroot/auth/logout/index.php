@@ -25,16 +25,23 @@
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
 
-// Since this page isn't part of the framework, we need to reconfigure
-// to access the Cake session
+// locate and load the Cake framework
+define('DS', DIRECTORY_SEPARATOR);
+define('ROOT', realpath('..' . DS . '..' . DS . '..' . DS . '..'));
+define('APP_DIR', 'app');
+define('WWW_ROOT', APP_DIR . DS . 'webroot' . DS);
 
-session_name("CAKEPHP");
-session_start();
+require ROOT . DS . 'lib' . DS . 'Cake' . DS . 'bootstrap.php';
+
+// load the app configuration
+App::uses('PhpReader', 'Configure');
+Configure::config('default', new PhpReader());
+App::uses('CakeSession','Model/Datasource');
 
 $re = '/(.*)\/auth\/logout(.*)/m';
 $subst = '$1/users/logout$2';
 $redirect_location = preg_replace($re, $subst, $_SERVER["REQUEST_URI"]);
 
-unset($_SESSION['Auth']);
+CakeSession::delete('Auth');
 
 header('Location: ' . $redirect_location);
