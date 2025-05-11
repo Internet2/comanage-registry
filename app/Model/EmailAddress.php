@@ -275,12 +275,18 @@ class EmailAddress extends AppModel {
    * @param  integer $coId  CO ID to constrain search to
    * @param  string  $q     String to search for
    * @param  integer $limit Search limit
+   * @param  boolean $exact Exact search or `LIKE` search
+   *
    * @return Array Array of search results, as from find('all)
    */
   
-  public function search($coId, $q, $limit) {
+  public function search($coId, $q, $limit, $exact = false) {
     $args = array();
-    $args['conditions']['LOWER(EmailAddress.mail)'] = strtolower($q);
+    if($exact) {
+      $args['conditions']['LOWER(EmailAddress.mail)'] = strtolower($q);
+    } else {
+      $args['conditions']['LOWER(EmailAddress.mail) LIKE'] = '%' . strtolower($q) . '%';
+    }
     $args['conditions']['CoPerson.co_id'] = $coId;
     $args['order'] = array('EmailAddress.mail');
     $args['limit'] = $limit;
