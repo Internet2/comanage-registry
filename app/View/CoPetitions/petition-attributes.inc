@@ -399,7 +399,10 @@
               print '<div class="form-group">' . PHP_EOL;
 
               $args = array();
-              $args['empty'] = !$ea['required'];
+              $args['empty'] = false;
+              if($ea['required']) {
+                $args['empty'] = empty($ea['default']) ?  _txt('op.select.empty') : false;
+              }
               $args['class'] = 'co-selectfield form-control';
               $args['aria-label'] = $m;
 
