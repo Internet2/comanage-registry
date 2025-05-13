@@ -353,40 +353,49 @@ class ProvisionerBehavior extends ModelBehavior {
     // may be keyed on one of them.
     
     if($model->name == 'Identifier') {
-      if(!empty($model->data['Identifier']['co_person_id'])) {
-        if(!isset($model->cacheData['Identifier']['identifier'])
-           && !empty($model->data['Identifier']['identifier'])) {
-          $syncGroups = true;
-        } elseif(!empty($model->cacheData['Identifier']['modified'])
-                 && !empty($model->data['Identifier']['modified'])
-                 && ($model->cacheData['Identifier']['modified']
-                     != $model->data['Identifier']['modified'])) {
-          // Use modified as a proxy for seeing if anything has changed in the record
-          
+      if(!empty($model->data['Identifier']['co_person_id'])
+         || !empty($model->data['Identifier']['co_group_id'])) {
+        // New Record
+        $isNewRecord = !isset($model->cacheData['Identifier']['identifier'])
+          && !empty($model->data['Identifier']['identifier']);
+        // Modified Record
+        $modifiedRecord = !empty($model->cacheData['Identifier']['modified'])
+          && !empty($model->data['Identifier']['modified'])
+          && ($model->cacheData['Identifier']['modified'] != $model->data['Identifier']['modified']);
+        if($isNewRecord || $modifiedRecord) {
           $syncGroups = true;
         }
         
         if($syncGroups) {
-          $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
-          $copid = $model->data['Identifier']['co_person_id'];
+          $gmodel = !empty($model->data['Identifier']['co_person_id']) ?
+            $model->CoPerson->CoGroupMember->CoGroup : $model->CoGroup;
+          $copid = !empty($model->data['Identifier']['co_person_id']) ?
+            $model->data['Identifier']['co_person_id'] : null;
         }
-      } elseif(!empty($model->cacheData['Identifier']['co_person_id'])) {
+      } elseif(!empty($model->cacheData['Identifier']['co_person_id'])
+               || !empty($model->cacheData['Identifier']['co_group_id'])) {
         // Identifier was deleted
-        $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
-        $copid = $model->cacheData['Identifier']['co_person_id'];
+        $gmodel = !empty($model->cacheData['Identifier']['co_person_id']) ?
+          $model->CoPerson->CoGroupMember->CoGroup : $model->CoGroup;
+        $copid = !empty($model->cacheData['Identifier']['co_person_id']) ?
+          $model->cacheData['Identifier']['co_person_id'] : null;
       }
     }
     
     if($syncGroups) {
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $copid;
-      $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
-      $args['contain'] = false;
-      
-      $gms = $gmodel->CoGroupMember->find('list', $args);
-      
-      if(!empty($gms)) {
-        $coGroupIds = array_values($gms);
+      if($copid !== null) {
+        $args = array();
+        $args['conditions']['CoGroupMember.co_person_id'] = $copid;
+        $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
+        $args['contain'] = false;
+
+        $gms = $gmodel->CoGroupMember->find('list', $args);
+
+        if(!empty($gms)) {
+          $coGroupIds = array_values($gms);
+        }
+      } else {
+        $coGroupIds = array($model->data['Identifier']['co_group_id'] ?? $model->cacheData['Identifier']['co_group_id']);
       }
     }
     
@@ -495,6 +504,8 @@ class ProvisionerBehavior extends ModelBehavior {
         }
         
         $pmodel = $model->CoPerson;
+      } elseif($model->name == 'Identifier' && !empty($coGroupIds)) {
+        // Identifier action from a CoGroup. Let this go through. We do nothing
       } elseif($model->name == 'CoGroup') {
         // Find the members of the group
         
