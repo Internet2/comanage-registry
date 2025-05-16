@@ -89,7 +89,7 @@ class RecoveryWidget extends AppModel {
     foreach(array('EmailAddress', 'Identifier') as $model) {
       // Note this search will match _unverified_ email addresses, but we only
       // want to match verified email addresses. We'll filter those below.
-      $matches = $CoPerson->$model->search($coId, $query, 25);
+      $matches = $CoPerson->$model->search($coId, $query, 25, true);
       
       if(!empty($matches)) {
         foreach($matches as $m) {
@@ -107,7 +107,7 @@ class RecoveryWidget extends AppModel {
             $coPersonId = $m['CoPerson']['id'];
           } elseif($coPersonId != $m['CoPerson']['id']) {
             // We found at least two different CO People, so throw an error
-            throw new InvalidArgumentException(_txt('er.recoverywidget.ssr.multiple', $q));
+            throw new InvalidArgumentException(_txt('er.recoverywidget.ssr.multiple', array($query)));
           }
         }
       }
