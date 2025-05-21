@@ -92,13 +92,13 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
    * Establish a connection to the ORCID API.
    *
    * @since  COmanage Registry v3.2.0
-   * @param  Integer $serverId Server ID
-   * @param  String $orcidIdentifier Orcid Identifier
-   * @return Boolean True on success
+   * @param  integer $serverId Server ID
+   * @param  string|null $orcidIdentifier Orcid Identifier
+   * @return boolean True on success
    * @throws InvalidArgumentException
    */
 
-  protected function orcidConnect($serverId, $orcidIdentifier) {
+  protected function orcidConnect($serverId, $orcidIdentifier=null) {
     // Pull the server config
     
     $Server = new Server();
@@ -121,18 +121,20 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
     $OrcidSource = new OrcidSource();
     $this->orcidSource = $OrcidSource->find('first', $args);
 
-    $args = array();
-    $args['conditions']['OrcidToken.orcid_source_id'] = $this->orcidSource['OrcidSource']['id'];
-    $args['conditions']['OrcidToken.orcid_identifier'] = $orcidIdentifier;
-    $args['contain'] = false;
+    if($this->orcidSource['OrcidSource']['api_type'] !== OrcidSourceApiEnum::PUBLIC) {
+      $args = array();
+      $args['conditions']['OrcidToken.orcid_source_id'] = $this->orcidSource['OrcidSource']['id'];
+      $args['conditions']['OrcidToken.orcid_identifier'] = $orcidIdentifier;
+      $args['contain'] = false;
 
-    $OrcidToken = new OrcidToken();
-    $this->orcidToken = $OrcidToken->find('first', $args);
-    
-    // Grab the access token from the config, or throw an error if not found
-    if(empty($this->orcidToken['OrcidToken']['access_token'])
-       && empty($this->server['Oauth2Server']['access_token'])) {
-      throw new InvalidArgumentException(_txt('er.orcidsource.token.none'));
+      $OrcidToken = new OrcidToken();
+      $this->orcidToken = $OrcidToken->find('first', $args);
+
+      // Grab the access token from the config, or throw an error if not found
+      if(empty($this->orcidToken['OrcidToken']['access_token'])
+        && empty($this->server['Oauth2Server']['access_token'])) {
+        throw new InvalidArgumentException(_txt('er.orcidsource.token.none'));
+      }
     }
 
     $this->Http = new HttpSocket(array(
@@ -163,19 +165,34 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
 
   public function orcidRequest($urlPath, $data=array(), $action="get") {
     $OrcidToken = new OrcidToken();
+    $access_token = $this->server['Oauth2Server']['access_token'] ?? null;
+    if (isset($this->orcidToken['OrcidToken']['access_token'])) {
+      $access_token = $OrcidToken->getUnencrypted($this->orcidToken['OrcidToken']['access_token']);
+    }
 
     $options = array(
       'header' => array(
         'Accept'        => 'application/json',
-        'Authorization' => 'Bearer ' . ($OrcidToken->getUnencrypted($this->orcidToken['OrcidToken']['access_token'])
-            ?? $this->server['Oauth2Server']['access_token']),
+        'Authorization' => 'Bearer ' . $access_token,
         'Content-Type'  => 'application/orcid+json'
       )
     );
 
     $orcidUrlBase = $this->orcidUrl($this->orcidSource['OrcidSource']['api_type'],
                                     $this->orcidSource['OrcidSource']['api_tier']);
-    $results = $this->Http->$action($orcidUrlBase . $urlPath,
+
+    // We do not need a token for public api and
+    if($this->orcidSource['OrcidSource']['api_type'] == OrcidSourceApiEnum::PUBLIC
+       && (
+         $urlPath == '/v3.0/search/'
+         || preg_match('#v3\.0/([0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4})/person#', $urlPath, $matches)
+      )) {
+      // No authentication is required for the public tier. Limited to 1000 requests per day.
+      unset($options['header']['Authorization']);
+    }
+
+    $fullPath = $orcidUrlBase . $urlPath;
+    $results = $this->Http->$action($fullPath,
                                     ($action == 'get' ? $data : json_encode($data)),
                                     $options);
 
@@ -336,7 +353,16 @@ class OrcidSourceBackend extends OrgIdentitySourceBackend {
       
       return array();
     }
-    
+
+    // Turn the query string into an associative array
+    $queryString = $attributes['q'];
+    $posOfQ = strpos($attributes['q'], 'q=', 0);
+    if ($posOfQ === false || $posOfQ !== 0) {
+      $queryString = 'q=' . $attributes['q'];
+    }
+    parse_str($queryString, $queryParts);
+    $attributes = $queryParts;
+
     // We just let search exceptions pop up the stack
     
     $this->orcidConnect($this->pluginCfg['server_id']);
