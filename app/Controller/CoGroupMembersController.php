@@ -345,7 +345,7 @@ class CoGroupMembersController extends StandardController {
                                                                                          $newdata['CoGroup']['id'],
                                                                                          _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
                                                                                          _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
-                                                              $olddata['CoGroup']['id'],
+                                                              $newdata['CoGroup']['id'],
                                                               null, null,
                                                               $actorApiUserId);
         break;
@@ -373,7 +373,7 @@ class CoGroupMembersController extends StandardController {
                                                                                           _txt($olddata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'),
                                                                                           _txt($newdata['CoGroupMember']['member'] ? 'fd.yes' : 'fd.no'),
                                                                                           _txt($newdata['CoGroupMember']['owner'] ? 'fd.yes' : 'fd.no'))),
-                                                              $olddata['CoGroup']['id'],
+                                                              $newdata['CoGroup']['id'],
                                                               null, null,
                                                               $actorApiUserId);
         break;
