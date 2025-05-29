@@ -769,6 +769,19 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['conditions']['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
     }
 
+    // Filter Joining only to non-deleted people
+    $this->OrgIdentity->bindModel(
+      array('belongsTo' => array(
+        "Co" => array(
+          'type' => 'INNER',
+          'className' => 'Co',
+          'foreignKey' => 'co_id',
+          'conditions' => array('OrgIdentity.deleted IS NOT TRUE', 'OrgIdentity.org_identity_id IS NULL'),
+        )
+      )),
+      false // false to NOT reset, true to reset associations
+    );
+
     // Filter by given name
     if(!empty($this->request->params['named']['search.givenName'])) {
       $searchterm = $this->request->params['named']['search.givenName'];
@@ -885,11 +898,6 @@ class OrgIdentitiesController extends StandardController {
 
     // CO-2882, we need at least the following fields for the View to render properly
     $this->paginate['fields'] = $this->OrgIdentity->getPaginateFields();
-
-    // We need to manually add this in for some reason. (It should have been
-    // added automatically by Cake based on the CoPerson Model definition of
-    // PrimaryName.)
-    $pagcond['conditions']['PrimaryName.primary_name'] = true;
     
     return $pagcond;
   }

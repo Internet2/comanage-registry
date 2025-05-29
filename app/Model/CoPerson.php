@@ -51,6 +51,7 @@ class CoPerson extends AppModel {
       'className'  => 'Name',
       'conditions' => array('PrimaryName.primary_name' => true),
       'dependent'  => false,
+      'type' => 'INNER',
       'foreignKey' => 'co_person_id'
     )
   );
