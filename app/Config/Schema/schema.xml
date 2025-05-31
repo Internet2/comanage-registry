@@ -370,6 +370,12 @@
     <index name="org_identities_i2">
       <col>org_identity_id</col>
     </index>
+    <index name="org_identities_i3">
+      <col>co_id</col>
+      <col>org_identity_id</col>
+      <col>deleted</col>
+      <col>id</col>
+    </index>
   </table>
   
   <table name="co_people">
@@ -398,6 +404,12 @@
     </index>
     <index name="co_people_i2">
       <col>co_person_id</col>
+    </index>
+    <index name="co_people_i3">
+      <col>co_id</col>
+      <col>co_person_id</col>
+      <col>deleted</col>
+      <col>id</col>
     </index>
   </table>
   
@@ -539,6 +551,24 @@
     
     <index name="names_i3">
       <col>org_identity_id</col>
+    </index>
+
+    <index name="names_i4">
+      <col>co_person_id</col>
+      <col>primary_name</col>
+      <col>name_id</col>
+      <col>deleted</col>
+      <col>family</col>
+      <col>given</col>
+    </index>
+
+    <index name="names_i5">
+      <col>org_identity_id</col>
+      <col>primary_name</col>
+      <col>name_id</col>
+      <col>deleted</col>
+      <col>family</col>
+      <col>given</col>
     </index>
   </table>
   
@@ -2632,6 +2662,13 @@
     
     <index name="org_identity_source_records_i5">
       <col>co_petition_id</col>
+    </index>
+
+    <index name="org_identity_source_records_i6">
+      <col>org_identity_id</col>
+      <col>org_identity_source_record_id</col>
+      <col>deleted</col>
+      <col>id</col>
     </index>
   </table>
   
