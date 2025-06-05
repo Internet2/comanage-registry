@@ -2663,13 +2663,6 @@
     <index name="org_identity_source_records_i5">
       <col>co_petition_id</col>
     </index>
-
-    <index name="org_identity_source_records_i6">
-      <col>org_identity_id</col>
-      <col>org_identity_source_record_id</col>
-      <col>deleted</col>
-      <col>id</col>
-    </index>
   </table>
   
   <table name="co_nsf_demographics">

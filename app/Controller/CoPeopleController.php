@@ -1197,7 +1197,7 @@ class CoPeopleController extends StandardController {
           'conditions' => array('CoPerson.deleted IS NOT TRUE', 'CoPerson.co_person_id IS NULL'),
         )
       )),
-      false // false to NOT reset, true to reset associations
+      true
     );
 
       // Filtering by name operates using any name, so preferred or other names

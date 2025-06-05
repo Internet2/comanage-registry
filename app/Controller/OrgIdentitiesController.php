@@ -770,17 +770,23 @@ class OrgIdentitiesController extends StandardController {
     }
 
     // Filter Joining only to non-deleted people
-    $this->OrgIdentity->bindModel(
-      array('belongsTo' => array(
+    $this->OrgIdentity->bindModel(array(
+      'belongsTo' => array(
         "Co" => array(
-          'type' => 'INNER',
-          'className' => 'Co',
-          'foreignKey' => 'co_id',
-          'conditions' => array('OrgIdentity.deleted IS NOT TRUE', 'OrgIdentity.org_identity_id IS NULL'),
+            'type' => 'INNER',
+            'className' => 'Co',
+            'foreignKey' => 'co_id',
+            'conditions' => array('OrgIdentity.deleted IS NOT TRUE', 'OrgIdentity.org_identity_id IS NULL'),
+          )
         )
-      )),
-      false // false to NOT reset, true to reset associations
+      ),
+      true
     );
+
+    // In a controller or before a query
+    $this->OrgIdentity->unbindModel([
+      'hasOne' => array('OrgIdentitySourceRecord')
+    ], true);
 
     // Filter by given name
     if(!empty($this->request->params['named']['search.givenName'])) {
@@ -882,8 +888,12 @@ class OrgIdentitiesController extends StandardController {
     
     // Filter by org identity source
     if(!empty($this->request->params['named']['search.orgIdentitySource'])) {
-      // Cake will auto-join the table
-      $pagcond['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
+      $pagcond['joins'][$jcnt]['table'] = 'org_identity_source_records';
+      $pagcond['joins'][$jcnt]['alias'] = 'OrgIdentitySourceRecord';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'OrgIdentitySourceRecord.org_identity_id=OrgIdentity.id';
+      $pagcond['joins'][$jcnt]['conditions'][1]['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
+      $jcnt++;
     }
 
     // Filter by openness

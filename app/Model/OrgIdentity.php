@@ -97,8 +97,9 @@ class OrgIdentity extends AppModel {
     "Co"
   );
 
-  // Select clause for the paginator
-  private $paginate_fields = array( "DISTINCT OrgIdentity.id",
+  // Select Clause for the paginator
+  private $paginate_fields = array(
+    "OrgIdentity.id",
     "PrimaryName.given",
     "PrimaryName.family",
     "OrgIdentity.title",

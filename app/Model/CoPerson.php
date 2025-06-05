@@ -147,7 +147,7 @@ class CoPerson extends AppModel {
   public $displayField = "PrimaryName.family";
 
   // Select clause for the paginator
-  private $paginate_fields = array( "DISTINCT CoPerson.id",
+  private $paginate_fields = array( "CoPerson.id",
                                     "PrimaryName.given",
                                     "PrimaryName.family",
                                     "CoPerson.status",
