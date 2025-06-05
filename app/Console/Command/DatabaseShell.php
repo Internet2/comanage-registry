@@ -175,13 +175,60 @@
 
         $schemaString = $this->transformSchemaFile($schemaFile, $xslFile);
         $sqlQueries = $schema->parseSchemaString($schemaString);
+        $extraSqlQueries = array();
 
         if ($this->db_driverName == self::DB_DRIVER_MYSQL) {
           $sqlQueries = $this->transformSqlQueryList($sqlQueries);
+        } else {
+          $namesTable = $this->db->config['prefix'] . "names";
+          // Partial indexes only for the POSTGRESQL database
+          $idxCmNamesPrsnPrimaryFamilyGiven = <<<SQL
+DO $$
+BEGIN
+    BEGIN
+      CREATE INDEX idx_cm_names_prsn_primary_family_given
+          ON $namesTable (co_person_id, family, given)
+          WHERE primary_name = 'TRUE'
+            AND name_id IS NULL
+            AND deleted IS NOT TRUE;
+    EXCEPTION
+        WHEN duplicate_table THEN
+            -- Index already exists, do nothing
+        WHEN duplicate_object THEN
+            -- Index already exists, do nothing
+    END;
+END;
+$$;
+SQL;
+
+          $idxCmNamesOrgPrimaryFamilyGiven = <<<SQL
+DO $$
+BEGIN
+    BEGIN
+      CREATE INDEX idx_cm_names_org_primary_family_given
+          ON $namesTable (org_identity_id, family, given)
+          WHERE primary_name = 'TRUE'
+            AND name_id IS NULL
+            AND deleted IS NOT TRUE;
+    EXCEPTION
+        WHEN duplicate_table THEN
+            -- Index already exists, do nothing
+        WHEN duplicate_object THEN
+            -- Index already exists, do nothing
+    END;
+END;
+$$;
+SQL;
+
+          $extraSqlQueries[] = $idxCmNamesPrsnPrimaryFamilyGiven;
+          $extraSqlQueries[] = $idxCmNamesOrgPrimaryFamilyGiven;
         }
 
         switch($schema->ExecuteSchema($sqlQueries)) {
           case 2: // !!!
+            if (!empty($extraSqlQueries)) {
+              $schema->ExecuteSchema($extraSqlQueries);
+            }
             $this->out(_txt('op.db.ok'));
             break;
           default:

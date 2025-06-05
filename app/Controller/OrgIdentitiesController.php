@@ -769,6 +769,25 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['conditions']['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
     }
 
+    // Filter Joining only to non-deleted people
+    $this->OrgIdentity->bindModel(array(
+      'belongsTo' => array(
+        "Co" => array(
+            'type' => 'INNER',
+            'className' => 'Co',
+            'foreignKey' => 'co_id',
+            'conditions' => array('OrgIdentity.deleted IS NOT TRUE', 'OrgIdentity.org_identity_id IS NULL'),
+          )
+        )
+      ),
+      true
+    );
+
+    // Unbind here. We will bind again only if required
+    $this->OrgIdentity->unbindModel([
+      'hasOne' => array('OrgIdentitySourceRecord')
+    ], true);
+
     // Filter by given name
     if(!empty($this->request->params['named']['search.givenName'])) {
       $searchterm = $this->request->params['named']['search.givenName'];
@@ -869,8 +888,12 @@ class OrgIdentitiesController extends StandardController {
     
     // Filter by org identity source
     if(!empty($this->request->params['named']['search.orgIdentitySource'])) {
-      // Cake will auto-join the table
-      $pagcond['conditions']['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
+      $pagcond['joins'][$jcnt]['table'] = 'org_identity_source_records';
+      $pagcond['joins'][$jcnt]['alias'] = 'OrgIdentitySourceRecord';
+      $pagcond['joins'][$jcnt]['type'] = 'INNER';
+      $pagcond['joins'][$jcnt]['conditions'][0] = 'OrgIdentitySourceRecord.org_identity_id=OrgIdentity.id';
+      $pagcond['joins'][$jcnt]['conditions'][1]['OrgIdentitySourceRecord.org_identity_source_id'] = $this->request->params['named']['search.orgIdentitySource'];
+      $jcnt++;
     }
 
     // Filter by openness
@@ -885,11 +908,7 @@ class OrgIdentitiesController extends StandardController {
 
     // CO-2882, we need at least the following fields for the View to render properly
     $this->paginate['fields'] = $this->OrgIdentity->getPaginateFields();
-
-    // We need to manually add this in for some reason. (It should have been
-    // added automatically by Cake based on the CoPerson Model definition of
-    // PrimaryName.)
-    $pagcond['conditions']['PrimaryName.primary_name'] = true;
+    $this->paginate['contain'] = false;
     
     return $pagcond;
   }
