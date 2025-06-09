@@ -173,7 +173,7 @@ print $this->element("pageTitle", array('title' => $title));
               
               if(!empty($vv_tz)) {
                 // We need to adjust the UTC value to the user's local time
-                $v = $this->Time->format($p['CoPersonRole']['valid_through'], "%F %T", false, $vv_tz);
+                $v = $this->Time->format($p['CoPersonRole']['valid_from'], "%F %T", false, $vv_tz);
               }
               
               print $this->Time->format('Y M d', $v);
