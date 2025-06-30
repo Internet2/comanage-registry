@@ -118,7 +118,13 @@
             }
           ?>
         </td>
-        <td><?php print filter_var($c['CoEnrollmentFlow']['description'],FILTER_SANITIZE_SPECIAL_CHARS); ?></td>
+        <td>
+          <?php
+            if(!empty($c['CoEnrollmentFlow']['description'])) {
+              print filter_var($c['CoEnrollmentFlow']['description'],FILTER_SANITIZE_SPECIAL_CHARS);
+            }
+          ?>
+        </td>
         <td>
           <?php
             if($permissions['select']
