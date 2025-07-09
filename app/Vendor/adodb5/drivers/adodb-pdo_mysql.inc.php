@@ -79,8 +79,18 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 			$savem = $this->setFetchMode(FALSE);
 		}
 
-		// get index details
-		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
+    // Table exists
+    $tableExistsSql = <<<EXISTS
+        SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_SCHEMA = '{$this->databaseName}' AND TABLE_NAME = '$table'
+      EXISTS;
+
+    $tableExists = $this->Execute($tableExistsSql);
+    $rs = null;
+    if ($tableExists->fields !== false) {
+      // get index details
+      $rs = $this->Execute(sprintf('SHOW INDEXES FROM `%s`',$table));
+    }
 
 		// restore fetchmode
 		if (isset($savem)) {
@@ -194,7 +204,19 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		if ($this->fetchMode !== false) {
 			$savem = $this->SetFetchMode(false);
 		}
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL, $table));
+
+    // Table exists
+    $tableExistsSql = <<<EXISTS
+        SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_SCHEMA = '{$this->databaseName}' AND TABLE_NAME = '$table'
+      EXISTS;
+
+    $tableExists = $this->Execute($tableExistsSql);
+    $rs = null;
+    if ($tableExists->fields !== false) {
+      // Get the columns
+      $rs = $this->Execute(sprintf($this->metaColumnsSQL, $table));
+    }
 
 		if ($schema) {
 			$this->SelectDB($dbName);

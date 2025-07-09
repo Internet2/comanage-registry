@@ -40,7 +40,22 @@
   </xsl:template>
 
   <!-- Index column name -->
-  <xsl:template match="col">
-    <col>`<xsl:value-of select="text()"/>`</col>
+  <xsl:template match="col[contains(., '(') and contains(., ')')]">
+    <xsl:variable name="text" select="." />
+    <col>
+      <xsl:text>`</xsl:text>
+      <xsl:value-of select="substring-before($text, '(')" />
+      <xsl:text>`(</xsl:text>
+      <xsl:value-of select="substring-before(substring-after($text, '('), ')')" />
+      <xsl:text>)</xsl:text>
+    </col>
+  </xsl:template>
+
+  <xsl:template match="col[not(contains(., '(') and contains(., ')'))]">
+    <col>
+      <xsl:text>`</xsl:text>
+      <xsl:value-of select="." />
+      <xsl:text>`</xsl:text>
+    </col>
   </xsl:template>
 </xsl:stylesheet>
