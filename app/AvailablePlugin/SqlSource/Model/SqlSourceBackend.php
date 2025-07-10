@@ -790,35 +790,48 @@ class SqlSourceBackend extends OrgIdentitySourceBackend {
     // prevent the cache from being updated, in that case we'll just end up reprocessing
     // some records, which should effectively be a no-op.
 
-    if(!empty($this->tableList)) {
-      // We just need any model to get access to query(), it doesn't have to be the
-      // one associated with the table we're updating (since we're not looking at the
-      // query results).
+    if(empty($this->tableList)) {
+      $this->log(__METHOD__ . "::Empty list of changed records.", LOG_DEBUG);
+      return true;
+    }
 
-      $QueryTable = $this->getRecordModel();
+    // We just need any model to get access to query(), it doesn't have to be the
+    // one associated with the table we're updating (since we're not looking at the
+    // query results).
 
-      foreach($this->tableList as $sourceTableName) {
-        $archiveTableName = $sourceTableName . "_archive";
+    $QueryTable = $this->getRecordModel();
 
-        // Rather than try to determine which individual columns across which records
-        // were updated, we delete any updated record from the archive table, then
-        // insert any rows that were added from or updated in the source table.
+    foreach($this->tableList as $sourceTableName) {
+      $archiveTableName = $sourceTableName . "_archive";
 
-        // Only the primary table uses id, so we use sorid as a general solution.
-        
-        $deleteQuery = "DELETE FROM " . $archiveTableName . " WHERE sorid IN 
+      // Rather than try to determine which individual columns across which records
+      // were updated, we delete any updated record from the archive table, then
+      // insert any rows that were added from or updated in the source table.
+
+      // Only the primary table uses id, so we use sorid as a general solution.
+
+      $deleteQuery = "DELETE FROM " . $archiveTableName . " WHERE sorid IN 
                         (SELECT diff.sorid FROM 
                         (SELECT * FROM " . $archiveTableName . " EXCEPT
                           SELECT * FROM " . $sourceTableName . ") AS diff)";
-        
-        $QueryTable->query($deleteQuery);
 
-        $insertQuery = "INSERT INTO " . $archiveTableName . "
+      $deleteResult = $QueryTable->query($deleteQuery);
+      if ($deleteResult === false) {
+        $this->log(__METHOD__ . "::Error deleting records from the {$archiveTableName} table.", LOG_ERR);
+        return false;
+      }
+
+
+      $insertQuery = "INSERT INTO " . $archiveTableName . "
                         (SELECT * FROM " . $sourceTableName . " EXCEPT
                         SELECT * FROM " . $archiveTableName . ")";
-        
-        $QueryTable->query($insertQuery);
+
+      $insertResult = $QueryTable->query($insertQuery);
+      if ($insertResult === false) {
+        $this->log(__METHOD__ . "::Error inserting records into the {$archiveTableName} table.", LOG_ERR);
+        return false;
       }
+
     }
 
     return true;

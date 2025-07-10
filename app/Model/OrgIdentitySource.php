@@ -1456,7 +1456,7 @@ class OrgIdentitySource extends AppModel {
    */
   
   public function syncOrgIdentitySource($orgIdentitySource, $force=false, $coJobId=null) {
-    $dbc = ConnectionManager::getDataSource('default');;
+    $dbc = ConnectionManager::getDataSource('default');
 
     // We don't check here that the source is in Manual mode in case an admin
     // wants to manually force a sync. (syncAll honors that setting.)
@@ -1560,15 +1560,21 @@ class OrgIdentitySource extends AppModel {
           if(!$coJobId) {
             $this->Co->CoJob->finish($jobId, $e->getMessage(), JobStatusEnum::Failed);
           }
+          $this->log(__METHOD__ . "::throw::" . $e->getMessage(), LOG_DEBUG);
           throw new RuntimeException($e->getMessage());
         }
       }
       
       if($changelist !== false) {
         $known = 0;   // The number of records reported changed that we already know about
-        
-        foreach($changelist as $srckey) {
-          if($this->Co->CoJob->canceled($jobId)) { return false; }
+        $this->log(__METHOD__ . "Changelist length: " . count($changelist), LOG_DEBUG);
+        foreach($changelist as $idx => $srckey) {
+          $this->log(__METHOD__ . "[$idx] Processing source key: " . $srckey, LOG_DEBUG);
+
+          if($this->Co->CoJob->canceled($jobId)) {
+            $this->log(__METHOD__ . "[$idx] $srckey, Job Canceled.", LOG_DEBUG);
+            return false;
+          }
           
           try {
             // syncOrgIdentity does NOT create a new org identity if none exists, it
@@ -1603,6 +1609,7 @@ class OrgIdentitySource extends AppModel {
           $resCnt['unchanged'] = count($orgRecords) - $known;
         }
 
+        $this->log(__METHOD__ . ":resCnt" . print_r($resCnt, true), LOG_DEBUG);
         $this->Co->CoJob->CoJobHistoryRecord->record($jobId,
                                                      null,
                                                      _txt('jb.ois.sync.update.changed',
@@ -1613,8 +1620,11 @@ class OrgIdentitySource extends AppModel {
       } else {
         // Changelist not supported, perform per-record sync
         
-        foreach($orgRecords as $rec) {
-          if($this->Co->CoJob->canceled($jobId)) { return false; }
+        foreach($orgRecords as $idxx => $rec) {
+          if($this->Co->CoJob->canceled($jobId)) {
+            $this->log(__METHOD__ . "[$idxx] $rec, Job Canceled.", LOG_DEBUG);
+            return false;
+          }
           
           try {
             $r = $this->syncOrgIdentity($rec['OrgIdentitySourceRecord']['org_identity_source_id'],
@@ -1634,7 +1644,7 @@ class OrgIdentitySource extends AppModel {
           // but if we do we rollback so that we do not continue onto
           // the next OrgIdentity with an open transaction.
           $dbc = $this->getDataSource();
-          for($i = $dbc->getTransactionNesting();$i >= 0;$i--) {
+          for($i = $dbc->getTransactionNesting(); $i >= 0; $i--) {
             $dbc->rollback();
           }
         }
@@ -1670,6 +1680,8 @@ class OrgIdentitySource extends AppModel {
       catch(Exception $e) {
         $eclass = get_class($e);
         $err = $e->getMessage();
+
+        $this->log(__METHOD__ . "Exception A Full: " . $e->getMessage() , LOG_DEBUG);
         
         if($eclass == 'DomainException') {
           // We're misconfigured, the backend does not support inventory().
@@ -1697,8 +1709,11 @@ class OrgIdentitySource extends AppModel {
                                                    null,
                                                    JobStatusEnum::Notice);
 
-      foreach($newKeys as $newKey) {
-        if($this->Co->CoJob->canceled($jobId)) { return false; }
+      foreach($newKeys as $idy => $newKey) {
+        if($this->Co->CoJob->canceled($jobId)) {
+          $this->log(__METHOD__ . "[$idy] $newKey, Job Canceled.", LOG_DEBUG);
+          return false;
+        }
         
         // This is basically the same logic as used in SyncModeEnum::Query, below
         try {
@@ -1723,8 +1738,11 @@ class OrgIdentitySource extends AppModel {
           // There's already an associated identity. We could log a message,
           // but that seems like it'll get noisy. We don't increment a counter
           // either since we should have counted this in 'synced' already.
+          $this->log(__METHOD__ . "OverflowException Full: " . $e->getMessage() , LOG_DEBUG);
         }
         catch(Exception $e) {
+          $this->log(__METHOD__ . "Exception B Full: " . $e->getMessage() , LOG_DEBUG);
+
           // Create a job history record to record the error.
           // Because of the exception we just caught there may be one or
           // more open transactions so roll them back so that we can
@@ -1852,8 +1870,12 @@ class OrgIdentitySource extends AppModel {
                                                    null,
                                                    JobStatusEnum::Notice);
       
-      foreach($emailList as $ea) {
-        if($this->Co->CoJob->canceled($jobId)) { return false; }
+      foreach($emailList as $ide => $ea) {
+        if($this->Co->CoJob->canceled($jobId))
+        {
+          $this->log(__METHOD__ . "[$ide] $ea: Job Canceled.", LOG_DEBUG);
+          return false;
+        }
         
         // Since this is search and not retrieve, it's technically possible to get
         // more than one result back from a source, if (eg) there are multiple records
@@ -1974,7 +1996,8 @@ class OrgIdentitySource extends AppModel {
     if(!$coJobId) {
       $this->Co->CoJob->finish($jobId, json_encode($resCnt));
     }
-    
+
+    $this->log(__METHOD__ . ":finished the sync.", LOG_DEBUG);
     return true;
   }
   
