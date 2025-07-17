@@ -312,9 +312,9 @@ class Identifier extends AppModel {
         $this->$objType->Behaviors->load('Provisioner');
         
         if($objType == 'CoGroup') {
-          $this->CoGroup->manualProvision(null, null, $objId, ProvisioningActionEnum::CoGroupUpdated);
+          $this->CoGroup->requestToProvision(null, null, $objId, ProvisioningActionEnum::CoGroupUpdated);
         } else {
-          $this->CoPerson->manualProvision(null, $objId, null, ProvisioningActionEnum::CoPersonUpdated);
+          $this->CoPerson->requestToProvision(null, $objId, null, ProvisioningActionEnum::CoPersonUpdated);
         }
       }
     }

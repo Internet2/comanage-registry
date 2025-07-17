@@ -1456,7 +1456,7 @@ class OrgIdentitySource extends AppModel {
    */
   
   public function syncOrgIdentitySource($orgIdentitySource, $force=false, $coJobId=null) {
-    $dbc = ConnectionManager::getDataSource('default');;
+    $dbc = ConnectionManager::getDataSource('default');
 
     // We don't check here that the source is in Manual mode in case an admin
     // wants to manually force a sync. (syncAll honors that setting.)
