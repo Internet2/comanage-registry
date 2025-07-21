@@ -2456,7 +2456,7 @@
     <field name="reference_identifier" type="C" size="40" />
     <field name="petitioner_token" type="C" size="48" />
     <field name="enrollee_token" type="C" size="48" />
-    <field name="return_url" type="C" size="256" />
+    <field name="return_url" type="C" size="512" />
     <field name="approver_comment" type="C" size="256" />
     <field name="status" type="C" size="2" />
     <field name="created" type="T" />
