@@ -46,6 +46,7 @@ class OrgIdentity extends AppModel {
       'className'  => 'Name',
       'conditions' => array('PrimaryName.primary_name' => true),
       'dependent'  => false,
+      'type' => 'INNER',
       'foreignKey' => 'org_identity_id'
     ),
     // A CO Person and associated models created from a Pipeline have Source Org Identities
@@ -96,8 +97,9 @@ class OrgIdentity extends AppModel {
     "Co"
   );
 
-  // Select clause for the paginator
-  private $paginate_fields = array( "DISTINCT OrgIdentity.id",
+  // Select Clause for the paginator
+  private $paginate_fields = array(
+    "OrgIdentity.id",
     "PrimaryName.given",
     "PrimaryName.family",
     "OrgIdentity.title",

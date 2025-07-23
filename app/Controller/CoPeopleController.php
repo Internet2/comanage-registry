@@ -1186,8 +1186,21 @@ class CoPeopleController extends StandardController {
     if($this->requires_co) {
       $pagcond['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
     }
-    
-    // Filtering by name operates using any name, so preferred or other names
+
+    // Filter Joining only to non-deleted people
+    $this->CoPerson->bindModel(
+      array('belongsTo' => array(
+        "Co" => array(
+          'type' => 'INNER',
+          'className' => 'Co',
+          'foreignKey' => 'co_id',
+          'conditions' => array('CoPerson.deleted IS NOT TRUE', 'CoPerson.co_person_id IS NULL'),
+        )
+      )),
+      true
+    );
+
+      // Filtering by name operates using any name, so preferred or other names
     // can also be searched. However, filter by letter ("familyNameStart") only
     // works on PrimaryName so that the results match the index list.
     
@@ -1305,11 +1318,6 @@ class CoPeopleController extends StandardController {
 
     // CO-1091, CO-2371, we need at least the following fields for the View to render properly
     $this->paginate['fields'] = $this->CoPerson->getPaginateFields();
-    
-    // We need to manually add this in for some reason. (It should have been
-    // added automatically by Cake based on the CoPerson Model definition of
-    // PrimaryName.)
-    $pagcond['conditions']['PrimaryName.primary_name'] = true;
     
     return $pagcond;
   }
