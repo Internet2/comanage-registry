@@ -371,6 +371,7 @@
           }
 
           // Output disabled fields
+          $defaultValue = null;
           if(!$ea['hidden'] && isset($ea['default']) && !$ea['modifiable']) {
             // Since disabled values don't submit with the form, convert them to hidden
             // fields and change the fieldName for the visible attribute
@@ -379,6 +380,10 @@
             $fieldName = $hfieldName . "-disabled";
 
             print $this->Form->hidden($hfieldName, array('default' => $ea['default'])) . PHP_EOL;
+            // Do not print just the ID of the record but include the option.
+            if(isset($ea['select'][$ea['default']])) {
+              $defaultValue = $ea['select'][$ea['default']] . ' (' . $ea['default'] . ')';
+            }
           }
 
           if($e) {
@@ -390,7 +395,7 @@
                 'fieldName' => $fieldName,
                 'modelName' => $ea['model'],
                 'required' => $ea['required'],
-                'default' => $ea['default'] ?? ''
+                'default' => $defaultValue ?? $ea['default'] ?? ''
               );
               print $this->element('enumerableField', $args);
               break;
@@ -711,13 +716,17 @@
             if(isset($co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ])) {
               switch($ruleType) {
               case 'attrEnum':
+                $defaultValue = $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ];
+                if(isset($ea['select'][$defaultValue])) {
+                    $defaultValue = $ea['select'][$defaultValue] . ' (' . $defaultValue . ')';
+                }
                 $args = array(
                   'column' => $ea['field'],
                   'editable' => false,
                   'fieldName' => $fieldName,
                   'modelName' => $ea['model'],
                   'required' => $ea['required'],
-                  'default' => $co_petition_attribute_values[ $ea['id'] ][ $ea['field'] ]
+                  'default' => $defaultValue
                 );
                 print $this->element('enumerableField', $args);
                 break;
