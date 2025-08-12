@@ -1178,7 +1178,7 @@ class RoleComponent extends Component {
     $args['contain'] = false;
     $group = $CoGroup->find('first', $args);
 
-    $isCou = $CoGroup->isCouAdminOrMembersGroup($group);
+    $isCou = $CoGroup->isCouAdminOrMembersGroup($group) || $CoGroup->isCouApproverGroup($group);
     return $this->cachedGroupCheck($coPersonId, "", "", $coGroupId, false, null, $isCou);
   }
   
