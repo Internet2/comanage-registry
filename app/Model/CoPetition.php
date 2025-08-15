@@ -2017,7 +2017,10 @@ class CoPetition extends AppModel {
     
     // Set for future saveFields
     $this->id = $id;
-    
+
+    // create a cache of OIds for later use
+    $ois=array();
+
     // Obtain a list of attributes that are to be copied to the CO Person (Role) from the Org Identity
     
     $cArgs = array();
@@ -2381,7 +2384,10 @@ class CoPetition extends AppModel {
         } else {
           $dbc->rollback();
           throw new RuntimeException(_txt('er.db.save-a', array('CoOrgIdentityLink')));
-        }        
+        }
+
+        // cache the OrgIdentity ID for email matching later on
+        $ois[]=$porgid;
       }
     }
     
@@ -2412,6 +2418,15 @@ class CoPetition extends AppModel {
     // Commit
     $dbc->commit();
     
+    // Check to see if there are any email addresses set to both unverified and verified for the same
+    // set of OIs and CoPersonId. If a user enters the same address as verified through a trusted OIS,
+    // that address can be considered verified without testing
+    if(!empty($orgIdentityId)) {
+      // should never be empty at this stage
+      $ois[]=$orgIdentityId;
+    }
+    $this->EnrolleeCoPerson->EmailAddress->testVerifiedAddresses($ois,$coPersonId);
+
     return true;
   }
   
