@@ -430,7 +430,12 @@ class UnixCluster extends ClusterInterface {
     // now provision the new CO Group if one was created.
     if(!empty($newCoGroupId)) {
       $this->Cluster->Co->CoGroup->Behaviors->load('Provisioner');
-      $this->Cluster->Co->CoGroup->requestToProvision(null, null, $newCoGroupId, ProvisioningActionEnum::CoGroupAdded);
+      $this->Cluster->Co->CoGroup->requestToProvision(
+        null, null,
+        $newCoGroupId,
+        ProvisioningActionEnum::CoGroupAdded,
+        null, null, null, null,
+        true); // manual = true
     }
     
     return true;

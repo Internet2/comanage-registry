@@ -1877,7 +1877,7 @@ class CoPetitionsController extends StandardController {
       if($coPersonId) {
         // Get to CoPerson via Co so we don't get confused by 'Enrollee'CoPerson
         $this->CoPetition->Co->CoPerson->Behaviors->load('Provisioner');
-        $this->CoPetition->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPetitionProvisioned);
+        $this->CoPetition->Co->CoPerson->requestToProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPetitionProvisioned);
       }
       
       // Send finalization notification, if configured. We do this here rather

@@ -1610,7 +1610,14 @@ class CoPipeline extends AppModel {
       $this->Co->CoPerson->Behaviors->load('Provisioner');
       
       try {
-        $this->Co->CoPerson->requestToProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPipelineProvisioned);
+        $this->Co->CoPerson->requestToProvision(
+          null,
+          $coPersonId,
+          null,
+          ProvisioningActionEnum::CoPersonPipelineProvisioned,
+          null, null, null, null,
+          true // manual = true
+        );
       }
       catch(Exception $e) {
         // XXX we should probably log this somehow

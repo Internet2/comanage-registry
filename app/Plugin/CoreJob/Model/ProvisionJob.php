@@ -234,7 +234,8 @@ class ProvisionJob extends CoJobBackend {
                                  ($Model->name == 'CoEmailList' ? $rid : null),
                                  null, // CoGroupMemberId
                                  null, // ActorCoPersonId
-                                 ($Model->name == 'CoService' ? $rid : null));
+                                 ($Model->name == 'CoService' ? $rid : null),
+                                 true); // manual = true
                               
       $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                          $rid,

@@ -650,7 +650,9 @@ class CoGroupMember extends AppModel {
                                       null,
                                       ProvisioningActionEnum::CoPersonReprovisionRequested,
                                       null,
-                                      $grm['CoGroupMember']['id']);
+                                      $grm['CoGroupMember']['id'],
+                                      null, null,
+                                      true); // manual = true
             
           } elseif($action == 'resync') {
             // We have a Group Membership. If it is associated with a CO Group

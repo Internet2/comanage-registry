@@ -291,10 +291,10 @@ class Authenticator extends AppModel {
   public function provision($coPersonId) {
     // Trigger provisioning
     
-    return $this->Co->CoPerson->manualProvision(null,
-                                                $coPersonId,
-                                                null,
-                                                ProvisioningActionEnum::AuthenticatorUpdated);
+    return $this->Co->CoPerson->requestToProvision(null,
+                                                   $coPersonId,
+                                                   null,
+                                                   ProvisioningActionEnum::AuthenticatorUpdated);
   }
   
   /**

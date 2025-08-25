@@ -29,11 +29,6 @@
 App::uses('CakeSession', 'Model/Datasource');
 
 class ProvisionerBehavior extends ModelBehavior {
-  
-  // Auxiliary property that faciliates manual provisioning
-  // Set once per request
-  private $isRequestToProvision = false;
-  
   /**
    * Specify which statuses provision which type of data
    */
@@ -916,46 +911,6 @@ class ProvisionerBehavior extends ModelBehavior {
     return true;
   }
 
-    /**
-     * Handle a provisioning request. This refers to a manual request that is coming outside the controller.
-     *
-     * @since  COmanage Registry v4.5.1
-     * @param  Model $model Model instance
-     * @param  integer $coProvisioningTargetId CO Provisioning Target to execute, or null for all
-     * @param  integer $coPersonId CO Person to (re)provision
-     * @param  integer $coGroupId CO Group to (re)provision
-     * @param  ProvisioningActionEnum $provisioningAction Provisioning action to pass to plugins
-     * @param  integer $coEmailListId CO Email List to (re)provision
-     * @param  integer $coGroupMemberId CO Group Member to (re)provision
-     * @param  integer $actorCoPersonId Actor CO Person ID
-     * @return boolean true on success, false on failure
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
-     */
-
-    public function requestToProvision(Model $model,
-                                       $coProvisioningTargetId=null,
-                                       $coPersonId,
-                                       $coGroupId=null,
-                                       $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
-                                       $coEmailListId=null,
-                                       $coGroupMemberId=null,
-                                       $actorCoPersonId=null,
-                                       $coServiceId=null) {
-      $this->isRequestToProvision = true;
-      $this->manualProvision(
-        $model,
-        $coProvisioningTargetId,
-        $coPersonId,
-        $coGroupId,
-        $provisioningAction,
-        $coEmailListId,
-        $coGroupMemberId,
-        $actorCoPersonId,
-        $coServiceId
-      );
-    }
-
   /**
    * Handle a manual provisioning request.
    *
@@ -968,20 +923,22 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  integer $coEmailListId CO Email List to (re)provision
    * @param  integer $coGroupMemberId CO Group Member to (re)provision
    * @param  integer $actorCoPersonId Actor CO Person ID
+   * @param  boolean $manual Is this a manual provisioning?
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function manualProvision(Model $model,
-                                  $coProvisioningTargetId=null,
-                                  $coPersonId,
-                                  $coGroupId=null,
-                                  $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
-                                  $coEmailListId=null,
-                                  $coGroupMemberId=null,
-                                  $actorCoPersonId=null,
-                                  $coServiceId=null) {
+  public function requestToProvision(Model $model,
+                                     $coProvisioningTargetId=null,
+                                     $coPersonId,
+                                     $coGroupId=null,
+                                     $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
+                                     $coEmailListId=null,
+                                     $coGroupMemberId=null,
+                                     $actorCoPersonId=null,
+                                     $coServiceId=null,
+                                     $manual=false) {
     // First marshall the provisioning data
     $provisioningData = array();
     
@@ -1013,7 +970,7 @@ class ProvisionerBehavior extends ModelBehavior {
 
       // Provisioning target is not in manual mode
       if(
-        $this->isRequestToProvision
+        $manual
         && $copt['CoProvisioningTarget']['status'] !== ProvisionerModeEnum::ManualMode
       ) {
         syslog(LOG_DEBUG,'Not in manual mode.');
