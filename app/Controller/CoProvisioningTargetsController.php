@@ -403,7 +403,7 @@ class CoProvisioningTargetsController extends StandardController {
       try {
         $mdl = $this->_sModel;
         $this->CoProvisioningTarget->Co->$mdl->Behaviors->load('Provisioner');
-        $this->CoProvisioningTarget->Co->$mdl->manualProvision($id,
+        $this->CoProvisioningTarget->Co->$mdl->requestToProvision($id,
                                                                   ($mdl == 'CoPerson' ? $this->_sId : null),
                                                                   ($mdl == 'CoGroup' ? $this->_sId : null),
                                                                   $this->_sAction,

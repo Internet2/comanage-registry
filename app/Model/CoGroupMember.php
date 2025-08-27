@@ -645,12 +645,14 @@ class CoGroupMember extends AppModel {
       foreach($memberships as $grm) {
         try {
           if($action == 'reprovision') {
-            $this->manualProvision(null, 
-                                   null,
-                                   null,
-                                   ProvisioningActionEnum::CoPersonReprovisionRequested,
-                                   null,
-                                   $grm['CoGroupMember']['id']);
+            $this->requestToProvision(null,
+                                      null,
+                                      null,
+                                      ProvisioningActionEnum::CoPersonReprovisionRequested,
+                                      null,
+                                      $grm['CoGroupMember']['id'],
+                                      null, null,
+                                      true); // manual = true
             
           } elseif($action == 'resync') {
             // We have a Group Membership. If it is associated with a CO Group
