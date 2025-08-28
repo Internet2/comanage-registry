@@ -106,7 +106,7 @@ class CoInvite extends AppModel {
     $invite = $this->find('first', $args);
     
     if(!empty($invite)) {
-      $verifyEmail = !empty($invite['CoInvite']['email_address_id']);
+      $verifyEmail = !empty($invite['CoInvite']['email_address_id']) && $invite['CoInvite']['skip_verified'] !== true;
       
       // Check invite validity
       
@@ -144,7 +144,7 @@ class CoInvite extends AppModel {
         
         // Mark the email address associated with this invite as verified.
         
-        if($confirm) {
+        if($confirm && $invite['CoInvite']['skip_verified'] !== true) {
           // For historical reasons, we don't attach the email_address_id to the invite
           // when we're in a petition context. (That's how we distinguish petition
           // vs not, above.) This all needs to get rewritten (currently scheduled
