@@ -227,14 +227,15 @@ class ProvisionJob extends CoJobBackend {
     // so catch exceptions for logging.
     
     try {
-      $Model->manualProvision($ptid,
-                              ($Model->name == 'CoPerson' ? $rid : null),
-                              ($Model->name == 'CoGroup' ? $rid : null),
-                              $action,
-                              ($Model->name == 'CoEmailList' ? $rid : null),
-                              null, // CoGroupMemberId
-                              null, // ActorCoPersonId
-                              ($Model->name == 'CoService' ? $rid : null));
+      $Model->requestToProvision($ptid,
+                                 ($Model->name == 'CoPerson' ? $rid : null),
+                                 ($Model->name == 'CoGroup' ? $rid : null),
+                                 $action,
+                                 ($Model->name == 'CoEmailList' ? $rid : null),
+                                 null, // CoGroupMemberId
+                                 null, // ActorCoPersonId
+                                 ($Model->name == 'CoService' ? $rid : null),
+                                 true); // manual = true
                               
       $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                          $rid,

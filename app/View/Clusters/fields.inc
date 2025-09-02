@@ -95,19 +95,15 @@
 
         if($this->action == 'edit') {
           // And render a link to the plugin target
-
-/* We should link to the plugin configuration, but for some reason Cake isn't
-   loading the plugin model in the find() (ie: there's no UnixCluster in $clusters),
-   probably because the association is being reset somewhere
-
+          $plmodel = $clusters[0]['Cluster']['plugin'];
           print ' ' . $this->Html->link(_txt('op.config'),
                                              array(
-                                               'plugin' => $clusters[0]['Cluster']['plugin'],
-                                               'controller' => Inflector::tableize($clusters[0]['Cluster']['plugin']),
+                                               'plugin' =>  Inflector::underscore($plmodel),
+                                               'controller' => Inflector::tableize($plmodel),
                                                'action' => 'edit',
                                                $clusters[0][$plmodel]['id']
                                              ),
-                                             array('class' => 'configurebutton'));*/
+                                             array('class' => 'configurebutton'));
         }
       ?>
     </div>

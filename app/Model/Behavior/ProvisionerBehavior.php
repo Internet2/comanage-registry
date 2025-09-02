@@ -353,40 +353,49 @@ class ProvisionerBehavior extends ModelBehavior {
     // may be keyed on one of them.
     
     if($model->name == 'Identifier') {
-      if(!empty($model->data['Identifier']['co_person_id'])) {
-        if(!isset($model->cacheData['Identifier']['identifier'])
-           && !empty($model->data['Identifier']['identifier'])) {
-          $syncGroups = true;
-        } elseif(!empty($model->cacheData['Identifier']['modified'])
-                 && !empty($model->data['Identifier']['modified'])
-                 && ($model->cacheData['Identifier']['modified']
-                     != $model->data['Identifier']['modified'])) {
-          // Use modified as a proxy for seeing if anything has changed in the record
-          
+      if(!empty($model->data['Identifier']['co_person_id'])
+         || !empty($model->data['Identifier']['co_group_id'])) {
+        // New Record
+        $isNewRecord = !isset($model->cacheData['Identifier']['identifier'])
+          && !empty($model->data['Identifier']['identifier']);
+        // Modified Record
+        $modifiedRecord = !empty($model->cacheData['Identifier']['modified'])
+          && !empty($model->data['Identifier']['modified'])
+          && ($model->cacheData['Identifier']['modified'] != $model->data['Identifier']['modified']);
+        if($isNewRecord || $modifiedRecord) {
           $syncGroups = true;
         }
         
         if($syncGroups) {
-          $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
-          $copid = $model->data['Identifier']['co_person_id'];
+          $gmodel = !empty($model->data['Identifier']['co_person_id']) ?
+            $model->CoPerson->CoGroupMember->CoGroup : $model->CoGroup;
+          $copid = !empty($model->data['Identifier']['co_person_id']) ?
+            $model->data['Identifier']['co_person_id'] : null;
         }
-      } elseif(!empty($model->cacheData['Identifier']['co_person_id'])) {
+      } elseif(!empty($model->cacheData['Identifier']['co_person_id'])
+               || !empty($model->cacheData['Identifier']['co_group_id'])) {
         // Identifier was deleted
-        $gmodel = $model->CoPerson->CoGroupMember->CoGroup;
-        $copid = $model->cacheData['Identifier']['co_person_id'];
+        $gmodel = !empty($model->cacheData['Identifier']['co_person_id']) ?
+          $model->CoPerson->CoGroupMember->CoGroup : $model->CoGroup;
+        $copid = !empty($model->cacheData['Identifier']['co_person_id']) ?
+          $model->cacheData['Identifier']['co_person_id'] : null;
       }
     }
     
     if($syncGroups) {
-      $args = array();
-      $args['conditions']['CoGroupMember.co_person_id'] = $copid;
-      $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
-      $args['contain'] = false;
-      
-      $gms = $gmodel->CoGroupMember->find('list', $args);
-      
-      if(!empty($gms)) {
-        $coGroupIds = array_values($gms);
+      if($copid !== null) {
+        $args = array();
+        $args['conditions']['CoGroupMember.co_person_id'] = $copid;
+        $args['fields'] = array('CoGroupMember.id', 'CoGroupMember.co_group_id');
+        $args['contain'] = false;
+
+        $gms = $gmodel->CoGroupMember->find('list', $args);
+
+        if(!empty($gms)) {
+          $coGroupIds = array_values($gms);
+        }
+      } else {
+        $coGroupIds = array($model->data['Identifier']['co_group_id'] ?? $model->cacheData['Identifier']['co_group_id']);
       }
     }
     
@@ -495,6 +504,8 @@ class ProvisionerBehavior extends ModelBehavior {
         }
         
         $pmodel = $model->CoPerson;
+      } elseif($model->name == 'Identifier' && !empty($coGroupIds)) {
+        // Identifier action from a CoGroup. Let this go through. We do nothing
       } elseif($model->name == 'CoGroup') {
         // Find the members of the group
         
@@ -923,20 +934,22 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  integer $coEmailListId CO Email List to (re)provision
    * @param  integer $coGroupMemberId CO Group Member to (re)provision
    * @param  integer $actorCoPersonId Actor CO Person ID
+   * @param  boolean $manual Is this a manual provisioning?
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
    */
   
-  public function manualProvision(Model $model,
-                                  $coProvisioningTargetId=null,
-                                  $coPersonId,
-                                  $coGroupId=null,
-                                  $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
-                                  $coEmailListId=null,
-                                  $coGroupMemberId=null,
-                                  $actorCoPersonId=null,
-                                  $coServiceId=null) {
+  public function requestToProvision(Model $model,
+                                     $coProvisioningTargetId=null,
+                                     $coPersonId,
+                                     $coGroupId=null,
+                                     $provisioningAction=ProvisioningActionEnum::CoPersonReprovisionRequested,
+                                     $coEmailListId=null,
+                                     $coGroupMemberId=null,
+                                     $actorCoPersonId=null,
+                                     $coServiceId=null,
+                                     $manual=false) {
     // First marshall the provisioning data
     $provisioningData = array();
     
@@ -945,6 +958,36 @@ class ProvisionerBehavior extends ModelBehavior {
     // was requested. In the latter case, we operate more like afterSave.
     
     if($coProvisioningTargetId) {
+      // Find the associated Provisioning Target record
+
+      $args = array();
+      $args['conditions']['CoProvisioningTarget.id'] = $coProvisioningTargetId;
+      $args['contain'] = false;
+
+      // Currently, CoPerson and CoGroup are the only models that calls manualProvision, so we know
+      // how to find CoProvisioningTarget
+      $copt = $model->Co->CoProvisioningTarget->find('first', $args);
+
+      // No provisioning target found. Something is wrong.
+      if(empty($copt)) {
+        throw new InvalidArgumentException(_txt('er.copt.unk'));
+      }
+
+      // Provisioning Target is disabled
+      if($copt['CoProvisioningTarget']['status'] === ProvisionerModeEnum::Disabled) {
+        syslog(LOG_DEBUG, _txt('op.disabled-a', array($copt['CoProvisioningTarget']['plugin'])));
+        throw new ForbiddenException(_txt('op.disabled-a', array($copt['CoProvisioningTarget']['plugin'])));
+      }
+
+      // Provisioning target is not in manual mode
+      if(
+        $manual
+        && $copt['CoProvisioningTarget']['status'] !== ProvisionerModeEnum::ManualMode
+      ) {
+        syslog(LOG_DEBUG,'Not in manual mode.');
+        throw new ForbiddenException(_txt('op.not.manual-a', array($copt['CoProvisioningTarget']['plugin'])));
+      }
+
       if($coPersonId) {
         // $model = CoPerson
         $provisioningData = $this->marshallCoPersonData($model, $coPersonId);
@@ -960,32 +1003,17 @@ class ProvisionerBehavior extends ModelBehavior {
       }
       // XXX We don't currently support manual provisioning of 
       // CoGroupMember+coProvisioningTargetId because we don't have a use case
-      
-      // Find the associated Provisioning Target record
-      
-      $args = array();
-      $args['conditions']['CoProvisioningTarget.id'] = $coProvisioningTargetId;
-      $args['contain'] = false;
-      
-      // Currently, CoPerson and CoGroup are the only models that calls manualProvision, so we know
-      // how to find CoProvisioningTarget
-      $copt = $model->Co->CoProvisioningTarget->find('first', $args);
-      
-      if(!empty($copt)) {
-        try {
-          $this->invokePlugin($copt,
-                              $provisioningData,
-                              $provisioningAction,
-                              $actorCoPersonId);
-        }
-        catch(InvalidArgumentException $e) {
-          throw new InvalidArgumentException($e->getMessage());
-        }
-        catch(RuntimeException $e) {
-          throw new RuntimeException($e->getMessage());
-        }
-      } else {
-        throw new InvalidArgumentException(_txt('er.copt.unk'));
+      try {
+        $this->invokePlugin($copt,
+          $provisioningData,
+          $provisioningAction,
+          $actorCoPersonId);
+      }
+      catch(InvalidArgumentException $e) {
+        throw new InvalidArgumentException($e->getMessage());
+      }
+      catch(RuntimeException $e) {
+        throw new RuntimeException($e->getMessage());
       }
     } else {
       // Set the appropriate ID

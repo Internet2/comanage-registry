@@ -312,9 +312,21 @@ class Identifier extends AppModel {
         $this->$objType->Behaviors->load('Provisioner');
         
         if($objType == 'CoGroup') {
-          $this->CoGroup->manualProvision(null, null, $objId, ProvisioningActionEnum::CoGroupUpdated);
+          $this->CoGroup->requestToProvision(
+            null,
+            null,
+            $objId,
+            ProvisioningActionEnum::CoGroupUpdated,
+            null, null, null, null,
+            true); // manual = true
         } else {
-          $this->CoPerson->manualProvision(null, $objId, null, ProvisioningActionEnum::CoPersonUpdated);
+          $this->CoPerson->requestToProvision(
+            null,
+            $objId,
+            null,
+            ProvisioningActionEnum::CoPersonUpdated,
+            null, null, null, null,
+            true); // manual = true
         }
       }
     }
@@ -470,12 +482,17 @@ class Identifier extends AppModel {
    * @param  integer $coId  CO ID to constrain search to
    * @param  string  $q     String to search for
    * @param  integer $limit Search limit
+   * @param  boolean $exact Exact search or `LIKE` search
    * @return Array Array of search results, as from find('all')
    */
   
-  public function search($coId, $q, $limit) {
+  public function search($coId, $q, $limit, $exact = false) {
     $args = array();
-    $args['conditions']['LOWER(Identifier.identifier) LIKE'] = '%' . strtolower($q) . '%';
+    if($exact) {
+      $args['conditions']['Identifier.identifier'] = $q;
+    } else {
+      $args['conditions']['LOWER(Identifier.identifier) LIKE'] = '%' . strtolower($q) . '%';
+    }
     $args['conditions']['OR'] = array(
       'CoPerson.co_id' => $coId,
       'CoGroup.co_id' => $coId,

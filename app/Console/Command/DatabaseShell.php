@@ -88,7 +88,9 @@
       }
 
       $this->dbc = ADONewConnection($this->db_driverName);
-      if (Configure::read('debug') >= 2) {
+      $envDatabaseVerbose = getenv('COMANAGE_REGISTRY_DATABASE_VERBOSE');
+      if (Configure::read('debug') >= 2
+          || filter_var($envDatabaseVerbose, FILTER_VALIDATE_BOOLEAN)) {
         $this->dbc->debug = true;
       }
       if(isset($this->db->config['port'])) {
@@ -234,6 +236,7 @@
       // Since this is only form mysql we assume that the after the key COLUMN we only find the column name
       $reDropColumn = '/ALTER TABLE (.*?) DROP COLUMN (.*)/m';
 
+      $dropConstraints = array();
       foreach ($sqlQueryList as $idx => $sqlQuery) {
         // Remove unnecessary multiple spaces.
         $sqlQuery = preg_replace('/\s+/', ' ', $sqlQuery);
@@ -274,7 +277,7 @@
           continue;
         }
 
-        // Drop Indexes associated to Constraints
+        // Do not allow to Drop Indexes associated to Constraints
         $indexQueryMatch = array();
         $reIndexDrop = '/DROP INDEX (.*?) ON (.*)/m';
         preg_match($reIndexDrop, $sqlQuery, $indexQueryMatch);
@@ -294,11 +297,18 @@
         $columnDropMatches = array();
         preg_match($reDropColumn, $sqlQuery, $columnDropMatches);
         if (!empty($columnDropMatches)) {
+          // Before we drop we need to check for a foreign. If we find one we need to drop it first
+          $constraintName = $this->getConstraintNameFromColumn($columnDropMatches[1], $columnDropMatches[2], $this->dbc);
+          if (!empty($constraintName)) {
+            $subst = "ALTER TABLE $columnDropMatches[1] DROP CONSTRAINT $constraintName";
+            $dropConstraints[] = $subst;
+          }
           $subst = "ALTER TABLE $columnDropMatches[1] DROP COLUMN `{$columnDropMatches[2]}`";
           $sqlQueryList[$idx] = $subst;
-          $sqlQuery = $subst;
         }
       }
+
+      $sqlQueryList = array_merge($dropConstraints, $sqlQueryList);
       return $sqlQueryList;
     }
 
@@ -466,5 +476,33 @@ MYSQL;
 
       // Shorten, remove all vowels
       return $newFieldName;
+    }
+
+
+    /**
+     * Retrieves the constraint name for a given table and column from MySQL database.
+     *
+     * @param string $table The name of the table to check
+     * @param string $column The name of the column to check
+     * @param ADOConnection $db The ADOdb database connection instance
+     * @return string|null The constraint name if found, null otherwise
+     * @since COmanage Registry v4.5.1
+     * @package registry
+     */
+    function getConstraintNameFromColumn($table, $column, $db) {
+      // Find the constraint name
+      $sql = "
+    SELECT CONSTRAINT_NAME
+    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = ?
+      AND COLUMN_NAME = ?
+      AND REFERENCED_TABLE_NAME IS NOT NULL
+";
+      $row = $db->GetRow($sql, array($table, $column));
+      if (!$row) {
+        return;
+      }
+      return $row['CONSTRAINT_NAME'];
     }
   }

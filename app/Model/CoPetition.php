@@ -1802,6 +1802,7 @@ class CoPetition extends AppModel {
     // If so, relink and delete.
     
     $petitionCoPId = $this->field('enrollee_co_person_id');
+    // In the case of an invitation flow the enrollee_org_identity_id will be null
     $petitionOrgId = $this->field('enrollee_org_identity_id');
     $petitionRoleId = $this->field('enrollee_co_person_role_id');
     $petitionCouId = $this->field('cou_id');
@@ -1851,9 +1852,11 @@ class CoPetition extends AppModel {
         }
         
         // Now we're clear to proceed. First, relink the petition.
-        
-        if(!$this->saveField('enrollee_org_identity_id', $targetOrgIdentityId)
-           || !$this->saveField('enrollee_co_person_id', $targetCoPersonId)) {
+        // performMatch will send $targetOrgIdentityId = null
+        if($targetOrgIdentityId !== null && !$this->saveField('enrollee_org_identity_id', $targetOrgIdentityId)) {
+          throw new RuntimeException(_txt('er.db.save'));
+        }
+        if(!$this->saveField('enrollee_co_person_id', $targetCoPersonId)) {
           throw new RuntimeException(_txt('er.db.save'));
         }
         
@@ -1875,7 +1878,10 @@ class CoPetition extends AppModel {
         // so the relevant ids will still be valid even after the delete.
         
         try {
-          $this->EnrolleeOrgIdentity->delete($petitionOrgId);
+          // In the case of an Invitation that uses the EnvSource plugin the petitionOrgId is null
+          if($petitionOrgId !== null) {
+            $this->EnrolleeOrgIdentity->delete($petitionOrgId);
+          }
           $this->EnrolleeCoPerson->delete($petitionCoPId);
           
           // No need to delete the CoOrgIdentityLink since CoPerson cascading
@@ -2884,6 +2890,21 @@ class CoPetition extends AppModel {
       if(!empty($org_mail_list)) {
         $skip_invite = true;
       }
+    }
+
+    // Create New Role if duplicate and this is an Invitation Enrollment Flow
+    $enrollmentFlowDuplicateMode = $this->CoEnrollmentFlow
+      ->field('duplicate_mode', array('CoEnrollmentFlow.id' => $pt['CoPetition']['co_enrollment_flow_id']));
+    if(in_array($enrollmentFlowDuplicateMode, [
+        EnrollmentDupeModeEnum::NewRole,
+        EnrollmentDupeModeEnum::NewRoleCouCheck
+      ])
+      // The email has been verified already
+      && $toEmail == null
+    ) {
+      // All the EmailAddresses are verified. Just pick one to allow the flow to continue
+      // and handle the duplicate outcome
+      $toEmail = $pt['EnrolleeCoPerson']['EmailAddress'][0];
     }
 
     // Should we proceed with Email Confirmation or not?

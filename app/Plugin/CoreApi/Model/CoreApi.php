@@ -1092,10 +1092,10 @@ class CoreApi extends AppModel {
       
       // Trigger provisioning if the action is allowed
       if(defined("ProvisioningActionEnum::{$modelMapperName}Updated")) {
-        $this->Co->$modelMapperName->manualProvision(null,
-                                                     $current[$modelMapperName]['id'],
-                                                     null,
-                                                     constant("ProvisioningActionEnum::{$modelMapperName}Updated"));
+        $this->Co->$modelMapperName->requestToProvision(null,
+                                                        $current[$modelMapperName]['id'],
+                                                        null,
+                                                        constant("ProvisioningActionEnum::{$modelMapperName}Updated"));
       }
     }
     catch(Exception $e) {

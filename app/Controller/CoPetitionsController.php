@@ -1877,7 +1877,7 @@ class CoPetitionsController extends StandardController {
       if($coPersonId) {
         // Get to CoPerson via Co so we don't get confused by 'Enrollee'CoPerson
         $this->CoPetition->Co->CoPerson->Behaviors->load('Provisioner');
-        $this->CoPetition->Co->CoPerson->manualProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPetitionProvisioned);
+        $this->CoPetition->Co->CoPerson->requestToProvision(null, $coPersonId, null, ProvisioningActionEnum::CoPersonPetitionProvisioned);
       }
       
       // Send finalization notification, if configured. We do this here rather
@@ -2349,6 +2349,8 @@ class CoPetitionsController extends StandardController {
     $ef = $this->CoPetition->find('first', $args);
 
     // The step is done
+
+    // Suitable for Self Signup
     if($ef["CoEnrollmentFlow"]["email_verification_mode"] === VerificationModeEnum::SkipIfVerified
        && $ef["CoInvite"]["skip_invite"]) {
       $confirm_url = array(

@@ -289,7 +289,7 @@ class CoreApiPerson extends CoreApi {
       $dbc->commit();
 
       // Trigger provisioning
-      $this->Co->CoPerson->manualProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
+      $this->Co->CoPerson->requestToProvision(null, $co_person_id, null, ProvisioningActionEnum::CoPersonUpdated);
 
       // Return the list of identifiers that their type match the CORE API configuration
       $args = array();
