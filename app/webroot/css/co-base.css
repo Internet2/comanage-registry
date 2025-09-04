@@ -2164,6 +2164,58 @@ ul.fields.data-list li {
 .cm-ac-label {
   text-transform: lowercase;
 }
+.ui-autocomplete {
+  max-height: 400px; /* adjust to show ~20 items */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Sticky meta row with solid background */
+.ui-autocomplete .cm-ac-meta {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff !important; /* non-transparent */
+  font-size: 0.9em;
+  padding: 6px 10px;
+  border-bottom: 1px solid #ddd;
+}
+.ui-autocomplete .cm-ac-meta {
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+}
+.ui-autocomplete .cm-ac-meta .cm-ac-count {
+  font-weight: 600;
+  margin-right: 8px;
+}
+.ui-autocomplete .cm-ac-meta .cm-ac-note {
+  color: #555;
+}
+/* Remove jQuery UI's disabled opacity from the meta row only */
+.ui-autocomplete .cm-ac-meta.ui-state-disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: none;
+}
+.ui-autocomplete .cm-ac-spacer {
+  max-height: 0px !important;
+}
+/* Visually hidden utility for SR-only text */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.ui-autocomplete .ui-menu-item-wrapper,
+.ui-autocomplete .cm-ac-item-wrapper {
+  white-space: normal;       /* allow wrapping */
+  word-break: break-word;    /* break long tokens */
+  hyphens: auto;
+}
 /* FORMS */
 label {
   cursor: pointer;
