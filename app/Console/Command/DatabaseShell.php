@@ -180,6 +180,8 @@
 
         if ($this->db_driverName == self::DB_DRIVER_MYSQL) {
           $sqlQueries = $this->transformSqlQueryList($sqlQueries);
+        } else {
+          $sqlQueries = $this->transfomrPGSqlQueryList($sqlQueries);
         }
 
         switch($schema->ExecuteSchema($sqlQueries)) {
@@ -219,6 +221,7 @@
 
     /**
      * Iterate over the SqlQueryList and apply corrections
+     * For MySQL
      *
      * @param array $sqlQueryList transformSqlQueryList List of SQL query statements.
      *
@@ -310,6 +313,37 @@
       }
 
       $sqlQueryList = array_merge($dropConstraints, $sqlQueryList);
+      return $sqlQueryList;
+    }
+
+    /**
+     * Iterate over the SqlQueryList and apply corrections
+     * For PostgreSQL
+     *
+     * @param array $sqlQueryList transformSqlQueryList List of SQL query statements.
+     *
+     * @return array Modified SQL statements generated from the XML schema file.
+     * @since       COmanage Registry v4.6.0
+     * @package registry
+     */
+    public function transfomrPGSqlQueryList($sqlQueryList) {
+      // regex pattern to match the DROP INDEX statement and extract the index name
+      $reIndexDrop = "/^\s*DROP\s+INDEX\s+([A-Za-z0-9_]+)\s*;?\s*$/i";
+
+      foreach ($sqlQueryList as $idx => $sqlQuery) {
+        // Do not allow to Drop Indexes associated to Constraints
+        $indexQueryMatch = array();
+        preg_match($reIndexDrop, $sqlQuery, $indexQueryMatch);
+        if (
+          !empty($indexQueryMatch)
+          && $this->getPGConstraintNameFromIndex($indexQueryMatch[1], $this->dbc)
+        ) {
+          unset($sqlQueryList[$idx]);
+        }
+      }
+
+
+
       return $sqlQueryList;
     }
 
@@ -505,5 +539,39 @@ MYSQL;
         return;
       }
       return $row['CONSTRAINT_NAME'];
+    }
+
+    /**
+     * Resolve the owning constraint name for a given index (or constraint) name on a table (PostgreSQL).
+     *
+     * @param string         $index Index or constraint name to look up (eg, 'cm_cos_name_key')
+     * @param ADOConnection  $db ADOdb connection (connected to the target database)
+     * @param string         $schema Schema name (default 'public')
+     * @return bool          true if the index exists, false otherwise or if the query fails
+     * @throws RuntimeException if the query fails
+     * @package registry
+     * @since COmanage Registry v4.6.0
+     */
+    public function getPGConstraintNameFromIndex($index, $db, $schema = 'public') {
+       $sql = <<<SQL
+    SELECT c.conname
+    FROM pg_constraint c
+    JOIN pg_class t ON t.oid = c.conrelid
+    JOIN pg_namespace n ON n.oid = t.relnamespace
+    LEFT JOIN pg_class i ON i.oid = c.conindid
+    WHERE n.nspname = ?
+      AND (c.conname = ? OR i.relname = ?)
+    LIMIT 1
+    SQL;
+
+
+      $rs = $db->Execute($sql, array($schema, $index, $index));
+      if ($rs === false) {
+        throw new RuntimeException("Error executing query: " . $db->ErrorMsg() );
+      }
+
+      $exists = !$rs->EOF;  // true if there is at least one row, without fetching any field
+      $rs->Close();
+      return $exists;
     }
   }
