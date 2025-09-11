@@ -187,7 +187,8 @@
             $this->out(_txt('op.db.ok'));
             break;
           default:
-            $this->out(_txt('er.db.schema'));
+            $this->err('<error>' . _txt('er.db.schema') . '</error>');
+            $this->err('<error>' . $schema->db->ErrorMsg() . '</error>');
             break;
         }
       }
