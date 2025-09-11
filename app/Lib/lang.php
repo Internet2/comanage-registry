@@ -1046,6 +1046,13 @@ The request may be viewed at
     TemplateableStatusEnum::Template            => 'Template',
     TemplateableStatusEnum::InTrash             => 'Pending Removal'
   ),
+  
+  'en.status.tc' => array(
+    TAndCStatusEnum::Agreed                 => 'Agreed',
+    TAndCStatusEnum::Expired                => 'Expired',
+    TAndCStatusEnum::NotAgreed              => 'Not Agreed',
+    TAndCStatusEnum::Outdated               => 'Outdated'
+  ),
 
   'en.status.vet' => array(
     VettingStatusEnum::Canceled             => 'Canceled',
@@ -2098,7 +2105,14 @@ The request may be viewed at
   'fd.tc.agree.impl' => 'By clicking <i>Submit</i>, you are agreeing to the following Terms and Conditions.<br />Please review the T&C before continuing.',
   'fd.tc.agree.login' => 'You must agree to all of the following Terms and Conditions before continuing.',
   'fd.tc.agree.no' => 'Not Agreed',
+  'fd.tc.agree.status' => '%1$s (%2$s, %3$s)',
   'fd.tc.agree.yes' => 'Agreed',
+  'fd.tc.agreement_duration' => 'Agreement Duration',
+  'fd.tc.agreement_duration.desc' => 'Length of time in days agreement is valid for before a new agreement is required',
+  'fd.tc.agree_to_updates' => 'Require Agreement to Updates',
+  'fd.tc.agree_to_updates.desc' => 'If enabled, new agreements are required if any part of this configuration is changed',
+  'fd.tc.allowlist' => 'Terms and Conditions Return URL Allow List',
+  'fd.tc.allowlist.desc' => 'Permitted regular expressions (one per line) for <i>tcreturn</i> parameter',
   'fd.tc.archived' => 'The definition of this T&C changed after the agreement was recorded',
   'fd.tc.body' => 'Inline T&C',
   'fd.tc.body.desc' => 'Terms and Conditions for inline rendering. If provided, overrides and overwrites the URL',

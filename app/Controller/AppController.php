@@ -421,7 +421,12 @@ class AppController extends Controller {
             $tandc = $this->Session->read('Auth.User.tandc.pending.' . $this->cur_co['Co']['id']);
             
             if(!empty($tandc)) {
-              // Un-agreed T&C, redirect to review
+              // Un-agreed T&C, redirect to review, but first store the redirect URL
+              // if one was provided.
+
+              if(!empty($this->request->params['named']['tcreturn'])) {
+                $this->Session->write('Auth.User.tandc.return', base64_decode($this->request->params['named']['tcreturn']));
+              }
               
               // Pull the CO Person from the session info. There should probable be a
               // better way to get it.

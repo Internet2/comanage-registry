@@ -914,6 +914,14 @@ class TAndCLoginModeEnum
   const DisableAllServices = 'D';
 }
 
+class TAndCStatusEnum
+{
+  const Agreed    = 'Y';
+  const Expired   = 'XP';
+  const NotAgreed = 'N';
+  const Outdated  = 'OD';   // A newer version of the T&C exists
+}
+
 class TemplateableStatusEnum
 {
   const Active              = 'A';

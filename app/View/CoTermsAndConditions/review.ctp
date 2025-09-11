@@ -126,24 +126,23 @@
         </td>
         <td>
           <?php
-            if(!empty($c['CoTAndCAgreement'])) {
-              print _txt('fd.tc.agree.yes')
-                    . " ("
-                    . $c['CoTAndCAgreement']['identifier']
-                    . ", "
-                    . $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
-                    . ")";
+            if($c['CoTAndCAgreement']['status'] != TAndCStatusEnum::NotAgreed) {
+              print _txt('fd.tc.agree.status', array(
+                _txt('en.status.tc', null, $c['CoTAndCAgreement']['status']),
+                $c['CoTAndCAgreement']['identifier'],
+                $this->Time->format($c['CoTAndCAgreement']['agreement_time'], "%c $vv_tz", false, $vv_tz)
+              ));
 
               if(!empty($c['CoTermsAndConditions']['co_terms_and_conditions_id'])) {
                 print "</br>" . _txt('fd.tc.archived');
               }
             } else {
-              print _txt('fd.tc.agree.no');
+              print _txt('en.status.tc', null, $c['CoTAndCAgreement']['status']);
             }
           ?>
         </td>
         <td>
-          <?php if(!empty($c['CoTAndCAgreement'])): ?>
+          <?php if($c['CoTAndCAgreement']['status'] == TAndCStatusEnum::Agreed): ?>
           <button class="checkbutton"
                   type="button"
                   onClick="open_tandc('<?php print addslashes($c['CoTermsAndConditions']['description']); ?>',

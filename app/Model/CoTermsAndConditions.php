@@ -79,6 +79,16 @@ class CoTermsAndConditions extends AppModel {
       'rule' => 'numeric',
       'required' => false,
       'allowEmpty' => true
+    ),
+    'agreement_duration' => array(
+      'rule' => 'numeric',
+      'required' => false,
+      'allowEmpty' => true
+    ),
+    'agree_to_updates' => array(
+      'rule' => 'boolean',
+      'required' => false,
+      'allowEmpty' => true
     )
   );
   
@@ -184,8 +194,8 @@ class CoTermsAndConditions extends AppModel {
     $ret = array();
     
     foreach($this->status($copersonid) as $tc) {
-      if(empty($tc['CoTAndCAgreement'])) {
-        // This T&C has not yet been agreed to, so push it onto the list
+      if($tc['CoTAndCAgreement']['status'] != TAndCStatusEnum::Agreed) {
+        // This T&C has not yet been agreed to, or needs to be re-agreed to, so push it onto the list
         
         $ret[] = $tc;
       }
@@ -229,37 +239,80 @@ class CoTermsAndConditions extends AppModel {
     
     $tandc = $this->find('all', $args);
     
-    // Pull the list of agreements separately since changelog behavior makes it a bit
-    // tricky to figure out that an agreement linked to an archived T&C is actually sufficient.
+    // Even before CO-2140, $relinkToArchive was set to true, meaning Agreements always
+    // track the version of the T&C in effect when the Agreement was recorded, regardless
+    // of the agree_to_updates setting. We'll pull the list of agreements separately and
+    // then walk them below in accordance with the configuration.
     
     $args = array();
     $args['conditions']['CoTAndCAgreement.co_person_id'] = $copersonid;
     $args['order'] = array('CoTAndCAgreement.agreement_time DESC');
+    // This contain should pull the version of the T&C that were in effect when the
+    // Agreement was made, even if it is now outdated
     $args['contain'][] = 'CoTermsAndConditions';
     
     $agreements = $this->CoTAndCAgreement->find('all', $args);
     
     // Walk through each T&C and merge in any existing agreements. There's probably
     // a more optimal way to handle this, but typically there will only be a handful
-    // of agreements.
+    // of agreements. We'll inject a status value, which is not part of the physical
+    // data model, but by doing so here we make it easier for the invoking code to
+    // see what's going on for each T&C.
     
     for($i = 0;$i < count($tandc);$i++) {
       // This is the ID of the current T&C
       $tid = $tandc[$i]['CoTermsAndConditions']['id'];
       
       foreach($agreements as $a) {
+        // We can have more than one Agreement to the same T&C (subsequent Agreements
+        // to address Expired or Outdated Agreements won't delete the older ones), but
+        // since we order by agreement_time DESC we should always get the newest one first.
+
         if($a['CoTermsAndConditions']['id'] == $tid) {
           // Agreement is to the current T&C
           $tandc[$i]['CoTAndCAgreement'] = $a['CoTAndCAgreement'];
+
+          // Calculate status
+          $tandc[$i]['CoTAndCAgreement']['status'] = TAndCStatusEnum::Agreed;
+
+          if(!empty($tandc[$i]['CoTermsAndConditions']['agreement_duration'])) {
+            // Check to see if the agreement time is older than the policy allows
+
+            $agreetime = new DateTime($tandc[$i]['CoTAndCAgreement']['agreement_time']);
+            $nowtime = new DateTime();
+
+            $timediff = $agreetime->diff($nowtime);
+
+            if($timediff->days > $tandc[$i]['CoTermsAndConditions']['agreement_duration']) {
+              $tandc[$i]['CoTAndCAgreement']['status'] = TAndCStatusEnum::Expired;
+            }
+          }
           break;
         } elseif($a['CoTermsAndConditions']['co_terms_and_conditions_id'] == $tid) {
-          // Agreement is to a previous version of the current T&C,
-          // which for now at least is considered sufficient
+          // Agreement is to a previous version of the current T&C. Whether this is
+          // sufficient or not depends on the configuration on the _current_ T&C.
+
           $tandc[$i]['CoTAndCAgreement'] = $a['CoTAndCAgreement'];
-          // Replace with the version actually agreed to
-          $tandc[$i]['CoTermsAndConditions'] = $a['CoTermsAndConditions'];
+
+          if($tandc[$i]['CoTermsAndConditions']['agree_to_updates']) {
+            // This Agreement is _not_ sufficient
+            $tandc[$i]['CoTAndCAgreement']['status'] = TAndCStatusEnum::Outdated;
+          } else {
+            // Agreement is to a previous version of the current T&C, which is sufficient            
+            $tandc[$i]['CoTAndCAgreement']['status'] = TAndCStatusEnum::Agreed;
+            // Replace with the version actually agreed to
+            $tandc[$i]['CoTermsAndConditions'] = $a['CoTermsAndConditions'];
+          }
+
           break;
         }
+      }
+
+      // If we didn't find an Agreement insert a placeholder
+      if(!isset($tandc[$i]['CoTAndCAgreement'])) {
+        $tandc[$i]['CoTAndCAgreement'] = array(
+          'status' => TAndCStatusEnum::NotAgreed
+        );
       }
     }
     

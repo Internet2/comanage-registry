@@ -162,6 +162,33 @@
             : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['ordr'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
         </div>
     </li>
+    <li>
+        <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('agreement_duration', _txt('fd.tc.agreement_duration')) : _txt('fd.tc.agreement_duration')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.tc.agreement_duration.desc'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php print ($e
+            ? $this->Form->input('agreement_duration')
+            : filter_var($co_terms_and_conditions[0]['CoTermsAndConditions']['agreement_duration'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+        </div>
+    </li>
+    <li>
+        <div class="field-name">
+            <div class="field-title">
+              <?php print ($e ? $this->Form->label('agree_to_updates', _txt('fd.tc.agree_to_updates')) : _txt('fd.tc.agree_to_updates')); ?>
+            </div>
+            <div class="field-desc"><?php print _txt('fd.tc.agree_to_updates.desc'); ?></div>
+        </div>
+        <div class="field-info">
+          <?php print ($e
+            ? $this->Form->input('agree_to_updates')
+            : print _txt($co_terms_and_conditions[0]['CoTermsAndConditions']['agree_to_updates'] ? 'fd.yes' : 'fd.no'));
+          ?>
+        </div>
+    </li>
 
     <?php if($e): ?>
       <li class="fields-submit">

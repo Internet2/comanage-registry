@@ -91,8 +91,42 @@ class CoTermsAndConditionsController extends StandardController {
             
             if(!empty($this->request->params['named']['mode'])
                && $this->request->params['named']['mode'] == 'login') {
-              // We're done with the required T&C at login, so redirect to dashboard
-              
+              // We're done with the required T&C at login, so redirect to dashboard,
+              // unless we have a previously stored redirect target.
+              $targetUrl = $this->Session->read('Auth.User.tandc.return');
+
+              if(!empty($targetUrl)) {
+                $this->Session->delete('Auth.User.tandc.return');
+
+                // Check that this URL is allowed
+
+                $allowList = $this->CoSetting->getTAndCReturnUrlAllowlist($this->cur_co['Co']['id']);
+      
+                if(!empty($allowList)) {
+                  $found = false;
+                  
+                  foreach(preg_split('/\R/', $allowList) as $u) {
+                    if(preg_match($u, $targetUrl)) {
+                      $found = true;
+                      break;
+                    }
+                  }
+                  
+                  if(!$found) {
+                    // No match, so ignore
+                    
+                    $targetUrl = null;
+                  }
+                } else {
+                  // No allowed URLs, so ignore redirect
+                  $targetUrl = null;
+                }
+              }
+
+              if(!empty($targetUrl)) {
+                $this->redirect($targetUrl);
+              }
+
               $args = array(
                 'controller' => 'co_dashboards',
                 'action'     => 'dashboard',

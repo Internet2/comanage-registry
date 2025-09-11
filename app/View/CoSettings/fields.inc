@@ -296,6 +296,19 @@
       ?>
     </div>
   </li>
+  <li class="field-stack">
+    <div class="field-name">
+      <div class="field-title">
+        <?php print ($e ? $this->Form->label('t_and_c_return_url_allowlist', _txt('fd.tc.allowlist')) : _txt('fd.tc.allowlist')); ?>
+      </div>
+      <div class="field-desc"><?php print _txt('fd.tc.allowlist.desc'); ?></div>
+    </div>
+    <div class="field-info">
+      <?php print ($e
+                   ? $this->Form->input('t_and_c_return_url_allowlist')
+                   : filter_var($co_settings[0]['CoSetting']['t_and_c_return_url_allowlist'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+    </div>
+  </li>
   <li>
     <div class="field-name">
       <div class="field-title"><?php print $this->Form->label('sponsor_eligibility',_txt('fd.sponsor.mode'),array('class' => 'fieldTitle'));?></div>

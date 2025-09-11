@@ -142,6 +142,11 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
+    't_and_c_return_url_allowlist' => array(
+      'rule' => 'notBlank',
+      'required' => false,
+      'allowEmpty' => true
+    ),
     'sponsor_eligibility' => array(
       'rule' => array('inList',
                       array(SponsorEligibilityEnum::CoAdmin,
@@ -214,6 +219,7 @@ class CoSetting extends AppModel {
     'person_picker_identifier_type' => null,
     'person_picker_display_types' => true,
     't_and_c_login_mode'         => TAndCLoginModeEnum::NotEnforced,
+    't_and_c_return_url_allowlist' => null,
     'enable_empty_cou'           => false,
     'theme_stacking'             => SuspendableStatusEnum::Suspended,
     'co_theme_id'                => null,
@@ -493,6 +499,18 @@ class CoSetting extends AppModel {
   
   public function getTAndCLoginMode($coId) {
     return $this->lookupValue($coId, 't_and_c_login_mode');
+  }
+
+  /**
+   * Get the T&C Return URLAllow List for the specified CO.
+   *
+   * @since  COmanage Registry v4.6.0
+   * @param  integer $coId CO ID
+   * @return string        Return URL allow list
+   */
+  
+  public function getTAndCReturnUrlAllowlist($coId) {
+    return $this->lookupValue($coId, 't_and_c_return_url_allowlist');
   }
 
   /**
