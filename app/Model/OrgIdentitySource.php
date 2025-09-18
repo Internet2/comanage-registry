@@ -433,7 +433,12 @@ class OrgIdentitySource extends AppModel {
           if ($count > 0) {
             $dbc->rollback();
             // This identifier is already known, flag the petition as a duplicate
-            throw new OverflowException(_txt('er.ois.linked'));
+            throw new OverflowException(
+              _txt('er.ois.identifier.duplicate', array(
+                $identifier['Identifier']['identifier'],
+                $identifier['Identifier']['type']
+              ))
+            );
           }
         }
       }
