@@ -181,7 +181,7 @@
         if ($this->db_driverName == self::DB_DRIVER_MYSQL) {
           $sqlQueries = $this->transformSqlQueryList($sqlQueries);
         } else {
-          $sqlQueries = $this->transfomrPGSqlQueryList($sqlQueries);
+          $sqlQueries = $this->transformPGSqlQueryList($sqlQueries);
         }
 
         switch($schema->ExecuteSchema($sqlQueries)) {
@@ -326,7 +326,7 @@
      * @since       COmanage Registry v4.6.0
      * @package registry
      */
-    public function transfomrPGSqlQueryList($sqlQueryList) {
+    public function transformPGSqlQueryList($sqlQueryList) {
       // regex pattern to match the DROP INDEX statement and extract the index name
       $reIndexDrop = "/^\s*DROP\s+INDEX\s+([A-Za-z0-9_]+)\s*;?\s*$/i";
 
