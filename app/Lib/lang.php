@@ -2617,6 +2617,7 @@ The request may be viewed at
   'rs.ev.ver-a' =>    'Email Address %1$s verified by %2$s',
   'rs.expunged' =>    'Record Expunged',
   'rs.found.cnt' =>   '%1$s Record(s) Found',
+  'rs.generated-a2' => '%1$s "%2$s" Generated',
   'rs.gr.added' =>    'Added CO Group "%1$s"',
   'rs.gr.deleted' =>  'Deleted CO Group "%1$s"',
   'rs.gr.reconcile.ok' => 'Reconciliation Successful',
