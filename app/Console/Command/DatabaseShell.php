@@ -125,6 +125,12 @@
      */
     function main()
     {
+      // Check if we can proceed
+      if(!$this->checkPostgresViewsAndMatViews()) {
+        $this->dbc->Disconnect();
+        return false;
+      }
+
       $schemaSources = array_merge(array("."), App::objects('plugin'));
 
       foreach($schemaSources as $schemaSource) {
@@ -157,6 +163,7 @@
 
         $schema = new adoSchema($this->dbc);
         $schema->setPrefix($this->db->config['prefix']);
+
         // ParseSchema is generating bad SQL for Postgres. eg:
         //  ALTER TABLE cm_cos ALTER COLUMN id SERIAL
         // which (1) should be ALTER TABLE cm_cos ALTER COLUMN id TYPE SERIAL
@@ -334,10 +341,7 @@
         // Do not allow to Drop Indexes associated to Constraints
         $indexQueryMatch = array();
         preg_match($reIndexDrop, $sqlQuery, $indexQueryMatch);
-        if (
-          !empty($indexQueryMatch)
-          && $this->getPGConstraintNameFromIndex($indexQueryMatch[1], $this->dbc)
-        ) {
+        if (!empty($indexQueryMatch) && $this->hasPGConstraintNameFromIndex($indexQueryMatch[1], $this->dbc)) {
           unset($sqlQueryList[$idx]);
         }
       }
@@ -549,10 +553,9 @@ MYSQL;
      * @param string         $schema Schema name (default 'public')
      * @return bool          true if the index exists, false otherwise or if the query fails
      * @throws RuntimeException if the query fails
-     * @package registry
-     * @since COmanage Registry v4.6.0
+     * @since COmanage Registry v4.5.1
      */
-    public function getPGConstraintNameFromIndex($index, $db, $schema = 'public') {
+    public function hasPGConstraintNameFromIndex($index, $db, $schema = 'public') {
        $sql = <<<SQL
     SELECT c.conname
     FROM pg_constraint c
@@ -573,5 +576,68 @@ MYSQL;
       $exists = !$rs->EOF;  // true if there is at least one row, without fetching any field
       $rs->Close();
       return $exists;
+    }
+
+    /**
+     * For PostgreSQL: detect views and materialized views, warn the user,
+     * and fail gracefully.
+     *
+     * @param string $schema Schema name (default 'public')
+     * @return bool true to proceed with migration, false to abort gracefully
+     * @since COmanage Registry 4.5.1
+     */
+    protected function checkPostgresViewsAndMatViews($schema = 'public') {
+      if ($this->db_driverName === self::DB_DRIVER_MYSQL) {
+        // Not PostgreSQL; nothing to do.
+        return true;
+      }
+
+      // Fetch all views and materialized views from the given schema
+      $sql = <<<SQL
+      SELECT n.nspname AS schema_name,
+             c.relname AS object_name,
+             CASE c.relkind
+               WHEN 'v' THEN 'VIEW'
+               WHEN 'm' THEN 'MATERIALIZED VIEW'
+               ELSE c.relkind::text
+             END AS object_type
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = ?
+        AND c.relkind IN ('v','m')
+      ORDER BY object_type, object_name
+      SQL;
+
+      $rs = $this->dbc->Execute($sql, array($schema));
+      if ($rs === false) {
+        $this->err('<error>Error listing views/materialized views: ' . $this->dbc->ErrorMsg() . '</error>');
+        return false;
+      }
+
+      $objects = $rs->GetArray();
+      $rs->Close();
+
+      if (empty($objects)) {
+        // Nothing to handle
+        return true;
+      }
+
+      // Prepare a human-readable list
+      $names = array();
+      foreach ($objects as $row) {
+        $names[] = "{$row['object_type']} {$row['schema_name']}.{$row['object_name']}";
+      }
+
+      // Inform the user and fail gracefully
+      $this->out('');
+      $this->out('Detected non-application structures (views/materialized views) that may block a successful schema update:');
+      foreach ($names as $n) {
+        $this->out(" - " . $n);
+      }
+      $this->out('');
+      $this->err('<error>Migration aborted: Views/materialized views present. Please remove these objects and re-run the migration.</error>');
+
+      // Abort without making any changes
+      return false;
     }
   }
