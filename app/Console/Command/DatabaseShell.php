@@ -125,6 +125,12 @@
      */
     function main()
     {
+      // Check if we can proceed
+      if(!$this->checkViewsAndMatViews()) {
+        $this->dbc->Disconnect();
+        return false;
+      }
+
       $schemaSources = array_merge(array("."), App::objects('plugin'));
 
       foreach($schemaSources as $schemaSource) {
@@ -157,6 +163,7 @@
 
         $schema = new adoSchema($this->dbc);
         $schema->setPrefix($this->db->config['prefix']);
+
         // ParseSchema is generating bad SQL for Postgres. eg:
         //  ALTER TABLE cm_cos ALTER COLUMN id SERIAL
         // which (1) should be ALTER TABLE cm_cos ALTER COLUMN id TYPE SERIAL
@@ -180,6 +187,8 @@
 
         if ($this->db_driverName == self::DB_DRIVER_MYSQL) {
           $sqlQueries = $this->transformSqlQueryList($sqlQueries);
+        } else {
+          $sqlQueries = $this->transformPGSqlQueryList($sqlQueries);
         }
 
         switch($schema->ExecuteSchema($sqlQueries)) {
@@ -187,7 +196,8 @@
             $this->out(_txt('op.db.ok'));
             break;
           default:
-            $this->out(_txt('er.db.schema'));
+            $this->err('<error>' . _txt('er.db.schema') . '</error>');
+            $this->err('<error>' . $schema->db->ErrorMsg() . '</error>');
             break;
         }
       }
@@ -218,6 +228,7 @@
 
     /**
      * Iterate over the SqlQueryList and apply corrections
+     * For MySQL
      *
      * @param array $sqlQueryList transformSqlQueryList List of SQL query statements.
      *
@@ -309,6 +320,34 @@
       }
 
       $sqlQueryList = array_merge($dropConstraints, $sqlQueryList);
+      return $sqlQueryList;
+    }
+
+    /**
+     * Iterate over the SqlQueryList and apply corrections
+     * For PostgreSQL
+     *
+     * @param array $sqlQueryList transformSqlQueryList List of SQL query statements.
+     *
+     * @return array Modified SQL statements generated from the XML schema file.
+     * @since       COmanage Registry v4.6.0
+     * @package registry
+     */
+    public function transformPGSqlQueryList($sqlQueryList) {
+      // regex pattern to match the DROP INDEX statement and extract the index name
+      $reIndexDrop = "/^\s*DROP\s+INDEX\s+([A-Za-z0-9_]+)\s*;?\s*$/i";
+
+      foreach ($sqlQueryList as $idx => $sqlQuery) {
+        // Do not allow to Drop Indexes associated to Constraints
+        $indexQueryMatch = array();
+        preg_match($reIndexDrop, $sqlQuery, $indexQueryMatch);
+        if (!empty($indexQueryMatch) && $this->hasPGConstraintNameFromIndex($indexQueryMatch[1], $this->dbc)) {
+          unset($sqlQueryList[$idx]);
+        }
+      }
+
+
+
       return $sqlQueryList;
     }
 
@@ -504,5 +543,111 @@ MYSQL;
         return;
       }
       return $row['CONSTRAINT_NAME'];
+    }
+
+    /**
+     * Resolve the owning constraint name for a given index (or constraint) name on a table (PostgreSQL).
+     *
+     * @param string         $index Index or constraint name to look up (eg, 'cm_cos_name_key')
+     * @param ADOConnection  $db ADOdb connection (connected to the target database)
+     * @param string         $schema Schema name (default 'public')
+     * @return bool          true if the index exists, false otherwise or if the query fails
+     * @throws RuntimeException if the query fails
+     * @since COmanage Registry v4.5.1
+     */
+    public function hasPGConstraintNameFromIndex($index, $db, $schema = 'public') {
+       $sql = <<<SQL
+    SELECT c.conname
+    FROM pg_constraint c
+    JOIN pg_class t ON t.oid = c.conrelid
+    JOIN pg_namespace n ON n.oid = t.relnamespace
+    LEFT JOIN pg_class i ON i.oid = c.conindid
+    WHERE n.nspname = ?
+      AND (c.conname = ? OR i.relname = ?)
+    LIMIT 1
+    SQL;
+
+
+      $rs = $db->Execute($sql, array($schema, $index, $index));
+      if ($rs === false) {
+        throw new RuntimeException("Error executing query: " . $db->ErrorMsg() );
+      }
+
+      $exists = !$rs->EOF;  // true if there is at least one row, without fetching any field
+      $rs->Close();
+      return $exists;
+    }
+
+    /**
+     * For PostgreSQL: detect views and materialized views, warn the user,
+     * and fail gracefully.
+     * For MySQL: detect views, warn the user, and fail gracefully
+     *
+     * @param string $schema Schema name (default 'public'), only supported by Postgresql database
+     * @return bool true to proceed with migration, false to abort gracefully
+     * @since COmanage Registry 4.5.1
+     */
+    protected function checkViewsAndMatViews($schema = 'public') {
+      if ($this->db_driverName === self::DB_DRIVER_MYSQL) {
+        // For MySQL, check for any user-defined views in the current database.
+        $schema = $this->db->config['database'];
+
+        $sql = <<<SQL
+            SELECT TABLE_SCHEMA AS schema_name,
+                   TABLE_NAME AS object_name,
+                   'VIEW' AS object_type
+            FROM information_schema.VIEWS
+            WHERE TABLE_SCHEMA = ?
+            ORDER BY object_name
+        SQL;
+      } else {
+        // Fetch all views and materialized views from the given schema
+        $sql = <<<SQL
+          SELECT n.nspname AS schema_name,
+                 c.relname AS object_name,
+                 CASE c.relkind
+                   WHEN 'v' THEN 'VIEW'
+                   WHEN 'm' THEN 'MATERIALIZED VIEW'
+                   ELSE c.relkind::text
+                 END AS object_type
+          FROM pg_class c
+          JOIN pg_namespace n ON n.oid = c.relnamespace
+          WHERE n.nspname = ?
+            AND c.relkind IN ('v','m')
+          ORDER BY object_type, object_name
+        SQL;
+      }
+
+      $rs = $this->dbc->Execute($sql, array($schema));
+      if ($rs === false) {
+        $this->err('<error>Error listing views: ' . $this->dbc->ErrorMsg() . '</error>');
+        return false;
+      }
+
+      $objects = $rs->GetArray();
+      $rs->Close();
+
+      if (empty($objects)) {
+        // Nothing to handle
+        return true;
+      }
+
+      // Prepare a human-readable list
+      $names = array();
+      foreach ($objects as $row) {
+        $names[] = "{$row['object_type']} {$row['schema_name']}.{$row['object_name']}";
+      }
+
+      // Inform the user and fail gracefully
+      $this->out('');
+      $this->out('Detected non-application structures that may block a successful schema update:');
+      foreach ($names as $n) {
+        $this->out(" - " . $n);
+      }
+      $this->out('');
+      $this->err('<error>Migration aborted. Please remove unsupported objects and re-run the migration.</error>');
+
+      // Abort without making any changes
+      return false;
     }
   }
