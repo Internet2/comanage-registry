@@ -47,7 +47,7 @@ class CoEnrollmentFlowWedge extends AppModel {
   );
 
   // Default display field for cake generated views
-  public $displayField = "CoEnrollmentFlowWedgedescription";
+  public $displayField = "description";
   
   // Default ordering for find operations
   public $order = array("CoEnrollmentFlowWedge.ordr");

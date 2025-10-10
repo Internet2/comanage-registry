@@ -623,7 +623,7 @@ class CoPerson extends AppModel {
 
     $matches = array();
 
-    if(count($coPersonIds) > 100) {
+    if(count($coPersonIds) > 200) {
       // We don't return large sets to avoid slow performance
 
       $matches[] = array(
