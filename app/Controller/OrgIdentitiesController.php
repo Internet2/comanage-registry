@@ -902,7 +902,10 @@ class OrgIdentitiesController extends StandardController {
       $pagcond['joins'][$jcnt]['alias'] = 'CoOrgIdentityLink';
       $pagcond['joins'][$jcnt]['type'] = 'LEFT';
       $pagcond['joins'][$jcnt]['conditions'][0] = 'CoOrgIdentityLink.org_identity_id=OrgIdentity.id';
-      $pagcond['conditions'][] = 'CoOrgIdentityLink.id IS NULL';
+      // Only consider non-historical link rows
+      $pagcond['joins'][$jcnt]['conditions'][1] = 'CoOrgIdentityLink.co_org_identity_link_id IS NULL';
+      // Include org identities with no non-historical link row OR a link row with NULL co_person_id
+      $pagcond['conditions'][] = 'CoOrgIdentityLink.co_person_id IS NULL';
       $jcnt++;
     }
 
