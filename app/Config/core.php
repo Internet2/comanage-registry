@@ -174,9 +174,9 @@
  */
 
     // AWS DynamoDB sessions
-    if (getenv('COMANAGE_REGISTRY_DYNAMODB_REGION') and
-        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_TABLE') and
-        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_ACCESSKEY') and
+    if (getenv('COMANAGE_REGISTRY_DYNAMODB_REGION') &&
+        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_TABLE') &&
+        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_ACCESSKEY') &&
         getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_SECRETACCESSKEY')) {
         Configure::write('Session', array(
             'cookie' => 'CAKEPHP',
