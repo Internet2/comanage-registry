@@ -28,11 +28,18 @@
 // So we don't have to put the entire app under .htaccess auth, we grab REMOTE_USER
 // and stuff it into the session so the auth component knows who we authenticated.
 
-// Since this page isn't part of the framework, we need to reconfigure
-// to access the Cake session.
+// locate and load the Cake framework
+define('DS', DIRECTORY_SEPARATOR);
+define('ROOT', realpath('..' . DS . '..' . DS . '..' . DS . '..'));
+define('APP_DIR', 'app');
+define('WWW_ROOT', APP_DIR . DS . 'webroot' . DS);
 
-session_name("CAKEPHP");
-session_start();
+require ROOT . DS . 'lib' . DS . 'Cake' . DS . 'bootstrap.php';
+
+// load the app configuration
+App::uses('PhpReader', 'Configure');
+Configure::config('default', new PhpReader());
+App::uses('CakeSession','Model/Datasource');
 
 // Set the user
 
@@ -43,11 +50,11 @@ if(empty($_SERVER['REMOTE_USER'])) {
 // XXX if we define no redirect path, e.g. to an internal path: co_dashboards/configuration/co:2 then CAKEPHP thinks that should come back here
 // XXX as a result adds to the SESSION auth/login as the redirect path after login. This causes the login to happen twice for the case we are
 // XXX visiting the COmanage homepage
-if(empty($_SESSION["Auth"]["redirect"])) {
-  $_SESSION["Auth"]["redirect"] = '/';
+if(!CakeSession::check('Auth.redirect')) {
+  CakeSession::write('Auth.redirect','/');
 }
 
-$_SESSION['Auth']['external']['user'] = $_SERVER['REMOTE_USER'];
+CakeSession::write('Auth.external.user',$_SERVER['REMOTE_USER']);
 $re = '/(.*)\/auth\/login(.*)/m';
 $subst = '$1/users/login$2';
 $redirect_location = preg_replace($re, $subst, $_SERVER["REQUEST_URI"]);
