@@ -172,9 +172,36 @@
  * the cake shell command: cake schema create Sessions
  *
  */
-	Configure::write('Session', array(
-		'defaults' => 'php'
-	));
+
+    // AWS DynamoDB sessions
+    if (getenv('COMANAGE_REGISTRY_DYNAMODB_REGION') &&
+        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_TABLE') &&
+        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_ACCESSKEY') &&
+        getenv('COMANAGE_REGISTRY_DYNAMODB_PHPSESSIONS_SECRETACCESSKEY')) {
+        Configure::write('Session', array(
+            'cookie' => 'CAKEPHP',
+            'timeout' => 480,
+            'cookieTimeout' => 480,
+            'handler' => array(
+                'engine' => 'DynamoSession.DynamoSession',
+            ),
+            'ini' => array(
+                'session.use_trans_sid' => 0,
+                'session.use_cookies' => 1,
+                'session.serialize_handler' => 'php',
+                'session.cookie_httponly' => true,
+                // session.gc_maxlifetime in seconds
+                // default is 1440 (24 minutes)
+                'session.gc_maxlifetime' => 86400,
+            )
+        ));
+    } else {
+        // default session config
+        Configure::write('Session', array(
+            'defaults' => 'php',
+            'cookie' => 'CAKEPHP',
+        ));
+    }
 
 /**
  * The level of CakePHP security.
