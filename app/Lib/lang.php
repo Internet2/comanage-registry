@@ -1311,6 +1311,7 @@ The request may be viewed at
   'er.notprov-b' =>   '%1$s Not Provided',
   'er.notprov.id' =>  '%1$s ID Not Provided',
   'er.ois.label.inuse'    => 'The SOR Label "%1$s" is already in use',
+  'er.ois.identifier.duplicate' => 'Duplicate identifier detected: "%1$s" (type "%2$s") is already active in this CO and cannot be reused.',
   'er.ois.linked' =>  'The specified Source Key is already linked to an existing Org Identity',
   'er.ois.mismatch' => 'Email address "%1$s" not found in result from backend',
   'er.ois.nolink' =>  'The specified Source Key is not linked to an existing Org Identity',
