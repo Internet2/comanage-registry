@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
@@ -43,5 +43,5 @@ $subst = '$1/users/logout$2';
 $redirect_location = preg_replace($re, $subst, $_SERVER["REQUEST_URI"]);
 
 CakeSession::delete('Auth');
-
+header('Clear-Site-Data: "cookies"');
 header('Location: ' . $redirect_location);
