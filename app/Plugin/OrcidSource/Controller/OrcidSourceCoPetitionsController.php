@@ -164,6 +164,7 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
         $this->OrcidToken->id = $orcid_token['OrcidToken']['id'];
       }
 
+      // Update the token, or create a new one if it doesn't exist
       $this->OrcidToken->set($data);
       if (!$this->OrcidToken->validates()) {
         $errors = $this->OrcidToken->validationErrors;
@@ -180,27 +181,32 @@ class OrcidSourceCoPetitionsController extends CoPetitionsController {
       // selectEnrollee hasn't run yet so we can't pull the target CO Person from the
       // petition, but for OISAuthenticate, it's the current user (ie: $actorCoPersonId)
       // that we always want to link to.
-      
-      $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
-                                                              $orcid,
-                                                              $actorCoPersonId,
-                                                              $this->cur_co['Co']['id'],
-                                                              $actorCoPersonId,
-                                                              false,
-                                                              $id);
-      
-      // Record the ORCID into History and Petition History
-      $this->CoPetition->EnrolleeOrgIdentity->HistoryRecord->record($actorCoPersonId,
-                                                                    null,
-                                                                    $newOrgId,
-                                                                    $actorCoPersonId,
-                                                                    ActionEnum::CoPersonOrgIdLinked,
-                                                                    _txt('pl.orcidsource.linked', array($orcid)));
-      
-      $this->CoPetition->CoPetitionHistoryRecord->record($id,
-                                                         $actorCoPersonId,
-                                                         PetitionActionEnum::IdentityLinked,
-                                                         _txt('pl.orcidsource.linked', array($orcid)));
+
+      try {
+        $newOrgId = $this->OrgIdentitySource->createOrgIdentity($oiscfg['OrgIdentitySource']['id'],
+          $orcid,
+          $actorCoPersonId,
+          $this->cur_co['Co']['id'],
+          $actorCoPersonId,
+          false,
+          $id);
+
+        // Record the ORCID into History and Petition History
+        $this->CoPetition->EnrolleeOrgIdentity->HistoryRecord->record($actorCoPersonId,
+          null,
+          $newOrgId,
+          $actorCoPersonId,
+          ActionEnum::CoPersonOrgIdLinked,
+          _txt('pl.orcidsource.linked', array($orcid)));
+
+        $this->CoPetition->CoPetitionHistoryRecord->record($id,
+          $actorCoPersonId,
+          PetitionActionEnum::IdentityLinked,
+          _txt('pl.orcidsource.linked', array($orcid)));
+      } catch (OverflowException $e) {
+        // This might happen if (eg) the ORCID is already in use. We have already updated the token,
+        // so we can just continue.
+      }
     }
     catch(Exception $e) {
       $this->log(__METHOD__ . '::Exception: ' . var_export($e->getMessage(), true), LOG_ERROR);
