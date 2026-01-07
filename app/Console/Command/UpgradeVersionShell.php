@@ -33,6 +33,7 @@ class UpgradeVersionShell extends AppShell {
                     'ApplicationPreference',
                     'CmpEnrollmentConfiguration',
                     'Co',
+                    'CoEnrollmentAttribute',
                     'CoEnrollmentAttributeDefault',
                     'CoEnrollmentFlow',
                     'CoExtendedType',
@@ -739,6 +740,12 @@ class UpgradeVersionShell extends AppShell {
     // Pipelines support attribute filtering
     $this->out(_txt('sh.ug.450.pipeline'));
     $this->CoPipeline->_ug450();
+  }
+
+  public function post460() {
+    // Normalize enrollment-only textfield attributes.
+    $this->out(_txt('sh.ug.460.enrollment_attribute'));
+    $this->CoEnrollmentAttribute->_ug460();
   }
 
   // We should eventually do something like

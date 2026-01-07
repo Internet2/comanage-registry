@@ -901,7 +901,7 @@ class CoPetition extends AppModel {
                 'co_enrollment_attribute_id' => $orgData[$m]['co_enrollment_attribute_id'],
                 'attribute' => $a,
                 'value' => $orgData[$m][$a]
-              );                  
+              );
             }
           }
         } else {
@@ -917,7 +917,7 @@ class CoPetition extends AppModel {
                   'co_enrollment_attribute_id' => $orgData[$m][$i]['co_enrollment_attribute_id'],
                   'attribute' => $a,
                   'value' => $orgData[$m][$i][$a]
-                );                  
+                );
               }
             }
           }
@@ -1023,7 +1023,7 @@ class CoPetition extends AppModel {
                 'co_enrollment_attribute_id' => $coRoleData[$m]['co_enrollment_attribute_id'],
                 'attribute' => $a,
                 'value' => $coRoleData[$m][$a]
-              );                  
+              );
             }
           }
         } elseif(preg_match('/Co[0-9]+PersonExtendedAttribute/', $m)) {
@@ -1040,7 +1040,7 @@ class CoPetition extends AppModel {
                 'co_enrollment_attribute_id' => $attrIDs['x:'.$a],
                 'attribute' => $a,
                 'value' => $coRoleData[$m][$a]
-              );                  
+              );
             }
           }
         } else {
@@ -1056,46 +1056,55 @@ class CoPetition extends AppModel {
                   'co_enrollment_attribute_id' => $coRoleData[$m][$i]['co_enrollment_attribute_id'],
                   'attribute' => $a,
                   'value' => $coRoleData[$m][$i][$a]
-                );                  
+                );
               }
             }
           }
         }
       }
     }
-    
+
     if(!empty($requestData['CoPetitionAttribute'])) {
       // These are "special" attributes that only get recorded in the petition,
       // they're not copied to the person record.
-      
-      foreach($requestData['CoPetitionAttribute'] as $key => $value) {
-        if($key == 'textfield'
-           && isset($attrIDs['e:' . $key])) {
-          // Simply copy this value to an attribute value
-          
-          $petitionAttrs['CoPetitionAttribute'][] = array(
-            'co_petition_id' => $coPetitionID,
-            'co_enrollment_attribute_id' => $attrIDs['e:' . $key],
-            'attribute' => $key,
-            'value' => $value
-          );
-        }
-      }
 
-      foreach($requestData['CoPetitionAttribute'] as $enr_attr_id => $rec) {
-        if($key !== 'textfield') {
-          foreach ($rec as $attr => $value) {
+      foreach($requestData['CoPetitionAttribute'] as $key => $value) {
+        if($key === 'textfield') {
+          // e:co_petition_attribute:textfield
+          $newAttrKey = 'e:co_petition_attribute:' . $key;
+
+          if(isset($attrIDs[$newAttrKey]) && $value !== '') {
             $petitionAttrs['CoPetitionAttribute'][] = array(
-              'co_petition_id' => $coPetitionID,
-              'co_enrollment_attribute_id' => $enr_attr_id,
-              'attribute' => $attr,
-              'value' => $value
+              'co_petition_id'             => $coPetitionID,
+              'co_enrollment_attribute_id' => $attrIDs[$newAttrKey],
+              'attribute'                  => $key,
+              'value'                      => $value
             );
           }
         }
       }
+
+      foreach($requestData['CoPetitionAttribute'] as $enr_attr_id => $rec) {
+        // Skip the top-level 'textfield' key, handled above
+        if($enr_attr_id === 'textfield') {
+          continue;
+        }
+
+        if(!is_array($rec)) {
+          continue;
+        }
+
+        foreach($rec as $attr => $value) {
+          $petitionAttrs['CoPetitionAttribute'][] = array(
+            'co_petition_id'             => $coPetitionID,
+            'co_enrollment_attribute_id' => $enr_attr_id,
+            'attribute'                  => $attr,
+            'value'                      => $value
+          );
+        }
+      }
     }
-    
+
     return $petitionAttrs;
   }
   
