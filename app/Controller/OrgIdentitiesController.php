@@ -784,9 +784,51 @@ class OrgIdentitiesController extends StandardController {
     );
 
     // Unbind here. We will bind again only if required
-    $this->OrgIdentity->unbindModel([
+    $this->OrgIdentity->unbindModel(array(
       'hasOne' => array('OrgIdentitySourceRecord')
-    ], true);
+    ), true);
+
+    // Count total non-deleted org identities for this CO
+    $args = array();
+    $args['conditions']['OrgIdentity.co_id'] = $this->cur_co['Co']['id'];
+    $args['contain'] = false;
+
+    $totalOrgIdentities = $this->OrgIdentity->find('count', $args);
+
+    $this->set('vv_total_org_identities', $totalOrgIdentities);
+
+    // Determine if any filters are applied
+    $hasFilters =
+      !empty($this->request->params['named']['search.givenName'])       ||
+      !empty($this->request->params['named']['search.familyName'])      ||
+      !empty($this->request->params['named']['search.familyNameStart']) ||
+      !empty($this->request->params['named']['search.organization'])    ||
+      !empty($this->request->params['named']['search.department'])      ||
+      !empty($this->request->params['named']['search.title'])           ||
+      !empty($this->request->params['named']['search.affiliation'])     ||
+      !empty($this->request->params['named']['search.mail'])            ||
+      !empty($this->request->params['named']['search.identifier'])      ||
+      !empty($this->request->params['named']['search.orgIdentitySource']) ||
+      !empty($this->params['named']['search.unattached']);
+
+    // If the population exceeds the threshold and no filters are applied,
+    // return an empty result set and tell the view.
+    if($this->OrgIdentity->Co->CoSetting->getPopulationHide($this->cur_co['Co']['id'])
+       && $totalOrgIdentities > DEF_POPULATION_INDEX_THRESHOLD
+       && !$hasFilters) {
+      $this->set('vv_org_population_too_large', true);
+
+      // Force pagination to return no rows, without touching the primary key
+      $pagcond['conditions'][] = '1 = 0';
+
+      // CO-2882, we need at least the following fields for the View to render properly
+      $this->paginate['fields']  = $this->OrgIdentity->getPaginateFields();
+      $this->paginate['contain'] = false;
+
+      return $pagcond;
+    } else {
+      $this->set('vv_org_population_too_large', false);
+    }
 
     // Filter by given name
     if(!empty($this->request->params['named']['search.givenName'])) {

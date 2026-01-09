@@ -2852,6 +2852,7 @@ The request may be viewed at
   'sh.ug.440.application_preferences' => 'Reset Application Preferences table',
   'sh.ug.442.match' =>    'Updating Match Server configuration',
   'sh.ug.450.pipeline' =>    'Updating CoPipeline configuration',
+  'sh.ug.460.co_setting' => 'Set Hide Population switch default value',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

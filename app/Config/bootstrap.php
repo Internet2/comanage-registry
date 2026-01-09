@@ -58,6 +58,14 @@ if (!is_null(env('COMANAGE_REGISTRY_FULL_BASE_URL'))) {
   Configure::write('App.fullBaseUrl', env('COMANAGE_REGISTRY_FULL_BASE_URL'));
 }
 
+/**
+ * Configure population index threshold from environment
+ * Gets COMANAGE_REGISTRY_POPULATION_INDEX value from environment and sets as constant
+ */
+if (!is_null(env('COMANAGE_REGISTRY_POPULATION_INDEX'))) {
+    define('DEF_POPULATION_INDEX_THRESHOLD', env('COMANAGE_REGISTRY_POPULATION_INDEX'));
+}
+
 // Local overlay directory for Plugins
 App::build(array('Plugin' => array(LOCAL . 'Plugin' . DS)));
 

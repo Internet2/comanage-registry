@@ -74,6 +74,23 @@ print $this->element("pageTitleAndButtons", $params);
   </div>
 </div>
 
+<?php if(!empty($vv_org_population_too_large)): ?>
+    <div class="co-info-topbox">
+        <em class="material-icons">info</em>
+        <div class="co-info-topbox-text">
+          <?php
+          echo _txt(
+            'fd.dataset.too_large',
+            array(
+              (int)$vv_total_org_identities,
+              (int)DEF_POPULATION_INDEX_THRESHOLD
+            )
+          );
+          ?>
+        </div>
+    </div>
+<?php endif; ?>
+
 <?php // Load the top search bar
 // Search Block
 if(!empty($vv_search_fields)) {

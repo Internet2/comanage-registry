@@ -1200,7 +1200,45 @@ class CoPeopleController extends StandardController {
       true
     );
 
-      // Filtering by name operates using any name, so preferred or other names
+    // Get total number of non-deleted people
+    $args = array();
+    $args['conditions']['CoPerson.co_id'] = $this->cur_co['Co']['id'];
+    $args['contain'] = false;
+
+    $totalPeople = $this->CoPerson->find('count', $args);
+
+    $this->set('vv_total_people', $totalPeople);
+
+    // Determine if any filters are applied
+    $hasFilters =
+      !empty($this->request->params['named']['search.givenName']) ||
+      !empty($this->request->params['named']['search.familyName']) ||
+      !empty($this->request->params['named']['search.familyNameStart']) ||
+      !empty($this->request->params['named']['search.mail']) ||
+      !empty($this->request->params['named']['search.identifier']) ||
+      !empty($this->request->params['named']['search.status']) ||
+      !empty($this->request->params['named']['search.cou']) ||
+      !empty($this->request->params['named']['search.unattached']);
+
+    // If the population exceeds the threshold and no filters are applied,
+    // return an empty result set and tell the view.
+    if($this->CoPerson->Co->CoSetting->getPopulationHide($this->cur_co['Co']['id'])
+       && $totalPeople > DEF_POPULATION_INDEX_THRESHOLD
+       && !$hasFilters) {
+      $this->set('vv_population_too_large', true);
+
+      // Force pagination to return no rows, without touching the primary key
+      $pagcond['conditions'][] = '1 = 0';
+
+      // CO-1091, CO-2371, we need at least the following fields for the View to render properly
+      $this->paginate['fields'] = $this->CoPerson->getPaginateFields();
+
+      return $pagcond;
+    } else {
+      $this->set('vv_population_too_large', false);
+    }
+
+    // Filtering by name operates using any name, so preferred or other names
     // can also be searched. However, filter by letter ("familyNameStart") only
     // works on PrimaryName so that the results match the index list.
     

@@ -104,6 +104,25 @@
   </div>
 <?php endif; // link ?>
 
+
+<?php if(!empty($vv_population_too_large)): ?>
+    <div class="co-info-topbox">
+        <em class="material-icons">info</em>
+        <div class="co-info-topbox-text">
+          <?php
+          echo _txt(
+            'fd.people.too_large',
+            array(
+              (int)$vv_total_people,
+              (int)DEF_POPULATION_INDEX_THRESHOLD
+            )
+          );
+          ?>
+        </div>
+    </div>
+<?php endif; ?>
+
+
 <div id="sorter" class="listControl">
   <?php print _txt('fd.sort.by'); ?>:
   <ul>
