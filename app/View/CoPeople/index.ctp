@@ -400,18 +400,27 @@ if(!empty($vv_alphabet_search)) {
 </div>
 
   <?php
-    if(empty($co_people)) {
-      // No search results, or there are no people in this CO
+    if(empty($co_people) && $vv_total_people > 0) {
+      // No search results
       print('<div id="coPeopleNoResults">');
-      print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
-      print('<div id="restoreLink">');
-      $args = array();
-      $args['plugin'] = null;
-      $args['controller'] = 'co_people';
-      $args['action'] = 'index';
-      $args['co'] = $cur_co['Co']['id'];
-      print $this->Html->link(_txt('op.search.restore'), $args);
+      if($vv_population_too_large) {
+        print('<div id="noResults">' . _txt('rs.search.too.large') . '</div>');
+      } else {
+        print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
+        print('<div id="restoreLink">');
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_people';
+        $args['action'] = 'index';
+        $args['co'] = $cur_co['Co']['id'];
+        print $this->Html->link(_txt('op.search.restore'), $args);
+        print('</div>');
+      }
       print('</div>');
+    } else {
+      // Empty CO, there are no people in this CO
+      print('<div id="coPeopleNoResults">');
+      print('<div id="noResults">' . _txt('rs.co.empty') . '</div>');
       print('</div>');
     }
   ?>
