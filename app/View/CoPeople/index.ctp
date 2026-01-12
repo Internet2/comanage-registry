@@ -418,10 +418,12 @@ if(!empty($vv_alphabet_search)) {
       }
       print('</div>');
     } else {
-      // Empty CO, there are no people in this CO
-      print('<div id="coPeopleNoResults">');
-      print('<div id="noResults">' . _txt('rs.co.empty') . '</div>');
-      print('</div>');
+      if ($vv_total_people == 0) {
+        // Empty CO, there are no people in this CO
+        print('<div id="coPeopleNoResults">');
+        print('<div id="noResults">' . _txt('rs.co.empty') . '</div>');
+        print('</div>');
+      }
     }
   ?>
 
