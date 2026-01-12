@@ -404,7 +404,7 @@ if(!empty($vv_alphabet_search)) {
       // No search results
       print('<div id="coPeopleNoResults">');
       if($vv_population_too_large) {
-        print('<div id="noResults">' . _txt('rs.search.too.large') . '</div>');
+        print('<div id="noResults">' . _txt('rs.search.too.large', array(_txt('ct.co_people.pl'))) . '</div>');
       } else {
         print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
         print('<div id="restoreLink">');
@@ -421,7 +421,7 @@ if(!empty($vv_alphabet_search)) {
       if ($vv_total_people == 0) {
         // Empty CO, there are no people in this CO
         print('<div id="coPeopleNoResults">');
-        print('<div id="noResults">' . _txt('rs.co.empty') . '</div>');
+        print('<div id="noResults">' . _txt('rs.empty', array(_txt('ct.co_people.pl'))) . '</div>');
         print('</div>');
       }
     }
