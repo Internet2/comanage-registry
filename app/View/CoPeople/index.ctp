@@ -111,7 +111,7 @@
         <div class="co-info-topbox-text">
           <?php
           echo _txt(
-            'fd.people.too_large',
+            'fd.dataset.too_large',
             array(
               (int)$vv_total_people,
               (int)DEF_POPULATION_INDEX_THRESHOLD
