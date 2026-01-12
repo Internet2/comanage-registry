@@ -104,6 +104,25 @@
   </div>
 <?php endif; // link ?>
 
+
+<?php if(!empty($vv_population_too_large)): ?>
+    <div class="co-info-topbox">
+        <em class="material-icons">info</em>
+        <div class="co-info-topbox-text">
+          <?php
+          echo _txt(
+            'fd.dataset.too_large',
+            array(
+              (int)$vv_total_people,
+              (int)DEF_POPULATION_INDEX_THRESHOLD
+            )
+          );
+          ?>
+        </div>
+    </div>
+<?php endif; ?>
+
+
 <div id="sorter" class="listControl">
   <?php print _txt('fd.sort.by'); ?>:
   <ul>
@@ -381,19 +400,30 @@ if(!empty($vv_alphabet_search)) {
 </div>
 
   <?php
-    if(empty($co_people)) {
-      // No search results, or there are no people in this CO
+    if(empty($co_people) && $vv_total_people > 0) {
+      // No search results
       print('<div id="coPeopleNoResults">');
-      print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
-      print('<div id="restoreLink">');
-      $args = array();
-      $args['plugin'] = null;
-      $args['controller'] = 'co_people';
-      $args['action'] = 'index';
-      $args['co'] = $cur_co['Co']['id'];
-      print $this->Html->link(_txt('op.search.restore'), $args);
+      if($vv_population_too_large) {
+        print('<div id="noResults">' . _txt('rs.search.too.large', array(_txt('ct.co_people.pl'))) . '</div>');
+      } else {
+        print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
+        print('<div id="restoreLink">');
+        $args = array();
+        $args['plugin'] = null;
+        $args['controller'] = 'co_people';
+        $args['action'] = 'index';
+        $args['co'] = $cur_co['Co']['id'];
+        print $this->Html->link(_txt('op.search.restore'), $args);
+        print('</div>');
+      }
       print('</div>');
-      print('</div>');
+    } else {
+      if ($vv_total_people == 0) {
+        // Empty CO, there are no people in this CO
+        print('<div id="coPeopleNoResults">');
+        print('<div id="noResults">' . _txt('rs.empty', array(_txt('ct.co_people.pl'))) . '</div>');
+        print('</div>');
+      }
     }
   ?>
 
