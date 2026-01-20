@@ -421,8 +421,10 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
     }
     
     // Just let any exceptions bubble up the stack
-    $prefix = $coProvisioningTargetData['CoSqlProvisionerTarget']['table_prefix'] ?? 'sp_';
-    
+    $prefix = (!empty($coProvisioningTargetData['CoSqlProvisionerTarget']['table_prefix'])
+      ? $coProvisioningTargetData['CoSqlProvisionerTarget']['table_prefix']
+      : "sp_");
+
     $this->CoProvisioningTarget->Co->Server->SqlServer->connect($coProvisioningTargetData['CoSqlProvisionerTarget']['server_id'],
                                                                 'targetdb',
                                                                 $prefix);
@@ -542,7 +544,9 @@ class CoSqlProvisionerTarget extends CoProvisionerPluginTarget {
         // Loop through each configuration, instantiating a DataSource, then
         // performing the sync
 
-        $prefix = $t['CoSqlProvisionerTarget']['table_prefix'] ?? 'sp_';
+        $prefix = (!empty($t['CoSqlProvisionerTarget']['table_prefix'])
+          ? $t['CoSqlProvisionerTarget']['table_prefix']
+          : "sp_");
 
         // We need a unique data source label for each target
         $sourceLabel = 'targetdb' . $t['CoSqlProvisionerTarget']['server_id'];
