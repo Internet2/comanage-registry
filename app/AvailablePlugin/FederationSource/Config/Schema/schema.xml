@@ -41,6 +41,7 @@
       <constraint>REFERENCES cm_servers(id)</constraint>
     </field>
     <field name="protocol" type="C" size="2" />
+    <field name="entities" type="C" size="2" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
     
