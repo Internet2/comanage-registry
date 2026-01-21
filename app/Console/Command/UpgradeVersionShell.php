@@ -48,6 +48,7 @@ class UpgradeVersionShell extends AppShell {
                     'HttpServer',
                     'Identifier',
                     'MatchServer',
+                    'OrcidSource.OrcidSource',
                     'SshKeyAuthenticator.SshKey',
                     'SshKeyAuthenticator.SshKeyAuthenticator');
   
@@ -746,6 +747,9 @@ class UpgradeVersionShell extends AppShell {
     // Normalize enrollment-only textfield attributes.
     $this->out(_txt('sh.ug.460.enrollment_attribute'));
     $this->CoEnrollmentAttribute->_ug460();
+
+    $this->out(_txt('pl.ug.460.orcidsource'));
+    $this->OrcidSource->_ug460();
   }
 
   // We should eventually do something like

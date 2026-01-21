@@ -89,4 +89,30 @@ class OrcidSource extends AppModel {
   public function cmPluginMenus() {
     return array();
   }
+
+  /**
+   * Upgrade function for v4.6.0 that sets default values for empty or NULL api_tier
+   * and api_type fields. Sets api_tier to PROD and api_type to PUBLIC.
+   *
+   * @return void
+   * @since  COmanage Registry v4.6.0
+   */
+  public function _ug460() {
+    $this->updateAll(
+      array(
+        'OrcidSource.api_tier' => "'" . OrcidSourceTierEnum::PROD . "'",
+        'OrcidSource.api_type' => "'" . OrcidSourceApiEnum::PUBLIC . "'",
+      ),
+      array(
+        'OR' => array(
+          // api_tier is NULL or ''
+          array('OrcidSource.api_tier' => null),
+          array('OrcidSource.api_tier' => ''),
+          // or api_type is NULL or ''
+          array('OrcidSource.api_type' => null),
+          array('OrcidSource.api_type' => ''),
+        ),
+      )
+    );
+  }
 }
