@@ -73,10 +73,15 @@ class NamespaceAssigner extends AppModel {
     
     // Pull the settings to get our configuration
     $NamespaceAssignerSetting = ClassRegistry::init('NamespaceAssigner.NamespaceAssignerSetting');
-    
+
+    // Map Servers to their Model names and "contain" them to our query
+    $listOfServers = array_map(static function($item) {
+      return $item . 'Server';
+    }, $NamespaceAssignerSetting->cmServerType);
+
     $args = array();
     $args['conditions']['NamespaceAssignerSetting.co_id'] = $coId;
-    $args['contain'] = array('Server' => array('HttpServer'));
+    $args['contain'] = array('Server' => $listOfServers);
     
     $cfg = $NamespaceAssignerSetting->find('first', $args);
 
@@ -115,25 +120,83 @@ class NamespaceAssigner extends AppModel {
         )
       )
     );
-    
+
+    // XXX if the scenarios become more complex that this move to
+    //     a dependency injection implementation
+    if(!empty($cfg['Server']['HttpServer'])) {
+      $token = $this->handleHttpServer($cfg, $request, $identifierType);
+    } else if($cfg['Server']['HttpServer']) {
+      $token = $this->handleOauth2Server($cfg, $request, $identifierType);
+    }
+
+
+    return $token ?? null;
+  }
+
+  /**
+   * Handle HttpServer connection
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param  array  $cfg                Plugin configuration
+   * @param  array  $request            Context in which to assign Identifier
+   * @param  string $identifierType       Record ID of type $context
+   * @return string
+   */
+
+  protected function handleHttpServer($cfg, $request, $identifierType) {
     $Http = new CoHttpClient();
-    
+
     $Http->setConfig($cfg['Server']['HttpServer']);
-    
+
     $url = '/v1/allocations/' . urlencode($identifierType);
-    
+
     $response = $Http->post($url, json_encode($request));
-    
-    if($response->code != 201) {
+
+    if($response->code != 200) {
       throw new RuntimeException($response->reasonPhrase);
     }
-    
+
     $j = json_decode($response->body);
-    
+
     if(empty($j->token)) {
       throw new RuntimeException(_txt('er.namespaceassigner.token'));
     }
-    
+
+    return $j->token;
+  }
+
+  /**
+   * Handle HttpServer connection
+   *
+   * @since  COmanage Registry v4.3.0
+   * @param  array  $cfg                Plugin configuration
+   * @param  array  $request            Context in which to assign Identifier
+   * @param  string $identifierType       Record ID of type $context
+   * @return string
+   */
+
+  protected function handleOauth2Server($cfg, $request, $identifierType) {
+    $Http = new CoHttpClient();
+
+    $Http->setConfig($cfg['Server']['Oauth2Server']);
+
+    $url = '/v1/allocations/' . urlencode($identifierType);
+
+    // Apend the access token to the request
+    $request['access_token'] = $cfg['Server']['Oauth2Server']['access_token'];
+
+    $response = $Http->post($url, json_encode($request));
+
+    if($response->code != 200) {
+      throw new RuntimeException($response->reasonPhrase);
+    }
+
+    $j = json_decode($response->body);
+
+    if(empty($j->token)) {
+      throw new RuntimeException(_txt('er.namespaceassigner.token'));
+    }
+
     return $j->token;
   }
 }
