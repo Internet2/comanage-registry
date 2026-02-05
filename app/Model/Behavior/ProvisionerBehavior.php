@@ -935,6 +935,7 @@ class ProvisionerBehavior extends ModelBehavior {
    * @param  integer $coGroupMemberId CO Group Member to (re)provision
    * @param  integer $actorCoPersonId Actor CO Person ID
    * @param  boolean $manual Is this a manual provisioning?
+   * @param  boolean $forceProvision Flag to bypass ManualMode restriction
    * @return boolean true on success, false on failure
    * @throws InvalidArgumentException
    * @throws RuntimeException
@@ -949,7 +950,8 @@ class ProvisionerBehavior extends ModelBehavior {
                                      $coGroupMemberId=null,
                                      $actorCoPersonId=null,
                                      $coServiceId=null,
-                                     $manual=false) {
+                                     $manual=false,
+                                     $forceProvisioning=false) {
     // First marshall the provisioning data
     $provisioningData = array();
     
@@ -982,6 +984,7 @@ class ProvisionerBehavior extends ModelBehavior {
       // Provisioning target is not in manual mode
       if(
         $manual
+        && !$forceProvisioning
         && $copt['CoProvisioningTarget']['status'] !== ProvisionerModeEnum::ManualMode
       ) {
         syslog(LOG_DEBUG,'Not in manual mode.');

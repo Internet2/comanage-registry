@@ -451,7 +451,8 @@ class CoProvisioningTargetsController extends StandardController {
                                       false,
                                       array(
                                         'co_provisioning_target_id' => $id,
-                                        'record_type' => 'All'
+                                        'record_type' => 'All',
+                                        'force_provision' => true,
                                       ));
       
       $this->Flash->set(_txt('rs.jb.registered', array($jobid)), array('key' => 'success'));

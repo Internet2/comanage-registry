@@ -54,6 +54,9 @@ class ProvisionJob extends CoJobBackend {
     if($params['record_type'] == 'All') {
       $modelsTodo = array('CoEmailList', 'CoGroup', 'CoPerson', 'CoService');
     }
+
+    // Optional flag to bypass ManualMode restriction in requestToProvision
+    $forceProvision = !empty($params['force_provision']);
     
     // Track number of results
     $success = 0;
@@ -106,7 +109,8 @@ class ProvisionJob extends CoJobBackend {
                             $Model,
                             $sAction,
                             $params['co_provisioning_target_id'],
-                            $params['record_id'])) {
+                            $params['record_id'],
+                            $forceProvision)) {
           $success++;
         } else {
           $failed++;
@@ -144,7 +148,8 @@ class ProvisionJob extends CoJobBackend {
                               $Model,
                               $sAction,
                               $params['co_provisioning_target_id'],
-                              $v[$sModel]['id'])) {
+                              $v[$sModel]['id'],
+                              $forceProvision)) {
             $success++;
           } else {
             $failed++;
@@ -219,10 +224,11 @@ class ProvisionJob extends CoJobBackend {
    * @param  ProvisioningActionEnum $action Provisioning action
    * @param  integer                $ptid   Provisioning Target ID
    * @param  integer                $rid    Record ID
+   * @param  boolean                $forceProvision Flag to bypass ManualMode restriction in requestToProvision
    * @return boolean                        True if provisioning was successful, false otherwise
    */
   
-  protected function provision($CoJob, $Model, $action, $ptid, $rid) {
+  protected function provision($CoJob, $Model, $action, $ptid, $rid, $forceProvision = false) {
     // Manually invoke provisioning. We don't want to abort on a single failure,
     // so catch exceptions for logging.
     
@@ -235,7 +241,8 @@ class ProvisionJob extends CoJobBackend {
                                  null, // CoGroupMemberId
                                  null, // ActorCoPersonId
                                  ($Model->name == 'CoService' ? $rid : null),
-                                 true); // manual = true
+                                 true,  // manual = true
+                                 $forceProvision); // We want to force provisioning if enabled.
                               
       $CoJob->CoJobHistoryRecord->record($CoJob->id,
                                          $rid,
