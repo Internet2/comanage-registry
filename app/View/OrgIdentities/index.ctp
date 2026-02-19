@@ -74,23 +74,6 @@ print $this->element("pageTitleAndButtons", $params);
   </div>
 </div>
 
-<?php if(!empty($vv_org_population_too_large)): ?>
-    <div class="co-info-topbox">
-        <em class="material-icons">info</em>
-        <div class="co-info-topbox-text">
-          <?php
-          echo _txt(
-            'fd.dataset.too_large',
-            array(
-              (int)$vv_total_org_identities,
-              (int)DEF_POPULATION_INDEX_THRESHOLD
-            )
-          );
-          ?>
-        </div>
-    </div>
-<?php endif; ?>
-
 <?php // Load the top search bar
 // Search Block
 if(!empty($vv_search_fields)) {
@@ -211,34 +194,6 @@ if(!empty($vv_alphabet_search)) {
     </tbody>
   </table>
 </div>
-
-<?php
-if(empty($org_identities) && $vv_total_org_identities > 0) {
-  // No search results
-  print('<div id="coPeopleNoResults">');
-  if($vv_org_population_too_large) {
-    print('<div id="noResults">' . _txt('rs.search.too.large', array(_txt('ct.org_identities.pl'))) . '</div>');
-  } else {
-    print('<div id="noResults">' . _txt('rs.search.none') . '</div>');
-    print('<div id="restoreLink">');
-    $args = array();
-    $args['plugin'] = null;
-    $args['controller'] = 'org_identities';
-    $args['action'] = 'index';
-    $args['co'] = $cur_co['Co']['id'];
-    print $this->Html->link(_txt('op.search.restore'), $args);
-    print('</div>');
-  }
-  print('</div>');
-} else {
-  if ($vv_total_org_identities == 0) {
-    // Empty CO, there are no organizational identities in this CO
-    print('<div id="coPeopleNoResults">');
-    print('<div id="noResults">' . _txt('rs.empty', array(_txt('ct.org_identities.pl'))) . '</div>');
-    print('</div>');
-  }
-}
-?>
 
 <?php
   print $this->element("pagination");

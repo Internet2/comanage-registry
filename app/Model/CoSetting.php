@@ -84,11 +84,6 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    'population_hide' => array(
-      'rule' => 'boolean',
-      'required' => false,
-      'allowEmpty' => true
-    ),
     'enable_nsf_demo' => array(
       'rule' => 'boolean',
       'required' => false,
@@ -212,7 +207,6 @@ class CoSetting extends AppModel {
     'group_create_admin_only'    => false,
     'enable_normalization'       => true,
     'enable_nsf_demo'            => false,
-    'population_hide'            => false,
     'group_validity_sync_window' => DEF_GROUP_SYNC_WINDOW,
     'invitation_validity'        => DEF_INV_VALIDITY,
     'garbage_collection_interval'  => DEF_GARBAGE_COLLECT_INTERVAL,
@@ -368,18 +362,6 @@ class CoSetting extends AppModel {
     }
     
     return $ret;
-  }
-
-  /**
-   * Get population hide setting for the specified CO.
-   *
-   * @param integer $coId CO ID
-   * @return boolean True if population should be shown, false if hidden
-   * @since  COmanage Registry v4.6.0
-   */
-
-  public function getPopulationHide($coId) {
-    return $this->lookupValue($coId, 'population_hide');
   }
 
   /**
@@ -639,32 +621,6 @@ class CoSetting extends AppModel {
     
     $this->updateAll(
       array('CoSetting.global_search_limit'=> DEF_GLOBAL_SEARCH_LIMIT)
-    );
-  }
-
-  /**
-   * Perform CoSetting model upgrade steps for version 4.6.0.
-   * This function should only be called by UpgradeVersionShell.
-   *
-   * @since  COmanage Registry v4.6.0
-   */
-  public function _ug460() {
-    // Temporarily unbind all relations
-    $this->unbindModel(
-      array(
-        'belongsTo' => array(
-          "Co",
-          "SponsorCoGroup",
-          "CoPipeline",
-          "CoDashboard",
-          "CoTheme"
-        ),
-      )
-    );
-
-    // Update CoSettings Population hide switch
-    $this->updateAll(
-      array('CoSetting.population_hide'=> false)
     );
   }
 }

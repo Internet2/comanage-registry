@@ -29,7 +29,6 @@
 global $group_sep;
 $group_sep = ":";
 
-
 // Default name for the COmanage collaborative organization
 define("DEF_COMANAGE_CO_NAME", "COmanage");
 
@@ -44,11 +43,6 @@ define("DEF_GARBAGE_COLLECT_INTERVAL", 1440);
 
 // Default global search limit
 define("DEF_GLOBAL_SEARCH_LIMIT", 500);
-
-// Default MyPopulation and Organization Identities index page pagination threshold
-if(!defined('DEF_POPULATION_INDEX_THRESHOLD')) {
-  define('DEF_POPULATION_INDEX_THRESHOLD', 10000);
-}
 
 /**
  * Find an attribute within an array, specifically intended for working with

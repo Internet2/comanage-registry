@@ -1492,7 +1492,7 @@ body.co_petitions .ui-dialog {
   width: 100%;
 }
 #coPeopleNoResults {
-  margin: 2em 1.5em;
+  margin-left: 1.5em;
 }
 #noResults {
   margin: 1.5em 0 0 0;
@@ -2111,7 +2111,7 @@ ul.fields.data-list li {
   color: var(--cmg-color-blue-primary);
 }
 #restoreLink {
-  /*margin-bottom: 2em;*/
+  margin-bottom: 2em;
 }
 /* Groups */
 #groupMembers {

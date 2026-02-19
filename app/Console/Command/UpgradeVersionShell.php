@@ -118,7 +118,7 @@ class UpgradeVersionShell extends AppShell {
     "4.4.2" => array('block' => false, 'post' => 'post442'),
     "4.5.0" => array('block' => false, 'post' => 'post450'),
     "4.5.1" => array('block' => false),
-    "4.6.0" => array('block' => false, 'post' => 'post460'),
+    "4.6.0" => array('block' => false),
   );
   
   public function getOptionParser() {
@@ -739,12 +739,6 @@ class UpgradeVersionShell extends AppShell {
     // Pipelines support attribute filtering
     $this->out(_txt('sh.ug.450.pipeline'));
     $this->CoPipeline->_ug450();
-  }
-
-  public function post460() {
-    // Set various new defaults
-    $this->out(_txt('sh.ug.460.co_setting'));
-    $this->CoSetting->_ug460();
   }
 
   // We should eventually do something like

@@ -94,20 +94,6 @@
   </li>
   <li>
     <div class="field-name">
-        <div class="field-title"><?php print _txt('fd.dataset.hide'); ?></div>
-        <div class="field-desc"><?php print _txt('fd.dataset.hide.desc'); ?></div>
-    </div>
-    <div class="field-info checkbox">
-      <?php print ($e
-        ? $this->Form->input('population_hide')
-        : (isset($co_settings[0]['CoSetting']['population_hide'])
-        && $co_settings[0]['CoSetting']['population_hide']
-          ? _txt('fd.yes') : _txt('fd.no')));
-      print ' ' . $this->Form->label('population_hide',_txt('fd.dataset.hide'));
-      ?>
-  </li>
-  <li>
-    <div class="field-name">
       <div class="field-title"><?php print _txt('fd.ois.sync.disable'); ?></div>
       <div class="field-desc"><?php print _txt('fd.ois.sync.disable.desc'); ?></div>
     </div>

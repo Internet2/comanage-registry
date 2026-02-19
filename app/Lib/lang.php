@@ -1520,9 +1520,6 @@ The request may be viewed at
   'fd.cou_empty.enable'  =>  'Enable Empty COUs',
   'fd.created' =>     'Created',
   'fd.created.tz' =>  'Created (%1$s)',
-  'fd.dataset.hide' => 'Hide populations',
-  'fd.dataset.hide.desc' => 'Hide unfiltered large populations for MyPopulation and Organizational Identities index views',
-  'fd.dataset.too_large' => 'This population has %1$d records, which exceeds the display threshold (%2$d). Please apply a filter to view results.',
   'fd.dashboard.header' => 'Header',
   'fd.dashboard.header.desc' => 'Optional text to display at the top of a Dashboard, under the title. May contain HTML.',
   'fd.dashboard.footer' => 'Footer',
@@ -2614,7 +2611,6 @@ The request may be viewed at
   'rs.edited-a3' =>   '%1$s Edited',
   'rs.edited-a4' =>   '%1$s Edited: %2$s',
   'rs.ef.defaults' => 'Default enrollment flow templates added',
-  'rs.empty' =>       'There are no %1$s in this CO.',
   'rs.ev.cxl' =>      'Verification of Email Address canceled',
   'rs.ev.cxl-a' =>    'Verification of Email Address %1$s canceled',
   'rs.ev.sent' =>     'Email verification request sent to %1$s',
@@ -2725,7 +2721,6 @@ The request may be viewed at
   'rs.search.1' =>    'Exact match for "%1$s" found (%2$s)',
   'rs.search.limit' => '%1$s search limit of %2$s reached, try narrowing your search',
   'rs.search.none' => 'No results found',
-  'rs.search.too.large' => 'To view %1$s, filter the listing using the available filters above.',
   'rs.search.noquery' => 'No search query was submitted.  Please enter a search query above.',
   'rs.server.oauth2.token.ok' => 'Access Token Obtained',
   'rs.saved' =>       'Saved',
@@ -2857,7 +2852,6 @@ The request may be viewed at
   'sh.ug.440.application_preferences' => 'Reset Application Preferences table',
   'sh.ug.442.match' =>    'Updating Match Server configuration',
   'sh.ug.450.pipeline' =>    'Updating CoPipeline configuration',
-  'sh.ug.460.co_setting' => 'Set Hide Population switch default value',
 );
 
 // Make a copy of the original texts, since CoLocalizations can override them

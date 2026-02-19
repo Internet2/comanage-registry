@@ -3348,7 +3348,6 @@
     <field name="garbage_collection_interval" type="I" />
     <field name="enable_normalization" type="L" />
     <field name="enable_empty_cou" type="L" />
-    <field name="population_hide" type="L" />
     <field name="invitation_validity" type="I" />
     <field name="permitted_fields_name" type="C" size="160" />
     <field name="required_fields_addr" type="C" size="160" />
