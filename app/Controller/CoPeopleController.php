@@ -139,7 +139,7 @@ class CoPeopleController extends StandardController {
           'type'    => 'select',
           'label'   => _txt('fd.cou'),
           'empty'   => _txt('op.select.all'),
-          'options' => $this->viewVars['vv_cous'],
+          'options' => !empty($this->viewVars['vv_cous']) ? $this->viewVars['vv_cous'] : array(),
         ),
         'search.unattached' => array(         // 4th row, left column
           'label' => _txt('fd.people.no.org'),
