@@ -1220,4 +1220,21 @@ class CoEnrollmentAttribute extends AppModel {
     
     return false;
   }
+
+  /**
+   * Update existing textfield attributes to use the new co_petition_attribute format
+   *
+   * @return void
+   * @since  COmanage Registry v4.6.0
+   */
+  public function _ug460() {
+    $this->updateAll(
+      array(
+        'CoEnrollmentAttribute.attribute' => "'e:co_petition_attribute:textfield'"
+      ),
+      array(
+        'CoEnrollmentAttribute.attribute' => 'e:textfield'
+      )
+    );
+  }
 }
