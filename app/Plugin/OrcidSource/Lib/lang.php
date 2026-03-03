@@ -47,6 +47,7 @@ $cm_orcid_source_texts['en_US'] = array(
   'pl.orcidsource.redirect_url'       => 'Additional ORCID Redirect URI',
   'pl.orcidsource.scope_inherit'      => 'Inherit Scope',
   'pl.orcidsource.api_tier'           => 'API tier',
+  'pl.ug.460.orcidsource'             => 'Setting default ORCID API tier and API type to PRODUCTION/PUBLIC for existing configurations with no values.',
 
   'en.orcidsource.api_tier' =>      array(OrcidSourceTierEnum::PROD     => 'Production',
                                           OrcidSourceTierEnum::SANDBOX  => 'Sandbox'),
