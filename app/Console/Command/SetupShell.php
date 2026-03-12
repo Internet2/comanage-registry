@@ -156,7 +156,7 @@
         )
       );
       
-      $this->Co->save($co);
+      $this->Co->save($co, ['provision' => false]);
       $co_id = $this->Co->id;
       
       // Create the OrgIdentity. By default, Org Identities are not pooled, so
@@ -177,7 +177,7 @@
         )
       );
       
-      $this->OrgIdentity->saveAll($op);
+      $this->OrgIdentity->saveAll($op, ['provision' => false]);
       $op_id = $this->OrgIdentity->id;
 
       // Add the OrgIdentity's identifier
@@ -192,7 +192,7 @@
         )
       );
       
-      $this->Identifier->save($id);
+      $this->Identifier->save($id, ['provision' => false]);
       $id_id = $this->Identifier->id;
 
       // Add the OrgIdentity to the CO
@@ -213,7 +213,7 @@
         )
       );
       
-      $this->CoPerson->saveAll($cop);
+      $this->CoPerson->saveAll($cop, ['provision' => false]);
       $cop_id = $this->CoPerson->id;
       
       // (2) Create a CO Person Role
@@ -227,7 +227,7 @@
         )
       );
       
-      $this->CoPersonRole->save($copr);
+      $this->CoPersonRole->save($copr, ['provision' => false]);
       $copr_id = $this->CoPersonRole->id;
       
       // (3) Add an Identity Link
@@ -239,7 +239,7 @@
         )
       );
       
-      $this->CoOrgIdentityLink->save($coil);
+      $this->CoOrgIdentityLink->save($coil, ['provision' => false]);
       $coil_id = $this->CoOrgIdentityLink->id;
       
       // Add the CO Person to the admin group
@@ -255,7 +255,7 @@
         )
       );
 
-      $this->CoGroupMember->save($grm);
+      $this->CoGroupMember->save($grm, ['provision' => false]);
       
       // Create platform defaults
       
