@@ -39,6 +39,8 @@ $cm_privacy_idea_authenticator_texts['en_US'] = array(
   'ct.privacy_ideas.pl'               => 'PrivacyIDEA Tokens',
   'ct.totp_tokens.1'                  => 'TOTP Token',
   'ct.totp_tokens.pl'                 => 'TOTP Tokens',
+  'ct.paper_tokens.1'		      => 'Backup Codes Token',
+  'ct.paper_tokens.pl'                => 'Backup Codes Tokens',
   
   // Enumerations
   'pl.privacyideaauthenticator.en.action' => array(
@@ -49,23 +51,33 @@ $cm_privacy_idea_authenticator_texts['en_US'] = array(
   ),
   
   'en.privacyideaauthenticator.token_type' => array(
-    PrivacyIDEATokenTypeEnum::TOTP => 'Time-Based OTP (TOTP)'
+    PrivacyIDEATokenTypeEnum::TOTP => 'Time-Based OTP (TOTP)',
+    PrivacyIDEATokenTypeEnum::Paper => 'Backup Codes'
   ),
   
   // Error messages
   'er.privacyideaauthenticator.code'       => 'Invalid code, please try again',
   'er.privacyideaauthenticator.identifier' => 'No Identifier of type "%1$s" found for CO Person',
+  'er.privacyideaauthenticator.singular'   => 'A token already exists; please delete that one before generating a new one',
   
   // Plugin texts
   'pl.privacyideaauthenticator.alt.google'           => 'QR Code for Google Authenticator',
+  'pl.privacyideaauthenticator.alt.paper'            => 'Paper token list',
   'pl.privacyideaauthenticator.fd.identifier_type'   => 'Identifier Type',
   'pl.privacyideaauthenticator.fd.realm'             => 'PrivacyIDEA Realm',
   'pl.privacyideaauthenticator.fd.serial'            => 'Serial',
   'pl.privacyideaauthenticator.fd.token_type'        => 'Token Type',
   'pl.privacyideaauthenticator.fd.validation_server' => 'Validation API Server',
-  'pl.privacyideaauthenticator.status'               => '%1$s token(s) registered, %2$s confirmed',
+  'pl.privacyideaauthenticator.totpstatus'           => '%1$s token(s) registered, %2$s confirmed',
+  'pl.privacyideaauthenticator.paperstatus'          => '%1$s token(s) registered',
   'pl.privacyideaauthenticator.token.confirmed'      => 'Token Confirmed',
   'pl.privacyideaauthenticator.token.deletednoprivacyidea' => 'Token deleted in Registry, but was not found in the Privacy Idea database',
   'pl.privacyideaauthenticator.totp.step1'           => 'First, scan the QR Code to add this token to Google Authenticator',
-  'pl.privacyideaauthenticator.totp.step2'           => 'Then, enter the current code from the Google Authenticator app to confirm'
+  'pl.privacyideaauthenticator.totp.step2'           => 'Then, enter the current code from the Google Authenticator app to confirm',
+  'pl.privacyideaauthenticator.paper.intro'          => 'Use the backup codes in order, one after the other. Mark off used values.',
+  'pl.privacyideaauthenticator.paper.caution'        => 'Backup codes are a weak second factor. Please assure no one has access to these values.  Store them in a safe location',
+  'pl.privacyideaauthenticator.paper.warning'        => 'Before you leave this page, please confirm that you have copied your backup codes. YOU WILL NOT SEE THEM AGAIN.',
+  'pl.privacyideaauthenticator.paper.dialog'         => 'Before you leave this page you must save your backup codes by copying or printing.',
+  'pl.privacyideaauthenticator.paper.dialog.btn'     => 'I understand',
+  'pl.privacyideaauthenticator.paper.continue'       => 'Once you have copied your backup codes, you must continue to the next step', 
 );
