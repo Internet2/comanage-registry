@@ -42,11 +42,17 @@ $cm_federation_source_texts['en_US'] = array(
     MetadataProtocol::MDQ   => "MDQ"
   ),
 
+  // Enumeration language texts
+  'pl.federationsource.en.entities' => array(
+    MdqProtocol::IdpsOnly => 'Idps Only',
+  ),
+
   // Error messages
   'er.federationsource.notfound.entityid' => 'entityID not found in metadata response',
   
   // Plugin texts
   'pl.federationsource.count'       => 'Populated %1$s records from all IdPs endpoint',
   'pl.federationsource.entityid'    => 'Entity ID',
-  'pl.federationsource.protocol'    => 'Protocol'
+  'pl.federationsource.protocol'    => 'Protocol',
+  'pl.federationsource.entities'    => 'Entities Filtering'
 );
