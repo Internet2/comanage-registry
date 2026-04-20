@@ -266,7 +266,10 @@ class Name extends AppModel {
           
           foreach($names as $n) {
             $this->id = $n[$this->alias]['id'];
-            $this->saveField('primary_name', false);
+            // This is an intermediate step when switching primary names. If we let
+            // provisioning run here, we can temporarily have no PrimaryName and
+            // provisioning lookups can fail. Skip provisioning for this step.
+            $this->saveField('primary_name', false, array('provision' => false));
           }
           
           $this->id = $curId;
