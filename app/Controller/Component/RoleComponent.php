@@ -173,6 +173,27 @@ class RoleComponent extends Component {
     
     return $ret;
   }
+
+  /**
+   * Cached COU path lookup (request scoped).
+   *
+   * TreeBehavior::getPath() can be expensive and is often called repeatedly for
+   * the same COU ID during authorization and view rendering.
+   *
+   * Delegates to the Cou model's request-scoped cache so the cache is shared
+   * across the request (eg: between models and components) via ClassRegistry.
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param  int   $couId
+   * @return array Path results as returned by Cou::getPath()
+   */
+  protected function cachedCouPath($couId) {
+    $Cou = ClassRegistry::init('Cou');
+
+    $path = $Cou->cachedPath((int)$couId);
+
+    return (!empty($path) ? $path : array());
+  }
   
   /**
    * Cached CO ID lookup.
@@ -689,47 +710,47 @@ class RoleComponent extends Component {
    * @return Array List COU IDs and Names
    * @throws InvalidArgumentException
    */
-  
+
   public function couAdminFor($coPersonId) {
-    global $group_sep;
-    
-    $couNames = array();
-    $childCous = array();
-    
     if(!$coPersonId) {
       return array();
     }
-    
+
     try {
       $coId = $this->cachedCoIdLookup($coPersonId);
     }
     catch(InvalidArgumentException $e) {
       throw new InvalidArgumentException($e->getMessage());
     }
-    
+
     // First pull the COUs $coPersonId is explicitly an admin for
-    
     $couGroups = $this->cachedGroupGet($coPersonId, "", "", null, false, GroupEnum::Admins, true);
-    
-    // What we actually have are the groups associated with each COU for which
-    // coPersonId is an admin.
-    
-    $Cou = ClassRegistry::init('Cou');
-    
+
+    if(empty($couGroups)) {
+      return array();
+    }
+
+    // Extract unique root COU IDs from the groups
+    $rootIds = array();
     foreach($couGroups as $couGroup) {
       if(!empty($couGroup['CoGroup']['cou_id'])) {
-        // Pull the COU and its children (if any)
-        
-        try {
-          $childCous = array_unique($childCous + $Cou->childCousById($couGroup['CoGroup']['cou_id'], true, true));
-        }
-        catch(InvalidArgumentException $e) {
-          throw new InvalidArgumentException($e->getMessage());
-        }
+        // Use the array as a set to de-duplicate COU IDs while iterating $couGroups.
+        // If the person is in multiple admin groups that point at the same cou_id,
+        // we only want each root once.
+        $rootIds[(int)$couGroup['CoGroup']['cou_id']] = true;
       }
     }
-    
-    return $childCous;
+    $rootIds = array_keys($rootIds);
+
+    if(empty($rootIds)) {
+      return array();
+    }
+
+    $Cou = ClassRegistry::init('Cou');
+
+    // Expand via cached tree (request-scoped) only; no legacy fallback.
+    // includeParents=true, includeHierarchy=true to match prior behavior
+    return $Cou->childCousByIds($rootIds, true, true, $coId);
   }
   
   /**
@@ -1413,11 +1434,8 @@ class RoleComponent extends Component {
     global $group_sep;
     
     if($couId) {
-      $Cou = ClassRegistry::init('Cou');
-      
-      // Get a listing of this COU and its parents.
-      
-      $cous = $Cou->getPath($couId);
+      // Get a listing of this COU and its parents (cached per request).
+      $cous = $this->cachedCouPath($couId);
       
       if(!empty($cous)) {
         // This will be in order from the top of the tree down to $couId, but
@@ -1460,11 +1478,8 @@ class RoleComponent extends Component {
     global $group_sep;
 
     if($couId) {
-      $Cou = ClassRegistry::init('Cou');
-
-      // Get a listing of this COU and its parents.
-
-      $cous = $Cou->getPath($couId);
+      // Get a listing of this COU and its parents (cached per request).
+      $cous = $this->cachedCouPath($couId);
 
       if(!empty($cous)) {
         // This will be in order from the top of the tree down to $couId, but
