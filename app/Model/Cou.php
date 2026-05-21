@@ -168,6 +168,7 @@ class Cou extends AppModel {
    * Keyed by (co scope, cou id).
    *
    * @var array
+   * @since  COmanage Registry v4.6.1
    */
   protected $couPathCache = array();
 
@@ -181,6 +182,8 @@ class Cou extends AppModel {
 
   /**
    * Sentinel cache key used when no CO scope is supplied.
+   * @var string
+   * @since  COmanage Registry v4.6.1
    */
   const CACHE_KEY_ALL_SCOPES = '__all__';
 
@@ -258,7 +261,6 @@ class Cou extends AppModel {
    * @param  Array $options Options, as based to model::save()
    * @return Boolean True on success
    */
-
   public function afterSave($created, $options = Array()) {
     // Clear request-scoped caches whenever tree-relevant fields might have changed.
     // Even if this is "just a rename", derived caches like allCous() depend on name.
@@ -296,7 +298,6 @@ class Cou extends AppModel {
    * @return Array List or hash of member COUs, as specified by $format
    * @since  COmanage Registry v0.4
    */
-
   public function allCous($coId, $format="hash", $isParent=null) {
     $coId = (int)$coId;
 
@@ -381,6 +382,7 @@ class Cou extends AppModel {
    * @param  array  $byIdName
    * @param  string $format one of 'names', 'ids', or 'hash'
    * @return array
+   * @since  COmanage Registry v4.6.1
    */
   protected function formatCouList(array $byIdName, $format) {
     switch($format) {
@@ -726,8 +728,9 @@ class Cou extends AppModel {
   /**
    * Normalize an array of COU IDs into a de-duplicated list of positive ints.
    *
-   * @param  array $ids
+   * @param array $ids
    * @return int[]
+   * @since  COmanage Registry v4.6.1
    */
   protected function normalizeRootIds(array $ids) {
     $set = array();
@@ -745,6 +748,7 @@ class Cou extends AppModel {
    * @param  int[] $rootIds
    * @param  array $byId    id => Cou row map (as returned by cachedTreeById)
    * @return array          List of [lft, rght, rootId]
+   * @since  COmanage Registry v4.6.1
    */
   protected function intervalsForRoots(array $rootIds, array $byId) {
     $intervals = array();
@@ -764,6 +768,7 @@ class Cou extends AppModel {
    *
    * @param  array $intervals List of [lft, rght, ...]
    * @return array            List of [lft, rght] (sorted, non-overlapping)
+   * @since  COmanage Registry v4.6.1
    */
   protected function mergeIntervals(array $intervals) {
     usort($intervals, function($a, $b) {
@@ -797,6 +802,7 @@ class Cou extends AppModel {
    *
    * @param  array $byId id => Cou row map
    * @return callable    function(int $id): string
+   * @since  COmanage Registry v4.6.1
    */
   protected function buildPathFn(array $byId) {
     $cache = array();
@@ -830,8 +836,8 @@ class Cou extends AppModel {
    * the requested CO, to avoid an extra DB query.
    *
    * @since  COmanage Registry v0.3
-   * @param  integer COU ID to check
-   * @param  integer CO ID
+   * @param  integer $couId COU ID to check
+   * @param  integer $coId CO ID
    * @return boolean True if member, false otherwise
    */
 
@@ -924,6 +930,7 @@ class Cou extends AppModel {
    * @param  int   $rootId
    * @param  array $byId    id => Cou row map
    * @return int[]
+   * @since  COmanage Registry v4.6.1
    */
   protected function descendantIdsFromTree($rootId, array $byId) {
     if(empty($byId[$rootId])) {
