@@ -134,7 +134,7 @@ class CoSetting extends AppModel {
       'required' => false,
       'allowEmpty' => true
     ),
-    't_and_c_login' => array(
+    't_and_c_login_mode' => array(
       'rule' => array('inList',
                       array(TAndCLoginModeEnum::NotEnforced,
                             TAndCLoginModeEnum::RegistryLogin)),
