@@ -30,6 +30,14 @@ App::uses('CakeSession', 'Model/Datasource');
 
 class ProvisionerBehavior extends ModelBehavior {
   /**
+   * Pending provisioning tasks deferred until transaction commit
+   *
+   * @since  COmanage Registry v4.6.1
+   * @var array
+   */
+  protected $_deferredProvisioning = array();
+
+  /**
    * Specify which statuses provision which type of data
    */
   
@@ -128,7 +136,13 @@ class ProvisionerBehavior extends ModelBehavior {
       // Forcing a read of the CakeSession is sub-optimal, but consistent with what we do elsewhere
       $actorCoPersonId = CakeSession::read('Auth.User.co_person_id');
     }
-    
+
+    if ($model->getDataSource()->inTransaction()) {
+      // Queue it for later instead of doing it now
+      $this->_deferredProvisioning[] = array('model' => $model, 'created' => $created, 'actorId' => $actorCoPersonId);
+      return true;
+    }
+
     return $this->determineProvisioning($model, $created, null, $actorCoPersonId);
   }
   
@@ -1744,5 +1758,32 @@ class ProvisionerBehavior extends ModelBehavior {
     
     // Resolve any outstanding notifications
     $CoNotification->resolveFromSource($src, $actorCoPersonId);
+  }
+
+  /**
+   * Flush any deferred provisioning tasks.
+   * This should be called after a transaction is successfully committed.
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param Model $model
+   * @return void
+   */
+  public function flushProvisioning(Model $model) {
+    foreach ($this->_deferredProvisioning as $task) {
+      $this->determineProvisioning($task['model'], $task['created'], null, $task['actorId']);
+    }
+    $this->_deferredProvisioning = array();
+  }
+
+  /**
+   * Clear any deferred provisioning tasks.
+   * This should be called after a transaction rolls back.
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param Model $model
+   * @return void
+   */
+  public function clearDeferredProvisioning(Model $model) {
+    $this->_deferredProvisioning = array();
   }
 }
