@@ -319,8 +319,9 @@ class StandardController extends AppController {
     // Apply the rule only when the validateExtendedType function is used as a custom rule
     $model = $this->modelClass;
     if(!empty($this->$model->validate['type']['content']['rule'])
-       && array_search('validateExtendedType', $this->$model->validate['type']['content']['rule'], true) !== null
-       && !empty($this->cur_co['Co']['id'])) {
+       && in_array('validateExtendedType', $this->$model->validate['type']['content']['rule'])
+       && !empty($this->cur_co['Co']['id'])
+    ) {
       $vrule = $this->$model->validate['type']['content']['rule'];
       $vrule[1]['coid'] = $this->cur_co['Co']['id'];
       $this->$model->validator()->getField('type')->getRule('content')->rule = $vrule;
