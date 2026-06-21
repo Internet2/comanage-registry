@@ -1401,12 +1401,7 @@ class AppController extends Controller {
                                                                  false);
       
       // Pull the list of COUs and their names. Primarily intended for CO Service portal.
-      $args = array();
-      $args['conditions']['Cou.co_id'] = $this->cur_co['Co']['id'];
-      $args['fields'] = array('Cou.id', 'Cou.name');
-      $args['contain'] = false;
-      
-      $menu['cous'] = $this->Co->Cou->find('list', $args);
+      $menu['cous'] = $this->Co->Cou->allCous($this->cur_co['Co']['id'], 'hash');
 
       // Gather the available Enrollment Flows available to the current user.
       // This will be used on the user panel.
