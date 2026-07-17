@@ -266,7 +266,13 @@ class Name extends AppModel {
           
           foreach($names as $n) {
             $this->id = $n[$this->alias]['id'];
-            $this->saveField('primary_name', false);
+            // This is an intermediate step when switching primary names. We are inside
+            // beforeSave(), so the outer save will still trigger afterSave() on the
+            // ProvisionerBehavior once the full operation is complete. Allowing provisioning
+            // to fire here would be premature: the new primary name is not yet saved, so
+            // the record would temporarily have no PrimaryName and provisioning lookups
+            // would fail. Skip provisioning for this intermediate step only.
+            $this->saveField('primary_name', false, array('provision' => false));
           }
           
           $this->id = $curId;

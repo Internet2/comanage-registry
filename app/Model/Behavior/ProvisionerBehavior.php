@@ -1552,6 +1552,13 @@ class ProvisionerBehavior extends ModelBehavior {
         $pdata = $this->marshallCoPersonData($pmodel, $cpid);
       }
       catch(InvalidArgumentException $e) {
+        if($e->getMessage() == _txt('er.cop.unk')) {
+          // CO Person unknown, just return silently since we might be in the middle
+          // of inviting a new Person (using default invitation).
+
+          return false;
+        }
+        
         throw new InvalidArgumentException($e->getMessage());
       }
 

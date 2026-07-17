@@ -501,9 +501,12 @@ class RoleComponent extends Component {
       
       $authCoId = $this->Session->read('Auth.User.co_id');
       $privd = $this->Session->read('Auth.User.privileged');
-      
-      if($authCoId == 1) {
-        // API users in CO 1 are given platform privileges
+
+      $Co = ClassRegistry::init('Co');
+      $comanageCoId = $Co->getCOmanageCOID();
+
+      if($comanageCoId && ((int)$authCoId === (int)$comanageCoId)) {
+        // API users in the COmanage CO are given platform privileges
         $ret['cmadmin'] = true;
       } elseif(($coId == $authCoId) && $privd) {
         // Privileged users in other COs are given CO privileges
