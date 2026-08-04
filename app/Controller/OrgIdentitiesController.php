@@ -240,6 +240,17 @@ class OrgIdentitiesController extends StandardController {
     $vrule = $this->OrgIdentity->validate['affiliation']['content']['rule'];
     $vrule[1]['coid'] = isset($this->cur_co['Co']['id']) ? $this->cur_co['Co']['id'] : -1;
     $this->OrgIdentity->validator()->getField('affiliation')->getRule('content')->rule = $vrule;
+
+    if($this->request->is('restful')) {
+      $this->OrgIdentity->bindModel(array(
+        'hasOne' => array(
+          'PrimaryName' => array_merge(
+            $this->OrgIdentity->hasOne['PrimaryName'],
+            array('type' => 'LEFT')
+          )
+        )
+      ), false);
+    }
   }
   
   /**
