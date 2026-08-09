@@ -149,6 +149,111 @@ class Cou extends AppModel {
                          'Changelog' => array('priority' => 5));
 
   /**
+   * Request-scoped COU tree cache (per model instance).
+   *
+   * Stores both:
+   * - rows: array of find('all') rows for the scoped COU tree
+   * - byId: id => Cou row map derived from those rows
+   *
+   * Keyed by CO ID string.
+   *
+   * @since  COmanage Registry v4.6.1
+   * @var array
+   */
+  protected $couTreeCache = array();
+
+  /**
+   * Cache for cachedPath() results (request-scoped, per model instance).
+   *
+   * Keyed by (co scope, cou id).
+   *
+   * @var array
+   * @since  COmanage Registry v4.6.1
+   */
+  protected $couPathCache = array();
+
+  /**
+   * Request-scoped cache for allCous() results.
+   *
+   * @since COmanage Registry v4.6.1
+   * @var array
+   */
+  protected $allCousCache = array();
+
+  /**
+   * Sentinel cache key used when no CO scope is supplied.
+   * @var string
+   * @since  COmanage Registry v4.6.1
+   */
+  const CACHE_KEY_ALL_SCOPES = '__all__';
+
+  /**
+   * Clear request-scoped caches maintained by this model instance.
+   *
+   * Use this after any operation that may modify the COU tree (create/update/move/delete),
+   * or that may change labels/names used in derived results.
+   *
+   * @return void
+   * @since COmanage Registry v4.6.1
+   */
+  protected function clearRequestCaches() {
+    $this->couTreeCache = array();
+    $this->couPathCache = array();
+    $this->allCousCache = array();
+  }
+
+  /**
+   * Convert a CO scope to a stable cache key.
+   *
+   * With the current caching strategy, a CO ID is always required.
+   *
+   * @param int $coId
+   * @return string
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function cacheScopeKey($coId) {
+    return (string)(int)$coId;
+  }
+
+  /**
+   * Ensure the request-scoped COU tree cache is populated for the given CO.
+   *
+   * @param int $coId
+   * @return void
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function ensureCouTreeCache($coId) {
+    $coId = (int)$coId;
+    $cacheKey = $this->cacheScopeKey($coId);
+
+    if(isset($this->couTreeCache[$cacheKey])) {
+      return;
+    }
+
+    $args = array();
+    $args['conditions']['Cou.co_id'] = $coId;
+    $args['conditions']['Cou.cou_id'] = null;
+    $args['fields']  = array('Cou.id', 'Cou.name', 'Cou.parent_id', 'Cou.lft', 'Cou.rght', 'Cou.co_id');
+    $args['order']   = 'Cou.lft ASC';
+    $args['contain'] = false;
+
+    $rows = $this->find('all', $args);
+
+    $byId = array();
+    foreach($rows as $row) {
+      if(empty($row['Cou']['id'])) {
+        continue;
+      }
+      $byId[(int)$row['Cou']['id']] = $row['Cou'];
+    }
+
+    $this->couTreeCache[$cacheKey] = array(
+      'rows' => $rows,
+      'byId' => $byId
+    );
+  }
+
+  /**
    * Callback after model save.
    *
    * @since  COmanage Registry v2.0.0
@@ -156,19 +261,31 @@ class Cou extends AppModel {
    * @param  Array $options Options, as based to model::save()
    * @return Boolean True on success
    */
-  
   public function afterSave($created, $options = Array()) {
+    // Clear request-scoped caches whenever tree-relevant fields might have changed.
+    // Even if this is "just a rename", derived caches like allCous() depend on name.
+    $this->clearRequestCaches();
+
     if($created
-       && !empty($this->data['Cou']['id'])
-       && !empty($this->data['Cou']['co_id'])) {
+      && !empty($this->data['Cou']['id'])
+      && !empty($this->data['Cou']['co_id'])) {
       // Run setup for new COU
-      
       $this->setup($this->data['Cou']['co_id'], $this->data['Cou']['id']);
     }
-    
+
     return true;
   }
-  
+
+  /**
+   * Callback after model delete.
+   *
+   * @return void
+   * @since COmanage Registry v4.6.1
+   */
+  public function afterDelete() {
+    $this->clearRequestCaches();
+  }
+
   /**
    * Obtain all COUs within a specified CO.
    *
@@ -181,49 +298,101 @@ class Cou extends AppModel {
    * @return Array List or hash of member COUs, as specified by $format
    * @since  COmanage Registry v0.4
    */
-  
   public function allCous($coId, $format="hash", $isParent=null) {
-    $parent_ids = array();
-    if(!is_null($isParent)) {
-      $args = array();
-      $args['conditions']['Cou.co_id'] = $coId;
-      $args['conditions'][] = 'Cou.parent_id IS NOT NULL';
-      $args['fields'] = array('Cou.parent_id');
-      $args['contain'] = false;
-      $cous = $this->find("all", $args);
+    $coId = (int)$coId;
 
-      $parent_ids = Hash::extract($cous, '{n}.Cou.parent_id');
+    $scopeFlag = is_null($isParent) ? self::CACHE_KEY_ALL_SCOPES : ($isParent ? 'parents' : 'leaves');
+    $cacheKey  = $coId . '|' . $format . '|' . $scopeFlag;
+
+    if(isset($this->allCousCache[$cacheKey])) {
+      return $this->allCousCache[$cacheKey];
     }
 
-    $args = array();
-    $args['conditions']['Cou.co_id'] = $coId;
-    if(!is_null($isParent) && !empty($parent_ids)) {
-      if($isParent) {
-        $args['conditions']['Cou.id'] = $parent_ids;
-      } else {
-        $args['conditions']['NOT']['Cou.id'] = $parent_ids;
+    // Reuse the request-scoped cached tree (single query per request/coId).
+    $rows = $this->cachedCouTree($coId);
+
+    if(empty($rows)) {
+      return $this->allCousCache[$cacheKey] = array();
+    }
+
+    list($byIdName, $parentIds) = $this->extractNamesAndParentIds($rows);
+
+    if(!is_null($isParent) && !empty($parentIds)) {
+      $byIdName = $this->filterByParent($byIdName, $parentIds, (bool)$isParent);
+    }
+
+    // Match previous behavior: sort by name ASC.
+    asort($byIdName, SORT_STRING);
+
+    return $this->allCousCache[$cacheKey] = $this->formatCouList($byIdName, $format);
+  }
+
+  /**
+   * Extract an id => name map and the set of parent ids from a tree result set.
+   *
+   * @param array $rows
+   * @return array array($byIdName, $parentIds)
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function extractNamesAndParentIds(array $rows) {
+    $byIdName  = array();
+    $parentIds = array();
+
+    foreach($rows as $row) {
+      if(empty($row['Cou']['id'])) {
+        continue;
+      }
+
+      $cid = (int)$row['Cou']['id'];
+      $byIdName[$cid] = (string)($row['Cou']['name'] ?? '');
+
+      if(!empty($row['Cou']['parent_id'])) {
+        $parentIds[(int)$row['Cou']['parent_id']] = true;
       }
     }
-    $args['order'] = 'Cou.name ASC';
-    $args['contain'] = false;
-    
-    $cous = $this->find("list", $args);
-    
-    if($cous) {
-      switch($format) {
+
+    return array($byIdName, $parentIds);
+  }
+
+  /**
+   * Keep only the COUs that are (or are not) parents.
+   *
+   * @param array $byIdName id => name map
+   * @param  array $parentIds set of parent ids (id => true)
+   * @param  bool  $keepParents true to keep parents, false to keep leaves
+   * @return array
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function filterByParent(array $byIdName, array $parentIds, $keepParents) {
+    $filtered = array();
+
+    foreach($byIdName as $cid => $name) {
+      $isParent = isset($parentIds[(int)$cid]);
+      if($keepParents === $isParent) {
+        $filtered[$cid] = $name;
+      }
+    }
+
+    return $filtered;
+  }
+
+  /**
+   * Format an id => name map according to the requested output format.
+   *
+   * @param  array  $byIdName
+   * @param  string $format one of 'names', 'ids', or 'hash'
+   * @return array
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function formatCouList(array $byIdName, $format) {
+    switch($format) {
       case 'names':
-        return(array_values($cous));
-        break;
+        return array_values($byIdName);
       case 'ids':
-        return(array_keys($cous));
-        break;
+        return array_keys($byIdName);
       default:
-        return($cous);
-        break;
-      }
+        return $byIdName;
     }
-    
-    return(array());
   }
 
   /**
@@ -276,6 +445,9 @@ class Cou extends AppModel {
    */
 
   public function beforeDelete($cascade = true) {
+    // This delete may change nested set values across the tree; clear request-scoped caches early.
+    $this->clearRequestCaches();
+
     if(!empty($this->id)) {
       // Remove the node from the tree before deleting it
       
@@ -296,132 +468,257 @@ class Cou extends AppModel {
   /**
    * Generates dropdown option list for html for a COU.
    *
+   * When a $coId is supplied we serve the result from the cached tree to avoid
+   * an extra DB round trip. The previous DB-based path is kept as a fallback.
+   *
    * @since  COmanage Registry v0.3
    * @param  integer COU that needs parent options; NULL if new
    * @param  integer CO ID
    * @return Array Array of [id] => [name]
    */
-  
+
   public function potentialParents($currentCou, $coId) {
-    // Editing an existing COU requires removing it and its children from the list of potential parents
+    // Fast path: use the cached COU tree for this CO.
+    if(!empty($coId)) {
+      $byId = $this->cachedCouTree((int)$coId, 'byId');
+
+      if(!empty($byId)) {
+        $excluded = array();
+
+        if($currentCou) {
+          $excluded[(int)$currentCou] = true;
+          foreach($this->descendantIdsFromTree((int)$currentCou, $byId) as $childId) {
+            $excluded[$childId] = true;
+          }
+        }
+
+        $options = array();
+        foreach($byId as $id => $row) {
+          if(isset($excluded[(int)$id])) {
+            continue;
+          }
+          $options[(int)$id] = (string)($row['name'] ?? '');
+        }
+
+        return $options;
+      }
+    }
+
+    // Fallback: original behavior (DB-backed).
     if($currentCou) {
       // Find this COU and its children
       $childrenArrays = $this->children($currentCou, false, 'id');
       $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');
-      
+
       // Set up filter to ignore children
       $conditions = array(
-                    'AND' => array(
-                      array(
-                        'NOT' => array(
-                          array('Cou.id' => $childrenList),
-                          array('Cou.id' => $currentCou)
-                        )
-                      ),
-                      array(
-                        array('Cou.co_id' => $coId)
-                      )
-                    )
-                  );
+        'AND' => array(
+          array(
+            'NOT' => array(
+              array('Cou.id' => $childrenList),
+              array('Cou.id' => $currentCou)
+            )
+          ),
+          array(
+            array('Cou.co_id' => $coId)
+          )
+        )
+      );
     } else {
-      $conditions = array();
-      $conditions['Cou.co_id'] = $coId;
+      $conditions = array('Cou.co_id' => $coId);
     }
-    
+
     $args = array();
     $args['conditions'] = $conditions;
     $args['contain'] = false;
-    
+
     // Create options list all other COUS in CO
     $optionArrays = $this->find('all', $args);
-    $optionList = Set::combine($optionArrays, '{n}.Cou.id','{n}.Cou.name');
-    
-    return $optionList;
+    return Set::combine($optionArrays, '{n}.Cou.id', '{n}.Cou.name');
   }
 
   /**
-   * Obtain the child COUs of a COU.
+   * Return the per-CO request-scoped tree cache entry (rows + byId).
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param  int $coId
+   * @return array array('rows' => array, 'byId' => array)
+   */
+  protected function cachedTreeEntry($coId) {
+    $this->ensureCouTreeCache($coId);
+    $cacheKey = $this->cacheScopeKey($coId);
+
+    return $this->couTreeCache[$cacheKey];
+  }
+
+  /**
+   * Return the request-scoped COU tree cache in the desired representation.
+   *
+   * Modes:
+   * - 'rows': array of find('all') rows (Cou => fields)
+   * - 'byId': map of couId => Cou row (Cou fields only)
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param  int    $coId
+   * @param  string $mode 'rows' or 'byId'
+   * @return array
+   */
+  protected function cachedCouTree($coId, $mode = 'rows') {
+    $entry = $this->cachedTreeEntry($coId);
+
+    switch($mode) {
+      case 'byId':
+        return $entry['byId'];
+      case 'rows':
+      default:
+        return $entry['rows'];
+    }
+  }
+
+  /**
+   * Cached COU path lookup (request-scoped).
+   *
+   * Returns an array shaped like TreeBehavior::getPath():
+   *   array(
+   *     array('Cou' => array(...)),
+   *     array('Cou' => array(...)),
+   *     ...
+   *   )
+   *
+   * This avoids TreeBehavior::getPath() nested-set queries by walking
+   * parent_id pointers in memory over the request-scoped cached tree.
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param  int $couId
+   * @param  int $coId CO scope (required)
+   * @return array
+   */
+  public function cachedPath($couId, $coId) {
+    $couId = (int)$couId;
+    $coId  = (int)$coId;
+
+    if($couId <= 0 || $coId <= 0) {
+      return array();
+    }
+
+    $scopeKey = $this->cacheScopeKey($coId);
+    $cacheKey = $scopeKey . '|' . $couId;
+
+    if(isset($this->couPathCache[$cacheKey])) {
+      return $this->couPathCache[$cacheKey];
+    }
+
+    $byId = $this->cachedCouTree($coId, 'byId');
+
+    if(empty($byId[$couId])) {
+      return $this->couPathCache[$cacheKey] = array();
+    }
+
+    // Walk parent pointers up to the root, guarding against cycles.
+    $chain = array();
+    $seen  = array();
+    $cur   = $couId;
+
+    while($cur && isset($byId[$cur]) && empty($seen[$cur])) {
+      $seen[$cur] = true;
+      $chain[] = array('Cou' => $byId[$cur]);
+
+      $cur = !empty($byId[$cur]['parent_id']) ? (int)$byId[$cur]['parent_id'] : 0;
+    }
+
+    // Reverse to get root -> leaf
+    return $this->couPathCache[$cacheKey] = array_reverse($chain);
+  }
+
+  /**
+   * Obtain the child COUs of one or more parent COUs (batch expansion).
+   *
+   * This method loads the COU tree (scoped to a CO) and then performs
+   * interval membership tests on nested set (lft/rght) ranges for each requested
+   * parent COU.
+   *
+   * Results are returned as an ID => label hash, where label is either the COU
+   * name or its hierarchy path, depending on $includeHierarchy.
    *
    * @since  COmanage Registry v0.3
-   * @param  String Name of Parent COU
-   * @param  Integer CO ID for Parent COU
-   * @param  Boolean Whether or not to return $parentCou in the results
-   * @return Array List of COU IDs and Names
-   * @throws InvalidArgumentException
+   * @param  array $parentCouIds
+   * @param  bool  $includeParents
+   * @param  bool  $includeHierarchy
+   * @param  int   $coId CO scope (required)
+   * @return array Hash of COU ID => name/path
    */
-  
-  public function childCous($parentCou, $co_id, $includeParent=false) {
-    // Find $parentCou
-    
-    $args = array();
-    $args['conditions']['Cou.name'] = $parentCou;
-    $args['conditions']['Cou.co_id'] = $co_id;
-    $args['contain'] = false;
-    
-    $parent = $this->find('first', $args);
-    
-    if(!empty($parent['Cou']['id'])) {
-      return $this->childCousById($parent['Cou']['id'], $includeParent);
-    } else {
-      throw new InvalidArgumentException(_txt('er.unknown', array($parentCou)));
+  public function childCousByIds($parentCouIds, $includeParents = false, $includeHierarchy = false, $coId) {
+    if(empty($parentCouIds) || !is_array($parentCouIds)) {
+      return array();
     }
-  }
 
-  /**
-   * Obtain the child COUs of a COU.
-   *
-   * @since  COmanage Registry v2.0.0
-   * @param  Integer $parentCouId      COU ID for Parent COU
-   * @param  Boolean $includeParent    Whether or not to return $parentCou in the results
-   * @param  Boolean $includeHierarchy Whether or not include hierarchy of COU
-   * @return Array List of COU IDs and Names
-   */
+    $coId = (int)$coId;
+    if($coId <= 0) {
+      return array();
+    }
 
-  public function childCousById($parentCouId, $includeParent=false, $includeHierarchy=false) {
-    // Find $parentCou
-    $parent = $this->getParentCouById($parentCouId);
+    $rootIds = $this->normalizeRootIds($parentCouIds);
+    if(empty($rootIds)) {
+      return array();
+    }
 
-    $children = $this->children($parentCouId,
-                                false,
-                                array('id', 'name', 'parent_id'));
+    // Load the COU tree once per request (nested set fields are required)
+    $all = $this->cachedCouTree($coId);
+
+    if(empty($all)) {
+      return array();
+    }
+
+    $byId = $this->cachedCouTree($coId, 'byId');
+
+    $intervals = $this->intervalsForRoots($rootIds, $byId);
+    if(empty($intervals)) {
+      return array();
+    }
+
+    $merged    = $this->mergeIntervals($intervals);
+    $buildPath = $this->buildPathFn($byId);
 
     $ret = array();
-    if($includeParent) {
-      if($includeHierarchy) {
-        // We must first check if there is/are parent(s) for this cou to include at the name
-        $parent_id = $parent['Cou']['parent_id'];
-        while(!empty($parent_id)) {
-          $grandparent = $this->getParentCouById($parent_id);
-          // Put at the front the parent name
-          $parent['Cou']['name'] = $grandparent['Cou']['name'] . ' / ' . $parent['Cou']['name'];
-          $parent_id = $grandparent['Cou']['parent_id'];
-        }
+    $m = 0;
+    $mCount = count($merged);
+
+    // We can scan in lft-order and check membership in the merged intervals
+    foreach($all as $row) {
+      if(empty($row['Cou']['id'])) {
+        continue;
       }
-      $ret[ $parent['Cou']['id'] ] = $parent['Cou']['name'];
+
+      $cid = (int)$row['Cou']['id'];
+
+      // Skip explicit roots when parents shouldn't be returned
+      if(!$includeParents && in_array($cid, $rootIds, true)) {
+        continue;
+      }
+
+      $lft  = !empty($row['Cou']['lft'])  ? (int)$row['Cou']['lft']  : null;
+      $rght = !empty($row['Cou']['rght']) ? (int)$row['Cou']['rght'] : null;
+      if($lft === null || $rght === null) {
+        continue;
+      }
+
+      // Advance past intervals that end before this row starts
+      while($m < $mCount && $lft > $merged[$m][1]) {
+        $m++;
+      }
+
+      if($m < $mCount && $lft >= $merged[$m][0] && $rght <= $merged[$m][1]) {
+        $ret[$cid] = $includeHierarchy ? $buildPath($cid) : (string)$row['Cou']['name'];
+      }
     }
 
-    // Construct cou name inlcuding parent names (if any)
-    foreach($children as $child) {
-      if($includeHierarchy) {
-        if($child['Cou']['parent_id'] == $parent['Cou']['id']) {
-          $ret[$child['Cou']['id']] = $parent['Cou']['name'] . ' / ' . $child['Cou']['name'];
+    // If includeParents is true, ensure roots are present (even if skipped above)
+    if($includeParents) {
+      foreach($rootIds as $rid) {
+        if(!isset($byId[$rid]) || isset($ret[$rid])) {
           continue;
         }
-        $parent_id = $child['Cou']['parent_id'];
-        $parent_name = '';
-        while($parent_id != $parent['Cou']['id']) {
-          if(empty($parent_name)) {
-            $parent_name = Hash::extract($children, '{n}.Cou[id=' . $parent_id . '].name')[0];
-          } else {
-            $parent_name = Hash::extract($children, '{n}.Cou[id=' . $parent_id . '].name')[0] . ' / ' . $parent_name;
-          }
-          $parent_id = Hash::extract($children, '{n}.Cou[id=' . $parent_id . '].parent_id')[0];
-        }
-        $parent_name = $parent['Cou']['name'] . ' / ' . $parent_name;
-        $ret[$child['Cou']['id']] = $parent_name . ' / ' . $child['Cou']['name'];
-      }
-      else {
-        $ret[ $child['Cou']['id'] ] = $child['Cou']['name'];
+        $ret[$rid] = $includeHierarchy ? $buildPath($rid) : (string)$byId[$rid]['name'];
       }
     }
 
@@ -429,50 +726,151 @@ class Cou extends AppModel {
   }
 
   /**
-   * Get Parent COU From parentCouId.
+   * Normalize an array of COU IDs into a de-duplicated list of positive ints.
    *
-   * @since  COmanage Registry v3.1.1
-   * @param  Integer $parentCouId parentCouId
-   * @return Array Parent COU
-   * @throws InvalidArgumentException
+   * @param array $ids
+   * @return int[]
+   * @since  COmanage Registry v4.6.1
    */
-  
-  public function getParentCouById($parentCouId) {
-    $args = array();
-    $args['conditions']['Cou.id'] = $parentCouId;
-    $args['contain'] = false;
-    $parent = $this->find('first', $args);
-    if(!isset($parent['Cou']['id'])) {
-      throw new InvalidArgumentException(_txt('er.unknown', array($parentCouId)));
+  protected function normalizeRootIds(array $ids) {
+    $set = array();
+    foreach($ids as $id) {
+      if(is_numeric($id) && (int)$id > 0) {
+        $set[(int)$id] = true;
+      }
     }
-    return $parent;
+    return array_keys($set);
+  }
+
+  /**
+   * Translate root COU ids into (lft, rght) intervals using a tree map.
+   *
+   * @param  int[] $rootIds
+   * @param  array $byId    id => Cou row map (as returned by cachedTreeById)
+   * @return array          List of [lft, rght, rootId]
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function intervalsForRoots(array $rootIds, array $byId) {
+    $intervals = array();
+
+    foreach($rootIds as $rid) {
+      if(empty($byId[$rid]) || empty($byId[$rid]['lft']) || empty($byId[$rid]['rght'])) {
+        continue;
+      }
+      $intervals[] = array((int)$byId[$rid]['lft'], (int)$byId[$rid]['rght'], $rid);
+    }
+
+    return $intervals;
+  }
+
+  /**
+   * Sort and merge overlapping (lft, rght) intervals.
+   *
+   * @param  array $intervals List of [lft, rght, ...]
+   * @return array            List of [lft, rght] (sorted, non-overlapping)
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function mergeIntervals(array $intervals) {
+    usort($intervals, function($a, $b) {
+      return $a[0] <=> $b[0];
+    });
+
+    $merged = array();
+    foreach($intervals as $intvl) {
+      $cur = array($intvl[0], $intvl[1]);
+
+      if(empty($merged)) {
+        $merged[] = $cur;
+        continue;
+      }
+
+      $lastIdx = count($merged) - 1;
+      if($cur[0] <= $merged[$lastIdx][1]) {
+        if($cur[1] > $merged[$lastIdx][1]) {
+          $merged[$lastIdx][1] = $cur[1];
+        }
+      } else {
+        $merged[] = $cur;
+      }
+    }
+
+    return $merged;
+  }
+
+  /**
+   * Return a closure that memoizes full COU path strings ("root / ... / node").
+   *
+   * @param  array $byId id => Cou row map
+   * @return callable    function(int $id): string
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function buildPathFn(array $byId) {
+    $cache = array();
+
+    $build = function($id) use (&$build, &$cache, $byId) {
+      if(isset($cache[$id])) {
+        return $cache[$id];
+      }
+      if(empty($byId[$id])) {
+        return $cache[$id] = "";
+      }
+
+      $name = (string)$byId[$id]['name'];
+      $pid  = !empty($byId[$id]['parent_id']) ? (int)$byId[$id]['parent_id'] : 0;
+
+      if(!$pid || empty($byId[$pid])) {
+        return $cache[$id] = $name;
+      }
+
+      $parentPath = $build($pid);
+      return $cache[$id] = ($parentPath !== "" ? ($parentPath . " / " . $name) : $name);
+    };
+
+    return $build;
   }
 
   /**
    * Check if couId is a member of the current CO.
    *
+   * Uses the request-scoped tree cache when it has already been populated for
+   * the requested CO, to avoid an extra DB query.
+   *
    * @since  COmanage Registry v0.3
-   * @param  integer COU ID to check
-   * @param  integer CO ID
+   * @param  integer $couId COU ID to check
+   * @param  integer $coId CO ID
    * @return boolean True if member, false otherwise
    */
-  
+
   public function isInCo($couId, $coId) {
+    $couId = (int)$couId;
+    $coId  = (int)$coId;
+
+    if($couId <= 0 || $coId <= 0) {
+      return false;
+    }
+
+    // Try the CO-scoped cache; if present, membership is implicit.
+    $coKey = $this->cacheScopeKey($coId);
+    if(isset($this->couTreeCache[$coKey])) {
+      return isset($this->couTreeCache[$coKey]['byId'][$couId]);
+    }
+
+    // Fallback to a focused DB lookup.
     $args = array();
     $args['conditions']['Cou.id'] = $couId;
+    $args['fields'] = array('Cou.id', 'Cou.co_id');
     $args['contain'] = false;
-  
+
     $couData = $this->find('first', $args);
-  
-    if(!empty($couData['Cou']['co_id'])
-        && $couData['Cou']['co_id'] == $coId) {
-          return true;
-        }
-        return false;
+
+    return !empty($couData['Cou']['co_id']) && (int)$couData['Cou']['co_id'] === $coId;
   }
 
   /**
    * Check if couNode is a child of couBranch.
+   *
+   * Uses the cached tree when available (testing lft/rght containment) to avoid
+   * an extra DB call. Falls back to TreeBehavior::children() otherwise.
    *
    * @since  COmanage Registry v0.3
    * @param  integer Head of the branch to be searched
@@ -481,17 +879,99 @@ class Cou extends AppModel {
    */
 
   public function isChildCou($couBranch, $couNode) {
-    // Get list of all children of $couBranch
+    $branch = (int)$couBranch;
+    $node   = (int)$couNode;
+
+    if($branch <= 0 || $node <= 0) {
+      return false;
+    }
+
+    // A node is not a child of itself.
+    if($branch === $node) {
+      return false;
+    }
+
+    // Try any cached CO scopes already loaded for this model instance.
+    foreach($this->couTreeCache as $scope) {
+      if(empty($scope['byId']) || !is_array($scope['byId'])) {
+        continue;
+      }
+
+      $byId = $scope['byId'];
+      if(!isset($byId[$branch]) || !isset($byId[$node])) {
+        continue;
+      }
+
+      $bLft  = !empty($byId[$branch]['lft'])  ? (int)$byId[$branch]['lft']  : null;
+      $bRght = !empty($byId[$branch]['rght']) ? (int)$byId[$branch]['rght'] : null;
+      $nLft  = !empty($byId[$node]['lft'])    ? (int)$byId[$node]['lft']    : null;
+      $nRght = !empty($byId[$node]['rght'])   ? (int)$byId[$node]['rght']   : null;
+
+      if($bLft === null || $bRght === null || $nLft === null || $nRght === null) {
+        continue;
+      }
+
+      // Strict containment (a node is not its own child).
+      return ($nLft > $bLft && $nRght < $bRght);
+    }
+
+    // Fallback to original behavior.
     $childrenArrays = $this->children($couBranch, false, 'id');
     $childrenList = Set::extract($childrenArrays, '{n}.Cou.id');
 
     // Check for NULL to avoid warning/error from array_search (See CO-240)
-    if(($childrenList != NULL)
-      && (array_search($couNode, $childrenList) !== false)) {
-        // Node was found in the branch
-        return true;
+    return $childrenList !== null && array_search($couNode, $childrenList) !== false;
+  }
+
+  /**
+   * Collect all descendant ids of $rootId from a tree map using nested set
+   * intervals when available, falling back to parent_id traversal.
+   *
+   * @param  int   $rootId
+   * @param  array $byId    id => Cou row map
+   * @return int[]
+   * @since  COmanage Registry v4.6.1
+   */
+  protected function descendantIdsFromTree($rootId, array $byId) {
+    if(empty($byId[$rootId])) {
+      return array();
     }
-    return false;
+
+    $lft  = !empty($byId[$rootId]['lft'])  ? (int)$byId[$rootId]['lft']  : null;
+    $rght = !empty($byId[$rootId]['rght']) ? (int)$byId[$rootId]['rght'] : null;
+
+    // Preferred path: lft/rght membership.
+    if($lft !== null && $rght !== null) {
+      $descendants = array();
+      foreach($byId as $id => $row) {
+        if((int)$id === (int)$rootId) {
+          continue;
+        }
+        $rLft  = !empty($row['lft'])  ? (int)$row['lft']  : null;
+        $rRght = !empty($row['rght']) ? (int)$row['rght'] : null;
+        if($rLft === null || $rRght === null) {
+          continue;
+        }
+        if($rLft > $lft && $rRght < $rght) {
+          $descendants[] = (int)$id;
+        }
+      }
+      return $descendants;
+    }
+
+    // Fallback: walk parent_id pointers.
+    $descendants = array();
+    $stack = array((int)$rootId);
+    while(!empty($stack)) {
+      $cur = array_pop($stack);
+      foreach($byId as $id => $row) {
+        if(!empty($row['parent_id']) && (int)$row['parent_id'] === $cur) {
+          $descendants[] = (int)$id;
+          $stack[] = (int)$id;
+        }
+      }
+    }
+    return $descendants;
   }
   
   /**
@@ -542,7 +1022,6 @@ class Cou extends AppModel {
 
     return true;
   }
-
 
   /**
    * Validates whether a label value is syntactically correct.

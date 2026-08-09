@@ -281,10 +281,17 @@ class CoPeopleController extends StandardController {
 
       // Calculate COU node path from root in case the role COU has a parent id.
       if(!empty($this->viewVars["co_people"][0]["CoPersonRole"])) {
+        $couPathCache = array();
+
         foreach($this->viewVars["co_people"][0]["CoPersonRole"] as $idx => $prole) {
           if(isset($prole['Cou']['id'])) {
-            // Add the path to parent node under the COU record
-            $this->viewVars["co_people"][0]["CoPersonRole"][$idx]["Cou"]["path"] = $this->constructTreeParentPath($prole['Cou']['id']);
+            $couId = (int)$prole['Cou']['id'];
+
+            if(!isset($couPathCache[$couId])) {
+              $couPathCache[$couId] = $this->constructTreeParentPath($couId);
+            }
+
+            $this->viewVars["co_people"][0]["CoPersonRole"][$idx]["Cou"]["path"] = $couPathCache[$couId];
           }
         }
       }
@@ -552,7 +559,11 @@ class CoPeopleController extends StandardController {
       return "";
     }
 
-    $parents = $this->CoPerson->CoPersonRole->Cou->getPath($nodeId);
+    // Prefer Cou::cachedPath() over TreeBehavior::getPath() to avoid repeated nested-set queries.
+    // Scope to the current CO if available so the underlying tree cache stays small.
+    $coId = !empty($this->cur_co['Co']['id']) ? (int)$this->cur_co['Co']['id'] : null;
+
+    $parents = $this->CoPerson->CoPersonRole->Cou->cachedPath($nodeId, $coId);
 
     if(empty($parents)) return "";
 
