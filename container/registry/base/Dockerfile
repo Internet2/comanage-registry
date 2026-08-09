@@ -16,7 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG PHP_IMAGE_VERSION=8.1.27
+ARG PHP_IMAGE_VERSION=8.2.26
 FROM php:${PHP_IMAGE_VERSION}-apache-bookworm
 
 # Official PHP image with Apache HTTPD includes
@@ -51,6 +51,14 @@ RUN apt-get update && apt-get install -y \
 ARG LDAPTLS_CACERT
 ENV LDAPTLS_CACERT ${LDAPTLS_CACERT:-/etc/ssl/certs/ca-certificates.crt}
 LABEL ldaptls_cacert=${LDAPTLS_CACERT}
+
+# Forward proxy configuration
+ARG HTTPS_PROXY
+ARG HTTP_PROXY
+ARG NO_PROXY
+ENV HTTP_PROXY=${HTTP_PROXY:-""}
+ENV HTTPS_PROXY=${HTTPS_PROXY:-""}
+ENV NO_PROXY=${NO_PROXY:-""}
 
 # Build the redis extension to use Redis for session storage.
 RUN docker-php-source extract \
