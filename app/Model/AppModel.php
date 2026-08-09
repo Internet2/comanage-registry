@@ -2279,4 +2279,42 @@ class AppModel extends Model {
     return $validation_errors;
   }
 
+
+  /**
+   * Saves model data (based on white-list, if supplied) to the database. By
+   * default, validation occurs before save.
+   *
+   * This overrides CakePHP's default saveAll method to ensure that any
+   * provisioning tasks triggered by the save operation are deferred until
+   * the database transaction has successfully committed. This prevents
+   * integrity issues where external systems are provisioned before the
+   * database is actually updated.
+   *
+   * @since  COmanage Registry v4.6.1
+   * @param  array $data    Data to save.
+   * @param  array $options Options to use when saving.
+   * @return mixed On success Model::$data if its not empty or true, false on failure
+   */
+  public function saveAll($data = null, $options = array()) {
+    $dataSource = $this->getDataSource();
+    $wasInTransaction = $dataSource->inTransaction();
+
+    // Perform the actual save
+    $result = parent::saveAll($data, $options);
+
+    // If we just finished the transaction successfully, flush the provisioner
+    if ($result && !$wasInTransaction && !$dataSource->inTransaction()) {
+      if ($this->Behaviors->loaded('Provisioner')) {
+        $this->Behaviors->Provisioner->flushProvisioning($this);
+      }
+    } elseif (!$result) {
+      // If it failed, clear the queue
+      if ($this->Behaviors->loaded('Provisioner')) {
+        $this->Behaviors->Provisioner->clearDeferredProvisioning($this);
+      }
+    }
+
+    return $result;
+  }
+
 }
