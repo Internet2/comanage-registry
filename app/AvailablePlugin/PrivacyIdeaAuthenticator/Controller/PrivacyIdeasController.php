@@ -32,7 +32,8 @@ class PrivacyIdeasController extends SAMController {
   public $name = "PrivacyIdeas";
   
   protected $pi_token_models = array(
-    PrivacyIDEATokenTypeEnum::TOTP => 'TotpToken'
+    PrivacyIDEATokenTypeEnum::TOTP => 'TotpToken',
+    PrivacyIDEATokenTypeEnum::Paper => 'PaperToken'
   );
   
   /**
