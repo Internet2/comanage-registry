@@ -175,18 +175,50 @@ class IdentityDocumentsController extends StandardController {
     $roles = $this->Role->calculateCMRoles();           // Who we authenticated as
     $pids = $this->parsePersonID($this->request->data); // Who we're asking for
     
-    // Is this a record we can manage?
+    // In order to manipulate an identity document, the authenticated user must have permission
+    // over the associated CO Person. For add and index actions, we accept
+    // the identifier passed in the URL, otherwise we lookup based on the record ID.
+
     $managed = false;
     $self = false;
-    
-    if(!empty($roles['copersonid'])
-       && !empty($this->request->params['named']['copersonid'])) {
-      if($roles['copersonid'] == $this->request->params['named']['copersonid']) {
-        $self = true;
+    $doc = null;
+
+    if(!empty($roles['copersonid'])) {
+      switch($this->action) {
+      case 'add':
+      case 'index':
+        if(!empty($pids['copersonid'])) {
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                            $pids['copersonid']);
+
+          if($pids['copersonid'] == $roles['copersonid']) {
+            $self = true;
+          }
+        }
+        break;
+      case 'delete':
+      case 'edit':
+      case 'view':
+        if(!empty($this->request->params['pass'][0])) {
+          // look up $this->request->params['pass'][0] and find the appropriate co person id
+          // then pass that to $this->Role->isXXX
+          $args = array();
+          $args['conditions']['IdentityDocument.id'] = $this->request->params['pass'][0];
+          $args['contain'] = false;
+
+          $doc = $this->IdentityDocument->find('first', $args);
+
+          if(!empty($doc['IdentityDocument']['co_person_id'])) {
+            $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                              $doc['IdentityDocument']['co_person_id']);
+
+            if($doc['IdentityDocument']['co_person_id'] == $roles['copersonid']) {
+              $self = true;
+            }
+          }
+        }
+        break;
       }
-      
-      $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
-                                                        $this->request->params['named']['copersonid']);
     }
     
     // Construct the permission set for this user, which will also be passed to the view.
