@@ -881,7 +881,11 @@ class StandardController extends AppController {
       if(!empty($this->request->query['search_identifier'])) {
         // XXX temporary implementation -- need more general approach (CO-1053)
         $args = array();
-        $args['conditions']['LOWER(Identifier.identifier) LIKE'] = '%' . strtolower($this->request->query['search_identifier']) . '%';
+        if($this->request->is('restful') && !$this->request->is('ajax')) {
+          $args['conditions']['Identifier.identifier'] = $this->request->query['search_identifier'];
+        } else {
+          $args['conditions']['LOWER(Identifier.identifier) LIKE'] = '%' . strtolower($this->request->query['search_identifier']) . '%';
+        }
 
         $orgPooled = $this->CmpEnrollmentConfiguration->orgIdentitiesPooled();
         if(!empty($this->params['url']['coid']) && !$orgPooled) {
