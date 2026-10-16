@@ -1189,14 +1189,25 @@ class CoPeopleController extends StandardController {
 
     // Filter Joining only to non-deleted people
     $this->CoPerson->bindModel(
-      array('belongsTo' => array(
-        "Co" => array(
-          'type' => 'INNER',
-          'className' => 'Co',
-          'foreignKey' => 'co_id',
-          'conditions' => array('CoPerson.deleted IS NOT TRUE', 'CoPerson.co_person_id IS NULL'),
+      array(
+        'belongsTo' => array(
+          "Co" => array(
+            'type' => 'INNER',
+            'className' => 'Co',
+            'foreignKey' => 'co_id',
+            'conditions' => array('CoPerson.deleted IS NOT TRUE', 'CoPerson.co_person_id IS NULL'),
+          )
+        ),
+        'hasOne' => array(
+          'PrimaryName' => array(
+            'className'  => 'Name',
+            'conditions' => array('PrimaryName.primary_name' => true),
+            'dependent'  => false,
+            'type'       => 'INNER',
+            'foreignKey' => 'co_person_id'
+          )
         )
-      )),
+      ),
       true
     );
 
@@ -1226,7 +1237,6 @@ class CoPeopleController extends StandardController {
     $jcnt = 0;
     if(!empty($this->request->params['named']['search.givenName'])
        || !empty($this->request->params['named']['search.familyName'])) {
-      $pagcond['conditions']['Name.primary_name'] = true;
       $pagcond['joins'][$jcnt]['table'] = 'names';
       $pagcond['joins'][$jcnt]['alias'] = 'Name';
       $pagcond['joins'][$jcnt]['type'] = 'INNER';
@@ -1318,7 +1328,8 @@ class CoPeopleController extends StandardController {
 
     // CO-1091, CO-2371, we need at least the following fields for the View to render properly
     $this->paginate['fields'] = $this->CoPerson->getPaginateFields();
-    
+    $this->paginate['contain'] = false;
+
     return $pagcond;
   }
 

@@ -770,13 +770,23 @@ class OrgIdentitiesController extends StandardController {
     }
 
     // Filter Joining only to non-deleted people
-    $this->OrgIdentity->bindModel(array(
-      'belongsTo' => array(
-        "Co" => array(
+    $this->OrgIdentity->bindModel(
+      array(
+        'belongsTo' => array(
+          "Co" => array(
             'type' => 'INNER',
             'className' => 'Co',
             'foreignKey' => 'co_id',
             'conditions' => array('OrgIdentity.deleted IS NOT TRUE', 'OrgIdentity.org_identity_id IS NULL'),
+          )
+        ),
+        'hasOne' => array(
+          'PrimaryName' => array(
+            'className'  => 'Name',
+            'conditions' => array('PrimaryName.primary_name' => true),
+            'dependent'  => false,
+            'type'       => 'INNER',
+            'foreignKey' => 'org_identity_id'
           )
         )
       ),
