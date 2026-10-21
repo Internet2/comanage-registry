@@ -181,12 +181,38 @@ class IdentityDocumentsController extends StandardController {
     
     if(!empty($roles['copersonid'])
        && !empty($this->request->params['named']['copersonid'])) {
-      if($roles['copersonid'] == $this->request->params['named']['copersonid']) {
-        $self = true;
+      switch($this->action) {
+        case 'add':
+        case 'index':
+          $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
+                                                            $this->request->params['named']['copersonid']);
+
+          if($roles['copersonid'] == $this->request->params['named']['copersonid']) {
+            $self = true;
+          }
+          break;
+        case 'delete':
+        case 'edit':
+        case 'view':
+          if(!empty($this->request->params['pass'][0])) {
+            // Look up the requested Identity Document to find the associated CO Person
+            $args = array();
+            $args['conditions']['IdentityDocument.id'] = $this->request->params['pass'][0];
+            $args['contain'] = false;
+            
+            $doc = $this->IdentityDocument->find('first', $args);
+            
+            if(!empty($doc['IdentityDocument']['co_person_id'])) {
+              $managed = $this->Role->isCoOrCouAdminForCoPersonRole($roles['copersonid'],
+                                                                    $doc['IdentityDocument']['co_person_id']);
+              
+              if($doc['IdentityDocument']['co_person_id'] == $roles['copersonid']) {
+                $self = true;
+              }
+            }
+          }
+          break;
       }
-      
-      $managed = $this->Role->isCoOrCouAdminForCoPerson($roles['copersonid'],
-                                                        $this->request->params['named']['copersonid']);
     }
     
     // Construct the permission set for this user, which will also be passed to the view.
