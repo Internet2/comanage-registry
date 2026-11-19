@@ -95,6 +95,13 @@ class ActionEnum
   const IdentityDocumentAdded           = 'AIDD';
   const IdentityDocumentEdited          = 'EIDD';
   const IdentityDocumentDeleted         = 'DIDD';
+  const IdentityProofingAssigned        = 'CIPA';
+  const IdentityProofingCalculated      = 'CIPL';
+  const IdentityProofingCanceled        = 'CIPX';
+  const IdentityProofingCompleted       = 'CIPC';
+  const IdentityProofingRequested       = 'CIPQ';
+  const IdentityProofingScheduled       = 'CIPS';
+  const IdentityProofingStarted         = 'CIPR';
   const InTrash                         = 'TR';
   const InvitationConfirmed             = 'INVC';
   const InvitationDeclined              = 'INVD';

@@ -85,6 +85,8 @@ $tname = Inflector::tableize($this->name);
   <?php
     // Build javascript arrays based on our PHP configuration
     foreach($vv_enums as $attr => $cfg) {
+      if(!$cfg) continue;
+
       $attrBits = explode('.', $attr, 3);
       
       $cfg = $vv_enums[$attr];

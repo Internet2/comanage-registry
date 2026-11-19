@@ -267,6 +267,27 @@ function generateCn($name, $showHonorific = false) {
 }
 
 /**
+ * Generate a random token consisting only of numbers
+ *
+ * @since  COmanage Registry v4.7.0
+ * @param  int    Requested token length
+ * @return string Token
+ */
+
+function generateRandomNumericToken($len=6) {
+  // Note we use Security::randomBytes() rather than php random_bytes, which was not added until 7.0
+  // XXX as part of Registry v5, switch to random_bytes()
+
+  $token = "";
+
+  for($i = 0;$i < $len;$i++) {
+    $token .= (string)random_int(0,9);
+  }
+  
+  return $token;
+}
+
+/**
  * Generate a random token, suitable for use as (eg) an API Key.
  *
  * @since  COmanage Registry v3.3.0

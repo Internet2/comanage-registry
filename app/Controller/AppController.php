@@ -434,6 +434,7 @@ class AppController extends Controller {
               $cos = $this->Session->read('Auth.User.cos');
               
               $args = array(
+                'plugin'     => null,
                 'controller' => 'co_terms_and_conditions',
                 'action'     => 'review',
                 'copersonid' => $cos[ $this->cur_co['Co']['name'] ]['co_person_id'],
