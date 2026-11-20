@@ -18,7 +18,6 @@ use Http\Client\HttpClient;
 use Http\Client\Socket\Client as Socket;
 use Http\Discovery\ClassDiscovery;
 use Http\Discovery\Exception\NotFoundException;
-use Http\Discovery\MessageFactoryDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Message\MessageFactory;
 use Http\Message\MessageFactory\DiactorosMessageFactory;
@@ -79,7 +78,7 @@ final class CommonClassesStrategy implements DiscoveryStrategy
             ['class' => React::class, 'condition' => React::class],
         ],
         HttpClient::class => [
-            ['class' => SymfonyHttplug::class, 'condition' => [SymfonyHttplug::class, [self::class, 'isPsr17FactoryInstalled']]],
+            ['class' => SymfonyHttplug::class, 'condition' => [SymfonyHttplug::class, [self::class, 'isPsr17FactoryInstalled'], [self::class, 'isSymfonyImplementingHttpClient']]],
             ['class' => Guzzle7::class, 'condition' => Guzzle7::class],
             ['class' => Guzzle6::class, 'condition' => Guzzle6::class],
             ['class' => Guzzle5::class, 'condition' => Guzzle5::class],
@@ -110,9 +109,6 @@ final class CommonClassesStrategy implements DiscoveryStrategy
         ],
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     public static function getCandidates($type)
     {
         if (Psr18Client::class === $type) {
@@ -149,7 +145,7 @@ final class CommonClassesStrategy implements DiscoveryStrategy
 
     public static function buzzInstantiate()
     {
-        return new \Buzz\Client\FileGetContents(MessageFactoryDiscovery::find());
+        return new \Buzz\Client\FileGetContents(Psr17FactoryDiscovery::findResponseFactory());
     }
 
     public static function symfonyPsr18Instantiate()
@@ -160,6 +156,11 @@ final class CommonClassesStrategy implements DiscoveryStrategy
     public static function isGuzzleImplementingPsr18()
     {
         return defined('GuzzleHttp\ClientInterface::MAJOR_VERSION');
+    }
+
+    public static function isSymfonyImplementingHttpClient()
+    {
+        return is_subclass_of(SymfonyHttplug::class, HttpClient::class);
     }
 
     /**

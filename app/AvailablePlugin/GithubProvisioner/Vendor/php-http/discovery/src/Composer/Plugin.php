@@ -45,16 +45,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     private const PROVIDE_RULES = [
         'php-http/async-client-implementation' => [
-            'symfony/http-client:>=6.3' => ['guzzlehttp/promises', 'psr/http-factory-implementation'],
-            'symfony/http-client' => ['guzzlehttp/promises', 'php-http/message-factory', 'psr/http-factory-implementation'],
+            'symfony/http-client:>=6.3' => ['guzzlehttp/promises', 'psr/http-factory-implementation', 'php-http/httplug'],
+            'symfony/http-client' => ['guzzlehttp/promises', 'php-http/message-factory', 'psr/http-factory-implementation', 'php-http/httplug'],
             'php-http/guzzle7-adapter' => [],
             'php-http/guzzle6-adapter' => [],
             'php-http/curl-client' => [],
             'php-http/react-adapter' => [],
         ],
         'php-http/client-implementation' => [
-            'symfony/http-client:>=6.3' => ['psr/http-factory-implementation'],
-            'symfony/http-client' => ['php-http/message-factory', 'psr/http-factory-implementation'],
+            'symfony/http-client:>=6.3' => ['psr/http-factory-implementation', 'php-http/httplug'],
+            'symfony/http-client' => ['php-http/message-factory', 'psr/http-factory-implementation', 'php-http/httplug'],
             'php-http/guzzle7-adapter' => [],
             'php-http/guzzle6-adapter' => [],
             'php-http/cakephp-adapter' => [],
@@ -65,7 +65,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'kriswallsmith/buzz:^1' => [],
         ],
         'psr/http-client-implementation' => [
-            'symfony/http-client' => ['psr/http-factory-implementation'],
+            'symfony/http-client' => ['psr/http-factory-implementation', 'psr/http-client'],
             'guzzlehttp/guzzle' => [],
             'kriswallsmith/buzz:^1' => [],
         ],
@@ -81,6 +81,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'http-interop/http-factory-guzzle' => [],
             'http-interop/http-factory-diactoros' => [],
             'http-interop/http-factory-slim' => [],
+            'httpsoft/http-message' => [],
         ],
     ];
 
@@ -451,12 +452,21 @@ EOPHP
 
     private function updateComposerLock(Composer $composer, IOInterface $io)
     {
+        if (false === $composer->getConfig()->get('lock')) {
+            return;
+        }
+
         $lock = substr(Factory::getComposerFile(), 0, -4).'lock';
         $composerJson = file_get_contents(Factory::getComposerFile());
         $lockFile = new JsonFile($lock, null, $io);
         $locker = ClassDiscovery::safeClassExists(RepositorySet::class)
             ? new Locker($io, $lockFile, $composer->getInstallationManager(), $composerJson)
             : new Locker($io, $lockFile, $composer->getRepositoryManager(), $composer->getInstallationManager(), $composerJson);
+
+        if (!$locker->isLocked()) {
+            return;
+        }
+
         $lockData = $locker->getLockData();
         $lockData['content-hash'] = Locker::getContentHash($composerJson);
         $lockFile->write($lockData);

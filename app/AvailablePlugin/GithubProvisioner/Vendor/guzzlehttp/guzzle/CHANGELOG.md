@@ -3,6 +3,117 @@
 Please refer to [UPGRADING](UPGRADING.md) guide for upgrading to a major version.
 
 
+## 7.16.3 - 2026-11-17
+
+### Security
+
+- Exclude URI fragments from stream handler request targets (GHSA-gqx6-m769-3x35)
+- Reject bracketed request URI hosts that are not IP literals (GHSA-hpvq-6rrx-pc47)
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^2.13.4`
+
+
+## 7.16.2 - 2026-11-17
+
+### Fixed
+
+- Cancel cURL multi transfers whose synchronous wait throws instead of leaving them running
+- Reject CR, LF, and NUL in request header fields in the built-in handlers
+- Reject CR, LF, and NUL in request methods in the built-in handlers
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^2.13.3`
+
+
+## 7.16.1 - 2026-10-25
+
+### Fixed
+
+- Fix `CookieJar` storing already expired cookies instead of removing the stored cookie
+- Fix `CookieJar` ignoring a same-value cookie that changes its expiry or its `Discard`, `Secure`, or `HttpOnly` flag
+
+
+## 7.16.0 - 2026-10-18
+
+### Changed
+
+- Adjusted `guzzlehttp/promises` version constraint to `^2.6`
+- Replace the deprecated `Promise\Is` with `Promise\State` for PHP 8.6
+
+
+## 7.15.6 - 2026-10-18
+
+### Fixed
+
+- Fix PHP 8.6 notices for oversized numeric hosts
+- Fix `MockHandler` truncating fractional delays
+- Fix stream handler responses in Swoole coroutines on PHP 8.4+
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^2.13.2`
+
+
+## 7.15.5 - 2026-08-24
+
+### Changed
+
+- Adjusted `guzzlehttp/psr7` version constraint to `^2.13.1`
+- Adjusted `guzzlehttp/promises` version constraint to `^2.5.3`
+
+
+## 7.15.4 - 2026-08-24
+
+### Added
+
+- Added support for PHP 8.6
+
+### Changed
+
+- Replace the deprecated spl_object_hash() in handler stack debug output for PHP 8.6
+
+
+## 7.15.3 - 2026-08-05
+
+### Changed
+
+- Adjusted `guzzlehttp/promises` version constraint to `^2.5.2`
+
+### Fixed
+
+- Fail a cURL multi handler wait with an attributable error when the transfer is no longer tracked
+- Fix `StreamHandler` resolving numeric IPv4 hosts differently from cURL handlers on macOS and Windows
+- Fix `StreamHandler` TLS peer names and proxy authorities for numeric IPv4 hosts on all platforms
+- Settle a cURL multi handler transfer displaced by a request reusing its native handle ID
+
+
+## 7.15.2 - 2026-07-26
+
+### Security
+
+- Reject non-printable-ASCII and percent-escaped URI hosts and `Host` headers (GHSA-v5mv-p594-2x33)
+- Reject request URI hosts that contain a URI authority delimiter (GHSA-v5mv-p594-2x33)
+- Reject numeric-looking URI hosts with trailing dots, read as IPv4 addresses (GHSA-v5mv-p594-2x33)
+- Treat numeric-in-any-base and percent-escaped cookie domains as exact-match-only (GHSA-f7vp-7xgx-4w4r)
+- Regenerate a derived `Host` header after client URI rewrites (GHSA-v5mv-p594-2x33)
+
+### Fixed
+
+- Preserve `RequestException` when the stream handler rejects a request before opening a stream
+
+
+## 7.15.1 - 2026-07-18
+
+### Security
+
+- Preserve host-only cookie scope and require explicit persistence markers (GHSA-wm3w-8rrp-j577)
+- Bound response cookie admission and generated `Cookie` headers (GHSA-f283-ghqc-fg79)
+- Exclude URI fragments from `Referer` headers generated for redirects (GHSA-h95v-h523-3mw8)
+
+
 ## 7.15.0 - 2026-07-17
 
 ### Added

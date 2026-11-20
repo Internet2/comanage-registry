@@ -1,5 +1,36 @@
 # Change Log
 
+## 1.20.0 - 2024-10-02
+
+- [#268](https://github.com/php-http/discovery/pull/268) - Do not attempt to update lock file when it is not existing.
+- [#267](https://github.com/php-http/discovery/pull/267) - Test with PHP 8.3 and 8.4
+- [#266](https://github.com/php-http/discovery/pull/266) - If wrapped client implements factories, use those instead of discovering new factories.
+
+## 1.19.4 - 2024-03-29
+
+- [#264](https://github.com/php-http/discovery/pull/264) - Do not report a general conflict with `sebastian/comparator` but make sure we install the correct version for our tests.
+
+## 1.19.3 - 2024-03-28
+
+- [#261](https://github.com/php-http/discovery/pull/261) - explicitly mark nullable parameters as nullable (avoid deprecation in PHP 8.4)
+
+## 1.19.2 - 2023-11-30
+
+- [#253](https://github.com/php-http/discovery/pull/253) - Symfony 7 dropped the deprecated PHP-HTTP `HttpClient` interface from their HTTP client, do not discover the version 7 client when looking for the old interface.
+
+## 1.19.1 - 2023-07-11
+
+- [#250](https://github.com/php-http/discovery/pull/250) - Fix: Buzz client instantiation using deprecated Message Factory Discovery, use PSR-17 factory discovery instead.
+
+## 1.19.0 - 2023-06-19
+
+- [#249](https://github.com/php-http/discovery/pull/249) - Have composer plugin correctly install Symfony http client when nothing explicitly requires psr 18 resp. httplug.
+- [#241](https://github.com/php-http/discovery/pull/241) - Support discovering PSR-17 factories of `httpsoft/http-message` package
+
+## 1.18.1 - 2023-05-17
+
+- [#242](https://github.com/php-http/discovery/pull/242) - Better exception message when no legacy php-http message factories can be built. Also needs php-http/message-factory package and they are deprecated in favor of PSR-17 anyways.
+
 ## 1.18.0 - 2023-05-03
 
 - [#235](https://github.com/php-http/discovery/pull/235) - Deprecate HttpClientDiscovery, use Psr18ClientDiscovery instead

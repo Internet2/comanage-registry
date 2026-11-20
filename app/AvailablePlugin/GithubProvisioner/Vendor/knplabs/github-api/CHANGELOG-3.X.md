@@ -1,5 +1,56 @@
 # Changelog
 
+## 3.16.1
+
+### Fixed
+- Fix handling of 422 responses where errors is a string ([GrahamCampbell](https://github.com/GrahamCampbell)) [#1164](https://github.com/KnpLabs/php-github-api/issues/1164)
+
+## 3.16.0
+
+### Added
+- Add API to rerequest a check run ([Spea](https://github.com/Spea)) [#1141](https://github.com/KnpLabs/php-github-api/issues/1141)
+- List pull requests associated with a commit ([lmjhs](https://github.com/lmjhs)) [#1146](https://github.com/KnpLabs/php-github-api/issues/1146)
+
+## 3.15.0
+
+### Added
+- Fix implicit nullable types to avoid PHP 8.4 warnings ([eiriksm](https://github.com/eiriksm), [acrobat](https://github.com/acrobat)) [#1144](https://github.com/KnpLabs/php-github-api/issues/1144)
+- Add API endpoints to interact with organization roles ([glaubinix](https://github.com/glaubinix)) [#1143](https://github.com/KnpLabs/php-github-api/issues/1143)
+- Copilot Usage Endpoints ([anthony-webart](https://github.com/anthony-webart)) [#1142](https://github.com/KnpLabs/php-github-api/issues/1142)
+- Fix type error in ResultPager::fetch ([nunoplopes](https://github.com/nunoplopes)) [#1132](https://github.com/KnpLabs/php-github-api/issues/1132)
+
+## 3.14.1
+
+### Fixed
+- Handle case of GitHub returning 204 No Content in some scenarios ([tomcorbett](https://github.com/tomcorbett)) [#1135](https://github.com/KnpLabs/php-github-api/issues/1135)
+
+## 3.14.0
+
+### Added
+- Allow php-http/cache-plugin v2 ([GrahamCampbell](https://github.com/GrahamCampbell)) [#1134](https://github.com/KnpLabs/php-github-api/issues/1134)
+
+## 3.13.0
+
+### Added
+- Test against php 8.3 ([sergiy-petrov](https://github.com/sergiy-petrov)) [#1124](https://github.com/KnpLabs/php-github-api/issues/1124)
+- feat: Secret Scanning Alerts ([haridarshan](https://github.com/haridarshan)) [#1114](https://github.com/KnpLabs/php-github-api/issues/1114)
+- feat: User Migration ([haridarshan](https://github.com/haridarshan)) [#1115](https://github.com/KnpLabs/php-github-api/issues/1115)
+
+### Changed
+- General chores ([acrobat](https://github.com/acrobat)) [#1125](https://github.com/KnpLabs/php-github-api/issues/1125)
+
+### Fixed
+- Fix detection of secondary rate limit ([mathieudz](https://github.com/mathieudz)) [#1126](https://github.com/KnpLabs/php-github-api/issues/1126)
+
+## 3.12.0
+
+### Added
+- feat: Support for Organization Runners ([haridarshan](https://github.com/haridarshan), [renovate](https://github.com/renovate)[[bot](https://github.com/bot)]) [#1101](https://github.com/KnpLabs/php-github-api/issues/1101)
+- allow psr/http-message v2 ([LordSimal](https://github.com/LordSimal)) [#1122](https://github.com/KnpLabs/php-github-api/issues/1122)
+
+### Changed
+- Fixed branch alias ([GrahamCampbell](https://github.com/GrahamCampbell)) [#1109](https://github.com/KnpLabs/php-github-api/issues/1109)
+
 ## 3.11.0
 
 ### Added

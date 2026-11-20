@@ -1,5 +1,23 @@
 # Change Log
 
+## 2.7.3 - 2025-11-29
+
+- Allow installation with Symfony 8.
+- Run tests with PHP 8.5.
+
+## 2.7.2 - 2024-09-24
+
+- Updated code to not raise warnings for nullable parameters in PHP 8.4.
+- Cleaned up PHPDoc comments.
+
+## 2.7.1 - 2023-11-30
+
+- Allow installation with Symfony 7.
+
+## 2.7.0 - 2023-05-17
+
+- Dropped `php-http/message-factory` from composer requirements as it is abandoned and this package does not actually use it.
+
 ## 2.6.1 - 2023-04-14
 
 - Allow installation with http-message (PSR-7) version 2 in addition to version 1.

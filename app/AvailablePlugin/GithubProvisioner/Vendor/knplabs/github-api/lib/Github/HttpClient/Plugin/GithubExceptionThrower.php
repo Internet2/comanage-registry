@@ -55,7 +55,7 @@ final class GithubExceptionThrower implements Plugin
 
                 if (422 === $response->getStatusCode() && isset($content['errors'])) {
                     $errors = [];
-                    foreach ($content['errors'] as $error) {
+                    foreach ((array) $content['errors'] as $error) {
                         switch ($error['code'] ?? null) {
                             case 'missing':
                                 $errors[] = sprintf('The %s %s does not exist, for resource "%s"', $error['field'], $error['value'], $error['resource']);
@@ -88,7 +88,6 @@ final class GithubExceptionThrower implements Plugin
                                     $errors[] = $error['message'];
                                 }
                                 break;
-
                         }
                     }
 
@@ -129,7 +128,7 @@ final class GithubExceptionThrower implements Plugin
             }
 
             $reset = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Reset');
-            if ((403 === $response->getStatusCode()) && 0 < $reset && isset($content['message']) && (0 === strpos($content['message'], 'You have exceeded a secondary rate limit.'))) {
+            if ((403 === $response->getStatusCode()) && 0 < $reset && isset($content['message']) && (0 === strpos($content['message'], 'You have exceeded a secondary rate limit'))) {
                 $limit = (int) ResponseMediator::getHeader($response, 'X-RateLimit-Limit');
 
                 throw new ApiLimitExceedException($limit, $reset);
