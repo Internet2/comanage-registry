@@ -249,29 +249,29 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print _txt('pl.slipplugin.validation_template_id'); ?>
+        <?php print _txt('pl.slipplugin.vouching_template_id'); ?>
         <span class="required">*</span>
       </div>
-      <div class="field-desc"><?php print _txt('pl.slipplugin.validation_template_id.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.slipplugin.vouching_template_id.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php
         $attrs = array();
-        $attrs['value'] = (isset($slip_plugins[0]['SlipPlugin']['validation_template_id'])
-                                 ? $slip_plugins[0]['SlipPlugin']['validation_template_id']
+        $attrs['value'] = (isset($slip_plugins[0]['SlipPlugin']['vouching_template_id'])
+                                 ? $slip_plugins[0]['SlipPlugin']['vouching_template_id']
                                  : null);
         $attrs['empty'] = true;
 
         if($e) {
-          print $this->Form->select('validation_template_id',
+          print $this->Form->select('vouching_template_id',
                                     $vv_available_templates,
                                     $attrs);
 
-          if($this->Form->isFieldError('validation_template_id')) {
-            print $this->Form->error('validation_template_id');
+          if($this->Form->isFieldError('vouching_template_id')) {
+            print $this->Form->error('vouching_template_id');
           }
         } else {
-          print $vv_available_groups[ $slip_plugins[0]['SlipPlugin']['validation_template_id'] ];
+          print $vv_available_groups[ $slip_plugins[0]['SlipPlugin']['vouching_template_id'] ];
         }
       ?>
     </div>
