@@ -31,9 +31,11 @@ class PrivacyIDEActionEnum
   const TokenConfirmed    = 'MFAC';
   const TokenDeleted      = 'MFAD';
   const TokenEdited       = 'MFAE';
+  const TokenGenerated    = 'MFAG';
 }
 
 class PrivacyIDEATokenTypeEnum
 {
   const TOTP    = 'TO';
+  const Paper	= 'PP';
 }
