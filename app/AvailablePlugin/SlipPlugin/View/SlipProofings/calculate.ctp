@@ -19,7 +19,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v4.7.0
@@ -63,7 +63,7 @@
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
-    
+
   print $this->element("pageTitleAndButtons", $params);
 
   if(!empty($this->plugin)) {
@@ -81,37 +81,35 @@
   $l = 1;
 ?>
 <div class="table-container">
-  <table id="slip_proofing">
-    <body>
-      <tr>
-        <th><?php print _txt('pl.slipplugin.result'); ?></th>
-        <td><?php print $vv_status['result'] ? _txt('pl.slipplugin.completed') : _txt('er.slipplugin.calculate'); ?></td>
-      </tr>
+  <table id="slip_proofing" class="slip-table">
+    <tr>
+      <th><?php print _txt('pl.slipplugin.result'); ?></th>
+      <td><?php print $vv_status['result'] ? _txt('pl.slipplugin.completed') : _txt('er.slipplugin.calculate'); ?></td>
+    </tr>
 
-      <tr>
-        <th><?php print _txt('pl.slipplugin.result.status'); ?></th>
-        <td><?php print $vv_status['request']['comment']; ?></td>
-      </tr>
+    <tr>
+      <th><?php print _txt('pl.slipplugin.result.status'); ?></th>
+      <td><?php print $vv_status['request']['comment']; ?></td>
+    </tr>
 
-      <tr>
-        <th><?php print _txt('ct.slip_identity_documents.pl'); ?></th>
-        <td><?php print $vv_status['documents']['comment']; ?></td>
-      </tr>
+    <tr>
+      <th><?php print _txt('ct.slip_identity_documents.pl'); ?></th>
+      <td><?php print $vv_status['documents']['comment']; ?></td>
+    </tr>
 
-      <tr>
-        <th><?php print _txt('ct.slip_bindings.pl'); ?></th>
-        <td><?php print $vv_status['bindings']['comment']; ?></td>
-      </tr>
+    <tr>
+      <th><?php print _txt('ct.slip_bindings.pl'); ?></th>
+      <td><?php print $vv_status['bindings']['comment']; ?></td>
+    </tr>
 
-      <tr>
-        <th><?php print _txt('pl.slipplugin.vouch.info'); ?></th>
-        <td><?php print $vv_status['vouching']['comment']; ?></td>
-      </tr>
+    <tr>
+      <th><?php print _txt('pl.slipplugin.vouch.info'); ?></th>
+      <td><?php print $vv_status['vouching']['comment']; ?></td>
+    </tr>
 
-      <tr>
-        <th><?php print _txt('ct.slip_proofings.1'); ?></th>
-        <td><?php print $vv_status['slip_proofing']['id']; ?></td>
-      </tr>
-    </body>
+    <tr>
+      <th><?php print _txt('ct.slip_proofings.1'); ?></th>
+      <td><?php print $vv_status['slip_proofing']['id']; ?></td>
+    </tr>
   </table>
 </div>

@@ -268,6 +268,11 @@
     right: 0;
     width: 70%;
   }
+  /* SLIP PLUGIN */
+  #vouch-slip_vouching-identity-documents li,
+  #vouch-slip_vouching-requests-attachments li {
+    display: flex;
+  }
   /* PAGINATION */
   #pagination {
     text-align: left;
@@ -699,7 +704,7 @@
   }
   main.drawer-half-closed #reconcile-table-container {
     max-width: calc(100vw - 52px - 5em);
-  } 
+  }
   #co_people .person-info-inner {
     width: 550px;
   }

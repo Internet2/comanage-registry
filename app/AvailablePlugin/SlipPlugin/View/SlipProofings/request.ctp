@@ -19,7 +19,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v4.7.0
@@ -71,7 +71,7 @@
   // Add page title
   $params = array();
   $params['title'] = $title_for_layout;
-    
+
   print $this->element("pageTitleAndButtons", $params);
 
   if(!empty($this->plugin)) {
@@ -87,7 +87,7 @@
   }
 
   $submit_label = _txt('op.submit');
-  
+
   print $this->Form->create(
     $req,
     array(
@@ -206,4 +206,4 @@
     </div>
   </li>
 </ul>
-<? print $this->Form->end();
+<?php print $this->Form->end();

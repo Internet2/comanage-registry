@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v4.7.0
@@ -26,11 +26,20 @@
  */
 
   // We shouldn't get here if we don't have at least read permission, but check just in case
-  
+
   if(!$permissions['view']) {
     return(false);
   }
-  
+
+  $attachment = $slip_attachments[0]['SlipAttachment'];
+  $proofing = $slip_attachments[0]['SlipProofing'];
+  $imageMimeTypes = array(
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+  );
+
   // Add breadcrumbs
   print $this->element("coCrumb");
 
@@ -46,16 +55,16 @@
     'plugin' => null,
     'controller' => 'co_people',
     'action' => 'canvas',
-    $slip_attachments[0]['SlipProofing']['ClaimantCoPerson']['id']
+    $proofing['ClaimantCoPerson']['id']
   );
-  $this->Html->addCrumb(generateCn($slip_attachments[0]['SlipProofing']['ClaimantCoPerson']['PrimaryName']), $args);
+  $this->Html->addCrumb(generateCn($proofing['ClaimantCoPerson']['PrimaryName']), $args);
 
   $args = array(
     'plugin' => 'slip_plugin',
     'controller' => 'slip_proofings',
     'action' => 'index',
-    'spid' => $slip_attachments[0]['SlipProofing']['slip_plugin_id'],
-    'coperson' => $slip_attachments[0]['SlipProofing']['ClaimantCoPerson']['id']
+    'spid' => $proofing['slip_plugin_id'],
+    'coperson' => $proofing['ClaimantCoPerson']['id']
   );
   $this->Html->addCrumb(_txt('ct.slip_proofings.pl'), $args);
 
@@ -63,15 +72,15 @@
     'plugin' => 'slip_plugin',
     'controller' => 'slip_proofings',
     'action' => 'view',
-    $slip_attachments[0]['SlipProofing']['id']
+    $proofing['id']
   );
-  $this->Html->addCrumb((string)$slip_attachments[0]['SlipProofing']['id'], $args);
+  $this->Html->addCrumb((string)$proofing['id'], $args);
 
   $args = array(
     'plugin' => 'slip_plugin',
     'controller' => 'slip_attachments',
     'action' => 'index',
-    'sprid' => $slip_attachments[0]['SlipProofing']['id']
+    'sprid' => $proofing['id']
   );
   $this->Html->addCrumb(_txt('ct.slip_attachments.pl'), $args);
 
@@ -84,7 +93,7 @@
       <?php print _txt('fd.description'); ?>
     </div>
     <div class="field-info">
-      <?php print (filter_var($slip_attachments[0]['SlipAttachment']['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
+      <?php print (filter_var($attachment['description'],FILTER_SANITIZE_SPECIAL_CHARS)); ?>
     </div>
   </li>
   <li>
@@ -93,15 +102,22 @@
     </div>
     <div class="field-info">
       <?php
-        print $this->Html->link(
-                _txt('op.view'),
-                array(
-                  'plugin'     => 'slip_plugin',
-                  'controller' => 'slip_attachments',
-                  'action'     => 'deliver',
-                  $slip_attachments[0]['SlipAttachment']['id']
-              ));
+        $attachementLink = $this->Html->url(
+          array(
+            'plugin'     => 'slip_plugin',
+            'controller' => 'slip_attachments',
+            'action'     => 'deliver',
+            $attachment['id']
+          )
+        );
       ?>
+      <a href="<?php print $attachementLink?>">
+        <?php if(in_array($attachment['mime_type'], $imageMimeTypes, true)): ?>
+          <img src="data:<?php echo h($attachment['mime_type']); ?>;base64,<?php echo base64_encode($attachment['file_contents']); ?>"
+            class="slip-image" alt="<?php print _txt('ct.slip_attachments.1'); ?>" />
+        <?php endif; ?>
+        <?php print _txt('op.view'); ?>
+      </a>
     </div>
   </li>
 </ul>

@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry-plugin
  * @since         COmanage Registry v4.7.0
@@ -28,15 +28,15 @@
 <?php
   // Determine if fields are editable
   $e = false;
-  
+
   if(($this->action == "add" && $permissions['add']) || ($this->action == "edit" && $permissions['edit']))
     $e = true;
-    
+
   // We shouldn't get here if we don't have at least read permission, but check just in case
-  
+
   if(!$e && !$permissions['view'])
     return false;
-  
+
   // Add breadcrumbs
   print $this->element("coCrumb");
 
@@ -49,7 +49,7 @@
 
   $crumbTxt = _txt('ct.slip_plugins.1');
   $this->Html->addCrumb($crumbTxt);
-  
+
   // Populate cross references
   print $this->Form->hidden('co_id', array('default' => $cur_co['Co']['id'])) . "\n";
 
@@ -67,6 +67,18 @@
   <em class="material-icons">info</em>
   <div class="co-info-topbox-text">
     <?php print _txt('pl.slipplugin.start.url', array($start_url)); ?>
+    <?php
+    // copy URL button
+    print $this->Form->button('<em class="material-icons" aria-hidden="true">content_copy</em> ' ._txt('op.copy.url'),
+    array(
+      'onclick' => "copyValue('" . $start_url . "', this, '" . _txt('op.copy.value') . "', '" . _txt('op.copy.value.ok') . "')",
+      'aria-label' => _txt('op.copy.value'),
+      'class' => 'ml-2 cm-copy-value-button cm-hover-button btn btn-sm btn-primary',
+      'type' => 'button',
+      'escape' => false
+      )
+    ) . "\n";
+    ?>
   </div>
 </div>
 <ul id="<?php print $this->action; ?>_slip_plugin" class="fields form-list form-list-admin">
@@ -249,29 +261,29 @@
   <li>
     <div class="field-name">
       <div class="field-title">
-        <?php print _txt('pl.slipplugin.validation_template_id'); ?>
+        <?php print _txt('pl.slipplugin.vouching_template_id'); ?>
         <span class="required">*</span>
       </div>
-      <div class="field-desc"><?php print _txt('pl.slipplugin.validation_template_id.desc'); ?></div>
+      <div class="field-desc"><?php print _txt('pl.slipplugin.vouching_template_id.desc'); ?></div>
     </div>
     <div class="field-info">
       <?php
         $attrs = array();
-        $attrs['value'] = (isset($slip_plugins[0]['SlipPlugin']['validation_template_id'])
-                                 ? $slip_plugins[0]['SlipPlugin']['validation_template_id']
+        $attrs['value'] = (isset($slip_plugins[0]['SlipPlugin']['vouching_template_id'])
+                                 ? $slip_plugins[0]['SlipPlugin']['vouching_template_id']
                                  : null);
         $attrs['empty'] = true;
 
         if($e) {
-          print $this->Form->select('validation_template_id',
+          print $this->Form->select('vouching_template_id',
                                     $vv_available_templates,
                                     $attrs);
 
-          if($this->Form->isFieldError('validation_template_id')) {
-            print $this->Form->error('validation_template_id');
+          if($this->Form->isFieldError('vouching_template_id')) {
+            print $this->Form->error('vouching_template_id');
           }
         } else {
-          print $vv_available_groups[ $slip_plugins[0]['SlipPlugin']['validation_template_id'] ];
+          print $vv_available_groups[ $slip_plugins[0]['SlipPlugin']['vouching_template_id'] ];
         }
       ?>
     </div>

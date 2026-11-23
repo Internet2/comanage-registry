@@ -19,7 +19,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.4
@@ -127,16 +127,6 @@
           // save user's application preference for drawer state
           setApplicationPreference("uiDrawerState",{"value":"half-closed"});
         }
-      }
-    });
-
-    // Catch the edge-case of browser resize causing menu-drawer
-    // to remain hidden and vice versa.
-    $(window).resize(function() {
-      if($( window ).width() > 767) {
-        $("#navigation-drawer").show();
-      } else {
-        $("#navigation-drawer").hide();
       }
     });
 
@@ -484,7 +474,7 @@
       },
       text: true
     });
-    
+
     //$("button:reset").button();
     //$("button:reset").css('float', 'left');
 
@@ -494,7 +484,7 @@
       },
       text: true
     });
-    
+
     $(".unlinkbutton").button({
       icons: {
         primary: 'ui-icon-cancel'
@@ -592,24 +582,24 @@
 
     // Add loading animation when a form is submitted or when any item with a "spin" class is clicked.
     $("input[type='submit'], .spin").click(function(e) {
-      
+
       // Start a spinner only if CTRL, CMD, or SHIFT is not pressed (which loads a new tab or window).
       if(!(e.ctrlKey || e.metaKey || e.shiftKey)) {
         displaySpinner();
-  
+
         // XXX This is a workaround. Currently the sidebar actions in CO Person Canvas
         //     are part of the form. As a result the spinner is dismissed immediately after
         if($(this).hasClass('ignore-invalid')) {
           return;
         }
-  
+
         // Test for invalid fields (HTML5) and turn off spinner explicitly if found.
         // Also let the .nospin class override the spin class.
         if(document.querySelectorAll(":invalid").length || $(this).hasClass('nospin')) {
           stopSpinner();
         }
       }
-      
+
     });
 
     // Flash Messages
@@ -656,7 +646,7 @@
   }
 
   // Copy a value to browser clipboard (only works on HTTPS)
-  // (This is here rather than in comanage.js to more easily use the i18n strings.) 
+  // (This is here rather than in comanage.js to more easily use the i18n strings.)
   async function copyValue(val,callingElement) {
     try {
       // remove extra white spaces and trim the value
@@ -683,7 +673,7 @@
   var defaultConfirmOk = "<?php print _txt('op.ok'); ?>";
   var defaultConfirmCancel = "<?php print _txt('op.cancel'); ?>";
   var defaultConfirmTitle = "<?php print _txt('op.confirm'); ?>";
-  
+
   // Define default text for session timeout and unknown errors
   var defaultHttp500 = "<?php print _txt('er.500'); ?>";
   var defaultHttp401 = "<?php print _txt('er.timeout'); ?>";

@@ -636,7 +636,7 @@ body.co_people.canvas .titleNavContainer {
 }
 .pageTitle .deleted,
 .pageTitle .archived {
-  background-color: #c33;
+  background-color: var(--cmg-color-red-001);
   color: var(--cmg-color-white);
   font-size: 0.7em;
   font-weight: 600;
@@ -1228,7 +1228,7 @@ iframe#tandc_content {
   color: var(--cmg-color-white);
 }
 #view_co_petition .status.N { /* denied */
-  background-color: #c33;
+  background-color: var(--cmg-color-red-001);
   color: var(--cmg-color-white);
 }
 #view_co_petition .ui-button,
@@ -1320,7 +1320,7 @@ body.co_petitions .deny-button,
 }
 body.co_petitions .deny-button:hover,
 #vetting-plugin-wrapper .deny-button:hover {
-  background-color: #c33;
+  background-color: var(--cmg-color-red-001);
 }
 /* for T&Cs */
 .tc-checkbox-and-label {
@@ -1351,6 +1351,98 @@ body.co_petitions .ui-dialog {
 }
 #vetting-request-wrapper input[type=text] {
   width: 100%;
+}
+/* SLIP (Simple Lightweight Identity Proofer) PLUGIN */
+/* XXX this requires a lot of specificity, which is fixed in Registry v5 */
+body.slip_plugins.start #navigation-drawer,
+body.slip_plugins.start #breadcrumbs,
+body.slip_bindings.bind #navigation-drawer,
+body.slip_bindings.bind #breadcrumbs,
+body.slip_proofings.vouch #navigation-drawer,
+body.slip_proofings.vouch #breadcrumbs {
+  display: none;
+}
+body.slip_plugins.start #content,
+body.slip_bindings.bind #content,
+body.slip_proofings.vouch #content {
+  font-size: 1rem;
+  padding: 2rem;
+}
+body.slip_plugins.start #content ul,
+body.slip_bindings.bind #content ul,
+body.slip_proofings.vouch #content ul {
+  font-size: 1rem;
+  line-height: unset;
+}
+body.slip_plugins.start #content h1,
+body.slip_bindings.bind #content h1 {
+  margin-bottom: 1rem;
+}
+#slip-intro {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+#slip-intro p {
+  margin-top: 1rem;
+}
+#slip-intro p.with-slip-buttons {
+  max-width: 400px;
+}
+ul.form-list li.slip-claimant {
+  font-size: 1.2rem;
+  font-weight: bold;
+  background-color: var(--cmg-color-warn-yellow);
+}
+img.slip-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  padding: 1rem 0;
+}
+body.slip_bindings.bind #content p.slip-bind-code {
+  font-size: 2rem;
+  margin: 1rem;
+}
+body.slip_proofings.vouch #content .co-info-vouch strong {
+  color: var(--cmg-color-black-001);
+  font-weight: 700;
+}
+#slip-actions {
+  justify-content: center;
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+#slip-actions a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+#content  #slip-actions .material-icons {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+#content .co-info-topbox .cm-copy-value-button .material-icons {
+  color: unset;
+  font-size: 1rem;
+}
+table.slip-table {
+  border: none;
+}
+table.slip-table th {
+  color: var(--cmg-color-black-002);
+  background-color: unset;
+  border: none;
+  border-bottom: 1px solid var(--cmg-color-lightgray-006);
+}
+table.slip-table td {
+  border: none;
+  border-bottom: 1px solid var(--cmg-color-lightgray-006);
+}
+table.slip-table tr:last-child th,
+table.slip-table tr:last-child td {
+  border-bottom: none;
 }
 /* Pagination */
 #pagination {
@@ -2081,7 +2173,7 @@ ul.fields.data-list li {
   padding: 0;
 }
 #changeLog tr.deleted td {
-  background-color: #c33;
+  background-color: var(--cmg-color-red-001);
   color: var(--cmg-color-white);
 }
 .explorerContainer #changeLog ul {
@@ -2572,6 +2664,9 @@ tr.highlight td:first-child {
 .warn-level-a td {
   background-color: var(--cmg-color-warn-red);
 }
+#content .warn-level-a .material-icons {
+  color: var(--cmg-color-red-002);
+}
 .warn-level-b,
 .warn-level-b td {
   background-color: var(--cmg-color-warn-yellow);
@@ -2924,7 +3019,16 @@ td.indented {
   text-decoration: underline;
 }
 .btn-secondary {
-  background-color: #c33; /* red */
+  background-color: var(--cmg-color-red-001); /* red */
+  border-color: var(--cmg-color-red-001);
+  color: var(--cmg-color-white);
+}
+.btn-tertiary {
+  background-color: var(--cmg-color-green-001); /* green */
+  color: var(--cmg-color-white);
+}
+.btn-tertiary:hover {
+  background-color: var(--cmg-color-blue-primary); /* green */
   color: var(--cmg-color-white);
 }
 .btn-link {

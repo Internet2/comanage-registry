@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.9.4
@@ -33,16 +33,20 @@ $this->Html->addCrumb(filter_var($title_for_layout,FILTER_SANITIZE_SPECIAL_CHARS
 $params = array('title' => $title_for_layout);
 print $this->element("pageTitleAndButtons", $params);
 
-if(!empty($this->request->params['named']['op']) 
+if(!empty($this->request->params['named']['op'])
    && $this->request->params['named']['op'] == 'initiated') {
-  print '<div id="slipIntro">';
+  print '<div id="slip-intro">';
+  print '<p>';
   print _txt('pl.slipplugin.initiated');
+  print '</p>';
   print '</div>';
 } else {
-  print '<div id="slipIntro">';
+  print '<div id="slip-intro" class="with-slip-buttons">';
+  print '<p>';
   print _txt('pl.slipplugin.start');
-  print '</div>';
+  print '</p>';
 
+  print '<div class="slip-buttons">';
   print $this->Html->Link(
     _txt('op.begin') . ' <em class="material-icons">forward</em>',
     array(
@@ -50,8 +54,10 @@ if(!empty($this->request->params['named']['op'])
       'op' => 'go'
     ),
     array(
-      'class' => 'co-button enrollmentFlowStartButton btn btn-primary',
+      'class' => 'co-button btn btn-primary spin',
       'escape' => false
     )
   );
+  print '</div>';
+  print '</div>';
 }

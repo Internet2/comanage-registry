@@ -18,13 +18,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v0.1
  * @license       Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  */
-  
+
 global $cm_lang, $cm_texts, $cm_texts_orig;
 
 // XXX move this to a master config
@@ -45,13 +45,13 @@ $cm_texts['en_US'] = array(
   // What a CO is called (abbreviated)
   'co' =>             'CO',
   'cos' =>            'COs',
-  
+
   // What an Org is called
   'org' =>            'Organization',
-  
+
   // Authnz
   'au.not' =>         'Not Logged In',
-  
+
   // COs Controllers
   'co.cm.gradmin' =>  'COmanage Platform Administrators',
   'co.cm.grmembers' =>  'COmanage CO Members',
@@ -59,7 +59,7 @@ $cm_texts['en_US'] = array(
   'co.init' =>        'No COs found, initial CO created',
   'co.nomember' =>    'You are not a member of any COs',
   'co.select' =>      'Select the CO you wish to work with.',
-  
+
   // Titles, per-controller
   'ct.ad_hoc_attributes.1' =>   'Ad Hoc Attribute',
   'ct.ad_hoc_attributes.pl' =>  'Ad Hoc Attributes',
@@ -225,7 +225,7 @@ $cm_texts['en_US'] = array(
   'ct.telephone_numbers.pl' =>  'Telephone Numbers',
   'ct.urls.1' =>                'URL',
   'ct.urls.pl' =>               'URLs',
-  
+
   'ct.vetting_requests.1' =>    'Vetting Request',
   'ct.vetting_requests.pl' =>   'Vetting Requests',
   'ct.vetting_results.1' =>     'Vetting Result',
@@ -233,10 +233,10 @@ $cm_texts['en_US'] = array(
   'ct.vetting_steps.1' =>       'Vetting Step',
   'ct.vetting_steps.pl' =>      'Vetting Steps',
   // Embedded Discovery Service
-  
+
   'eds.layout.preamble' =>      'Please enter the name of your organization in the box or click to choose from a list.',
   'eds.title' =>                'Please choose how to login',
-  
+
   // Enrollment Flow Steps
   'ef.step.approve'                  => 'Approval',
   'ef.step.checkEligibility'         => 'Check Eligibility',
@@ -262,7 +262,7 @@ $cm_texts['en_US'] = array(
   'ef.step.tandcPetitioner'          => 'Agree to Terms and Conditions',
   'ef.step.waitForApproval'          => 'Wait For Approval',
   'ef.step.waitForConfirmation'      => 'Wait For Confirmation',
-  
+
   // Email Messages
   'em.approval.subject.ef'   => 'Petition to join (@CO_NAME) has been approved',
   'em.approval.body.ef'      => 'Your petition to join (@CO_NAME) as been approved. You may now log in to the platform.',
@@ -301,7 +301,7 @@ has been resolved by (@ACTOR_NAME). For more information, see the
 original notification at
 
 (@NOTIFICATION_URL)',
-  
+
   'em.vetting.subject'        => 'Vetting Request Requires Review',
   'em.vetting.body'           => 'A Vetting Request requires manual review.
   
@@ -412,7 +412,7 @@ The request may be viewed at
     ActionEnum::VettingRequestRegistered    => 'Vetting Request Registered',
     ActionEnum::VettingRequestRequeued      => 'Vetting Request Requeued',
   ),
-  
+
   'en.action.petition' => array(
     PetitionActionEnum::Approved            => 'Petition Approved',
     PetitionActionEnum::ClusterAccountAutoCreated => 'Cluster Accounts Automatically Created',
@@ -447,16 +447,16 @@ The request may be viewed at
                               ContactEnum::Office => 'Office',
                               ContactEnum::Postal => 'Postal',
                               ContactEnum::Forwarding => 'Forwarding'),
-  
+
   'en.admin' =>       array(AdministratorEnum::NoAdmin => 'None',
                             AdministratorEnum::CoAdmin => 'CO Admin',
                             AdministratorEnum::CoOrCouAdmin => 'CO or COU Admin'),
-  
+
   'en.auth.event' => array(
     AuthenticationEventEnum::ApiLogin      => 'API Login',
     AuthenticationEventEnum::RegistryLogin => 'Registry Login'
   ),
-  
+
   'en.chars.permitted' => array(
     PermittedCharacterEnum::AlphaNumeric      => 'AlphaNumeric Only',
     PermittedCharacterEnum::AlphaNumDotDashUS => 'AlphaNumeric and Dot, Dash, Underscore',
@@ -470,7 +470,7 @@ The request may be viewed at
     PermittedCharacterEnum::AlphaNumDDUSQuote => '[A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => '.*'
   ),
-  
+
   // The inverse of the above (NOT permitted)
   'en.chars.permitted.re.not' => array(
     PermittedCharacterEnum::AlphaNumeric      => '[^A-Za-z0-9]',
@@ -478,7 +478,7 @@ The request may be viewed at
     PermittedCharacterEnum::AlphaNumDDUSQuote => '[^A-Za-z0-9\.\-_\']',
     PermittedCharacterEnum::Any               => ''
   ),
-  
+
   // Extended type, key must be en.model.attribute
   'en.co_department.type' => array(
     DepartmentEnum::VO                => 'VO',
@@ -492,7 +492,7 @@ The request may be viewed at
                             ContactEnum::Office => 'Office',
                             ContactEnum::Postal => 'Postal',
                             ContactEnum::Forwarding => 'Forwarding'),
-  
+
   // Note this is for the Contact MVPA, whereas en.contact is for Telephone and Address
   'en.contact.type' =>  array(
     ContactTypeEnum::Administrative  => 'Administrative',
@@ -501,7 +501,7 @@ The request may be viewed at
     ContactTypeEnum::Support         => 'Support',
     ContactTypeEnum::Technical       => 'Technical'
   ),
-  
+
   'en.comparison' => array(
     ComparisonEnum::Contains               => 'Contains',
     ComparisonEnum::ContainsInsensitive    => 'Contains (case insensitive)',
@@ -513,13 +513,13 @@ The request may be viewed at
     ComparisonEnum::NotEqualsInsensitive   => 'Is Not Exactly (case insensitive)',
     ComparisonEnum::Regex                  => 'Matches Regular Expression'
   ),
-  
+
   // Extended type, key must be en.model.attribute. This means we end up having affiliations
   // defined twice, once for CO Person Role and once for Org Identity. (Note the latter does
   // not currently support Extended Types, but it doesn't seem right for org identity to
   // reference a CO Person Role definition.
   // Note there is a similar enumeration in enum.php::AffiliationEnum.
-  
+
   'en.co_person_role.affiliation' => array(AffiliationEnum::Faculty       => 'Faculty',
                                            AffiliationEnum::Student       => 'Student',
                                            AffiliationEnum::Staff         => 'Staff',
@@ -589,30 +589,30 @@ The request may be viewed at
                                          AffiliationEnum::Affiliate     => 'Affiliate',
                                          AffiliationEnum::Employee      => 'Employee',
                                          AffiliationEnum::LibraryWalkIn => 'Library Walk-In'),
-  
+
   // Extended type, key must be en.model.attribute
   'en.organization.type' => array(
     OrganizationEnum::Academic   => 'Academic',
     OrganizationEnum::Commercial => 'Commercial',
     OrganizationEnum::Government => 'Government'
   ),
-  
+
   'en.df.context' => array(
     DataFilterContextEnum::OrgIdentitySource  => 'Org Identity Source',
     DataFilterContextEnum::ProvisioningTarget => 'Provisioning Target'
   ),
-  
+
   'en.dictionary.mode' => array(
     DictionaryModeEnum::Department   => 'Department Registry',
     DictionaryModeEnum::Organization => 'Organization Registry',
     DictionaryModeEnum::Standard     => 'Standard'
   ),
-  
+
   'en.elect.strategy' => array(
     ElectStrategyEnum::FIFO   => 'FIFO',
     ElectStrategyEnum::Manual => 'Manual'
   ),
-  
+
   // Extended type, key must be en.model.attribute
   'en.email_address.type' => array(
     EmailAddressEnum::Delivery => 'Delivery',
@@ -623,7 +623,7 @@ The request may be viewed at
     EmailAddressEnum::Preferred => 'Preferred',
     EmailAddressEnum::Recovery => 'Recovery'
   ),
-  
+
   'en.enrollment.authz' => array(
     EnrollmentAuthzEnum::AuthUser       => 'Authenticated User',
     EnrollmentAuthzEnum::CoAdmin        => 'CO Admin',
@@ -634,28 +634,28 @@ The request may be viewed at
     EnrollmentAuthzEnum::CouPerson      => 'COU Person',
     EnrollmentAuthzEnum::None           => 'None'
   ),
-  
+
   'en.enrollment.confmode' => array(
     EnrollmentApprovalConfirmationModeEnum::Always   => 'Always',
     EnrollmentApprovalConfirmationModeEnum::Approval => 'Approval Only',
     EnrollmentApprovalConfirmationModeEnum::Denial   => 'Denial Only',
     EnrollmentApprovalConfirmationModeEnum::Never    => 'Never',
   ),
-  
+
   'en.enrollment.confmode.placeholder' => array(
     EnrollmentApprovalConfirmationModeEnum::Always   => 'Required',
     EnrollmentApprovalConfirmationModeEnum::Approval => 'Required on approval',
     EnrollmentApprovalConfirmationModeEnum::Denial   => 'Required on denial',
     EnrollmentApprovalConfirmationModeEnum::Never    => 'Optional',
   ),
-  
+
   'en.enrollment.dupe' => array(
     EnrollmentDupeModeEnum::Duplicate       => 'Flag as Duplicate',
     EnrollmentDupeModeEnum::Merge           => 'Merge',
     EnrollmentDupeModeEnum::NewRole         => 'Create New Role',
     EnrollmentDupeModeEnum::NewRoleCouCheck => 'Create New Role If Different COU'
   ),
-  
+
   'en.enrollment.match' => array(
     EnrollmentMatchPolicyEnum::Advisory  => 'Advisory',
     EnrollmentMatchPolicyEnum::External  => 'External',
@@ -663,7 +663,7 @@ The request may be viewed at
     EnrollmentMatchPolicyEnum::Select    => 'Select',
     EnrollmentMatchPolicyEnum::Self      => 'Self'
   ),
-  
+
   'en.enrollment.orgid' => array(
     EnrollmentOrgIdentityModeEnum::OISAuthenticate    => 'Authenticate',
     EnrollmentOrgIdentityModeEnum::OISClaim           => 'Claim',
@@ -673,18 +673,18 @@ The request may be viewed at
     EnrollmentOrgIdentityModeEnum::OISSelect          => 'Select',
     EnrollmentOrgIdentityModeEnum::None               => 'None'
   ),
-  
+
   'en.enrollment.verification' => array(
     VerificationModeEnum::Automatic       => 'Automatic',
     VerificationModeEnum::Review          => 'Review',
     VerificationModeEnum::SkipIfVerified  => 'Skip If Verified',
     VerificationModeEnum::None            => 'None',
   ),
-  
+
   'en.extattr' =>     array(ExtendedAttributeEnum::Integer => 'Integer',
                             ExtendedAttributeEnum::Timestamp => 'Timestamp',
                             ExtendedAttributeEnum::Varchar32 => 'String (32)'),
-  
+
   'en.group.type' => array(
     GroupEnum::Standard      => 'Standard',
     GroupEnum::ActiveMembers => 'Active Members',
@@ -695,11 +695,11 @@ The request may be viewed at
     GroupEnum::NestedAdmins  => 'Nested Administrators',
     GroupEnum::NestedMembers => 'Nested Members'
   ),
-  
+
   'en.ia.algorithm' => array(IdentifierAssignmentEnum::Plugin => 'Plugin',
                              IdentifierAssignmentEnum::Random => 'Random',
                              IdentifierAssignmentEnum::Sequential => 'Sequential'),
-  
+
   'en.ia.context' => array(
     IdentifierAssignmentContextEnum::CoDepartment => 'CO Department',
     IdentifierAssignmentContextEnum::CoGroup      => 'CO Group',
@@ -719,14 +719,14 @@ The request may be viewed at
     IdentityDocumentEnum::Tribal            => 'Tribal Identity Card',
     IdentityDocumentEnum::Visa              => 'Visa'
   ),
-  
+
   'en.id.verification' => array(
     IdentityVerificationMethodEnum::None      => 'None',
     IdentityVerificationMethodEnum::Online    => 'Online',
     IdentityVerificationMethodEnum::Physical  => 'Physical',
     IdentityVerificationMethodEnum::Remote    => 'Remote'
   ),
-  
+
   // Extended type, key must be en.model.attribute
   'en.identifier.type' =>  array(IdentifierEnum::AffiliateSOR => 'Affiliate SoRID',
                                  IdentifierEnum::Badge => 'Badge',
@@ -755,7 +755,7 @@ The request may be viewed at
                                  IdentifierEnum::SORID => 'System of Record ID',
                                  IdentifierEnum::StudentSOR => 'Student SoRID',
                                  IdentifierEnum::UID => 'UID'),
-  
+
   // As a moderately arbitrary decision, the languages listed here those with at least
   // 100m speakers per Ethnologue (by way of wikipedia)
   //  http://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers
@@ -812,7 +812,7 @@ The request may be viewed at
     'tr'      => 'Turkish (Türkçe)',
     'ur'      => 'Urdu (اُردُو)'
   ),
-  
+
   'en.match.strategy' => array(
     MatchStrategyEnum::EmailAddress => 'EmailAddress',
     MatchStrategyEnum::External   => 'External',
@@ -830,23 +830,23 @@ The request may be viewed at
     MessageTemplateEnum::ExpirationNotification => 'Expiration Policy Notification',
     MessageTemplateEnum::Plugin                 => 'Plugin'
   ),
-  
+
   // Message Template Contexts
   'en.mt.format' =>       array(MessageFormatEnum::Plaintext        => 'Plain Text',
                                 MessageFormatEnum::PlaintextAndHTML => 'Plain Text and HTML',
                                 MessageFormatEnum::HTML             => 'HTML'),
-  
+
   // Extended type, key must be en.model.attribute
   'en.name.type' =>        array(NameEnum::Alternate => 'Alternate',
                                  NameEnum::Author => 'Author',
                                  NameEnum::FKA => 'FKA',
                                  NameEnum::Official => 'Official',
                                  NameEnum::Preferred => 'Preferred'),
-  
+
   // Nested Group member filters
   'en.nested.filters' => array(NestedEnum::Direct => 'Show direct members only',
                                NestedEnum::Indirect => 'Show indirect members only'),
-  
+
   // Navigation links
   'en.nav.location' =>     array(LinkLocationEnum::topBar => 'Top Bar'),
 
@@ -885,7 +885,7 @@ The request may be viewed at
   'en.permission'  => array(PermissionEnum::None      => 'None',
                             PermissionEnum::ReadOnly  => 'Read Only',
                             PermissionEnum::ReadWrite => 'Read Write'),
-  
+
   'en.permitted.name' => array(PermittedNameFieldsEnum::GF    => 'Given, Family',
                                PermittedNameFieldsEnum::GMF   => 'Given, Middle, Family',
                                PermittedNameFieldsEnum::GFS   => 'Given, Family, Suffix',
@@ -902,17 +902,17 @@ The request may be viewed at
   'en.required' =>    array(RequiredEnum::Required => 'Required',
                             RequiredEnum::Optional => 'Optional',
                             RequiredEnum::NotPermitted => 'Not Permitted'),
-  
+
   'en.required.address' => array(RequiredAddressFieldsEnum::CityState                    => 'City, State',
                                  RequiredAddressFieldsEnum::Country                      => 'Country',
                                  RequiredAddressFieldsEnum::Postal                       => 'ZIP/Postal Code',
                                  RequiredAddressFieldsEnum::Street                       => 'Street',
                                  RequiredAddressFieldsEnum::StreetCityStatePostal        => 'Street, City, State, ZIP/Postal Code',
                                  RequiredAddressFieldsEnum::StreetCityStatePostalCountry => 'Street, City, State, ZIP/Postal Code, Country'),
-  
+
   'en.required.name' => array(RequiredNameFieldsEnum::Given       => 'Given Name',
                               RequiredNameFieldsEnum::GivenFamily => 'Given Name, Family Name'),
-  
+
   'en.server' => array(
     ServerEnum::HttpServer   => 'HTTP',
     ServerEnum::KafkaServer  => 'Kafka',
@@ -923,7 +923,7 @@ The request may be viewed at
     ServerEnum::Oauth2Server => 'OAuth2',
     ServerEnum::SqlServer    => 'SQL'
   ),
-  
+
   'en.server.http.auth_type' => array(
     HttpServerAuthType::Basic   => 'Basic',
     HttpServerAuthType::Bearer  => 'Bearer',
@@ -946,7 +946,7 @@ The request may be viewed at
                                     SponsorEligibilityEnum::CoOrCouAdmin  => 'CO or COU Admin',
                                     SponsorEligibilityEnum::CoPerson      => 'Active CO Person',
                                     SponsorEligibilityEnum::None          => 'Disable Sponsors'),
-  
+
   'en.status' =>      array(StatusEnum::Active              => 'Active',
                             StatusEnum::Approved            => 'Approved',
                             StatusEnum::Confirmed           => 'Confirmed',
@@ -963,14 +963,14 @@ The request may be viewed at
                             StatusEnum::PendingConfirmation => 'Pending Confirmation',
                             StatusEnum::PendingVetting      => 'Pending Vetting',
                             StatusEnum::Suspended           => 'Suspended'),
-  
+
   'en.status.authr' => array(
     AuthenticatorStatusEnum::Active               => 'Active',
     AuthenticatorStatusEnum::Expired              => 'Expired',
     AuthenticatorStatusEnum::Locked               => 'Locked',
     AuthenticatorStatusEnum::NotSet               => 'Not Set'
   ),
-  
+
   'en.status.job' => array(
     JobStatusEnum::Canceled   => 'Canceled',
     JobStatusEnum::Complete   => 'Complete',
@@ -979,7 +979,7 @@ The request may be viewed at
     JobStatusEnum::Notice     => 'Notice',
     JobStatusEnum::Queued     => 'Queued'
   ),
-  
+
   'en.status.not' => array(
     NotificationStatusEnum::Acknowledged          => 'Acknowledged',
     NotificationStatusEnum::Canceled              => 'Canceled',
@@ -1001,9 +1001,9 @@ The request may be viewed at
 
   'en.status.org' => array(
     OrgIdentityStatusEnum::Removed => 'Removed',
-    OrgIdentityStatusEnum::Synced  => 'Synced' 
+    OrgIdentityStatusEnum::Synced  => 'Synced'
   ),
-  
+
   'en.status.prov' => array(
     ProvisionerModeEnum::AutomaticMode    => 'Automatic Mode',
     ProvisionerModeEnum::EnrollmentMode   => 'Enrollment Mode',
@@ -1012,7 +1012,7 @@ The request may be viewed at
     ProvisionerModeEnum::QueueOnErrorMode => 'Queue On Error Mode',
     ProvisionerModeEnum::Disabled         => 'Disabled'
   ),
-  
+
   'en.status.prov.desc' =>  'See <a href="https://spaces.at.internet2.edu/display/COmanage/Provisioning+From+Registry#ProvisioningFromRegistry-AddingaProvisioningTarget">the documentation</a> for mode information',
 
   'en.status.prov.target' => array(
@@ -1021,7 +1021,7 @@ The request may be viewed at
     ProvisioningStatusEnum::Queued         => 'Queued',
     ProvisioningStatusEnum::Unknown        => 'Unknown'
   ),
-  
+
   'en.status.pt' => array(
     PetitionStatusEnum::Active              => 'Active',
     PetitionStatusEnum::Approved            => 'Approved',
@@ -1035,12 +1035,12 @@ The request may be viewed at
     PetitionStatusEnum::PendingConfirmation => 'Pending Confirmation',
     PetitionStatusEnum::PendingVetting      => 'Pending Vetting'
   ),
-  
+
   'en.status.susp' => array(
     SuspendableStatusEnum::Active              => 'Active',
     SuspendableStatusEnum::Suspended           => 'Suspended'
   ),
-  
+
   'en.status.temp' => array(
     TemplateableStatusEnum::Active              => 'Active',
     TemplateableStatusEnum::Suspended           => 'Suspended',
@@ -1053,7 +1053,7 @@ The request may be viewed at
     TemplateableStatusEnum::Template            => 'Template',
     TemplateableStatusEnum::InTrash             => 'Pending Removal'
   ),
-  
+
   'en.status.tc' => array(
     TAndCStatusEnum::Agreed                 => 'Agreed',
     TAndCStatusEnum::Expired                => 'Expired',
@@ -1070,7 +1070,7 @@ The request may be viewed at
     VettingStatusEnum::PendingResult        => 'Pending Result',
     VettingStatusEnum::Requested            => 'Requested'
   ),
-  
+
   'en.sync.action' => array(
     SyncActionEnum::Add                     => 'Add',
     SyncActionEnum::Delete                  => 'Delete',
@@ -1078,14 +1078,14 @@ The request may be viewed at
     SyncActionEnum::Unlink                  => 'Unlink',
     SyncActionEnum::Update                  => 'Update'
   ),
-  
+
   'en.sync.mode' => array(
     SyncModeEnum::Full                      => 'Full',
     SyncModeEnum::Manual                    => 'Manual',
     SyncModeEnum::Query                     => 'Query',
     SyncModeEnum::Update                    => 'Update'
   ),
-  
+
   'en.sync.org.mode' => array(
     OrgSyncModeEnum::Accrual                => 'Accrual',
     OrgSyncModeEnum::Full                   => 'Full',
@@ -1107,14 +1107,14 @@ The request may be viewed at
     OrgIdentityMismatchEnum::CreateNew      => 'Create New Org Identity',
     OrgIdentityMismatchEnum::Ignore         => 'Ignore'
   ),
-  
+
   'en.tandc.mode.enroll' => array(
     TAndCEnrollmentModeEnum::ExplicitConsent => 'Explicit Consent',
     TAndCEnrollmentModeEnum::ImpliedConsent  => 'Implied Consent',
     TAndCEnrollmentModeEnum::SplashPage      => 'Splash Page',
     TAndCEnrollmentModeEnum::Ignore          => 'Ignore'
   ),
-  
+
   'en.tandc.mode.login' => array(
     TAndCLoginModeEnum::NotEnforced          => 'Do Not Enforce',
     TAndCLoginModeEnum::RegistryLogin        => 'Require At Registry Login'
@@ -1127,20 +1127,20 @@ The request may be viewed at
                                       ContactEnum::Home => 'Home',
                                       ContactEnum::Mobile => 'Mobile',
                                       ContactEnum::Office => 'Office'),
-  
+
   // Extended type, key must be en.model.attribute
   'en.url.type' => array(
     UrlEnum::Official => 'Official',
     UrlEnum::Personal => 'Personal',
   ),
-  
+
   'en.visibility' => array(
     VisibilityEnum::CoAdmin         => 'CO Admin',
     VisibilityEnum::CoGroupMember   => 'CO Group Member',
     VisibilityEnum::CoMember        => 'CO Member',
     VisibilityEnum::Unauthenticated => 'Unauthenticated Users'
   ),
-  
+
   // Errors
   'er.http.ajax' => 'The server threw the  error %1$s when trying to obtain resource %2$s. Please report this to your administrator for assistance.',
   'er.http.401' => 'HTTP 401 Unauthorized',
@@ -1405,7 +1405,7 @@ The request may be viewed at
   'er.vetting.ef' =>  'Enrollment Flow %1$s does not require approval, cannot reenter flow for CO Petition %2$s',
   'er.vetting.plugin' => 'Unexpected response received from plugin',
   'er.vetting.status' => 'Vetting Request %1$s is not in Requested status (%2$s)',
-  
+
   'et.default' =>     'There are no Extended Types currently defined for this attribute. The default types are currently in use. When you create a new Extended Type, the default types will automatically be added to this list.',
 
   // Fields. Field names should match data model names to facilitate various auto-rendering.
@@ -1805,6 +1805,7 @@ The request may be viewed at
   'fd.identity_documents.subject' => 'Subject',
   'fd.identity_documents.subject.desc' => 'The subject (CO Person) name on the Identity Document',
   'fd.identity_documents.verification_method' => 'Verification Method',
+  'fd.identity_documents.verifier_comment' => 'Verifier Comment',
   'fd.identity_documents.verifier_identifier' => 'Verifier Identifier',
   'fd.ids' =>         'Identifiers',
   'fd.inactive' =>    'Inactive',
@@ -2266,7 +2267,7 @@ The request may be viewed at
   'in.tpl.msg.test'    => 'Provide a valid email to forward a preview of the template.',
   'in.vet.review'      => 'Please review the pending request and approve or deny it',
   'in.widgets.none'    => 'No widgets have been created for this dashboard yet.',
-  
+
   // Menu
   'me.account'         => 'My Account',
   'me.changepassword'  => 'Change Password',
@@ -2305,7 +2306,7 @@ The request may be viewed at
   'me.alpha'       => range('a','z'),
   'me.alpha.label' => 'filter people by first letter of family name',
   'me.filter.field' => 'filter by %1$s',
-  
+
   // Job related messages
   'jb.ois.sync.full.finish' => 'Sync of new org identities from source complete',
   'jb.ois.sync.full.start' => 'Beginning sync of new org identities from source (%1$s in source; %2$s already known, %3$s new)',
@@ -2422,7 +2423,7 @@ The request may be viewed at
   'op.gr.add.nested.source' => 'Add Source Group',
   'op.gr.memadd' =>   'Manage %1$s Group Memberships',
   'op.gr.reconcile' => 'Reconcile',
-  'op.gr.reconcile.all' => 'Reconcile All Members Groups',      
+  'op.gr.reconcile.all' => 'Reconcile All Members Groups',
   'op.gr.reconcile.all.confirm' => 'Are you sure you wish to reconcile all members groups?',
   'op.gr.reconcile.confirm' => 'Are you sure you wish to reconcile this group?',
   'op.gr.reconcile.wait' => 'Requesting reconcilation, please wait...',
@@ -2597,7 +2598,7 @@ The request may be viewed at
   'op.view.source' => 'View Source',
   'op.view-a' =>      'View %1$s',
   'op.view-f' =>      'View %1$s for %2$s',
-  
+
   // Results
   'rs.added' =>       'Added',
   'rs.added-a' =>     '"%1$s" Added',
@@ -2703,7 +2704,7 @@ The request may be viewed at
   'rs.pt.create' =>   'Petition Created',
   'rs.pt.create.from' => 'Petition created from enrollment flow "%1$s"',
   'rs.pt.create.not' => 'Petition created for %1$s from enrollment flow "%2$s"',
-  'rs.pt.create.self' => 'Petition Created. You may need to check your email for further information.', 
+  'rs.pt.create.self' => 'Petition Created. You may need to check your email for further information.',
   'rs.pt.deny' =>     'Petition Denied',
   'rs.pt.dupe' =>     'Petition Flagged as Duplicate',
   'rs.pt.final' =>    'Petition Finalized',
@@ -2754,9 +2755,9 @@ The request may be viewed at
   'rs.xp.match' =>    'Expiration Policy "%1$s" (%2$s) conditions matched',
   'rs.xp.role' =>     'Role Expired',
   'rs.xp.role-a' =>   '%1$s Role Expired',
-  
+
   // Setup
-  
+
   'se.already' =>         'Setup appears to have already run',
   'se.already.override' => 'Override with --force if you know what you are doing',
   'se.arg.admin.given' => 'Administrator\'s given name',
@@ -2783,9 +2784,9 @@ The request may be viewed at
   'se.security.seed.exists' => 'Security seed file already exists',
   'se.done' =>            'Setup complete',
   'se.users.view' =>      'Creating users view',
-  
+
   // Shell
-  
+
   'sh.bl.groups.auto' =>  'Recalculating automatic group memberships, this may take some time...',
   'sh.bl.indexes.off' =>  'Dropping table indexes...',
   'sh.bl.indexes.on' =>   'Recreating table indexes, this may take some time...',
@@ -2878,20 +2879,20 @@ $cm_texts_orig = $cm_texts;
 function _txt($key, $vars=null, $index=null)
 {
   global $cm_lang, $cm_texts;
-  
+
   if(!isset($cm_texts[$cm_lang][$key])) {
     // No entry found, just return the key itself (similar to __())
     return $key;
   }
-  
+
   // XXX need to figure out how to pass arbitrary # of args to sprintf
-  
+
   $s = (isset($index) ? $cm_texts[ $cm_lang ][$key][$index] : $cm_texts[ $cm_lang ][$key]);
-  
+
   if(!$vars) {
     return $s;
   }
-  
+
   switch(count($vars))
   {
   case 1:
@@ -2926,26 +2927,26 @@ function _txt($key, $vars=null, $index=null)
 function _bootstrap_plugin_txt()
 {
   global $cm_lang, $cm_texts, $cm_texts_orig;
-  
+
   $plugins = App::objects('plugin');
-  
+
   foreach($plugins as $plugin) {
     // Plugin lang files could be under APP or LOCAL
     foreach(array(APP, LOCAL) as $dir) {
       $langfile = $dir . '/Plugin/' . $plugin . '/Lib/lang.php';
-      
+
       if(is_readable($langfile)) {
         // Include the file
         include $langfile;
-        
+
         // And merge its texts for the current language
         $varName = 'cm_' . Inflector::underscore($plugin) . '_texts';
-        
+
         $cm_texts[$cm_lang] = array_merge($cm_texts[$cm_lang], ${$varName}[$cm_lang]);
-        
+
         // Copy to cm_texts_orig for localization purposes
         $cm_texts_orig[$cm_lang] = array_merge($cm_texts_orig[$cm_lang], ${$varName}[$cm_lang]);
-        
+
         break;
       }
     }

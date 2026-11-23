@@ -18,7 +18,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * @link          http://www.internet2.edu/comanage COmanage Project
  * @package       registry
  * @since         COmanage Registry v4.7.0
@@ -52,7 +52,7 @@ class SlipProofingsController extends StandardController {
 
   /**
    * Accept (assign to self) an Identity Proofing request.
-   * 
+   *
    * @since  COmanage Registry v4.7.0
    * @param  $id   SLIP Proofing ID
    */
@@ -96,7 +96,7 @@ class SlipProofingsController extends StandardController {
 
   /**
    * Calculate Identity Proofing status.
-   * 
+   *
    * @since  COmanage Registry v4.7.0
    */
 
@@ -148,7 +148,7 @@ class SlipProofingsController extends StandardController {
 
   /**
    * Cancel an Identity Proofing request.
-   * 
+   *
    * @since  COmanage Registry v4.7.0
    * @param  $id   SLIP Proofing ID
    */
@@ -261,7 +261,7 @@ class SlipProofingsController extends StandardController {
 
   /**
    * Request an Identity Vouching.
-   * 
+   *
    * @since  COmanage Registry v4.7.0
    * @param  $id   SLIP Proofing ID
    */
@@ -305,7 +305,7 @@ class SlipProofingsController extends StandardController {
 
   /**
    * Schedule an Identity Proofing request.
-   * 
+   *
    * @since  COmanage Registry v4.7.0
    * @param  $id   SLIP Proofing ID
    */
@@ -329,7 +329,7 @@ class SlipProofingsController extends StandardController {
 
   /**
    * Vouch for the Claimant of an Identity Proofing request.
-   * 
+   *
    * @since  COmanage Registry v4.7.0
    * @param  int   SLIP Proofing ID
    */
@@ -338,7 +338,7 @@ class SlipProofingsController extends StandardController {
     if(!empty($this->params->named['op'])) {
       try {
         $this->SlipProofing->vouch(
-          $id, 
+          $id,
           $this->Session->read('Auth.User.co_person_id'),
           $this->params->named['op'] == 'confirm'
         );
@@ -350,7 +350,7 @@ class SlipProofingsController extends StandardController {
       catch(Exception $e) {
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
       }
-      
+
       // We don't really have a place to send someone, so we just let the view render
       // so the flash renders, but with a hint to not render anything else.
       $this->set('vv_done', $this->params->named['op']);
@@ -362,6 +362,10 @@ class SlipProofingsController extends StandardController {
     $args['conditions']['SlipProofing.id'] = $id;
     $args['contain'] = $this->view_contains;
     $args['contain']['SlipIdentityDocument'] = 'IdentityDocument';
+    // Include names of the participants
+    $args['contain']['ClaimantCoPerson'] = 'PrimaryName';
+    $args['contain']['VoucherCoPerson'] = 'PrimaryName';
+    $args['contain']['RegistrarCoPerson'] = 'PrimaryName';
     // Note adding SlipAttachment will cause debug() to fail, since it seems to trip
     // over having binary data in the array
     $args['contain'][] = 'SlipAttachment';
@@ -379,13 +383,13 @@ class SlipProofingsController extends StandardController {
    * @since  COmanage Registry v4.7.0
    * @return Array Permissions
    */
-  
+
   function isAuthorized() {
     $roles = $this->Role->calculateCMRoles();
-    
+
     // Construct the permission set for this user, which will also be passed to the view.
     $p = array();
-    
+
     // Determine what operations this user can perform
 
     // The terminology is a bit inconsistent here, eg 'attach' is to manage Identity Documents,
@@ -422,7 +426,7 @@ class SlipProofingsController extends StandardController {
     // Validate Identity Proofing status
     // We use calculate instead of validate, since the latter is a cake function
     $p['calculate'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar);
-    
+
     // Cancel an in-progress Proofing?
     $p['cancel'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar);
 
@@ -431,7 +435,7 @@ class SlipProofingsController extends StandardController {
 
     // Edit an existing SLIP Proofing?
     $p['edit'] = false;
-    
+
     // View all existing SLIP Proofing?
     $p['index'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar);
 
@@ -451,7 +455,7 @@ class SlipProofingsController extends StandardController {
     // We allow the Registrar to view this URL as a convenience, though they should not perform
     // the vouching unless they are assigned as the Voucher
     $p['vouch'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar || $isVoucher);
-    
+
     $this->set('permissions', $p);
     return($p[$this->action]);
   }
