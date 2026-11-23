@@ -42,7 +42,10 @@ class NamespaceAssignerSetting extends AppModel {
   public $displayField = "co_id";
   
   // We use HTTP servers for configuration
-  public $cmServerType = ServerEnum::HttpServer;
+  public $cmServerType = array(
+    ServerEnum::HttpServer,
+    ServerEnum::Oauth2Server
+  );
   
   // Validation rules for table elements
   public $validate = array(
