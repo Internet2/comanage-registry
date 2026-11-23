@@ -30,3 +30,8 @@ class MetadataProtocol
   const File  = "F";
   const MDQ   = "MQ";
 }
+
+class MdqProtocol
+{
+  const IdpsOnly   = "IO";
+}

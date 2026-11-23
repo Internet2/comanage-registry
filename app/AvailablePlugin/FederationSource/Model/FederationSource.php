@@ -63,6 +63,12 @@ class FederationSource extends OrganizationSourceBackend {
                             MetadataProtocol::MDQ)),
       'required' => true,
       'allowEmpty' => false
+    ),
+    'entities' => array(
+      'rule' => array('inList',
+                      array(MdqProtocol::IdpsOnly)),
+      'required' => false,
+      'allowEmpty' => true
     )
   );
 
@@ -107,22 +113,23 @@ class FederationSource extends OrganizationSourceBackend {
 
     $Http->setBaseUrl($srvr['HttpServer']['serverurl']);
 
-    if($cfg['FederationSource']['protocol'] == MetadataProtocol::MDQ) {
+    $url = '';
+    if($cfg['FederationSource']['protocol'] === MetadataProtocol::MDQ) {
       $Http->setRequestOptions(array(
         'header' => array(
           'Content-Type'  => 'application/samlmetadata+xml'
         )
       ));
 
-      $url = "/entities/";
+      // CO-2883
+      // https://datatracker.ietf.org/doc/html/draft-young-md-query-22#name-request-all-entities
+      $url = '/entities';
       
       if($entityID) {
-        $url .= urlencode($entityID);
-      } else {
-        $url .= "idps/all";
+        $url .= '/' . urlencode($entityID);
+      } elseif($cfg['FederationSource']['entities'] === MdqProtocol::IdpsOnly) {
+        $url .= '/idps/all';
       }
-    } else {
-      $url = "";
     }
 
     return $Http->get($url);
