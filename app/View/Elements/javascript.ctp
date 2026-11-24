@@ -130,16 +130,6 @@
       }
     });
 
-    // Catch the edge-case of browser resize causing menu-drawer
-    // to remain hidden and vice versa.
-    $(window).resize(function() {
-      if($( window ).width() > 767) {
-        $("#navigation-drawer").show();
-      } else {
-        $("#navigation-drawer").hide();
-      }
-    });
-
     // Desktop half-closed drawer behavior & expandable menu items
     $('#navigation-drawer a.menuTop').click(function () {
       if($("#navigation-drawer").hasClass("half-closed") && $(this).attr("aria-expanded") == "true") {

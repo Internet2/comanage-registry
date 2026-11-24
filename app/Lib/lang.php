@@ -1805,6 +1805,7 @@ The request may be viewed at
   'fd.identity_documents.subject' => 'Subject',
   'fd.identity_documents.subject.desc' => 'The subject (CO Person) name on the Identity Document',
   'fd.identity_documents.verification_method' => 'Verification Method',
+  'fd.identity_documents.verifier_comment' => 'Verifier Comment',
   'fd.identity_documents.verifier_identifier' => 'Verifier Identifier',
   'fd.ids' =>         'Identifiers',
   'fd.inactive' =>    'Inactive',

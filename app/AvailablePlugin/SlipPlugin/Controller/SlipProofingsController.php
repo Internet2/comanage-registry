@@ -362,6 +362,10 @@ class SlipProofingsController extends StandardController {
     $args['conditions']['SlipProofing.id'] = $id;
     $args['contain'] = $this->view_contains;
     $args['contain']['SlipIdentityDocument'] = 'IdentityDocument';
+    // Include names of the participants
+    $args['contain']['ClaimantCoPerson'] = 'PrimaryName';
+    $args['contain']['VoucherCoPerson'] = 'PrimaryName';
+    $args['contain']['RegistrarCoPerson'] = 'PrimaryName';
     // Note adding SlipAttachment will cause debug() to fail, since it seems to trip
     // over having binary data in the array
     $args['contain'][] = 'SlipAttachment';

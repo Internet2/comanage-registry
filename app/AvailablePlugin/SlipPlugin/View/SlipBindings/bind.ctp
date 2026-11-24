@@ -26,6 +26,7 @@
  */
 
 ?>
+<h1><?php print _txt('pl.slipplugin.request.title'); ?></h1>
 <?php if(empty($slip_binding)
          || empty($slip_binding['SlipBinding']['code'])
          || ($slip_binding['SlipBinding']['status'] != SlipBindingStatusEnum::PendingVerification)): ?>

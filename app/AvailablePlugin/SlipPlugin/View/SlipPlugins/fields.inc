@@ -67,6 +67,18 @@
   <em class="material-icons">info</em>
   <div class="co-info-topbox-text">
     <?php print _txt('pl.slipplugin.start.url', array($start_url)); ?>
+    <?php
+    // copy URL button
+    print $this->Form->button('<em class="material-icons" aria-hidden="true">content_copy</em> ' ._txt('op.copy.url'),
+    array(
+      'onclick' => "copyValue('" . $start_url . "', this, '" . _txt('op.copy.value') . "', '" . _txt('op.copy.value.ok') . "')",
+      'aria-label' => _txt('op.copy.value'),
+      'class' => 'ml-2 cm-copy-value-button cm-hover-button btn btn-sm btn-primary',
+      'type' => 'button',
+      'escape' => false
+      )
+    ) . "\n";
+    ?>
   </div>
 </div>
 <ul id="<?php print $this->action; ?>_slip_plugin" class="fields form-list form-list-admin">

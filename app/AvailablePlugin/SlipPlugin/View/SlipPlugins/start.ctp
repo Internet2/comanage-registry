@@ -35,14 +35,18 @@ print $this->element("pageTitleAndButtons", $params);
 
 if(!empty($this->request->params['named']['op']) 
    && $this->request->params['named']['op'] == 'initiated') {
-  print '<div id="slipIntro">';
+  print '<div id="slip-intro">';
+  print '<p>';
   print _txt('pl.slipplugin.initiated');
+  print '</p>';
   print '</div>';
 } else {
-  print '<div id="slipIntro">';
+  print '<div id="slip-intro" class="with-slip-buttons">';
+  print '<p>';
   print _txt('pl.slipplugin.start');
-  print '</div>';
+  print '</p>';
 
+  print '<div class="slip-buttons">';
   print $this->Html->Link(
     _txt('op.begin') . ' <em class="material-icons">forward</em>',
     array(
@@ -50,8 +54,10 @@ if(!empty($this->request->params['named']['op'])
       'op' => 'go'
     ),
     array(
-      'class' => 'co-button enrollmentFlowStartButton btn btn-primary',
+      'class' => 'co-button btn btn-primary btn-sm spin',
       'escape' => false
     )
   );
+  print '</div>';
+  print '</div>';
 }

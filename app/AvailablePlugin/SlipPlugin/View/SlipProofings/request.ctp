@@ -206,4 +206,4 @@
     </div>
   </li>
 </ul>
-<? print $this->Form->end();
+<?php print $this->Form->end();
