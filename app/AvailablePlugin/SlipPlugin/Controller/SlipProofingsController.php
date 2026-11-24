@@ -34,6 +34,20 @@ class SlipProofingsController extends StandardController {
   // Establish pagination parameters for HTML views
   public $paginate = array(
     'limit' => 25,
+    'link' => array(
+      'ClaimantPrimaryName' => array(
+        'class' => 'Name',
+        'conditions' => array(
+          'exactly' => 'ClaimantPrimaryName.co_person_id = SlipProofing.co_person_id AND ClaimantPrimaryName.primary_name = true'
+        )
+      ),
+      'RegistrarPrimaryName' => array(
+        'class' => 'Name',
+        'conditions' => array(
+          'exactly' => 'RegistrarPrimaryName.co_person_id = SlipProofing.registrar_co_person_id AND RegistrarPrimaryName.primary_name = true'
+        )
+      )
+    ),
     'order' => array(
       'modified' => 'desc'
     )
@@ -182,7 +196,9 @@ class SlipProofingsController extends StandardController {
   protected function calculateImpliedCoId($data = null) {
     $spid = null;
 
-    if($this->action == 'index' && !empty($this->params->named['co'])) {
+    if($this->action == 'index' 
+      && empty($this->params->named['spid']) 
+      && !empty($this->params->named['co'])) {
       // The menuing will inject a CO ID, but we need a Slip Plugin ID
 
       $cfgId = $this->SlipProofing->SlipPlugin->getConfigId($this->params->named['co']);
@@ -247,13 +263,51 @@ class SlipProofingsController extends StandardController {
 
   function paginationConditions() {
     $ret = array();
+    $named = $this->params['named'];
 
-    if(!empty($this->params['named']['spid'])) {
-      $ret['conditions']['SlipProofing.slip_plugin_id'] = $this->params['named']['spid'];
+    // Constrain to the requested SLIP Plugin configuration
+    if(!empty($named['spid'])) {
+      $ret['conditions']['SlipProofing.slip_plugin_id'] = $named['spid'];
     }
 
-    if(!empty($this->params['named']['coperson'])) {
-      $ret['conditions']['SlipProofing.co_person_id'] = $this->params['named']['coperson'];
+    // Constrain to a specific Claimant
+    if(!empty($named['coperson'])) {
+      $ret['conditions']['SlipProofing.co_person_id'] = $named['coperson'];
+    }
+
+    // Filter by status
+    if(!empty($named['search.status'])) {
+      $ret['conditions']['SlipProofing.status'] = urldecode($named['search.status']);
+    }
+
+    // Filter by ID
+    if(!empty($named['search.id'])) {
+      $ret['conditions']['SlipProofing.id'] = (int)$named['search.id'];
+    }
+
+    // Filter by Claimant or Registrar name. The aliases are joined via
+    // Linkable (see $paginate['link'])
+    $nameSearches = array(
+      'search.claimant_name'  => 'ClaimantPrimaryName',
+      'search.registrar_name' => 'RegistrarPrimaryName',
+    );
+
+    foreach($nameSearches as $param => $alias) {
+      if(empty($named[$param])) {
+        continue;
+      }
+
+      // Each token must match given or family name
+      $term = trim(strtolower(urldecode($named[$param])));
+
+      foreach(preg_split('/\s+/', $term) as $t) {
+        $ret['conditions']['AND'][] = array(
+          'OR' => array(
+            "LOWER($alias.given) LIKE"  => "%$t%",
+            "LOWER($alias.family) LIKE" => "%$t%",
+          )
+        );
+      }
     }
 
     return $ret;
@@ -325,6 +379,37 @@ class SlipProofingsController extends StandardController {
       'action' => 'view',
       $id
     ));
+  }
+
+  /**
+   * Search Block fields configuration
+   *
+   * @since  COmanage Registry v4.7.0
+   */
+  
+  public function searchConfig($action) {
+    if($action === 'index') {  // Index
+      return array(
+        'search.status' => array(
+          'label'   => _txt('fd.status'),
+          'type'    => 'select',
+          'empty'   => _txt('op.select.all'),
+          'options' => _txt('pl.slipplugin.en.status'),
+        ),
+        'search.claimant_name' => array(
+          'label' => _txt('pl.slipplugin.co_person_id'),
+          'type'  => 'text',
+        ),
+        'search.registrar_name' => array(
+          'label' => _txt('pl.slipplugin.registrar_co_person_id'),
+          'type'  => 'text',
+        ),
+        'search.id' => array(
+          'label' => _txt('fd.id.seq'),
+          'type'  => 'text',
+        ),
+      );
+    }
   }
 
   /**
@@ -444,6 +529,9 @@ class SlipProofingsController extends StandardController {
 
     // Schedule a Proofing Request
     $p['schedule'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar);
+
+    // Search/Filter the SLIP index
+    $p['search'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar);
 
     // Manage Attachments?
     $p['upload'] = ($roles['cmadmin'] || $roles['coadmin'] || $isRegistrar);
