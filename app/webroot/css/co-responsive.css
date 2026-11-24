@@ -620,6 +620,10 @@
   #reconcile-table td:nth-child(2) {
     left: 125px;
   }
+  /* SLIP PLUGIN */
+  table.slip-table th {
+    width: 220px;
+  }
   /* FOOTER */
   #co-footer,
   body.co_petitions.petitionerAttributes.logged-out #co-footer {
@@ -688,6 +692,10 @@
   /* Self-Service Widgets (.cm-ssw) */
   .cm-ssw-form-field-email {
     width: 30vw;
+  }
+  /* SLIP PLUGIN */
+  table.slip-table th {
+    width: 300px;
   }
 }
 

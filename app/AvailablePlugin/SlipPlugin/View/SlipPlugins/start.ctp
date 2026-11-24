@@ -54,7 +54,7 @@ if(!empty($this->request->params['named']['op'])
       'op' => 'go'
     ),
     array(
-      'class' => 'co-button btn btn-primary spin',
+      'class' => 'co-button btn btn-primary btn-sm spin',
       'escape' => false
     )
   );
