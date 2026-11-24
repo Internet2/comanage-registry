@@ -1236,6 +1236,7 @@ The request may be viewed at
   'er.fields.api' =>  'Invalid fields: %1$s',
   'er.fields.api.co' => '"%1$s" may not refer to another CO',
   'er.file.none' =>   'No file specified',
+  'er.file.none.size' => 'Either no file was found, or the file is larger than the system\'s accepted limit (%1$s).',
   'er.file.parse' =>  'Unable to parse "%1$s"',
   'er.file.read' =>   'Unable to open "%1$s" for reading',
   'er.file.write' =>  'Unable to open "%1$s" for writing',
