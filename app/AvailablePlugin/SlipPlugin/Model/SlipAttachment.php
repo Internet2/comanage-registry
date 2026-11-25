@@ -69,6 +69,14 @@ class SlipAttachment extends AppModel {
     )
   );
 
+  // Image types we allow (and the only ones the vouch view will render)
+  const ALLOWED_MIME_TYPES = array(
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp'
+  );
+
   /**
    * Add a SLIP Attachment from a file upload.
    * 
@@ -81,29 +89,45 @@ class SlipAttachment extends AppModel {
    */
 
   public function addFromUpload($slipProofingId, $description, $uploadData) {
-    // XXX We should probably check for $upload['error'] and maybe have a limit on $uploadData['size']
+    if(empty($uploadData['tmp_name'])
+      || (isset($uploadData['error']) && $uploadData['error'] === UPLOAD_ERR_NO_FILE)) {
+      throw new RuntimeException(_txt('er.file.none.size',array(ini_get('upload_max_filesize'))));
+    }
 
-    if(empty($uploadData['tmp_name'])) {
-      throw new RuntimeException(_txt('er.file.none'));
+    // Check for upload errors. Size is enforced by PHP's upload_max_filesize.
+    if(isset($uploadData['error']) && $uploadData['error'] !== UPLOAD_ERR_OK) {
+      if(in_array($uploadData['error'], array(UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE), true)) {
+        throw new InvalidArgumentException(_txt('er.slipplugin.file.size', array(ini_get('upload_max_filesize'))));
+      }
+
+      throw new RuntimeException(_txt('er.file.read', array($uploadData['name'])));
+    }
+
+    // Reject empty files
+    if(empty($uploadData['size'])) {
+      throw new InvalidArgumentException(_txt('er.slipplugin.file.empty', array($uploadData['name'])));
+    }
+
+    // Determine the MIME type from the file contents, not the browser-supplied type
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($uploadData['tmp_name']);
+
+    if(!in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
+      throw new InvalidArgumentException(_txt('er.slipplugin.file.type', array($mimeType)));
     }
 
     $contents = file_get_contents($uploadData['tmp_name']);
 
     if(!$contents) {
-      throw new InvalidArgumentException(_txt('er.file.read', array($uploadData['tmp_name'])));
+      throw new InvalidArgumentException(_txt('er.file.read', array($uploadData['name'])));
     }
 
     $attachment = array(
       'slip_proofing_id'  => $slipProofingId,
       'description'       => $description,
-      // We don't currently filter on mime type, though we could
-      'mime_type'         => $uploadData['type'],
+      'mime_type'         => $mimeType,
       'file_contents'     => $contents
     );
-
-    if(empty($attachment['file_contents'])) {
-      throw new RuntimeException(_txt('er.file.read', array($uploadData['tmp_name'])));
-    }
 
     $this->clear();
 

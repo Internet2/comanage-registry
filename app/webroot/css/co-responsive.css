@@ -268,11 +268,6 @@
     right: 0;
     width: 70%;
   }
-  /* SLIP PLUGIN */
-  #vouch-slip_vouching-identity-documents li,
-  #vouch-slip_vouching-requests-attachments li {
-    display: flex;
-  }
   /* PAGINATION */
   #pagination {
     text-align: left;

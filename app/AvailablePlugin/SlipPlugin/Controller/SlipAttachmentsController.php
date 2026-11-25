@@ -75,6 +75,7 @@ class SlipAttachmentsController extends StandardController {
         ));
       }
       catch(Exception $e) {
+        $this->set('title_for_layout', _txt('op.add.new', array(_txt('ct.slip_attachments.1'))));
         $this->Flash->set($e->getMessage(), array('key' => 'error'));
       }
     } else {

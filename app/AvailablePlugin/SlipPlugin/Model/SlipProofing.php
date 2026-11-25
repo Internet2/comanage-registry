@@ -27,7 +27,9 @@
 
 class SlipProofing extends AppModel {
   // Add behaviors
-  public $actsAs = array('Containable', 'Changelog' => array('priority' => 5));
+  public $actsAs = array('Containable', 
+                         'Linkable.Linkable' => array('priority' => 4), 
+                         'Changelog' => array('priority' => 5));
   
   // Association rules from this model to other models
   public $belongsTo = array(

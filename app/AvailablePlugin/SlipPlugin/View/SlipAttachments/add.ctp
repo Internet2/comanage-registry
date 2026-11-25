@@ -105,6 +105,13 @@
                              array('default' => $this->request->params['named']['sprid'])) . "\n";
 ?>
 
+<div class="co-info-topbox">
+  <em class="material-icons">info</em>
+  <div class="co-info-topbox-text">
+    <?php print _txt('pl.slipplugin.upload.mime.warning'); ?>
+  </div>
+</div>
+
 <?php if($e): ?>
   <ul id="add_slip_attachment_upload" class="fields form-list">
     <li>

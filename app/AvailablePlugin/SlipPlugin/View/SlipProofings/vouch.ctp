@@ -241,7 +241,7 @@
     </li>
   <?php endforeach; ?>
   <?php if(count($slip_proofings[0]['SlipAttachment']) == 0): ?>
-    <li><?php print _txt('pl.slipplugin.upload.none'); ?></li>
+    <li><?php print _txt('pl.slipplugin.attach.none'); ?></li>
   <?php endif; ?>
 </ul>
 
@@ -263,23 +263,11 @@
         </div>
       </div>
       <div class="field-info">
-        <?php
-          $attachementLink = $this->Html->url(
-            array(
-              'plugin'     => 'slip_plugin',
-              'controller' => 'slip_attachments',
-              'action'     => 'deliver',
-              $attachment['id']
-            )
-          );
-        ?>
-        <a href="<?php print $attachementLink?>">
-          <?php if(in_array($attachment['mime_type'], $imageMimeTypes, true)): ?>
-            <img src="data:<?php print filter_var($attachment['mime_type'], FILTER_SANITIZE_SPECIAL_CHARS); ?>;base64,<?php echo base64_encode($attachment['file_contents']); ?>"
-              class="slip-image" alt="<?php print _txt('ct.slip_attachments.1'); ?>" />
-          <?php endif; ?>
-          <?php print _txt('op.view'); ?>
-        </a>
+        <?php if(in_array($attachment['mime_type'], $imageMimeTypes, true)): ?>
+          <img src="data:<?php print filter_var($attachment['mime_type'], FILTER_SANITIZE_SPECIAL_CHARS); ?>;base64,<?php echo base64_encode($attachment['file_contents']); ?>"
+            class="slip-image" alt="<?php print _txt('ct.slip_attachments.1'); ?>" />
+        <?php endif; ?>
+        <?php print filter_var($attachment['description'], FILTER_SANITIZE_SPECIAL_CHARS); ?>
       </div>
     </li>
   <?php endforeach; ?>
